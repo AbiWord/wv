@@ -33,6 +33,10 @@ your version of this file under either the MPL or the GPL.
 
 #include <windows.h>
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
   return TRUE;
