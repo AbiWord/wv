@@ -37,6 +37,11 @@
 #ifdef HAVE_UNISTD_H 
 #include <unistd.h>
 #else
+#ifndef __OpenBSD__
+#include <io.h>
+#else
+#include <sys/uio.h>
+#endif
 #include <io.h> 
 #define S_IRUSR 0000400 
 #define S_IWUSR 0000200 
