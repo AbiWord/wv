@@ -2091,6 +2091,8 @@ wvApplysprmCMajority50 (CHP * achp, STSH * stsh, U8 * pointer, U16 * pos)
 	achp->fVanish = orig.fVanish;
     if (achp->dxaSpace == base.dxaSpace)
 	achp->dxaSpace = orig.dxaSpace;
+
+    wvFree (upxf.upx.chpx.grpprl); /* this seemed to be missing... */
 }
 
 void

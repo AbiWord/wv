@@ -30,7 +30,7 @@ wvAddCHPXFromBucket (CHP * achp, UPXF * upxf, STSH * stsh)
     fprintf (stderr, "\n");
     i = 0;
 #endif
-    while (i < upxf->cbUPX - 2)
+    while (i + 2 < upxf->cbUPX) /* is this check sufficient ?? */
       {
 	  sprm = bread_16ubit (upxf->upx.chpx.grpprl + i, &i);
 #ifdef SPRMTEST
@@ -689,8 +689,8 @@ wvAssembleSimpleCHP (wvVersion ver, CHP * achp, U32 fc, CHPX_FKP * fkp,
     if ((chpx) && (chpx->cbGrpprl > 0))
       {
 	  ret = 1;
-	  for (i = 0; i < chpx->cbGrpprl; i++)
-	      upxf.cbUPX = chpx->cbGrpprl;
+	  /* for (i = 0; i < chpx->cbGrpprl; i++) */
+	  upxf.cbUPX = chpx->cbGrpprl;
 	  upxf.upx.chpx.grpprl = chpx->grpprl;
 	  if (ver == WORD8)
 	      wvAddCHPXFromBucket (achp, &upxf, stsh);
