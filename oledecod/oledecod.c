@@ -262,6 +262,7 @@ OLEdecode (FILE *input, pps_entry ** stream_list, U32 * root,
       if (pps_list[i].type == 5)
 	{
 	  assert (i == 0);
+	  strcpy(pps_list[i].name,"Root Entry");
 	  *root = i;		/* this pps is the root */
 	}
 
