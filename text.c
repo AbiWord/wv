@@ -577,8 +577,12 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 			that signify soft hyphens and those that signify
 			word-connection hyphens? wvware should be able
 			to as well. -- MV 8.7.2000
+	
+			U+2013 is the en-dash character and not a soft
+			hyphen. Soft hyphen is U+00AD. Changing to
+			"--". -- 2000-08-11 huftis@bigfoot.com
 			*/
-			printf("\\-"); 
+			printf("--"); 
 			return(1);
 		case 12:
 		case 13:
@@ -587,6 +591,9 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 			return(1);
 		case 34:
 			printf("\"");
+			return(1);
+		case 36:
+			printf("\\$"); /* MV 14.8.2000 */
 			return(1);
 		case 38:
 			printf("\\&"); /* MV 1.7.2000 */
@@ -601,6 +608,9 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x2019:
 			printf("'");  /* Right single quote, Win */
 			return(1);
+		case 0x2026:
+			printf("\\ldots"); /* ellipsis */
+			return(1);
 		case 0x2215:
 			printf("/");
 			return(1);
@@ -612,16 +622,357 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 			printf("`");  /* left single quote, Win */
 			return(1);
 
+	/* Added some new Unicode characters. It's probably difficult
+           to write these characters in AbiWord, though ... :(
+           -- 2000-08-11 huftis@bigfoot.com */
+
+		case 0x0100:
+			printf("\\=A"); /* A with macron */
+			return(1);
+		case 0x0101:
+			printf("\\=a");  /* a with macron */
+			return(1);
+		case 0x0102:
+			printf("\\u{A}");  /* A with breve */
+			return(1);
+		case 0x0103:
+			printf("\\u{a}");  /* a with breve */
+			return(1);
+
+		case 0x0106:
+			printf("\\'C");  /* C with acute */
+			return(1);
+		case 0x0107:
+			printf("\\'c");  /* c with acute */
+			return(1);
+		case 0x0108:
+			printf("\\^C");  /* C with circumflex */
+			return(1);
+		case 0x0109:
+			printf("\\^c");  /* c with circumflex */
+			return(1);
+		case 0x010A:
+			printf("\\.C");  /* C with dot above */
+			return(1);
+		case 0x010B:
+			printf("\\.c");  /* c with dot above */
+			return(1);
+		case 0x010C:
+			printf("\\v{C}");  /* C with caron */
+			return(1);
+		case 0x010D:
+			printf("\\v{c}");  /* c with caron */
+			return(1);
+		case 0x010E:
+			printf("\\v{D}");  /* D with caron */
+			return(1);
+		case 0x010F:
+			printf("\\v{d}");  /* d with caron */
+			return(1);
+		case 0x0110:
+			printf("\\DJ{}");  /* D with stroke */
+			return(1);
+		case 0x0111:
+			printf("\\dj{}");  /* d with stroke */
+			return(1);
+		case 0x0112:
+			printf("\\=E");  /* E with macron */
+			return(1);
+		case 0x0113:
+			printf("\\=e");  /* e with macron */
+			return(1);
+		case 0x0114:
+			printf("\\u{E}");  /* E with breve */
+			return(1);
+		case 0x0115:
+			printf("\\u{e}");  /* e with breve */
+			return(1);
+		case 0x0116:
+			printf("\\.E");  /* E with dot above */
+			return(1);
+		case 0x0117:
+			printf("\\.e");  /* e with dot above */
+			return(1);
+
+		case 0x011A:
+			printf("\\v{E}");  /* E with caron */
+			return(1);
+		case 0x011B:
+			printf("\\v{e}");  /* e with caron */
+			return(1);
+		case 0x011C:
+			printf("\\^G");  /* G with circumflex */
+			return(1);
+		case 0x011D:
+			printf("\\^g");  /* g with circumflex */
+			return(1);
+		case 0x011E:
+			printf("\\u{G}");  /* G with breve */
+			return(1);
+		case 0x011F:
+			printf("\\u{g}");  /* g with breve */
+			return(1);
+		case 0x0120:
+			printf("\\.G");  /* G with dot above */
+			return(1);
+		case 0x0121:
+			printf("\\u{g}");  /* g with dot above */
+			return(1);
+		case 0x0122:
+			printf("^H");  /* H with circumflex */
+			return(1);
+		case 0x0123:
+			printf("^h");  /* h with circumflex */
+			return(1);
+
+		case 0x0128:
+			printf("\\~I");  /* I with tilde */
+			return(1);
+		case 0x0129:
+			printf("\\~{\\i}");  /* i with tilde (dotless) */
+			return(1);
+		case 0x012A:
+			printf("\\=I");  /* I with macron */
+			return(1);
+		case 0x012B:
+			printf("\\={\\i}");  /* i with macron (dotless) */
+			return(1);
+		case 0x012C:
+			printf("\\u{I}");  /* I with breve */
+			return(1);
+		case 0x012D:
+			printf("\\u{\\i}");  /* i with breve */
+			return(1);
+
+		case 0x0130:
+			printf("\\.I");  /* I with dot above */
+			return(1);
+		case 0x0131:
+			printf("\\i{}");  /* dotless i */
+			return(1);
+		case 0x0132:
+			printf("IJ");  /* IJ ligature */
+			return(1);
+		case 0x0133:
+			printf("ij");  /* ij ligature  */
+			return(1);
+		case 0x0134:
+			printf("\\^J");  /* J with circumflex (dotless) */
+			return(1);
+		case 0x0135:
+			printf("\\^{\\j}");  /* j with circumflex (dotless) */
+			return(1);
+		case 0x0136:
+			printf("\\c{K}");  /* K with cedilla */
+			return(1);
+		case 0x0137:
+			printf("\\c{k}");  /* k with cedilla */
+			return(1);
+
+		case 0x0138:
+			printf("k");  /* NOTE: Not the correct character (kra), but similar */
+			return(1);
+
+		case 0x0139:
+			printf("\\'L");  /* L with acute */
+			return(1);
+		case 0x013A:
+			printf("\\'l");  /* l with acute  */
+			return(1);
+		case 0x013B:
+			printf("\\c{L}");  /* L with cedilla */
+			return(1);
+		case 0x013C:
+			printf("\\c{l}");  /* l with cedilla */
+			return(1);
+		case 0x013D:
+			printf("\\v{L}");  /* L with caron */
+			return(1);
+		case 0x013E:
+			printf("\\v{l}");  /* l with caron */
+			return(1);
+
+		case 0x0141:
+			printf("\\L{}");  /* L with stroke */
+			return(1);
+		case 0x0142:
+			printf("\\l{}");  /* l with stroke  */
+			return(1);
+		case 0x0143:
+			printf("\\'N");  /* N with acute */
+			return(1);
+		case 0x0144:
+			printf("\\'n");  /* n with acute */
+			return(1);
+		case 0x0145:
+			printf("\\c{N}");  /* N with cedilla */
+			return(1);
+		case 0x0146:
+			printf("\\c{n}");  /* n with cedilla */
+			return(1);
+		case 0x0147:
+			printf("\\v{N}");  /* N with caron */
+			return(1);
+		case 0x0148:
+			printf("\\v{n}");  /* n with caron */
+			return(1);
+		case 0x0149:
+			printf("'n");  /* n preceed with apostroph  */
+			return(1);
+		case 0x014A:
+			printf("\\NG{}");  /* ENG character */
+			return(1);
+		case 0x014B:
+			printf("\\ng{}");  /* eng character */
+			return(1);
+		case 0x014C:
+			printf("\\=O");  /* O with macron */
+			return(1);
+		case 0x014D:
+			printf("\\=o");  /* o with macron */
+			return(1);
+		case 0x014E:
+			printf("\\u{O}");  /* O with breve */
+			return(1);
+		case 0x014F:
+			printf("\\u{o}");  /* o with breve */
+			return(1);
+		case 0x0150:
+			printf("\\H{O}");  /* O with double acute */
+			return(1);
+		case 0x0151:
+			printf("\\H{o}");  /* o with double acute */
+			return(1);
+		case 0x0152:
+			printf("\\OE{}");  /* OE ligature */
+			return(1);
+		case 0x0153:
+			printf("\\oe{}");  /* oe ligature */
+			return(1);
+		case 0x0154:
+			printf("\\'R");  /* R with acute */
+			return(1);
+		case 0x0155:
+			printf("\\'r");  /* r with acute */
+			return(1);
+		case 0x0156:
+			printf("\\c{R}");  /* R with cedilla */
+			return(1);
+		case 0x0157:
+			printf("\\c{r}");  /* r with cedilla */
+			return(1);
+		case 0x0158:
+			printf("\\v{R}");  /* R with caron */
+			return(1);
+		case 0x0159:
+			printf("\\v{r}");  /* r with caron */
+			return(1);
+		case 0x015A:
+			printf("\\'S");  /* S with acute */
+			return(1);
+		case 0x015B:
+			printf("\\'s");  /* s with acute */
+			return(1);
+		case 0x015C:
+			printf("\\^S");  /* S with circumflex */
+			return(1);
+		case 0x015D:
+			printf("\\^s");  /* c with circumflex */
+			return(1);
+		case 0x015E:
+			printf("\\c{S}");  /* S with cedilla */
+			return(1);
+		case 0x015F:
+			printf("\\c{s}");  /* s with cedilla */
+			return(1);
+		case 0x0160:
+			printf("\\v{S}");  /* S with caron */
+			return(1);
+		case 0x0161:
+			printf("\\v{s}");  /* s with caron */
+			return(1);
+		case 0x0162:
+			printf("\\c{T}");  /* T with cedilla */
+			return(1);
+		case 0x0163:
+			printf("\\c{t}");  /* t with cedilla */
+			return(1);
+		case 0x0164:
+			printf("\\v{T}");  /* T with caron */
+			return(1);
+		case 0x0165:
+			printf("\\v{t}");  /* t with caron */
+			return(1);
+
+		case 0x0168:
+			printf("\\~U");  /* U with tilde */
+			return(1);
+		case 0x0169:
+			printf("\\~u");  /* u with tilde */
+			return(1);
+		case 0x016A:
+			printf("\\=U");  /* U with macron */
+			return(1);
+		case 0x016B:
+			printf("\\=u");  /* u with macron */
+			return(1);
+		case 0x016C:
+			printf("\\u{U}");  /* U with breve */
+			return(1);
+		case 0x016D:
+			printf("\\u{u}");  /* u with breve */
+			return(1);
+		case 0x016E:
+			printf("\\r{U}");  /* U with ring above */
+			return(1);
+		case 0x016F:
+			printf("\\r{U}");  /* u with ring above */
+			return(1);
+		case 0x0170:
+			printf("\\H{U}");  /* U with double acute */
+			return(1);
+		case 0x0171:
+			printf("\\H{u}");  /* u with double acute */
+			return(1);
+
+		case 0x0174:
+			printf("\\^W");  /* W with circumflex */
+			return(1);
+		case 0x0175:
+			printf("\\^w");  /* w with circumflex */
+			return(1);
+		case 0x0176:
+			printf("\\^Y");  /* Y with circumflex */
+			return(1);
+		case 0x0177:
+			printf("\\^y");  /* y with circumflex */
+			return(1);
+		case 0x0178:
+			printf("\\\"Y");  /* Y with diaeresis */
+			return(1);
+		case 0x0179:
+			printf("\\'Z");  /* Z with acute */
+			return(1);
+		case 0x017A:
+			printf("\\'z");  /* z with acute */
+			return(1);
+		case 0x017B:
+			printf("\\.Z");  /* Z with dot above */
+			return(1);
+		case 0x017C:
+			printf("\\.z");  /* z with dot above */
+			return(1);
+		case 0x017D:
+			printf("\\v{Z}");  /* Z with caron */
+			return(1);
+		case 0x017E:
+			printf("\\v{z}");  /* z with caron */
+			return(1);
+
 	/* Windows specials (MV 4.7.2000). More could be added. 
 	See http://www.hut.fi/u/jkorpela/www/windows-chars.html
 	*/
 
-		case 0x0160:
-			printf("\\v S"); /* S-caron */
-			return(1);
-		case 0x0161:
-			printf("\\v s"); /* s-caron */
-			return(1);
 		case 0x2014:
 			printf("---"); /* em-dash */
 			return(1);
@@ -631,23 +982,17 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x201d:
 			printf("''");  /* double q.m. */
 			return(1);
+		case 0x201e:
+			printf("\\hbox{,,}");  /* below double q.m. */
+			return(1);
 		case 0x2020:
-			printf("\\dagger");  
+			printf("$\\dagger$");  
 			return(1);
 		case 0x2021:
-			printf("\\ddagger");  
+			printf("$\\ddagger$");  
 			return(1);
 		case 0x2022:
-			printf("\\bullet");  
-			return(1);
-		case 0x0152:
-			printf("\\OE{}");  /* OE ligature */
-			return(1);
-		case 0x0153:
-			printf("\\oe{}");  /* oe ligature */
-			return(1);
-		case 0x0178:
-			printf("\\\"Y;");
+			printf("$\\bullet$");  
 			return(1);
 		case 0x2030:
 			printf("o/oo");
@@ -715,7 +1060,7 @@ thing and just put ... instead of this
 			printf("&#133;");	
 /*is there a proper html name for ... &ellipse;? Yes, &hellip; -- MV */
 #endif
-			printf("...");	
+			printf("&hellip;");	
 			return(1);
 		case 0x2019:
 			printf("'");
@@ -746,6 +1091,9 @@ thing and just put ... instead of this
 		case 0x201d:
 			printf("&rdquo;");  /* double q.m. */
 			return(1);
+		case 0x201e:
+			printf("&bdquo;");  /* below double q.m. */
+			return(1);
 		case 0x2020:
 			printf("&dagger;");  
 			return(1);
@@ -772,6 +1120,8 @@ thing and just put ... instead of this
 			return(1);
 
 		}
+	/* Debugging aid: */
+	/* if (char16 >= 0x100) printf("[%x]", char16); */
 	return(0);
 	}
 

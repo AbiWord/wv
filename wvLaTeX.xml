@@ -345,14 +345,8 @@ border-bottom: thin <borderbottomstyle/> <borderbottomcolor/>
 
 <text>	
 <begin>
-\vspace{<mmParaBefore/>}
-\setlength{\parindent}{<mmParaLeft1/>}
-\setlength{\leftskip}{<mmParaLeft/>}
-\setlength{\rightskip}{<mmParaRight/>}
-</begin>
-<end>
-\vspace{<mmParaAfter/>}
-</end>
+
+</begin><end></end>
 </text>
 
 <picture>
