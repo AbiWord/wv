@@ -8,7 +8,9 @@ extern "C" {
 #ifdef WIN32
 #define strcasecmp(s1,s2) stricmp(s1,s2)
 #else
+#if !defined(__GLIBC__) || (__GLIBC__ < 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2)
 int strcasecmp(const char *s1, const char *s2);
+#endif
 #endif
 
 int getopt(int argc, char * const argv[], const char *optstring);

@@ -1,3 +1,4 @@
+#if !defined(__GLIBC__) || (__GLIBC__ < 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2)
 #include <ctype.h>
 #include <string.h>
 
@@ -11,3 +12,4 @@ int strcasecmp(const char *s1, const char *s2)
 			return(1);
 	return(0);		
 	}
+#endif
