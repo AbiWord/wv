@@ -98,7 +98,13 @@ CSRCS=	lex.yy.c \
         wvHtmlEngine.c \
         wvConfig.c \
         wvparse.c \
-        reasons.c
+        reasons.c \
+	sep.c \
+	tbd.c \
+	dogrid.c \
+	doptypography.c \
+	olst.c \
+	anlv.c
 
 CFLAGS+=		-I. -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
 LIBRARY_NAME=		Abi_libwv

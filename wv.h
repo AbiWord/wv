@@ -5,7 +5,12 @@ extern "C" {
 #endif
 
 /* redefs of things that are either in glibc or we have to imclude them ourselves*/
+#ifdef WIN32
+#define strcasecmp(s1,s2) stricmp(s1,s2)
+#else
 int strcasecmp(const char *s1, const char *s2);
+#endif
+
 int getopt(int argc, char * const argv[], const char *optstring);
 /* end redefs */
 
@@ -132,9 +137,11 @@ time_t wvDOSFS_FileTimeToUnixTime( const FILETIME *filetime, U32 *remainder );
 int wvFileTimeToDosDateTime(const FILETIME *ft, U16 *fatdate, U16 *fattime );
 /*Wine Portions End*/
 
+char * wvFmtMsg(char * fmt, ...);
+
 /** beginning of clean interface **/
-void wvRealError(char *file, int line,char *fmt, ...);
-#define wvError(fmt, args...) wvRealError(__FILE__,__LINE__,fmt, ## args)
+void wvRealError(char *file, int line, char *msg);
+#define wvError( args ) wvRealError(__FILE__,__LINE__, wvFmtMsg args )
 void wvWarning(char *fmt, ...);
 void wvFree(void *ptr);
 
@@ -2366,12 +2373,12 @@ you can set them to NULL to turn them off if necessary
 */
 void wvSetErrorStream(FILE *in);
 void wvSetWarnStream(FILE *in);
-void wvRealTrace(char *file, int line,char *fmt, ...);
+void wvRealTrace(char *file, int line, char *msg);
 
 #ifdef DEBUG
-#define wvTrace(fmt, args...) wvRealTrace(__FILE__,__LINE__,fmt, ## args)
+#define wvTrace( args ) wvRealTrace(__FILE__,__LINE__, wvFmtMsg args )
 #else
-#define wvTrace(fmt, args...)
+#define wvTrace( args )
 #endif
 
 void wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh);

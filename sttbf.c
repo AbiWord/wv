@@ -36,7 +36,7 @@ void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,FILE *fd)
 	anS->u16strings=NULL;
 	anS->extradata=NULL;
 
-	wvTrace("sttbf offset is %x,len %d\n",offset,len);
+	wvTrace(("sttbf offset is %x,len %d\n",offset,len));
 	if (len == 0)
 		{
 		anS->nostrings=0;
@@ -199,7 +199,7 @@ void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,FILE *fd)
 	anS->u16strings=NULL;
 	anS->extradata=NULL;
 
-	wvTrace("word 6 sttbf offset is %x,len %d\n",offset,len);
+	wvTrace(("word 6 sttbf offset is %x,len %d\n",offset,len));
 	if (len == 0)
 		{
 		anS->nostrings=0;
@@ -211,7 +211,7 @@ void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,FILE *fd)
 	anS->extradatalen = 0;
 	anS->s8strings = (S8 **)malloc(sizeof(S8 *)*anS->nostrings);
 	if (len != getc(fd))
-		wvTrace("word 6 sttbf len does not match up correctly, strange\n");
+		wvTrace(("word 6 sttbf len does not match up correctly, strange\n"));
 	for (i=0;i<anS->nostrings;i++)
 		{
 		slen = getc(fd);

@@ -546,21 +546,21 @@ FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
 		{
 		if (fib->fWhichTblStm)
 			{
-			wvTrace("1Table\n");
+			wvTrace(("1Table\n"));
 			ret = ps->tablefd1;
 			if (ret == NULL)
 				{
-				wvError("!!, the FIB lied to us, trying the other table stream, hold on to your seat\n");
+				wvError(("!!, the FIB lied to us, trying the other table stream, hold on to your seat\n"));
 				ret = ps->tablefd0;
 				}
 			}
 		else
 			{
-			wvTrace("0Table\n");
+			wvTrace(("0Table\n"));
 			ret = ps->tablefd0;
 			if (ret == NULL)
 				{
-				wvError("!!, the FIB lied to us, trying the other table stream, hold on to your seat\n");
+				wvError(("!!, the FIB lied to us, trying the other table stream, hold on to your seat\n"));
 				ret = ps->tablefd1;
 				}
 			}

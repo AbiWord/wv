@@ -27,14 +27,14 @@ int main(int argc,char **argv)
 	ret = wvOLEDecode(input,&mainfd,&tablefd0,&tablefd1,&data,&summary);
 	if (ret)
 		{
-		wvError("sorry problem with getting ole streams from %s\n",argv[1]);
+		wvError(("sorry problem with getting ole streams from %s\n",argv[1]));
 		return(2);
 		}
 
 	if (mainfd == NULL)
 		{
-		wvError("No WordDocument stream found, this is not a word document\n");
-		wvError("use wvSummary to try and determine the type of file\n");
+		wvError(("No WordDocument stream found, this is not a word document\n"));
+		wvError(("use wvSummary to try and determine the type of file\n"));
 		return(2);
 		}
 

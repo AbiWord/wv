@@ -81,7 +81,7 @@ void wvGetListInfo(pap *apap, chp *achp,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U32 nol
      	pertains to both formatting and start-at value, use the LVL record 
 		from the correct LFOLVL in the LFO, and skip to step 5.
 		*/
-		wvTrace("some overridden levels\n");
+		wvTrace(("some overridden levels\n"));
 
 		/* 
 		there are some levels overridden, find out if the level being overridden
@@ -135,7 +135,7 @@ void wvGetListInfo(pap *apap, chp *achp,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U32 nol
 		if there no overridden levels i assume that we 
 		search for the appropiate LST 
 		*/
-		wvTrace("no overridden levels\n");
+		wvTrace(("no overridden levels\n"));
 		alst = wvSearchLST(lfo[apap->ilfo].lsid,lst,noofLST);
 		}
 
@@ -192,7 +192,7 @@ void wvGetListInfo(pap *apap, chp *achp,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U32 nol
 			alst->lvl[apap->ilvl].lvlf.iStartAt = oldno;
 		}
 	else
-		wvError("No LST found for list\n");
+		wvError(("No LST found for list\n"));
 	}
 
 
@@ -216,7 +216,7 @@ U16 *wvListString(int ilfo,int ilvl,LST *alst)
 		wvWarning("Non-existent list level requested\n");
 		return(NULL);
 		}
-	wvTrace("nfc is %d\n",alst->lvl[ilvl].lvlf.nfc);
+	wvTrace(("nfc is %d\n",alst->lvl[ilvl].lvlf.nfc));
 	if (( alst->lvl[ilvl].numbertext != NULL) && (alst->lvl[ilvl].numbertext[0] != 0))
 		{
 		if (alst->lstf.fSimpleList)
@@ -339,7 +339,7 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 		a_list_info->lstarray = (U8 *) malloc(lcbPlcfLst);
 		if (a_list_info->lstarray == NULL)
 			{
-			wvError("no memory, lp\n");
+			wvError(("no memory, lp\n"));
 			exit(-1);
 			}
 		a_list_info->lstcount = lcbPlcfLst;
@@ -351,7 +351,7 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 		a_list_info->current_index_nos= (int **) malloc(sizeof(int*) * (a_list_info->nooflsts+1));
 		if (a_list_info->current_index_nos== NULL)
 			{
-			wvError("no memory here\n");
+			wvError(("no memory here\n"));
 			exit(-1);
 			}
 
@@ -363,7 +363,7 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 				{
 				if (a_list_info->current_index_nos[i]== NULL)
 					{
-					wvError("no memory here\n");
+					wvError(("no memory here\n"));
 					exit(-1);
 					}
 				for (j=0;j<9;j++)
@@ -374,7 +374,7 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 		a_list_info->o_lst_ids = (U32 *) malloc(sizeof(U32) * a_list_info->nooflsts);
 		if (a_list_info->o_lst_ids== NULL)
 			{
-			wvError("no memory here\n");
+			wvError(("no memory here\n"));
 			exit(-1);
 			}
 		for(k=0;k<a_list_info->nooflsts;k++)
@@ -383,7 +383,7 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 		a_list_info->level = (U8 *) malloc(a_list_info->nooflsts);
 		if (a_list_info->level == NULL)
 			{
-			wvError("no memory here\n");
+			wvError(("no memory here\n"));
 			exit(-1);
 			}
 
@@ -412,7 +412,7 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 		a_list_info->a_list_def = (list_def *)malloc(a_list_info->nooflsts*sizeof(list_def));
 		if (a_list_info->a_list_def == NULL)
 			{
-			wvError("no memory ppp\n");
+			wvError(("no memory ppp\n"));
 			exit(-1);
 			}
 		for (k=0;k<a_list_info->nooflsts;k++)
@@ -500,7 +500,7 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 
 			if (list_string == NULL)
 				{
-				wvError("no memory len %d\n",temp16);
+				wvError(("no memory len %d\n",temp16));
 				exit(-1);
 				}
 
@@ -558,7 +558,7 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 					tempdef = (list_def *)malloc(sizeof(list_def));
 					if (tempdef == NULL)
 						{
-						wvError("no memory ppp\n");
+						wvError(("no memory ppp\n"));
 						exit(-1);
 						}
 					tempdef->len = temp16;
@@ -604,7 +604,7 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 		}
 
 	/*temp b*/
-	wvTrace("fcPlfLfo is %x\n",fcPlfLfo);
+	wvTrace(("fcPlfLfo is %x\n",fcPlfLfo));
 	wvGetLFO_records(&a_list_info->lfo,&a_list_info->lfolvl,&a_list_info->lvl,&a_list_info->nolfo,
 	&a_list_info->nooflvl,fcPlfLfo,lcbPlfLfo,tablefd);
 	/*temp e*/
@@ -620,7 +620,7 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 		a_list_info->array = (U8 *) malloc(lcbPlfLfo);
 		if (a_list_info->array == NULL)
 			{
-			wvError("no memory ppsd\n");
+			wvError(("no memory ppsd\n"));
 			exit(-1);
 			}
 		a_list_info->count = lcbPlfLfo;
@@ -632,21 +632,21 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 		a_list_info->lst_ids = (U32 *) malloc(sizeof(U32) * a_list_info->nooflfos);
 		if (a_list_info->lst_ids== NULL)
 			{
-			wvError("no memory opo\n");
+			wvError(("no memory opo\n"));
 			exit(-1);
 			}
 
 		a_list_info->overridecount = (int *) malloc(sizeof(int) * a_list_info->nooflfos);
 		if (a_list_info->overridecount == NULL)
 			{
-			wvError("no memory opo\n");
+			wvError(("no memory opo\n"));
 			exit(-1);
 			}
 
 		a_list_info->o_list_def = (list_def *)malloc(a_list_info->nooflfos*sizeof(list_def));
 		if (a_list_info->o_list_def == NULL)
 			{
-			wvError("scream\n");
+			wvError(("scream\n"));
 			exit(-1);
 			}
 

@@ -37,7 +37,7 @@ void wvGetXst(Xst **xst,U32 offset,U32 len,FILE *fd)
 
     if (authorlist == NULL)
         {
-        wvError("not enough mem for annotation group\n");
+        wvError(("not enough mem for annotation group\n"));
         return;
         }
 
@@ -54,7 +54,7 @@ void wvGetXst(Xst **xst,U32 offset,U32 len,FILE *fd)
         authorlist->noofstrings++;
         if (current->u16string == NULL)
             {
-            wvError("not enough mem for author string of clen %d\n",clen);
+            wvError(("not enough mem for author string of clen %d\n",clen));
             break;
             }
         for (i=0;i<clen;i++)
@@ -69,7 +69,7 @@ void wvGetXst(Xst **xst,U32 offset,U32 len,FILE *fd)
             current->next= (Xst*) malloc(sizeof(Xst));
             if (current->next == NULL)
                 {
-                wvError("not enough mem for annotation group\n");
+                wvError(("not enough mem for annotation group\n"));
                 break;
                 }
             current = current->next;

@@ -19,7 +19,7 @@ void wvAddPAP_FromBucket(pap *apap,U8 *pointer8,U16 len,style *sheet)
 
 	if (apap == NULL)
 		{
-		wvError("NULL pap in wvAddPAP_FromBucket\n");
+		wvError(("NULL pap in wvAddPAP_FromBucket\n"));
 		return;
 		}
 
@@ -345,15 +345,15 @@ U32 find_FC_sepx(U32 cp,U32 *sepcp,textportions *portions)
 		{
 		if (cp < portions->section_cps[j])
 			{
-			wvTrace("the sep cp is %x\n",portions->section_cps[j]-1);
-			wvTrace("the sep fc is %x\n",portions->section_fcs[j-1].fcSepx);
+			wvTrace(("the sep cp is %x\n",portions->section_cps[j]-1));
+			wvTrace(("the sep fc is %x\n",portions->section_fcs[j-1].fcSepx));
 			*sepcp = portions->section_cps[j]-1;
 			return(portions->section_fcs[j-1].fcSepx);
 			break;
 			}
 		j++;
 		}
-	wvError("no sep FC found\n");
+	wvError(("no sep FC found\n"));
 	return(0xffffffffL);
 	}
 
@@ -364,14 +364,14 @@ int find_FKPno_papx(U32 fc,U32 *plcfbtePapx,U32 intervals)
 		{
 		if (fc < plcfbtePapx[j])
 			{
-			wvTrace("it was less that it\n");
-			wvTrace("so the FKP thatll have the limits of this is %d\n",plcfbtePapx[j+intervals]);
+			wvTrace(("it was less that it\n"));
+			wvTrace(("so the FKP thatll have the limits of this is %d\n",plcfbtePapx[j+intervals]));
 			return(plcfbtePapx[j+intervals]);
 			break;
 			}
 		j++;
 		}
-	wvError("no FKP pap found, using last entry instead\n");
+	wvError(("no FKP pap found, using last entry instead\n"));
 	return(-1);
 	}
 
@@ -382,14 +382,14 @@ int find_FKPno_chpx(U32 fc,U32 *plcfbteChpx,U32 chpintervals)
 		{
 		if (fc < plcfbteChpx[j])
 			{
-			wvTrace("CHP: it was less that it\n");
-			wvTrace("CHP: so the FKP thatll have the limits of this is %d\n",plcfbteChpx[j+chpintervals]);
+			wvTrace(("CHP: it was less that it\n"));
+			wvTrace(("CHP: so the FKP thatll have the limits of this is %d\n",plcfbteChpx[j+chpintervals]));
 			return(plcfbteChpx[j+chpintervals]);
 			break;
 			}
 		j++;
 		}
-	wvError("CHP: no chp found, using last entry\n");
+	wvError(("CHP: no chp found, using last entry\n"));
 	return(-1);
 	}
 
@@ -404,23 +404,23 @@ U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, FILE *in, U16 *loc
 
 	if (pageindex != 0xffffffffL)
 		{
-		wvTrace("smallest seek to %x\n",(512*pageindex)+511);
+		wvTrace(("smallest seek to %x\n",(512*pageindex)+511));
 		if ((mainend < (512*pageindex)+511) || (0 != fseek(in,(512*pageindex)+511,SEEK_SET)))
-			wvError("ran too far forward on smallest seek 1 to %x, bloody semi corrupt file\n",(512*pageindex)+511);
+			wvError(("ran too far forward on smallest seek 1 to %x, bloody semi corrupt file\n",(512*pageindex)+511));
 		else
 			{
 			crun = getc(in);
-			wvTrace("there are %d paragraphs/char runs in this zone at %x, pageindex %d",crun,(512*pageindex),pageindex);
+			wvTrace(("there are %d paragraphs/char runs in this zone at %x, pageindex %d",crun,(512*pageindex),pageindex));
 			rgfc = (U32 *) malloc(sizeof(U32)*(crun+1));
 			if (rgfc== NULL)
 				{
-				wvError("no memory argh\n");
+				wvError(("no memory argh\n"));
 				exit(-1);
 				}
 			fseek(in,(512*pageindex),SEEK_SET);
 			for(i=0;i<crun+1;i++)
 				rgfc[i] = read_32ubit(in);
-			wvTrace(" charindex is %x\n",charindex);
+			wvTrace((" charindex is %x\n",charindex));
 			i=crun-1;
 			rval = rgfc[0];
 			while (i >= 0)
@@ -440,7 +440,7 @@ U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, FILE *in, U16 *loc
 	if (pos != NULL)
 		{
 		fseek(in,*pos,SEEK_SET);
-		wvTrace("papx: reset stream\n");
+		wvTrace(("papx: reset stream\n"));
 		}
 	return(rval); 
 	}
@@ -456,23 +456,23 @@ U32 find_next_biggest_fc(U32 charindex,U32 pageindex, FILE *in, U16 *location,lo
 
 	if (pageindex != 0xffffffffL)
 		{
-		wvTrace("smallest seek to %x\n",(512*pageindex)+511);
+		wvTrace(("smallest seek to %x\n",(512*pageindex)+511));
 		if ((mainend < (512*pageindex)+511) || (0 != fseek(in,(512*pageindex)+511,SEEK_SET)))
-			wvError("ran too far forward on smallest seek 1 to %x, bloody semi corrupt file\n",(512*pageindex)+511);
+			wvError(("ran too far forward on smallest seek 1 to %x, bloody semi corrupt file\n",(512*pageindex)+511));
 		else
 			{
 			crun = getc(in);
-			wvTrace("there are %d paragraphs/char runs in this zone at %x, pageindex %d",crun,(512*pageindex),pageindex);
+			wvTrace(("there are %d paragraphs/char runs in this zone at %x, pageindex %d",crun,(512*pageindex),pageindex));
 			rgfc = (U32 *) malloc(sizeof(U32)*(crun+1));
 			if (rgfc== NULL)
 				{
-				wvError("no memory argh\n");
+				wvError(("no memory argh\n"));
 				exit(-1);
 				}
 			fseek(in,(512*pageindex),SEEK_SET);
 			for(i=0;i<crun+1;i++)
 				rgfc[i] = read_32ubit(in);
-			wvTrace(" charindex is %x\n",charindex);
+			wvTrace((" charindex is %x\n",charindex));
 			i=crun-1;
 			rval = rgfc[0];
 			while (i >= 0)
@@ -492,7 +492,7 @@ U32 find_next_biggest_fc(U32 charindex,U32 pageindex, FILE *in, U16 *location,lo
 	if (pos != NULL)
 		{
 		fseek(in,*pos,SEEK_SET);
-		wvTrace("papx: reset stream\n");
+		wvTrace(("papx: reset stream\n"));
 		}
 	return(rval); 
 	}
@@ -510,17 +510,17 @@ U32 find_next_smallest_fc(U32 charindex,U32 pageindex, FILE *in, S16 *location,l
 
 	if (pageindex != 0xffffffffL)
 		{
-		wvTrace("smallest seek to %x\n",(512*pageindex)+511);
+		wvTrace(("smallest seek to %x\n",(512*pageindex)+511));
 		if ((mainend < (512*pageindex)+511) || (0 != fseek(in,(512*pageindex)+511,SEEK_SET)))
-			wvError("ran too far forward on smallest seek 1 to %x, bloody semi corrupt file\n",(512*pageindex)+511);
+			wvError(("ran too far forward on smallest seek 1 to %x, bloody semi corrupt file\n",(512*pageindex)+511));
 		else
 			{
 			crun = getc(in);
-			wvTrace("there are %d paragraphs/char runs in this zone at %x, pageindex %d",crun,(512*pageindex),pageindex);
+			wvTrace(("there are %d paragraphs/char runs in this zone at %x, pageindex %d",crun,(512*pageindex),pageindex));
 			rgfc = (U32 *) malloc(sizeof(U32)*(crun+1));
 			if (rgfc== NULL)
 				{
-				wvError("no memory argh\n");
+				wvError(("no memory argh\n"));
 				exit(-1);
 				}
 			fseek(in,(512*pageindex),SEEK_SET);
@@ -531,7 +531,7 @@ U32 find_next_smallest_fc(U32 charindex,U32 pageindex, FILE *in, S16 *location,l
 				{
 				if (charindex <  rgfc[i+1])
 					{
-					wvTrace("looking for BX %ld, charindex is %ld (%x),  rgfc is %ld (%x),\n",i,charindex,charindex, rgfc[i+1],rgfc[i+1]);
+					wvTrace(("looking for BX %ld, charindex is %ld (%x),  rgfc is %ld (%x),\n",i,charindex,charindex, rgfc[i+1],rgfc[i+1]));
 					*location = i;
 					rval = rgfc[i+1];
 					break;
@@ -545,7 +545,7 @@ U32 find_next_smallest_fc(U32 charindex,U32 pageindex, FILE *in, S16 *location,l
 	if (pos != NULL)
 		{
 		fseek(in,*pos,SEEK_SET);
-		wvTrace("papx: reset stream\n");
+		wvTrace(("papx: reset stream\n"));
 		}
 	return(rval); 
 	}
@@ -585,8 +585,8 @@ chp * get_complex_chp(U32 fc,U32 *plcfbteChpx,U16 i,U16 nopieces,U32 chpinterval
 	if (tempfck != -1)
 		{
 		nextfc = find_next_smallest_fc(fc,tempfck,main,&location,&passposition);
-		wvTrace("CHP: in this FKP the next fc larger than (%x) is (%x)\n",fc,nextfc);
-		wvTrace("CHP: the end of this piece is (%x)\n",avalrgfc[i]+rgfc[i+1]-rgfc[i]);
+		wvTrace(("CHP: in this FKP the next fc larger than (%x) is (%x)\n",fc,nextfc));
+		wvTrace(("CHP: the end of this piece is (%x)\n",avalrgfc[i]+rgfc[i+1]-rgfc[i]));
 		}
 
 	/*
@@ -664,7 +664,7 @@ pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U
 		}
 	else
 		{
-		wvError("for some reason this fc is outside the limits of the fkp itself\n");
+		wvError(("for some reason this fc is outside the limits of the fkp itself\n"));
 		/*this nextfc must be > fc2*/
 		nextfc = fc2+1;
 		}

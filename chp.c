@@ -26,12 +26,12 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
 	U8 *pointer;
 	U16 i=0;
 	U16 sprm;
-	wvTrace("cbUPX word 6 is %d\n",upxf->cbUPX);
+	wvTrace(("cbUPX word 6 is %d\n",upxf->cbUPX));
 
 
 	while (i < upxf->cbUPX)
 		{
-		wvTrace("%x (%d)\n",*(upxf->upx.chpx.grpprl+i),*(upxf->upx.chpx.grpprl+i));
+		wvTrace(("%x (%d)\n",*(upxf->upx.chpx.grpprl+i),*(upxf->upx.chpx.grpprl+i)));
 		i++;
 		}
 
@@ -41,9 +41,9 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
 		{
 		sprm = bgetc(upxf->upx.chpx.grpprl+i,&i);
 
-        wvTrace("chp word 6 sprm is %x (%d)\n",sprm,sprm);
+        wvTrace(("chp word 6 sprm is %x (%d)\n",sprm,sprm));
 		sprm = wvGetrgsprmWord6(sprm);
-		wvTrace("chp word 6 sprm is converted to %x\n",sprm);
+		wvTrace(("chp word 6 sprm is converted to %x\n",sprm));
 		
 		pointer = upxf->upx.chpx.grpprl+i;
 		wvApplySprmFromBucket(1,sprm,NULL,achp,NULL,stsh,pointer,&i);
@@ -59,7 +59,7 @@ void wvInitCHPFromIstd(CHP *achp,U16 istdBase,STSH *stsh)
         {
         if (istdBase >= stsh->Stshi.cstd)
             {
-            wvError("ISTD out of bounds, requested %d of %d\n",istdBase,stsh->Stshi.cstd);
+            wvError(("ISTD out of bounds, requested %d of %d\n",istdBase,stsh->Stshi.cstd));
             wvInitCHP(achp);    /*it can't hurt to try and start with a blank istd*/
             return;
             }
@@ -67,7 +67,7 @@ void wvInitCHPFromIstd(CHP *achp,U16 istdBase,STSH *stsh)
 			{
 			if (stsh->std[istdBase].cupx==0)	/*empty slot in the array, i don't think this should happen*/
 				{
-				wvTrace("Empty style slot used (chp)\n");
+				wvTrace(("Empty style slot used (chp)\n"));
 				wvInitCHP(achp);
 				}
 			else
@@ -376,7 +376,7 @@ void wvAddCHP_FromBucket(chp *achp,U8 *pointer8,U16 len,style *sheet)
 
     if (achp == NULL)
         {
-        wvError("NULL pap in wvAddPAP_FromBucket\n");
+        wvError(("NULL pap in wvAddPAP_FromBucket\n"));
         return;
         }
 
@@ -416,7 +416,7 @@ void wvInitCHPXFromIstd(CHPX *chpx,U16 istdBase,STSH *stsh)
         {
         if (istdBase >= stsh->Stshi.cstd)
             {
-            wvError("ISTD out of bounds, requested %d of %d\n",istdBase,stsh->Stshi.cstd);
+            wvError(("ISTD out of bounds, requested %d of %d\n",istdBase,stsh->Stshi.cstd));
             wvInitCHPX(chpx);    /*it can't hurt to try and start with a blank istd*/
             return;
             }
@@ -508,10 +508,10 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 
 	while(i<dest->cbGrpprl)
 		{
-		wvTrace("gotcha the sprm is %x\n",*((U16 *)pointer));
+		wvTrace(("gotcha the sprm is %x\n",*((U16 *)pointer)));
 		test = InsertNode(&tree,(void *)pointer);
 		sprm = dread_16ubit(NULL,&pointer);
-		wvTrace("the sprm is %x\n",sprm);
+		wvTrace(("the sprm is %x\n",sprm));
 		temp = wvEatSprm(sprm,pointer,&i);
 		pointer += temp;
 		i+=2;
@@ -524,15 +524,15 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 	i=0;
 	while(i<src->cbUPX)
 		{
-		/*wvTrace("gotcha 2 the sprm is %x\n",*((U16 *)pointer));*/
+		/*wvTrace(("gotcha 2 the sprm is %x\n",*((U16 *)pointer)));*/
 		test = InsertNode(&tree,(void *)pointer);
 		sprm = dread_16ubit(NULL,&pointer);
 		i+=2;
-		wvTrace("the sprm is %x\n",sprm);
+		wvTrace(("the sprm is %x\n",sprm));
 		temp = wvEatSprm(sprm,pointer,&i);
-		wvTrace("len of op is %d\n",temp);
+		wvTrace(("len of op is %d\n",temp));
 		pointer += temp;
-		wvTrace("p dis is %d\n",pointer-src->upx.chpx.grpprl);
+		wvTrace(("p dis is %d\n",pointer-src->upx.chpx.grpprl));
 		if (test);
 			len += temp+2;
 		}
@@ -550,12 +550,12 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 		{
 		pointer = (U8 *)testn->Data;
 		sprm = sread_16ubit(pointer);
-		wvTrace("methinks the sprm is %x\n",sprm);
+		wvTrace(("methinks the sprm is %x\n",sprm));
 		pointer+=2;
 
 		i=0;
 		wvEatSprm(sprm,pointer,&i);
-		wvTrace("i is now %d\n",i);
+		wvTrace(("i is now %d\n",i));
 
 		pointer = (U8 *)testn->Data;
 		for(j=0;j<i+2;j++)
@@ -575,7 +575,7 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 	while(i<dest->cbGrpprl)
 		{
 		sprm = dread_16ubit(NULL,&pointer);
-		wvTrace("final test the sprm is %x\n",sprm);
+		wvTrace(("final test the sprm is %x\n",sprm));
 		temp = wvEatSprm(sprm,pointer,&i);
 		pointer += temp;
 		i+=2;
@@ -598,27 +598,27 @@ void wvUpdateCHPXBucket(UPXF *src)
 	i=0;
 	if (src->cbUPX == 0) return;
 	pointer = src->upx.chpx.grpprl;
-	wvTrace("Msrc->cbUPX len is %d\n",src->cbUPX);
+	wvTrace(("Msrc->cbUPX len is %d\n",src->cbUPX));
 	for(i=0;i<src->cbUPX;i++)
-		wvTrace("%x\n",src->upx.chpx.grpprl[i]);
-	wvTrace("Mend\n");
+		wvTrace(("%x\n",src->upx.chpx.grpprl[i]));
+	wvTrace(("Mend\n"));
 	i=0;
 	len=0;
 	while(i<src->cbUPX)
 		{
 		sprm = dgetc(NULL,&pointer);
-		wvTrace("Mpre the sprm is %x\n",sprm);
+		wvTrace(("Mpre the sprm is %x\n",sprm));
 		sprm = wvGetrgsprmWord6(sprm);
-		wvTrace("Mpost the sprm is %x\n",sprm);
+		wvTrace(("Mpost the sprm is %x\n",sprm));
 		i++;
 		len+=2;
 		temp = wvEatSprm(sprm,pointer,&i);
-		wvTrace("Mlen of op is %d\n",temp);
+		wvTrace(("Mlen of op is %d\n",temp));
 		pointer += temp;
-		wvTrace("Mp dis is %d\n",pointer-src->upx.chpx.grpprl);
+		wvTrace(("Mp dis is %d\n",pointer-src->upx.chpx.grpprl));
 		len += temp;
 		}
-	wvTrace("Mlen ends up as %d\n",len);
+	wvTrace(("Mlen ends up as %d\n",len));
 
 	if (len == 0) 
 		return;
@@ -639,13 +639,13 @@ void wvUpdateCHPXBucket(UPXF *src)
 		temp = wvEatSprm(sprm,pointer,&i);
 		for (j=0;j<temp;j++)
 			*dpointer++ = *pointer++;
-		wvTrace("Mlen of op is %d\n",temp);
+		wvTrace(("Mlen of op is %d\n",temp));
 		}
 	wvFree(src->upx.chpx.grpprl);
 	src->upx.chpx.grpprl = grpprl;
 	src->cbUPX = len;
 	for (i=0;i<src->cbUPX;i++)
-		wvTrace("%x\n",src->upx.chpx.grpprl[i]);
+		wvTrace(("%x\n",src->upx.chpx.grpprl[i]));
 	}
 
 /*
@@ -666,7 +666,7 @@ void wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
 
    /* before this function was called, achp->istd should have
     * been set to the current paragraph properties' stylesheet */
-   wvTrace("istd index is %d\n", achp->istd);
+   wvTrace(("istd index is %d\n", achp->istd));
    wvInitCHPFromIstd(achp, achp->istd, stsh);
 
    /*index is the i in the text above*/
@@ -674,17 +674,17 @@ void wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
     * the same for CHPX and PAPX FKPs, so we'll reuse the function */
    index = wvGetIndexFCInFKP_PAPX((PAPX_FKP*)fkp,fc);
    
-   wvTrace("index is %d, using %d\n", index, index-1);
+   wvTrace(("index is %d, using %d\n", index, index-1));
 
    /* get CHPX */
    chpx = &(fkp->grpchpx[index-1]);
 
    /* apply CHPX from FKP */
    if ((chpx) && (chpx->cbGrpprl > 0)) {
-       wvTrace("cbUPX is %d\n",chpx->cbGrpprl);
+       wvTrace(("cbUPX is %d\n",chpx->cbGrpprl));
       for (i=0;i<chpx->cbGrpprl;i++)
-	wvTrace("%x ",chpx->grpprl[i]);
-      wvTrace("\n");
+	wvTrace(("%x ",chpx->grpprl[i]));
+      wvTrace(("\n"));
       upxf.cbUPX = chpx->cbGrpprl;
       upxf.upx.chpx.grpprl = chpx->grpprl;
       wvAddCHPXFromBucket(achp, &upxf, stsh);
@@ -708,6 +708,6 @@ void wvGetCHPX(int version, CHPX *item, U32 offset, FILE *fd)
 	for (i=0;i<item->cbGrpprl;i++)
 		{
 		item->grpprl[i] = getc(fd);
-		wvTrace("chpx byte is %x\n",item->grpprl[i]);
+		wvTrace(("chpx byte is %x\n",item->grpprl[i]));
 		}
 }

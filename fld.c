@@ -257,14 +257,14 @@ int wvGetFLD_PLCF(FLD **fld,U32 **pos,U32 *nofld,U32 offset,U32 len,FILE *fd)
         *pos = (U32 *) malloc( (*nofld+1) * sizeof(U32));
         if (*pos == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",(*nofld+1) * sizeof(U32));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nofld+1) * sizeof(U32)));
             return(1);
             }
 
         *fld= (FLD *) malloc(*nofld* sizeof(FLD));
         if (*fld== NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",*nofld* sizeof(FLD));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",*nofld* sizeof(FLD)));
 			free(pos);
             return(1);
             }

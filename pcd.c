@@ -53,14 +53,14 @@ int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,FILE *fd)
         *pos = (U32 *) malloc( (*nopcd+1) * sizeof(U32));
         if (*pos == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",(*nopcd+1) * sizeof(U32));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nopcd+1) * sizeof(U32)));
             return(1);
             }
 
         *pcd = (PCD *) malloc(*nopcd * sizeof(PCD));
         if (*pcd == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",*nopcd * sizeof(PCD));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",*nopcd * sizeof(PCD)));
 			free(pos);
             return(1);
             }
@@ -68,12 +68,12 @@ int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,FILE *fd)
         for(i=0;i<=*nopcd;i++)
 			{
             (*pos)[i]=read_32ubit(fd);
-			wvTrace("pcd pos is %x\n",(*pos)[i]);
+			wvTrace(("pcd pos is %x\n",(*pos)[i]));
 			}
         for(i=0;i<*nopcd;i++)
 			{
             wvGetPCD(&((*pcd)[i]),fd);
-			wvTrace("pcd fc is %x, complex is %d, index is %d\n",(*pcd)[i].fc,(*pcd)[i].prm.fComplex,(*pcd)[i].prm.para.var2.igrpprl);
+			wvTrace(("pcd fc is %x, complex is %d, index is %d\n",(*pcd)[i].fc,(*pcd)[i].prm.fComplex,(*pcd)[i].prm.para.var2.igrpprl));
 			}
         }
 	return(0);

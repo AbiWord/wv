@@ -51,7 +51,7 @@ int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStr
 		case 7:
 			return(0);
 		case 19:	/*field begin*/
-			wvTrace("field begin\n");
+			wvTrace(("field begin\n"));
 			*state=1;
 			return(0);
 		case 20:	/*field middle*/
@@ -176,12 +176,12 @@ void wvBeginDocument(expand_data *data)
 	{
 	if ( (data->sd != NULL) && (data->sd->elements[TT_DOCUMENT].str[0] != NULL) )
 		{
-		wvTrace("doc begin is %s",data->sd->elements[TT_DOCUMENT].str[0]);
+		wvTrace(("doc begin is %s",data->sd->elements[TT_DOCUMENT].str[0]));
 		wvExpand(data,data->sd->elements[TT_DOCUMENT].str[0],
 			strlen(data->sd->elements[TT_DOCUMENT].str[0]));
 		if (data->retstring)
 			{
-			wvTrace("doc begin is now %s",data->retstring);
+			wvTrace(("doc begin is now %s",data->retstring));
 			printf("%s",data->retstring);
 			wvFree(data->retstring);
 			}
@@ -196,7 +196,7 @@ void wvEndDocument(expand_data *data)
 		strlen(data->sd->elements[TT_DOCUMENT].str[1]));
 		if (data->retstring)
 			{
-			wvTrace("doc end is now %s",data->retstring);
+			wvTrace(("doc end is now %s",data->retstring));
 			printf("%s",data->retstring);
 			wvFree(data->retstring);
 			}
@@ -207,7 +207,7 @@ int wvHandleElement(wvParseStruct *ps,wvTag tag, void *props)
 	{
 	if (elehandler)
 		return( (*elehandler)(ps, tag, props) );
-	wvError("unimplemented tag %d\n",tag);
+	wvError(("unimplemented tag %d\n",tag));
 	return(0);
 	}
 
@@ -215,7 +215,7 @@ int wvHandleDocument(wvParseStruct *ps,wvTag tag)
 	{
 	if (dochandler)
 		return( (*dochandler)(ps,tag) );
-	wvError("unimplemented tag %d\n",tag);
+	wvError(("unimplemented tag %d\n",tag));
 	return(0);
 	}
 
@@ -228,7 +228,7 @@ void wvBeginPara(expand_data *data)
 		strlen(data->sd->elements[TT_PARA].str[0]));
 		if (data->retstring)
 			{
-			wvTrace("para begin is now %s",data->retstring);
+			wvTrace(("para begin is now %s",data->retstring));
 			printf("%s",data->retstring);
 			wvFree(data->retstring);
 			}
@@ -243,7 +243,7 @@ void wvEndPara(expand_data *data)
 		strlen(data->sd->elements[TT_PARA].str[1]));
 		if (data->retstring)
 			{
-			wvTrace("para end is now %s",data->retstring);
+			wvTrace(("para end is now %s",data->retstring));
 			printf("%s",data->retstring);
 			wvFree(data->retstring);
 			}
@@ -253,16 +253,16 @@ void wvEndPara(expand_data *data)
 void wvBeginCharProp(expand_data *data)
 {
    CHP *achp = (CHP*)data->props;
-   wvTrace("beginning character run\n");
+   wvTrace(("beginning character run\n"));
    /* some test examples */
-   if (achp->fBold) { wvTrace("a BOLD character run\n"); }
-   if (achp->fItalic) { wvTrace("an ITALIC character run\n"); }
-   if (achp->kul) { wvTrace("some kind of UNDERLINED character run\n"); }
+   if (achp->fBold) { wvTrace(("a BOLD character run\n")); }
+   if (achp->fItalic) { wvTrace(("an ITALIC character run\n")); }
+   if (achp->kul) { wvTrace(("some kind of UNDERLINED character run\n")); }
 }
 
 void wvEndCharProp(expand_data *data)
 {
-   wvTrace("ending character run\n");
+   wvTrace(("ending character run\n"));
 }
 
 void wvSetCharHandler(int (*proc)(wvParseStruct *,U16,U8))

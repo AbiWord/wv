@@ -43,7 +43,7 @@ int main(int argc,char **argv)
 	ret = wvInitParser(&ps,input);
 	if (ret)
 		{
-		wvError("startup error\n");
+		wvError(("startup error\n"));
 		return(-1);
 		}
 
@@ -54,10 +54,10 @@ int main(int argc,char **argv)
 	wvInitStateData(&myhandle);
     myhandle.fp = fopen("wvHtml.xml","rb");
     if (myhandle.fp == NULL)
-        wvError("config file not found\n");
+        wvError(("config file not found\n"));
     else
 		{
-		wvTrace("x for FILE is %x\n",myhandle.fp);
+		wvTrace(("x for FILE is %x\n",myhandle.fp));
         ret = wvParseConfig(&myhandle);
 		}
 

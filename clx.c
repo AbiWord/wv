@@ -56,7 +56,7 @@ void wvGetCLX(int version,CLX *clx,U32 offset,U32 len,FILE *fd)
 	U32 lcb,i,j=0;
 
 	fseek(fd,offset,SEEK_SET);
-	wvTrace("clx offset is %x, len is %d\n",offset,len);
+	wvTrace(("clx offset is %x, len is %d\n",offset,len));
 
 	wvInitCLX(clx);
 
@@ -86,7 +86,7 @@ void wvGetCLX(int version,CLX *clx,U32 offset,U32 len,FILE *fd)
 				}
 			else
 				{
-				wvTrace("Here so far\n");
+				wvTrace(("Here so far\n"));
 #if 0
 				lcb = read_16ubit(fd);		/* word 6 only has two bytes here */
 				j+=2;
@@ -107,7 +107,7 @@ void wvGetCLX(int version,CLX *clx,U32 offset,U32 len,FILE *fd)
 			}
 		else
 			{
-			wvError("clxt is not 1 or 2, it is %d\n",clxt);
+			wvError(("clxt is not 1 or 2, it is %d\n",clxt));
 			return;
 			}
 		}
@@ -131,7 +131,7 @@ int wvGetPieceBoundsFC(U32 *begin,U32 *end,CLX *clx,U32 piececount)
     int type;
     if ( (piececount+1) > clx->nopcd)
 		{
-		wvError("piececount is > nopcd, i.e.%d > %d\n", piececount+1,clx->nopcd);
+		wvError(("piececount is > nopcd, i.e.%d > %d\n", piececount+1,clx->nopcd));
         return(-1);
 		}
     *begin = wvNormFC(clx->pcd[piececount].fc,&type);
@@ -176,7 +176,7 @@ U16 wvAutoCharset(CLX *clx)
 int wvQuerySamePiece(U32 fcTest,CLX *clx,U32 piece)
 	{
 	/*
-	wvTrace("Same Piece, %x %x %x\n",fcTest,wvNormFC(clx->pcd[piece].fc,NULL),wvNormFC(clx->pcd[piece+1].fc,NULL));
+	wvTrace(("Same Piece, %x %x %x\n",fcTest,wvNormFC(clx->pcd[piece].fc,NULL),wvNormFC(clx->pcd[piece+1].fc,NULL)));
     if ( (fcTest >= wvNormFC(clx->pcd[piece].fc,NULL)) && (fcTest < wvNormFC(clx->pcd[piece+1].fc,NULL)) )
 	*/
     if ( (fcTest >= wvNormFC(clx->pcd[piece].fc,NULL)) && (fcTest < wvGetEndFCPiece(piece,clx)) )
@@ -194,7 +194,7 @@ U32 wvGetPieceFromCP(U32 currentcp,CLX *clx)
 			return(i);
 		i++;
 		}
-	wvTrace("cp was not in any piece ! \n",currentcp);
+	wvTrace(("cp was not in any piece ! \n",currentcp));
 	return(0xffffffffL);
 	}
 
@@ -207,7 +207,7 @@ U32 wvGetPieceFromFC(U32 currentfc,CLX *clx)
 			return(i);
 		i++;
 		}
-	wvTrace("fc was not in any piece ! \n",currentfc);
+	wvTrace(("fc was not in any piece ! \n",currentfc));
 	return(0xffffffffL);
 	}
 
@@ -216,12 +216,12 @@ U32 wvGetEndFCPiece(U32 piece,CLX *clx)
 	int flag;
 	U32 fc;
 	U32 offset = clx->pos[piece+1] - clx->pos[piece];
-	wvTrace("offset is %x\n",offset);
+	wvTrace(("offset is %x\n",offset));
 	fc = wvNormFC(clx->pcd[piece].fc,&flag);
-	wvTrace("fc is %x, flag %d\n",fc,flag);
+	wvTrace(("fc is %x, flag %d\n",fc,flag));
 	if (flag) fc+=offset;
 	else fc+=offset*2;
-	wvTrace("fc is finally %x\n",fc);
+	wvTrace(("fc is finally %x\n",fc));
 	return(fc);
 	}
 

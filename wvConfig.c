@@ -60,7 +60,7 @@ void wvListStateData(state_data *data)
 		for(j=0;j<data->elements[i].nostr;j++)
 			{
 			if (data->elements[i].str[j])
-				wvTrace("listing->element %s\n",data->elements[i].str[j]);
+				wvTrace(("listing->element %s\n",data->elements[i].str[j]));
 			}
 		}
 
@@ -99,7 +99,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	const char *ctext;
 
 	tokenIndex = s_mapNameToToken(name);
-	wvTrace("name = %s tokenIndex = %d\n", name, tokenIndex);
+	wvTrace(("name = %s tokenIndex = %d\n", name, tokenIndex));
 	switch (s_Tokens[tokenIndex].m_type)
 		{
 		case TT_TITLE:
@@ -109,22 +109,22 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_CHARSET:
-			wvTrace("the charset is %d\n",mydata->charset);
+			wvTrace(("the charset is %d\n",mydata->charset));
 			ctext = wvGetCharset(mydata->charset);
 			wvAppendStr(&mydata->retstring,ctext);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_VERSION:
-			wvTrace("the version is %s\n",wv_version);
+			wvTrace(("the version is %s\n",wv_version));
 			wvAppendStr(&mydata->retstring,wv_version);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_JUST:
-			if (mydata) wvTrace("1");
-		    wvTrace("just is %d\n",((PAP*)(mydata->props))->jc);
-			wvTrace("str is %s\n",mydata->sd->elements[TT_JUSTIFICATION].str[0]);
+			if (mydata) wvTrace(("1"));
+		    wvTrace(("just is %d\n",((PAP*)(mydata->props))->jc));
+			wvTrace(("str is %s\n",mydata->sd->elements[TT_JUSTIFICATION].str[0]));
 			text = (char *)malloc(strlen(mydata->sd->elements[TT_JUSTIFICATION].str[((PAP*)(mydata->props))->jc])+1);
-			wvTrace("the just is %d\n",((PAP*)(mydata->props))->jc);
+			wvTrace(("the just is %d\n",((PAP*)(mydata->props))->jc));
 			strcpy(text,mydata->sd->elements[TT_JUSTIFICATION].str[((PAP*)(mydata->props))->jc]);
 			str = mydata->retstring;
 			wvExpand(mydata,text,strlen(text));
@@ -144,8 +144,8 @@ void startElement(void *userData, const char *name, const char **atts)
 
 	tokenIndex = s_mapNameToToken(name);
 	if (mydata->current != NULL)
-		wvTrace("current not NULL\n");
-	wvTrace("element %s started\n",name);
+		wvTrace(("current not NULL\n"));
+	wvTrace(("element %s started\n",name));
 	switch (s_Tokens[tokenIndex].m_type)
 		{
 		case TT_DOCUMENT:
@@ -168,7 +168,7 @@ void startElement(void *userData, const char *name, const char **atts)
 			mydata->current = &(mydata->currentele->str[0]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
-			wvTrace("At this point the string is %s\n",*(mydata->current));
+			wvTrace(("At this point the string is %s\n",*(mydata->current)));
 			break;
 		case TT_END:
 		case TT_CENTER:
@@ -194,7 +194,7 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_TITLE:
 			wvAppendStr(mydata->current,"<title/>");
 			mydata->currentlen = strlen(*(mydata->current));
-			wvTrace("At this other point the string is %s\n",*(mydata->current));
+			wvTrace(("At this other point the string is %s\n",*(mydata->current)));
 			break;
 		case TT_CHARSET:
 			wvAppendStr(mydata->current,"<charset/>");
@@ -203,12 +203,12 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_VERSION:
 			wvAppendStr(mydata->current,"<version/>");
 			mydata->currentlen = strlen(*(mydata->current));
-			wvTrace("At this other other point the string is %s\n",*(mydata->current));
+			wvTrace(("At this other other point the string is %s\n",*(mydata->current)));
 			break;
 		case TT_JUST:
 			wvAppendStr(mydata->current,"<just/>");
 			mydata->currentlen = strlen(*(mydata->current));
-			wvTrace("At this other other other point the string is %s\n",*(mydata->current));
+			wvTrace(("At this other other other point the string is %s\n",*(mydata->current)));
 			break;
 		}
 	}
@@ -229,7 +229,7 @@ void endElement(void *userData, const char *name)
 		case TT_BLOCK:
 		case TT_ASIAN:
 			wvAppendStr(mydata->current,"</begin>");
-			wvTrace("When we finish the str is %s\n",*(mydata->current));
+			wvTrace(("When we finish the str is %s\n",*(mydata->current)));
 			mydata->currentlen=0;
 			mydata->current=NULL;
 			break;
@@ -243,7 +243,7 @@ void endElement(void *userData, const char *name)
 			mydata->current=NULL;
 			break;
 		}
-	wvTrace("ele ended\n");
+	wvTrace(("ele ended\n"));
 	}
 
 void exendElement(void *userData, const char *name)
@@ -263,7 +263,7 @@ void exendElement(void *userData, const char *name)
 		default:
 			break;
 		}
-	wvTrace("ele ended\n");
+	wvTrace(("ele ended\n"));
 	}
 
 void charData(void* userData, const XML_Char *s, int len)
@@ -309,7 +309,7 @@ void charData(void* userData, const XML_Char *s, int len)
 		(*(mydata->current))[i+mydata->currentlen] = '\0';
 		mydata->currentlen+=len;
 		}
-	wvTrace("chardata str is %s\n",*(mydata->current));
+	wvTrace(("chardata str is %s\n",*(mydata->current)));
 	}
 
 void excharData(void* userData, const XML_Char *s, int len)
@@ -324,7 +324,7 @@ void excharData(void* userData, const XML_Char *s, int len)
 
 	for(i=0;i<len;i++)
 		{
-		wvTrace("exchar->%c ",s[i]);
+		wvTrace(("exchar->%c ",s[i]));
 		if (mydata->retstring!= NULL)
 			mydata->retstring[i+mydata->currentlen] = s[i];
 		}
@@ -348,20 +348,20 @@ int wvParseConfig(state_data *myhandle)
 
 	if (myhandle->fp == NULL)
 		{
-		wvError("how can this happen\n");
+		wvError(("how can this happen\n"));
 		exit(-1);
 		}
 
 	do {
-		wvTrace("loop in\n");
+		wvTrace(("loop in\n"));
 		len = fread(buf, 1, sizeof(buf), myhandle->fp);
-		wvTrace("loop out\n");
+		wvTrace(("loop out\n"));
 		done = len < sizeof(buf);
 		if (!XML_Parse(parser, buf, len, done)) 
 			{
-			wvError("%s at line %d\n",
+			wvError(("%s at line %d\n",
 				XML_ErrorString(XML_GetErrorCode(parser)),
-				XML_GetCurrentLineNumber(parser));
+				XML_GetCurrentLineNumber(parser)));
 			return(1);
 			}
 	} while (!done);
@@ -383,7 +383,7 @@ int wvExpand(expand_data *myhandle,char *buf,int len)
 	{
 	XML_Parser parser = XML_ParserCreate(NULL);
 
-	wvTrace("expanding string %s\n",buf);
+	wvTrace(("expanding string %s\n",buf));
 
 	XML_SetUserData(parser, myhandle);
 	XML_SetElementHandler(parser, exstartElement, exendElement);
@@ -392,9 +392,9 @@ int wvExpand(expand_data *myhandle,char *buf,int len)
 
 	if (!XML_Parse(parser, buf, len, 1)) 
 		{
-		wvError("%s at line %d\n",
+		wvError(("%s at line %d\n",
 			XML_ErrorString(XML_GetErrorCode(parser)),
-			XML_GetCurrentLineNumber(parser));
+			XML_GetCurrentLineNumber(parser)));
 		return 1;
 		}
 

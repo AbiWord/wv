@@ -29,7 +29,7 @@ int wvGetLST(LST **lst,U16 *noofLST,U32 offset,U32 len,FILE *fd)
 	*lst = (LST *) malloc(*noofLST * sizeof(LST));
 	if (*lst== NULL)
 		{
-		wvError("NO MEM 1, failed to alloc %d bytes\n",*noofLST * sizeof(LST));
+		wvError(("NO MEM 1, failed to alloc %d bytes\n",*noofLST * sizeof(LST)));
 		return(1);
 		}
 
@@ -101,14 +101,14 @@ int wvGetLSTF_PLCF(LSTF **lstf,U32 **pos,U32 *nolstf,U32 offset,U32 len,FILE *fd
         *pos = (U32 *) malloc( (*nolstf+1) * sizeof(U32));
         if (*pos == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",(*nolstf+1) * sizeof(U32));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nolstf+1) * sizeof(U32)));
             return(1);
             }
 
         *lstf= (LSTF *) malloc(*nolstf* sizeof(LSTF));
         if (*lstf== NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",*nolstf* sizeof(LSTF));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",*nolstf* sizeof(LSTF)));
 			free(pos);
             return(1);
             }

@@ -14,11 +14,11 @@ void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh)
 	apap->istd = upxf->upx.papx.istd;
 	if (upxf->cbUPX <= 2)
 		return;
-	wvTrace("no is %d\n",upxf->cbUPX);
+	wvTrace(("no is %d\n",upxf->cbUPX));
 	
 	while (i < upxf->cbUPX-2)
 		{
-		wvTrace("%x (%d)\n",*(upxf->upx.papx.grpprl+i),*(upxf->upx.papx.grpprl+i));
+		wvTrace(("%x (%d)\n",*(upxf->upx.papx.grpprl+i),*(upxf->upx.papx.grpprl+i)));
 		i++;
 		}
 	i=0;
@@ -26,7 +26,7 @@ void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh)
 	while (i < upxf->cbUPX-2)	/*-2 because the istd takes up the first two bytes*/
 		{
 		sprm = bread_16ubit(upxf->upx.papx.grpprl+i,&i);
-		wvTrace("sprm is %x\n",sprm);
+		wvTrace(("sprm is %x\n",sprm));
 		pointer = upxf->upx.papx.grpprl+i;
 		wvApplySprmFromBucket(0,sprm,apap,NULL,NULL,stsh,pointer,&i);
 		}
@@ -40,13 +40,13 @@ void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh)
 	apap->istd = upxf->upx.papx.istd;
 	if (upxf->cbUPX <= 2)
 		return;
-	wvTrace("no is %d\n",upxf->cbUPX);
+	wvTrace(("no is %d\n",upxf->cbUPX));
 	while (i < upxf->cbUPX-2)	/*-2 because the istd takes up the first two bytes*/
 		{
 		sprm = bgetc(upxf->upx.papx.grpprl+i,&i);
-		wvTrace("pap word 6 sprm is %x (%d)\n",sprm,sprm);
+		wvTrace(("pap word 6 sprm is %x (%d)\n",sprm,sprm));
 		sprm = wvGetrgsprmWord6(sprm);
-		wvTrace("pap word 6 sprm is converted to %x\n",sprm);
+		wvTrace(("pap word 6 sprm is converted to %x\n",sprm));
 		pointer = upxf->upx.papx.grpprl+i;
 		wvApplySprmFromBucket(1,sprm,apap,NULL,NULL,stsh,pointer,&i);
 		}
@@ -61,7 +61,7 @@ void wvInitPAPFromIstd(PAP *apap,U16 istdBase,STSH *stsh)
 		{
 		if (istdBase >= stsh->Stshi.cstd)
 			{
-			wvError("ISTD out of bounds, requested %d of %d\n",istdBase,stsh->Stshi.cstd);
+			wvError(("ISTD out of bounds, requested %d of %d\n",istdBase,stsh->Stshi.cstd));
 			wvInitPAP(apap);	/*it can't hurt to try and start with a blank istd*/
 			return;
 			}
@@ -69,7 +69,7 @@ void wvInitPAPFromIstd(PAP *apap,U16 istdBase,STSH *stsh)
 			{
 			if (stsh->std[istdBase].cupx==0)	/*empty slot in the array, i don't think this should happen*/
 				{
-				wvTrace("Empty style slot used (chp)\n");
+				wvTrace(("Empty style slot used (chp)\n"));
 				wvInitPAP(apap);
 				}
 			else
@@ -291,12 +291,12 @@ void wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 	/*index is the i in the text above*/
 	index = wvGetIndexFCInFKP_PAPX(fkp,fc);
 	
-	wvTrace("index is %d, using %d\n",index,index-1);
+	wvTrace(("index is %d, using %d\n",index,index-1));
 	papx = &(fkp->grppapx[index-1]);
 	
 	if (papx)
 		{
-		wvTrace("istd index is %d\n",papx->istd);
+		wvTrace(("istd index is %d\n",papx->istd));
 		wvInitPAPFromIstd(apap,papx->istd,stsh);
 		}
 	else
@@ -304,10 +304,10 @@ void wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 
 	if ((papx) && (papx->cb > 2))
 		{
-		wvTrace("cbUPX is %d\n",papx->cb);
+		wvTrace(("cbUPX is %d\n",papx->cb));
 		for (i=0;i<papx->cb-2;i++)
-			wvTrace("%x ",papx->grpprl[i]);
-		wvTrace("\n");
+			wvTrace(("%x ",papx->grpprl[i]));
+		wvTrace(("\n"));
 		upxf.cbUPX = papx->cb-1;
 		upxf.upx.papx.istd = papx->istd;
 		upxf.upx.papx.grpprl = papx->grpprl;
@@ -315,7 +315,7 @@ void wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 			wvAddPAPXFromBucket(apap,&upxf,stsh);
 		else
 			wvAddPAPXFromBucket6(apap,&upxf,stsh);
-		wvTrace("apap jc is now %d\n",apap->jc);
+		wvTrace(("apap jc is now %d\n",apap->jc));
 		}
 
 	if (papx)
@@ -346,9 +346,9 @@ void wvGetPAPX(int version,PAPX *item,U32 offset,FILE *fd)
 	cw = getc(fd);
 	if ( (cw == 0) && (version == 0) )	/* only do this for word 97 */
 		{
-		wvTrace("cw was pad %d\n",cw);
+		wvTrace(("cw was pad %d\n",cw));
 		cw = getc(fd);
-		wvTrace("cw was %d\n",cw);
+		wvTrace(("cw was %d\n",cw));
 		}
 	item->cb=cw*2;
 	if (item->cb > 2)
@@ -357,10 +357,10 @@ void wvGetPAPX(int version,PAPX *item,U32 offset,FILE *fd)
 		item->grpprl = NULL;
 		
 	item->istd = read_16ubit(fd);
-	wvTrace("papx istd is %x\n",item->istd);
+	wvTrace(("papx istd is %x\n",item->istd));
 	for (i=2;i<item->cb;i++)
 		{
 		item->grpprl[i-2] = getc(fd);
-		wvTrace("papx byte is %x\n",item->grpprl[i-2]);
+		wvTrace(("papx byte is %x\n",item->grpprl[i-2]));
 		}
 	}

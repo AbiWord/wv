@@ -37,7 +37,10 @@ indentation. (i like it this way)
 #include "wv.h"
 #include "roman.h"
 #include "utf.h"
-	
+
+#ifdef WIN32
+#define rint(x)		( ((ceil(x)-x) < (x-floor(x))) ? ceil(x) : floor(x) )
+#endif
 
 /*begin new spid handling*/
 fsp_list *afsp_list=NULL;
@@ -292,19 +295,19 @@ int decode_word8(wvParseStruct *ps,int core)
 		Parse(in,&in_style,&doc_style,ele_style);
 	/*end do config file*/
 
-	wvTrace("first char is at %ld (%x)\n",ps->fib.fcMin,ps->fib.fcMin);
-	wvTrace("last char is at %ld (%x)\n",ps->fib.fcMac,ps->fib.fcMac);
+	wvTrace(("first char is at %ld (%x)\n",ps->fib.fcMin,ps->fib.fcMin));
+	wvTrace(("last char is at %ld (%x)\n",ps->fib.fcMac,ps->fib.fcMac));
 	portions.fcMin = ps->fib.fcMin;
 	portions.fcMac = ps->fib.fcMac;
 
 	portions.ccpText = ps->fib.ccpText;
-	wvTrace("the main doc text is of size %ld\n",portions.ccpText);
+	wvTrace(("the main doc text is of size %ld\n",portions.ccpText));
 	portions.ccpFtn = ps->fib.ccpFtn;
-	wvTrace("the footer text is of size %ld\n",portions.ccpFtn);
+	wvTrace(("the footer text is of size %ld\n",portions.ccpFtn));
 	portions.ccpHdd = ps->fib.ccpHdd;
-	wvTrace("the header text is of size %ld\n",portions.ccpHdd);
+	wvTrace(("the header text is of size %ld\n",portions.ccpHdd));
 	portions.ccpAtn = ps->fib.ccpAtn;
-	wvTrace("the annotation text is size %ld\n",portions.ccpAtn);
+	wvTrace(("the annotation text is size %ld\n",portions.ccpAtn));
 	portions.ccpEdn = ps->fib.ccpEdn;
 	
 	/*attempt to list all paragraph bounds*/

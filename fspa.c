@@ -39,14 +39,14 @@ int wvGetFSPA_PLCF(FSPA **fspa,U32 **pos,U32 *nofspa,U32 offset,U32 len,FILE *fd
         *pos = (U32 *) malloc( (*nofspa+1) * sizeof(U32));
         if (*pos == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",(*nofspa+1) * sizeof(U32));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nofspa+1) * sizeof(U32)));
             return(1);
             }
 
         *fspa= (FSPA *) malloc(*nofspa* sizeof(FSPA));
         if (*fspa== NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",*nofspa* sizeof(FSPA));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",*nofspa* sizeof(FSPA)));
 			free(pos);
             return(1);
             }

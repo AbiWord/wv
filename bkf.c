@@ -29,14 +29,14 @@ int wvGetBKF_PLCF(BKF **bkf,U32 **pos,U32 *nobkf,U32 offset,U32 len,FILE *fd)
         *pos = (U32 *) malloc( (*nobkf+1) * sizeof(U32));
         if (*pos == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",(*nobkf+1) * sizeof(U32));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nobkf+1) * sizeof(U32)));
             return(1);
             }
 
         *bkf= (BKF *) malloc(*nobkf* sizeof(BKF));
         if (*bkf== NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",*nobkf* sizeof(BKF));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",*nobkf* sizeof(BKF)));
 			free(pos);
             return(1);
             }

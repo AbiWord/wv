@@ -34,7 +34,7 @@ already recorded.
 void wvGetPAPX_FKP(int version,PAPX_FKP *fkp,U32 pn,FILE *fd)
 	{
 	int i;
-	wvTrace("papx fkp malloc\n");
+	wvTrace(("papx fkp malloc\n"));
 
 	fseek(fd,pn*PAGESIZE+(PAGESIZE-1),SEEK_SET);
 	fkp->crun = getc(fd);
@@ -45,7 +45,7 @@ void wvGetPAPX_FKP(int version,PAPX_FKP *fkp,U32 pn,FILE *fd)
 	for (i=0;i<fkp->crun+1;i++)
 		{
 		fkp->rgfc[i] = read_32ubit(fd);
-		wvTrace("rgfc is %x\n",fkp->rgfc[i]);
+		wvTrace(("rgfc is %x\n",fkp->rgfc[i]));
 		}
 
 	for (i=0;i<fkp->crun;i++)
@@ -60,12 +60,12 @@ void wvGetPAPX_FKP(int version,PAPX_FKP *fkp,U32 pn,FILE *fd)
 		{
 		if (fkp->rgbx[i].offset == 0)
 			{
-			wvTrace("i is %d, using clear papx\n");
+			wvTrace(("i is %d, using clear papx\n"));
 			wvInitPAPX(&(fkp->grppapx[i]));
 			}
 		else
 			{
-			wvTrace("papx index i is %d, offset is %x\n",i,pn*PAGESIZE+fkp->rgbx[i].offset*2);
+			wvTrace(("papx index i is %d, offset is %x\n",i,pn*PAGESIZE+fkp->rgbx[i].offset*2));
 			wvGetPAPX(version,&(fkp->grppapx[i]),pn*PAGESIZE+fkp->rgbx[i].offset*2,fd);
 			}
 		}
@@ -112,7 +112,7 @@ U32 wvSearchNextSmallestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc)
 	
 	while (i<until)
 		{
-		wvTrace("Smallest %x, %x %x\n",currentfc,wvNormFC(fkp->rgfc[i],NULL),wvNormFC(fkp->rgfc[i],NULL));
+		wvTrace(("Smallest %x, %x %x\n",currentfc,wvNormFC(fkp->rgfc[i],NULL),wvNormFC(fkp->rgfc[i],NULL)));
 		if ( (wvNormFC(fkp->rgfc[i],NULL) > currentfc) && (wvNormFC(fkp->rgfc[i],NULL) < fcTest) )
 			fcTest = wvNormFC(fkp->rgfc[i],NULL);
 		i++;
@@ -123,7 +123,7 @@ U32 wvSearchNextSmallestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc)
 void wvReleasePAPX_FKP(PAPX_FKP *fkp)
 	{
 	int i;
-	wvTrace("papx fkp b freeed\n");
+	wvTrace(("papx fkp b freeed\n"));
 	wvFree(fkp->rgfc);
 	fkp->rgfc=NULL;
 	wvFree(fkp->rgbx);
@@ -133,7 +133,7 @@ void wvReleasePAPX_FKP(PAPX_FKP *fkp)
 	fkp->crun=0;
 	wvFree(fkp->grppapx);
 	fkp->grppapx=NULL;
-	wvTrace("papx fkp e freeed\n");
+	wvTrace(("papx fkp e freeed\n"));
 	}
 
 void wvInitPAPX_FKP(PAPX_FKP *fkp)
@@ -151,7 +151,7 @@ int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc)
 	
 	while (i<until)
 		{
-		wvTrace("current fc is %x, %x\n",currentfc,wvNormFC(fkp->rgfc[i],NULL));
+		wvTrace(("current fc is %x, %x\n",currentfc,wvNormFC(fkp->rgfc[i],NULL)));
 		if (wvNormFC(fkp->rgfc[i],NULL) == currentfc)
 			return(i);
 		i++;
@@ -162,7 +162,7 @@ int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc)
 	 Formatted Disk Page for PAPXs, somehow the currentfc sent in was wrong
 	 or my understanding is !
 	 */
-	wvError("Shite, fix me\n");
+	wvError(("Shite, fix me\n"));
 	/*return 1 to make things continue on their merry way*/
 	return(1);
 	}
@@ -178,7 +178,7 @@ int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc)
 void wvGetCHPX_FKP(int version, CHPX_FKP *fkp, U32 pn, FILE *fd)
 	{
 	int i;
-	wvTrace("chpx fkp malloc\n");
+	wvTrace(("chpx fkp malloc\n"));
 
 	fseek(fd, pn*PAGESIZE+(PAGESIZE-1), SEEK_SET);
 	fkp->crun = getc(fd);
@@ -189,7 +189,7 @@ void wvGetCHPX_FKP(int version, CHPX_FKP *fkp, U32 pn, FILE *fd)
 	for (i=0;i<fkp->crun+1;i++)
 		{
 		fkp->rgfc[i] = read_32ubit(fd);
-		wvTrace("rgfc is %x\n",fkp->rgfc[i]);
+		wvTrace(("rgfc is %x\n",fkp->rgfc[i]));
 		}
 
 	for (i=0;i<fkp->crun;i++)
@@ -201,13 +201,13 @@ void wvGetCHPX_FKP(int version, CHPX_FKP *fkp, U32 pn, FILE *fd)
 		{
 		if (fkp->rgb[i] == 0)
 		     {
-			wvTrace("i is %d, using clear chpx\n");
+			wvTrace(("i is %d, using clear chpx\n"));
 			wvInitCHPX(&(fkp->grpchpx[i]));
 		     }
 		else
 		     {
-			wvTrace("chpx index i is %d, offset is %x\n", i,
-				(pn * PAGESIZE) + (fkp->rgb[i] * 2));
+			wvTrace(("chpx index i is %d, offset is %x\n", i,
+				(pn * PAGESIZE) + (fkp->rgb[i] * 2)));
 			wvGetCHPX(version, &(fkp->grpchpx[i]), 
 				  (pn*PAGESIZE) + (fkp->rgb[i] * 2), fd);
 			}
@@ -217,7 +217,7 @@ void wvGetCHPX_FKP(int version, CHPX_FKP *fkp, U32 pn, FILE *fd)
 void wvReleaseCHPX_FKP(CHPX_FKP *fkp)
 	{
 	int i;
-	wvTrace("chpx fkp b freeed\n");
+	wvTrace(("chpx fkp b freeed\n"));
 	wvFree(fkp->rgfc);
 	fkp->rgfc=NULL;
 	wvFree(fkp->rgb);
@@ -227,7 +227,7 @@ void wvReleaseCHPX_FKP(CHPX_FKP *fkp)
 	fkp->crun=0;
 	wvFree(fkp->grpchpx);
 	fkp->grpchpx=NULL;
-	wvTrace("chpx fkp e freeed\n");
+	wvTrace(("chpx fkp e freeed\n"));
 	}
 
 void wvInitCHPX_FKP(CHPX_FKP *fkp)

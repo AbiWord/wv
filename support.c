@@ -65,9 +65,11 @@ extern long int realcp;
 
 extern document_style *doc_style;
 
+#if 0
 RETSIGTYPE reaper(int);
-RETSIGTYPE timeingout(int );
 void signal_handle (int sig, SigHandler * handler);
+#endif
+RETSIGTYPE timeingout(int );
 
 #if 0
 int wvDecrypt(FILE *mainfd,char *password,U32 lKey)
@@ -556,6 +558,7 @@ void error(FILE *stream,char *fmt, ...)
 	#endif
     }
 
+#if 0
 RETSIGTYPE reaper (int ignored)
     {
 #ifdef MUST_REINSTALL_SIGHANDLERS
@@ -565,6 +568,7 @@ RETSIGTYPE reaper (int ignored)
         ;
 
     }
+#endif
 
 RETSIGTYPE timeingout(int ignored)
     {

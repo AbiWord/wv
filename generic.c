@@ -17,7 +17,7 @@ int wvGetEmpty_PLCF(U32 **cps,U32 *nocps,U32 offset,U32 len,FILE *fd)
         *cps = (U32 *) malloc(*nocps * sizeof(U32));
         if (*cps == NULL)
             {
-            wvError("NO MEM 3, failed to alloc %d bytes\n",*nocps * sizeof(U32));
+            wvError(("NO MEM 3, failed to alloc %d bytes\n",*nocps * sizeof(U32)));
             return(1);
             }
         fseek(fd,offset,SEEK_SET);
@@ -86,14 +86,14 @@ int wvStrlen(const char *str)
 void wvAppendStr(char **orig,const char *add)
 	{
 	int pos;
-	wvTrace("got this far\n");
+	wvTrace(("got this far\n"));
 	pos = wvStrlen(*orig);
-	wvTrace("len is %d %d\n",pos,wvStrlen(add));
+	wvTrace(("len is %d %d\n",pos,wvStrlen(add)));
 	(*orig) = (char *)realloc(*orig,pos+wvStrlen(add)+1);
 	(*orig)[pos] = '\0';
-	wvTrace("3 test str of %s\n",*orig);
+	wvTrace(("3 test str of %s\n",*orig));
 	strcat(*orig,add);
-	wvTrace("3 test str of %s\n",*orig);
+	wvTrace(("3 test str of %s\n",*orig));
 	}
 
 

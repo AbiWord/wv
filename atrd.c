@@ -28,14 +28,14 @@ int wvGetATRD_PLCF(ATRD **atrd,U32 **pos,U32 *noatrd,U32 offset,U32 len,FILE *fd
         *pos = (U32 *) malloc( (*noatrd+1) * sizeof(U32));
         if (*pos == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",(*noatrd+1) * sizeof(U32));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",(*noatrd+1) * sizeof(U32)));
             return(1);
             }
 
         *atrd = (ATRD *) malloc(*noatrd * sizeof(ATRD));
         if (*atrd == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",*noatrd * sizeof(ATRD));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",*noatrd * sizeof(ATRD)));
 			free(pos);
             return(1);
             }

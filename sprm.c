@@ -35,7 +35,7 @@ int wvSprmLen(int spra)
 			return(-1);
  			/*variable length -- following byte is size of operand*/
 		default:
-			wvError("Incorrect spra value %d\n",spra);
+			wvError(("Incorrect spra value %d\n",spra));
 		}
 	return(-2);
 	}
@@ -63,25 +63,25 @@ int wvEatSprm(U16 sprm,U8 *pointer, U16 *pos)
 	{
 	int len;
 	Sprm aSprm;
-	wvTrace("Eating sprm %x\n",sprm);
+	wvTrace(("Eating sprm %x\n",sprm));
 	wvGetSprmFromU16(&aSprm,sprm);
 	if (sprm == sprmPChgTabs)
 		{
-		wvTrace("sprmPChgTabs\n");
+		wvTrace(("sprmPChgTabs\n"));
 		len = wvApplysprmPChgTabs(NULL,pointer,pos);
 		len++;
 		return(len);
 		}
 	else if ((sprm == sprmTDefTable) || (sprm == sprmTDefTable10))
 		{
-		wvTrace("sprmTDefTable\\sprmTDefTable10\n");
+		wvTrace(("sprmTDefTable\\sprmTDefTable10\n"));
 		len = bread_16ubit(pointer,pos);
 		len--;
 		}
 	else
 		{
 		len = wvSprmLen(aSprm.spra);
-		wvTrace("wvSprmLen len is %d\n",len);
+		wvTrace(("wvSprmLen len is %d\n",len));
 		if (len < 0)
 			{
 			len = bgetc(pointer,pos);
@@ -118,7 +118,7 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 	if (asep == NULL)
 		asep = &tempsep;
 
-	wvTrace("sprm is %x\n",sprm);
+	wvTrace(("sprm is %x\n",sprm));
 
 	switch(sprm)
 		{
@@ -134,7 +134,7 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			break;
 		case sprmPJc:
 			apap->jc = bgetc(pointer,pos);
-			wvTrace("jc is now %d\n",apap->jc);
+			wvTrace(("jc is now %d\n",apap->jc));
 			break;
 		case sprmPFSideBySide:
 			apap->fSideBySide = bgetc(pointer,pos);
@@ -1675,7 +1675,7 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 		rgtbdAdd=NULL;
 		}
 	if (*pos-oldpos != cch+1)
-		wvError("Offset Problem in wvApplysprmPChgTabsPapx\n");
+		wvError(("Offset Problem in wvApplysprmPChgTabsPapx\n"));
 	
 	/*
 	When sprmPChgTabsPapx is interpreted, the rgdxaDel of the sprm is applied
@@ -1709,9 +1709,9 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	i=0;
 	while ((j<apap->itbdMac) && (i < itbdAddMax))
 		{
-		wvTrace("i %d j apap->itbdMac %d %d\n",i,j,apap->itbdMac);
-		wvTrace("temp_rgdxaTab[j]\n",temp_rgdxaTab[j]);
-		wvTrace("rgdxaAdd[i]\n",rgdxaAdd[i]);
+		wvTrace(("i %d j apap->itbdMac %d %d\n",i,j,apap->itbdMac));
+		wvTrace(("temp_rgdxaTab[j]\n",temp_rgdxaTab[j]));
+		wvTrace(("rgdxaAdd[i]\n",rgdxaAdd[i]));
 		if ( (j<apap->itbdMac) && (temp_rgdxaTab[j] < rgdxaAdd[i]) )
 			{
 			apap->rgdxaTab[k] = temp_rgdxaTab[j];
@@ -1758,7 +1758,7 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
  	TBD *rgtbdAdd;
 	U8 i,j,k=0;
 
-	wvTrace("entering wvApplysprmPChgTabs\n");
+	wvTrace(("entering wvApplysprmPChgTabs\n"));
 	/*
 	itbdDelMax and itbdAddMax are defined to be equal to 50. This means that the
 	largest possible instance of sprmPChgTabs is 354. When the length of the
@@ -1768,7 +1768,7 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 	*/
 
 	cch = dgetc(NULL,&pointer);
-	wvTrace("cch is %d\n",cch);
+	wvTrace(("cch is %d\n",cch));
 	(*pos)++;
 	itbdDelMax = dgetc(NULL,&pointer);
 	(*pos)++;
@@ -1986,9 +1986,9 @@ void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos)
 	itself). A sprmPHugePapx should therefore only be found in a PAPX FKP and
 	should be the only sprm in that PAPX's grpprl.
 	*/
-	wvError("This document has an unsupported sprm (sprmPHugePapx), please mail ");
-	wvError("Caolan.McNamara@ul.ie with this document, as i haven't been able to ");
-	wvError("get any examples of it so as to figure out how to handle it\n");
+	wvError(("This document has an unsupported sprm (sprmPHugePapx), please mail "));
+	wvError(("Caolan.McNamara@ul.ie with this document, as i haven't been able to "));
+	wvError(("get any examples of it so as to figure out how to handle it\n"));
 	(*pos)+=4;
 	}
 
@@ -2202,9 +2202,9 @@ void wvApplysprmCSizePos(CHP *achp,U8 *pointer,U16 *pos)
 	some comments on the whole matter
 	*/
 	
-	wvError("This document has an unsupported sprm (sprmCSizePos), please mail ");
-	wvError("Caolan.McNamara@ul.ie with this document, as i haven't been able to ");
-	wvError("get any examples of it so as to figure out how to handle it\n");
+	wvError(("This document has an unsupported sprm (sprmCSizePos), please mail "));
+	wvError(("Caolan.McNamara@ul.ie with this document, as i haven't been able to "));
+	wvError(("get any examples of it so as to figure out how to handle it\n"));
 
 	}
 
@@ -2235,9 +2235,9 @@ void wvApplysprmCHpsInc(CHP *achp,U8 *pointer,U16 *pos)
 	sprmCHpsInc is stored only in grpprls linked to piece table entries.
 	*/
 
-	wvError("This document has an unsupported sprm (sprmCHpsInc), please mail ");
-	wvError("Caolan.McNamara@ul.ie with this document, as i haven't been able to ");
-	wvError("get any examples of it so as to figure out how to handle it\n");
+	wvError(("This document has an unsupported sprm (sprmCHpsInc), please mail "));
+	wvError(("Caolan.McNamara@ul.ie with this document, as i haven't been able to "));
+	wvError(("get any examples of it so as to figure out how to handle it\n"));
 
 	param = dgetc(NULL,&pointer);
 
@@ -2278,9 +2278,9 @@ void wvApplysprmCHpsPosAdj(CHP *achp,U8 *pointer,U16 *pos)
 	After chp.hps is adjusted, the parameter value is stored in chp.hpsPos. 
 	*/
 
-	wvError("This document has an partially unsupported sprm (sprmCHpsPosAdj), please mail ");
-	wvError("Caolan.McNamara@ul.ie with this document, as i haven't been able to ");
-	wvError("get any examples of it so as to figure out how to handle it\n");
+	wvError(("This document has an partially unsupported sprm (sprmCHpsPosAdj), please mail "));
+	wvError(("Caolan.McNamara@ul.ie with this document, as i haven't been able to "));
+	wvError(("get any examples of it so as to figure out how to handle it\n"));
 
 	param = dgetc(NULL,&pointer);
 	(*pos)++;
@@ -2317,9 +2317,9 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	field is reset to the value stored in the style's CHP. If the two copies
 	differ, then the original CHP value is left unchanged.
 	*/
-	wvTrace("This document has a sprm (sprmCMajority), that ive never seen in practice please mail ");
-	wvTrace("Caolan.McNamara@ul.ie with this document, as i haven't been able to ");
-	wvTrace("get any examples of it so as to figure out if its handled correctly\n");
+	wvTrace(("This document has a sprm (sprmCMajority), that ive never seen in practice please mail "));
+	wvTrace(("Caolan.McNamara@ul.ie with this document, as i haven't been able to "));
+	wvTrace(("get any examples of it so as to figure out if its handled correctly\n"));
 	
 	wvInitCHP(&base);
 	base.ftc=4;
@@ -2336,11 +2336,11 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 		(*pos)++;
 		}
 
-	wvTrace("achp istd is %d\n",achp->istd);
+	wvTrace(("achp istd is %d\n",achp->istd));
 	
 	wvAddCHPXFromBucket(&base,&upxf,stsh);
 
-	wvTrace("achp istd is %d\n",achp->istd);
+	wvTrace(("achp istd is %d\n",achp->istd));
 
 	/* this might be a little wrong, review after doing dedicated CHP's*/
 	if (achp->fBold == base.fBold)
@@ -2425,9 +2425,9 @@ void wvApplysprmCMajority50(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	field is reset to the value stored in the style's CHP. If the two copies
 	differ, then the original CHP value is left unchanged.
 	*/
-	wvTrace("This document has a sprm (sprmCMajority50), that ive never seen in practice please mail ");
-	wvTrace("Caolan.McNamara@ul.ie with this document, as i haven't been able to ");
-	wvTrace("get any examples of it so as to figure out if its handled correctly\n");
+	wvTrace(("This document has a sprm (sprmCMajority50), that ive never seen in practice please mail "));
+	wvTrace(("Caolan.McNamara@ul.ie with this document, as i haven't been able to "));
+	wvTrace(("get any examples of it so as to figure out if its handled correctly\n"));
 	
 	wvInitCHP(&base);
 	base.ftc=4;
@@ -2447,7 +2447,7 @@ void wvApplysprmCMajority50(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	wvAddCHPXFromBucket(&base,&upxf,stsh);
 
 	/* this might be a little wrong, review after doing dedicated CHP's*/
-	wvTrace("istd is %d\n",achp->istd);
+	wvTrace(("istd is %d\n",achp->istd));
 	if (achp->fBold == base.fBold)
 		achp->fBold = stsh->std[achp->istd].grupe[0].achp.fBold;
 	if (achp->fItalic == base.fItalic)
@@ -2540,7 +2540,7 @@ SprmName wvGetrgsprmPrm(U16 in)
 	{
 	if (in > 0x80)
 		{
-		wvError("Impossible rgsprmPrm value\n");
+		wvError(("Impossible rgsprmPrm value\n"));
 		return(sprmNoop);
 		}
 	return(rgsprmPrm[in]);

@@ -14,15 +14,23 @@ void wvInitError(void)
 	wvtrace=stderr;
 	}
 
-void wvRealError(char *file, int line,char *fmt, ...)
-    {
+char * wvFmtMsg(char *fmt, ...)
+	{
+	static char mybuf[1024];
+	
     va_list argp;
+    va_start(argp, fmt);
+    vsprintf(mybuf, fmt, argp);
+    va_end(argp);
+
+	return mybuf;
+}
+
+void wvRealError(char *file, int line, char * msg)
+    {
 	if (wverror == NULL)
 		return;
-    fprintf(wverror, "wvError: (%s:%d) ",file,line);
-    va_start(argp, fmt);
-    vfprintf(wverror, fmt, argp);
-    va_end(argp);
+    fprintf(wverror, "wvError: (%s:%d) %s ",file,line, msg);
     fflush(wverror);
     }
 

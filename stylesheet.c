@@ -14,7 +14,7 @@ void wvGetSTSHI(STSHI *item,U16 cbSTSHI,FILE *fd)
 
     item->cstd = read_16ubit(fd);
 	count+=2;
-	wvTrace("there are %d std\n",item->cstd);
+	wvTrace(("there are %d std\n",item->cstd));
     item->cbSTDBaseInFile = read_16ubit(fd);
 	count+=2;
 	temp16 = read_16ubit(fd);
@@ -111,7 +111,7 @@ int wvGetSTD(STD *item,U16 baselen,FILE *fd)
 
 	wvInitSTD(item); /* zero any new fields that might not exist in the file*/
 
-	wvTrace("baselen set to %d\n",baselen);
+	wvTrace(("baselen set to %d\n",baselen));
 
 	temp16 = read_16ubit(fd);
 	count+=2;
@@ -144,7 +144,7 @@ int wvGetSTD(STD *item,U16 baselen,FILE *fd)
 			count++;
 			}
 		}
-	wvTrace("count is %d, baselen is %d\n",count,baselen);
+	wvTrace(("count is %d, baselen is %d\n",count,baselen));
 
 
 	pos=10;
@@ -161,7 +161,7 @@ int wvGetSTD(STD *item,U16 baselen,FILE *fd)
 		pos+=2;
 		}
 
-	wvTrace("doing a std, str len is %d\n",len+1);
+	wvTrace(("doing a std, str len is %d\n",len+1));
 	item->xstzName = (U16 *)malloc((len+1) * sizeof(XCHAR));
 
 	for(i=0;i<len+1;i++)
@@ -177,12 +177,12 @@ int wvGetSTD(STD *item,U16 baselen,FILE *fd)
 			pos+=2;
 			}
 
-		wvTrace("sample letter is %c\n",item->xstzName[i]);
+		wvTrace(("sample letter is %c\n",item->xstzName[i]));
 		}
-	wvTrace("string ended\n");
+	wvTrace(("string ended\n"));
 
 
-	wvTrace("cupx is %d\n",item->cupx);
+	wvTrace(("cupx is %d\n",item->cupx));
 	if (item->cupx == 0)
 		{
 		item->grupxf = NULL;
@@ -193,14 +193,14 @@ int wvGetSTD(STD *item,U16 baselen,FILE *fd)
 	item->grupxf = (UPXF *)malloc(sizeof(UPXF) * item->cupx);
 	if (item->grupxf == NULL)
 		{
-		wvError("Couuldn't alloc %d bytes for UPXF\n",sizeof(UPXF) * item->cupx);
+		wvError(("Couuldn't alloc %d bytes for UPXF\n",sizeof(UPXF) * item->cupx));
 		return(0);
 		}
 
 	item->grupe = (UPE *)malloc(sizeof(UPE) * item->cupx);
 	if (item->grupe == NULL)
 		{
-		wvError("Couuldn't alloc %d bytes for UPE\n",sizeof(UPE) * item->cupx);
+		wvError(("Couuldn't alloc %d bytes for UPE\n",sizeof(UPE) * item->cupx));
 		return(0);
 		}
 
@@ -214,7 +214,7 @@ int wvGetSTD(STD *item,U16 baselen,FILE *fd)
 			}
 		
 		item->grupxf[i].cbUPX = read_16ubit(fd);
-		wvTrace("cbUPX is %d\n",item->grupxf[i].cbUPX);
+		wvTrace(("cbUPX is %d\n",item->grupxf[i].cbUPX));
 		pos+=2;
 
 		if (item->grupxf[i].cbUPX == 0)
@@ -245,7 +245,7 @@ int wvGetSTD(STD *item,U16 baselen,FILE *fd)
 			}
 		else 
 			{
-			wvTrace("Strange cupx option\n");
+			wvTrace(("Strange cupx option\n"));
 			fseek(fd,item->grupxf[i].cbUPX,SEEK_CUR);
 			pos+=item->grupxf[i].cbUPX;
 			}
@@ -264,7 +264,7 @@ void wvReleaseSTSH(STSH *item)
 	int i;
 	for (i=0;i<item->Stshi.cstd;i++)
 		{
-		wvTrace("Releaseing %d std\n",i);
+		wvTrace(("Releaseing %d std\n",i));
 		wvReleaseSTD(&(item->std[i]));
 		}
 	wvFree(item->std);
@@ -279,7 +279,7 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 		item->std=NULL;
 		return;
 		}
-	wvTrace("stsh offset len is %x %d\n",offset,len);
+	wvTrace(("stsh offset len is %x %d\n",offset,len));
 	fseek(fd,offset,SEEK_SET);
 	cbStshi = read_16ubit(fd);
 	wvGetSTSHI(&(item->Stshi),cbStshi,fd);
@@ -292,13 +292,13 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 	item->std = (STD *)malloc(sizeof(STD) * item->Stshi.cstd);
 	if (item->std == NULL)
 		{
-		wvError("No mem for STD list, of size %d\n",sizeof(STD) * item->Stshi.cstd);
+		wvError(("No mem for STD list, of size %d\n",sizeof(STD) * item->Stshi.cstd));
 		return;
 		}
 	for(i=0;i<item->Stshi.cstd;i++)
 		{
 		cbStd = read_16ubit(fd);
-		wvTrace("index is %d,cbStd is %d, should end on %x\n",i,cbStd,ftell(fd)+cbStd);
+		wvTrace(("index is %d,cbStd is %d, should end on %x\n",i,cbStd,ftell(fd)+cbStd));
 		if (cbStd == 0)
 			wvInitSTD(&(item->std[i]));
 		else
@@ -311,7 +311,7 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 			*/
 			if ((item->std[i].istdBase >= i) && (item->std[i].istdBase != istdNil))
 				{
-				wvError("ISTD's out of sequence, current no is %d, but base is %d\n",i,item->std[i].istdBase);
+				wvError(("ISTD's out of sequence, current no is %d, but base is %d\n",i,item->std[i].istdBase));
 				switch (item->std[i].sgc)
                     {
                     case sgcPara:
@@ -334,7 +334,7 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 			switch (item->std[i].sgc)
 				{
 				case sgcPara:
-					wvTrace("doing paragraph, len is %d\n",item->std[i].grupxf[0].cbUPX);
+					wvTrace(("doing paragraph, len is %d\n",item->std[i].grupxf[0].cbUPX));
 					wvInitPAPFromIstd(&(item->std[i].grupe[0].apap),item->std[i].istdBase,item);
 					if (word6)
 						wvAddPAPXFromBucket6(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item);
@@ -356,7 +356,7 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 
 					break;
 				case sgcChp:
-					/*wvTrace("sgcChp style, len is %d %d\n",item->std[i].grupxf[0].cbUPX,item->std[i].grupe[0].chpx.cbGrpprl);*/
+					/*wvTrace(("sgcChp style, len is %d %d\n",item->std[i].grupxf[0].cbUPX,item->std[i].grupe[0].chpx.cbGrpprl));*/
 					wvInitCHPXFromIstd(&(item->std[i].grupe[0].chpx),item->std[i].istdBase,item);
 
 					if (word6)
@@ -371,7 +371,7 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 					break;
 				}
 			}
-		wvTrace("actually ended on %x\n",ftell(fd));
+		wvTrace(("actually ended on %x\n",ftell(fd)));
 		}
 	}
 
@@ -426,7 +426,7 @@ style *decode_stylesheet(FILE *tablefd,U32 stsh,U32 stshlen,config_style *Xin_st
 	stylelist = (style *) malloc(sizeof(style) * nostyles);
 	if (stylelist == NULL)
 		{
-		wvError("arse no mem for styles !\n");
+		wvError(("arse no mem for styles !\n"));
 		exit(-1);
 		}
 

@@ -22,7 +22,7 @@ void wvListBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte)
 	{
 	U32 i=0;
 	for (i=0;i<*nobte;i++)
-		wvTrace("range %x %x is pn %d\n",(*pos)[i],(*pos)[i+1],(*bte)[i].pn);
+		wvTrace(("range %x %x is pn %d\n",(*pos)[i],(*pos)[i+1],(*bte)[i].pn));
 	}
 
 int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
@@ -37,18 +37,18 @@ int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
 	else
         {
         *nobte=(len-4)/(cb6BTE+4);
-		wvTrace("no of bte is %d at %x\n",*nobte,offset);
+		wvTrace(("no of bte is %d at %x\n",*nobte,offset));
         *pos = (U32 *) malloc( (*nobte+1) * sizeof(U32));
         if (*pos == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",(*nobte+1) * sizeof(U32));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nobte+1) * sizeof(U32)));
             return(1);
             }
 
         *bte = (BTE *) malloc(*nobte * sizeof(BTE));
         if (*bte == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",*nobte * sizeof(BTE));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",*nobte * sizeof(BTE)));
 			free(pos);
             return(1);
             }
@@ -76,18 +76,18 @@ int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
 	else
         {
         *nobte=(len-4)/(cbBTE+4);
-		wvTrace("no of bte is %d at %x\n",*nobte,offset);
+		wvTrace(("no of bte is %d at %x\n",*nobte,offset));
         *pos = (U32 *) malloc( (*nobte+1) * sizeof(U32));
         if (*pos == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",(*nobte+1) * sizeof(U32));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nobte+1) * sizeof(U32)));
             return(1);
             }
 
         *bte = (BTE *) malloc(*nobte * sizeof(BTE));
         if (*bte == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",*nobte * sizeof(BTE));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",*nobte * sizeof(BTE)));
 			free(pos);
             return(1);
             }
@@ -111,7 +111,7 @@ int wvGetBTE_FromFC(BTE *bte, U32 currentfc, BTE *list,U32 *fcs, int nobte)
 	int i=0;
 	while(i<nobte)
 		{
-		wvTrace("bte %x %x\n",wvNormFC(fcs[i],NULL),wvNormFC(fcs[i+1],NULL));
+		wvTrace(("bte %x %x\n",wvNormFC(fcs[i],NULL),wvNormFC(fcs[i+1],NULL)));
 		if ( (currentfc >= wvNormFC(fcs[i],NULL)) && (currentfc < wvNormFC(fcs[i+1],NULL)) )
 			{
 			wvCopyBTE(bte,&list[i]);

@@ -468,7 +468,7 @@ int main(int argc,char **argv)
 	ret = wvInitParser(&ps,input);
 	if (ret)
 		{
-		wvError("startup error\n");
+		wvError(("startup error\n"));
 		return(-1);
 		}
 
