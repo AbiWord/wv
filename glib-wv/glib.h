@@ -158,6 +158,13 @@ void		g_printerr		(const gchar	*format,
 #undef	CLAMP
 #define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
 
+#ifndef GINT_TO_POINTER
+#define GINT_TO_POINTER(i) (gpointer)(i)
+#endif
+
+#ifndef GPOINTER_TO_INT
+#define GPOINTER_TO_INT(p) (gint)(p)
+#endif
 
 /* Define G_VA_COPY() to do the right thing for copying va_list variables.
  * glibconfig.h may have already defined G_VA_COPY as va_copy or __va_copy.
