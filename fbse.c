@@ -292,9 +292,17 @@ wvGetMetafile (MetaFileBlip * amf, MSOFBH * amsofbh, wvStream * fd)
 	  rewind (tmp);
       }
     
-    rewind (tmp);
-
-    wvStream_FILE_create (&stm, tmp);
+   { 
+      long size;
+      char *buf;
+      fseek(tmp,0,SEEK_END);
+      size = ftell(tmp);
+      buf  = malloc(size);
+      rewind (tmp);
+      fread(buf,size,1,tmp);
+      fclose(tmp);
+      wvStream_memory_create (&stm, buf, size);
+    }
 
     amf->m_pvBits = stm; 
 
