@@ -64,7 +64,9 @@
 /* #include <dirent.h> */
 #include <stdarg.h>
 
+/*
 #include <getopt.h>
+*/
 
 #undef MATCHED_TYPE
 #undef WORDS_BIGENDIAN
