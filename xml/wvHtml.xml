@@ -166,10 +166,10 @@ or uncomment below to make deleted text dissappear (well, become commented out)
 <RMarkDel><begin>&lt;!-&#45;</begin><end>-&#45;&gt;</end></RMarkDel>
 -->
 
-<!-- I don't even know what outline means -->
+<!-- Overwriting char props. like CaPs->CAPS SmallCaps->smallcaps -->
 <outline><begin></begin><end></end></outline>
-<smallcaps><begin></begin><end></end></smallcaps>
-<caps><begin></begin><end></end></caps>
+<smallcaps><begin>&lt;span style=&quot;text-transform:lowercase&quot;&gt;</begin><end>&lt;/span&gt;</end></smallcaps>
+<caps><begin>&lt;span style=&quot;text-transform:uppercase&quot;&gt;</begin><end>&lt;/span&gt;</end></caps>
 <vanish><begin></begin><end></end></vanish>
 
 <!--If you uncomment this then the annotation text links will become commented out by html tags-->

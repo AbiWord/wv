@@ -2182,7 +2182,7 @@ ms_ole_lseek (MsOleStream *s, MsOleSPos bytes, MsOleSeek type)
 	else if (type == MsOleSeekCur)
 		newpos = s->position + bytes;
 	else
-		newpos = s->size + bytes;
+		newpos = s->size - bytes;
 
 	if (newpos > (MsOleSPos) s->size || newpos < 0) {
 		g_warning ("Invalid seek");

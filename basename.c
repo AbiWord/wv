@@ -33,6 +33,10 @@ remove_suffix (char *name, const char *suffix)
     char *np;
     const char *sp;
 
+/*lvm007@aha.ru fix for filename case insencetivity in Win*/
+#ifdef _WIN32
+	_strlwr(name);
+#endif
     np = name + strlen (name);
     sp = suffix + strlen (suffix);
 
@@ -47,8 +51,13 @@ remove_suffix (char *name, const char *suffix)
 # define FILESYSTEM_PREFIX_LEN(Filename) 0
 #endif
 
+/*lvm007@aha.ru fix for filename back splashes*/
 #ifndef ISSLASH
-# define ISSLASH(C) ((C) == '/')
+#ifndef _WIN32
+ # define ISSLASH(C) ((C) == '/')
+#else
+# define ISSLASH(C) ((C) == '/'||(C) == '\\')
+#endif
 #endif
 
 /* In general, we can't use the builtin `basename' function if available,

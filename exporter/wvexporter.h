@@ -2,6 +2,7 @@
 #define WVEXPORTER_H
 
 #include "wv.h"
+#include "wvinternal.h"
 
 #ifdef __cplusplus
 extern "C" {

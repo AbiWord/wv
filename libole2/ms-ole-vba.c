@@ -22,6 +22,11 @@ struct _MsOleVba {
 	int          pos;
 };
 
+#if defined _VISUALC_
+#define inline __inline
+#endif
+
+
 inline gboolean
 ms_ole_vba_eof (MsOleVba *vba)
 {

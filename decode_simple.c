@@ -25,6 +25,7 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
     CHP achp;
     U32 piececount = 0, i, j = 0, spiece;
     U32 beginfc, endfc;
+	U32 stream_size;
     U32 begincp, endcp;
     U8 chartype;
     U16 eachchar;
@@ -239,15 +240,30 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
     wvHandleDocument (ps, DOCBEGIN);
 
 
+	/*get stream size for bounds checking*/
+	stream_size = wvStream_size(ps->mainfd);
 
     /*for each piece */
     for (piececount = 0; piececount < ps->clx.nopcd; piececount++)
       {
 	  chartype =
 	      wvGetPieceBoundsFC (&beginfc, &endfc, &ps->clx, piececount);
+	  if(chartype==-1)
+		  break;
+	  /*lvm007@aha.ru fix antiloop: check stream size */
+	  if(beginfc>stream_size || endfc>stream_size){
+		  wvError (
+		   ("Piece Bounds out of range!, its a disaster\n"));
+		  continue;
+	  }
+
 	  wvStream_goto (ps->mainfd, beginfc);
+
 	  wvTrace (("SEEK %x\n", beginfc));
-	  wvGetPieceBoundsCP (&begincp, &endcp, &ps->clx, piececount);
+
+	  /*lvm007@aha.ru fix antiloop fix*/
+	  if(wvGetPieceBoundsCP (&begincp, &endcp, &ps->clx, piececount)==-1)
+		  break;
 
 	  /*
 	     text that is not in the same piece is not guaranteed to have the same properties as
@@ -429,6 +445,11 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 			      }
 
 			}
+		      else{
+  			/* lvm007@aha.ru fix: if currentfc>fcFirst but CHARPROP's changed look examples/charprops.doc*/
+			if(char_fcFirst< j)
+				char_fcFirst = j;
+		       }
 		  }
 
 		if (j == char_fcFirst)

@@ -37,7 +37,9 @@
 #include "glib.h"
 
 #ifdef _WIN32_
-
+#ifndef _WINDOWS_
+#include <windows.h>
+#endif
 static void
 ensure_stdout_valid (void)
 {

@@ -363,7 +363,7 @@ wvStream_size (wvStream * in)
   long offset = wvStream_tell(in);
   wvStream_offset_from_end(in,0);
   size = wvStream_tell(in);
-  wvStream_offset(in,offset);
+  wvStream_goto(in,offset);
 
   return size;
 }

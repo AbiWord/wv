@@ -333,6 +333,7 @@ wvDecodeComplex (wvParseStruct * ps)
 {
     U32 piececount = 0, i, j, spiece = 0;
     U32 beginfc, endfc;
+	U32 stream_size;
     U32 begincp, endcp;
     U8 chartype;
     U16 eachchar;
@@ -511,14 +512,27 @@ encoded into the first 22 bytes.
 
     wvHandleDocument (ps, DOCBEGIN);
 
+	/*get stream size for bounds checking*/
+	stream_size = wvStream_size(ps->mainfd);
 
     /*for each piece */
     for (piececount = 0; piececount < ps->clx.nopcd; piececount++)
       {
 	  chartype =
 	      wvGetPieceBoundsFC (&beginfc, &endfc, &ps->clx, piececount);
+	  if(chartype==-1)
+		  break;
+
+	  /*lvm007@aha.ru fix antiloop: check stream size */
+	  if(beginfc>stream_size || endfc>stream_size){
+		  wvError (
+		   ("Piece Bounds out of range!, its a disaster\n"));
+		  continue;
+	  }
 	  wvStream_goto (ps->mainfd, beginfc);
-	  wvGetPieceBoundsCP (&begincp, &endcp, &ps->clx, piececount);
+	  /*lvm007@aha.ru fix antiloop fix*/
+	  if(wvGetPieceBoundsCP (&begincp, &endcp, &ps->clx, piececount)==-1)
+		  break;
 	  wvTrace (
 		   ("piece begins at %x and ends just before %x. the char end is %x\n",
 		    beginfc, endfc, char_fcLim));
@@ -756,6 +770,11 @@ encoded into the first 22 bytes.
 			      }
 
 			}
+		      else{
+  			 /* lvm007@aha.ru fix: if currentfc>fcFirst but CHARPROP's changed look examples/charprops.doc for decode_simple*/
+			 if(char_fcFirst< j)
+				char_fcFirst = j;
+		       }
 		  }
 
 		if (j == char_fcFirst)

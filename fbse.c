@@ -64,7 +64,8 @@ wvGetBlip (Blip * blip, wvStream * fd, wvStream * delay)
     if (delay)
       {
 	  pos = wvStream_tell (delay);
-	  wvStream_goto (delay, blip->fbse.foDelay);
+	  if(blip->fbse.foDelay!=-1)
+		wvStream_goto (delay, blip->fbse.foDelay);
 	  wvTrace (("offset %x\n", blip->fbse.foDelay));
 	  fd = delay;
       }
