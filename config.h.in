@@ -1,3 +1,6 @@
+#ifndef CONFIG_H_CALLED
+#define CONFIG_H_CALLED
+
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
 /* Define to empty if the keyword does not work.  */
@@ -93,3 +96,5 @@
 #endif /* not HAVE_MEMCPY */
 
 #undef HAVE_MMAP
+
+#endif

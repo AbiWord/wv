@@ -1,6 +1,3 @@
-#include "config.h"
-#ifndef HAVE_UNISTD_H
-
 /* Declarations for getopt.
    Copyright (C) 1989,90,91,92,93,94,96,97 Free Software Foundation, Inc.
 
@@ -24,6 +21,9 @@ USA.  */
 
 #ifndef _GETOPT_H
 #define _GETOPT_H 1
+
+#include "config.h"
+#ifndef HAVE_UNISTD_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -133,5 +133,5 @@ extern int _getopt_internal ();
 }
 #endif
 
-#endif /* _GETOPT_H */
 #endif /* HAVE_UNISTD_H */
+#endif /* _GETOPT_H */
