@@ -455,17 +455,16 @@ wvLIDToCodePageConverter (U16 lid)
       case 0x16:		/*Portuguese */
 	  return ("CP1252");
       case 0x17:		/*Rhaeto-Romanic */
-	  return ("CP1252");	/* ? */
+	  return ("CP1252");
       case 0x18:		/*Romanian */
 	  return ("CP1250");
       case 0x19:		/*Russian */
 	  return ("CP1251");
-      case 0x1a:		/*Serbian, Croatian */
+      case 0x1a:		/*Serbian, Croatian, (Bosnian?) */
       switch (lid)
 		{
-#if 0
       	case 0x041a:		/*Croatian */
-#endif
+	  	return ("CP1252");
       	case 0x0c1a:		/*Serbian (Cyrillic) */
 	  	return ("CP1251");
       	case 0x081a:		/*Serbian (Latin) */
@@ -481,13 +480,13 @@ wvLIDToCodePageConverter (U16 lid)
 	  return ("CP874");
       case 0x1f:		/*Turkish */
 	  return ("CP1254");
-      case 0x20:		/*Urdu */
-	  return ("CP1256");
-      case 0x21:		/*Bahasa / Indonesian */
-	  return ("CP1256");
+      case 0x20:		/*Urdu. This is Unicode only. */
+	  return ("0");
+      case 0x21:		/*Bahasa Indonesian */
+	  return ("CP1252");
       case 0x22:		/*Ukrainian */
 	  return ("CP1251");
-      case 0x23:		/*Byelorussian / Belarussian */
+      case 0x23:		/*Byelorussian / Belarusian */
 	  return ("CP1251");
       case 0x24:		/*Slovenian */
 	  return ("CP1250");
@@ -497,8 +496,8 @@ wvLIDToCodePageConverter (U16 lid)
 	  return ("CP1257");
       case 0x27:		/*Lithuanian */
 	  return ("CP1257");
-      case 0x29:		/*Farsi */
-	  return ("CP1256");
+      case 0x29:		/*Farsi / Persian. This is Unicode only. */
+	  return ("0");
       case 0x2a:		/*Vietnamese */
 	  return ("CP1258");
       case 0x2b:		/*Windows 2000: Armenian. This is Unicode only. */
@@ -523,17 +522,17 @@ wvLIDToCodePageConverter (U16 lid)
 	  return ("CP1252");
       case 0x37:		/*Windows 2000: Georgian. This is Unicode only. */
 	  return ("CP0");
-#if 0
       case 0x38:		/*Faeroese */
-#endif
+	  return ("CP1252");
       case 0x39:		/*Windows 2000: Hindi. This is Unicode only. */
 	  return ("CP0");
       case 0x3E:		/*Malaysian / Malay */
-	  return ("CP1251");
+	  return ("CP1252");
 #if 0
       case 0x3f:		/*Kazakh */
-      case 0x41:		/*Swahili */
 #endif
+      case 0x41:		/*Swahili */
+	  return ("CP1252");
       case 0x43:		/*Uzbek */
       switch (lid)
 		{
@@ -558,9 +557,8 @@ wvLIDToCodePageConverter (U16 lid)
       case 0x4e:		/*Windows 2000: Marathi. This is Unicode only. */
       case 0x4f:		/*Windows 2000: Sanskrit. This is Unicode only. */
 	  return ("CP0");
-#if 0
-      case 0x55:		/*Burmese */
-#endif
+      case 0x55:		/*Myanmar / Burmese. This is Unicode only. */
+	  return ("CP0");
       case 0x57:		/*Windows 2000: Konkani. This is Unicode only. */
 	  return ("CP0");
 #if 0
@@ -572,6 +570,7 @@ wvLIDToCodePageConverter (U16 lid)
 	  return ("CP0");
       };
 
+	/* TODO output a warning since this is a guess */
     return ("CP1252");
 }
 
