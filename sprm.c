@@ -1172,7 +1172,7 @@ wvApplysprmPChgTabsPapx (PAP * apap, U8 * pointer, U16 * pos)
        and rgtbd arrays so that the resulting pap rgdxaTab is sorted in ascending
        order with no duplicates.
      */
-    for (j = 0; j < apap->itbdMac; j++)
+    for (j = 0; j < apap->itbdMac, k < itbdMax; j++)
       {
 	  add = 1;
 	  for (i = 0; i < itbdDelMax; i++)
@@ -1340,7 +1340,7 @@ wvApplysprmPChgTabs (PAP * apap, U8 * pointer, U16 * pos)
       }
 
     wvTrace (("here %d\n", apap->itbdMac));
-    for (j = 0; j < apap->itbdMac; j++)
+    for (j = 0; j < apap->itbdMac, k < itbdMax; j++)
       {
 	  add = 1;
 	  for (i = 0; i < itbdDelMax; i++)
