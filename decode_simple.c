@@ -19,7 +19,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	CHPX_FKP char_fkp;
 	PAP apap;
     CHP achp;
-	U32 piececount=0,i,j=0;
+	U32 piececount=0,i,j=0,spiece;
 	U32 beginfc,endfc;
 	U32 begincp,endcp;
 	U8 chartype;
@@ -34,6 +34,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	U16 charset;
 	U8 state=0;
 	int para_pendingclose=0,char_pendingclose=0,section_pendingclose=0,comment_pendingclose=0;
+	int para_dirty=0,char_dirty=0,section_dirty=0;
 	SED *sed;
 	SEP sep;
 	U32 *posSedx;
@@ -153,14 +154,14 @@ void wvDecodeSimple(wvParseStruct *ps)
 			/* character properties */
 			if (j == char_fcLim)
 				{
-				wvHandleElement(ps, CHARPROPEND, (void*)&achp);
+				wvHandleElement(ps, CHARPROPEND, (void*)&achp,char_dirty);
 				char_pendingclose = 0;
 				}
 
 			/* comment ending location */
             if (i == comment_cpLim)
                 {
-                wvHandleElement(ps,COMMENTEND, (void*)catrd);
+                wvHandleElement(ps,COMMENTEND, (void*)catrd,0);
                 comment_pendingclose=0;
                 }
 
@@ -168,26 +169,26 @@ void wvDecodeSimple(wvParseStruct *ps)
 			/* paragraph properties */
 			if (j == para_fcLim)
 				{
-				wvHandleElement(ps, PARAEND, (void*)&apap);
+				wvHandleElement(ps, PARAEND, (void*)&apap,para_dirty);
 				para_pendingclose = 0;
 				}
 			
 			if (j == section_fcLim)
 				{
-				wvHandleElement(ps, SECTIONEND, (void*)&sep);
+				wvHandleElement(ps, SECTIONEND, (void*)&sep,section_dirty);
 				section_pendingclose = 0;
 				}
 
 			if ((section_fcLim == 0xffffffff) || (section_fcLim == j))
 				{
 				wvTrace(("j i is %x %d\n",j,i));
-				wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),&sep,&section_fcFirst,&section_fcLim, i,&ps->clx, sed, posSedx, section_intervals, &ps->stsh,ps->mainfd);
+				section_dirty = wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),&sep,&section_fcFirst,&section_fcLim, i,&ps->clx,sed,&spiece,posSedx, section_intervals, &ps->stsh,ps->mainfd);
 				wvTrace(("section begins at %x ends %x\n", section_fcFirst, section_fcLim));
 				}
 
 			if (j == section_fcFirst)
 				{
-				wvHandleElement(ps, SECTIONBEGIN, (void*)&sep);
+				wvHandleElement(ps, SECTIONBEGIN, (void*)&sep,section_dirty);
 				section_pendingclose = 1;
 				}
 			
@@ -199,7 +200,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 
 			if (j == para_fcFirst)
 				{
-				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
+				para_dirty = wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
 				if ( (apap.fInTable) && (!apap.fTtp) )
 					{
 					wvGetFullTableInit(ps,para_intervals,btePapx,posPapx);
@@ -208,7 +209,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 				else if (apap.fInTable == 0)
 					ps->intable=0;
 				
-				wvHandleElement(ps, PARABEGIN, (void*)&apap);
+				wvHandleElement(ps, PARABEGIN, (void*)&apap,para_dirty);
 				char_fcFirst = j;
 				para_pendingclose = 1;
 				}
@@ -223,7 +224,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 
             if (i == comment_cpFirst)
                 {
-                wvHandleElement(ps,COMMENTBEGIN, (void*)catrd);
+                wvHandleElement(ps,COMMENTBEGIN, (void*)catrd,0);
                 comment_pendingclose=1;
                 }
 
@@ -241,9 +242,9 @@ void wvDecodeSimple(wvParseStruct *ps)
 				wvTrace(("assembling CHP...\n"));
 				/* a CHP's base style is in the para style */
 				achp.istd = apap.istd;
-				wvAssembleSimpleCHP(&achp,char_fcLim, &char_fkp, &ps->stsh);
+				char_dirty = wvAssembleSimpleCHP(&achp,char_fcLim, &char_fkp, &ps->stsh);
 				wvTrace(("CHP assembled.\n"));
-				wvHandleElement(ps, CHARPROPBEGIN, (void*)&achp);
+				wvHandleElement(ps, CHARPROPBEGIN, (void*)&achp,char_dirty);
 				char_pendingclose = 1;
 				}
 
@@ -268,20 +269,20 @@ void wvDecodeSimple(wvParseStruct *ps)
 	if (char_pendingclose)
 		{
 		wvInitCHP(&achp);
-		wvHandleElement(ps, CHARPROPEND, (void*)&achp);
+		wvHandleElement(ps, CHARPROPEND, (void*)&achp,char_dirty);
 		}
 
 	if (comment_pendingclose)
-        wvHandleElement(ps,COMMENTEND, (void*)catrd);
+        wvHandleElement(ps,COMMENTEND, (void*)catrd,0);
 
 	if (para_pendingclose)
 		{
 		wvInitPAP(&apap);
-		wvHandleElement(ps, PARAEND, (void*)&apap);
+		wvHandleElement(ps, PARAEND, (void*)&apap,para_dirty);
 		}
 
 	if (section_pendingclose)
-		wvHandleElement(ps, SECTIONEND, (void*)&sep);
+		wvHandleElement(ps, SECTIONEND, (void*)&sep,section_dirty);
 
 	wvFree(posBKL);
 	wvFree(bkl);
@@ -449,9 +450,10 @@ sed.fc must be applied to the local SEP. The process thus far has created a
 SEP that describes what the section properties of the section at the last 
 full save. 
 */
-int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd)
+int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd)
 	{
 	U32 i=0;
+	int ret=0;
 	SEPX sepx;
 	long pos = ftell(fd);
 	U32 cpTest=0,j=section_intervals-1;
@@ -464,6 +466,7 @@ int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 c
 			{
 			cpTest = posSedx[i];
 			j = i;
+			*spiece = wvGetPieceFromCP(cpTest,clx);
 			}
 		i++;
 		}
@@ -480,12 +483,12 @@ int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 c
 		fseek(fd,wvNormFC(sed[j].fcSepx,NULL),SEEK_SET);
 		wvGetSEPX(version,&sepx,fd);
 		if (version == 0)
-			wvAddSEPXFromBucket(sep,&sepx,stsh);
+			ret = wvAddSEPXFromBucket(sep,&sepx,stsh);
 		else
-			wvAddSEPXFromBucket6(sep,&sepx,stsh);
+			ret = wvAddSEPXFromBucket6(sep,&sepx,stsh);
 		wvReleaseSEPX(&sepx);
 		}
 
 	fseek(fd,pos,SEEK_SET);
-	return(0);
+	return(ret);
 	}

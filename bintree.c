@@ -112,10 +112,12 @@ void DeleteNode(BintreeInfo *tree,Node *Z)
         if (Y->Right) Y->Right->Parent = Y;
         Y->Parent = Z->Parent;
         if (Z->Parent)
+			{
             if (Z == Z->Parent->Left)
                 Z->Parent->Left = Y;
             else
                 Z->Parent->Right = Y;
+			}
         else
             tree->Root = Y;
         free (Z);

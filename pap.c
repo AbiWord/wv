@@ -298,11 +298,12 @@ fkp.rgbx[i - 1] to find the PAPX for the paragraph.
 of the paragraph were at the last full save.
 */
 
-void wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
+int wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 	{
 	PAPX *papx;
 	int index,i;
 	UPXF upxf;
+	int ret=0;
 	/*index is the i in the text above*/
 	index = wvGetIndexFCInFKP_PAPX(fkp,fc);
 	
@@ -319,6 +320,7 @@ void wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 
 	if ((papx) && (papx->cb > 2))
 		{
+		ret=1;
 		wvTrace(("cbUPX is %d\n",papx->cb));
 		for (i=0;i<papx->cb-2;i++)
 			wvTrace(("-->%x ",papx->grpprl[i]));
@@ -336,6 +338,7 @@ void wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 		apap->istd = papx->istd;
 	
 	wvCopyPHE(&apap->phe,&(fkp->rgbx[index-1].phe),apap->fTtp);
+	return(ret);
 	}
 
 void wvReleasePAPX(PAPX *item)

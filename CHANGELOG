@@ -17,7 +17,18 @@ Changes to to 0.5.36
 	* implemented the COMMENT BEGIN and END, and applied it to the "simple code",
 	the actual comment itself and so on is part of the subdocuments which are
 	not implemented yet, but will be soon.
+	* overlooked complex sep properties, added them in.
+	* added dirty tag to the elehandler, 1 means that the property might (more than
+	likely it is) be modified from the original style as indicated by the istd, this
+	is implemented in simple and complex for PAP,CHP and SEP.
 ALL TODO
+	* break stylesheet into too, first read all the poxy little sprms into one location
+	and afterwards do the pap and chp generation.
+
+	* put the default text and char stuff into one single "style", and then try and
+	figure out a way to save arbitrary no of styles into some nice structure for
+	later seaching and stylesheet implementation.
+
 	* put code thats in both simple and complex together.
 
 	* title not being done in the correct charset

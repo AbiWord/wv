@@ -209,7 +209,7 @@ typedef struct _FIB
 	S32 cbMac ;				/* 0x0040 */
 	U32 lProductCreated ;				/* 0x0044 */
 	U32 lProductRevised ;				/* 0x0048 */
-	S32 ccpText ;				/* 0x004C */
+	U32 ccpText ;				/* 0x004C */
 	S32 ccpFtn ;				/* 0x0050 */
 	S32 ccpHdd ;				/* 0x0054 */
 	S32 ccpMcr ;				/* 0x0058 */
@@ -1596,8 +1596,14 @@ typedef struct _STD
     UPE *grupe; 
     } STD;
 
-#define sgcPara 1
-#define sgcChp  2
+typedef enum
+    {
+    sgcPara = 1,
+    sgcChp,
+    sgcPic,
+    sgcSep,
+    sgcTap
+    }sgcval;
 
 int wvGetSTD(STD *item,U16 baselen,FILE *fd);
 void wvInitSTD(STD *item);
@@ -1775,11 +1781,8 @@ typedef struct _SEPX
 
 void wvGetSEPX(int version,SEPX *item,FILE *fd);
 void wvReleaseSEPX(SEPX *item);
-void wvAddSEPXFromBucket(SEP *asep,SEPX *item,STSH *stsh);
-void wvAddSEPXFromBucket6(SEP *asep,SEPX *item,STSH *stsh);
-
-
-void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos);
+int wvAddSEPXFromBucket(SEP *asep,SEPX *item,STSH *stsh);
+int wvAddSEPXFromBucket6(SEP *asep,SEPX *item,STSH *stsh);
 
 typedef struct _Sprm
     {
@@ -1790,14 +1793,9 @@ typedef struct _Sprm
     U32 spra:3;       /*spra  size of sprm argument*/
     } Sprm;
 
-typedef enum
-    {
-    sgcPAP = 1,
-    sgcCHP,
-    sgcPIC,
-    sgcSEP,
-    sgcTAP
-    }sgcval;
+
+
+Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos);
 
 int wvSprmLen(int spra);
 void wvGetSprmFromU16(Sprm *Sprm,U16 sprm);
@@ -2654,7 +2652,7 @@ int wvIncFC(U8 chartype);
 
 int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,/*CLX *clx,*/ BTE *bte, U32 *pos,int nobte, FILE *fd);
 
-int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStruct *ps,CHP *achp);
+int wvOutputTextChar(U16 eachchar,U8 chartype,U16 outputtype,U8 *state,wvParseStruct *ps,CHP *achp);
 void wvOutputFromCP1252(U16 eachchar,U8 outputtype);
 void wvOutputFromUnicode(U16 eachchar,U8 outputtype);
 
@@ -2699,9 +2697,8 @@ void wvRealTrace(char *file, int line, char *msg);
 #define wvTrace( args )
 #endif
 
-void wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh);
-
-void wvAssembleComplexCHP(int version,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx);
+int wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh);
+int wvAssembleComplexCHP(int version,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx);
 
 void wvAppendStr(char **orig,const char *add);
 int wvParseConfig(state_data *myhandle);
@@ -2756,13 +2753,13 @@ typedef enum
 	COMMENTEND
 	} wvTag;
 
-int wvHandleElement(wvParseStruct *ps,wvTag tag, void *props);
-void wvSetElementHandler(int (*proc)(wvParseStruct *,wvTag, void *props));
+int wvHandleElement(wvParseStruct *ps,wvTag tag, void *props, int dirty);
+void wvSetElementHandler(int (*proc)(wvParseStruct *,wvTag, void *props, int dirty));
 int wvHandleDocument(wvParseStruct *ps,wvTag tag);
 void wvSetDocumentHandler(int (*proc)(wvParseStruct *,wvTag));
 
 SprmName wvGetrgsprmPrm(U16 in);
-void wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx);
+int wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx);
 U32 wvGetEndFCPiece(U32 piece,CLX *clx);
 void wvInitSprm(Sprm *Sprm);
 
@@ -2873,10 +2870,11 @@ typedef struct _WKB
 
 void wvGetWKB(WKB *item,FILE *fd);
 
-int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd);
+int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd);
+int wvGetComplexSEP(int version,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx);
 
 int wvGetSimpleCharBounds(int version, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, FILE *fd);
-void wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh);
+int wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh);
 int wvGetComplexCharfcLim(int version, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, FILE *fd);
 int wvGetComplexCharfcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, FILE *fd);
 

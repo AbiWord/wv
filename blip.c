@@ -301,7 +301,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 	FILE *out = fopen("drawingtest","w+b");
 	*/
 	FILE *out = tmpfile();
-	long finish,k;
+	long finish,k=0;
 	int pid;
 	char *name;
 	long lastpos = ftell(mainfd);

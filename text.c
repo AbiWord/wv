@@ -7,7 +7,7 @@ extern TokenTable s_Tokens[];
 
 int (*charhandler)(wvParseStruct *ps,U16 eachchar,U8 chartype)=NULL;
 int (*scharhandler)(wvParseStruct *ps,U16 eachchar,CHP *achp)=NULL;
-int (*elehandler)(wvParseStruct *ps,wvTag tag, void *props)=NULL;
+int (*elehandler)(wvParseStruct *ps,wvTag tag, void *props, int dirty)=NULL;
 int (*dochandler)(wvParseStruct *ps,wvTag tag)=NULL;
 
 
@@ -43,7 +43,7 @@ U16 wvLookupCharset(char *optarg)
     return(0xffff);
 	}
 
-int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStruct *ps, CHP *achp)
+int wvOutputTextChar(U16 eachchar,U8 chartype,U16 outputtype,U8 *state,wvParseStruct *ps, CHP *achp)
 	{
 	/*
 	if the character is still one of the special ones then call this other handler 
@@ -263,10 +263,10 @@ void wvEndDocument(expand_data *data)
 		}
 	}
 
-int wvHandleElement(wvParseStruct *ps,wvTag tag, void *props)
+int wvHandleElement(wvParseStruct *ps,wvTag tag, void *props, int dirty)
 	{
 	if (elehandler)
-		return( (*elehandler)(ps, tag, props) );
+		return( (*elehandler)(ps, tag, props, dirty) );
 	wvError(("unimplemented tag %d\n",tag));
 	return(0);
 	}
@@ -464,7 +464,7 @@ void wvSetSpecialCharHandler(int (*proc)(wvParseStruct *,U16,CHP *))
 	scharhandler = proc;
 	}
 
-void wvSetElementHandler(int (*proc)(wvParseStruct *,wvTag , void *))
+void wvSetElementHandler(int (*proc)(wvParseStruct *,wvTag , void *, int))
     {
 	elehandler = proc;
 	}

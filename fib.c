@@ -331,7 +331,7 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->cbMac = (S32)read_32ubit(fd);
 	item->lProductCreated = read_32ubit(fd);
 	item->lProductRevised = read_32ubit(fd);
-	item->ccpText = (S32)read_32ubit(fd);
+	item->ccpText = read_32ubit(fd);
 	item->ccpFtn = (S32)read_32ubit(fd);
 	item->ccpHdd = (S32)read_32ubit(fd);
 	item->ccpMcr = (S32)read_32ubit(fd);
@@ -664,7 +664,7 @@ void wvGetFIB6(FIB *item,FILE *fd)
 	read_16ubit(fd);
 	read_16ubit(fd);
 
-	item->ccpText = (S32)read_32ubit(fd);
+	item->ccpText = read_32ubit(fd);
 	item->ccpFtn = (S32)read_32ubit(fd);
 	item->ccpHdd = (S32)read_32ubit(fd);
 	item->ccpMcr = (S32)read_32ubit(fd);

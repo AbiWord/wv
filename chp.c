@@ -413,7 +413,7 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 	U16 sprm;
 	U8 len=0;
 	U8 temp;
-	Node *test;
+	Node *test=NULL;
 
 	U8 *pointer,*dpointer;
 	U8 *grpprl=NULL;
@@ -575,44 +575,44 @@ void wvUpdateCHPXBucket(UPXF *src)
  * -JB
  */
 
-void wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
-{
-   CHPX *chpx;
-   int index,i;
-   UPXF upxf;
-   
-   /* initialize CHP to para's stylesheet character properties
-    * this should have resolved all the other stylesheet dependencies
-    * for us, when the stsh's were initialized. */
+int wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
+	{
+	CHPX *chpx;
+	int index,i;
+	UPXF upxf;
+	int ret=0;
 
-   /* before this function was called, achp->istd should have
-    * been set to the current paragraph properties' stylesheet */
-   wvTrace(("istd index is %d\n", achp->istd));
-   wvInitCHPFromIstd(achp, achp->istd, stsh);
-   wvTrace(("underline bold is now %d %d\n",achp->kul,achp->fBold));
+	
+	/* initialize CHP to para's stylesheet character properties
+		* this should have resolved all the other stylesheet dependencies
+		* for us, when the stsh's were initialized. */
 
-   /*index is the i in the text above*/
-   /* the PAPX version of the function only looks at rgfc's, which are
-    * the same for CHPX and PAPX FKPs, so we'll reuse the function */
-   index = wvGetIndexFCInFKP_PAPX((PAPX_FKP*)fkp,fc);
-   
-   wvTrace(("index is %d, using %d\n", index, index-1));
+	/* before this function was called, achp->istd should have
+		* been set to the current paragraph properties' stylesheet */
+		
+	wvInitCHPFromIstd(achp, achp->istd, stsh);
 
-   /* get CHPX */
-   chpx = &(fkp->grpchpx[index-1]);
+	/*index is the i in the text above*/
+	/* the PAPX version of the function only looks at rgfc's, which are
+		* the same for CHPX and PAPX FKPs, so we'll reuse the function */
+	index = wvGetIndexFCInFKP_PAPX((PAPX_FKP*)fkp,fc);
+	
+	wvTrace(("index is %d, using %d\n", index, index-1));
 
-   /* apply CHPX from FKP */
-   if ((chpx) && (chpx->cbGrpprl > 0)) {
-       wvTrace(("cbUPX is %d\n",chpx->cbGrpprl));
-      for (i=0;i<chpx->cbGrpprl;i++)
-	wvTrace(("%x ",chpx->grpprl[i]));
-      wvTrace(("\n"));
-      upxf.cbUPX = chpx->cbGrpprl;
-      upxf.upx.chpx.grpprl = chpx->grpprl;
-      wvAddCHPXFromBucket(achp, &upxf, stsh);
-   }
-   
-}
+	/* get CHPX */
+	chpx = &(fkp->grpchpx[index-1]);
+
+	/* apply CHPX from FKP */
+	if ((chpx) && (chpx->cbGrpprl > 0)) 
+		{
+		ret=1;
+		for (i=0;i<chpx->cbGrpprl;i++)
+			upxf.cbUPX = chpx->cbGrpprl;
+		upxf.upx.chpx.grpprl = chpx->grpprl;
+		wvAddCHPXFromBucket(achp, &upxf, stsh);
+		}
+	return(ret);
+	}
 
 
 void wvGetCHPX(int version, CHPX *item, U32 offset, FILE *fd)

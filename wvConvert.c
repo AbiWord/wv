@@ -21,7 +21,7 @@ returns 1 for not an ole doc
 0 on success
 */
 
-int myelehandler(wvParseStruct *ps,wvTag tag, void *props);
+int myelehandler(wvParseStruct *ps,wvTag tag, void *props,int dirty);
 int mydochandler(wvParseStruct *ps,wvTag tag);
 FILE *wvOpenConfig(char *config);
 
@@ -154,7 +154,7 @@ int main(int argc,char **argv)
 	return(ret);
 	}
 
-int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
+int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
 	{
 	static int i;
 	expand_data *data = (expand_data *)ps->userData;

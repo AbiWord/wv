@@ -139,7 +139,7 @@ U8 wvEatSprm(U16 sprm,U8 *pointer, U16 *pos)
 	return(len);
 	}
 
-void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos)
+Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos)
 	{
 	BRC10 tempBRC10;
 	U16 temp16;
@@ -148,6 +148,7 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 	CHP tempchp;
 	SEP tempsep;
 	U8 toggle;
+	Sprm RetSprm;
 
 	/*bullet proofing*/
 	if (apap == NULL)
@@ -923,6 +924,9 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvEatSprm(sprm,pointer,pos);
 			break;
 		}
+
+	wvGetSprmFromU16(&RetSprm,sprm);
+	return(RetSprm);
 	}
 
 void wvApplysprmPIstdPermute(PAP *apap,U8 *pointer,U16 *pos)
@@ -993,10 +997,6 @@ void wvApplysprmPIncLvl(PAP *apap,U8 *pointer,U16 *pos)
 
 	*/
 	
-	/*
-	if ((apap->stc < 1) || (apap->stc > 9))
-		return;
-	*/
 	if ((apap->istd < 1) || (apap->istd > 9))
 		return;
 

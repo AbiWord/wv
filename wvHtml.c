@@ -21,7 +21,7 @@ returns 1 for not an ole doc
 0 on success
 */
 
-int myelehandler(wvParseStruct *ps,wvTag tag, void *props);
+int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty);
 int mydochandler(wvParseStruct *ps,wvTag tag);
 int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype);
 int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp);
@@ -172,7 +172,7 @@ int main(int argc,char **argv)
 	return(ret);
 	}
 
-int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
+int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
     {
 	static PAP *ppap;
     expand_data *data = (expand_data *)ps->userData;
@@ -205,6 +205,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
     switch (tag)
         {
         case PARABEGIN:
+			if (dirty) wvTrace(("unclean para\n"));
 			ppap = (PAP *)data->props;
             wvBeginPara(data);
             break;
@@ -213,6 +214,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
             wvEndPara(data);
             break;
         case CHARPROPBEGIN:
+			if (dirty) wvTrace(("unclean char\n"));
             wvBeginCharProp(data,ppap);
             break;
         case CHARPROPEND:

@@ -303,7 +303,7 @@ pages. for the purposes of headers and footers etc.
 */
 void wvDecodeComplex(wvParseStruct *ps)
 	{
-	U32 piececount=0,i,j;
+	U32 piececount=0,i,j,spiece=0;
 	U32 beginfc,endfc;
 	U32 begincp,endcp;
 	U8 chartype;
@@ -323,6 +323,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 	CHPX_FKP char_fkp;
 	CHP achp;
 	int para_pendingclose=0, comment_pendingclose=0, char_pendingclose=0,section_pendingclose=0;
+	int para_dirty=0,char_dirty=0,section_dirty=0;
 	SED *sed;
 	SEP sep;
 	U32 *posSedx;
@@ -439,37 +440,40 @@ encoded into the first 22 bytes.
 			/* character properties */
 			if (j == char_fcLim)
 				{
-				wvHandleElement(ps,CHARPROPEND, (void*)&achp);
+				wvHandleElement(ps,CHARPROPEND, (void*)&achp,char_dirty);
 				char_pendingclose=0;
 				}
 
 			/* comment ending location */
 			if (i == comment_cpLim)
 				{
-				wvHandleElement(ps,COMMENTEND, (void*)catrd);
+				wvHandleElement(ps,COMMENTEND, (void*)catrd,0);
 				comment_pendingclose=0;
 				}
 
 			/* paragraph properties */
 			if (j == para_fcLim)
 				{
-				wvHandleElement(ps,PARAEND, (void*)&apap);
+				wvHandleElement(ps,PARAEND, (void*)&apap,para_dirty);
 				para_pendingclose=0;
 				}
 
 			/* section properties */
 			if (j == section_fcLim)
                 {
-                wvHandleElement(ps, SECTIONEND, (void*)&sep);
+                wvHandleElement(ps, SECTIONEND, (void*)&sep,section_dirty);
                 section_pendingclose = 0;
                 }
 
 			if ((section_fcLim == 0xffffffff) || (section_fcLim == j))
-                wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),&sep,&section_fcFirst,&section_fcLim, i,&ps->clx, sed, posSedx, section_intervals, &ps->stsh,ps->mainfd);
+				{
+                section_dirty = wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),&sep,&section_fcFirst,&section_fcLim,i,&ps->clx, sed, &spiece,posSedx, section_intervals, &ps->stsh,ps->mainfd);
+                section_dirty = (wvGetComplexSEP(wvQuerySupported(&ps->fib,NULL),&sep,spiece,&ps->stsh,&ps->clx) ? 1 : section_dirty);
+				}
 
             if (j == section_fcFirst)
                 {
-                wvHandleElement(ps, SECTIONBEGIN, (void*)&sep);
+                wvHandleElement(ps, SECTIONBEGIN, (void*)&sep,section_dirty);
                 section_pendingclose = 1;
                 }
 
@@ -482,8 +486,8 @@ encoded into the first 22 bytes.
 
 			if (j == para_fcFirst)
 				{
-				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&ps->stsh);
-				wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&ps->stsh,&ps->clx);
+				para_dirty = wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&ps->stsh);
+				para_dirty = (wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&ps->stsh,&ps->clx) ? 1 : para_dirty);
 
 				if ( (apap.fInTable) && (!apap.fTtp) )
 					{
@@ -493,7 +497,7 @@ encoded into the first 22 bytes.
 				else if (apap.fInTable == 0)
 					ps->intable=0;
 
-				wvHandleElement(ps,PARABEGIN, (void*)&apap);
+				wvHandleElement(ps,PARABEGIN, (void*)&apap,para_dirty);
 
 				char_fcLim = j;
 				para_pendingclose=1;
@@ -510,7 +514,7 @@ encoded into the first 22 bytes.
 
 			if (i == comment_cpFirst)
 				{
-				wvHandleElement(ps,COMMENTBEGIN, (void*)catrd);
+				wvHandleElement(ps,COMMENTBEGIN, (void*)catrd,0);
 				comment_pendingclose=1;
 				}
 
@@ -529,9 +533,9 @@ encoded into the first 22 bytes.
 				{
 				/* a CHP's base style is in the para style */
 				achp.istd = apap.istd;
-				wvAssembleSimpleCHP(&achp,char_fcLim,&char_fkp,&ps->stsh);
-				wvAssembleComplexCHP(wvQuerySupported(&ps->fib,NULL),&achp,cpiece,&ps->stsh,&ps->clx);
-				wvHandleElement(ps,CHARPROPBEGIN, (void*)&achp);
+				char_dirty = wvAssembleSimpleCHP(&achp,char_fcLim,&char_fkp,&ps->stsh);
+				char_dirty = (wvAssembleComplexCHP(wvQuerySupported(&ps->fib,NULL),&achp,cpiece,&ps->stsh,&ps->clx) ? 1 : char_dirty);
+				wvHandleElement(ps,CHARPROPBEGIN, (void*)&achp,char_dirty);
 				char_pendingclose=1;
 				}
 
@@ -555,21 +559,21 @@ encoded into the first 22 bytes.
 
 		if (j == para_fcLim)
 			{
-			wvHandleElement(ps,PARAEND, (void*)&apap);
+			wvHandleElement(ps,PARAEND, (void*)&apap,para_dirty);
 			para_pendingclose=0;
 			para_fcLim = 0xffffffffL;
 			}
 
 		if (i == comment_cpLim)
 			{
-			wvHandleElement(ps,COMMENTEND, (void*)catrd);
+			wvHandleElement(ps,COMMENTEND, (void*)catrd,0);
 			comment_pendingclose=0;
 			comment_cpLim = 0xffffffffL;
 			}
 
 		if (j == char_fcLim)
 			{
-			wvHandleElement(ps,CHARPROPEND, (void*)&achp);
+			wvHandleElement(ps,CHARPROPEND, (void*)&achp,char_dirty);
 			char_pendingclose=0;
 			char_fcLim = 0xffffffffL;
 			}
@@ -581,7 +585,7 @@ encoded into the first 22 bytes.
 		forget and be tempted to put it back in :-)
 		if (j == section_fcLim)
 			{
-        	wvHandleElement(ps, SECTIONEND, (void*)&sep);
+        	wvHandleElement(ps, SECTIONEND, (void*)&sep,section_dirty);
 			section_pendingclose=0;
 			}
 		*/
@@ -591,20 +595,20 @@ encoded into the first 22 bytes.
 	if (char_pendingclose)
 		{
 		wvInitCHP(&achp);
-		wvHandleElement(ps,CHARPROPEND, (void*)&achp);
+		wvHandleElement(ps,CHARPROPEND, (void*)&achp,char_dirty);
 		}
 
 	if (comment_pendingclose)
-		wvHandleElement(ps,COMMENTEND, (void*)catrd);
+		wvHandleElement(ps,COMMENTEND, (void*)catrd,0);
 
 	if (para_pendingclose)
 		{
 		wvInitPAP(&apap);
-		wvHandleElement(ps,PARAEND, (void*)&apap);
+		wvHandleElement(ps,PARAEND, (void*)&apap,para_dirty);
 		}
 
 	if (section_pendingclose)
-        wvHandleElement(ps, SECTIONEND, (void*)&sep);
+        wvHandleElement(ps, SECTIONEND, (void*)&sep,section_dirty);
 
 	wvFree(posBKL);
 	wvFree(bkl);
@@ -647,6 +651,55 @@ encoded into the first 22 bytes.
 	}
 
 /*
+ The process thus far has created a SEP that describes what the section properties of 
+ the section at the last full save. 
+
+ 1) Now apply any section sprms that were linked to the piece that contains the 
+ section's section mark. 
+ 
+ 2) If pcd.prm.fComplex is 0, pcd.prm contains 1 sprm which should be applied to 
+ the local SEP if it is a section sprm. 
+ 
+ 3) If pcd.prm.fComplex is 1, pcd.prm.igrpprl is the index of a grpprl in the CLX. 
+ If that grpprl contains any section sprms, they should be applied to the local SEP
+*/
+int wvGetComplexSEP(int version,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx)
+	{
+	int ret=0;
+	U16 sprm,pos=0,i=0;
+	U8 *pointer;
+	U16 index;
+	U8 val;
+	Sprm RetSprm;
+
+	if (clx->pcd[cpiece].prm.fComplex == 0)
+		{
+		val = clx->pcd[cpiece].prm.para.var1.val;
+		pointer = &val;
+		RetSprm = wvApplySprmFromBucket(version,wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
+		NULL,NULL, sep,stsh,pointer,&pos);
+		if (RetSprm.sgc == sgcSep)	ret = 1;
+		}
+	else
+		{
+		index = clx->pcd[cpiece].prm.para.var2.igrpprl;
+		while (i < clx->cbGrpprl[index])   
+			{
+			if (version == 0)
+				sprm = bread_16ubit(clx->grpprl[index]+i,&i);
+			else
+				{
+				sprm = bgetc(clx->grpprl[index]+i,&i);
+				sprm = wvGetrgsprmWord6(sprm);
+				}
+			pointer = clx->grpprl[index]+i;
+			RetSprm = wvApplySprmFromBucket(version,sprm,NULL,NULL,sep,stsh,pointer,&i);
+			if (RetSprm.sgc == sgcSep)	ret = 1;
+			}
+		}
+	return(ret);
+	}
+/*
 The process thus far has created a PAP that describes
 what the paragraph properties of the paragraph were at the last full save.
 
@@ -660,23 +713,23 @@ applied to the local PAP if it is a paragraph sprm.
 CLX.  If that grpprl contains any paragraph sprms, they should be applied to 
 the local PAP.
 */
-void wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
+int wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 	{
-	/*
-	Sprm Sprm;
-	*/
+	int ret=0;
 	U16 sprm,pos=0,i=0;
 	U8 sprm8;
 	U8 *pointer;
 	U16 index;
 	U8 val;
+	Sprm RetSprm;
 
 	if (clx->pcd[cpiece].prm.fComplex == 0)
 		{
 		val = clx->pcd[cpiece].prm.para.var1.val;
 		pointer = &val;
-		wvApplySprmFromBucket(version,wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
+		RetSprm = wvApplySprmFromBucket(version,wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
 		apap,NULL, NULL,stsh,pointer,&pos);
+		if (RetSprm.sgc == sgcPara)	ret = 1;
 		}
 	else
 		{
@@ -688,45 +741,38 @@ void wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 			else
 				{
 				sprm8 = bgetc(clx->grpprl[index]+i,&i);
-				wvTrace(("sprm (word 6) is %x\n",sprm8));
 				sprm = (U16)wvGetrgsprmWord6(sprm8);
 				}
-			wvTrace(("sprm is %x\n",sprm));
 			pointer = clx->grpprl[index]+i;
-			wvApplySprmFromBucket(version,sprm,apap,NULL,NULL,stsh,pointer,&i);
+			RetSprm = wvApplySprmFromBucket(version,sprm,apap,NULL,NULL,stsh,pointer,&i);
+			if (RetSprm.sgc == sgcPara)	ret = 1;
 			}
 		}
+	return(ret);
 	}
 
 /* CHP version of the above. follows the same rules -JB */
-void wvAssembleComplexCHP(int version,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
+int wvAssembleComplexCHP(int version,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 	{
-	/*
-	Sprm Sprm;
-	*/
+	int ret=0;
 	U16 sprm,pos=0,i=0;
 	U8 sprm8;
 	U8 *pointer;
 	U16 index;
 	U8 val;
+	Sprm RetSprm;
 
 	if (clx->pcd[cpiece].prm.fComplex == 0)
 		{
 		val = clx->pcd[cpiece].prm.para.var1.val;
 		pointer = &val;
-		wvApplySprmFromBucket(version,wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
+		RetSprm = wvApplySprmFromBucket(version,wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
 		NULL, achp, NULL,stsh,pointer,&pos);
+		if (RetSprm.sgc == sgcChp)  ret = 1;
 		}
 	else
 		{
 		index = clx->pcd[cpiece].prm.para.var2.igrpprl;
-		while (i < clx->cbGrpprl[index])   
-			{
-			wvTrace(("BYTE: %x\n",*(clx->grpprl[index]+i)));
-			i++;
-			}
-
-		i=0;
 		while (i < clx->cbGrpprl[index])   
 			{
 			if (version == 0)
@@ -734,14 +780,13 @@ void wvAssembleComplexCHP(int version,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 			else
 				{
 				sprm8 = bgetc(clx->grpprl[index]+i,&i);
-				wvTrace(("sprm (word 6) is %x\n",sprm8));
 				sprm = (U16)wvGetrgsprmWord6(sprm8);
 				}
-			wvTrace(("sprm is %x\n",sprm));
 			pointer = clx->grpprl[index]+i;
-			wvTrace(("test %d\n",achp->dxaSpace));
-			wvApplySprmFromBucket(version,sprm,NULL,achp,NULL,stsh,pointer,&i);
+			RetSprm = wvApplySprmFromBucket(version,sprm,NULL,achp,NULL,stsh,pointer,&i);
+			if (RetSprm.sgc == sgcChp)  ret = 1;
 			}
 		}
+	return(ret);
 	}
 
