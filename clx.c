@@ -179,6 +179,7 @@ int wvQuerySamePiece(U32 fcTest,CLX *clx,U32 piece)
 	wvTrace(("Same Piece, %x %x %x\n",fcTest,wvNormFC(clx->pcd[piece].fc,NULL),wvNormFC(clx->pcd[piece+1].fc,NULL)));
     if ( (fcTest >= wvNormFC(clx->pcd[piece].fc,NULL)) && (fcTest < wvNormFC(clx->pcd[piece+1].fc,NULL)) )
 	*/
+	wvTrace(("Same Piece, %x %x %x\n",fcTest,clx->pcd[piece].fc,wvGetEndFCPiece(piece,clx)));
     if ( (fcTest >= wvNormFC(clx->pcd[piece].fc,NULL)) && (fcTest < wvGetEndFCPiece(piece,clx)) )
 		return(1);
     return(0);

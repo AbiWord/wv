@@ -42,6 +42,10 @@ Changes to to 0.5.21
 	* implemented all of the SEP sprms, word 6 conflicts not fully checked yet.
 	* Jeff@abisource made it more portable by modifying the wvError/wvTrace macros
 	and putting in defs for rint and strcasecmp.
+	* purified sep code.
+	* fixed fastsaved chp init from pap istd (i think)
+	* fixed finding first para bounds with complex mode if the first para is a new
+	fast saved chunk (i think)
 ALL TODO
 	* search for SEP sprm diffs between 6 and 8
 

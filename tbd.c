@@ -32,6 +32,9 @@ void wvGetTBD_internal(TBD *item,FILE *fd,U8 *pointer)
 	{
 	U8 temp8;
 	temp8 = dgetc(fd,&pointer);
+#ifdef PURIFY
+	wvInitTBD(item);
+#endif
 	item->jc = temp8 & 0x07;
 	item->tlc = (temp8 & 0x38) >> 3;
 	item->reserved = (temp8 & 0xC0) >> 6;

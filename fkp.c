@@ -81,8 +81,10 @@ U32 wvSearchNextLargestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc)
 	U8 until=fkp->crun+1;
 	U32 fcTest=0;
 
+	
 	while (i<until)
 		{
+		wvTrace(("searching fkp %x %x\n",currentfc,fkp->rgfc[i]));
 		if ( (wvNormFC(fkp->rgfc[i],NULL) < currentfc) && (wvNormFC(fkp->rgfc[i],NULL) > fcTest) )
 			fcTest = wvNormFC(fkp->rgfc[i],NULL);
 		else if (wvNormFC(fkp->rgfc[i],NULL) == currentfc)

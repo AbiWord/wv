@@ -64,6 +64,7 @@ int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U
 	long currentpos;
 	currentfc = wvConvertCPToFC(currentcp,clx);
 
+	wvTrace(("current cp is %x\n",currentcp));
 	wvTrace(("current fc is %x\n",currentfc));
 
 	if (currentfc==0xffffffffL)
@@ -336,9 +337,9 @@ void wvDecodeComplex(wvParseStruct *ps)
 	U32 begincp,endcp;
 	int chartype;
 	U16 eachchar;
-	U32 para_fcFirst=0,para_fcLim=0xffffffffL;
-	U32 char_fcFirst=0,char_fcLim=0xffffffffL;
-	U32 section_fcFirst=0,section_fcLim=0xffffffffL;
+	U32 para_fcFirst,para_fcLim=0xffffffffL;
+	U32 char_fcFirst,char_fcLim=0xffffffffL;
+	U32 section_fcFirst,section_fcLim=0xffffffffL;
 	BTE *btePapx=NULL, *bteChpx=NULL;
 	U32 *posPapx=NULL, *posChpx=NULL;
 	U32 para_intervals, char_intervals,section_intervals;
@@ -368,6 +369,8 @@ void wvDecodeComplex(wvParseStruct *ps)
 		wvGetSTTBF(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
 
 	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->tablefd);
+
+	para_fcFirst = char_fcFirst = section_fcFirst = wvConvertCPToFC(0,&ps->clx);
 
 	if ((ps->fib.ccpFtn) || (ps->fib.ccpHdd))
 		wvTrace(("Special ending\n"));
@@ -449,19 +452,18 @@ void wvDecodeComplex(wvParseStruct *ps)
 				wvTrace(("before tests j is %x\n",j));
 				wvReleasePAPX_FKP(&para_fkp);
 				cpiece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i,&ps->clx, btePapx, posPapx, para_intervals,piececount,ps->mainfd);
-				wvTrace(("fcLim is %x, fcFirst is %x\n",para_fcLim,para_fcFirst));
-				/*
-				para_fcLim = 0xfffffffeL;
-				*/
+				wvTrace(("fcLim is %x, fcFirst is %x, j is %x\n",para_fcLim,para_fcFirst,j));
 				}
 
 			if (j == para_fcFirst)
 				{
+				wvTrace(("getting PAP\n"));
 				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&stsh);
 				wvTrace(("cpiece is %d, but full no is %d\n",cpiece,ps->clx.nopcd));
 				wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&stsh,&ps->clx);
 				wvHandleElement(ps,PARABEGIN, (void*)&apap);
 				para_pendingclose=1;
+				wvTrace(("pap istd is %d\n",apap.istd));
 				}
 
 
@@ -478,6 +480,8 @@ void wvDecodeComplex(wvParseStruct *ps)
 
 			if (j == char_fcFirst)
 				{
+				/* a CHP's base style is in the para style */
+				achp.istd = apap.istd;
 				wvAssembleSimpleCHP(&achp,char_fcLim,&char_fkp,&stsh);
 				wvTrace(("cpiece is %d, but full no is %d\n",cpiece,ps->clx.nopcd));
 				wvAssembleComplexCHP(wvQuerySupported(&ps->fib,NULL),&achp,cpiece,&stsh,&ps->clx);
@@ -527,6 +531,9 @@ void wvDecodeComplex(wvParseStruct *ps)
 	wvReleaseCHPX_FKP(&char_fkp);
 	   
 	wvHandleDocument(ps,DOCEND);
+
+	wvFree(sed);
+	wvFree(posSedx);
 	wvReleaseSTTBF(&ps->anSttbfAssoc);
 	wvReleaseCLX(&ps->clx);
 	   wvReleaseFFN_STTBF(&ps->fonts);

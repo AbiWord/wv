@@ -174,7 +174,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 				wvTrace(("assembling CHP...\n"));
 				/* a CHP's base style is in the para style */
 				achp.istd = apap.istd;
-				wvAssembleSimpleCHP(&achp, char_fcLim, &char_fkp, &stsh);
+				wvAssembleSimpleCHP(&achp,char_fcLim, &char_fkp, &stsh);
 				wvTrace(("CHP assembled.\n"));
 				wvHandleElement(ps, CHARPROPBEGIN, (void*)&achp);
 				char_pendingclose = 1;
@@ -196,11 +196,12 @@ void wvDecodeSimple(wvParseStruct *ps)
 	wvReleasePAPX_FKP(&para_fkp);
 	wvReleaseCHPX_FKP(&char_fkp);
 	wvHandleDocument(ps,DOCEND);
-
+	wvFree(posSedx);
+	wvFree(sed);
 	wvReleaseSTTBF(&ps->anSttbfAssoc);
-        wvFree(btePapx);
+    wvFree(btePapx);
 	wvFree(posPapx);
-        wvFree(bteChpx);
+    wvFree(bteChpx);
 	wvFree(posChpx);
 	if (ps->fib.fcMac != ftell(ps->mainfd))
 		wvError(("fcMac did not match end of input !\n"));
@@ -354,11 +355,12 @@ int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 c
 
 	wvInitSEP(sep);
 
-	if (sed[i].fcSepx != 0xffffffffL)
+	if (sed[j].fcSepx != 0xffffffffL)
 		{
-		fseek(fd,wvNormFC(sed[i].fcSepx,NULL),SEEK_SET);
+		fseek(fd,wvNormFC(sed[j].fcSepx,NULL),SEEK_SET);
 		wvGetSEPX(&sepx,fd);
 		wvAddSEPXFromBucket(sep,&sepx,stsh);
+		wvReleaseSEPX(&sepx);
 		}
 
 	fseek(fd,pos,SEEK_SET);
