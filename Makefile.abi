@@ -24,6 +24,7 @@ include $(ABI_ROOT)/src/config/abi_defs.mk
 
 CSRCS=	lex.yy.c \
 	main.c \
+	crc32.c \
 	mswordview.c \
 	laolareplace.old.c \
 	support.c \
