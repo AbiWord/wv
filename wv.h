@@ -2515,6 +2515,7 @@ int wvConvert1252ToHtml(U8 char8);
 void wvDecodeComplex(wvParseStruct *ps);
 int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,FILE *fd);
 U32 wvSearchNextLargestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc);
+U32 wvSearchNextLargestFCCHPX_FKP(CHPX_FKP *fkp,U32 currentfc);
 int wvQuerySamePiece(U32 fcTest,CLX *clx,U32 piece);
 int wvGetComplexParafcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd);
 U32 wvSearchNextSmallestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc);

@@ -1,30 +1,27 @@
-Changes to to 0.5.22
-	* new development release
-	* added RMarkDel & strike & outline to wvHtml support, handle empty tags 
-	correctly now as well.
-	* added lowercase, shadow,vanish, rmark,caps, outline and smallcaps to
-	wvHtml, though many are empty and caps,smallcaps and lowercase need
-	further code to actually do the deed
-	* added includedir to mkinstalldir list, coz of (Marko Rauhamaa) 
-	<marko@tekelec.com>
-	* the toggle (cases 128 and 129 for fBold and loads of others), works by
-	taking a look at the original style that the current one is based on. It
-	was until now not actually looking at the original one at all, but the
-	current one, thats fixed now.
-	* another one was that if we were based upon a char style we weren't
-	getting initalized correctly at all, this too is fixed.
-	* changes have also been made to sprmCMajority and sprmCMajority50 along
-	a similiar line. These three or 4 changes together make a huge difference
-	to the output. So this should clear up a *mountain* of mismatched output,
-	i'm so proud, the best way to track down these differences is to take a
-	fastsaved file and save it as fullsave and compare wv output for the
-	two.
-	* colour in html output.
-	* hmm, real real stupid thing in fastsaved mode where i was completely
-	fecking up the fcLim by changing it in a subfunc and then thinking that
-	it was the original and using it as that again!
+Changes to to 0.5.24
+	* righteo, I made some (hopefully) final changes to fast saved handling, and
+	it looks a lot better now. Char attributes are correct, and the issue
+	of para begins and ends being missing from paras that begin in fastsave section
+	appears to be cleared up. There is still spurious character runs being created
+	in this location, but they appear within paragraph blocks, not outside them,
+	and they have no contents so they only create reduntant tags in the html output, 
+	or in the case of the lib makes it more inefficient. So its not 100% but its close
+	enough that it'll make absolutely not difference in the case of an abiword-like
+	app, and only someone looking at the source of the html output will make rude i
+	noises about how crap and ineffecient wv is because it outputs empty tags. So the
+	bottom line it that it is a known misfeature that in the case of fastsaved files 
+	that there is the duplication of empty char attributes in a small limited number 
+	of cases. If you really dislike this, then set options in msword to only create
+	fullsaved files, which you should do anyway, because thats the major reason your
+	word documents are so huge if you ever wondered about that, and its also a huge
+	security hole, e.g. if you edited a confidential document to remove the confidential
+	bits, then you can edit the doc with a hex editor and read all the deleted confidential
+	material !. At some stage i believe i might add a feature to show the original 
+	document that a fastsaved document was based on, it can sometimes scare you to
+	death. 
+	* my resetting char properties at a new para was slightly out, i wasn't fully
+	regenerating the exception run limits.
 ALL TODO
-
 
 	* what was i at with sprmCFtcDefault ????, fBold ??, what the...
 
@@ -104,6 +101,32 @@ ALL TODO
 	* hyperlink sequence fields ?
 	* doesnt compile under neXt & needs to use gcc for hpux 10.20 ?
 	* do an autoconf check for mman.h and dont do compression if not there.
+Changes to to 0.5.23
+	* added RMarkDel & strike & outline to wvHtml support, handle empty tags 
+	correctly now as well.
+	* added lowercase, shadow,vanish, rmark,caps, outline and smallcaps to
+	wvHtml, though many are empty and caps,smallcaps and lowercase need
+	further code to actually do the deed
+	* added includedir to mkinstalldir list, coz of (Marko Rauhamaa) 
+	<marko@tekelec.com>
+	* the toggle (cases 128 and 129 for fBold and loads of others), works by
+	taking a look at the original style that the current one is based on. It
+	was until now not actually looking at the original one at all, but the
+	current one, thats fixed now.
+	* another one was that if we were based upon a char style we weren't
+	getting initalized correctly at all, this too is fixed.
+	* changes have also been made to sprmCMajority and sprmCMajority50 along
+	a similiar line. These three or 4 changes together make a huge difference
+	to the output. So this should clear up a *mountain* of mismatched output,
+	i'm so proud, the best way to track down these differences is to take a
+	fastsaved file and save it as fullsave and compare wv output for the
+	two.
+	* colour in html output.
+	* hmm, real real stupid thing in fastsaved mode where i was completely
+	fecking up the fcLim by changing it in a subfunc and then thinking that
+	it was the original and using it as that again!
+Changes to to 0.5.22
+	* new development release
 Changes to to 0.5.21
 	* fix for bad sprm handlers so font changes now occur.
 	* fix for having no summary stream in wvSummary.

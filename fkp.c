@@ -99,6 +99,30 @@ U32 wvSearchNextLargestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc)
 	return(fcTest);
 	}
 
+U32 wvSearchNextLargestFCCHPX_FKP(CHPX_FKP *fkp,U32 currentfc)
+	{
+	U32 i=0;
+	U8 until=fkp->crun+1;
+	U32 fcTest=0;
+
+	
+	while (i<until)
+		{
+		wvTrace(("searching fkp %x %x\n",currentfc,fkp->rgfc[i]));
+		if ( (wvNormFC(fkp->rgfc[i],NULL) <= currentfc) && (wvNormFC(fkp->rgfc[i],NULL) > fcTest) )
+			fcTest = wvNormFC(fkp->rgfc[i],NULL);
+		i++;
+		}
+
+	/*for the first paragraph return the current pos as the beginning*/
+	/*
+	if (fcTest == 0)
+		fcTest = currentfc+1;
+	*/
+		
+	return(fcTest);
+	}
+
 /*
 Using the FC of the character, first search the FKP that describes the
 character to find the smallest FC in the rgfc that is larger than the character
