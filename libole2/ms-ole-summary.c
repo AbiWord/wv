@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include "ms-ole.h"
 #include "ms-ole-summary.h"
 
 #ifdef HAVE_CONFIG_H

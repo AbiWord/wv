@@ -13,7 +13,7 @@
 #define MS_OLE_SUMMARY_H
 
 #include <time.h>
-#include "ms-ole.h"
+#include <libole2/ms-ole.h>
 /*
  * MS Ole Property Set IDs
  * The SummaryInformation stream contains the SummaryInformation property set.
