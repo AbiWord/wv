@@ -151,9 +151,11 @@ else
   exit 1
 fi
 
-auto_wmf=`"$wv_exec" --auto-eps=wmf`
-auto_png=`"$wv_exec" --auto-eps=png`
-auto_jpg=`"$wv_exec" --auto-eps=jpg`
+# auto_wmf=`"$wv_exec" --auto-eps=wmf`
+# auto_emf=`"$wv_exec" --auto-eps=emf`
+# auto_png=`"$wv_exec" --auto-eps=png`
+# auto_jpg=`"$wv_exec" --auto-eps=jpg`
+# auto_pict=`"$wv_exec" --auto-eps=pict`
 
 im_chk=`convert --help 2>&1 | grep -v ImageMagick`
 if test "x$im_chk" = "x"; then
@@ -161,14 +163,17 @@ if test "x$im_chk" = "x"; then
   s_img=""
 else
   im_chk="yes"
-# if we have ImageMagick's convert, then use that to convert PNG & JPEG to EPS
-# Therefore, need to suppress wvWare's desire to convert these:
-  s_img="png,jpg"
+# if we have ImageMagick's convert, then use that to convert PNG, JPEG & PICT
+# to EPS. Therefore, need to suppress wvWare's desire to convert these:
+  s_img="png,jpg,pict"
 fi
 
 "$wv_exec" $wv_opts -x "$xmlcfg" -d "$t_dir" -b "$name" "$i_file" -s "$s_img" > "$t_dir"/"$name".tex
 
 cd "$t_dir"
+
+echo
+echo 'Current directory: '`pwd`
 
 # First, convert any images
 
@@ -192,6 +197,18 @@ for i_name in "$name"*.wmf; do
         echo unable to convert '"'$i_name'"' '(no converter)'
         i_okay=no
       fi
+    fi
+  fi
+done
+
+for i_name in "$name"*.emf; do
+  if test -r "$i_name"; then
+    e_name=`echo "$i_name" | sed 's/emf$/eps/'`
+    if test -r "$e_name"; then
+      echo '"'$e_name'"' exists - skipping...
+    else
+      echo unable to convert '"'$i_name'"' '(no converter)'
+      i_okay=no
     fi
   fi
 done
@@ -240,9 +257,30 @@ for i_name in "$name"*.jpg; do
   fi
 done
 
+for i_name in "$name"*.pict; do
+  if test -r "$i_name"; then
+    e_name=`echo "$i_name" | sed 's/pict$/eps/'`
+    if test -r "$e_name"; then
+      echo '"'$e_name'"' exists - skipping...
+    else
+      if test "$im_chk" = "yes"; then
+        convert "$i_name" "$e_name"
+        if test -r "$e_name"; then
+          echo created '"'$e_name'"'
+        else
+          echo '"'$i_name'"': conversion failed
+          i_okay=no
+        fi
+      else
+        echo unable to convert '"'$i_name'"' '(no converter)'
+        i_okay=no
+      fi
+    fi
+  fi
+done
+
 if test "$i_okay" = "no"; then
-  echo Failed to convert one or more images to EPS - unable to proceed.
-  exit 1
+  echo 'WARNING: Failed to convert one or more images to EPS'
 fi
 
 # "$name".tex is the LaTeX file

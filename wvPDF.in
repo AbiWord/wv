@@ -6,6 +6,30 @@ if [ ${?} -ne "0" ]; then
   exit 1
 fi
 
+which dvips >/dev/null 2>&1
+if [ ${?} -ne "0" ]; then
+  echo "Could not find required program 'dvips'"
+  exit 1
+fi
+
+distiller="none"
+which distill >/dev/null 2>&1
+if [ ${?} -ne "0" ]; then
+  which ps2pdf >/dev/null 2>&1
+  if [ ${?} -ne "0" ]; then
+    distiller="none"
+  else
+    distiller="ps2pdf"
+  fi
+else
+  distiller="distill"
+fi
+
+if test "$distiller" = "none"; then
+  echo "Could not find required program(s) 'distill' or 'ps2pdf'"
+  exit 1
+fi
+
 prefix=@prefix@
 exec_prefix=
 datadir=
@@ -297,5 +321,26 @@ if [ ! -f "$name".dvi ]; then
 	exit 1
 fi
 
-cp -f "$name".dvi "$o_file"
+dvips -o "$name".ps "$name".dvi >/dev/null 2>&1
+if [ ${?} -ne "0" ]; then
+	echo "Could not convert into Postscript"
+	exit 1
+fi
+
+#clean up
 rm -f "$name".dvi
+
+if test "$distiller" = "distill"; then
+  distill "$name".ps >/dev/null 2>&1
+else
+  ps2pdf "$name".ps "$name".ps.pdf >/dev/null 2>&1
+fi
+if [ ${?} -ne "0" ]; then
+	echo "Could not convert into PDF"
+	exit 1
+fi
+
+cp -f "$name".ps.pdf "$o_file"
+
+#clean up
+rm -f "$name".ps "$name".ps.log "$name".ps.pdf

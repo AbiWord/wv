@@ -1073,9 +1073,11 @@ static void wv_query_eps (const char* format)
   return;
 }
 
-static int Convert_WMF = 1;
-static int Convert_PNG = 1;
-static int Convert_JPG = 1;
+static int Convert_WMF  = 1;
+static int Convert_EMF  = 1;
+static int Convert_PNG  = 1;
+static int Convert_JPG  = 1;
+static int Convert_PICT = 1;
 
 static void wv_suppress (const char* format)
 {
@@ -1083,9 +1085,11 @@ static void wv_suppress (const char* format)
 
   if (format == 0)
     {
-      Convert_WMF = 1;
-      Convert_PNG = 1;
-      Convert_JPG = 1;
+      Convert_WMF  = 1;
+      Convert_EMF  = 1;
+      Convert_PNG  = 1;
+      Convert_JPG  = 1;
+      Convert_PICT = 1;
 
       return;
     }
@@ -1095,6 +1099,12 @@ static void wv_suppress (const char* format)
       if (strncmp (ptr,"wmf,",4) == 0)
         {
           Convert_WMF = 0;
+          ptr += 4;
+          continue;
+        }
+      if (strncmp (ptr,"emf,",4) == 0)
+        {
+          Convert_EMF = 0;
           ptr += 4;
           continue;
         }
@@ -1110,9 +1120,21 @@ static void wv_suppress (const char* format)
           ptr += 4;
           continue;
         }
+      if (strncmp (ptr,"pict,",5) == 0)
+        {
+          Convert_PICT = 0;
+          ptr += 5;
+          continue;
+        }
+
       if (strcmp (ptr,"wmf") == 0)
         {
           Convert_WMF = 0;
+          break;
+        }
+      if (strcmp (ptr,"emf") == 0)
+        {
+          Convert_EMF = 0;
           break;
         }
       if (strcmp (ptr,"png") == 0)
@@ -1125,6 +1147,12 @@ static void wv_suppress (const char* format)
           Convert_JPG = 0;
           break;
         }
+      if (strcmp (ptr,"pict") == 0)
+        {
+          Convert_PICT = 0;
+          break;
+        }
+
       fprintf (stderr,"format(s) `%s' not recognized!\n",ptr);
       break;
     }

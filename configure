@@ -7982,6 +7982,7 @@ version.c
 wvAbw
 wvDVI
 wvPS
+wvPDF
 wvHtml
 wvLatex
 wvCleanLatex
@@ -8123,6 +8124,7 @@ version.c
 wvAbw
 wvDVI
 wvPS
+wvPDF
 wvHtml
 wvLatex
 wvCleanLatex
