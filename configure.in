@@ -214,14 +214,14 @@ AC_CHECK_HEADER(malloc.h, [
 dnl system libwmf support
 dnl ========================================================
 
-dnl Check for libwmf-0.2.0 or higher (experimental)
+dnl Check for libwmf-0.2.1 or higher
 
 _cppflags=$CPPFLAGS
 _ldflags=$LDFLAGS
 
 have_libwmf=no
 
-AC_ARG_WITH(libwmf,[  --with-libwmf=DIR       use libwmf(2) in DIR (experimental)],[
+AC_ARG_WITH(libwmf,[  --with-libwmf=DIR       use libwmf(2) in DIR],[
 	if [ test "x$withval" != "xno" ]; then
 		if [ test "x$withval" != "xyes" ]; then
 			LIBWMF_DIR=$withval
@@ -230,7 +230,7 @@ AC_ARG_WITH(libwmf,[  --with-libwmf=DIR       use libwmf(2) in DIR (experimental
 	else
 		search_for_libwmf=no
 	fi
-],[	search_for_libwmf=no
+],[	search_for_libwmf=yes
 ])
 
 if [ test $search_for_libwmf != no ]; then
@@ -251,7 +251,9 @@ if [ test $search_for_libwmf != no ]; then
 	LDFLAGS="$LDFLAGS $libwmf_libs"
 
 	AC_CHECK_HEADER(libwmf/api.h,[
-		AC_CHECK_LIB(wmf,wmf_api_create,have_libwmf=yes)
+		AC_CHECK_LIB(wmf,wmf_stream_create,have_libwmf=yes,[
+			AC_MSG_ERROR(* * * libwmf >= 0.2.1 required * * *)
+		])
 	])
 
 	if [ test $have_libwmf != no]; then
@@ -316,7 +318,7 @@ fi
 
 # use --with-peer-iconv to get libiconv from the peer directory
 AC_ARG_WITH(peer-iconv,
-[  --with-peer-iconv     use libiconv from peer directory ],[
+[  --with-peer-iconv       use libiconv from peer directory ],[
      if test "$withval" = "yes"; then
 	 use_peer_iconv=yes
      elif test "$withval" = "no"; then

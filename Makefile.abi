@@ -27,6 +27,7 @@ CSRCS= \
 	twips.c \
 	escher.c \
 	symbol.c \
+	mtextra.c \
 	support.c \
 	list.c \
 	piecetable.c \

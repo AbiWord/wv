@@ -82,8 +82,6 @@ if (c == d) \
 	}
 
 
-extern const char wv_version[];
-
 Tokenptr tokenTreeRoot = NULL;
 
 static TokenTable s_Tokens[] = {

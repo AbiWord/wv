@@ -670,7 +670,9 @@ wvConvert_WMF_to_EPS (int width, int height, char **source)
     if (err != wmf_E_None)
 	goto _wmf_error;
 
-    ddata->out = out;
+    ddata->out = wmf_stream_create (API,out);
+    if (out == 0)
+	goto _wmf_error;
 
     ddata->bbox = bbox;
 
@@ -1007,6 +1009,9 @@ mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp)
 	      U16 symbol[6] = { 'S', 'y', 'm', 'b', 'o', 'l' };
 	      U16 wingdings[9] =
 		  { 'W', 'i', 'n', 'g', 'd', 'i', 'n', 'g', 's' };
+	      U16 mtextra[8] = 
+		  { 'M', 'T', ' ', 'E', 'x', 't', 'r', 'a' };
+
 	      wvTrace (
 		       ("no of strings %d %d\n", ps->fonts.nostrings,
 			achp->ftcSym));
@@ -1032,6 +1037,30 @@ option to support correct symbol font conversion to a viewable format.\n");
 					 (achp->xchSym - 61440), charset);
 		    return (0);
 		}
+	      else if (0 == 
+		       memcmp (mtextra, ps->fonts.ffn[achp->ftcSym].xszFfn, 
+				16))
+		{
+		    if ((!message) && (strcasecmp ("UTF-8", charset)))
+		      {
+			  wvWarning
+			      ("MT Extra font detected (too late sorry!), rerun wvHtml with option --charset utf-8\n\
+option to support correct symbol font conversion to a viewable format.\n");
+			  message++;
+		      }
+		    wvTrace (
+			     ("Symbol char %d %x %c, using font %d %s\n",
+			      achp->xchSym, achp->xchSym, achp->xchSym,
+			      achp->ftcSym,
+			      wvWideStrToMB (ps->fonts.ffn[achp->ftcSym].
+					     xszFfn)));
+		    wvTrace (
+			     ("symbol char ends up as a unicode %x\n",
+			      wvConvertMTExtraToUnicode (achp->xchSym - 61440)));
+		    wvOutputFromUnicode (wvConvertMTExtraToUnicode
+					 (achp->xchSym - 61440), charset);
+		    return (0);
+		}	
 	      else if (0 ==
 		       memcmp (wingdings, ps->fonts.ffn[achp->ftcSym].xszFfn,
 			       18))

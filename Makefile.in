@@ -190,6 +190,7 @@ MYOBJECTS =	\
 	twips.$(OBJEXT) \
 	table.$(OBJEXT) \
 	symbol.$(OBJEXT) \
+	mtextra.$(OBJEXT) \
 	fopt.$(OBJEXT) \
 	fbse.$(OBJEXT) \
 	escher.$(OBJEXT) \

@@ -2919,6 +2919,7 @@ returns the same as wvOLEDecode with the addition that
     int wvConvertUnicodeToHtml (U16 char16);
     int wvConvertUnicodeToLaTeX (U16 char16);
     U16 wvConvertSymbolToUnicode (U16 char16);
+    U16 wvConvertMTExtraToUnicode (U16 char16);
 
     U16 wvHandleCodePage (U16 eachchar, U16 lid);
 
@@ -4761,6 +4762,9 @@ has got
     void twvCopyCHP (chp * dest, chp * src);
 
     void wvSetEntityConverter (expand_data * data);
+
+/* & finally */
+    const char* wv_version;
 
 #ifdef __cplusplus
 }

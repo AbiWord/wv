@@ -16,4 +16,7 @@ if [ ${?} -ne "0" ]; then
     exit 1
 fi
 
-wvWare -x ${datadir}/wv/wvCleanLaTeX.xml "${1}" > "${2}"
+# latex has trouble with filenames
+CLEAN_FILE=`echo -n "${2}"|tr -c [:alnum:]-. _`
+
+wvWare -x "${datadir}/wv/wvCleanLaTeX.xml" "${1}" > "${CLEAN_FILE}"

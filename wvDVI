@@ -18,28 +18,36 @@ if [ ${?} -ne "0" ]; then
 	exit 1
 fi
 
-#
-LATEX_FILE="${2}.tex"
+# latex has trouble with filenames
+CLEAN_FILE=`echo -n "${2}"|tr -c [:alnum:]-. _`
+LATEX_FILE="${CLEAN_FILE}.tex"
 
 wvCleanLatex "${1}" "${LATEX_FILE}" >/dev/null 2>&1
 if [ ${?} -ne "0" ]; then
-    echo "Error converting into LaTeX"
-    exit 1
-fi
-
-DIRNAME=`dirname "$2"`
-BASENAME=`basename "$LATEX_FILE"`
-(
-cd "$DIRNAME"
-
-latex --interaction=batchmode "${BASENAME}" >/dev/null 2>&1
-if [ ${?} -ne "0" ]; then
-	echo "Conversion into dvi failed"
+	echo "Error converting into LaTeX"
 	exit 1
 fi
 
+DIRNAME=`dirname "${LATEX_FILE}"`
+BASENAME=`basename "${LATEX_FILE}"`
+
+(
+cd "$DIRNAME"
+latex --interaction=batchmode "${BASENAME}" >/dev/null 2>&1
 )
 
-# clean up after ourselves
-rm -f "${LATEX_FILE}" 
-mv "${2}.dvi" "${2}"
+# check latex exit status and comment or clean up
+if [ ${?} -ne "0" ]; then
+	echo "Some problem running latex."
+	echo "Check for Errors in ${CLEAN_FILE}.log"
+	echo "Continuing..."
+else
+	rm -f "${CLEAN_FILE}.aux" "${CLEAN_FILE}.log" "${LATEX_FILE}"
+fi
+
+# latex replaces the "tex" extension with a "dvi" extension
+if [ ! -f "${CLEAN_FILE}.dvi" ]; then
+	echo "Conversion into dvi failed"
+	exit 1
+fi
+mv "${CLEAN_FILE}.dvi" "${2}"
