@@ -1599,7 +1599,7 @@ typedef UPD UPE;
    that is stored in the file.  When reading STDs from an older version,
    new fields will be zero.
 */
-typedef struct _STD
+typedef struct _wvSTD
     {
     /* Base part of STD: */
     U32 sti:12;          /* invariant style identifier */
