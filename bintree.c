@@ -8,9 +8,10 @@ Released under the GPL, see COPYING
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "wv.h"
 #include "bintree.h"
 
-void InitBintree(BintreeInfo *tree,int (*func1)(void *,void *),int (*func2)(void *,void *))
+void InitBintree(BintreeInfo *tree, int (*func1)(void *,void *), int (*func2)(void *,void *))
 	{
 	tree->Root = NULL;               /* root of binary tree */
 	tree->no_in_tree=0;
@@ -37,7 +38,7 @@ Node *InsertNode(BintreeInfo *tree,void *Data) {
 
     /* setup new node */
     if ((X = (Node *)malloc (sizeof(Node))) == 0) {
-        fprintf (stderr, "insufficient memory (InsertNode)\n");
+        wvError("insufficient memory (InsertNode)\n");
         exit(1);
     }
 	tree->no_in_tree++;
