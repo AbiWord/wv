@@ -138,8 +138,8 @@ MYOBJECTS =	\
 	graphics.o \
 	picf.o \
 	crc32.o \
-	rc4.o \
 	md5.o \
+	rc4.o \
 	decrypt.o
 
 #XML = -Lexpat/lib -lxmlparse -lxmltok

@@ -1,0 +1,73 @@
+The document test.doc is encrypted with the password 
+password1.
+
+To compile this download version 0.5.28 of wv 
+(later version should have this code integrated into 
+wv itself) from
+http://www.csn.ul.ie/~caolan/publink/mswordview/development/wv-0.5.28.tar.gz
+./configure 
+make &
+make install that first.
+
+now run make in this wvDecryptTest dir
+
+./wvDecryptTest password1 test.doc
+
+will verify that password1 is the correct password for
+test.doc and will start decrypting the file.
+
+Some quick background on word files.
+Each word files consists of a bundle of streams,
+the Table stream, the WordDocument stream, and others
+such as the SummaryInformation stream, the 
+DocumentSummaryStream and sometimes a Data stream.
+
+en.01 is the extracted table stream from test.doc
+en.02 is the extracted WordDocument stream from test.doc
+
+tablefd (when wvDecrypt is run) is the decrypted tablefd
+mainfd (when wvDecrypt is run) is the decrypt mainfd, where
+the main text is.
+
+The table stream contains the salt that is used by
+the decryption process, and is itself encrypted.
+So the wvDecryptTest program validates the password
+and outputs the decrypted table stream to the file 
+named "tablefd". The main document stream is decrypted
+to the file "mainfd"
+
+Most of the code you see here was not written by me,
+what was, got rewritten by Fauzan Mirza. I basically 
+just put the right people together, and provided
+the wv api into the word document. The CREDITS file
+lists those involved, and what they did.
+
+As promised in previous versions of this document, 
+the wvDecrypt is now released under the BSD licence,
+so anyone can use this whether for commercial use
+or not.
+
+Word97 decryption is now an open book. Thanks all !!
+its a little shocking that its been so long since 
+word97 was released and a publically available
+compatible decryption engine, but that gap has
+been filled now.
+
+The one small thing missing is to use cole to put
+the streams back together into a decrypted word
+document, rather than the seperated streams, as it
+stands it does exactly what I want for the wv
+library, but i'll get around to that unless someone
+else wants to do it, its pretty trivial to wrap
+it back into a word doc, only you will just have to
+set the fEncrypted bit in the fib to 0, to show that
+the doc is decrypted.
+
+C.
+
+If you want something to investigate ole2 streams
+try the perl laola at
+http://wwwwbs.cs.tu-berlin.de/~schwartz/pmh/laola.html
+
+More information on the wv library can be got at
+http://www.csn.ul.ie/~caolan/docs/MSWordView.html
