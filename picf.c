@@ -80,6 +80,12 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
     if (apicf->mfp_mm < 90)
       {
 	  U32 len;
+	  U32 j;
+	  U8 bmp_header[40];
+	  U32 header_len;
+	  U32 colors_used;
+	  U16 bpp;
+
 	  wvTrace (("test\n"));
 	  ret = 1;
 	  len = apicf->lcb - apicf->cbHeader;
@@ -93,7 +99,7 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 		return (ret);
 	    }
 	  len -= i;
-#if 0
+
 	  /*
 	     a msofbtSpContainer amsofbh
 	     a msofbtSp amsofbh 
@@ -103,11 +109,31 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 	     a FBSE for a dib, and then
 	     all this dib information
 	   */
-#else
 	  len += 14;
 	  wvTrace (("len is now %d\n", len));
-	  fputc (0x42, f);
-	  fputc (0x4D, f);
+
+
+	  for(j=0;j< sizeof(bmp_header);j++)
+	    bmp_header[j] = read_8ubit (fd);
+
+	  bpp = bmp_header[14] + (bmp_header[15] << 8);
+
+	  if ( bpp < 9)
+	  {
+	    colors_used = bmp_header[32] 
+	      + (bmp_header[33] << 8)
+	      + (bmp_header[34] << 16)
+	      + (bmp_header[35] << 24);
+	  }
+	      else
+	  {
+	      colors_used = 0;
+	  }
+
+	  header_len = 14 + 40 + 4 * colors_used;
+
+	  fputc (0x42, f); /* B */
+	  fputc (0x4D, f); /* M */
 
 	  fputc (len & 0x000000FF, f);
 	  fputc ((len & 0x0000FF00) >> 8, f);
@@ -119,15 +145,24 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 	  fputc (0x00, f);
 	  fputc (0x00, f);
 
-	  fputc (0x36, f);
-	  fputc (0x00, f);
-	  fputc (0x00, f);
-	  fputc (0x00, f);
-#endif
-      }
+	  fputc (header_len & 0x000000FF, f);
+	  fputc ((header_len & 0x0000FF00) >> 8, f);
+	  fputc ((header_len & 0x00FF0000) >> 16, f);
+	  fputc ((header_len & 0xFF000000) >> 24, f);
 
-    for (; i < apicf->lcb - apicf->cbHeader; i++)
-	fputc (read_8ubit (fd), f);
+
+	  for(j=0;j< sizeof(bmp_header);j++)
+	    fputc(bmp_header[j],f);
+	  
+	  for (; i < apicf->lcb - apicf->cbHeader-sizeof(bmp_header); i++)
+	    fputc (read_8ubit (fd), f);
+
+      }
+    else
+      {
+	for (; i < apicf->lcb - apicf->cbHeader; i++)
+	  fputc (read_8ubit (fd), f);
+      }
 
     rewind (f);
     wvStream_FILE_create (&apicf->rgb, f);
