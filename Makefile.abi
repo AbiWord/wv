@@ -88,6 +88,7 @@ CSRCS=	laolareplace.old.c \
 	fkp.c \
 	codepage-1252.c \
 	iso-5589-15.c \
+	tis-620.c \
 	koi8-r.c \
 	text.c \
 	decode_complex.c \
