@@ -165,8 +165,8 @@ HandleBitmap (wvParseStruct * ps, char *name, BitmapBlip * bitmap)
 	fprintf (stderr,"\nCannot open %s for writing:%s\n",name,strerror (errno));
 	exit (1);
       }
-    while (EOF != (c = getc ((FILE *) (bitmap->m_pvBits))))
-	fputc (c, fd);
+    while (EOF != (c = getc(((wvStream*)(bitmap->m_pvBits))->stream.file_stream)))
+      fputc (c, fd);
     fclose (fd);
     wvTrace (("Name is %s\n", name));
     return (0);
@@ -186,7 +186,7 @@ HandleMetafile (wvParseStruct * ps, char *name, MetaFileBlip * bitmap)
 	fprintf (stderr,"\nCannot open %s for writing:%s\n",name,strerror (errno));
 	exit (1);
       }
-    while (EOF != (c = getc ((FILE *) (bitmap->m_pvBits))))
+    while (EOF != (c = getc(((wvStream*)(bitmap->m_pvBits))->stream.file_stream)))
 	fputc (c, fd);
     fclose (fd);
     wvTrace (("Name is %s\n", name));

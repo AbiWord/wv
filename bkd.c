@@ -57,12 +57,10 @@ wvGetBKD_PLCF (BKD ** bkd, U32 ** pos, U32 * nobkd, U32 offset, U32 len,
 	  for (i = 0; i < *nobkd + 1; i++)
 	    {
 		(*pos)[i] = read_32ubit (fd);
-		wvError (("bkd cp is %d\n", (*pos)[i]));
 	    }
 	  for (i = 0; i < *nobkd; i++)
 	    {
 		wvGetBKD (&((*bkd)[i]), fd);
-		wvError (("bkd id is %x\n", (*bkd)[i].ipgd_itxbxs));
 	    }
       }
     return (0);
