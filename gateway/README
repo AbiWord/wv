@@ -1,8 +1,8 @@
 this is the gateway to word that i use on my online word to html
-conversion site at http://www.csn.ul.ie/~caolan/docs/MSWordView-Demo.html
+conversion site at http://www.wvWare.com/wvOnlineDemo.html
 
-modify at least 89 and 401 of the cgi script for your own site
+The script will have to be modified for your own site
 
-also modify bugreport.cgi
+also modify wvHtmlBug.cgi
 
 Caolan.McNamara@ul.ie
