@@ -62,7 +62,6 @@ CSRCS= \
 	lst.c \
 	lvl.c \
 	lfo.c \
-	summary.c \
 	filetime.c \
 	chp.c \
 	brc.c \

@@ -130,7 +130,6 @@ MYOBJECTS =	\
 	lst.$(OBJEXT) \
 	lvl.$(OBJEXT) \
 	lfo.$(OBJEXT) \
-	summary.$(OBJEXT) \
 	filetime.$(OBJEXT) \
 	chp.$(OBJEXT) \
 	brc.$(OBJEXT) \
