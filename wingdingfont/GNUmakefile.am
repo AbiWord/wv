@@ -1,7 +1,0 @@
-wdfdir = $(pkgdatadir)/wingdingfont
-
-IMAGEFILES = *.gif
-
-wdf_DATA = $(IMAGEFILES)
-
-EXTRA_DIST = $(IMAGEFILES)
