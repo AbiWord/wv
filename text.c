@@ -546,7 +546,7 @@ void wvSetEntityConverter(expand_data *data)
 				wvConvertUnicodeToEntity = wvConvertUnicodeToHtml;
 			else if (!(strcasecmp(data->retstring,"LaTeX")))
 				wvConvertUnicodeToEntity = wvConvertUnicodeToLaTeX;
-			wvTrace((Using "%s entity conversion in conjunction with ordinary charset conversion\n",data->retstring));
+			wvTrace(("Using %s entity conversion in conjunction with ordinary charset conversion\n",data->retstring));
 			wvFree(data->retstring);
 			}
     	}

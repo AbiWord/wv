@@ -89,7 +89,6 @@ CSRCS=	laolareplace.c \
 	bte.c \
 	bx.c \
 	fkp.c \
-	codepage-1252.c \
 	text.c \
 	decode_complex.c \
 	wvTextEngine.c \
