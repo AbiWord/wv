@@ -7,10 +7,10 @@
 #endif
 #include "wv.h"
 
+/* return value: 1 == success 0 == failure */
 int
 wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 {
-    int ret = 0;
     FILE *f;
     U8 temp;
     U32 i;
@@ -69,7 +69,7 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
       {
 	  wvError (("Couldnt create tmpfile: %s\n", strerror (errno)));
 	  apicf->rgb = NULL;
-	  return (ret);
+	  return 0;
       }
     /*
        sprintf(buffer,"/tmp/newtest-%d",s++);
@@ -87,7 +87,6 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 	  U16 bpp;
 
 	  wvTrace (("test\n"));
-	  ret = 1;
 	  len = apicf->lcb - apicf->cbHeader;
 
 	  i = wvEatOldGraphicHeader (fd, len);
@@ -96,7 +95,7 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 	    {
 		wvTrace (("all read ok methinks\n"));
 		apicf->rgb = NULL;
-		return (ret);
+		return 1;
 	    }
 	  len -= i;
 
@@ -166,7 +165,7 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 
     rewind (f);
     wvStream_FILE_create (&apicf->rgb, f);
-    return (ret);
+    return 1;
 }
 
 U32
