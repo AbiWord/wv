@@ -463,7 +463,10 @@ void wvDecodeComplex(wvParseStruct *ps)
 
 			eachchar = wvGetChar(ps->mainfd,chartype);
 
-			wvOutputTextChar(eachchar,chartype,charset,&state,NULL);
+			/* previously, in place of ps there was a NULL,
+			 * but it was crashing Abiword. Was it NULL for a
+			 * reason? -JB */
+			wvOutputTextChar(eachchar,chartype,charset,&state,ps);
 			}
 
 		if (j == para_fcLim)
