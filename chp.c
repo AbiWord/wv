@@ -707,8 +707,14 @@ wvAssembleSimpleCHP (wvVersion ver, CHP * achp, const PAP * apap, U32 fc, CHPX_F
 				wvAddCHPXFromBucket6 (achp, &upxf, stsh);
 		}
 
-		if(achp->istd < stsh->Stshi.cstd)
-			strncpy(achp->stylename,stsh->std[achp->istd].xstzName, sizeof(achp->stylename));
+		if(achp->istd < stsh->Stshi.cstd) {
+		  if (0 != stsh->std[achp->istd].xstzName) {
+		    strncpy(achp->stylename,stsh->std[achp->istd].xstzName, sizeof(achp->stylename));
+		  }
+		  else {
+		    wvError ("trying to copy null string\n");
+		  }
+		}
 
 		if(achp->istd != tistd)
 		{
