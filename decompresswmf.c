@@ -1,6 +1,10 @@
 #include "config.h"
 
-#ifdef SYSTEM_ZLIB
+#ifdef BEOS				/* TODO move this to config.h and friends */
+#undef HAVE_SYS_MMAN
+#endif
+
+#if defined(SYSTEM_ZLIB) && defined(HAVE_SYS_MMAN)
 #include <zlib.h>
 #include <sys/mman.h>
 #endif
@@ -29,7 +33,7 @@ extern int errno;
 
 int decompress(FILE *inputfile,char *outputfile,U32 inlen,U32 outlen)
 	{
-#ifdef SYSTEM_ZLIB
+#if defined(SYSTEM_ZLIB) && defined(HAVE_SYS_MMAN)
 	char *compr;
 	char *uncompr;
 	int err;
