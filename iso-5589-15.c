@@ -42,7 +42,7 @@ returns 0xffff is the 1252 char is a char that does not
 exist in iso-8859-15, in which case for html output you 
 can go down the gif or special tag inclusion route
 */
-U16 wvConvert1252Toiso8859_15(U8 char8)
+U16 wvConvert1252Toiso8859_15(U16 char8)
 	{
 	switch (char8)
 		{

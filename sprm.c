@@ -106,7 +106,7 @@ void wvGetSprmFromU16(Sprm *Sprm,U16 sprm)
 	Sprm->spra = (sprm & 0xe000)>>13;
 	}
 
-int wvEatSprm(U16 sprm,U8 *pointer, U16 *pos)
+U8 wvEatSprm(U16 sprm,U8 *pointer, U16 *pos)
 	{
 	int len;
 	Sprm aSprm;

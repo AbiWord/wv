@@ -313,7 +313,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 	U32 section_fcFirst,section_fcLim=0xffffffffL;
 	BTE *btePapx=NULL, *bteChpx=NULL;
 	U32 *posPapx=NULL, *posChpx=NULL;
-	U32 para_intervals, char_intervals,section_intervals;
+	U32 para_intervals, char_intervals,section_intervals,atrd_internals;
 	U16 charset;
 	U8 state=0;
 	int cpiece=0;
@@ -325,6 +325,27 @@ void wvDecodeComplex(wvParseStruct *ps)
 	SED *sed;
 	SEP sep;
 	U32 *posSedx;
+	ATRD *atrd;
+	U32 *posAtrd;
+
+#if 0	
+/* 
+this is the versioning name information, the first 22 bytes of each sttbf entry are 
+unknown, the rest is a ordinary unicode string, is the time and date and saved by
+encoded into the first 22 bytes.
+*/ 
+	STTBF versioning;
+	if (wvQuerySupported(&ps->fib,NULL) == 0) 
+		{
+		U16 *str;
+		wvError(("into the versions\n"));
+		wvGetSTTBF(&versioning,ps->fib.fcSttbfUssr,ps->fib.lcbSttbfUssr,ps->tablefd);
+		str = UssrStrBegin(&versioning,0);
+		wvError(("versioning text is %s\n",wvWideStrToMB(str)));
+		}
+#endif
+
+	wvGetATRD_PLCF(&atrd,&posAtrd,&atrd_internals,ps->fib.fcPlcfandRef,ps->fib.lcbPlcfandRef,ps->tablefd);
 
 	/*we will need the stylesheet to do anything useful with layout and look*/
 	wvGetSTSH(&ps->stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
@@ -375,14 +396,11 @@ void wvDecodeComplex(wvParseStruct *ps)
 	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3) )
 		{
 		wvGetBTE_PLCF6(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
-		wvListBTE_PLCF(&btePapx,&posPapx,&para_intervals);
 		wvGetBTE_PLCF6(&bteChpx,&posChpx,&char_intervals,ps->fib.fcPlcfbteChpx, ps->fib.lcbPlcfbteChpx,ps->tablefd);
-		wvListBTE_PLCF(&bteChpx,&posChpx,&char_intervals);
 		}
 	else 
 		{
 		wvGetBTE_PLCF(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
-		wvListBTE_PLCF(&btePapx,&posPapx,&para_intervals);
 		wvGetBTE_PLCF(&bteChpx,&posChpx,&char_intervals,ps->fib.fcPlcfbteChpx,ps->fib.lcbPlcfbteChpx,ps->tablefd);
 		}
 
@@ -396,21 +414,15 @@ void wvDecodeComplex(wvParseStruct *ps)
 
 	wvHandleDocument(ps,DOCBEGIN);
 
-
 	
 	/*for each piece*/
 	for (piececount=0;piececount<ps->clx.nopcd;piececount++)
 		{
 		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&ps->clx,piececount);
 		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
-		wvTrace(("begin end %x %x %x %x\n",beginfc,endfc,begincp,endcp));
-		/*
-		para_fcLim = char_fcLim = 0xffffffffL;
-		*/
 		fseek(ps->mainfd,beginfc,SEEK_SET);
-		for (i=begincp,j=beginfc;i<endcp;i++,j += wvIncFC(chartype))
+		for (i=begincp,j=beginfc;i<endcp,i<ps->fib.ccpText;i++,j += wvIncFC(chartype))
 			{
-
 			/* character properties */
 			if (j == char_fcLim)
 				{
@@ -540,7 +552,8 @@ void wvDecodeComplex(wvParseStruct *ps)
 				wvError(("picture here\n"));
 			else if ((eachchar == 0x07) && (!achp.fSpec))
 				ps->endcell=1;
-			
+		
+			ps->currentcp = i;
 			wvOutputTextChar(eachchar,chartype,charset,&state,ps);
 			}
 
@@ -584,6 +597,9 @@ void wvDecodeComplex(wvParseStruct *ps)
 		}
 	if (section_pendingclose)
         wvHandleElement(ps, SECTIONEND, (void*)&sep);
+
+	wvFree(posAtrd);
+	wvFree(atrd);
 
 
 	wvReleasePAPX_FKP(&para_fkp);

@@ -7,7 +7,7 @@ void prepare_key(unsigned char *key_data_ptr, int key_data_len,
    unsigned char index1;
    unsigned char index2;
    unsigned char* state;
-   short counter;     
+   unsigned char counter;     
 
    state = &key->state[0];         
    for(counter = 0; counter < 256; counter++)              

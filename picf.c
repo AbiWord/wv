@@ -49,7 +49,7 @@ extern int external_knowledge_0x01;
 
 void oldwvGetPICF(PICF *apicf,FILE *infd,U32 offset)
 	{
-	int count=0;
+	U32 count=0;
 	U8 temp;
 	FILE *out;
 	fbse_list *pic_list;

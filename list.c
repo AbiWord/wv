@@ -54,10 +54,10 @@ followed to find out the paragraph's list information:
      text, and grpprlChpx, to determine the appearance of the actual
      paragraph number text.
 */
-int wvGetListEntryInfo(LVL **finallvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST *lst, U32 noofLST,int version)
+int wvGetListEntryInfo(LVL **finallvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST *lst, U16 noofLST,int version)
 	{
 	LST *alst=NULL;
-	int i,number=0;
+	U32 i,number=0;
 	U32 oldno;
 	U32 fakeid;
 

@@ -58,7 +58,7 @@ void wvInitSTSHI(STSHI *item)
 
 void wvReleaseSTD(STD *item)
 	{
-	int i;
+	U8 i;
 	if (!item)
 		return;
 	wvFree(item->xstzName);
@@ -341,13 +341,13 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 				case sgcPara:
 					wvTrace(("doing paragraph, len is %d\n",item->std[i].grupxf[0].cbUPX));
 					wvTrace(("doing paragraph, len is %d\n",item->std[i].grupxf[1].cbUPX));
-					wvInitPAPFromIstd(&(item->std[i].grupe[0].apap),item->std[i].istdBase,item);
+					wvInitPAPFromIstd(&(item->std[i].grupe[0].apap),(U16)item->std[i].istdBase,item);
 					if (word6)
 						wvAddPAPXFromBucket6(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item);
 					else
 						wvAddPAPXFromBucket(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item);
 
-					wvInitCHPFromIstd(&(item->std[i].grupe[1].achp),item->std[i].istdBase,item);
+					wvInitCHPFromIstd(&(item->std[i].grupe[1].achp),(U16)item->std[i].istdBase,item);
 
 					wvTrace(("here1\n"));
 					
@@ -366,7 +366,7 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 
 					break;
 				case sgcChp:
-					wvInitCHPXFromIstd(&(item->std[i].grupe[0].chpx),item->std[i].istdBase,item);
+					wvInitCHPXFromIstd(&(item->std[i].grupe[0].chpx),(U16)item->std[i].istdBase,item);
 
 					if (word6)
 						wvUpdateCHPXBucket(&(item->std[i].grupxf[0]));

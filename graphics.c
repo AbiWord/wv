@@ -5,7 +5,7 @@
 void wvDumpPicture(U32 pos,FILE *fd)
 	{
 	static int i;
-    int j;
+    U32 j;
 	U32 len;
 	FILE *out;
 	char buffer[64];

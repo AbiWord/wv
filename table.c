@@ -4,6 +4,8 @@
 #include "bintree.h"
 
 
+int shortCompEQ(void *a,void *b);
+
 /*
 allow figures within 3 units of each other to
 be considered the same
@@ -45,7 +47,8 @@ void wvGetRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32
 	PAPX_FKP para_fkp;
 	U32 para_fcFirst, para_fcLim=0xffffffff;
 	PAP apap;
-	U32 i,j=0;
+	U32 i;
+	S32 j=0;
 
 	wvCopyPAP(&apap,dpap);
 
@@ -656,7 +659,8 @@ void wvGetComplexRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *bteP
 	PAPX_FKP para_fkp;
 	U32 para_fcFirst, para_fcLim=0xffffffff;
 	PAP apap;
-	U32 i,j=0,cpiece;
+	U32 i,cpiece;
+	S32 j=0;
 
 	wvCopyPAP(&apap,dpap);
 

@@ -207,7 +207,7 @@ void wvOutputFromUnicode(U16 eachchar,U8 outputtype)
 				printf("?");
 				return;
 				}
-			temp8 = temp16;
+			temp8 = (U8)temp16;	/*whistle innocently*/
 			printf("%c",temp8);
 			break;
 		/*add your own charset here*/

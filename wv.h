@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-/* redefs of things that are either in glibc or we have to imclude them ourselves*/
+/* redefs of things that are either in glibc or we have to include them ourselves*/
 #ifdef WIN32
 #define strcasecmp(s1,s2) stricmp(s1,s2)
 #else
@@ -17,9 +17,10 @@ int getopt(int argc, char * const argv[], const char *optstring);
 #include <time.h>
 
 #ifndef PATH_MAX
-#define PATH_MAX 255 /*seems a reasonable figure*/
+#define PATH_MAX 1024 /*seems a reasonable figure*/
 #endif
 
+/* these really should be worked out in the configure script to be 100% correct */
 #ifndef U32
 #define U32 unsigned int
 #endif
@@ -186,8 +187,8 @@ typedef struct _FIB
 	U32 fSpare0:3 ;			/* Bitfield 0xFE */
 	U32 chse:16 ;				/* 0x0014 */	/*was chs*/
 	U16 chsTables ;				/* 0x0016 */
-	S32 fcMin ;				/* 0x0018 */
-	S32 fcMac ;				/* 0x001C */
+	U32 fcMin ;				/* 0x0018 */
+	U32 fcMac ;				/* 0x001C */
 	U16 csw ;				/* 0x0020 */
 	U16 wMagicCreated ;				/* 0x0022 */
 	U16 wMagicRevised ;				/* 0x0024 */
@@ -504,6 +505,9 @@ void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,FILE *fd);
 void wvListSTTBF(STTBF *item);
 void wvReleaseSTTBF(STTBF *item);
 char *wvGetTitle(STTBF *item);
+
+U16 *UssrStrBegin(STTBF *sttbf,int no);
+
 
 typedef enum
     {
@@ -1285,7 +1289,7 @@ typedef struct _TC
     U32 fVertRestart:1;
     U32 vertAlign:2;
     U32 fUnused:7;
-    U8 wUnused;
+    U16 wUnused:16;
     BRC brcTop;
     BRC brcLeft;
     BRC brcBottom;
@@ -1793,7 +1797,7 @@ typedef enum
 
 int wvSprmLen(int spra);
 void wvGetSprmFromU16(Sprm *Sprm,U16 sprm);
-int wvEatSprm(U16 sprm,U8 *pointer, U16 *pos);
+U8 wvEatSprm(U16 sprm,U8 *pointer, U16 *pos);
 
 typedef enum _SprmName
 	{
@@ -2508,6 +2512,7 @@ typedef struct _wvParseStruct
 	S16 **vmerges;
 	U16 norows;
 	U8 endcell;
+	U32 currentcp;
 	}wvParseStruct;
 
 void wvSetPassword(char *password,wvParseStruct *ps);
@@ -2645,14 +2650,14 @@ int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStr
 void wvOutputFromCP1252(U16 eachchar,U8 outputtype);
 void wvOutputFromUnicode(U16 eachchar,U8 outputtype);
 
-U16 wvConvert1252ToUnicode(U8 char8);
-U16 wvConvert1252Toiso8859_15(U8 char8);
+U16 wvConvert1252ToUnicode(U16 char8);
+U16 wvConvert1252Toiso8859_15(U16 char8);
 
 U16 wvConvertUnicodeToiso8859_15(U16 char16);
 
 U16 wvConvertUnicodeToKOI8_R(U16 char16);
 
-int wvConvert1252ToHtml(U8 char8);
+int wvConvert1252ToHtml(U16 char8);
 
 void wvDecodeComplex(wvParseStruct *ps);
 int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,FILE *fd);
@@ -2862,7 +2867,7 @@ int wvGetComplexCharfcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
 
 void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype);
 
-int wvGetListEntryInfo(LVL **rlvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST *lst, U32 noofLST,int version);
+int wvGetListEntryInfo(LVL **rlvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST *lst, U16 noofLST,int version);
 
 
 void wvSetPixelsPerInch(S16 pixels);
@@ -2874,6 +2879,7 @@ int wvCellBgColor(int whichrow,int whichcell,int nocells,int norows,TLP *tlp);
 
 float wvRelativeWidth(S16 width,SEP *asep);
 
+int fieldCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype);
 
 /*current addition position*/
 
@@ -3244,7 +3250,7 @@ int wvSumInfoGetPreview(char *lpStr, U16 cbStr, U32 pid, SummaryInfo *si);
 void wvGetRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32 *posPapx);
 void wvGetComplexRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piececount);
 void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx);
-void wvGetFullComplexTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piececount);
+void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piece);
 
 
 /*end of clean interface*/
@@ -3878,7 +3884,7 @@ void wvDumpPicture(U32 pos,FILE *fd);
 void oldwvGetPICF(PICF *apicf,FILE *infd,U32 offset);
 
 /* have to have pap replaced with PAP, and change the text output code to the new ones, whenever they are ready*/
-void wvGetListInfo(pap *apap, chp *achp,LFO *lfo, LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U32 noofLST,style *sheet,FFN_STTBF *ffn_sttbf);
+void wvGetListInfo(pap *apap, chp *achp,LFO *lfo, LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U16 noofLST,style *sheet,FFN_STTBF *ffn_sttbf);
 /* have to have pap replaced with PAP*/
 void wvAddPAP_FromBucket(pap *pap,U8 *pointer8,U16 len,style *sheet);
 

@@ -210,7 +210,7 @@ void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,FILE *fd)
 	anS->extendedflag = ibstAssocMaxWord6;	/*just for the sake of it*/
 	anS->extradatalen = 0;
 	anS->s8strings = (S8 **)malloc(sizeof(S8 *)*anS->nostrings);
-	if (len != getc(fd))
+	if (len != (U32)getc(fd))
 		wvTrace(("word 6 sttbf len does not match up correctly, strange\n"));
 	for (i=0;i<anS->nostrings;i++)
 		{
@@ -226,3 +226,16 @@ void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,FILE *fd)
 			}
 		}
 	}
+
+
+U16 *UssrStrBegin(STTBF *sttbf,int no)
+	{
+	if (no >= sttbf->nostrings)
+		return(NULL);
+
+	return(sttbf->u16strings[no]+11);
+	}
+
+
+
+

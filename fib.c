@@ -310,8 +310,8 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->fSpare0 = (temp8 & 0xFE) >> 5;
 	item->chse = read_16ubit(fd);
 	item->chsTables = read_16ubit(fd);
-	item->fcMin = (S32)read_32ubit(fd);
-	item->fcMac = (S32)read_32ubit(fd);
+	item->fcMin = read_32ubit(fd);
+	item->fcMac = read_32ubit(fd);
 	item->csw = read_16ubit(fd);
 	item->wMagicCreated = read_16ubit(fd);
 	item->wMagicRevised = read_16ubit(fd);
@@ -647,8 +647,8 @@ void wvGetFIB6(FIB *item,FILE *fd)
 	item->fSpare0 = 0;
 	item->chse = read_16ubit(fd);
 	item->chsTables = read_16ubit(fd);
-	item->fcMin = (S32)read_32ubit(fd);
-	item->fcMac = (S32)read_32ubit(fd);
+	item->fcMin = read_32ubit(fd);
+	item->fcMac = read_32ubit(fd);
 
 	item->csw = 14;
 	item->wMagicCreated = 0xCA0;	/*this is the unique id of the creater, so its me :-)*/

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "config.h"
 #include "wv.h"
-
+#if 0
 extern FILE *erroroutput;
 extern int sectionpagenumber;
 extern sep *currentsep;
@@ -769,3 +769,4 @@ pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U
 		error(erroroutput,"PAP: istd is %ld\n",apap->istd);
 	return(apap);
 	}
+#endif

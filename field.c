@@ -6,14 +6,55 @@
 #include "config.h"
 #include "wv.h"
 
-extern FILE *erroroutput;
-extern FILE *outputfile;
-extern sep *currentsep;
-extern int inaheaderfooter;
-extern int sectionpagenumber;
-extern int sectionno;
+int fieldCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype)
+	{
+	}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
 void decode_field(FILE *main,field_info *magic_fields,long *cp,U8 *fieldwas,unsigned long *swallowcp1,unsigned long *swallowcp2)
 	{
 	time_t timep;
@@ -168,3 +209,4 @@ void decode_field(FILE *main,field_info *magic_fields,long *cp,U8 *fieldwas,unsi
 			}
 		}
 	}
+#endif

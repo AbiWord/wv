@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <errno.h>
 #include "config.h"
 #include "wv.h"
 
@@ -89,7 +90,8 @@ char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,FILE *infd)
 	{
 	char *aimage;
 	char *buffer=NULL;
-	int i,count=0,extra=0;
+	int count=0,extra=0;
+	U32 i;
 	static int no;
 	FILE *out;
 	for (i=0;i<16;i++)
@@ -140,7 +142,8 @@ char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,FILE *infd)
 char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *infd)	
 	{
 	char *aimage;
-	int i,extra=0;
+	int extra=0;
+	U32 i;
 	static int no;
 	char *buffer;
 	char *tbuffer;
@@ -283,7 +286,7 @@ void wvGetFDG(FDG *afdg,FILE *infd)
 fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *tablefd,FILE *mainfd)
 	{
 	int remainder;
-	int i,j;
+	U32 i,j;
 	MSOFBH amsofbh;
 	MSOFBH rmsofbh;
 	FDGG afdgg;
@@ -307,7 +310,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 	char *name;
 	long lastpos = ftell(mainfd);
 	char dodgyhack=1;
-	long dtest;
+	U32 dtest;
 
 	fseek(tablefd,fcDggInfo,SEEK_SET);
 
@@ -325,9 +328,9 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 		dodgyhack=0;
 		}
 
-	while( ftell(out) <  lcbDggInfo )
+	while( (U32)(ftell(out)) <  lcbDggInfo )
 		{
-		if ((dodgyhack) && (ftell(out) == rmsofbh.cbLength+8))
+		if ((dodgyhack) && ((U32)(ftell(out)) == rmsofbh.cbLength+8))
 			{
 			wvTrace(("come to the end of the root wrapper\n"));
 			wvTrace(("magin no is (%x)\n",getc(out)));
@@ -388,7 +391,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 						{
 						wvTrace(("looking in mainfd\n"));
 						fseek(out,0,SEEK_END);
-						dtest = ftell(out);
+						dtest = (U32)ftell(out);
 						if (pfbse_list->afbse.foDelay <  dtest) 
 							{
 							fseek(out,pfbse_list->afbse.foDelay,SEEK_SET);
@@ -529,7 +532,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 fbse_list *wvGetSPID(U32 spid,fsp_list *afsp_list,fbse_list *afbse_list)
 	{
 	fopte_list *temp;
-	int i;
+	U32 i;
 
 	while (afsp_list != NULL)
 		{
@@ -560,7 +563,7 @@ fbse_list *wvGetSPID(U32 spid,fsp_list *afsp_list,fbse_list *afbse_list)
 
 U32 wvGetSPIDfromCP(U32 cp,textportions *portions)
 	{
-	int i;
+	U32 i;
 	for (i=0;i<portions->noofficedraw;i++)
         if (cp == portions->officedrawcps[i])
             return(portions->fspas[i].spid);

@@ -24,7 +24,7 @@ Caolan.McNamara@ul.ie
 
 char *cvtText[31];
 void cvtInit(void);
-char *convert100(U16 x);
+char *convert100(U32 x);
 char *wvOrdinal(U32 x);
 
 #if 0
@@ -78,7 +78,7 @@ void cvtInit(void)
     cvtText[30] = "Million";
 	}
 
-char *convert100(U16 x)
+char *convert100(U32 x)
 	{
 	U16 t;
 	char *cvt100;

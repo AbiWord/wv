@@ -40,6 +40,7 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
 	{
 	U8 *pointer;
 	U16 i=0;
+	U8 sprm8;
 	U16 sprm;
 	wvTrace(("cbUPX word 6 is %d\n",upxf->cbUPX));
 
@@ -54,10 +55,10 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
 
 	while (i < upxf->cbUPX)
 		{
-		sprm = bgetc(upxf->upx.chpx.grpprl+i,&i);
+		sprm8 = bgetc(upxf->upx.chpx.grpprl+i,&i);
 
-        wvTrace(("chp word 6 sprm is %x (%d)\n",sprm,sprm));
-		sprm = wvGetrgsprmWord6(sprm);
+        wvTrace(("chp word 6 sprm is %x (%d)\n",sprm8,sprm8));
+		sprm = (U16)wvGetrgsprmWord6(sprm8);
 		wvTrace(("chp word 6 sprm is converted to %x\n",sprm));
 		
 		pointer = upxf->upx.chpx.grpprl+i;
@@ -410,8 +411,8 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
     Node *testn,*testp;
 	U16 i=0,j;
 	U16 sprm;
-	U16 len=0;
-	int temp;
+	U8 len=0;
+	U8 temp;
 	Node *test;
 
 	U8 *pointer,*dpointer;
@@ -508,6 +509,7 @@ void wvUpdateCHPXBucket(UPXF *src)
 	{
 	U16 i=0,j;
 	U16 sprm;
+	U8 sprm8;
 	U16 len=0;
 	int temp;
 
@@ -525,9 +527,9 @@ void wvUpdateCHPXBucket(UPXF *src)
 	len=0;
 	while(i<src->cbUPX)
 		{
-		sprm = dgetc(NULL,&pointer);
-		wvTrace(("Mpre the sprm is %x\n",sprm));
-		sprm = wvGetrgsprmWord6(sprm);
+		sprm8 = dgetc(NULL,&pointer);
+		wvTrace(("Mpre the sprm is %x\n",sprm8));
+		sprm = (U16)wvGetrgsprmWord6(sprm8);
 		wvTrace(("Mpost the sprm is %x\n",sprm));
 		i++;
 		len+=2;
@@ -550,8 +552,8 @@ void wvUpdateCHPXBucket(UPXF *src)
 	pointer = src->upx.chpx.grpprl;
 	while(i<src->cbUPX)
 		{
-		sprm = dgetc(NULL,&pointer);
-		sprm = wvGetrgsprmWord6(sprm);
+		sprm8 = dgetc(NULL,&pointer);
+		sprm = (U16)wvGetrgsprmWord6(sprm8);
 		i++;
 		*dpointer++ = (sprm&0x00FF);
 		*dpointer++ = (sprm&0xff00)>>8;

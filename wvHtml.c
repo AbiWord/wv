@@ -280,17 +280,19 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype)
 	{
 	static int state,i;
-	static char fieldstring[1024];
 	switch(eachchar)
 		{
+		case 5:
+			/*expand_data()*/
+			printf("LM1");
+			return(0);
+			break;
 		case 19:
 			state=1;
 			i=0;
 			return(0);
 			break;
 		case 20:
-			fieldstring[i] = '\0';
-			wvTrace(("The field string was %s\n",fieldstring));
 		case 21:
 			state=0;
 			return(0);
@@ -298,7 +300,8 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype)
 		}
 	if (state) 
 		{
-		fieldstring[i++] = eachchar;
+		/*fieldstring[i++] = eachchar;*/
+		fieldCharProc(ps,eachchar,chartype);
 		return(0);
 		}
 	if (charset != 0xffff)

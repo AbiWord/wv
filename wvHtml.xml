@@ -129,7 +129,12 @@ or uncomment below to make deleted text dissappear (well, become commented out)
 <outline><begin></begin><end></end></outline>
 <smallcaps><begin></begin><end></end></smallcaps>
 <caps><begin></begin><end></end></caps>
+<vanish><begin></begin><end></end></vanish>
+
+<!--If you uncomment this then the annotation text links will become commented out by html tags-->
+<!--
 <vanish><begin>&lt;!-&#45;</begin><end>-&#45;&gt;</end></vanish>
+-->
 
 <!--
 text that has been newly typed since the last time revision marks have been accepted
@@ -258,5 +263,34 @@ or uncomment below to ignore it, the previous might even crash wv ?
 <end><wave.end/><dotdotdash.end/><dotdash.end/><dot.end/><dash.end/><thick.end/><hidden.end/><dotted.end/><double.end/><word.end/><single.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/><animation.end/><DispFldRMark.end/><PropRMark.end/></end>
 </character>
 
+<!--
+<annolink>
+<begin><sup><annoabbrev/><annoindex/></sup></begin>
+<end><sup><annoabbrev/><annoindex/></sup></end>
+</annolink>
+-->
+
+<!--we need to be override the character properties-->
+<!--
+<style name="Normal">
+
+<character>
+<begin><PropRMark.begin/><DispFldRMark.begin/><animation.begin/><fontstr.begin/><bold.begin/><italic.begin/><strike.begin/><RMarkDel.begin/><outline.begin/><smallcaps.begin/><caps.begin/><vanish.begin/><RMark.begin/><shadow.begin/><lowercase.begin/><emboss.begin/><imprint.begin/><dstrike.begin/><super.begin/><sub.begin/><single.begin/><word.begin/><double.begin/><dotted.begin/><hidden.begin/><thick.begin/><dash.begin/><dot.begin/><dotdash.begin/><dotdotdash.begin/><wave.begin/></begin>
+<end><wave.end/><dotdotdash.end/><dotdash.end/><dot.end/><dash.end/><thick.end/><hidden.end/><dotted.end/><double.end/><word.end/><single.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/><animation.end/><DispFldRMark.end/><PropRMark.end/></end>
+</character>
+
+<text>	
+<begin>
+&lt;div align=&quot;<just/>&quot;&gt;
+&lt;p&gt;
+</begin>
+<end>
+&lt;/p&gt;
+&lt;/div&gt;
+</end>
+</text>
+
+</style>
+-->
 
 </main>

@@ -11,7 +11,8 @@ int wvDecrypt95(wvParseStruct *ps)
 	unsigned char pw[16],z,g;
 	unsigned char key[16];
 	U8 pwkey[2];
-	int i,j=0,c,len,ret=1;
+	int i,c,len,ret=1;
+	U32 j=0;
 	unsigned long end;
 	unsigned char test[0x10];
 	U16 hash,h;
@@ -24,8 +25,12 @@ int wvDecrypt95(wvParseStruct *ps)
 	pwkey[0] = (U8)((ps->fib.lKey >> 16) & 0xFF);
 	pwkey[1] = (U8)((ps->fib.lKey >> 24) & 0xFF);
 
+	/* 
+	currently I do not know what the story is with the actual
+	input of non ascii password for word 95
+	*/
 	for (i=0;i<16;i++)
-		pw[i] = ps->password[i];
+		pw[i] = (U8)ps->password[i];
 
 	len = strlen((char *)pw);
 	i = len;

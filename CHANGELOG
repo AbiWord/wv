@@ -4,7 +4,17 @@ Changes to to 0.5.36
 	more pesky buglets and leaks.
 	* purify now reports no problems of any kind with any of the examples
 	and feature-examples.
+	* modified simple and complex saves to only do the *main* body text,
+	no comment and footnotes etc being put in when they shouldnt.
+	* made some headway into understanding undocumented version 
+	information. Theres 22 ununderstood bytes per version.
 ALL TODO
+	* title not being done in the correct charset
+
+	* style overrides for each word style, example idea in wvHtml.xml
+
+	* comment/footnote and endnote support.
+
 	* fully implement tablelooks, the flags in particular, and maybe the 
 	colors for the bg should be farmed out to sperate config options rather
 	than piggy backing on the other colors, also why did one of the text
@@ -14,7 +24,6 @@ ALL TODO
 	* bring in some stylesheet constructs, such as para indentation and
 	font size and color and so on. move things that direction instead.
 
-	* title not being done in the correct charset
 	* add another option for table width, i.e. tableabswidth.
 	* we need character formatting for the <li> itself, we can do this I 
 	suppose, but i'll hold off on that for a while.

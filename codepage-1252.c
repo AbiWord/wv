@@ -7,7 +7,7 @@ returns 0xffff is the 1252 char is a undefined char,
 in which case for html output you can go down the gif
 inclusion route
 */
-U16 wvConvert1252ToUnicode(U8 char8)
+U16 wvConvert1252ToUnicode(U16 char8)
 	{
 	switch (char8)
 		{
@@ -120,7 +120,7 @@ returns 1 if the char was in the range of
 converts the chars into their html equivalent if
 possible
 */
-int wvConvert1252ToHtml(U8 char8)
+int wvConvert1252ToHtml(U16 char8)
 	{
 	switch (char8)
 		{

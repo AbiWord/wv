@@ -92,7 +92,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
   char *p;
   unsigned char *s,*t;
   unsigned char *Block,*BDepot=NULL,*Depot=NULL,*Root=NULL;
-  U32 depot_len;
+  S32 depot_len;
   
   char Main[]="WordDocument";
   char Table0[]="0Table";

@@ -389,7 +389,8 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	static LVL lvl;
 	static U32 lastid=0;
 	static LFO *retlfo;
-	int i,j;
+	U32 i;
+	int j;
 
 
 	tokenIndex = s_mapNameToToken(name);

@@ -15,7 +15,7 @@ void wvGetATRD(ATRD *item,FILE *fd)
 
 int wvGetATRD_PLCF(ATRD **atrd,U32 **pos,U32 *noatrd,U32 offset,U32 len,FILE *fd)
 	{
-	int i;
+	U32 i;
 	if (len == 0)
 		{
 		*atrd = NULL;

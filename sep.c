@@ -8,7 +8,7 @@ float wvRelativeWidth(S16 width,SEP *asep)
 	float fwidth;
 	if (asep == NULL)
 		return(100.00);
-	fwidth = asep->xaPage - asep->dxaLeft - asep->dxaRight;
+	fwidth = (float)(asep->xaPage - asep->dxaLeft - asep->dxaRight);
 	fwidth = width/fwidth*100;
 	if (fwidth > 100.00) 
 		fwidth = 100.00;
@@ -17,8 +17,9 @@ float wvRelativeWidth(S16 width,SEP *asep)
 	
 float wvRelativeHeight(S16 height,SEP *asep)
 	{
-	float fheight = asep->yaPage - asep->dyaTop - asep->dyaBottom;
+	float fheight = (float)(asep->yaPage - asep->dyaTop - asep->dyaBottom);
 	fheight = height/fheight*100;
+	return(fheight);
 	}
 
 /*
@@ -156,12 +157,13 @@ void wvAddSEPXFromBucket6(SEP *asep,SEPX *item,STSH *stsh)
 	{
 	U8 *pointer;
     U16 i=0;
+    U8 sprm8;
     U16 sprm;
     while (i < item->cb)
         {
-        sprm = bgetc(item->grpprl+i,&i);
-		wvTrace(("sep word 6 sprm is %x (%d)\n",sprm,sprm));
-		sprm = wvGetrgsprmWord6(sprm);
+        sprm8 = bgetc(item->grpprl+i,&i);
+		wvTrace(("sep word 6 sprm is %x (%d)\n",sprm8,sprm8));
+		sprm = (U16)wvGetrgsprmWord6(sprm8);
 		wvTrace(("sep word 6 sprm is converted to %x\n",sprm));
         pointer = item->grpprl+i;
         wvApplySprmFromBucket(1,sprm,NULL,NULL,asep,stsh,pointer,&i);

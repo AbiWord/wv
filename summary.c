@@ -317,8 +317,10 @@ int wvGetProperty(PropValue *Prop, SummaryInfo *si, U32 pid)
 					break;
 				case VT_FILETIME:
 					Prop->vtValue.vtTime.dwLowDateTime = sread_32ubit(t);
+					wvError(("td1 %x\n",Prop->vtValue.vtTime.dwLowDateTime));
 					t+=4;
 					Prop->vtValue.vtTime.dwHighDateTime = sread_32ubit(t);
+					wvError(("td2 %x\n",Prop->vtValue.vtTime.dwHighDateTime));
 					break;
 				case VT_I4:
 				default:

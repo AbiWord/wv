@@ -42,6 +42,7 @@ void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh)
 	U8 *pointer;
 	U16 i=0;
 	U16 sprm;
+	U8 sprm8;
 	apap->istd = upxf->upx.papx.istd;
 	if (upxf->cbUPX <= 2)
 		return;
@@ -53,9 +54,9 @@ void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh)
 	while (i < upxf->cbUPX-3)	/* the end of the list is at -2, but there has to be a full sprm of
 								 len 1 as well*/
 		{
-		sprm = bgetc(upxf->upx.papx.grpprl+i,&i);
-		wvTrace(("pap word 6 sprm is %x (%d)\n",sprm,sprm));
-		sprm = wvGetrgsprmWord6(sprm);
+		sprm8 = bgetc(upxf->upx.papx.grpprl+i,&i);
+		wvTrace(("pap word 6 sprm is %x (%d)\n",sprm8,sprm8));
+		sprm = (U16)wvGetrgsprmWord6(sprm8);
 		wvTrace(("pap word 6 sprm is converted to %x\n",sprm));
 		pointer = upxf->upx.papx.grpprl+i;
 		/* hmm, maybe im wrong here, but there appears to be corrupt 

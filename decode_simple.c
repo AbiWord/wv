@@ -89,9 +89,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3))
 		{
     	wvGetBTE_PLCF6(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
-    	wvListBTE_PLCF(&btePapx,&posPapx,&para_intervals);
     	wvGetBTE_PLCF6(&bteChpx,&posChpx,&char_intervals,ps->fib.fcPlcfbteChpx,ps->fib.lcbPlcfbteChpx,ps->tablefd);
-    	wvListBTE_PLCF(&bteChpx,&posChpx,&char_intervals);
 		}
 	else	/* word 97 */
 		{
@@ -132,11 +130,11 @@ void wvDecodeSimple(wvParseStruct *ps)
 	for (piececount=0;piececount<ps->clx.nopcd;piececount++)
 		{
 		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&ps->clx,piececount);
-		fseek(ps->mainfd,beginfc,SEEK_SET);
-
 		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
-		for (i=begincp,j=beginfc;i<endcp;i++,j += wvIncFC(chartype))
+		fseek(ps->mainfd,beginfc,SEEK_SET);
+		for (i=begincp,j=beginfc;i<endcp,i<ps->fib.ccpText;i++,j += wvIncFC(chartype))
 			{
+			
 			/* character properties */
 			if (j == char_fcLim)
 				{
@@ -231,7 +229,9 @@ void wvDecodeSimple(wvParseStruct *ps)
 			else if ((eachchar == 0x07) && (!achp.fSpec))
 				ps->endcell=1;
 
+			ps->currentcp = i;
 			wvOutputTextChar(eachchar, chartype, charset, &state, ps);
+
 			}
 		}
 	
@@ -268,8 +268,14 @@ void wvDecodeSimple(wvParseStruct *ps)
 	wvFree(posPapx);
     wvFree(bteChpx);
 	wvFree(posChpx);
+#if 0
+	/* 
+	so what, this is meaningless 
+	C. 
+	*/
 	if (ps->fib.fcMac != ftell(ps->mainfd))
 		wvError(("fcMac did not match end of input !\n"));
+#endif
 	wvReleaseCLX(&ps->clx);
     wvReleaseFFN_STTBF(&ps->fonts);
 	wvReleaseSTSH(&ps->stsh);
