@@ -85,7 +85,7 @@ VPATH = @srcdir@
 CFLAGS = @CPPFLAGS@ @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ @GLIB_CFLAGS@ -ansi -pedantic -I. -I./ -I$(srcdir)/ -I$(srcdir)/magick/ -I$(srcdir)/expat/xmlparse/ -DXMLCONFIG=\"$(datadir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(datadir)/wv/wvHtml.xml\" -I$(srcdir)/libole2/ -I$(srcdir)/oledecod/ @WMF_CFLAGS@ @ICONV_CFLAGS@
 
 ifneq ($(HAVE_GLIB),1)
-CFLAGS = "$(CFLAGS) -I$(srcdir)/glib-wv/"
+CFLAGS += "-I$(srcdir)/glib-wv/"
 endif
 
 # not supported by lots of compilers
