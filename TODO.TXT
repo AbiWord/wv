@@ -1,6 +1,8 @@
 wordview is currently capable of converting word 8 (office 97) documents
 into html, the future proposed feature list include.
 
+* remove any other unused files
+
 * support word 6, 7 and older versions as well as the current word 8.
 
 * expand support to allow wordview to be used as import filters for
