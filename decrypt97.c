@@ -398,10 +398,12 @@ wvDecrypt97 (wvParseStruct * ps)
     if (ps->tablefd1)
 	wvStream_close (ps->tablefd1);
     wvStream_close (ps->mainfd);
-    ps->tablefd = (wvStream *) outtable;
-    ps->tablefd0 = (wvStream *) outtable;
-    ps->tablefd1 = (wvStream *) outtable;
-    ps->mainfd = (wvStream *) outmain;
+ 
+   wvStream_FILE_create(&ps->tablefd, outtable);
+   wvStream_FILE_create(&ps->tablefd0, outtable);
+   wvStream_FILE_create(&ps->tablefd1, outtable);
+   wvStream_FILE_create(&ps->mainfd, outmain);
+
     wvStream_rewind (ps->tablefd);
     wvStream_rewind (ps->mainfd);
     ps->fib.fEncrypted = 0;
