@@ -141,8 +141,8 @@ libwv
 7. libwv for Mac OS X 10.2 (Jaguar)
    --------------------------------
 
-   Instructions here are for building wv-0.7.4 and installing in the directory
-   /opt/wv-0.7.4, using Jaguar's default shell; modify as appropriate...
+   Instructions here are for building wv-0.7.5 and installing in the directory
+   /opt/wv-0.7.5, using Jaguar's default shell; modify as appropriate...
 
    Note: To create /opt you will need root access - i.e., login to an
          administrator account and use sudo mkdir /opt. In fact I (fjf) prefer
@@ -167,10 +167,10 @@ libwv
    and then do the following:
 
    1. Untar the wv source into your home directory.
-   2. cd into the wv-0.7.4 directory
+   2. cd into the wv-0.7.5 directory
    3. type:
 
-	env CPPFLAGS="-I/sw/include" LDFLAGS="-L/sw/include" ./configure --prefix=/opt/wv-0.7.4
+	env CPPFLAGS="-I/sw/include" LDFLAGS="-L/sw/lib" ./configure --prefix=/opt/wv-0.7.5
 
       [those of you who, like me (fjf), prefer bash, just omit the 'env']
 
@@ -180,7 +180,7 @@ libwv
    7. In the text editor that will open in your terminal window, add the 
       following line:
 
-	set path = ( /opt/wv-0.7.4/bin $path )
+	set path = ( /opt/wv-0.7.5/bin $path )
 
    8. Use the wv commands like this (example):
 
