@@ -53,7 +53,7 @@ void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,FILE *fd)
 	int i;
 	U8 page[WV_PAGESIZE];
 	U16 pos=0;
-	ssize_t bytes_read;
+	size_t bytes_read;
 
 	/* brian.ewins@bt.com */
 	/* there seem to be a lot of repeat calls... */
@@ -247,7 +247,7 @@ void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, FILE *fd)
 	int i;
 	U8 page[WV_PAGESIZE];
 	U16 pos=0;
-	ssize_t bytes_read;
+	size_t bytes_read;
 
 	/* brian.ewins@bt.com */
 	/* there seem to be a lot of repeat calls... */
