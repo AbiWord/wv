@@ -358,7 +358,7 @@ g_strdown (gchar *string)
 
   g_return_if_fail (string != NULL);
 
-  s = string;
+  s = (guchar *)string;
 
   while (*s)
     {
@@ -374,7 +374,7 @@ g_strup (gchar *string)
 
   g_return_if_fail (string != NULL);
 
-  s = string;
+  s = (guchar *)string;
 
   while (*s)
     {
@@ -532,10 +532,10 @@ g_strchug (gchar *string)
 
   g_return_val_if_fail (string != NULL, NULL);
 
-  for (start = string; *start && isspace (*start); start++)
+  for (start = (guchar *)string; *start && isspace (*start); start++)
     ;
 
-  g_memmove(string, start, strlen(start) + 1);
+  g_memmove(string, start, strlen((gchar *)start) + 1);
 
   return string;
 }
