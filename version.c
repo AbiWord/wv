@@ -12,4 +12,4 @@ How would you have done it?
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-char *wv_version="wv ver 0.6.3";
+extern const char wv_version[] = "wv ver 0.6.3";

@@ -82,7 +82,7 @@ if (c == d) \
 	}
 
 
-extern char *wv_version;
+extern const char wv_version[];
 
 Tokenptr tokenTreeRoot=NULL;
 
