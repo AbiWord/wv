@@ -149,8 +149,6 @@ XML = 	expat/xmlparse/xmlparse.o \
 
 OLE = oledecod/oledecod.o
 
-CRYPT = crypt/rc4.o crypt/md5.o
-
 all: wvSummary$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSimpleCLX$(EXEEXT) wv-libconfig wv-incconfig
 
 mswordview$(EXEEXT):  mswordview.o main.o lex.yy.o oldlist.o oldblip.o oldtable.o oldchp.o oldsprm.o oldsupport.o $(GETOPT) OLEDECODE libwv.a
@@ -208,10 +206,6 @@ XMLPARSER:
 	@echo making expat in expat
 	@(cd expat && $(MAKE)) || exit 1
 
-CRYPTCODE:
-	@echo making rc4 in crypt
-	@(cd crypt && $(MAKE)) || exit 1
-
 %.o: $(srcdir)/%.c 
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
@@ -220,8 +214,6 @@ cleansub:
 	@(cd oledecod && $(MAKE) clean) || exit 1
 	@echo cleaning expat in expat
 	@(cd expat && $(MAKE) clean) || exit 1
-	@echo cleaning crypt in crypt
-	@(cd crypt && $(MAKE) clean) || exit 1
 
 clean: cleansub
 	rm -rf *.o $(GETOPT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) mswordview$(EXEEXT) wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) core a.out *.a
@@ -237,8 +229,6 @@ realcleansub:
 	@(cd oledecod && $(MAKE) realclean) || exit 1
 	@echo real cleaning expat in expat
 	@(cd expat && $(MAKE) realclean) || exit 1
-	@echo real cleaning crypt in crypt
-	@(cd crypt && $(MAKE) realclean) || exit 1
 
 installdirs:
 	$(MKINSTALLDIRS) $(bindir) \
