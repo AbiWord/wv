@@ -1,0 +1,50 @@
+CC = @CC@
+OBJEXT = @OBJEXT@
+LEX = @LEX@
+
+SHELL=/bin/sh
+
+@SET_MAKE@
+
+prefix=@prefix@
+srcdir=@srcdir@
+datadir=@datadir@
+
+HAVE_GLIB = @HAVE_GLIB@
+HAVE_GNOMEVFS= @HAVE_GNOMEVFS@
+
+CFLAGS = @CPPFLAGS@ @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/.. -DTTFDIR=\"$(datadir)/wv/ttf\" -I$(srcdir)/../libole2 @WMF_CFLAGS@ @GLIB_CFLAGS@
+ifneq ($(HAVE_GLIB), 1)
+CFLAGS += -I$(srcdir)/../glib-wv/
+endif
+
+SHELL = /bin/sh
+
+.SUFFIXES: .C .$(OBJEXT)
+
+MYOBJECTS = \
+	ms-ole.$(OBJEXT) \
+	ms-ole-summary.$(OBJEXT)
+
+ifeq ($(HAVE_GNOMEVFS),1)
+MYOBJECTS += ms-ole-gnomevfs.$(OBJEXT)
+endif
+
+all: $(MYOBJECTS) 
+
+ms-ole.$(OBJEXT): $(srcdir)/ms-ole.c 
+	$(CC) $(CFLAGS) -c $(srcdir)/ms-ole.c 
+
+ms-ole-summary.$(OBJEXT): $(srcdir)/ms-ole-summary.c
+	$(CC) $(CFLAGS) -c $(srcdir)/ms-ole-summary.c
+
+ms-ole-gnomevfs.$(OBJEXT): $(srcdir)/ms-ole-gnomevfs.c
+	$(CC) $(CFLAGS) -c $(srcdir)/ms-ole-gnomevfs.c
+
+clean:	
+	rm -rf $(MYOBJECTS) core 
+
+realclean:  
+	rm -rf Makefile *.$(OBJEXT) core demo
+
+#  DO  NOT  DELETE THIS LINE -- make depend depends on it.
