@@ -117,20 +117,20 @@ CSRCS=	laolareplace.old.c \
 	decrypt97.c \
 	decrypt95.c \
 	table.c \
-	iconv/codepage-874.o \
-	iconv/codepage-1250.o \
-	iconv/codepage-1251.o \
-	iconv/codepage-1254.o \
-	iconv/codepage-1257.o \
-	iconv/codepage-1252.o \
-	iconv/codepage-1255.o \
-	iconv/codepage-1253.o \
-	iconv/codepage-1256.o \
-	iconv/koi8-r.o \
-	iconv/iso-8859-15.o \
-	iconv/tis-620.o \
-	iconv/utf-8.o \
-	iconv/iconv.o
+	iconv/codepage-874.c \
+	iconv/codepage-1250.c \
+	iconv/codepage-1251.c \
+	iconv/codepage-1254.c \
+	iconv/codepage-1257.c \
+	iconv/codepage-1252.c \
+	iconv/codepage-1255.c \
+	iconv/codepage-1253.c \
+	iconv/codepage-1256.c \
+	iconv/koi8-r.c \
+	iconv/iso-8859-15.c \
+	iconv/tis-620.c \
+	iconv/utf-8.c \
+	iconv/iconv.c
 
 CFLAGS+=		-I. -I./iconv -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
 LIBRARY_NAME=		Abi_libwv
