@@ -88,7 +88,7 @@ int main(int argc,char **argv)
 		ret = 0;
 		if (password == NULL)
 			{
-			wvError(("Password required\n"));
+			wvError(("Password required, this is an encrypted document\n"));
 			return(-1);
 			}
 		else

@@ -1,53 +1,4 @@
-Changes to to 0.5.29
-	* NUMBER 1 CHANGE: we now have the ability to decrypt word 97 documents, yippee!!
-
-	* more koi8.c changes from Sergey V. Udaltsov <svu@pop.convey.ru>
-	* removed all the lex rubbish, and took mswordview itself out of the default
-	Makefile dammit.
-	* some changes to semisupport word 95/6 lists, it does appear that word 95
-	lists are the exact same as word 6 lists.
-	* word 6 and 95 lists were different, and there is supposedly cases there the
-	word 97 can use word 6 style lists, though its supposedly unlikely.
-	* We have a problem with word6/95 lists, while we have the information about
-	each list entry, i cannot figure out how to tell if one particular entry
-	belongs to a particular list, i.e. I can quite happily pump out lists where
-	every entry is a seperate list consisting of a single entry, this is very
-	annoying. As a temporary measure I have done a checksum on the list information
-	and if the checksum is the same as another entry, then I assume that it is a
-	member of the same list, it works so far on very very simple lists, and I
-	imagine that it will explode when i investigate more complex word6/95 lists.
-	* now lists... 
-		lists come with number information and also with character formatting
-		which applies to the number text itself, and paragraph information
-		that applies to the paragraph that is the list entry itself. Every
-		list entry is a paragraph.
-
-		So if we are not interested in the character properties of the
-		number text itself we can quite happily convert the list into
-		html with numbering correct and so on.
-
-		If we want the char formatting of the number text we have to 
-		loose the html correctness of list handling.
-
-		The other final case is those weird windows symbols that might be
-		used, we cannot do them in correct html, they must either use
-		the three symbols available to use, or just become bullets.
-
-		We can apply the para stuff to the actual paragraph and some 
-		checking shows that a div is a valid element to put in a list
-		so thats what I have done
-	* with the word6 list problem, I have been unable in word95 to create
-	a list underneath another list with the exact same formatting without
-	putting a space between, I have also been unable to create a list
-	to continues from another list. In short I cannot create a list that
-	can break the admittedly insanely hacked mechanism I have devised to
-	leverage word6 lists into the word97 model used internally by the wv
-	library.
-	* some mods to make multilevel word6/95 lists work correctly, completely mad
-	stuff entirely, dragons be here and so on.
-	* minor change to summary.c to allow slightly dodgy but ok docs through the
-	system, happens with msword version 6.0.1 ( a mac version ?)
-	* explicit ul end ala ol end, if the para is the last para of the doc.
+Changes to to 0.5.30
 ALL TODO
 	* multilevel word6/95 lists.
 
@@ -139,6 +90,56 @@ ALL TODO
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.29
+	* NUMBER 1 CHANGE: we now have the ability to decrypt word 97 documents, yippee!!
+
+	* more koi8.c changes from Sergey V. Udaltsov <svu@pop.convey.ru>
+	* removed all the lex rubbish, and took mswordview itself out of the default
+	Makefile dammit.
+	* some changes to semisupport word 95/6 lists, it does appear that word 95
+	lists are the exact same as word 6 lists.
+	* word 6 and 95 lists were different, and there is supposedly cases there the
+	word 97 can use word 6 style lists, though its supposedly unlikely.
+	* We have a problem with word6/95 lists, while we have the information about
+	each list entry, i cannot figure out how to tell if one particular entry
+	belongs to a particular list, i.e. I can quite happily pump out lists where
+	every entry is a seperate list consisting of a single entry, this is very
+	annoying. As a temporary measure I have done a checksum on the list information
+	and if the checksum is the same as another entry, then I assume that it is a
+	member of the same list, it works so far on very very simple lists, and I
+	imagine that it will explode when i investigate more complex word6/95 lists.
+	* now lists... 
+		lists come with number information and also with character formatting
+		which applies to the number text itself, and paragraph information
+		that applies to the paragraph that is the list entry itself. Every
+		list entry is a paragraph.
+
+		So if we are not interested in the character properties of the
+		number text itself we can quite happily convert the list into
+		html with numbering correct and so on.
+
+		If we want the char formatting of the number text we have to 
+		loose the html correctness of list handling.
+
+		The other final case is those weird windows symbols that might be
+		used, we cannot do them in correct html, they must either use
+		the three symbols available to use, or just become bullets.
+
+		We can apply the para stuff to the actual paragraph and some 
+		checking shows that a div is a valid element to put in a list
+		so thats what I have done
+	* with the word6 list problem, I have been unable in word95 to create
+	a list underneath another list with the exact same formatting without
+	putting a space between, I have also been unable to create a list
+	to continues from another list. In short I cannot create a list that
+	can break the admittedly insanely hacked mechanism I have devised to
+	leverage word6 lists into the word97 model used internally by the wv
+	library.
+	* some mods to make multilevel word6/95 lists work correctly, completely mad
+	stuff entirely, dragons be here and so on.
+	* minor change to summary.c to allow slightly dodgy but ok docs through the
+	system, happens with msword version 6.0.1 ( a mac version ?)
+	* explicit ul end ala ol end, if the para is the last para of the doc.
 Changes to to 0.5.28
 	* added sprmPNLvlAnm into sprm.c for compatibility with word6/95
 	* sorted out where there are two lists under each other at the same
