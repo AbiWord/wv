@@ -58,3 +58,23 @@ int wvGetFSPA_PLCF(FSPA **fspa,U32 **pos,U32 *nofspa,U32 offset,U32 len,FILE *fd
         }
 	return(0);
 	}
+
+FSPA *wvGetFSPAFromCP(U32 currentcp,FSPA *fspa,U32 *pos,U32 nofspa)
+	{
+	U32 i;
+	for(i=0;i<nofspa;i++)
+		if (pos[i] == currentcp)
+			return(&(fspa[i]));
+	wvError(("found no fspa, panic\n"));
+	return(NULL);
+	}
+
+
+
+
+
+
+
+
+
+

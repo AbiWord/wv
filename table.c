@@ -3,18 +3,15 @@
 #include "wv.h"
 #include "bintree.h"
 
-
-int shortCompEQ(void *a,void *b);
-
 /*
 allow figures within 3 units of each other to
 be considered the same
 */
-int shortCompLT(void *a,void *b)
+int cellCompLT(void *a,void *b)
     {
     S16 *a2,*b2;
 
-	if (shortCompEQ(a,b))
+	if (cellCompEQ(a,b))
 		return(0);
 
     a2 = (S16 *)a;
@@ -22,20 +19,14 @@ int shortCompLT(void *a,void *b)
     return( *a2 < (*b2)+3);
     }
 
-int shortCompEQ(void *a,void *b)
+int cellCompEQ(void *a,void *b)
     {
 	int ret;
     S16 *a2,*b2;
-
-
-
-
     a2 = (S16 *)a;
     b2 = (S16 *)b;
-
-
 	ret = abs(*a2 - *b2);
-	if (ret < 3)
+	if (ret <= 3)
 		ret=1;
 	else
 		ret=0;
@@ -79,7 +70,7 @@ void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *p
 	PAPX_FKP para_fkp;
 	U32 para_fcFirst, para_fcLim=0xffffffff;
 	PAP apap;
-	U32 i,j=0;
+	U32 i,j=0,l;
 	TAP *test=NULL;
 
 	if (ps->intable) return;
@@ -87,6 +78,7 @@ void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *p
 	wvInitPAPX_FKP(&para_fkp);
 
 	i = ftell(ps->mainfd);
+	wvTrace(("TOP\n"));
 	do
 		{
 		wvReleasePAPX_FKP(&para_fkp);		
@@ -100,11 +92,14 @@ void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *p
 			{
 			test = (TAP *)realloc(test,sizeof(TAP)*(j+1));
 			wvCopyTAP(&(test[j]),&apap.ptap);
+			for (l=0;l<apap.ptap.itcMac+1;l++)
+				wvTrace(("In This Row-->%d\n",apap.ptap.rgdxaCenter[l]));
 			j++;
 			}
 
 		}
 	while(apap.fInTable);
+	wvTrace(("BOTTOM\n"));
 
 	wvReleasePAPX_FKP(&para_fkp);
 
@@ -147,7 +142,7 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
 	Node *testn,*testp;
 	int i,j,k;
 
-	InitBintree(&tree,shortCompLT,shortCompEQ);
+	InitBintree(&tree,cellCompLT,cellCompEQ);
 
 	for (i=0;i<no;i++)
 		{
@@ -163,6 +158,7 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
     while (testn != NULL)
         {
 		ps->cellbounds[i++] = *((S16 *)testn->Data);
+		wvTrace(("cellbound are %d\n",ps->cellbounds[i-1]));
         testp = NextNode(&tree,testn);
         DeleteNode(&tree,testn);
         testn = testp;
@@ -176,9 +172,11 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
 		wvFree(ps->vmerges);
 		}
 	ps->vmerges = (S16 **)malloc(sizeof(S16 *) * no);
+	wvTrace(("no of rows is %d",no));
 	for(i=0;i<no;i++)
 		{
 		ps->vmerges[i] = (S16 *)malloc(sizeof(S16) * ptap[i].itcMac);
+		wvTrace(("no of cells is %d",ptap[i].itcMac));
 		for (j=0;j<ptap[i].itcMac;j++)
 			ps->vmerges[i][j]=1;
 		}
@@ -201,9 +199,9 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
 					wvTrace(("cell begins are %d %d\n",ptap[i-1].rgdxaCenter[k],ptap[i].rgdxaCenter[j]));
 					wvTrace(("cell ends are %d %d\n",ptap[i-1].rgdxaCenter[k+1],ptap[i].rgdxaCenter[j+1]));
 				
-					if ( (shortCompEQ((void *)&(ptap[i-1].rgdxaCenter[k]) ,(void *)&(ptap[i].rgdxaCenter[j])))
+					if ( (cellCompEQ((void *)&(ptap[i-1].rgdxaCenter[k]) ,(void *)&(ptap[i].rgdxaCenter[j])))
 						&&
-						(shortCompEQ((void *)&(ptap[i-1].rgdxaCenter[k+1]) ,(void *)&(ptap[i].rgdxaCenter[j+1]))) )
+						(cellCompEQ((void *)&(ptap[i-1].rgdxaCenter[k+1]) ,(void *)&(ptap[i].rgdxaCenter[j+1]))) )
 						{
 						wvTrace(("found a cell above me, yippee\n"));
 						if (ptap[i-1].rgtc[k].fVertMerge)
@@ -607,27 +605,99 @@ int wvCellBgColor(int whichrow,int whichcell,int nocells,int norows,TLP *tlp)
 	return(cellbgcolors[tlp->itl][whichrow][whichcell]);
 	}
 
+/*
+get the end cp of the piece
+
+i as a cp
+wvGetComplexParaBounds as fc's
+go to the end as a cp
+*/
+void TheTest(wvParseStruct *ps,U32 piece,BTE *btePapx,U32 *posPapx,U32 para_intervals)	
+	{
+	U32 piececount;
+	U8 chartype;
+	U32 begincp,endcp;
+	U32 beginfc,endfc;
+	U32 i,j,k=0;
+	U32 para_fcFirst,para_fcLim;
+	PAPX_FKP para_fkp;
+	PAP apap;
+	int cpiece;
+
+	long pos = ftell(ps->mainfd);
+	wvInitPAPX_FKP(&para_fkp);
+
+	para_fcFirst = wvConvertCPToFC(ps->currentcp,&ps->clx);
+
+	for (piececount=piece;piececount<ps->clx.nopcd;piececount++)
+		{
+		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&ps->clx,piececount);
+		fseek(ps->mainfd,beginfc,SEEK_SET);
+		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
+		if (k==0)
+			{
+			wvTrace(("cp distance is %d, cp is %d\n",ps->currentcp-begincp,ps->currentcp));
+			wvTrace(("no of pieces is %d, this one is %d\n",ps->clx.nopcd,piece));
+			k++;
+			begincp = ps->currentcp;
+			beginfc = wvConvertCPToFC(ps->currentcp,&ps->clx);
+			}
+		wvTrace(("begin and end are %d %d (%x %x)\n",begincp,endcp,beginfc,endfc));
+		para_fcLim=0xffffffffL;
+		for (i=begincp,j=beginfc;(i<endcp && i<ps->fib.ccpText);i++,j += wvIncFC(chartype))
+			{
+			if ((para_fcLim == 0xffffffffL) || (para_fcLim == j))
+            	{
+                wvReleasePAPX_FKP(&para_fkp);
+                wvTrace(("cp and fc are %x(%d) %x\n",i,i,wvConvertCPToFC(i, &ps->clx)));
+                cpiece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,wvConvertCPToFC(i, &ps->clx),
+					&ps->clx, btePapx, posPapx, para_intervals,piececount,ps->mainfd);
+                wvTrace(("para begin and end is %x %x, pieceend is %x\n",para_fcFirst,para_fcLim,wvConvertCPToFC(endcp,&ps->clx)));
+                } 
+			 if (j == para_fcFirst)
+                {
+                wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&ps->stsh);
+                wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&ps->stsh,&ps->clx);
+				wvTrace(("table ttp are %d %d\n",apap.fInTable,apap.fTtp));
+				}
+			}
+		}
+
+	fseek(ps->mainfd,pos,SEEK_SET);
+	}
 
 void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piece)	
 	{
 	PAPX_FKP para_fkp;
 	U32 para_fcFirst, para_fcLim=0xffffffff;
 	PAP apap;
-	U32 i,j=0;
+	U32 i,j=0,k=0,l;
 	TAP *test=NULL;
 
 	if (ps->intable) return;
 
+#if 0
+	/* some testing code */
+	wvTrace(("before test\n"));
+	TheTest(ps,piece,btePapx,posPapx,para_intervals);
+	wvTrace(("after test\n"));
+#endif
+
 	wvInitPAPX_FKP(&para_fkp);
 
 	i = ftell(ps->mainfd);
+	wvTrace(("TOP\n"));
 	do
 		{
 		wvTrace(("cycle again\n"));
 		wvReleasePAPX_FKP(&para_fkp);		
 
-		piece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i,&ps->clx, btePapx, posPapx, para_intervals,piece,ps->mainfd);
-		wvTrace(("-->%x %x\n",para_fcFirst,para_fcLim));
+		wvTrace(("2: cp and fc are %x(%d) %x\n",i,i,wvConvertCPToFC(i, &ps->clx)));
+		piece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,
+			i,&ps->clx, btePapx, posPapx, para_intervals,piece,ps->mainfd);
+
+
+		if (piece == -1) break;
 		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
 		wvTrace(("para from %x to %x\n",para_fcFirst,para_fcLim));
 		wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,piece,&ps->stsh,&ps->clx);
@@ -640,11 +710,18 @@ void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx
 			{
 			test = (TAP *)realloc(test,sizeof(TAP)*(j+1));
 			wvCopyTAP(&(test[j]),&apap.ptap);
+			for (l=0;l<apap.ptap.itcMac+1;l++)
+				wvTrace(("In This Row-->%d\n",apap.ptap.rgdxaCenter[l]));
 			j++;
 			}
-
+		if (apap.fTtp)
+			k++;
 		}
 	while(apap.fInTable);
+	wvTrace(("BOTTOM\n"));
+	if (piece == -1)
+		wvTrace(("broken on line %d\n",j));
+	wvTrace(("no of lines is %d %d\n",j,k));
 
 	wvReleasePAPX_FKP(&para_fkp);
 
@@ -654,12 +731,12 @@ void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx
 	wvFree(test);
 	}
 
-void wvGetComplexRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piececount)	
+void wvGetComplexRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piece)	
 	{
 	PAPX_FKP para_fkp;
 	U32 para_fcFirst, para_fcLim=0xffffffff;
 	PAP apap;
-	U32 i,cpiece;
+	U32 i;
 	S32 j=0;
 
 	wvCopyPAP(&apap,dpap);
@@ -667,21 +744,20 @@ void wvGetComplexRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *bteP
 	wvInitPAPX_FKP(&para_fkp);
 
 	i=ftell(ps->mainfd);
+
 	do
 		{
 		wvReleasePAPX_FKP(&para_fkp);		
 		
-		cpiece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i,&ps->clx, btePapx, posPapx, para_intervals,piececount,ps->mainfd);
-
+		wvTrace(("3: cp and fc are %x(%d) %x\n",i,i,wvConvertCPToFC(i, &ps->clx)));
+		piece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i,&ps->clx, btePapx, posPapx, para_intervals,piece,ps->mainfd);
+		if (piece == -1) break;
 		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
-        wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&ps->stsh,&ps->clx);
-	
-		wvTrace(("para from %x to %x\n",para_fcFirst,para_fcLim));
+        wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,piece,&ps->stsh,&ps->clx);
+		wvTrace(("para from %x to %x, table is %d\n",para_fcFirst,para_fcLim,apap.fInTable));
 		i=para_fcLim;
 		}
 	while(apap.fTtp == 0);
-
-	wvTrace(("fTtp is %d\n",apap.fTtp));
 
 	wvReleasePAPX_FKP(&para_fkp);
 	wvCopyTAP(&(dpap->ptap),&apap.ptap);

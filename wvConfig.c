@@ -121,6 +121,11 @@ TokenTable s_Tokens[] =
 	{	"mmLineHeight",		TT_mmLineHeight},
 
     {   "document",      TT_DOCUMENT     	},
+	 {	 "picture",		  TT_PICTURE		},
+	  {	  "pixPicWidth",	TT_pixPicWidth	},
+	  {	  "pixPicHeight",	TT_pixPicHeight	},
+	  {	  "htmlAlignGuess",	TT_htmlAlignGuess },
+	  {	  "htmlNextLineGuess",TT_htmlNextLineGuess},
 	 {   "section",       TT_SECTION     	},
       {   "paragraph",     TT_PARA         	},
 	   {  "table",			TT_TABLE		},
@@ -132,6 +137,13 @@ TokenTable s_Tokens[] =
 	   {  "cell",			TT_CELL		},
 	    {  "cell.begin",		TT_CELLB		},
 	    {  "cell.end",			TT_CELLE		},
+	   {   "tableoverrides",	TT_TABLEOVERRIDES	},
+		{	"ParaBefore",	 TT_ParaBefore	},
+		{	"ParaAfter",	 TT_ParaAfter		},
+		{	"ParaLeft",	 	TT_ParaLeft		},
+		{	"ParaRight",	 TT_ParaRight		},
+		{	"ParaLeft1",	 TT_ParaLeft1		},
+		
        {   "block",       	 TT_BLOCK     	 	},
         {   "justification", TT_JUSTIFICATION	},
          {   "just",       	 TT_JUST     	 	},
@@ -139,6 +151,8 @@ TokenTable s_Tokens[] =
           {   "right",       	 TT_RIGHT     	 	},
           {   "center",        TT_CENTER     	 	},
           {   "asian",       	 TT_ASIAN     	 	},
+		 {	"margin",		TT_MARGIN			},
+		  {	"paramargin",	TT_PARAMARGIN		},
 		 {	"nfc",	 		TT_nfc					},
 		 {	"start",		TT_START},
 		 {	"numbering",	 TT_numbering		},
@@ -362,18 +376,6 @@ TokenTable s_Tokens[] =
     {   "*",             TT_OTHER        	} /* must be last */
 };
 
-#if 0
-int main(void)
-	{
-	state_data myhandle;
-
-	wvInitStateData(&myhandle);
-	wvParseConfig(&myhandle,stdin);
-	wvReleaseStateData(&myhandle);
-	}
-#endif
-
-
 void wvInitStateData(state_data *data)
 	{
 	int i;
@@ -539,27 +541,30 @@ void exstartElement(void *userData, const char *name, const char **atts)
 		case TT_COLSPAN:
 			if (((PAP*)(mydata->props))->fInTable)
 				{
+				wvTrace(("this cell is %d, pos %d ends %d\n",mydata->whichcell,((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell],((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]));
 				i=0;
-				wvTrace(("begin end %d %d\n",((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell],((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]));
-				wvTrace(("begin end %d %d %d\n",(*mydata->cellbounds)[0],(*mydata->cellbounds)[1],(*mydata->cellbounds)[2]));
-				
-				wvTrace(("whichcell is %d, entry is %d %d\n",mydata->whichcell,((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell],(*mydata->cellbounds)[i]));
-				while ( (i <= ((PAP*)(mydata->props))->ptap.itcMac+1) && (*mydata->cellbounds)[i] != ((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell])
-					{
-					wvTrace(("here-->%d %d\n",(*mydata->cellbounds)[i],((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell] ));
+				while ( 
+				(i <= itcMax) && 
+#if 0
+				(i <= ((PAP*)(mydata->props))->ptap.itcMac+1) && 
+#endif
+				(0 == cellCompEQ( &((*mydata->cellbounds)[i]), &(((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell])))
+				)
 					i++;
-					}
 
-				wvTrace(("found begin point at %d\n",i));
 				j=i;
-				while( (j <= ((PAP*)(mydata->props))->ptap.itcMac+1) && (*mydata->cellbounds)[j] != ((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1] )
+				while( 
+				(j <= itcMax) && 
+#if 0
+				(j <= ((PAP*)(mydata->props))->ptap.itcMac+1) && 
+#endif
+				(0 == cellCompEQ( &((*mydata->cellbounds)[j]), &(((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]))) 
+				)
 					{
-					wvTrace(("end point test %d %d\n",(*mydata->cellbounds)[j],((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1] ));
+					wvTrace(("j is %d %d %d\n",j,(*mydata->cellbounds)[j],((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]));
 					j++;
 					}
 
-				wvTrace(("found end point at %d\n",j));
-				wvTrace(("going from %d to %d\n",((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell],((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]  ));
 				sprintf(buffer,"%d",j-i);
 				wvAppendStr(&mydata->retstring,buffer);
 				mydata->currentlen = strlen(mydata->retstring);
@@ -582,6 +587,52 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->retstring = str;
 			wvFree(text);
 			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_PARAMARGIN:
+			if (fintable)
+				{
+				/* 
+				if there are any table overrides check to make sure all are filled in,
+				and if all are set to 0
+				*/
+				if (
+				(mydata->sd->elements[TT_TABLEOVERRIDES].str) &&
+				(mydata->sd->elements[TT_TABLEOVERRIDES].str[0]) &&
+				(mydata->sd->elements[TT_TABLEOVERRIDES].str[1]) &&
+				(mydata->sd->elements[TT_TABLEOVERRIDES].str[2]) &&
+				(mydata->sd->elements[TT_TABLEOVERRIDES].str[3])
+				)
+					{
+					if (
+					(atoi(mydata->sd->elements[TT_TABLEOVERRIDES].str[0]) == 0) &&
+					(atoi(mydata->sd->elements[TT_TABLEOVERRIDES].str[1]) == 0) &&
+					(atoi(mydata->sd->elements[TT_TABLEOVERRIDES].str[2]) == 0) &&
+					(atoi(mydata->sd->elements[TT_TABLEOVERRIDES].str[3]) == 0)
+					)
+						{
+						wvTrace(("The table has overrides such that paramargin is to be ignored\n"));
+						break;
+						}
+					}
+				}
+
+			if (
+			((PAP*)(mydata->props))->dyaBefore ||
+			((PAP*)(mydata->props))->dyaAfter ||
+			((PAP*)(mydata->props))->dxaLeft ||
+			((PAP*)(mydata->props))->dxaRight
+				)
+				{
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_MARGIN].str[0])+1);
+				strcpy(text,mydata->sd->elements[TT_MARGIN].str[0]);
+				str = mydata->retstring;
+				wvExpand(mydata,text,strlen(text));
+				wvAppendStr(&str,mydata->retstring);
+				wvFree(mydata->retstring);
+				mydata->retstring = str;
+				wvFree(text);
+				mydata->currentlen = strlen(mydata->retstring);
+				}
 			break;
 		case TT_JUST:
 		    wvTrace(("just is %d\n",((PAP*)(mydata->props))->jc));
@@ -1355,26 +1406,121 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_mmParaBefore:
+			if (fintable)
+				{
+				if ((mydata->sd->elements[TT_TABLEOVERRIDES].str) && (mydata->sd->elements[TT_TABLEOVERRIDES].str[0]))
+					{
+					text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[0])+1); 
+					strcpy(text,mydata->sd->elements[TT_TABLEOVERRIDES].str[0]); 
+					str = mydata->retstring; 
+
+					wvExpand(mydata,text,strlen(text)); 
+					sprintf(buffer,"%.2fmm",wvTwipsToMM(atoi(mydata->retstring)));
+					wvFree(mydata->retstring); 
+
+					mydata->retstring = str; 
+					wvFree(text); 
+					wvAppendStr(&mydata->retstring,buffer);
+					mydata->currentlen = strlen(mydata->retstring); 
+					break;
+					}
+				}
 			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dyaBefore));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_mmParaAfter:
+			if (fintable)
+				{
+				if ((mydata->sd->elements[TT_TABLEOVERRIDES].str) && (mydata->sd->elements[TT_TABLEOVERRIDES].str[2]))
+					{
+					text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[2])+1); 
+					strcpy(text,mydata->sd->elements[TT_TABLEOVERRIDES].str[2]); 
+					str = mydata->retstring; 
+
+					wvExpand(mydata,text,strlen(text)); 
+					sprintf(buffer,"%.2fmm",wvTwipsToMM(atoi(mydata->retstring)));
+					wvFree(mydata->retstring); 
+
+					mydata->retstring = str; 
+					wvFree(text); 
+					wvAppendStr(&mydata->retstring,buffer);
+					mydata->currentlen = strlen(mydata->retstring); 
+					break;
+					}
+				}
 			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dyaAfter));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_mmParaLeft:
+			if (fintable)
+				{
+				if ((mydata->sd->elements[TT_TABLEOVERRIDES].str) && (mydata->sd->elements[TT_TABLEOVERRIDES].str[3]))
+					{
+					text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[3])+1); 
+					strcpy(text,mydata->sd->elements[TT_TABLEOVERRIDES].str[3]); 
+					str = mydata->retstring; 
+
+					wvExpand(mydata,text,strlen(text)); 
+					sprintf(buffer,"%.2fmm",wvTwipsToMM(atoi(mydata->retstring)));
+					wvFree(mydata->retstring); 
+
+					mydata->retstring = str; 
+					wvFree(text); 
+					wvAppendStr(&mydata->retstring,buffer);
+					mydata->currentlen = strlen(mydata->retstring); 
+					break;
+					}
+				}
 			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dxaLeft));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_mmParaRight:
+			if (fintable)
+				{
+				if ((mydata->sd->elements[TT_TABLEOVERRIDES].str) && (mydata->sd->elements[TT_TABLEOVERRIDES].str[1]))
+					{
+					text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[1])+1); 
+					strcpy(text,mydata->sd->elements[TT_TABLEOVERRIDES].str[1]); 
+					str = mydata->retstring; 
+
+					wvExpand(mydata,text,strlen(text)); 
+					sprintf(buffer,"%.2fmm",wvTwipsToMM(atoi(mydata->retstring)));
+					wvFree(mydata->retstring); 
+
+					mydata->retstring = str; 
+					wvFree(text); 
+					wvAppendStr(&mydata->retstring,buffer);
+					mydata->currentlen = strlen(mydata->retstring); 
+					break;
+					}
+				}
 			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dxaRight));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_mmParaLeft1:
+			if (fintable)
+				{
+				if ((mydata->sd->elements[TT_TABLEOVERRIDES].str) && (mydata->sd->elements[TT_TABLEOVERRIDES].str[4]))
+					{
+					text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[4])+1); 
+					strcpy(text,mydata->sd->elements[TT_TABLEOVERRIDES].str[4]); 
+					str = mydata->retstring; 
+
+					wvExpand(mydata,text,strlen(text)); 
+					sprintf(buffer,"%.2fmm",wvTwipsToMM(atoi(mydata->retstring)));
+					wvFree(mydata->retstring); 
+
+					mydata->retstring = str; 
+					wvFree(text); 
+					wvAppendStr(&mydata->retstring,buffer);
+					mydata->currentlen = strlen(mydata->retstring); 
+					break;
+					}
+				}
 			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dxaLeft1));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
@@ -1406,17 +1552,66 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_mmLineHeight:
-			/*
-			((PAP*)(mydata->props))->lspd.dyaLine
-			((PAP*)(mydata->props))->lspd.fMultLinespace
-			*/
-
 			if (wvTwipsToMM(((PAP*)(mydata->props))->lspd.dyaLine))
 				sprintf(buffer,"%fmm",fabs(wvTwipsToMM(((PAP*)(mydata->props))->lspd.dyaLine)));
 			else
 				sprintf(buffer,"normal");
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
+			break;
+
+		case TT_pixPicWidth:
+			{
+			FSPA *fspa = (FSPA *)(mydata->props);
+			sprintf(buffer,"%d",(int)(wvTwipsToHPixels(fspa->xaRight - fspa->xaLeft)+0.5));
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			}
+			break;
+		case TT_pixPicHeight:
+			{
+			FSPA *fspa = (FSPA *)(mydata->props);
+			sprintf(buffer,"%d",(int)(wvTwipsToVPixels(fspa->yaBottom-fspa->yaTop)+0.5));
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			}
+			break;
+		case TT_htmlNextLineGuess:
+			{
+			FSPA *fspa = (FSPA *)(mydata->props);
+			if (fspa->wr == 1)
+				sprintf(buffer,"<br>");
+			else
+				sprintf(buffer,"\n");
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			}
+			break;
+		case TT_htmlAlignGuess:
+			{
+			FSPA *fspa = (FSPA *)(mydata->props);
+			switch(fspa->wr)
+				{
+				default:
+				case 1:
+				case 3:
+					sprintf(buffer,"none");
+					break;
+				case 0:
+				case 5:
+					sprintf(buffer,"left");
+					break;
+				case 2:
+				case 4:
+					if (fspa->wrk == 1)
+						sprintf(buffer,"right");
+					else
+						sprintf(buffer,"left");
+					break;
+				}
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			}
 			break;
 		case TT_ibstRMark:
 			sprintf(buffer,"%d",((CHP*)(mydata->props))->ibstRMark);
@@ -1514,7 +1709,10 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			if (*(mydata->endcell))
 				{
 				if (fintable == 1)
+					{
 					mydata->whichcell++;
+					wvTrace(("inc whichcell to %d\n",mydata->whichcell));
+					}
 				HANDLE_E_PARA_ELE(TT_CELL,fInTable,fintable,1)
 				*(mydata->endcell)=0;
 				}
@@ -1647,6 +1845,13 @@ void startElement(void *userData, const char *name, const char **atts)
 				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
+		case TT_PICTURE:
+		case TT_MARGIN:
+			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*1);
+			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=1;
+			mydata->elements[s_Tokens[tokenIndex].m_type].str[0] = NULL;
+			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
+			break;
 		case TT_CHAR:
 			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*2);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=2;
@@ -1655,6 +1860,7 @@ void startElement(void *userData, const char *name, const char **atts)
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
 			break;
+		case TT_TABLEOVERRIDES:
 		case TT_JUSTIFICATION:
 		case TT_numbering:
 			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*5);
@@ -1688,6 +1894,7 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_LEFT:
 		case TT_Arabic:
 		case TT_NONED:
+		case TT_ParaBefore:
 			mydata->current = &(mydata->currentele->str[0]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -1696,6 +1903,7 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_CENTER:
 		case TT_UpperRoman:
 		case TT_SINGLED:
+		case TT_ParaRight:
 			mydata->current = &(mydata->currentele->str[1]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -1703,6 +1911,7 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_RIGHT:
 		case TT_LowerRoman:
 		case TT_THICKD:
+		case TT_ParaAfter:
 			mydata->current = &(mydata->currentele->str[2]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -1710,6 +1919,7 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_BLOCK:
 		case TT_UpperCaseN:
 		case TT_DOUBLED:
+		case TT_ParaLeft:
 			mydata->current = &(mydata->currentele->str[3]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -1717,6 +1927,7 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_ASIAN:
 		case TT_LowerCaseN:
 		case TT_NUMBER4D:
+		case TT_ParaLeft1:
 			mydata->current = &(mydata->currentele->str[4]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -1925,6 +2136,10 @@ void startElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_JUST:
 			wvAppendStr(mydata->current,"<just/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_PARAMARGIN:
+			wvAppendStr(mydata->current,"<paramargin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_BORDERTopSTYLE:
@@ -2257,9 +2472,22 @@ void startElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(mydata->current,"<mmLineHeight/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-			
-			
-
+		case TT_pixPicWidth:
+			wvAppendStr(mydata->current,"<pixPicWidth/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_pixPicHeight:
+			wvAppendStr(mydata->current,"<pixPicHeight/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_htmlAlignGuess:
+			wvAppendStr(mydata->current,"<htmlAlignGuess/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_htmlNextLineGuess:
+			wvAppendStr(mydata->current,"<htmlNextLineGuess/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
 		case TT_ibstRMark:
 			wvAppendStr(mydata->current,"<ibstrmark/>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -2434,6 +2662,11 @@ void endElement(void *userData, const char *name)
 		{
 		case TT_BEGIN:
 		case TT_END:
+		case TT_ParaBefore:
+		case TT_ParaRight:
+		case TT_ParaAfter:
+		case TT_ParaLeft:
+		case TT_ParaLeft1:
 		case TT_LEFT:
 		case TT_RIGHT:
 		case TT_CENTER:
@@ -2487,6 +2720,7 @@ void endElement(void *userData, const char *name)
 		case TT_TABLERELWIDTH:
 		case TT_VERSION:
 		case TT_JUST:
+		case TT_PARAMARGIN:
 		case TT_BORDERTopSTYLE:
 		case TT_BORDERTopCOLOR:
 		case TT_BORDERLeftSTYLE:
@@ -2601,6 +2835,10 @@ void endElement(void *userData, const char *name)
 		case TT_mmPadBottom:
 		case TT_mmPadLeft:
 		case TT_mmLineHeight:
+		case TT_pixPicWidth:
+		case TT_pixPicHeight:
+		case TT_htmlAlignGuess:
+		case TT_htmlNextLineGuess:
 		case TT_ibstRMark:
 		case TT_ibstRMarkDel:
 		case TT_ibstDispFldRMark:

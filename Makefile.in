@@ -146,7 +146,8 @@ MYOBJECTS =	\
 	decrypt97.o \
 	decrypt95.o \
 	twips.o \
-	table.o
+	table.o \
+	symbol.o
 
 #XML = -Lexpat/lib -lxmlparse -lxmltok
 XML = 	expat/xmlparse/xmlparse.o \

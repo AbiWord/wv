@@ -45,7 +45,7 @@ int main(int argc,char **argv)
         {
         { "config",1,0,'x'},
         { "password",1,0,'p'},
-        { 0,      0, 0, '0' },
+        { 0,0,0,0 }
         };
 
 	wvInitError();

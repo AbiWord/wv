@@ -32,6 +32,10 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 	ps->tablefd = wvWhichTableStream(&ps->fib,ps);
 
 	ret = wvQuerySupported(&ps->fib,&reason);
+
+	if ( (ret != 0) && (ret != 4) && (ret == 7) )
+		ps->data = ps->mainfd;
+
     if ( (ret > 1) && (ret != 2) && (ret != 3) )
 		{
 		if ((ret != 4) && (ret != 7))

@@ -15,13 +15,16 @@ void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh)
 	if (upxf->cbUPX <= 2)
 		return;
 	wvTrace(("no is %d\n",upxf->cbUPX));
-	
+#if 0	
+	fprintf(stderr,"\n");
 	while (i < upxf->cbUPX-2)
 		{
-		wvTrace(("%x (%d)\n",*(upxf->upx.papx.grpprl+i),*(upxf->upx.papx.grpprl+i)));
+		fprintf(stderr,"%x (%d)\n",*(upxf->upx.papx.grpprl+i),*(upxf->upx.papx.grpprl+i));
 		i++;
 		}
+	fprintf(stderr,"\n");
 	i=0;
+#endif
 
 	/*
 	while (i < upxf->cbUPX-2)	
@@ -48,9 +51,7 @@ void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh)
 		return;
 	wvTrace(("no is %d\n",upxf->cbUPX));
 
-	/*
-	while (i < upxf->cbUPX-2)	
-	*/
+	i=0;
 	while (i < upxf->cbUPX-3)	/* the end of the list is at -2, but there has to be a full sprm of
 								 len 1 as well*/
 		{

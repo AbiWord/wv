@@ -455,7 +455,7 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvApplysprmCChs(achp,pointer,pos);
 			break;
 		case sprmCSymbol:
-			wvApplysprmCSymbol(achp,pointer,pos);
+			wvApplysprmCSymbol(version,achp,pointer,pos);
 			break;
 		case sprmCFOle2:
 			achp->fOle2 = bgetc(pointer,pos);
@@ -847,7 +847,7 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvApplysprmTDxaGapHalf(&apap->ptap,pointer,pos);
 			break;
 		case sprmTTableBorders:
-			wvApplysprmTTableBorders(&apap->ptap,pointer,pos);
+			wvApplysprmTTableBorders(version,&apap->ptap,pointer,pos);
 			break;
 		case sprmTDefTable10:
 			wvApplysprmTDefTable10(&apap->ptap,pointer,pos);
@@ -863,7 +863,7 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			(*pos)+=cbTLP;
 			break;
 		case sprmTSetBrc:
-			wvApplysprmTSetBrc(&apap->ptap,pointer,pos);
+			wvApplysprmTSetBrc(version,&apap->ptap,pointer,pos);
 			break;
 		case sprmTInsert:
 			wvApplysprmTInsert(&apap->ptap,pointer,pos);
@@ -895,6 +895,13 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			break;
 		case sprmTVertMerge:
 			wvApplysprmTVertMerge(&apap->ptap,pointer,pos);
+			break;
+		case sprmTUNKNOWN1:	
+		/* read wv.h and word 6 sprm 204 
+		further down in this file to understand this
+		*/
+			bgetc(pointer,pos);
+			bread_16ubit(pointer,pos);
 			break;
 		case sprmTVertAlign:
 			wvApplysprmTVertAlign(&apap->ptap,pointer,pos);
@@ -1405,18 +1412,41 @@ void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos)
 	(*pos)+=2;
 	}
 
-void wvApplysprmCSymbol(CHP *achp,U8 *pointer,U16 *pos)
+void wvApplysprmCSymbol(int version,CHP *achp,U8 *pointer,U16 *pos)
 	{
+	if (version == 0)
+		{
 	/*
+	Word 8
 	This sprm's operand is 4 bytes. The first 2 hold the font code; the last 2
 	hold a character specifier. When this sprm is interpreted, the font code is
 	moved to chp.ftcSym and the character specifier is moved to chp.xchSym and
 	chp.fSpec is set to 1.
 	*/
-	achp->ftcSym = dread_16ubit(NULL,&pointer);
-	(*pos)+=2;
-	achp->xchSym = dread_16ubit(NULL,&pointer);
-	(*pos)+=2;
+		achp->ftcSym = dread_16ubit(NULL,&pointer);
+		(*pos)+=2;
+		achp->xchSym = dread_16ubit(NULL,&pointer);
+		(*pos)+=2;
+		}
+	else
+		{
+	/*
+	Word 6 and 7
+	The length byte recorded at offset 1 in this
+	sprm will always be 3. When this sprm is interpreted the two byte
+	font code recorded at offset 2 is moved to chp.ftcSym, the single
+	byte character specifier recorded at offset 4 is moved to chp.chSym
+	and chp.fSpec is set to 1.
+	*/
+		dgetc(NULL,&pointer);
+		(*pos)++;
+		achp->ftcSym = dread_16ubit(NULL,&pointer);
+		(*pos)+=2;
+		achp->xchSym = dgetc(NULL,&pointer);
+		achp->xchSym += 61440;		/* promote this char into a unicode char to
+		be consistent with what word 8 does */
+		(*pos)++;
+		}
 	achp->fSpec=1;
 	}
 	
@@ -1508,6 +1538,7 @@ void wvApplysprmCPlain(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	*/
 	fSpec = achp->fSpec;
 	wvInitCHPFromIstd(achp,achp->istd,stsh);
+	achp->fSpec = fSpec;
 	}
 
 
@@ -2003,17 +2034,20 @@ void wvApplysprmTDxaGapHalf(TAP *tap,U8 *pointer,U16 *pos)
 sprmTTableBorders (opcode 0xD605) sets the tap.rgbrcTable. The sprm is
 interpreted by moving the 24 bytes of the sprm's operand to tap.rgbrcTable.
 */
-void wvApplysprmTTableBorders(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTTableBorders(int version,TAP *tap,U8 *pointer,U16 *pos)
 	{
-	int i;
-	dgetc(NULL,&pointer);
-	(*pos)++;
+	int i,d;
+	if (version == 0)
+		{
+		dgetc(NULL,&pointer);
+		(*pos)++;
+		}
 	for (i=0;i<6;i++)
 		{
-		wvGetBRCFromBucket(0,&(tap->rgbrcTable[i]),pointer);
-		pointer+=cbBRC;
+		d = wvGetBRCFromBucket(version,&(tap->rgbrcTable[i]),pointer);
+		pointer+=d;
+		(*pos)+=d;
 		}
-	(*pos)+=6*cbBRC;
 	}
 
 /*
@@ -2035,6 +2069,7 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 	int i,t,oldpos,type;
 	len = dread_16ubit(NULL,&pointer);
 	oldpos = *pos;
+	wvTrace(("wvApplysprmTDefTable\n"));
 	wvTrace(("oldpos is %x\n",oldpos));
 	(*pos)+=2;
 	tap->itcMac = dgetc(NULL,&pointer);
@@ -2135,6 +2170,8 @@ void wvApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos)
 		}
 	}
 /*
+Word 8
+
 sprmTSetBrc (opcode 0xD620) allows the border definitions(BRCs) within TCs
 to be set to new values. It has the following format:
 
@@ -2170,17 +2207,33 @@ to be set to new values. It has the following format:
                                             TCs.
 
 */
-void wvApplysprmTSetBrc(TAP *tap,U8 *pointer,U16 *pos)
+/* Pre Word 8 *
+0    0    	sprm byte opcode 193
+1    1    	itcFirst  byte
+2    2    	itcLim    byte
+3    3         int  :4 F0   reserved
+			fChangeRight int  :1   08   
+			fChangeBottom int  :1   04   
+			fChangeLeft int  :1   02   
+			fChangeTop int  :1   01   
+	4    4  brc  BRC
+*/																				  
+void wvApplysprmTSetBrc(int version,TAP *tap,U8 *pointer,U16 *pos)
 	{
 	U8 itcFirst,itcLim,len,temp8;
 	BRC abrc;
 	int i;
-	len = dgetc(NULL,&pointer);
+	if (version == 0)
+		{
+		len = dgetc(NULL,&pointer);
+		(*pos)++;
+		wvTrace(("the len is %d",len));
+		}
 	itcFirst = dgetc(NULL,&pointer);
 	itcLim = dgetc(NULL,&pointer);
 	temp8 = dgetc(NULL,&pointer);
 	(*pos)+=3;
-	(*pos) += wvGetBRCFromBucket(0,&abrc,pointer);
+	(*pos) += wvGetBRCFromBucket(version,&abrc,pointer);
 
 	for (i=itcFirst;i<itcLim;i++)
 		{
@@ -2475,9 +2528,14 @@ only in grpprls linked to piece table entries.
 */
 void wvApplysprmTVertMerge(TAP *tap,U8 *pointer,U16 *pos)
 	{
-	U8 index = dgetc(NULL,&pointer);
-	U8 props = dgetc(NULL,&pointer);
-	(*pos)+=2;
+	U8 index,props,count;
+	wvTrace(("doing Vertical merge\n"));
+
+	count = dgetc(NULL,&pointer);
+	wvTrace(("count is %d\n",count));	/* check against word 8 please */
+	index = dgetc(NULL,&pointer);
+	props = dgetc(NULL,&pointer);
+	(*pos)+=3;
 
 	switch(props)
 		{
@@ -2756,11 +2814,18 @@ SprmName rgsprmWord6[256] =
 	sprmTSplit/*        198*/,
 	sprmTSetBrc10/*     199*/,
 	sprmTSetShd/*       200*/,
-#if 0
 	sprmNoop/*          201*/,
 	sprmNoop/*          202*/,
 	sprmNoop/*          203*/,
-	sprmNoop/*          204*/,
+	
+	sprmTUNKNOWN1/*    204*/,	
+	/*guess I know that this should be either
+	 * a) 3 bytes long,
+	 * b) complex with a len of 2,
+	 * its certainly a table related sprm, my guess is sprmTVertMerge
+	 * as that fits its profile, but it isn't working in practice.
+	 * */
+#if 0
 	sprmNoop/*          205*/,
 	sprmNoop/*          206*/,
 	sprmNoop/*          207*/,

@@ -11,22 +11,20 @@ int wvGetTC_internal(int version,TC *tc,FILE *infd,U8 *pointer)
 #ifdef PURIFY
     wvInitTC(tc);
 #endif
-
 	temp16 = dread_16ubit(infd,&pointer);
-
-	tc->fFirstMerged = temp16 & 0x0001;
-    tc->fMerged = (temp16 & 0x0002) >> 1;
-    tc->fVertical = (temp16 & 0x0004) >> 2;
-    tc->fBackward = (temp16 & 0x0008) >> 3;
-    tc->fRotateFont = (temp16 & 0x0010) >> 4;
-    tc->fVertMerge = (temp16 & 0x0020) >> 5;
-    tc->fVertRestart = (temp16 & 0x0040) >> 6;
-    tc->vertAlign = (temp16 & 0x0180) >> 7;
-    tc->fUnused = (temp16 & 0xFE00) >> 9;
-
 
 	if (version==0)
 		{
+		tc->fFirstMerged = temp16 & 0x0001;
+		tc->fMerged = (temp16 & 0x0002) >> 1;
+		tc->fVertical = (temp16 & 0x0004) >> 2;
+		tc->fBackward = (temp16 & 0x0008) >> 3;
+		tc->fRotateFont = (temp16 & 0x0010) >> 4;
+		tc->fVertMerge = (temp16 & 0x0020) >> 5;
+		tc->fVertRestart = (temp16 & 0x0040) >> 6;
+		tc->vertAlign = (temp16 & 0x0180) >> 7;
+		tc->fUnused = (temp16 & 0xFE00) >> 9;
+		
     	tc->wUnused = dread_16ubit(infd,&pointer);
 		wvGetBRC_internal(&tc->brcTop,infd,pointer);
 		pointer+=cbBRC;
@@ -39,7 +37,25 @@ int wvGetTC_internal(int version,TC *tc,FILE *infd,U8 *pointer)
 		}
 	else
 		{
-    	tc->wUnused = 0;
+    	wvInitTC(tc);
+		tc->fFirstMerged = temp16 & 0x0001;
+		tc->fMerged = (temp16 & 0x0002) >> 1;
+		/* 
+		This + word 6 205 in sprm.c I thought
+		would make sense together, until I get
+		another example I have disabled the two
+		of them
+		*/
+#if 0
+		tc->fVertical = (temp16 & 0x0004) >> 2;
+		tc->fBackward = (temp16 & 0x0008) >> 3;
+		tc->fRotateFont = (temp16 & 0x0010) >> 4;
+		tc->fVertMerge = (temp16 & 0x0020) >> 5;
+		tc->fVertRestart = (temp16 & 0x0040) >> 6;
+		tc->vertAlign = (temp16 & 0x0180) >> 7;
+		tc->fUnused = (temp16 & 0xFE00) >> 9;
+#endif
+
 		wvGetBRC10_internal(&brc10,infd,pointer);
 		wvConvertBRC10ToBRC(&tc->brcTop,&brc10);
 		pointer+=cb6BRC;

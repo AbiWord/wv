@@ -64,17 +64,10 @@ int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U
 	*/
 	BTE entry;
 	long currentpos;
-	/*
-	currentfc = wvConvertCPToFC(currentcp,clx);
-
-	wvTrace(("current cp is %x\n",currentcp));
-	wvTrace(("current fc is %x\n",currentfc));
-	wvTrace(("piece is %d, should be %d\n",piece,wvGetPieceFromCP(currentcp,clx)));
-	*/
 
 	if (currentfc==0xffffffffL)
 		{
-		wvTrace(("Para Bounds not found !, this is ok if this is the last para, otherwise its a disaster\n"));
+		wvError(("Para Bounds not found !, this is ok if this is the last para, otherwise its a disaster\n"));
 		return(-1);
 		}
 
@@ -92,6 +85,7 @@ int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U
 	wvGetComplexParafcFirst(version,fcFirst,currentfc,clx, bte, pos,nobte,piece,fkp,fd);
 
 	wvReleasePAPX_FKP(fkp);
+	wvTrace(("BREAK\n"));
 	wvGetPAPX_FKP(version,fkp,entry.pn,fd);
 
 	piece = wvGetComplexParafcLim(version,fcLim,currentfc,clx, bte, pos,nobte,piece,fkp,fd);
@@ -108,7 +102,7 @@ int wvGetComplexParafcLim(int version,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bt
 	wvTrace(("here is fcLim, currentfc is %x\n",currentfc));
 	fcTest = wvSearchNextSmallestFCPAPX_FKP(fkp,currentfc);
 
-	wvTrace(("fcTest is %x\n",fcTest));
+	wvTrace(("fcTest is %x, end is %x\n",fcTest,wvGetEndFCPiece(piece,clx)));
 
 
 	if (fcTest <= wvGetEndFCPiece(piece,clx))
@@ -131,7 +125,7 @@ int wvGetComplexParafcLim(int version,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bt
 			wvReleasePAPX_FKP(fkp);
 			wvGetPAPX_FKP(version,fkp,entry.pn,fd);
 			fcTest = wvSearchNextSmallestFCPAPX_FKP(fkp,beginfc);
-			wvTrace(("fcTest(t) is %x\n",fcTest));
+			wvTrace(("fcTest(t) is %x, end is %x\n",fcTest,wvGetEndFCPiece(piece,clx)));
 			if (fcTest <= wvGetEndFCPiece(piece,clx))
 				{
 				*fcLim = fcTest;
@@ -144,6 +138,7 @@ int wvGetComplexParafcLim(int version,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bt
 	if (piece == clx->nopcd)
 		{
 		wvTrace(("failed to find a solution to end of paragraph\n"));
+		*fcLim = fcTest;
 		return(clx->nopcd-1);	/* test using this */
 		}
 	return(piece);
@@ -157,7 +152,6 @@ int wvGetComplexParafcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
 	fcTest = wvSearchNextLargestFCPAPX_FKP(fkp,currentfc);
 
 	wvTrace(("fcTest (s) is %x\n",fcTest));
-
 
 	if (wvQuerySamePiece(fcTest-1,clx,piece))
 		{
@@ -174,6 +168,7 @@ int wvGetComplexParafcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
 			{
 			wvTrace(("piece is %d\n",piece));
 			endfc = wvGetEndFCPiece(piece,clx);
+			wvTrace(("endfc is %x\n",endfc));
 			if (0 != wvGetBTE_FromFC(&entry,endfc, bte,pos,nobte))
 				{
 				wvError(("BTE not found !\n"));
@@ -397,6 +392,8 @@ encoded into the first 22 bytes.
         ps->finallvl=NULL;
         }
 
+	 /*Extract Graphic Information*/
+	wvGetFSPA_PLCF(&ps->fspa,&ps->fspapos,&ps->nooffspa,ps->fib.fcPlcspaMom,ps->fib.lcbPlcspaMom,ps->tablefd);
 
 	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->tablefd);
 
@@ -436,8 +433,17 @@ encoded into the first 22 bytes.
 		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&ps->clx,piececount);
 		fseek(ps->mainfd,beginfc,SEEK_SET);
 		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
+		wvTrace(("piece begins at %x and ends just before %x. the char end is %x\n",beginfc,endfc,char_fcLim));
+
+		/*
+		text that is not in the same piece is not guaranteed to have the same properties as
+		the rest of the exception run, so force a stop and restart of these properties.
+		*/
+		char_fcLim = beginfc;
+		
 		for (i=begincp,j=beginfc;(i<endcp && i<ps->fib.ccpText);i++,j += wvIncFC(chartype))
 			{
+			ps->currentcp = i;
 			/* character properties */
 			if (j == char_fcLim)
 				{
@@ -482,7 +488,26 @@ encoded into the first 22 bytes.
 			if ((para_fcLim == 0xffffffffL) || (para_fcLim == j))
 				{
 				wvReleasePAPX_FKP(&para_fkp);
+				wvTrace(("cp and fc are %x(%d) %x\n",i,i,wvConvertCPToFC(i, &ps->clx)));
 				cpiece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,wvConvertCPToFC(i, &ps->clx),&ps->clx, btePapx, posPapx, para_intervals,piececount,ps->mainfd);
+				wvTrace(("para begin and end is %x %x\n",para_fcFirst,para_fcLim));
+
+				if (0 == para_pendingclose)
+					{
+					/*
+					if there's no paragraph open, but there should be then I believe that the fcFirst search
+					has failed me, so I set it to now. I need to investigate this further. I believe it occurs
+					when a the last piece ended simultaneously with the last paragraph, and that the algorithm
+					for finding the beginning of a para breaks under that condition. I need more examples to
+					be sure, but it happens is very large complex files so its hard to find
+					*/
+					if (j != para_fcFirst)
+						{
+						wvWarning(("There is no paragraph due to open but one should be, plugging the gap.\n"));
+						para_fcFirst = j;
+						}
+					}
+
 				}
 
 			if (j == para_fcFirst)
@@ -492,9 +517,16 @@ encoded into the first 22 bytes.
 
 				/* test section */
 				wvReleasePAPX_FKP(&para_fkp);
+				wvTrace(("cp and fc are %x(%d) %x\n",i,i,wvConvertCPToFC(i, &ps->clx)));
 				npiece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&dummy,&nextpara_fcLim,para_fcLim,&ps->clx, btePapx, posPapx, para_intervals,piececount,ps->mainfd);
-				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&ps->nextpap,nextpara_fcLim,&para_fkp,&ps->stsh);
-				wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&ps->nextpap,npiece,&ps->stsh,&ps->clx);
+				wvTrace(("para begin and end is %x %x\n",para_fcFirst,para_fcLim));
+				if (npiece > -1)
+					{
+					wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&ps->nextpap,nextpara_fcLim,&para_fkp,&ps->stsh);
+					wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&ps->nextpap,npiece,&ps->stsh,&ps->clx);
+					}
+				else
+					wvInitPAP(&ps->nextpap);
 				/* end test section */
 
 				if ( (apap.fInTable) && (!apap.fTtp) )
@@ -541,7 +573,7 @@ encoded into the first 22 bytes.
 				{
 				/* a CHP's base style is in the para style */
 				achp.istd = apap.istd;
-				char_dirty = wvAssembleSimpleCHP(&achp,char_fcLim,&char_fkp,&ps->stsh);
+				char_dirty = wvAssembleSimpleCHP(wvQuerySupported(&ps->fib, NULL),&achp,char_fcLim,&char_fkp,&ps->stsh);
 				char_dirty = (wvAssembleComplexCHP(wvQuerySupported(&ps->fib,NULL),&achp,cpiece,&ps->stsh,&ps->clx) ? 1 : char_dirty);
 				wvHandleElement(ps,CHARPROPBEGIN, (void*)&achp,char_dirty);
 				char_pendingclose=1;
@@ -561,7 +593,6 @@ encoded into the first 22 bytes.
 			if ((eachchar == 0x07) && (!achp.fSpec))
 				ps->endcell=1;
 		
-			ps->currentcp = i;
 			wvOutputTextChar(eachchar,chartype,charset,&state,ps,&achp);
 			}
 
@@ -742,6 +773,7 @@ int wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 	else
 		{
 		index = clx->pcd[cpiece].prm.para.var2.igrpprl;
+		i=0;
 		while (i < clx->cbGrpprl[index])   
 			{
 			if (version == 0)
@@ -750,6 +782,7 @@ int wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 				{
 				sprm8 = bgetc(clx->grpprl[index]+i,&i);
 				sprm = (U16)wvGetrgsprmWord6(sprm8);
+				wvTrace(("sprm is %x\n",sprm));
 				}
 			pointer = clx->grpprl[index]+i;
 			RetSprm = wvApplySprmFromBucket(version,sprm,apap,NULL,NULL,stsh,pointer,&i);

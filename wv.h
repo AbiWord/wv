@@ -854,6 +854,7 @@ typedef struct _FSPA
 
 void wvGetFSPA(FSPA *item,FILE *fd);
 int wvGetFSPA_PLCF(FSPA **fspa,U32 **pos,U32 *nofspa,U32 offset,U32 len,FILE *fd);
+FSPA *wvGetFSPAFromCP(U32 currentcp,FSPA *fspa,U32 *pos,U32 nofspa);
 
 
 typedef struct _LSTF
@@ -1807,6 +1808,14 @@ U8 wvEatSprm(U16 sprm,U8 *pointer, U16 *pos);
 
 typedef enum _SprmName
 	{
+	/*
+	these ones are ones I made up entirely to match
+	an unnamed pattern in word 95 files, whose 
+	purpose is currently unknown
+	*/
+	sprmTUNKNOWN1		  = 0xD400 ,
+
+	
 	/* 
 	these ones showed up in rgsprmPrm and are mostly 
 	out of date i reckon
@@ -2084,7 +2093,7 @@ void wvApplysprmPNumRM(PAP *apap,U8 *pointer, U16 *pos);
 void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos);		/*unfinished*/
 
 void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
-void wvApplysprmCSymbol(CHP *achp,U8 *pointer,U16 *pos);
+void wvApplysprmCSymbol(int version,CHP *achp,U8 *pointer,U16 *pos);
 void wvApplysprmCIstdPermute(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
 void wvApplysprmCDefault(CHP *achp,U8 *pointer,U16 *pos);
 void wvApplysprmCPlain(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos);
@@ -2102,11 +2111,11 @@ void wvApplysprmSPropRMark(SEP *asep,U8 *pointer,U16 *pos);
 
 void wvApplysprmTDxaLeft(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDxaGapHalf(TAP *tap,U8 *pointer,U16 *pos);
-void wvApplysprmTTableBorders(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTTableBorders(int version,TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDefTable10(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos);
-void wvApplysprmTSetBrc(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTSetBrc(int version,TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTInsert(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDelete(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDxaCol(TAP *tap,U8 *pointer,U16 *pos);
@@ -2411,6 +2420,19 @@ typedef enum _TT
 	TT_mmLineHeight,
 	TT_PARABGCOLOR,
 	TT_PARAFGCOLOR,
+	TT_PICTURE,
+	TT_pixPicWidth,
+	TT_pixPicHeight,
+	TT_htmlAlignGuess,
+	TT_htmlNextLineGuess,
+	TT_MARGIN,
+	TT_PARAMARGIN,
+	TT_TABLEOVERRIDES,
+	TT_ParaBefore,
+	TT_ParaAfter,
+	TT_ParaLeft,
+	TT_ParaRight,
+	TT_ParaLeft1,
 	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 
@@ -2517,6 +2539,7 @@ void wvGetPCD(PCD *item,FILE *fd);
 void wvInitPCD(PCD *item);
 int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,FILE *fd);
 int wvReleasePCD_PLCF(PCD *pcd,U32 *pos);
+int wvGuess16bit(PCD *pcd,U32 *pos,U32 nopcd);
 
 typedef struct _CLX
     {
@@ -2575,6 +2598,12 @@ typedef struct _wvParseStruct
 	U8 endcell;
 	U32 currentcp;
 	PAP nextpap;
+	
+	FSPA *fspa;
+	U32 *fspapos;
+	U32 nooffspa;
+
+	
 	}wvParseStruct;
 
 void wvSetPassword(char *password,wvParseStruct *ps);
@@ -2714,12 +2743,12 @@ void wvOutputFromUnicode(U16 eachchar,U8 outputtype);
 
 U16 wvConvert1252ToUnicode(U16 char8);
 U16 wvConvert1252Toiso8859_15(U16 char8);
+int wvConvert1252ToHtml(U16 char8);
 
 U16 wvConvertUnicodeToiso8859_15(U16 char16);
-
 U16 wvConvertUnicodeToKOI8_R(U16 char16);
 
-int wvConvert1252ToHtml(U16 char8);
+U16 wvConvertSymbolToUnicode(U16 char16);
 
 void wvDecodeComplex(wvParseStruct *ps);
 int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,FILE *fd);
@@ -2930,7 +2959,7 @@ int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 c
 int wvGetComplexSEP(int version,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx);
 
 int wvGetSimpleCharBounds(int version, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, FILE *fd);
-int wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh);
+int wvAssembleSimpleCHP(int version,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh);
 int wvGetComplexCharfcLim(int version, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, FILE *fd);
 int wvGetComplexCharfcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, FILE *fd);
 
@@ -2939,8 +2968,9 @@ void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype);
 int wvGetListEntryInfo(LVL **rlvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST *lst, U16 noofLST,int version);
 
 
-void wvSetPixelsPerInch(S16 pixels);
-float wvTwipsToPixels(S16 twips);
+void wvSetPixelsPerInch(S16 hpixels,S16 vpixels);
+float wvTwipsToHPixels(S16 twips);
+float wvTwipsToVPixels(S16 twips);
 float wvTwipsToMM(S16 twips);
 float wvPointsToMM(S16 points);
 
@@ -2963,6 +2993,10 @@ typedef struct _wvStyle
 
 ATRD *wvGetCommentBounds(U32 *comment_cpFirst,U32 *comment_cpLim,U32 currentcp,ATRD *atrd,U32 *pos,U32 noatrd,
 STTBF *bookmarks,BKF *bkf,U32 *posBKF,U32 bkf_intervals,BKL *bkl,U32 *posBKL,U32 bkl_intervals);
+
+int cellCompEQ(void *a,void *b);
+int cellCompLT(void *a,void *b);
+
 
 /*current addition position*/
 
@@ -3225,7 +3259,7 @@ typedef struct _PICF
 	S8 *rgb;
 	} PICF;
 
-void wvGetPICF(PICF *apicf,FILE *infd,U32 offset);
+void wvGetPICF(PICF *apicf,FILE *infd);
 
 /*Summary Information Stream*/
 

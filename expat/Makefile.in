@@ -21,6 +21,8 @@ CFLAGS = @CFLAGS@ -Ixmltok -Ixmlparse -DXML_NS
 FILEMAP_OBJ=xmlwf/unixfilemap.o
 #FILEMAP_OBJ=xmlwf/readfilemap.o
 
+srcdir=@srcdir@
+
 SHELL = /bin/sh
 
 .SUFFIXES: .C .o
@@ -52,7 +54,7 @@ lib/libxmltok.a:	$(TOKENOBJECTS)
 	$(AR) rc $@ $(TOKENOBJECTS) 
 	$(RANLIB) $@
 
-%.o: %.c 
+%.o: %.c
 	$(CC) $(CFLAGS) -c $*.c -o $*.o
 
 clean: 

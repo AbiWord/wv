@@ -23,7 +23,7 @@ int main(int argc,char **argv)
 
 	if (argc < 2)
 		{
-		fprintf(stderr,"Usage: wvSummary oledocument\n");
+		printf("Usage: wvSummary oledocument\n");
 		return(1);
 		}
 	
@@ -36,7 +36,7 @@ int main(int argc,char **argv)
 
 	if (s == NULL)
 		{
-		fprintf(stderr,"no summary stream\n");
+		printf("no summary stream\n");
 		return(0);
 		}
 
@@ -52,130 +52,130 @@ int main(int argc,char **argv)
 	ret = wvSumInfoGetString(szTemp, 256, PID_TITLE, &si);
 
 	if (!ret)
-		fprintf(stderr,"The title is %s\n",szTemp);
+		printf("The title is %s\n",szTemp);
 	else
-		fprintf(stderr,"no title found\n");
+		printf("no title found\n");
 
 	ret = wvSumInfoGetString(szTemp, 256, PID_SUBJECT, &si);
 
 	if (!ret)
-		fprintf(stderr,"The subject is %s\n",szTemp);
+		printf("The subject is %s\n",szTemp);
 	else
-		fprintf(stderr,"no subject found\n");
+		printf("no subject found\n");
 
 	ret = wvSumInfoGetString(szTemp, 256, PID_AUTHOR, &si);
 
 	if (!ret)
-		fprintf(stderr,"The author is %s\n",szTemp);
+		printf("The author is %s\n",szTemp);
 	else
-		fprintf(stderr,"no author found\n");
+		printf("no author found\n");
 
 	ret = wvSumInfoGetString(szTemp, 256, PID_KEYWORDS, &si);
 
 	if (!ret)
-		fprintf(stderr,"The keywords are %s\n",szTemp);
+		printf("The keywords are %s\n",szTemp);
 	else
-		fprintf(stderr,"no keywords found\n");
+		printf("no keywords found\n");
 
 	ret = wvSumInfoGetString(szTemp, 256, PID_COMMENTS, &si);
 
 	if (!ret)
-		fprintf(stderr,"The comments are %s\n",szTemp);
+		printf("The comments are %s\n",szTemp);
 	else
-		fprintf(stderr,"no comments found\n");
+		printf("no comments found\n");
 
 	ret = wvSumInfoGetString(szTemp, 256, PID_TEMPLATE, &si);
 
 	if (!ret)
-		fprintf(stderr,"The template was %s\n",szTemp);
+		printf("The template was %s\n",szTemp);
 	else
-		fprintf(stderr,"no template found\n");
+		printf("no template found\n");
 
 	ret = wvSumInfoGetString(szTemp, 256, PID_LASTAUTHOR, &si);
 
 	if (!ret)
-		fprintf(stderr,"The last author was %s\n",szTemp);
+		printf("The last author was %s\n",szTemp);
 	else
-		fprintf(stderr,"no last author found\n");
+		printf("no last author found\n");
 
 	ret = wvSumInfoGetString(szTemp, 256, PID_REVNUMBER, &si);
 
 	if (!ret)
-		fprintf(stderr,"The rev no was %s\n",szTemp);
+		printf("The rev no was %s\n",szTemp);
 	else
-		fprintf(stderr,"no rev no found\n");
+		printf("no rev no found\n");
 
 	ret = wvSumInfoGetString(szTemp, 256, PID_APPNAME, &si);
 
 	if (!ret)
-		fprintf(stderr,"The app name was %s\n",szTemp);
+		printf("The app name was %s\n",szTemp);
 	else
-		fprintf(stderr,"no app name found\n");
+		printf("no app name found\n");
 
 	ret = wvSumInfoGetTime(&yr, &mon, &day, &hr, &min, &sec,PID_TOTAL_EDITTIME,&si);
 
 	if (!ret)
-	    fprintf(stderr,"Total edit time was %d/%d/%d %d:%d:%d\n",day,mon,yr,hr,min,sec);
+	    printf("Total edit time was %d/%d/%d %d:%d:%d\n",day,mon,yr,hr,min,sec);
 	else
-		fprintf(stderr,"no total edit time found\n");
+		printf("no total edit time found\n");
 
 
 	ret = wvSumInfoGetTime(&yr, &mon, &day, &hr, &min, &sec,PID_LASTPRINTED,&si);
 
 	if (!ret)
-	    fprintf(stderr,"Last printed on %d/%d/%d %d:%d:%d\n",day,mon,yr,hr,min,sec);
+	    printf("Last printed on %d/%d/%d %d:%d:%d\n",day,mon,yr,hr,min,sec);
 	else
-		fprintf(stderr,"no last printed time found\n");
+		printf("no last printed time found\n");
 
 	ret = wvSumInfoGetTime(&yr, &mon, &day, &hr, &min, &sec,PID_CREATED,&si);
 
 	if (!ret)
-	    fprintf(stderr,"Created on %d/%d/%d %d:%d:%d\n",day,mon,yr,hr,min,sec);
+	    printf("Created on %d/%d/%d %d:%d:%d\n",day,mon,yr,hr,min,sec);
 	else
-		fprintf(stderr,"no creation time found\n");
+		printf("no creation time found\n");
 
 	ret = wvSumInfoGetTime(&yr, &mon, &day, &hr, &min, &sec,PID_LASTSAVED,&si);
 
 	if (!ret)
-	    fprintf(stderr,"Last Saved on %d/%d/%d %d:%d:%d\n",day,mon,yr,hr,min,sec);
+	    printf("Last Saved on %d/%d/%d %d:%d:%d\n",day,mon,yr,hr,min,sec);
 	else
-		fprintf(stderr,"no lastsaved date found\n");
+		printf("no lastsaved date found\n");
 
 	ret = wvSumInfoGetLong(&along,PID_PAGECOUNT, &si);
 
 	if (!ret)
-	    fprintf(stderr,"PageCount is %d\n",along);
+	    printf("PageCount is %d\n",along);
 	else
-		fprintf(stderr,"no pagecount\n");
+		printf("no pagecount\n");
 
 	ret = wvSumInfoGetLong(&along,PID_WORDCOUNT, &si);
 
 	if (!ret)
-	    fprintf(stderr,"WordCount is %d\n",along);
+	    printf("WordCount is %d\n",along);
 	else
-		fprintf(stderr,"no wordcount\n");
+		printf("no wordcount\n");
 
 
 	ret = wvSumInfoGetLong(&along,PID_CHARCOUNT, &si);
 
 	if (!ret)
-	    fprintf(stderr,"CharCount is %d\n",along);
+	    printf("CharCount is %d\n",along);
 	else
-		fprintf(stderr,"no charcount\n");
+		printf("no charcount\n");
 
 	ret = wvSumInfoGetLong(&along,PID_SECURITY, &si);
 
 	if (!ret)
-	    fprintf(stderr,"Security is %d\n",along);
+	    printf("Security is %d\n",along);
 	else
-		fprintf(stderr,"no security\n");
+		printf("no security\n");
 
 	ret = wvSumInfoGetPreview(szTemp, 256, PID_THUMBNAIL, &si);
 
 	if (!ret)
-	    fprintf(stderr,"preview is %s\n",szTemp);
+	    printf("preview is %s\n",szTemp);
 	else
-		fprintf(stderr,"no preview found\n");
+		printf("no preview found\n");
 
 	wvReleaseSummaryInfo(&si);
 

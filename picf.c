@@ -3,11 +3,9 @@
 #include <string.h>
 #include "wv.h"
 
-void wvGetPICF(PICF *apicf,FILE *infd,U32 offset)
+void wvGetPICF(PICF *apicf,FILE *infd)
 	{
 	U8 temp;
-
-	fseek(infd,offset,SEEK_SET);
 
 	apicf->lcb = read_32ubit(infd);
 	apicf->cbHeader = read_16ubit(infd);

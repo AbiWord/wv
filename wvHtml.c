@@ -48,10 +48,10 @@ int main(int argc,char **argv)
 	int c,index=0;
 	static struct option long_options[] =
         {
-        { "charset",1,0,'c'},
-        { "config",1,0,'x'},
-        { "password",1,0,'p'},
-        { 0,      0, 0, '0' },
+        {"charset",1,0,'c'},
+        {"config",1,0,'x'},
+        {"password",1,0,'p'},
+        {0,0,0,0}
         };
 
 	wvInitError();
@@ -289,17 +289,94 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 
 int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 	{
-	wvTrace(("special char %d in stream\n",eachchar));
+	static int message,state;
+	PICF picf;
+	FSPA *fspa;
+    expand_data *data = (expand_data *)ps->userData;
+
 	switch(eachchar)
 		{
-		case 5:
+		case 19:
+			state=1;
+			return(0);
+			break;
+		case 20:
+		case 21:
+			state=0;
+			return(0);
+			break;
+		}
+	if (state) 
+		return(0);
+	
+	switch(eachchar)
+		{
+		case 0x05:
 			/* this should be handled by the COMMENTBEGIN and COMMENTEND events */
 			return(0);
 			break;
-		case 1:
-			wvError(("picture here\n"));
-			printf(" [there should be a picture here] ");
+		case 0x01:
+			wvError(("picture 0x01 here\n"));
+			/*
+			fseek(ps->data,achp->fcPic_fcObj_lTagObj,SEEK_SET);
+			wvGetPICF(&picf,ps->data);
+			*/
+			printf("<img src=\"placeholder.png\"><br>");
 			return(0);
+		case 0x08:
+			fspa = wvGetFSPAFromCP(ps->currentcp,ps->fspa,ps->fspapos,ps->nooffspa);
+			data->props = fspa;
+			if ( (fspa) && (data->sd != NULL) && (data->sd->elements[TT_PICTURE].str) && (data->sd->elements[TT_PICTURE].str[0] != NULL) )
+				{
+				wvExpand(data,data->sd->elements[TT_PICTURE].str[0],
+					strlen(data->sd->elements[TT_PICTURE].str[0]));
+				if (data->retstring)
+					{
+					wvTrace(("picture string is now %s",data->retstring));
+					printf("%s",data->retstring);
+					wvFree(data->retstring);
+					}
+				}
+			return(0);
+		case 0x28:
+			{
+			U16 symbol[6] = {'S','y','m','b','o','l'};
+			U16 wingdings[9] = {'W','i','n','g','d','i','n','g','s'};
+			wvTrace(("index is %d\n",achp->ftcSym));
+			if (0 == memcmp(symbol,ps->fonts.ffn[achp->ftcSym].xszFfn,12))
+				{
+				if ( (!message) && (UTF8 != charset) )
+					{
+					wvWarning("Symbol font detected (too late sorry!), rerun wvHtml with option --charset utf-8\n\
+option to support correct symbol font conversion to a viewable format.\n");
+					message++;
+					}
+				wvTrace(("symbol char %d %x %c, using font %d %s\n",achp->xchSym,achp->xchSym,achp->xchSym,achp->ftcSym,wvWideStrToMB(ps->fonts.ffn[achp->ftcSym].xszFfn) ));
+				wvTrace(("symbol char ends up as a unicode %x\n",wvConvertSymbolToUnicode(achp->xchSym-61440)));
+				return(myCharProc(ps,wvConvertSymbolToUnicode(achp->xchSym-61440),UTF8));
+				}
+			else if (0 == memcmp(wingdings,ps->fonts.ffn[achp->ftcSym].xszFfn,18))
+				{
+				if (!message)
+					{
+					wvError(("I have yet to do a wingdings to unicode mapping table, if you know of one tell me\n"));
+					message++;
+					}
+				}
+			else
+				{
+				if (!message)
+					{
+					char *fontname = wvWideStrToMB(ps->fonts.ffn[achp->ftcSym].xszFfn);
+					wvError(("Special font %s, i need a mapping table to unicode for this\n",fontname));
+					wvFree(fontname);
+					printf("*");
+					}
+				return(0);
+				}
+			}
+		default:
+			return;
 		}
 	return(0);
 	}
@@ -319,6 +396,9 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype)
 		case 21:
 			state=0;
 			return(0);
+			break;
+		case 0x08:
+			wvError(("hmm did we loose the fSpec flag ?, this is possibly a bug\n"));
 			break;
 		}
 	if (state) 

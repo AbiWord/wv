@@ -112,6 +112,8 @@ void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype)
 		case 30:
 		case 31:
 		case 45:
+		case 0x96:
+		case 0x2013:
 			printf("-");
 			return;
 		case 160:
@@ -135,19 +137,28 @@ void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype)
 			printf("&gt;");
 			return;
 		case 0x85:
+		case 0x2026:
 #if 0
 /* this just looks awful in netscape 4.5, so im going to do a very foolish
 thing and just put ... instead of this
 */
-			printf("&#133;");	/*is there a proper html name for ... ?*/
+			printf("&#133;");	/*is there a proper html name for ... &ellipse; ?*/
 #endif
 			printf("...");	
 			return;
 		case 0x92:
+		case 0x2019:
 			printf("'");
 			return;
-		case 0x2013:
-		    printf("-");
+		case 0x2215:
+			printf("/");
+			return;
+		case 0x93:
+		case 0x94:
+			printf("\"");
+			return;
+		case 0xF8E7:	/* without this things should work in theory, but not for me */
+			printf("_");
 			return;
 		}
 
@@ -316,7 +327,8 @@ int wvIsEmptyPara(PAP *apap,expand_data *data)
 	*/
 	if (apap->fInTable == 1) 
 		{
-		wvTrace(("This Para is in cell %d %d %d\n",data->whichrow,data->whichcell,(*data->vmerges)[data->whichrow][data->whichcell]));
+		wvTrace(("This Para is in cell %d %d\n",data->whichrow,data->whichcell));
+		wvTrace(("%d\n",(*data->vmerges)[data->whichrow][data->whichcell]));
 		if ((*data->vmerges)[data->whichrow][data->whichcell] == 0)
 			{
 			wvTrace(("Skipping the next paragraph\n"));

@@ -297,10 +297,25 @@ border-right: thin <borderrightstyle/> <borderrightcolor/>;
 border-bottom: thin <borderbottomstyle/> <borderbottomcolor/>
 -->
 
+<!-- 
+this tableoverride option can be used to turn off handling of
+these tags in tables, which I find is necessary for at least netscape
+-->
+<tableoverrides>
+<ParaBefore>0</ParaBefore>
+<ParaRight>0</ParaRight>
+<ParaAfter>0</ParaAfter>
+<ParaLeft>0</ParaLeft>
+<ParaLeft1>0</ParaLeft1>
+</tableoverrides>
+
+<margin>
+<begin>margin: <mmParaBefore/> <mmParaRight/> <mmParaAfter/> <mmParaLeft/>;</begin>
+</margin>
+
 <text>	
 <begin>
-&lt;div style=&quot;margin: <mmParaBefore/> <mmParaRight/> <mmParaAfter/> <mmParaLeft/>;
-border: thin <borderleftstyle/> <borderleftcolor/>;
+&lt;div style=&quot;<paramargin/> border: thin <borderleftstyle/> <borderleftcolor/>;
 <!--
 border-top: thin <bordertopstyle/> <bordertopcolor/>;
 border-left: thin <borderleftstyle/> <borderleftcolor/>;
@@ -315,6 +330,13 @@ padding: <mmPadTop/> <mmPadRight/> <mmPadBottom/> <mmPadLeft/>; &quot;&gt;
 &lt;/div&gt;
 </end>
 </text>
+
+<picture>
+<begin>
+&lt;img align=&quot;<htmlAlignGuess/>&quot; width=&quot;<pixPicWidth/>&quot; height=&quot;<pixPicHeight/>&quot; src=&quot;placeholder.png&quot;&gt;<htmlNextLineGuess/>
+</begin>
+</picture>
+
 </style>
 
 <!--we need to be override the character properties-->
@@ -355,6 +377,8 @@ padding: <mmPadTop/> <mmPadRight/> <mmPadBottom/> <mmPadLeft/>; &quot;&gt;
 &lt;/div&gt;
 </end>
 </text>
+
+
 
 </style>
 -->

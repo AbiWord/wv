@@ -92,6 +92,9 @@ void wvDecodeSimple(wvParseStruct *ps)
 		ps->liststartnos=NULL;
 		ps->finallvl=NULL;
 		}
+	/*Extract Graphic Information*/
+	wvGetFSPA_PLCF(&ps->fspa,&ps->fspapos,&ps->nooffspa,ps->fib.fcPlcspaMom,ps->fib.lcbPlcspaMom,ps->tablefd);
+
 
 
 	/* 
@@ -250,22 +253,16 @@ void wvDecodeSimple(wvParseStruct *ps)
 				wvTrace(("assembling CHP...\n"));
 				/* a CHP's base style is in the para style */
 				achp.istd = apap.istd;
-				char_dirty = wvAssembleSimpleCHP(&achp,char_fcLim, &char_fkp, &ps->stsh);
+				char_dirty = wvAssembleSimpleCHP(wvQuerySupported(&ps->fib, NULL),&achp,char_fcLim, &char_fkp, &ps->stsh);
 				wvTrace(("CHP assembled.\n"));
+				wvTrace(("font is %d\n",achp.ftcAscii));
 				wvHandleElement(ps, CHARPROPBEGIN, (void*)&achp,char_dirty);
 				char_pendingclose = 1;
 				}
 
 			eachchar = wvGetChar(ps->mainfd, chartype);
 
-			if ((eachchar == 0x01) && (achp.fSpec))
-				{
-				wvError(("picture here at offset %x, fcPic of %x\n",ftell(ps->mainfd),achp.fcPic_fcObj_lTagObj));
-				/*
-				wvDumpPicture(achp.fcPic_fcObj_lTagObj,ps->data);
-				*/
-				}
-			else if ((eachchar == 0x07) && (!achp.fSpec))
+			if ((eachchar == 0x07) && (!achp.fSpec))
 				ps->endcell=1;
 
 			ps->currentcp = i;

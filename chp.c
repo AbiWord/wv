@@ -30,6 +30,7 @@ void wvApplyCHPXFromBucket(CHP *achp,CHPX *chpx,STSH *stsh)
 	while (i < chpx->cbGrpprl)
 		{
 		sprm = bread_16ubit(chpx->grpprl+i,&i);
+		wvTrace(("the sprm is %d\n",sprm));
 		pointer = chpx->grpprl+i;
 		wvApplySprmFromBucket(0,sprm,NULL,achp,NULL,stsh,pointer,&i);
 		}
@@ -575,7 +576,7 @@ void wvUpdateCHPXBucket(UPXF *src)
  * -JB
  */
 
-int wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
+int wvAssembleSimpleCHP(int version,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
 	{
 	CHPX *chpx;
 	int index,i;
@@ -609,7 +610,10 @@ int wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
 		for (i=0;i<chpx->cbGrpprl;i++)
 			upxf.cbUPX = chpx->cbGrpprl;
 		upxf.upx.chpx.grpprl = chpx->grpprl;
-		wvAddCHPXFromBucket(achp, &upxf, stsh);
+		if (version == 0)
+			wvAddCHPXFromBucket(achp, &upxf, stsh);
+		else
+			wvAddCHPXFromBucket6(achp, &upxf, stsh);
 		}
 	return(ret);
 	}

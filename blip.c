@@ -82,6 +82,8 @@ int wvQueryDelayStream(FBSE *afbse)
 
 char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,FILE *infd)
 	{
+	return("/tmp/rubbish");
+#if 0
 	char *aimage;
 	char *buffer=NULL;
 	int count=0,extra=0;
@@ -131,10 +133,13 @@ char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,FILE *infd)
 	fclose(out);
 	free(aimage);
 	return(buffer);
+#endif
 	}
 
 char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *infd)	
 	{
+	return("/tmp/rubbish");
+#if 0
 	char *aimage;
 	int extra=0;
 	U32 i;
@@ -235,6 +240,7 @@ char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *infd)
 		unlink(tbuffer);
 	free(aimage);
 	return(buffer);
+#endif
 	}
 
 U32 wvGetFOPTE(FOPTE *afopte,FILE *infd)

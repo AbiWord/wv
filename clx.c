@@ -33,7 +33,7 @@ void wvBuildCLXForSimple6(CLX *clx,FIB *fib)
 	clx->pcd[0].prm.fComplex = 0;
 	clx->pcd[0].prm.para.var1.isprm = 0;
 	/*
-	these set the one that *I* use correctly, but may break for other wvware
+	these set the one that *I* use correctly, but may break for other wv
 	users, though i doubt it, im just marking a possible firepoint for the
 	future
 	*/
@@ -56,7 +56,6 @@ void wvGetCLX(int version,CLX *clx,U32 offset,U32 len,FILE *fd)
 	U32 lcb,i,j=0;
 
 	fseek(fd,offset,SEEK_SET);
-	wvTrace(("clx offset is %x, len is %d\n",offset,len));
 
 	wvInitCLX(clx);
 
@@ -74,7 +73,7 @@ void wvGetCLX(int version,CLX *clx,U32 offset,U32 len,FILE *fd)
 			clx->grpprl = (U8 **)realloc(clx->grpprl,sizeof(U8 *)*(clx->grpprl_count));
 			clx->grpprl[clx->grpprl_count-1] = (U8 *)malloc(cb);
 			for(i=0;i<cb;i++)
-				 clx->grpprl[clx->grpprl_count-1][i] = getc(fd);
+				clx->grpprl[clx->grpprl_count-1][i] = getc(fd);
 			j+=i;
 			}
 		else if (clxt == 2)
@@ -99,11 +98,18 @@ void wvGetCLX(int version,CLX *clx,U32 offset,U32 len,FILE *fd)
 			j+=lcb;
 
 			if (version)
-				for (i=0;i<clx->nopcd;i++)
-					{
-					clx->pcd[i].fc *= 2;
-					clx->pcd[i].fc |= 0x40000000UL;
-					}
+				{
+				/* DANGER !!, this is a completely mad attempt to differenciate 
+				between word 95 files that use 16 and 8 bit characters. It may
+				not work, it attempt to err on the side of 8 bit characters.
+				*/
+				if (!(wvGuess16bit(clx->pcd,clx->pos,clx->nopcd)))
+					for (i=0;i<clx->nopcd;i++)
+						{
+						clx->pcd[i].fc *= 2;
+						clx->pcd[i].fc |= 0x40000000UL;
+						}
+				}
 			}
 		else
 			{
@@ -131,12 +137,15 @@ int wvGetPieceBoundsFC(U32 *begin,U32 *end,CLX *clx,U32 piececount)
     int type;
     if ( (piececount+1) > clx->nopcd)
 		{
-		wvError(("piececount is > nopcd, i.e.%d > %d\n", piececount+1,clx->nopcd));
+		wvTrace(("piececount is > nopcd, i.e.%d > %d\n", piececount+1,clx->nopcd));
         return(-1);
 		}
     *begin = wvNormFC(clx->pcd[piececount].fc,&type);
 
-    *end = *begin+(clx->pos[piececount+1]-clx->pos[piececount]);
+	if (type)
+	    *end = *begin+(clx->pos[piececount+1]-clx->pos[piececount]);
+	else
+	    *end = *begin+((clx->pos[piececount+1]-clx->pos[piececount])*2);
 
     return(type);
     }
@@ -206,7 +215,7 @@ U32 wvGetEndFCPiece(U32 piece,CLX *clx)
 	U32 fc;
 	U32 offset = clx->pos[piece+1] - clx->pos[piece];
 
-	wvTrace(("offset is %x\n",offset));
+	wvTrace(("offset is %x, befc is %x\n",offset,clx->pcd[piece].fc));
 	fc = wvNormFC(clx->pcd[piece].fc,&flag);
 	wvTrace(("fc is %x, flag %d\n",fc,flag));
 	if (flag) fc+=offset;
@@ -250,3 +259,89 @@ U32 wvConvertCPToFC(U32 currentcp,CLX *clx)
 
 	return(currentfc);
 	}
+
+struct test
+	{
+	U32 fc;
+	U32 offset;
+	};
+
+int compar(const void *a, const void *b)
+	{
+	struct test *one,*two;
+	one = (struct test *)a;
+	two = (struct test *)b;
+	
+	if (one->fc < two->fc)
+		return(-1);
+	else if (one->fc == two->fc)
+		return(0);
+	return(1);
+	}
+
+/* 
+In word 95 files there is no flag attached to each
+offset as there is in word 97 to tell you that we are
+talking about 16 bit chars, so I attempt here to make
+an educated guess based on overlapping offsets to
+figure it out, If I had some actual information as
+the how word 95 actually stores it it would help.
+*/
+
+int wvGuess16bit(PCD *pcd,U32 *pos,U32 nopcd)
+	{
+	struct test *fcs;
+	U32 i;
+	int ret=1;
+	fcs = (struct test *)malloc(sizeof(struct test) * nopcd);
+	for(i=0;i<nopcd;i++)
+		{
+		fcs[i].fc = pcd[i].fc;
+		fcs[i].offset = (pos[i+1]-pos[i])*2;
+		}
+
+	qsort(fcs, nopcd, sizeof(struct test), compar);
+
+	for(i=0;i<nopcd-1;i++)
+		{
+		if (fcs[i].fc+fcs[i].offset > fcs[i+1].fc)
+			{
+			wvTrace(("overlap, my guess is 8 bit\n"));
+			ret = 0;
+			break;
+			}
+		}
+
+	wvFree(fcs);
+	return(ret);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

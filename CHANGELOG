@@ -1,15 +1,45 @@
-Changes to to 0.5.37
-	* para indentation, first line indentation, top bottom left and right margins
-	* border code started, mountain of tags included.
-	* border color added for paragraphs
-	* we can handle individual sides to the border rather than just taking the top for all
-	sides.
-	* supporting brcBetween required that we repeat the table style lookahead
-	for brc's as well, this is very annoying, and seeing as netscape doesnt even allow
-	margin support correctly I hate putting it in as noone can use it, makes me feel
-	more complete to support it myself though, maybe mozilla will sort this out.
+Changes to to 0.5.38
+	* added the symbol mapping to unicode as best as I could, I made one or two mods from
+	the proper unicode so as to get a few more to work with the current generation of
+	web browsers. very bad behaviour I know and the sort of stuff that got the world into
+	this mess, but at least you can recompile wv at a later to date to fix it, replace
+	the commented out bits of symbol.c to do it.
+	* added messages for conversion table request for special fonts (the spawn of the 
+	devil as far as I am concerned).
+	* added a character property end and start at the beginning of a new paragraph, this
+	is necessary in many cases, funny i never noticed it before.
+	* figured out some rules to handle placement of graphics, abandoned stylesheet placement
+	as netscape is too much of a mess to be of any use there, and thats the target 
+	audience.
+	* the CHP code didnt work for word 7 and 8 sprms, this ironically means that rather
+	than falling through the default case and being ignored, each chp sprm is now parsed
+	leading to certainly more crashes and bugs as we find differences one by one between
+	word 8 and the previous versions character property sprms.
+	* fixed sprmCSymbol for pre word 8, there might be problems with fonts not named "Symbol",
+	like wingdings.
+	* due to serious oddities I have added a TABLEOVERRIDES option in wvHtml.xml which allows
+	the margins before and after and paragraph, and the first line indent to be turned off
+	inside tables, as having them on creates a real mess in netscape, in the future when this
+	ability is supported by browsers you can just remove tableoverrides and ta-da all will
+	work fine.
+	* fixed table row scanner bug
+	* fix for last para scan in complex mode
+	* make mods to table.c to allow cells within 3 units of eachother be considered the same.
+	* hmm, added a workaround for missing the beginning of a para in complex mode under 
+	certain conditions.
+	* some incredible hackery to differciate between 16 and 8 bit character modes in word 95
+	and 6, real dodgy stuff, but its working so far. Though its certainly a point of failure
+	in the future.
+	* fix for table colspan mistakes
+	* modified sprmTTableBorder to work with the smaller word 6 BRC's, also fixed bug where I
+	thought the sprm was variable
+	* had to fix sprmTTableBorder again, because it *is* variable under word 8 despite the
+	docs to the contrary !!, gagh.
 ALL TODO
-	* break stylesheet into too, first read all the poxy little sprms into one location
+	* Got to think of some way to keep the list stuff in sync with the margins of the enclosed 
+	paragraphs.
+
+	* break stylesheet into two, first read all the poxy little sprms into one location
 	and afterwards do the pap and chp generation.
 
 	* need to add a color Auto thing that figures out what color goes against what fore
@@ -87,6 +117,16 @@ ALL TODO
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.37
+	* para indentation, first line indentation, top bottom left and right margins
+	* border code started, mountain of tags included.
+	* border color added for paragraphs
+	* we can handle individual sides to the border rather than just taking the top for all
+	sides.
+	* supporting brcBetween required that we repeat the table style lookahead
+	for brc's as well, this is very annoying, and seeing as netscape doesnt even allow
+	margin support correctly I hate putting it in as noone can use it, makes me feel
+	more complete to support it myself though, maybe mozilla will sort this out.
 Changes to to 0.5.36
 	* mem leaks plugged, word 6 and 7 section sprms added correctly.
 	* crushed a few out by ones, twos and threes :-), flattened a few
