@@ -498,7 +498,7 @@ install: installdirs all
 	$(INSTALL_DATA) $(srcdir)/libwv.a $(libdir)/libwv.a
 	$(INSTALL_DATA) $(src_xmldir)/wvText.xml $(datadir)/wv/wvText.xml
 	$(INSTALL_DATA) $(src_xmldir)/wvHtml.xml $(datadir)/wv/wvHtml.xml
-	$(INSTALL_DATA) $(src_xmldir)/wvDocBook.xml $(datadir)/wv/wvDocBook.xml
+	$(INSTALL_DATA) $(src_xmldir)/wvDocbook.xml $(datadir)/wv/wvDocbook.xml
 	$(INSTALL_DATA) $(src_xmldir)/wvLaTeX.xml $(datadir)/wv/wvLaTeX.xml
 	$(INSTALL_DATA) $(src_xmldir)/wvAbw.xml $(datadir)/wv/wvAbw.xml
 	$(INSTALL_DATA) $(src_xmldir)/wvWml.xml $(datadir)/wv/wvWml.xml

@@ -116,7 +116,7 @@ fi
 if test "x$datadir" = "x"; then
   datadir=@datadir@
 fi
-xmlcfg="$datadir/wv/wvDocBook.xml"
+xmlcfg="$datadir/wv/wvDocbook.xml"
 if test -r "$xmlcfg"; then
   okay=yes
 else

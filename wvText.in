@@ -12,15 +12,26 @@ if [ ${#} -ne "2" ]; then
 fi
 
 USE_DUMP=0
-which elinks >/dev/null 2>&1 && USE_DUMP=2 || { which lynx >/dev/null 2>&1 && USE_DUMP=1;}
-
-if [ $USE_DUMP -eq "1" ]; then
-	echo "Could not find required program 'elinks'"
-	echo "Using lynx. Ouput will be pretty ugly."
+which elinks >/dev/null 2>&1
+if [ ${?} -eq "0" ]; then
+    USE_DUMP=3
+else
+    which links >/dev/null 2>&1
+    if [ ${?} -eq "0" ]; then
+	USE_DUMP=2
+    else
+	which lynx >/dev/null 2>&1
+	if [ ${?} -eq "0" ]; then
+	    USE_DUMP=1
+	fi
+    fi    
 fi
 
-if [ $USE_DUMP -eq "0" ]; then
-	echo "Could not find required program 'elinks' or even 'lynx'"
+if [ $USE_DUMP -eq "1" ]; then
+	echo "Could not find required program 'elinks' or 'links'"
+	echo "Using lynx. Ouput will be pretty ugly."
+elif [ $USE_DUMP -eq "0" ]; then
+	echo "Could not find required program 'elinks', 'links', or even 'lynx'"
 	echo "Using wvWare -x wvText.xml. Ouput will be pretty bad."
 fi
 
@@ -43,11 +54,14 @@ if [ $USE_DUMP -gt "0" ]; then
 	exit 1
     fi
 
-    if [ $USE_DUMP -eq "2" ]; then
+    if [ $USE_DUMP -eq "3" ]; then
 	# elinks does the best
 	elinks -dump -force-html "${tmpdir}/${TMP_FILE}" > "${2}"
+    elif [ $USE_DUMP -eq "2" ]; then
+	# links does a pretty good job
+	links -dump "${tmpdir}/${TMP_FILE}" > "${2}"
     else
-	# lynx actually does quite well
+	# lynx sucks, but does better than wvText.xml
 	TERM=vt100 lynx -dump -force_html "${tmpdir}/${TMP_FILE}" > "${2}"
     fi;
 
