@@ -267,20 +267,20 @@ void file_show_info(GtkWidget *widget, gpointer cbdata)
 	char *thing[3][18] = {
 		{
 		"Title", "Subject", "Author", "Keywords", "Comments", "Template", "Last Revised By",
-		"Revision No", "Created with", "Total Edit Time", "Last Printed", "Created",
-		"Last Saved", "Pagecount", "WordCount", "CharCount", "Security", "Preview"
+		"Revision No", "Total Edit Time", "Last Printed Time", "Creation Time", "Last Saved Time",
+		"No of Pages", "No of Words", "No of Characters", "Thumbnail", "App Name", "Security"
 		},
 		{
 		"Pathname", "Inode", "Mode", "No of Links", "UID", "GID", "Last Accessed",
 		"Last Modified", "Last Status Change", "Size", "File Block Size"
 		},
 		{
-		"Version","Complex ?", "Encrypted ?", "Last Saved on a", "Template", "Title", "Subject", "Keywords", "Comments",
+		"Version","Complex", "Encrypted", "Contains Macros", "Last Saved on a", "Template", "Title", "Subject", "Keywords", "Comments",
 		"Author", "Last Revised By", "Data document filename", "Header document filename"
 		}
 	};
 
-	char lens[3] = {18,11,13};
+	char lens[3] = {18,11,14};
 	char *bufferl;
 
 	GtkWidget *window;
@@ -291,7 +291,11 @@ void file_show_info(GtkWidget *widget, gpointer cbdata)
 	GtkWidget *label;
 	GtkWidget *checkbutton;
 	GtkWidget *tmptable;
-	int row,col,ret;
+	GdkBitmap *mask;
+	GtkWidget *pixmapwid;
+	GdkPixmap *my_pix;
+	GtkStyle *style;
+	int row,col,ret,test;
 	SummaryInfo si;
 	char szTemp[256];
 
@@ -306,32 +310,6 @@ void file_show_info(GtkWidget *widget, gpointer cbdata)
 	gtk_notebook_set_tab_pos (GTK_NOTEBOOK (notebook), GTK_POS_TOP);
 	gtk_table_attach_defaults(GTK_TABLE(table), notebook, 0,6,0,1);
 	gtk_widget_show(notebook);
-
-	for (i=0; i < 3; i++) 
-		{
-		frame = gtk_frame_new (titles[i]);
-		gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
-
-		tmptable = gtk_table_new(2,18,FALSE);
-
-		for (row=0;row<lens[i];row++)
-			for (col=0;col<1;col++)
-				{
-				label = gtk_label_new (thing[i][row]);
-				gtk_table_attach_defaults(GTK_TABLE(tmptable), label, col,col+1,row,row+1);
-				gtk_widget_show(label);
-				}
-
-		gtk_container_add (GTK_CONTAINER (frame), tmptable);
-
-		gtk_widget_show(tmptable);
-	
-		label = gtk_label_new (titles[i]);
-		gtk_widget_show (label);
-
-		gtk_notebook_append_page (GTK_NOTEBOOK (notebook), frame, label);
-		gtk_widget_show (frame);
-		}
 
 	if (input)
 		{
@@ -352,6 +330,60 @@ void file_show_info(GtkWidget *widget, gpointer cbdata)
 		{
 		wvError("no input\n");
 		}
+
+	for (i=0; i < 3; i++) 
+		{
+		frame = gtk_frame_new (titles[i]);
+		gtk_container_set_border_width (GTK_CONTAINER (frame), 10);
+
+		tmptable = gtk_table_new(2,18,FALSE);
+
+		for (row=0;row<lens[i];row++)
+			{
+			for (col=0;col<1;col++)
+				{
+				label = gtk_label_new (thing[i][row]);
+				gtk_table_attach_defaults(GTK_TABLE(tmptable), label, col,col+1,row,row+1);
+				gtk_widget_show(label);
+				}
+			for (col=1;col<2;col++)
+				{
+				test = wvSumInfoForceString(szTemp, 256, row+2, &si);
+				if (test == -1)
+					{
+					style = gtk_widget_get_style(window);
+					my_pix = gdk_pixmap_create_from_xpm(window->window, &mask,
+					&style->bg[GTK_STATE_NORMAL], "test.xpm");
+
+					pixmapwid = gtk_pixmap_new( my_pix, mask );
+					gtk_widget_show( pixmapwid );
+
+					label = gtk_button_new();
+					gtk_container_add( GTK_CONTAINER(button), pixmapwid );
+					}
+				else if (test != 1)
+					{
+					label = gtk_label_new (szTemp);
+					gtk_table_attach_defaults(GTK_TABLE(tmptable), label, col,col+1,row,row+1);
+					}
+				gtk_widget_show(label);
+				}
+			}
+
+	
+
+		gtk_container_add (GTK_CONTAINER (frame), tmptable);
+
+		gtk_widget_show(tmptable);
+	
+		label = gtk_label_new (titles[i]);
+		gtk_widget_show (label);
+
+		gtk_notebook_append_page (GTK_NOTEBOOK (notebook), frame, label);
+		gtk_widget_show (frame);
+		}
+
+
 
 	button = gtk_button_new_with_label ("Close");
 

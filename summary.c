@@ -75,6 +75,49 @@ void wvGetSummaryInfo(SummaryInfo *si,FILE *file,U32 offset)
 		}
 	}
 
+/* 
+0 is success
+1 is failure
+-1 is wmf files, cannot be converted
+*/
+int wvSumInfoForceString(char *lpStr, U16 cbStr, U32 pid, SummaryInfo *si)
+	{
+	int len;
+	PropValue Prop;
+	U16 yr, mon, day, hr, min, sec;
+
+	if (1 == wvGetProperty(&Prop, si, pid))
+		return(1);
+
+    if (Prop.vtType == VT_I4) 
+		sprintf(lpStr,"%ld",Prop.vtValue.vtLong);
+	else if (Prop.vtType == VT_LPSTR)
+		{
+		len = (int) Prop.vtValue.vtBSTR.cBytes;
+		if (len > cbStr) 
+			len = cbStr;
+		if (len <= 0) 
+			*(lpStr) = '\0';
+		else 
+			{
+			strncpy(lpStr, Prop.vtValue.vtBSTR.ch, len);
+			*(lpStr + len - 1) = '\0'; /* len includes terminating null*/
+			}
+		}
+	else if (Prop.vtType == VT_FILETIME)
+		{
+		wvSumInfoGetTime(&yr, &mon, &day, &hr, &min, &sec, pid, si);
+		sprintf(lpStr,"%d/%d/%d %d:%d:%d",day,mon,yr,hr,min,sec);
+		}
+	else
+		{
+		strcpy(lpStr,"Cannot be made into a str\n");
+		return(-1);
+		}
+	wvReleaseProperty(&Prop);
+    return(0);
+	}
+
 int wvSumInfoGetString(char *lpStr, U16 cbStr, U32 pid, SummaryInfo *si)
 	{
 	int len;

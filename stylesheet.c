@@ -312,6 +312,22 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 			if ((item->std[i].istdBase >= i) && (item->std[i].istdBase != istdNil))
 				{
 				wvError("ISTD's out of sequence, current no is %d, but base is %d\n",i,item->std[i].istdBase);
+				switch (item->std[i].sgc)
+                    {
+                    case sgcPara:
+                        wvInitPAPFromIstd(&(item->std[i].grupe[0].apap),istdNil,item);
+                        wvInitCHPFromIstd(&(item->std[i].grupe[1].achp),istdNil,item);
+                        if (item->std[i].grupe[1].achp.istd != istdNormalChar)
+                            {
+                            wvWarning("chp should have had istd set to istdNormalChar, doing it manually\n");
+                            item->std[i].grupe[1].achp.istd = istdNormalChar;
+                            }
+                        break;
+                    case sgcChp:
+                        wvInitCHPXFromIstd(&(item->std[i].grupe[0].chpx),istdNil,item);
+                        break;
+                    }
+
 				continue;
 				}
 			

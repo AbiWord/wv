@@ -273,7 +273,7 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->wIdent = read_16ubit(fd);
 	item->nFib = read_16ubit(fd);
 
-	if (wvQuerySupported(item,NULL) == 2)
+	if ( (wvQuerySupported(item,NULL) == 2) || (wvQuerySupported(item,NULL) == 3) )
 		{
 		wvInitFIB(item);
 		fseek(fd,-4,SEEK_CUR);
@@ -542,9 +542,7 @@ FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
     {
     FILE *ret;
 
-	if (wvQuerySupported(fib,NULL) == 2)		/* word 6 */
-		ret = ps->mainfd;
-	else										/* word 8+*/
+	if (wvQuerySupported(fib,NULL) == 0)		/* word 8+ */
 		{
 		if (fib->fWhichTblStm)
 			{
@@ -567,6 +565,8 @@ FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
 				}
 			}
 		}
+	else										/* word 7-*/
+		ret = ps->mainfd;
     return(ret);
     }
 
@@ -587,7 +587,7 @@ int wvQuerySupported(FIB *fib,int *reason)
         case 103:
         case 104:
             if (reason) *reason=3;
-            return(4);
+            return(3);
         default:
             break;
         }

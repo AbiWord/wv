@@ -21,7 +21,7 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 	wvGetFIB(&ps->fib,ps->mainfd);
 
 	ret = wvQuerySupported(&ps->fib,&reason);
-    if ( (ret > 1) && (ret != 2) )
+    if ( (ret > 1) && (ret != 2) && (ret != 3) )
 		{
 		wvError("%s\n",wvReason(reason));
 		return(ret);

@@ -35,7 +35,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
 
 	/*we will need the table of names to answer questions like the name of the doc*/
-	if (wvQuerySupported(&ps->fib,NULL) == 2)
+	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3) )
 		wvGetSTTBF6(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
 	else /*word 97*/
 		wvGetSTTBF(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
@@ -53,7 +53,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	we will need the paragraph bounds table to make decisions as to where a para
 	begins and ends
 	*/
-	if (wvQuerySupported(&ps->fib,NULL) == 2)
+	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3))
 		{
     	wvGetBTE_PLCF6(&btePapx,&posPapx,&intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
     	wvListBTE_PLCF(&btePapx,&posPapx,&intervals);

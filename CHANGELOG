@@ -1,4 +1,13 @@
 Changes to to 0.5.21
+	* fix for having no summary stream in wvSummary.
+	* added protection support for istd out of sequence, we should in the
+	future handle them correctly
+	* added simple word95 file support, gets all text correctly and at least
+	pretends to get the paragraph properties, needs much much checking, i
+	treated them exactly the same as word6 and that appears to work reasonably
+	ok.
+	* I have added a sample import filter for abiword in the abi dir, basically
+	it's up to the abi folk to integrate that in at their leisure.
 ALL TODO
 	* add char properties
 	* give abiword folk new alpha filter code for themselves to play with.

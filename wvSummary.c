@@ -40,6 +40,12 @@ int main(int argc,char **argv)
 		return(ret);
 		}
 
+	if (s == NULL)
+		{
+		fprintf(stderr,"no summary stream\n");
+		return(0);
+		}
+
 	ret = wvSumInfoGetString(szTemp, 256, PID_TITLE, &si);
 
 	if (!ret)
