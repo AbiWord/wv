@@ -427,9 +427,14 @@ wvGenerateStyle (STSH * item, U16 i, U16 word6)
 	  wvTrace (
 		   ("doing paragraph, len is %d\n",
 		    item->std[i].grupxf[0].cbUPX));
-	  wvTrace (
+	  
+	  if (item->std[i].cupx > 1) 
+	  {
+	    wvTrace (
 		   ("doing paragraph, len is %d\n",
 		    item->std[i].grupxf[1].cbUPX));
+	  }
+	  
 	  wvInitPAPFromIstd (&(item->std[i].grupe[0].apap),
 			     (U16) item->std[i].istdBase, item);
 	  if (word6)
