@@ -54,7 +54,7 @@ remove_suffix (char *name, const char *suffix)
 /*lvm007@aha.ru fix for filename back splashes*/
 #ifndef ISSLASH
 #ifndef _WIN32
- # define ISSLASH(C) ((C) == '/')
+# define ISSLASH(C) ((C) == '/')
 #else
 # define ISSLASH(C) ((C) == '/'||(C) == '\\')
 #endif
