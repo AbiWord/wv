@@ -133,24 +133,24 @@ char *wvLIDToCodePageConverter(U16 lid)
 			return("CP1250");	/* ? */
 		case 0x081a:	/*Serbo-Croatian (Cyrillic)*/
 			return("CP1252");
-		case 0x041b:    /*Slovak*/                      return cp1250;
-		case 0x041c:    /*Albanian*/                    return cp1251;
-		case 0x041d:    /*Swedish*/                     return cp1250;
-		case 0x041e:    /*Thai*/                        return cp874;
-		case 0x041f:    /*Turkish*/                     return cp1254;
-		case 0x0420:    /*Urdu*/                        return cp1256;
-		case 0x0421:    /*Bahasa*/                      return cp1256;
-		case 0x0422:    /*Ukrainian*/                   return cp1251;
-		case 0x0423:    /*Byelorussian*/                return cp1251;
-		case 0x0424:    /*Slovenian*/                   return cp1250;
-		case 0x0425:    /*Estonian*/                    return cp1257;
-		case 0x0426:    /*Latvian*/                     return cp1257;
-		case 0x0427:    /*Lithuanian*/                  return cp1257;
-		case 0x0429:    /*Farsi*/                       return cp1256;
-		case 0x042D:    /*Basque*/                      return cp1252;
-		case 0x042F:    /*Macedonian*/                  return cp1251;
-		case 0x0436:    /*Afrikaans*/                   return cp1252;
-		case 0x043E:    /*Malaysian*/                   return cp1251;
+		case 0x041b:    /*Slovak*/                    return("CP1250");
+		case 0x041c:    /*Albanian*/                  return("CP1251");
+		case 0x041d:    /*Swedish*/                   return("CP1250");
+		case 0x041e:    /*Thai*/                      return("CP874");
+		case 0x041f:    /*Turkish*/                   return("CP1254");
+		case 0x0420:    /*Urdu*/                      return("CP1256");
+		case 0x0421:    /*Bahasa*/                    return("CP1256");
+		case 0x0422:    /*Ukrainian*/                 return("CP1251");
+		case 0x0423:    /*Byelorussian*/              return("CP1251");
+		case 0x0424:    /*Slovenian*/                 return("CP1250");
+		case 0x0425:    /*Estonian*/                  return("CP1257");
+		case 0x0426:    /*Latvian*/                   return("CP1257");
+		case 0x0427:    /*Lithuanian*/                return("CP1257");
+		case 0x0429:    /*Farsi*/                     return("CP1256");
+		case 0x042D:    /*Basque*/                    return("CP1252");
+		case 0x042F:    /*Macedonian*/                return("CP1251");
+		case 0x0436:    /*Afrikaans*/                 return("CP1252");
+		case 0x043E:    /*Malaysian*/                 return("CP1251");
 		};
 	return("CP1252");
 	}
