@@ -3,15 +3,17 @@
 #include <stdarg.h>
 #include "wv.h"
 
-FILE *wverror=NULL;
-FILE *wvwarn=NULL;
-FILE *wvtrace=NULL;
+/* some C compilers won't let us initialize globals variables to stderr */
+static FILE init_file;
+FILE *wverror=&init_file;
+FILE *wvwarn=&init_file;
+FILE *wvtrace=&init_file;
 
 void wvRealError(char *file, int line,char *fmt, ...)
     {
     va_list argp;
-	if (wverror == NULL)
-		return;
+    if (wverror == NULL) return;
+    if (wverror == &init_file) wverror = stderr; /* if not initialized, do it now */
     fprintf(wverror, "wvError: (%s:%d) ",file,line);
     va_start(argp, fmt);
     vfprintf(wverror, fmt, argp);
@@ -22,8 +24,8 @@ void wvRealError(char *file, int line,char *fmt, ...)
 void wvWarning(char *fmt, ...)
     {
     va_list argp;
-	if (wvwarn == NULL)
-		return;
+    if (wvwarn == NULL) return;
+    if (wvwarn == &init_file) wvwarn = stderr; /* if not initialized, do it now */
     fprintf(wvwarn, "wvWarning: ");
     va_start(argp, fmt);
     vfprintf(wvwarn, fmt, argp);
@@ -35,8 +37,8 @@ void wvRealTrace(char *file, int line,char *fmt, ...)
     {
 #ifdef DEBUG
     va_list argp;
-    if (wvtrace == NULL)
-        return;
+    if (wvtrace == NULL) return;
+    if (wvtrace == &init_file) wvtrace = stderr; /* if not initialized, do it now */
     fprintf(wvtrace , "wvTrace: (%s:%d) ",file,line);
     va_start(argp, fmt);
     vfprintf(wvtrace, fmt, argp);
