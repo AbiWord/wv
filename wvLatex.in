@@ -1,0 +1,22 @@
+#!/bin/sh
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+datadir=@datadir@
+
+# argument checking
+if [ ${#} -ne "2" ]; then
+	echo "Usage: ${0} <word document> <latex output file>"
+	exit 1
+fi
+
+which wvWare >/dev/null 2>&1
+if [ ${?} -ne "0" ]; then
+    echo "Could not find required program 'wvWare'"
+    exit 1
+fi
+
+# latex has trouble with filenames
+CLEAN_FILE=`echo -n "${2}"|tr -c [:alnum:]-. _`
+
+wvWare -x "${datadir}/wv/wvLaTeX.xml" "${1}" > "${CLEAN_FILE}"

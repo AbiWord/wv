@@ -1,549 +1,890 @@
-#include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 #include "wv.h"
+#include "bintree.h"
 
-#define AUTO 0xff
-U16 colorlookupr[17] = {AUTO,0x00,0x00,0x00,0x00,0xff,0xff,0xff,0xff,0x00,0x00,0x00,0x87,0x87,0x87,0xa9,0xd3};
-U16 colorlookupg[17] = {AUTO,0x00,0x00,0xff,0xff,0x00,0x00,0xff,0xff,0x00,0x87,0x87,0x00,0x00,0x87,0xa9,0xd3};
-U16 colorlookupb[17] = {AUTO,0x00,0xff,0xff,0x00,0xff,0x00,0x00,0xff,0x87,0x87,0x00,0x87,0x00,0x00,0xa9,0xd3};
+/*
+allow figures within 3 units of each other to
+be considered the same
+*/
+int
+cellCompLT (void *a, void *b)
+{
+    S16 *a2, *b2;
 
-extern FILE *erroroutput;
-extern FILE *outputfile;
-extern int colcount;
-extern int rowcount;
-extern char backgroundcolor[8];
+    if (cellCompEQ (a, b))
+	return (0);
 
-int do_tablelooks(pap *apap)
-	{
-	tablelook temp;
-	char *acolor=NULL;
-	char red[3];
-	char green[3];
-	char blue[3];
-	U16 templ;
-	/*check to see if we are supposed to use the background color of this table style*/
+    a2 = (S16 *) a;
+    b2 = (S16 *) b;
+    return (*a2 < (*b2) + 3);
+}
 
-	error(erroroutput,"itl is %d, colcount is %d, rowcount is %d\n",apap->ourtap.tlp.itl,colcount,rowcount);
+int
+cellCompEQ (void *a, void *b)
+{
+    int ret;
+    S16 *a2, *b2;
+    a2 = (S16 *) a;
+    b2 = (S16 *) b;
+    ret = abs (*a2 - *b2);
+    if (ret <= 3)
+	ret = 1;
+    else
+	ret = 0;
+    return (ret);
+}
 
-	switch(apap->ourtap.tlp.itl)
-		{
-		case 3:
-			temp.color[0]="#000000";
-			temp.color[1]="#000000";
-			temp.color[2]="#000000";
-			temp.color[3]=NULL;
-			temp.color[4]=NULL;
-			temp.color[5]=NULL;
-			temp.color[6]=NULL;
-			temp.color[7]=NULL;
-			temp.color[8]=NULL;
-			break;
-		case 5:
-			temp.color[0]="#780078";
-			temp.color[1]="#780078";
-			temp.color[2]="#780078";
-			temp.color[3]="#c0c0c0";
-			temp.color[4]="#ffffff";
-			temp.color[5]="#ffffff";
-			temp.color[6]="#c0c0c0";
-			temp.color[7]="#ffffff";
-			temp.color[8]="#ffffff";
-			break;
-		case 6:
-			temp.color[0]="#000078";
-			temp.color[1]="#000078";
-			temp.color[2]="#000078";
-			temp.color[3]="#c0c0c0";
-			temp.color[4]="#c0c0c0";
-			temp.color[5]="#c0c0c0";
-			temp.color[6]="#c0c0c0";
-			temp.color[7]="#c0c0c0";
-			temp.color[8]="#c0c0c0";
-			break;
-		case 7:
-			temp.color[0]="#787cb8";
-			temp.color[1]="#787cb8";
-			temp.color[2]="#787cb8";
-			temp.color[3]="#ffffff";
-			temp.color[4]="#ffffff";
-			temp.color[5]="#ffffff";
-			temp.color[6]="#ffffff";
-			temp.color[7]="#ffffff";
-			temp.color[8]="#ffffff";
-			break;
-		case 8:
-			temp.color[0]="#000000";
-			temp.color[1]="#000000";
-			temp.color[2]="#000000";
-			temp.color[3]="#000078";
-			temp.color[4]="#007c78";
-			temp.color[5]="#007c78";
-			temp.color[6]="#000078";
-			temp.color[7]="#007c78";
-			temp.color[8]="#007c78";
-			break;
-		case 9:
-			temp.color[0]="#780000";
-			temp.color[1]="#780000";
-			temp.color[2]="#780000";
-			temp.color[3]="#f8fcc8";
-			temp.color[4]="#f8fcc8";
-			temp.color[5]="#f8fcc8";
-			temp.color[6]="#f8fcc8";
-			temp.color[7]="#f8fcc8";
-			temp.color[8]="#f8fcc8";
-			break;
-		case 10:
-			temp.color[0]="#000000";
-			temp.color[1]="#007c78";
-			temp.color[2]="#007c78";
-			temp.color[3]="#007c78";
-			temp.color[4]="#b8dcd8";
-			temp.color[5]="#b8dcd8";
-			temp.color[6]="#007c78";
-			temp.color[7]="#b8dcd8";
-			temp.color[8]="#b8dcd8";
-			break;
-		case 11:
-			temp.color[0]="#c0c0c0";
-			temp.color[1]="#c0c0c0";
-			temp.color[2]="#f8fcc8";
-			temp.color[3]="#c0c0c0";
-			temp.color[4]="#c0c0c0";
-			temp.color[5]="#f8fcc8";
-			temp.color[6]="#c0c0c0";
-			temp.color[7]="#c0c0c0";
-			temp.color[8]="#f8fcc8";
-			break;
-		case 12:
-			temp.color[0]="#000078";
-			temp.color[1]="#000078";
-			temp.color[2]="#000078";
-			temp.color[3]="#c0c0c0";
-			temp.color[4]="#c0c0c0";
-			temp.color[5]="#b8fcb8";
-			temp.color[6]="#c0c0c0";
-			temp.color[7]="#c0c0c0";
-			temp.color[8]="#b8fcb8";
-			break;
-		case 13:
-			temp.color[0]="#000078";
-			temp.color[1]="#000078";
-			temp.color[2]="#000078";
-			temp.color[3]="#c0c0c0";
-			temp.color[4]="#c0c0c0";
-			temp.color[5]="#e5e5e5";
-			temp.color[6]="#c0c0c0";
-			temp.color[7]="#c0c0c0";
-			temp.color[8]="#e5e5e5";
-			break;
-		case 14:
-			temp.color[0]="#000000";
-			temp.color[1]="#000000";
-			temp.color[2]="#000000";
-			temp.color[3]="#b8dcd8";
-			temp.color[4]="#b8dcd8";
-			temp.color[5]="#e5e5e5";
-			temp.color[6]="#b8dcd8";
-			temp.color[7]="#b8dcd8";
-			temp.color[8]="#e5e5e5";
-			break;
-		case 15:
-			temp.color[0]="#c0c0c0";
-			temp.color[1]="#c0c0c0";
-			temp.color[2]="#c0c0c0";
-			temp.color[3]="#c0c0c0";
-			temp.color[4]="#c0c0c0";
-			temp.color[5]="#c0c0c0";
-			temp.color[6]="#c0c0c0";
-			temp.color[7]="#c0c0c0";
-			temp.color[8]="#c0c0c0";
-			break;
-		case 18:
-		case 19:
-			temp.color[0]="#f8fcc8";
-			temp.color[1]="#f8fcc8";
-			temp.color[2]="#f8fcc8";
-			temp.color[3]=NULL;
-			temp.color[4]=NULL;
-			temp.color[5]=NULL;
-			temp.color[6]=NULL;
-			temp.color[7]=NULL;
-			temp.color[8]=NULL;
-			break;
-		case 23:
-			temp.color[0]="#000078";
-			temp.color[1]="#000078";
-			temp.color[2]="#000078";
-			temp.color[3]=NULL;
-			temp.color[4]=NULL;
-			temp.color[5]=NULL;
-			temp.color[6]=NULL;
-			temp.color[7]=NULL;
-			temp.color[8]=NULL;
-			break;
-		case 24:
-			temp.color[0]="#c0c0c0";
-			temp.color[1]="#c0c0c0";
-			temp.color[2]="#c0c0c0";
-			temp.color[3]="#ffffff";
-			temp.color[4]="#ffffff";
-			temp.color[5]="#ffffff";
-			temp.color[6]="#c0c0c0";
-			temp.color[7]="#c0c0c0";
-			temp.color[8]="#c0c0c0";
-			break;
-		case 25:
-			temp.color[0]="#007c78";
-			temp.color[1]="#007c78";
-			temp.color[2]="#007c78";
-			temp.color[3]="#b8fcb8";
-			temp.color[4]="#b8fcb8";
-			temp.color[5]="#b8fcb8";
-			temp.color[6]="#b8fcb8";
-			temp.color[7]="#b8fcb8";
-			temp.color[8]="#b8fcb8";
-			break;
-		case 27:
-			temp.color[0]="#787c78";
-			temp.color[1]="#787c78";
-			temp.color[2]="#787c78";
-			temp.color[3]=NULL;
-			temp.color[4]=NULL;
-			temp.color[5]=NULL;
-			temp.color[6]=NULL;
-			temp.color[7]=NULL;
-			temp.color[8]=NULL;
-			break;
-		case 30:
-			temp.color[0]="#c0c0c0";
-			temp.color[1]="#c0c0c0";
-			temp.color[2]="#c0c0c0";
-			temp.color[3]="#f8fcc8";
-			temp.color[4]="#f8fcc8";
-			temp.color[5]="#f8fcc8";
-			temp.color[6]="#c0c0c0";
-			temp.color[7]="#c0c0c0";
-			temp.color[8]="#c0c0c0";
-			break;
-		case 31:
-			temp.color[0]="#ffff00";
-			temp.color[1]="#ffff00";
-			temp.color[2]="#ffff00";
-			temp.color[3]="#f87c78";
-			temp.color[4]="#f87c78";
-			temp.color[5]="#f87c78";
-			temp.color[6]="#f8fcc8";
-			temp.color[7]="#f8fcc8";
-			temp.color[8]="#f8fcc8";
-			break;
-		case 32:
-		case 33:
-			temp.color[0]="#c0c0c0";
-			temp.color[1]="#c0c0c0";
-			temp.color[2]="#c0c0c0";
-			temp.color[3]="#c0c0c0";
-			temp.color[4]="#c0c0c0";
-			temp.color[5]="#c0c0c0";
-			temp.color[6]="#c0c0c0";
-			temp.color[7]="#c0c0c0";
-			temp.color[8]="#c0c0c0";
-			break;
-		case 34:
-			temp.color[0]="#c0c0c0";
-			temp.color[1]="#c0c0c0";
-			temp.color[2]="#d8dcd8";
-			temp.color[3]="#c0c0c0";
-			temp.color[4]="#c0c0c0";
-			temp.color[5]="#d8dcd8";
-			temp.color[6]="#c0c0c0";
-			temp.color[7]="#c0c0c0";
-			temp.color[8]="#d8dcd8";
-			break;
-		case 37:
-			temp.color[0]="#000000";
-			temp.color[1]="#000000";
-			temp.color[2]="#000000";
-			temp.color[3]=NULL;
-			temp.color[4]=NULL;
-			temp.color[5]=NULL;
-			temp.color[6]=NULL;
-			temp.color[7]=NULL;
-			temp.color[8]=NULL;
-			break;
-		case 38:
-			temp.color[0]=NULL;
-			temp.color[1]=NULL;
-			temp.color[2]=NULL;
-			temp.color[3]=NULL;
-			temp.color[4]=NULL;
-			temp.color[5]=NULL;
-			temp.color[6]="#d8dcb8";
-			temp.color[7]="#d8dcb8";
-			temp.color[8]="#d8dcb8";
-			break;
-		case 39:
-			temp.color[0]=NULL;
-			temp.color[1]=NULL;
-			temp.color[2]=NULL;
-			temp.color[3]="#b8dcb8";
-			temp.color[4]="#b8dcb8";
-			temp.color[5]=NULL;
-			temp.color[6]="#b8dcb8";
-			temp.color[7]="#b8dcb8";
-			temp.color[8]=NULL;
-			break;
-		case 35:
-			/*works on its own*/
-		case 29:
-			/*works on its own*/
-		case 36:
-		case 28:
-		case 26:
-		case 16:
-		case 17:
-		case 20:
-		case 21:
-		case 22:
-		default:
-			temp.color[0]=NULL;
-			temp.color[1]=NULL;
-			temp.color[2]=NULL;
-			temp.color[3]=NULL;
-			temp.color[4]=NULL;
-			temp.color[5]=NULL;
-			temp.color[6]=NULL;
-			temp.color[7]=NULL;
-			temp.color[8]=NULL;
-			break;
-		}
+void
+wvGetRowTap (wvParseStruct * ps, PAP * dpap, U32 para_intervals,
+	     BTE * btePapx, U32 * posPapx)
+{
+    PAPX_FKP para_fkp;
+    U32 para_fcFirst, para_fcLim = 0xffffffffL;
+    PAP apap;
+    U32 i;
+    S32 j = 0;
 
-	if ((rowcount == 1) && (apap->ourtap.tlp.fHdrRows))
-		{
-		if (apap->ourtap.tlp.fShading)
+    wvCopyPAP (&apap, dpap);
+
+    wvInitPAPX_FKP (&para_fkp);
+
+    i = wvStream_tell (ps->mainfd);
+    wvTrace (("RowTab begin\n"));
+    do
+      {
+	  wvReleasePAPX_FKP (&para_fkp);
+	  wvGetSimpleParaBounds (wvQuerySupported (&ps->fib, NULL), &para_fkp,
+				 &para_fcFirst, &para_fcLim, i, btePapx,
+				 posPapx, para_intervals, ps->mainfd);
+	  wvTrace (("2: para from %x to %x\n", para_fcFirst, para_fcLim));
+	  wvAssembleSimplePAP (wvQuerySupported (&ps->fib, NULL), &apap,
+			       para_fcLim, &para_fkp, &ps->stsh, ps->data);
+	  i = para_fcLim;
+      }
+    while (apap.fTtp == 0);
+
+    wvTrace (("fTtp is %d\n", apap.fTtp));
+
+    wvReleasePAPX_FKP (&para_fkp);
+    wvCopyTAP (&(dpap->ptap), &apap.ptap);
+
+    for (j = 0; j < apap.ptap.itcMac + 1; j++)
+	wvTrace (("This Row-->%d\n", apap.ptap.rgdxaCenter[j]));
+}
+
+void
+wvGetFullTableInit (wvParseStruct * ps, U32 para_intervals, BTE * btePapx,
+		    U32 * posPapx)
+{
+    PAPX_FKP para_fkp;
+    U32 para_fcFirst, para_fcLim = 0xffffffffL;
+    PAP apap;
+    U32 i, j = 0;
+    TAP *test = NULL;
+
+    if (ps->intable)
+	return;
+
+    wvInitPAPX_FKP (&para_fkp);
+
+    i = wvStream_tell (ps->mainfd);
+    wvTrace (("TOP\n"));
+    do
+      {
+	  wvReleasePAPX_FKP (&para_fkp);
+	  wvGetSimpleParaBounds (wvQuerySupported (&ps->fib, NULL), &para_fkp,
+				 &para_fcFirst, &para_fcLim, i, btePapx,
+				 posPapx, para_intervals, ps->mainfd);
+	  wvAssembleSimplePAP (wvQuerySupported (&ps->fib, NULL), &apap,
+			       para_fcLim, &para_fkp, &ps->stsh, ps->data);
+	  wvTrace (("para from %x to %x\n", para_fcFirst, para_fcLim));
+	  i = para_fcLim;
+
+	  /* ignore the row end markers */
+	  if (apap.ptap.itcMac)
+	    {
+		test = (TAP *) realloc (test, sizeof (TAP) * (j + 1));
+		wvCopyTAP (&(test[j]), &apap.ptap);
+		wvTrace (("Row %d\n", j));
+		j++;
+	    }
+
+      }
+    while (apap.fInTable);
+    wvTrace (("BOTTOM\n"));
+
+    wvReleasePAPX_FKP (&para_fkp);
+
+    wvSetTableInfo (ps, test, j);
+    ps->intable = 1;
+    ps->norows = j;
+    wvFree (test);
+}
+
+
+/*
+-------------------------
+|          |            |
+-------------------------
+|   | | |    |     |    |
+-------------------------
+|                       |
+-------------------------
+|     |         |       |
+-------------------------
+
+==>
+
+|   | | |  | |  |  |    |
+
+As in this example we create a list of cell begin
+positions which is a superset of all begin
+positions in all rows, once we have this list we
+restart at the top of the table and figure out
+how many spans each cell has to achieve to match
+back up to its original boundaries.
+
+We will have to match boundaries that are with in
+3 units of eachother to be the same boundary as
+that occurs frequently in word tables, (gagh!)
+*/
+void
+wvSetTableInfo (wvParseStruct * ps, TAP * ptap, int no)
+{
+    BintreeInfo tree;
+    Node *testn, *testp;
+    int i, j, k;
+
+    if (ps->vmerges)
+      {
+	  wvTrace (("vmerges is not NULL\n"));
+	  for (i = 0; i < ps->norows; i++)
+	      wvFree (ps->vmerges[i]);
+	  wvFree (ps->vmerges);
+	  ps->vmerges = NULL;
+      }
+
+    if (no == 0)
+      {
+	  wvWarning ("Broken tables, continuing and hoping for the best\n");
+	  ps->nocellbounds = 0;
+	  return;
+      }
+
+    InitBintree (&tree, cellCompLT, cellCompEQ);
+
+    wvTrace (("we still ok, no is %d\n", no));
+
+    for (i = 0; i < no; i++)
+      {
+	  for (j = 0; j < ptap[i].itcMac + 1; j++)
+	    {
+		wvTrace (("%d\n", ptap[i].rgdxaCenter[j]));
+		InsertNode (&tree, (void *) &(ptap[i].rgdxaCenter[j]));
+	    }
+      }
+    wvTrace (("end of in\n"));
+
+    testn = NextNode (&tree, NULL);
+
+    ps->nocellbounds = tree.no_in_tree;
+    wvFree (ps->cellbounds);
+    if (tree.no_in_tree)
+	ps->cellbounds = (S16 *) wvMalloc (sizeof (S16) * tree.no_in_tree);
+    else
+	ps->cellbounds = NULL;
+
+    i = 0;
+    wvTrace (("No in tree is %d\n", tree.no_in_tree));
+    while (testn != NULL)
+      {
+	  ps->cellbounds[i++] = *((S16 *) testn->Data);
+	  wvTrace (("cellbound are %d\n", ps->cellbounds[i - 1]));
+	  testp = NextNode (&tree, testn);
+	  wvDeleteNode (&tree, testn);
+	  testn = testp;
+      }
+    wvTrace (("No in tree according to i is %d\n", i));
+
+    wvTrace (("end of out\n"));
+
+    ps->vmerges = (S16 **) wvMalloc (sizeof (S16 *) * no);
+    wvTrace (("no of rows is %d", no));
+    for (i = 0; i < no; i++)
+      {
+	  ps->vmerges[i] = (S16 *) wvMalloc (sizeof (S16) * ptap[i].itcMac);
+	  wvTrace (("no of cells is %d", ptap[i].itcMac));
+	  for (j = 0; j < ptap[i].itcMac; j++)
+	      ps->vmerges[i][j] = 1;
+      }
+
+    for (i = no - 1; i > 0; i--)
+      {
+	  for (j = 0; j < ptap[i].itcMac; j++)
+	    {
+		wvTrace (
+			 ("Vertical merge is %d\n",
+			  ptap[i].rgtc[j].fVertMerge));
+		if (ptap[i].rgtc[j].fVertMerge)
+		  {
+		      wvTrace (
+			       ("Vertical merge found, row %d, cell %d\n", i,
+				j));
+		      /* 
+		         find a cell above me with the same boundaries
+		         if it is also merged increment it, and set myself to 0
+		         else leave me alone
+		       */
+		      for (k = 0; k < ptap[i - 1].itcMac; k++)	/* the row above */
 			{
-			if ((colcount == 0) && (apap->ourtap.tlp.fHdrCols))
-				acolor=temp.color[0];
-			else if (isodd(colcount))
-				acolor=temp.color[2];
-			else
-				acolor=temp.color[1];
-			}
-		}
-	else if (isodd(rowcount))
-		{
-		if (apap->ourtap.tlp.fShading)
-			{
-			if ((colcount == 0) && (apap->ourtap.tlp.fHdrCols))
-				acolor=temp.color[3];
-			else if (isodd(colcount))
-				acolor=temp.color[5];
-			else
-				acolor=temp.color[4];
-			}
-		}
-	else
-		{
-		if (apap->ourtap.tlp.fShading)
-			{
-			if ((colcount == 0) && (apap->ourtap.tlp.fHdrCols))
-				acolor=temp.color[6];
-			else if (isodd(colcount))
-				acolor=temp.color[8];
-			else
-				acolor=temp.color[7];
-			}
-		}
+			    wvTrace (
+				     ("cell begins are %d %d\n",
+				      ptap[i - 1].rgdxaCenter[k],
+				      ptap[i].rgdxaCenter[j]));
+			    wvTrace (
+				     ("cell ends are %d %d\n",
+				      ptap[i - 1].rgdxaCenter[k + 1],
+				      ptap[i].rgdxaCenter[j + 1]));
 
-	if (acolor != NULL)
-		{
-		if (!(apap->ourtap.tlp.fColor))
-			{
-			red[0] = acolor[1];
-			red[1] = acolor[2];
-			red[2] = '\0';
-			green[0] = acolor[3];
-			green[1] = acolor[4];
-			green[2] = '\0';
-			blue[0] = acolor[5];
-			blue[1] = acolor[6];
-			blue[2] = '\0';
-			templ = (strtol(red,NULL,16)+strtol(blue,NULL,16)+strtol(green,NULL,16))/3;
-			sprintf(backgroundcolor,"#%.2x%.2x%.2x",templ,templ,templ);
+			    if (
+				(cellCompEQ
+				 ((void *) &(ptap[i - 1].rgdxaCenter[k]),
+				  (void *) &(ptap[i].rgdxaCenter[j])))
+				&&
+				(cellCompEQ
+				 ((void *) &(ptap[i - 1].rgdxaCenter[k + 1]),
+				  (void *) &(ptap[i].rgdxaCenter[j + 1]))))
+			      {
+				  wvTrace (("found a cell above me, yippee\n"));
+				  if (ptap[i - 1].rgtc[k].fVertMerge)
+				    {
+					ps->vmerges[i - 1][k] +=
+					    ps->vmerges[i][j];
+					ps->vmerges[i][j] = 0;
+				    }
+			      }
+
 			}
-		else
-			strcpy(backgroundcolor,acolor);
-			
-		fprintf(outputfile," bgcolor=\"%s\">\n",backgroundcolor); 
-		return(1);
-		}
-	return(0);
-	}
+		  }
+	    }
+      }
 
-void output_tablebg(pap *apap)
-	{
-	int shademodifier = 100;
-	int foreground;
 
-	if (apap->ourtap.tlp.itl)
-		{
-		if (do_tablelooks(apap))
-			return;
-		}
-	
-	if (apap->ourtap.cell_pattern[colcount] != 0)
-		{
-		if ((apap->ourtap.cell_pattern[colcount] > 13) && (apap->ourtap.cell_pattern[colcount] < 35) )
-			{
-			foreground = apap->ourtap.cell_fronts[colcount];
-			if (foreground == 0) foreground=1;
-			fprintf(outputfile," background=\"%s/%d.gif\"",patterndir(),(apap->ourtap.cell_pattern[colcount])+((foreground-1)*12));
-			}
-		else
-			{
-			switch (apap->ourtap.cell_pattern[colcount])
-				{
-				case 1:
-					shademodifier = 100;
-					break;
-				case 2:
-					shademodifier = 95;
-					break;
-				case 3:
-					shademodifier = 90;
-					break;
-				case 4:
-					shademodifier = 80;
-					break;
-				case 5:
-					shademodifier = 75;
-					break;
-				case 6:
-					shademodifier = 70;
-					break;
-				case 7:
-					shademodifier = 60;
-					break;
-				case 8:
-					shademodifier = 50;
-					break;
-				case 9:
-					shademodifier = 40;
-					break;
-				case 10:
-					shademodifier = 30;
-					break;
-				case 11:
-					shademodifier = 25;
-					break;
-				case 12:
-					shademodifier = 20;
-					break;
-				case 13:
-					shademodifier = 10;
-					break;
-				case 35:
-					shademodifier = 97.5;
-					break;
-				case 36:
-					shademodifier = 92.5;
-					break;
-				case 37:
-					shademodifier = 87.5;
-					break;
-				case 38:
-					shademodifier = 85;
-					break;
-				case 39:
-					shademodifier = 82.5;
-					break;
-				case 40:
-					shademodifier = 77.5;
-					break;
-				case 41:
-					shademodifier = 82.5;
-					break;
-				case 42:
-					shademodifier = 67.5;
-					break;
-				case 43:
-					shademodifier = 65;
-					break;
-				case 44:
-					shademodifier = 62.5;
-					break;
-				case 45:
-					shademodifier = 57.5;
-					break;
-				case 46:
-					shademodifier = 55;
-					break;
-				case 47:
-					shademodifier = 52.5;
-					break;
-				case 48:
-					shademodifier = 47.5;
-					break;
-				case 49:
-					shademodifier = 45;
-					break;
-				case 50:
-					shademodifier = 42.5;
-					break;
-				case 51:
-					shademodifier = 37.5;
-					break;
-				case 52:
-					shademodifier = 35;
-					break;
-				case 53:
-					shademodifier = 32.5;
-					break;
-				case 54:
-					shademodifier = 27.5;
-					break;
-				case 55:
-					shademodifier = 22.5;
-					break;
-				case 56:
-					shademodifier = 17.5;
-					break;
-				case 57:
-					shademodifier = 15;
-					break;
-				case 58:
-					shademodifier = 12.5;
-					break;
-				case 59:
-					shademodifier = 7.5;
-					break;
-				case 60:
-					shademodifier = 5;
-					break;
-				case 61:
-					shademodifier = 2.5;
-					break;
-				case 62:
-					shademodifier = 2;
-					break;
-				default:
-					shademodifier = 100;
-					break;
-				}
-			}
-		}
+    for (i = 0; i < no; i++)
+	for (j = 0; j < ptap[i].itcMac; j++)
+	    wvTrace (("rowspan numbers are %d\n", ps->vmerges[i][j]));
+}
 
-	if (apap->ourtap.cell_backs[colcount] != 0)
-		{
-		fprintf(outputfile," bgcolor=\"#%.2x",(colorlookupr[apap->ourtap.cell_backs[colcount]])*shademodifier/100);
-		fprintf(outputfile,"%.2x",(colorlookupg[apap->ourtap.cell_backs[colcount]])*shademodifier/100);
-		fprintf(outputfile,"%.2x",(colorlookupb[apap->ourtap.cell_backs[colcount]])*shademodifier/100);
-		fprintf(outputfile,"\"");
-		sprintf(backgroundcolor,"#%.2x%.2x%.2x",(colorlookupr[apap->ourtap.cell_backs[colcount]])*shademodifier/100,(colorlookupg[apap->ourtap.cell_backs[colcount]])*shademodifier/100,(colorlookupb[apap->ourtap.cell_backs[colcount]])*shademodifier/100);
-		}
 
-	fprintf(outputfile,">\n");
-	}
 
+
+
+/*	table backgrounds */
+/*
+ 0  1  2  3		first row 	
+ 4  5  6  7		even row 	
+ 8  9 10 11		odd row 	
+12 13 14 15 	last row 	
+
+ F  E  O  L 
+ i  v  d  a
+ r  e  d  s
+ s  n     t
+ t     C 
+    C  o  C
+ C  o  l  o
+ o  l  u  l
+ l  u  m  u
+ u  m  n  m
+ m  n     n
+ n
+*/
+
+static int cellbgcolors[40][4][4] = {
+
+    /*0 */
+    {
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*1 */
+    {
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*2 */
+    {
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*3 */
+    {
+     {1, 1, 1, 1},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*4 */
+    {
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*5 */
+    {
+     {12, 12, 12, 12},
+     {16, 8, 8, 8},
+     {16, 8, 8, 8},
+     {16, 8, 8, 8}
+     },
+
+    /*6 */
+    {
+     {9, 9, 9, 9},
+     {16, 16, 16, 16},
+     {16, 16, 16, 16},
+     {8, 8, 8, 8}
+     },
+
+    /*7 */
+    {
+     {2, 2, 2, 2},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {15, 15, 15, 15}
+     },
+
+    /*8 */
+    {
+     {1, 1, 1, 1},
+     {9, 11, 11, 11},
+     {9, 11, 11, 11},
+     {9, 11, 11, 11}
+     },
+
+    /*9 */
+    {
+     {6, 6, 6, 6},
+     {7, 7, 7, 16},
+     {7, 7, 7, 16},
+     {7, 7, 7, 16}
+     },
+
+    /*10 */
+    {
+     {1, 11, 11, 11},
+     {11, 3, 3, 3},
+     {11, 3, 3, 3},
+     {11, 3, 3, 3}
+     },
+
+    /*11 */
+    {
+     {16, 16, 7, 16},
+     {16, 16, 7, 16},
+     {16, 16, 7, 16},
+     {16, 16, 7, 16}
+     },
+
+    /*12 */
+    {
+     {9, 9, 9, 9},
+     {16, 16, 4, 16},
+     {16, 16, 4, 16},
+     {16, 16, 4, 16}
+     },
+
+    /*13 */
+    {
+     {9, 9, 9, 9},
+     {15, 15, 16, 15},
+     {15, 15, 16, 15},
+     {15, 15, 16, 15}
+     },
+
+    /*14 */
+    {
+     {1, 1, 1, 1},
+     {3, 3, 16, 3},
+     {3, 3, 16, 3},
+     {3, 3, 16, 3}
+     },
+
+    /*15 */
+    {
+     {15, 15, 8, 15},
+     {15, 15, 8, 15},
+     {15, 15, 8, 15},
+     {15, 15, 8, 15}
+     },
+
+    /*16 */
+    {
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*17 */
+    {
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*18 */
+    {
+     {7, 7, 7, 7},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*19 */
+    {
+     {7, 7, 7, 7},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {7, 7, 7, 7}
+     },
+
+    /*20 */
+    {
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*21 */
+    {
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*22 */
+    {
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*23 */
+    {
+     {9, 9, 9, 9},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*24 */
+    {
+     {16, 16, 16, 16},
+     {8, 8, 8, 8},
+     {16, 16, 16, 16},
+     {8, 8, 8, 8}
+     },
+
+    /*25 */
+    {
+     {11, 11, 11, 11},
+     {8, 8, 8, 8},
+     {4, 4, 4, 4},
+     {8, 8, 8, 8}
+     },
+
+    /*26 */
+    {
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*27 */
+    {
+     {15, 15, 15, 15},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*28 */
+    {
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*29 */
+    {
+     {15, 15, 15, 15},
+     {15, 15, 15, 15},
+     {16, 16, 16, 16},
+     {15, 15, 15, 15}
+     },
+
+    /*30 */
+    {
+     {16, 16, 16, 16},
+     {7, 7, 7, 7},
+     {16, 16, 16, 16},
+     {8, 8, 8, 8}
+     },
+
+    /*31 */
+    {
+     {7, 7, 7, 7},
+     {6, 6, 6, 6},
+     {14, 14, 14, 14},
+     {6, 6, 6, 6}
+     },
+
+    /*32 */
+    {
+     {15, 15, 15, 15},
+     {15, 15, 15, 15},
+     {15, 15, 15, 15},
+     {15, 15, 15, 15}
+     },
+
+    /*33 */
+    {
+     {15, 15, 15, 15},
+     {15, 15, 15, 15},
+     {15, 15, 15, 15},
+     {15, 15, 15, 15}
+     },
+
+    /*34 */
+    {
+     {15, 15, 16, 15},
+     {15, 15, 16, 15},
+     {15, 15, 16, 15},
+     {15, 15, 16, 15}
+     },
+
+    /*35 */
+    {
+     {15, 15, 15, 15},
+     {15, 15, 15, 15},
+     {16, 16, 16, 16},
+     {15, 15, 15, 15}
+     },
+
+    /*36 */
+    {
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*37 */
+    {
+     {1, 1, 1, 1},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {8, 8, 8, 8}
+     },
+
+    /*38 */
+    {
+     {8, 8, 8, 8},
+     {8, 8, 8, 8},
+     {10, 10, 10, 10},
+     {5, 5, 5, 5}
+     },
+
+    /*39 */
+    {
+     {8, 8, 8, 8},
+     {4, 8, 8, 10},
+     {4, 8, 8, 10},
+     {4, 8, 8, 10}
+     }
+
+};
+
+
+/* 
+determine where we should be in the grid, 
+if we do not want the special end cases, and we are
+one of them, then shift into a new location in
+the grid, and output the color sitting there
+*/
+
+int
+wvCellBgColor (int whichrow, int whichcell, int nocells, int norows, TLP * tlp)
+{
+    if (whichrow == norows - 1)
+	whichrow = 3;
+    else if (whichrow > 0)
+      {
+	  if (isodd (whichrow))
+	      whichrow = 2;
+	  else
+	      whichrow = 1;
+      }
+
+    if (whichcell == nocells - 1)
+	whichcell = 3;
+    else if (whichcell > 0)
+      {
+	  if (isodd (whichcell))
+	      whichcell = 2;
+	  else
+	      whichcell = 1;
+      }
+
+    wvTrace (
+	     ("the cell index and bgcolor is %d %d %d,%d (last cell and row are %d %d)\n",
+	      tlp->itl, whichrow, whichcell,
+	      cellbgcolors[tlp->itl][whichrow][whichcell], nocells, norows));
+    if (tlp->itl >= 40)
+      {
+	  wvWarning
+	      ("Table Look %d requested, but theres only %d in the list\n",
+	       tlp->itl + 1, 40);
+	  return (8);
+      }
+    return (cellbgcolors[tlp->itl][whichrow][whichcell]);
+}
+
+/*
+get the end cp of the piece
+
+i as a cp
+wvGetComplexParaBounds as fc's
+go to the end as a cp
+*/
+void
+TheTest (wvParseStruct * ps, U32 piece, BTE * btePapx, U32 * posPapx,
+	 U32 para_intervals)
+{
+    U32 piececount;
+    U8 chartype;
+    U32 begincp, endcp;
+    U32 beginfc, endfc;
+    U32 i, j, k = 0;
+    U32 para_fcFirst, para_fcLim;
+    PAPX_FKP para_fkp;
+    PAP apap;
+    int cpiece = 0;
+
+    long pos = wvStream_tell (ps->mainfd);
+    wvInitPAPX_FKP (&para_fkp);
+
+    para_fcFirst = wvConvertCPToFC (ps->currentcp, &ps->clx);
+
+    for (piececount = piece; piececount < ps->clx.nopcd; piececount++)
+      {
+	  chartype =
+	      wvGetPieceBoundsFC (&beginfc, &endfc, &ps->clx, piececount);
+	  wvStream_goto (ps->mainfd, beginfc);
+	  wvGetPieceBoundsCP (&begincp, &endcp, &ps->clx, piececount);
+	  if (k == 0)
+	    {
+		wvTrace (
+			 ("cp distance is %d, cp is %d\n",
+			  ps->currentcp - begincp, ps->currentcp));
+		wvTrace (
+			 ("no of pieces is %d, this one is %d\n",
+			  ps->clx.nopcd, piece));
+		k++;
+		begincp = ps->currentcp;
+		beginfc = wvConvertCPToFC (ps->currentcp, &ps->clx);
+	    }
+	  wvTrace (
+		   ("begin and end are %d %d (%x %x)\n", begincp, endcp,
+		    beginfc, endfc));
+	  para_fcLim = 0xffffffffL;
+	  for (i = begincp, j = beginfc; (i < endcp && i < ps->fib.ccpText);
+	       i++, j += wvIncFC (chartype))
+	    {
+		if ((para_fcLim == 0xffffffffL) || (para_fcLim == j))
+		  {
+		      wvReleasePAPX_FKP (&para_fkp);
+		      wvTrace (
+			       ("cp and fc are %x(%d) %x\n", i, i,
+				wvConvertCPToFC (i, &ps->clx)));
+		      cpiece =
+			  wvGetComplexParaBounds (wvQuerySupported
+						  (&ps->fib, NULL), &para_fkp,
+						  &para_fcFirst, &para_fcLim,
+						  wvConvertCPToFC (i,
+								   &ps->clx),
+						  &ps->clx, btePapx, posPapx,
+						  para_intervals, piececount,
+						  ps->mainfd);
+		      wvTrace (
+			       ("para begin and end is %x %x, pieceend is %x\n",
+				para_fcFirst, para_fcLim,
+				wvConvertCPToFC (endcp, &ps->clx)));
+		  }
+		if (j == para_fcFirst)
+		  {
+		      wvAssembleSimplePAP (wvQuerySupported (&ps->fib, NULL),
+					   &apap, para_fcLim, &para_fkp,
+					   &ps->stsh, ps->data);
+		      wvAssembleComplexPAP (wvQuerySupported (&ps->fib, NULL),
+					    &apap, cpiece, &ps->stsh,
+					    &ps->clx, ps->data);
+		      wvTrace (
+			       ("table ttp are %d %d\n", apap.fInTable,
+				apap.fTtp));
+		  }
+	    }
+      }
+
+    wvStream_goto (ps->mainfd, pos);
+}
+
+void
+wvGetComplexFullTableInit (wvParseStruct * ps, U32 para_intervals,
+			   BTE * btePapx, U32 * posPapx, U32 piece)
+{
+    PAPX_FKP para_fkp;
+    U32 para_fcFirst, para_fcLim = 0xffffffffL;
+    PAP apap;
+    U32 i, j = 0, k = 0;
+    S32 l;
+    TAP *test = NULL;
+
+    if (ps->intable)
+	return;
+
+#if 0
+    /* some testing code */
+    wvTrace (("before test\n"));
+    TheTest (ps, piece, btePapx, posPapx, para_intervals);
+    wvTrace (("after test\n"));
+#endif
+
+    wvInitPAPX_FKP (&para_fkp);
+
+    i = wvStream_tell (ps->mainfd);
+    wvTrace (("TOP\n"));
+    do
+      {
+	  wvTrace (("cycle again\n"));
+	  wvReleasePAPX_FKP (&para_fkp);
+
+	  wvTrace (
+		   ("2: cp and fc are %x(%d) %x\n", i, i,
+		    wvConvertCPToFC (i, &ps->clx)));
+	  piece =
+	      wvGetComplexParaBounds (wvQuerySupported (&ps->fib, NULL),
+				      &para_fkp, &para_fcFirst, &para_fcLim,
+				      i, &ps->clx, btePapx, posPapx,
+				      para_intervals, piece, ps->mainfd);
+
+
+	  if (piece == 0xffffffffL)
+	      break;
+	  wvAssembleSimplePAP (wvQuerySupported (&ps->fib, NULL), &apap,
+			       para_fcLim, &para_fkp, &ps->stsh, ps->data);
+	  wvTrace (("para from %x to %x\n", para_fcFirst, para_fcLim));
+	  wvAssembleComplexPAP (wvQuerySupported (&ps->fib, NULL), &apap,
+				piece, &ps->stsh, &ps->clx, ps->data);
+
+	  wvTrace (("para from %x to %x\n", para_fcFirst, para_fcLim));
+	  i = para_fcLim;
+
+	  /* ignore the row end markers */
+	  if ((apap.ptap.itcMac) && (apap.fTtp))
+	    {
+		test = (TAP *) realloc (test, sizeof (TAP) * (j + 1));
+		wvCopyTAP (&(test[j]), &apap.ptap);
+		for (l = 0; l < apap.ptap.itcMac + 1; l++)
+		    wvTrace (("In This Row-->%d\n", apap.ptap.rgdxaCenter[l]));
+		j++;
+	    }
+	  if (apap.fTtp)
+	      k++;
+      }
+    while (apap.fInTable);
+    wvTrace (("BOTTOM\n"));
+#ifdef DEBUG
+    if (piece == 0xffffffffL)
+	wvTrace (("broken on line %d\n", j));
+#endif
+    wvTrace (("no of lines is %d %d\n", j, k));
+
+    wvReleasePAPX_FKP (&para_fkp);
+
+    wvSetTableInfo (ps, test, j);
+    ps->intable = 1;
+    ps->norows = j;
+    wvFree (test);
+}
+
+void
+wvGetComplexRowTap (wvParseStruct * ps, PAP * dpap, U32 para_intervals,
+		    BTE * btePapx, U32 * posPapx, U32 piece)
+{
+    PAPX_FKP para_fkp;
+    U32 para_fcFirst, para_fcLim = 0xffffffffL;
+    PAP apap;
+    U32 i;
+    S32 j = 0;
+
+    wvCopyPAP (&apap, dpap);
+
+    wvInitPAPX_FKP (&para_fkp);
+
+    i = wvStream_tell (ps->mainfd);
+
+    do
+      {
+	  wvReleasePAPX_FKP (&para_fkp);
+
+	  wvTrace (
+		   ("3: cp and fc are %x(%d) %x\n", i, i,
+		    wvConvertCPToFC (i, &ps->clx)));
+	  piece =
+	      wvGetComplexParaBounds (wvQuerySupported (&ps->fib, NULL),
+				      &para_fkp, &para_fcFirst, &para_fcLim,
+				      i, &ps->clx, btePapx, posPapx,
+				      para_intervals, piece, ps->mainfd);
+	  if (piece == 0xffffffffL)
+	      break;
+	  wvAssembleSimplePAP (wvQuerySupported (&ps->fib, NULL), &apap,
+			       para_fcLim, &para_fkp, &ps->stsh, ps->data);
+	  wvAssembleComplexPAP (wvQuerySupported (&ps->fib, NULL), &apap,
+				piece, &ps->stsh, &ps->clx, ps->data);
+	  wvTrace (
+		   ("para from %x to %x, table is %d\n", para_fcFirst,
+		    para_fcLim, apap.fInTable));
+	  i = para_fcLim;
+      }
+    while (apap.fTtp == 0);
+
+    wvReleasePAPX_FKP (&para_fkp);
+    wvCopyTAP (&(dpap->ptap), &apap.ptap);
+
+    for (j = 0; j < apap.ptap.itcMac + 1; j++)
+	wvTrace (("This Row-->%d\n", apap.ptap.rgdxaCenter[j]));
+}
