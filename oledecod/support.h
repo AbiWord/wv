@@ -25,7 +25,7 @@
 
 
 
-#define fil_sreadU8 sgetc
+#define fil_sreadU8 sread_8ubit
 #define fil_sreadU16 sread_16ubit
 #define fil_sreadU32 sread_32ubit
 
