@@ -101,6 +101,7 @@ int main(int argc,char **argv)
 
 
 	ret = wvInitParser(&ps,input);
+	ps.filename = argv[optind];
 
 	if (ret & 0x8000)
 		{
@@ -272,6 +273,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 	data->norows = &ps->norows;
 	if (i==0)
 		{
+		data->filename = ps->filename;
 		data->whichcell=0;
 		data->whichrow=0;
 		data->asep = NULL;

@@ -1,72 +1,8 @@
-Changes to to 0.5.38
-	* added the symbol mapping to unicode as best as I could, I made one or two 
-	mods from the proper unicode so as to get a few more to work with the 
-	current generation of web browsers. very bad behaviour I know and the sort 
-	of stuff that got the world into this mess, but at least you can recompile 
-	wv at a later to date to fix it, replace the commented out bits of symbol.c 
-	to do it.
-	* added messages for conversion table request for special fonts (the spawn 
-	of the devil as far as I am concerned).
-	* added a character property end and start at the beginning of a new 
-	paragraph, this is necessary in many cases, funny i never noticed it before
-	* figured out some rules to handle placement of graphics, abandoned 
-	stylesheet placement as netscape is too much of a mess to be of any use 
-	there, and thats the target audience.
-	* the CHP code didnt work for word 7 and 8 sprms, this ironically means 
-	that rather than falling through the default case and being ignored, each 
-	chp sprm is now parsed leading to certainly more crashes and bugs as we 
-	find differences one by one between word 8 and the previous versions 
-	character property sprms.  * fixed sprmCSymbol for pre word 8, there might 
-	be problems with fonts not named "Symbol", like wingdings.
-	* due to serious oddities I have added a TABLEOVERRIDES option in 
-	wvHtml.xml which allows the margins before and after and paragraph, and the 
-	first line indent to be turned off inside tables, as having them on creates 
-	a real mess in netscape, in the future when this ability is supported by 
-	browsers you can just remove tableoverrides and ta-da all will work fine.
-	* fixed table row scanner bug
-	* fix for last para scan in complex mode
-	* make mods to table.c to allow cells within 3 units of eachother be 
-	considered the same.
-	* hmm, added a workaround for missing the beginning of a para in complex 
-	mode under certain conditions.
-	* some incredible hackery to differciate between 16 and 8 bit character 
-	modes in word 95 and 6, real dodgy stuff, but its working so far. Though 
-	its certainly a point of failure in the future.
-	* fix for table colspan mistakes
-	* modified sprmTTableBorder to work with the smaller word 6 BRC's, also 
-	fixed bug where I thought the sprm was variable
-	* had to fix sprmTTableBorder again, because it *is* variable under word 8 
-	despite the docs to the contrary !!, gagh.
-	* aaaargh!, wvGetLFOLVL and that wvInvalidLFOLVL has struck again, this
-	time I think I have it sorted out once and for all (but i bet not), this
-	new layout fixes quite a number of crashes.
-	* incredibly hard to find overflow in U8 in wvGetPAPX, silly me, must
-	really pay more attention to these things, you tend to forget that U8 are
-	a really small type, left to my own devices i'd use int, but for this
-	program I slavishly follow the types in the spec, and overlook the 
-	workarounds that are obvious in the struct definitions for PAPX.
-	* fixed the rather ugly empty paragraph skipping code to only go to the
-	next cell when a para level check is done.
-	Im having terrible problems with sprmDefTableShd, it always follows
-	sprmDefTable, and there is something wrong with Shd, maybe its me, maybe
-	its word. Either way im working around the problem.
-	* I had broken the word97 decryption, fixed again.
-	* cleaned things up to create a version enum and associated obvious names
-	with the versions so that its more obvious to read and more extendable,
-	encryption is marked in the version by the base version ored with 0x8000.
-	* some mods to the old list conversion to new list format, removes at 
-	least one crash and might solve others, possibly not a full solution.
-	* added html names for umlautte characters.
-	* found a sprm 0x6646 which appears to be 0x6645 HugePAPX where the papx
-	is stored in the data stream, it only occurs for PAP's and only for FKP
-	papx's. Nonetheless it has requireed the addition of a data file stream
-	argument to many sprm related functions, nearly always NULL except for
-	fkp PAP papx's.
-	* sprmPHugePapx implemented, another nasty bug fixed because of this
-	impementation. 
+Changes to to 0.5.39
+	* added placeholder.png and wvOnline.xml to cvs, neither of which are of
+	any real importance except for the interim.
+	* added <filename/> variable, handy for the online converter.
 ALL TODO
-	* fix the para bounds problem in table.c at the exit-100 line
-
 	* Got to think of some way to keep the list stuff in sync with the margins 
 	of the enclosed paragraphs in html output.
 
@@ -146,6 +82,72 @@ ALL TODO
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.38
+	* added the symbol mapping to unicode as best as I could, I made one or two 
+	mods from the proper unicode so as to get a few more to work with the 
+	current generation of web browsers. very bad behaviour I know and the sort 
+	of stuff that got the world into this mess, but at least you can recompile 
+	wv at a later to date to fix it, replace the commented out bits of symbol.c 
+	to do it.
+	* added messages for conversion table request for special fonts (the spawn 
+	of the devil as far as I am concerned).
+	* added a character property end and start at the beginning of a new 
+	paragraph, this is necessary in many cases, funny i never noticed it before
+	* figured out some rules to handle placement of graphics, abandoned 
+	stylesheet placement as netscape is too much of a mess to be of any use 
+	there, and thats the target audience.
+	* the CHP code didnt work for word 7 and 8 sprms, this ironically means 
+	that rather than falling through the default case and being ignored, each 
+	chp sprm is now parsed leading to certainly more crashes and bugs as we 
+	find differences one by one between word 8 and the previous versions 
+	character property sprms.  * fixed sprmCSymbol for pre word 8, there might 
+	be problems with fonts not named "Symbol", like wingdings.
+	* due to serious oddities I have added a TABLEOVERRIDES option in 
+	wvHtml.xml which allows the margins before and after and paragraph, and the 
+	first line indent to be turned off inside tables, as having them on creates 
+	a real mess in netscape, in the future when this ability is supported by 
+	browsers you can just remove tableoverrides and ta-da all will work fine.
+	* fixed table row scanner bug
+	* fix for last para scan in complex mode
+	* make mods to table.c to allow cells within 3 units of eachother be 
+	considered the same.
+	* hmm, added a workaround for missing the beginning of a para in complex 
+	mode under certain conditions.
+	* some incredible hackery to differciate between 16 and 8 bit character 
+	modes in word 95 and 6, real dodgy stuff, but its working so far. Though 
+	its certainly a point of failure in the future.
+	* fix for table colspan mistakes
+	* modified sprmTTableBorder to work with the smaller word 6 BRC's, also 
+	fixed bug where I thought the sprm was variable
+	* had to fix sprmTTableBorder again, because it *is* variable under word 8 
+	despite the docs to the contrary !!, gagh.
+	* aaaargh!, wvGetLFOLVL and that wvInvalidLFOLVL has struck again, this
+	time I think I have it sorted out once and for all (but i bet not), this
+	new layout fixes quite a number of crashes.
+	* incredibly hard to find overflow in U8 in wvGetPAPX, silly me, must
+	really pay more attention to these things, you tend to forget that U8 are
+	a really small type, left to my own devices i'd use int, but for this
+	program I slavishly follow the types in the spec, and overlook the 
+	workarounds that are obvious in the struct definitions for PAPX.
+	* fixed the rather ugly empty paragraph skipping code to only go to the
+	next cell when a para level check is done.
+	Im having terrible problems with sprmDefTableShd, it always follows
+	sprmDefTable, and there is something wrong with Shd, maybe its me, maybe
+	its word. Either way im working around the problem.
+	* I had broken the word97 decryption, fixed again.
+	* cleaned things up to create a version enum and associated obvious names
+	with the versions so that its more obvious to read and more extendable,
+	encryption is marked in the version by the base version ored with 0x8000.
+	* some mods to the old list conversion to new list format, removes at 
+	least one crash and might solve others, possibly not a full solution.
+	* added html names for umlautte characters.
+	* found a sprm 0x6646 which appears to be 0x6645 HugePAPX where the papx
+	is stored in the data stream, it only occurs for PAP's and only for FKP
+	papx's. Nonetheless it has requireed the addition of a data file stream
+	argument to many sprm related functions, nearly always NULL except for
+	fkp PAP papx's.
+	* sprmPHugePapx implemented, another nasty bug fixed because of this
+	impementation. 
 Changes to to 0.5.37
 	* para indentation, first line indentation, top bottom left and right 
 	margins

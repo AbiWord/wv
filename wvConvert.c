@@ -81,6 +81,7 @@ int main(int argc,char **argv)
 	input = fopen(argv[optind],"rb");
 
 	ret = wvInitParser(&ps,input);
+	ps.filename = argv[optind];
 
 	if (ret == 4)
         {

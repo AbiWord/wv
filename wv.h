@@ -2445,6 +2445,7 @@ typedef enum _TT
 	TT_ParaLeft,
 	TT_ParaRight,
 	TT_ParaLeft1,
+	TT_FILENAME,
 	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 
@@ -2499,7 +2500,6 @@ typedef struct _expand_data
 	LVL **finallvl;
 	U16 *norows;
 
-
 	FIB *fib;
 
 	void *props; /* holds PAP/CHP/etc */
@@ -2511,6 +2511,7 @@ typedef struct _expand_data
 	SEP *asep;
 	PAP *nextpap;
 	PAP lastpap;
+	char *filename;
 	} expand_data;
 
 void wvInitExpandData(expand_data *data);
@@ -2617,7 +2618,7 @@ typedef struct _wvParseStruct
 	U32 *fspapos;
 	U32 nooffspa;
 
-	
+	char *filename;	
 	}wvParseStruct;
 
 void wvSetPassword(char *password,wvParseStruct *ps);

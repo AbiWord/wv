@@ -90,6 +90,7 @@ TokenTable s_Tokens[] =
     {   "title",         TT_TITLE        	},
     {   "charset",       TT_CHARSET      	},
     {   "version",       TT_VERSION      	},
+    {   "filename",      TT_FILENAME      	},
     {   "colspan",       TT_COLSPAN      	},
 	{	"cellwidth",	 TT_CELLWIDTH		},
     {   "rowspan",       TT_ROWSPAN      	},
@@ -568,6 +569,10 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				wvAppendStr(&mydata->retstring,buffer);
 				mydata->currentlen = strlen(mydata->retstring);
 				}
+			break;
+		case TT_FILENAME:
+			wvAppendStr(&mydata->retstring,mydata->filename);
+			mydata->currentlen = strlen(mydata->filename);
 			break;
 		case TT_VERSION:
 			wvTrace(("the version is %s\n",wv_version));
@@ -1994,6 +1999,10 @@ void startElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(mydata->current,"<rowspan/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
+		case TT_FILENAME:
+			wvAppendStr(mydata->current,"<filename/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
 		case TT_VERSION:
 			wvAppendStr(mydata->current,"<version/>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -2719,6 +2728,7 @@ void endElement(void *userData, const char *name)
 		case TT_PARAFGCOLOR:
 		case TT_TABLERELWIDTH:
 		case TT_VERSION:
+		case TT_FILENAME:
 		case TT_JUST:
 		case TT_PARAMARGIN:
 		case TT_BORDERTopSTYLE:
@@ -2911,6 +2921,7 @@ void exendElement(void *userData, const char *name)
 		case TT_TABLERELWIDTH:
 		case TT_CELLWIDTH:
 		case TT_VERSION:
+		case TT_FILENAME:
 			break;
 		default:
 			break;

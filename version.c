@@ -10,4 +10,4 @@ URL: http://skynet.csn.ul.ie/~caolan *  Sig: an oblique strategy
 How would you have done it?
 */
 
-char *wv_version="wv ver 0.5.38";
+char *wv_version="wv ver 0.5.39";

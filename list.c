@@ -125,8 +125,10 @@ int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,LVL *retlvl,LFO **re
 				wvTrace(("This is not the first time we've seen this list\n"));
 				apap->ilfo = i+1;
 
+				if (apap->nLvlAnm >= 10)
+					apap->nLvlAnm-=10;
 				
-				if ( (apap->nLvlAnm == 10) || (apap->nLvlAnm == 1) || (apap->nLvlAnm == 0) )
+				if ( (apap->nLvlAnm == 1) || (apap->nLvlAnm == 0) )
 					apap->ilvl = 0;
 				else
 					apap->ilvl = apap->nLvlAnm-1;
@@ -213,7 +215,11 @@ int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,LVL *retlvl,LFO **re
 				
 		apap->ilfo = *nolfo;
 
-		if ( (apap->nLvlAnm == 10) || (apap->nLvlAnm == 1) || (apap->nLvlAnm == 0) )
+		wvTrace(("ilvl is %d, nLvlAnm is %d\n",apap->ilvl,apap->nLvlAnm));
+		if (apap->nLvlAnm >= 10)
+			apap->nLvlAnm-=10;
+
+		if ((apap->nLvlAnm == 1) || (apap->nLvlAnm == 0) )
 			apap->ilvl = 0;
 		else
 			apap->ilvl = apap->nLvlAnm-1;
