@@ -50,6 +50,7 @@ public:
 	int					_charData(U16 *, int);
 	int 				_docProc(wvParseStruct *ps,wvTag tag);
 	int 				_eleProc(wvParseStruct *ps,wvTag tag,PAP *apap);
+	int 				_charPropProc(wvParseStruct *ps,wvTag tag,CHP *achp);
 protected:
 	IEStatus			m_iestatus;
 };

@@ -16,20 +16,23 @@ pages. for the purposes of headers and footers etc.
 void wvDecodeSimple(wvParseStruct *ps)
 	{
 	STSH stsh;
-	PAPX_FKP fkp;
+	PAPX_FKP para_fkp;
+	CHPX_FKP char_fkp;
 	PAP apap;
+        CHP achp;
 	U32 piececount=0,i,j=0;
 	U32 beginfc,endfc;
 	U32 begincp,endcp;
 	int chartype;
 	U16 eachchar;
-	U32 fcFirst,fcLim=0xffffffff;
-	BTE *btePapx;
-	U32 *posPapx;
-	U32 intervals;
+	U32 para_fcFirst, para_fcLim=0xffffffff;
+	U32 char_fcFirst, char_fcLim=0xffffffff;
+	BTE *btePapx, *bteChpx;
+	U32 *posPapx, *posChpx;
+	U32 para_intervals, char_intervals;
 	U16 charset;
 	U8 state=0;
-	int pendingclose=0;
+	int para_pendingclose=0,char_pendingclose=0;
 
 	/*we will need the stylesheet to do anything useful with layout and look*/
 	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
@@ -55,11 +58,22 @@ void wvDecodeSimple(wvParseStruct *ps)
 	*/
 	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3))
 		{
-    	wvGetBTE_PLCF6(&btePapx,&posPapx,&intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
-    	wvListBTE_PLCF(&btePapx,&posPapx,&intervals);
+    	wvGetBTE_PLCF6(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
+    	wvListBTE_PLCF(&btePapx,&posPapx,&para_intervals);
 		}
 	else	/* word 97 */
-    	wvGetBTE_PLCF(&btePapx,&posPapx,&intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
+    	wvGetBTE_PLCF(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
+
+	/*
+	 * get bounds of character runs so we can get character formatting properties
+	*/
+	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3))
+		{
+    	wvGetBTE_PLCF6(&bteChpx,&posChpx,&char_intervals,ps->fib.fcPlcfbteChpx,ps->fib.lcbPlcfbteChpx,ps->tablefd);
+    	wvListBTE_PLCF(&bteChpx,&posChpx,&char_intervals);
+		}
+	else	/* word 97 */
+    	wvGetBTE_PLCF(&bteChpx,&posChpx,&char_intervals,ps->fib.fcPlcfbteChpx,ps->fib.lcbPlcfbteChpx,ps->tablefd);
 
 
 
@@ -82,8 +96,9 @@ void wvDecodeSimple(wvParseStruct *ps)
 
 	charset = wvAutoCharset(&ps->clx);
 
-	wvInitPAPX_FKP(&fkp);
-
+	wvInitPAPX_FKP(&para_fkp);
+	wvInitCHPX_FKP(&char_fkp);
+	   
 	wvHandleDocument(ps,DOCBEGIN);
 
 	
@@ -96,42 +111,75 @@ void wvDecodeSimple(wvParseStruct *ps)
 		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
 		for (i=begincp,j=beginfc;i<endcp;i++,j += wvIncFC(chartype))
 			{
-			if (j == fcLim)
+			/* paragraph properties */
+			if (j == para_fcLim)
 				{
-				wvHandleElement(ps,PARAEND,&apap);
-				pendingclose=0;
+				wvHandleElement(ps, PARAEND, &apap);
+				para_pendingclose = 0;
 				}
 			
-			if ((fcLim == 0xffffffff) || (fcLim == j))
+			if ((para_fcLim == 0xffffffff) || (para_fcLim == j))
 				{
 				wvTrace("j i is %x %d\n",j,i);
-				wvReleasePAPX_FKP(&fkp);
-				wvGetSimpleParaBounds(wvQuerySupported(&ps->fib,NULL),&fkp,&fcFirst,&fcLim,i,&ps->clx, btePapx, posPapx,intervals,ps->mainfd);
-				wvTrace("para beings at %x ends %x\n",fcFirst,fcLim);
+				wvReleasePAPX_FKP(&para_fkp);
+				wvGetSimpleParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i,&ps->clx, btePapx, posPapx, para_intervals, ps->mainfd);
+				wvTrace("para begins at %x ends %x\n", para_fcFirst, para_fcLim);
 				}
 
-			if (j == fcFirst)
+			if (j == para_fcFirst)
 				{
-				wvAssembleSimplePAP(&apap,fcLim,&fkp,&stsh);
-				wvHandleElement(ps,PARABEGIN,&apap);
-				pendingclose=1;
+				wvAssembleSimplePAP(&apap, para_fcLim, &para_fkp, &stsh);
+				wvHandleElement(ps, PARABEGIN, &apap);
+				para_pendingclose = 1;
 				}
 
-			eachchar = wvGetChar(ps->mainfd,chartype);
+			/* character properties */
+			if (j == char_fcLim)
+				{
+				wvHandleCharProp(ps, CHARPROPEND, &achp);
+				char_pendingclose = 0;
+				}
+			
+			if ((char_fcLim == 0xffffffff) || (char_fcLim == j))
+				{
+				wvTrace("j i is %x %d\n", j, i);
+				wvReleaseCHPX_FKP(&char_fkp);
+				wvGetSimpleCharBounds(wvQuerySupported(&ps->fib, NULL),
+						      &char_fkp, &char_fcFirst, &char_fcLim,
+						      i, &ps->clx, bteChpx, posChpx,
+						      char_intervals, ps->mainfd);
+				wvTrace("char begins at %x ends %x\n", char_fcFirst, char_fcLim);
+				}
 
-			wvOutputTextChar(eachchar,chartype,charset,&state,ps);
+			if (j == char_fcFirst)
+				{
+				wvTrace("assembling CHP...\n");
+				wvAssembleSimpleCHP(&achp, char_fcLim, &char_fkp, &stsh);
+				wvTrace("CHP assembled.\n");
+				wvHandleCharProp(ps, CHARPROPBEGIN, &achp);
+				char_pendingclose = 1;
+				}
+
+			eachchar = wvGetChar(ps->mainfd, chartype);
+
+			wvOutputTextChar(eachchar, chartype, charset, &state, ps);
 			}
 		}
 	
-	if (pendingclose)
-		wvHandleElement(ps,PARAEND,&apap);
+	if (char_pendingclose)
+		wvHandleCharProp(ps, CHARPROPEND, &achp);
+	if (para_pendingclose)
+		wvHandleElement(ps, PARAEND, &apap);
 
-	wvReleasePAPX_FKP(&fkp);
+	wvReleasePAPX_FKP(&para_fkp);
+	wvReleaseCHPX_FKP(&char_fkp);
 	wvHandleDocument(ps,DOCEND);
 
 	wvReleaseSTTBF(&ps->anSttbfAssoc);
-    wvFree(btePapx);
+        wvFree(btePapx);
 	wvFree(posPapx);
+        wvFree(bteChpx);
+	wvFree(posChpx);
 	if (ps->fib.fcMac != ftell(ps->mainfd))
 		wvError("fcMac did not match end of input !\n");
 	wvReleaseCLX(&ps->clx);
@@ -186,6 +234,39 @@ int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U3
 	fseek(fd,currentpos,SEEK_SET);
 
 	return(wvGetIntervalBounds(fcFirst,fcLim,currentfc,fkp->rgfc,fkp->crun+1));
+	}
+
+int wvGetSimpleCharBounds(int version, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, 
+			  U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte,
+			  FILE *fd)
+	{
+	U32 currentfc;
+	BTE entry;
+	long currentpos;
+
+	currentfc = wvConvertCPToFC(currentcp, clx);
+
+	if (currentfc==0xffffffffL)
+		{
+		wvError("Char Bounds not found !\n");
+		return(1);
+		}
+
+
+	if (0 != wvGetBTE_FromFC(&entry, currentfc, bte, pos, nobte))
+		{
+		wvError("BTE not found !\n");
+		return(1);
+		}
+	currentpos = ftell(fd);
+	/*The pagenumber of the FKP is entry.pn */
+
+	wvTrace("pn is %d\n",entry.pn);
+	wvGetCHPX_FKP(version, fkp, entry.pn, fd);
+
+	fseek(fd, currentpos, SEEK_SET);
+
+	return(wvGetIntervalBounds(fcFirst, fcLim, currentfc, fkp->rgfc, fkp->crun+1));
 	}
 
 int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *rgfc, U32 nopos)

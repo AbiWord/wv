@@ -644,3 +644,69 @@ void wvUpdateCHPXBucket(UPXF *src)
 	for (i=0;i<src->cbUPX;i++)
 		wvTrace("%x\n",src->upx.chpx.grpprl[i]);
 	}
+
+/*
+ * taken from wvAssembleSimplePAP in pap.c and modified
+ * to handle CHP's
+ * -JB
+ */
+
+void wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
+{
+   CHPX *chpx;
+   int index,i;
+   UPXF upxf;
+   /*index is the i in the text above*/
+   /* the PAPX version of the function only looks at rgfc's, which are
+    * the same for CHPX and PAPX FKPs, so we'll reuse the function */
+   index = wvGetIndexFCInFKP_PAPX((PAPX_FKP*)fkp,fc);
+   
+   wvTrace("index is %d, using %d\n", index, index-1);
+
+   /* do we need to apply CHPXs from the current PAP's istd first? */
+
+   chpx = &(fkp->grpchpx[index-1]);
+   
+   if (chpx)
+     {
+	wvTrace("istd index is %d\n",chpx->istd);
+	wvInitCHPFromIstd(achp, chpx->istd, stsh);
+     }
+   else
+     wvInitCHPFromIstd(achp, istdNil, stsh);
+
+   /* apply CHPX from FKP */
+   if ((chpx) && (chpx->cbGrpprl > 0)) {
+       wvTrace("cbUPX is %d\n",chpx->cbGrpprl);
+      for (i=0;i<chpx->cbGrpprl;i++)
+	wvTrace("%x ",chpx->grpprl[i]);
+      wvTrace("\n");
+      upxf.cbUPX = chpx->cbGrpprl;
+      upxf.upx.chpx.grpprl = chpx->grpprl;
+      wvAddCHPXFromBucket(achp, &upxf, stsh);
+   }
+   
+   if (chpx)
+     achp->istd = chpx->istd;
+   
+}
+
+
+void wvGetCHPX(int version, CHPX *item, U32 offset, FILE *fd)
+{
+   U8 cb,i;
+   fseek(fd, offset, SEEK_SET);
+   item->cbGrpprl = getc(fd);
+   if (item->cbGrpprl > 0)
+     item->grpprl = (U8 *)malloc(item->cbGrpprl);
+   else
+     item->grpprl = NULL;
+   
+   item->istd = 0; /* I have no idea what to set this to... */
+   
+    for (i=0;i<item->cbGrpprl;i++)
+     {
+	item->grpprl[i] = getc(fd);
+	wvTrace("chpx byte is %x\n",item->grpprl[i]);
+     }
+}

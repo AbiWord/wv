@@ -98,7 +98,9 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	char *text,*str;
 	const char *ctext;
 
+
 	tokenIndex = s_mapNameToToken(name);
+	wvTrace("name = %s tokenIndex = %d\n", name, tokenIndex);
 	switch (s_Tokens[tokenIndex].m_type)
 		{
 		case TT_TITLE:

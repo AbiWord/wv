@@ -20,7 +20,8 @@ returns 1 for not an ole doc
 0 on success
 */
 
-int myelehandler(wvParseStruct *ps,wvTag tag,PAP *apap);
+int myelehandler(wvParseStruct *ps,wvTag tag, PAP *apap);
+int mycharprophandler(wvParseStruct *ps,wvTag tag, CHP *achp);
 int mydochandler(wvParseStruct *ps,wvTag tag);
 
 int main(int argc,char **argv)
@@ -47,7 +48,8 @@ int main(int argc,char **argv)
 		}
 
 	wvSetElementHandler(myelehandler);
-    wvSetDocumentHandler(mydochandler);
+	   wvSetCharPropHandler(mycharprophandler);
+	   wvSetDocumentHandler(mydochandler);
 
 	wvInitStateData(&myhandle);
     myhandle.fp = fopen("wvHtml.xml","rb");
@@ -89,6 +91,27 @@ int myelehandler(wvParseStruct *ps,wvTag tag,PAP *apap)
             break;
         case PARAEND:
             wvEndPara(data);
+            break;
+        default:
+            break;
+        }
+    return(0);
+    }
+
+int mycharprophandler(wvParseStruct *ps,wvTag tag,CHP *achp)
+    {
+    expand_data *data = (expand_data *)ps->userData;
+    data->anSttbfAssoc = &ps->anSttbfAssoc;
+    data->charset = wvAutoCharset(&ps->clx);
+    data->achp = achp;
+
+    switch (tag)
+        {
+        case CHARPROPBEGIN:
+            wvBeginCharProp(data);
+            break;
+        case CHARPROPEND:
+            wvEndCharProp(data);
             break;
         default:
             break;

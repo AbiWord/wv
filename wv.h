@@ -1465,8 +1465,21 @@ typedef struct _CHPX
 	} CHPX;
 
 void wvInitCHPX(CHPX *item);
-void wvCopyCHPX(CHPX *dest,CHPX *src);
+void wvCopyCHPX(CHPX *dest, CHPX *src);
 void wvReleaseCHPX(CHPX *item);
+void wvGetCHPX(int version, CHPX *item, U32 offset, FILE *fd);
+	       
+typedef struct _CHPX_FKP
+	{
+	U32 *rgfc;
+	U8 *rgb;
+	CHPX *grpchpx;
+	U8 crun;
+	} CHPX_FKP;
+
+void wvGetCHPX_FKP(int version, CHPX_FKP *fkp, U32 pn, FILE *fd);
+void wvReleaseCHX_FKP(CHPX_FKP *fkp);
+void wvInitCHPX_FKP(CHPX_FKP *fkp);
 
 
 typedef union _UPD
@@ -2061,6 +2074,7 @@ typedef struct _expand_data
 	{
 	STTBF *anSttbfAssoc;
 	PAP *apap;
+	CHP *achp;
 	U16 charset;
 	
 	char *retstring;
@@ -2333,6 +2347,9 @@ U32 wvConvertCPToFC(U32 currentcp,CLX *clx);
 void wvBeginPara(expand_data *data);
 void wvEndPara(expand_data *data);
 
+void wvBeginCharProp(expand_data *data);
+void wvEndCharProp(expand_data *data);
+   
 int wvGetComplexParafcLim(int first,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd);
 
 
@@ -2348,11 +2365,15 @@ typedef enum
 	DOCBEGIN,
 	DOCEND,
 	PARABEGIN,
-	PARAEND
+	PARAEND,
+	CHARPROPBEGIN,
+	CHARPROPEND
 	} wvTag;
 
 int wvHandleElement(wvParseStruct *ps,wvTag tag, PAP *apap);
-void wvSetElementHandler(int (*proc)(wvParseStruct *,wvTag ,PAP *));
+void wvSetElementHandler(int (*proc)(wvParseStruct *,wvTag, PAP *apap));
+int wvHandleCharProp(wvParseStruct *ps,wvTag tag, CHP *achp);
+void wvSetCharPropHandler(int (*proc)(wvParseStruct *,wvTag, CHP *achp));
 int wvHandleDocument(wvParseStruct *ps,wvTag tag);
 void wvSetDocumentHandler(int (*proc)(wvParseStruct *,wvTag));
 
