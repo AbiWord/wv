@@ -85,7 +85,7 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		switch (no)
 		  {
 		  case 1:
-		      sprintf (temp, "%d", current->tm_mon);
+		      sprintf (temp, "%d", current->tm_mon+1);
 		      strcat (timestr, temp);
 		      break;
 		  case 2:
@@ -287,11 +287,13 @@ wvHandleCommandField (char *command)
 	    case FC_DateTimePicture:
 		wvTrace (("DateTimePicture\n"));
 		token = strtok (NULL, "\"\"");
+		time (&mytime); /*fixed by lvm007@aha.ru*/
 		if (wvHandleDateTimePicture (datestr, 4096, token, &mytime))
 		    printf ("%s", datestr);
 		else
 		    wvError (
 			     ("date and time field function returned nothing\n"));
+		ret = 1; /*dont print text wich following after spec char*/
 		break;
 	    default:
 		break;

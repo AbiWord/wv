@@ -2427,8 +2427,10 @@ wvConvertUnicodeToHtml (U16 char16)
       case 11:
 	  printf ("<br>");
 	  return (1);
+      case 31:        /* non-required hyphen */   
+	  printf("&shy;"); /*vladimir@lukianov.name HTML 4.01 spec*/
+	  return (1);
       case 30:
-      case 31:
       case 45:
       case 0x2013:
 	  printf ("-");		/* en-dash */
