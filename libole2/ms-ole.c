@@ -1467,7 +1467,8 @@ read_sb (MsOle *f)
 #endif
 	while (ptr != END_OF_CHAIN) {
 		if (ptr == UNUSED_BLOCK ||
-		    ptr == SPECIAL_BLOCK) {
+		    ptr == SPECIAL_BLOCK ||
+		    ptr >= f->bb->len) {
 			g_warning ("Corrupt small block file: serious error, "
 				   "invalid block in chain\n");
 			g_array_free (f->sbf, TRUE);
