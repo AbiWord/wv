@@ -10,7 +10,7 @@ void wvPutNUMRM(NUMRM *item, wvStream *fd)
   write_8ubit(fd, item->Spare1);
   write_16ubit(fd, (U16)item->ibstNumRM);
 
-  wvPutDTTM(item->dttmNumRM, fd);
+  wvPutDTTM(&item->dttmNumRM, fd);
 
   for(i=0;i<9;i++)
     write_8ubit(fd, item->rgbxchNums[i]);

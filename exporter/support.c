@@ -15,9 +15,20 @@
 
         /* TODO: convert from big to little endian */
 
-	#define TO_LE_32(i) (i)
-	#define TO_LE_16(i) (i)
-	#define TO_LE_8(i)  (i)
+/* Basic bit swapping functions from Glib
+ */
+
+#define TO_LE_16(val)	((U16) ( \
+    (((U16) (val) & (U16) 0x00ffU) << 8) | \
+    (((U16) (val) & (U16) 0xff00U) >> 8)))
+
+#define TO_LE_32(val)	((U32) ( \
+    (((U32) (val) & (U32) 0x000000ffU) << 24) | \
+    (((U32) (val) & (U32) 0x0000ff00U) <<  8) | \
+    (((U32) (val) & (U32) 0x00ff0000U) >>  8) | \
+    (((U32) (val) & (U32) 0xff000000U) >> 24)))
+
+#define TO_LE_8(val) (val) 
 
 #else
 

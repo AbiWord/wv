@@ -1,5 +1,6 @@
-/* font.c */
-
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
 
 void wvPutFONTSIGNATURE(FONTSIGNATURE *fs,wvStream *fd)
         {

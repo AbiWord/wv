@@ -1,5 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
 
-void wvGetDTTM(DTTM *item,wvStream *fd)
+void wvPutDTTM(DTTM *item,wvStream *fd)
          {
 
 	         U16 temp16 = (U16)0;

@@ -1,4 +1,6 @@
-/* filetime.c */
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
 
 void wvPutFILETIME(FILETIME *ft,wvStream *fd)
          {

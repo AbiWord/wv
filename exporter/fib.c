@@ -269,7 +269,7 @@ void wvInitFIBForExport(FIB *item)
 	item->lcbSttbfUssr = 0;
 	}
 
-int wvPutFIB(FIB *item, wvStream *fd)
+void wvPutFIB(FIB *item, wvStream *fd)
 	{
 		U16 temp16 = (U16)0;
 		U8  temp8  = (U8)0;

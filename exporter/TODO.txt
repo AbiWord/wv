@@ -16,7 +16,7 @@ chp.c				**TODO**
 clx.c				**TODO**
 dcs.c				Done
 dogrid.c			Done
-dop.c				**TODO: putCOPTS() is done, putDOP() is not**
+dop.c				Done
 doptypography.c			Done
 dttm.c				Done
 escher.c			**TODO**
@@ -51,7 +51,7 @@ sep.c				Done
 shd.c				Done
 sprm.c				**TODO: do we need to code this?**
 sttbf.c				**TODO**
-stylesheet.c			**TODO**
+stylesheet.c			**TODO: almost done- fix wvPutSTSH()**
 table.c				**TODO: BIG!!**
 tbd.c				Done
 tc.c				Done

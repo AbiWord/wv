@@ -133,8 +133,57 @@ CSRCS= \
 	iconv/tis-620.c \
 	iconv/utf-8.c \
 	iconv/iconv.c \
+	exporter/anld.c \
+	exporter/anlv.c \
+	exporter/asumy.c \
+	exporter/asumyi.c \
+	exporter/atrd.c \
+	exporter/bkd.c \
+	exporter/bkf.c \
+	exporter/bkl.c \
+	exporter/brc.c \
+	exporter/bte.c \
+	exporter/bx.c \
+	exporter/chp.c \
+	exporter/dcs.c \
+	exporter/dogrid.c \
+	exporter/dop.c \
+	exporter/doptypography.c \
+	exporter/dttm.c \
+	exporter/fbse.c \
+	exporter/fdoa.c \
+	exporter/ffn.c \
+	exporter/fib.c \
+	exporter/filetime.c \
+	exporter/fld.c \
+	exporter/font.c \
+	exporter/fopt.c \
+	exporter/frd.c \
+	exporter/fspa.c \
+	exporter/ftxbxs.c \
+	exporter/generic.c \
+	exporter/lfo.c \
+	exporter/lspd.c \
+	exporter/lst.c \
+	exporter/lvl.c \
+	exporter/numrm.c \
+	exporter/olst.c \
+	exporter/pcd.c \
+	exporter/pgd.c \
+	exporter/phe.c \
+	exporter/prm.c \
+	exporter/rr.c \
+	exporter/rs.c \
+	exporter/sed.c \
+	exporter/sep.c \
+	exporter/shd.c \
+	exporter/stylesheet.c \
+	exporter/summary.c \
 	exporter/support.c \
-  	exporter/fib.c
+	exporter/tbd.c \
+	exporter/tc.c \
+	exporter/tlp.c \
+	exporter/wkb.c
 
 CFLAGS+=		-I. -I./iconv -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
 

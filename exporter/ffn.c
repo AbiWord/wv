@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wvexporter.h"
 
-void wvGetFFN6(FFN *item, wvStream *fd)
+void wvPutFFN6(FFN *item, wvStream *fd)
 {
   int len, i;
   U8 temp8 = 0;
@@ -26,12 +26,12 @@ void wvGetFFN6(FFN *item, wvStream *fd)
     write_8ubit(fd, item->xszFfn[i]);
 }
 
-void wvGetFFN(FFN *item, wvStream *fd)
+void wvPutFFN(FFN *item, wvStream *fd)
 {
   int len, i;
   U8 temp8 = 0;
 
-  write_8ubit(fd, item->cvFfnM1);
+  write_8ubit(fd, item->cbFfnM1);
   
   temp8 |= item->prq;
   temp8 |= item->fTrueType << 2;

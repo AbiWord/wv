@@ -1,4 +1,6 @@
-/* */
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
 
 void wvPutDOGRID(DOGRID *dog,wvStream *fd)
 {

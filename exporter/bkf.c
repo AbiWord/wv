@@ -1,4 +1,6 @@
-/* I hope that I don't have to write a wvPutBKF_PLCF */
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
 
 void wvPutBKF(BKF *item,wvStream *fd)
 {

@@ -1,5 +1,6 @@
-/* */
-
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
 
 void wvPutDCS(DCS *item,wvStream *fd)
 {

@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
+
 void wvPutASUMYI(ASUMYI *asu,wvStream *fd)
 {
          U16 temp16 = (U16)0;
@@ -9,7 +13,7 @@ void wvPutASUMYI(ASUMYI *asu,wvStream *fd)
          temp16 |= asu->reserved << 5;
          write_16ubit(fd, temp16);
 
-         write_16bit(fd, asu->wDlgLevel);
-         write_16bit(fd, asu->lHighestLevel);
-         write_16bit(fd, asu->lCurrentLevel);
+         write_16ubit(fd, asu->wDlgLevel);
+         write_16ubit(fd, asu->lHighestLevel);
+         write_16ubit(fd, asu->lCurrentLevel);
 }

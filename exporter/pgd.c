@@ -8,7 +8,7 @@ void wvPutPGD(PGD *item, wvStream *fd)
 
   temp16 |= item->fContinue;
   temp16 |= item->fUnk << 1;
-  temp16 |= item->fRight MM 2;
+  temp16 |= item->fRight << 2;
   temp16 |= item->fPgnRestart << 3;
   temp16 |= item->fEmptyPage << 4;
   temp16 |= item->fAllFtn << 5;
@@ -20,7 +20,7 @@ void wvPutPGD(PGD *item, wvStream *fd)
   temp16 |= item->fNewPage << 11;
   temp16 |= item->bkc << 12;
 
-  write_16ubit(temp16);
+  write_16ubit(fd, temp16);
   
   write_16ubit(fd, item->lnn);
   write_16ubit(fd, item->pgn);

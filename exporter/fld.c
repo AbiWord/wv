@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
+
 void wvPutFLD(FLD *item,wvStream *fd)
 {
       	U8 temp8 = (U8)0;

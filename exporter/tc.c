@@ -2,10 +2,9 @@
 #include <stdlib.h>
 #include "wvexporter.h"
 
-void wvPutTC(TC *tc, wvStream *fd)
+void wvPutTC(TC *item, wvStream *fd)
 {
-  U16 temp16;
-  BRC10 brc10;
+  U16 temp16 = 0;
 
   /* assumes word8 */
   temp16 |= item->fFirstMerged;
@@ -21,8 +20,8 @@ void wvPutTC(TC *tc, wvStream *fd)
   
   write_16ubit(fd, item->wUnused);
 
-  wvPutBRC(item->brcTop, fd);
-  wvPutBRC(item->brcLeft, fd);
-  wvPutBRC(item->brcBottom, fd);
-  wvPutBRC(item->brcRight, fd);
+  wvPutBRC(&item->brcTop, fd);
+  wvPutBRC(&item->brcLeft, fd);
+  wvPutBRC(&item->brcBottom, fd);
+  wvPutBRC(&item->brcRight, fd);
 }

@@ -1,5 +1,6 @@
-/* summary.c */
-
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
 
 void wvPutPropHeader(PropHeader *header,wvStream *file)
         {

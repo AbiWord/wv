@@ -1,4 +1,6 @@
-/* no PCLF version */
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
 
 void wvPutFSPA(FSPA *item,wvStream *fd)
          {

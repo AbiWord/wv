@@ -1,5 +1,6 @@
-/* I hope I don't have to write a wvPutBKL_PCLF!!*/
-
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
 
 void wvPutBKL(BKL *item,wvStream *fd)
 {

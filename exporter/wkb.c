@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
+
 void wvPutWKB(WKB *item,wvStream *fd)
          {
          U16 temp16 = (U16)0;

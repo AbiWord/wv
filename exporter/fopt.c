@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
+
 void wvPutFAnchor(FAnchor *item,wvStream *fd)
          {
          /* It is supposed to be a RECT, but its only 4 long so... */
@@ -24,7 +28,7 @@ void wvPutFOPTE(FOPTE *afopte,wvStream *fd)
 void wvPutFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,wvStream *fd)
          {
          U32 i,j,count=0;
-         no=0;
+         U32 no=0;
 
          while (count < msofbh->cbLength)
                  {

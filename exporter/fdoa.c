@@ -1,4 +1,6 @@
-/* no PCLF */
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
 
 void wvPutFDOA(FDOA *item,wvStream *fd)
          {

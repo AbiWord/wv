@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
+
 void wvPutANLV(ANLV *item,wvStream *fd)
 {
           U8 temp8 = (U8)0;
@@ -26,14 +30,14 @@ void wvPutANLV(ANLV *item,wvStream *fd)
           temp8 |= item->fStrike << 7;
           write_8ubit(fd, temp8);
 
-          temp* = (U8)0;
+          temp8 = (U8)0;
           temp8 |= item->kul;
           temp8 |= item->ico << 3;
           write_8ubit(fd, temp8);
 
-          write_16ubit((U16)item->ftc);
-          write_16ubit(item->hps);
-          write_16ubit(item->iStartAt);
-          write_16ubit(item->dxaIndent);
-          write_16ubit((U16)item->dxaSpace);
+          write_16ubit(fd, (U16)item->ftc);
+          write_16ubit(fd, item->hps);
+          write_16ubit(fd, item->iStartAt);
+          write_16ubit(fd, item->dxaIndent);
+          write_16ubit(fd, (U16)item->dxaSpace);
 }

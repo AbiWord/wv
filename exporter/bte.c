@@ -1,5 +1,6 @@
-/* again, no PC_LF versions. sorry. */
-
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
 
 void wvPutBTE(BTE *bte,wvStream *fd)
 {
@@ -10,7 +11,7 @@ void wvPutBTE(BTE *bte,wvStream *fd)
          */
 
 		temp32 |= bte->pn;
-		temp32 |= unused << 22;
+		temp32 |= bte->unused << 22;
 
 		write_32ubit(fd, temp32);
 }

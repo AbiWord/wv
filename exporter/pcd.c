@@ -15,5 +15,5 @@ void wvPutPCD(PCD *item, wvStream *fd)
 
   write_8ubit(fd, item->fn);
   write_32ubit(fd, item->fc);
-  wvPutPRM(item->prm, fd);
+  wvPutPRM(&item->prm, fd);
 }

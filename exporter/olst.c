@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "wvexport.h"
+#include "wvexporter.h"
 
 void wvPutOLST(OLST *item, wvStream *fd)
 {
   U8 i;
   for(i=0;i<9;i++)
-    wvPutANLV(fd, item->rganlv[i]);
+    wvPutANLV(&item->rganlv[i], fd);
   
   write_8ubit(fd, item->fRestartHdr);
   write_8ubit(fd, item->fSpareOlst2);

@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexporter.h"
+
 void wvPutSEPX(version ver,SEPX *item,wvStream *fd)
          {
          U16 i = (U16)0;
