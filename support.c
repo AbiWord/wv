@@ -84,6 +84,15 @@ wvStream_libole2_create (wvStream ** in, MsOleStream * inner)
 }
 
 void
+wvStream_memory_create (wvStream ** in, MemoryStream * inner)
+{
+    wvInternalStream str;
+    str.memory_stream = inner;
+    wvStream_create (in, MEMORY_STREAM, str);
+}
+
+
+void
 wvStream_create (wvStream ** in, wvStreamKind kind, wvInternalStream inner)
 {
     wvStream_list *listEntry;
@@ -113,9 +122,14 @@ read_32ubit (wvStream * in)
 	  in->stream.libole_stream->read_copy (in->stream.libole_stream,
 					       (guint8 *) & ret, 4);
       }
-    else
+    else if (in->kind == FILE_STREAM)
       {
 	  fread (&ret, sizeof (U8), 4, in->stream.file_stream);
+      }
+    else
+      {
+	return  *((U32 *) (in->stream.memory_stream->mem + 
+		 in->stream.memory_stream->current));
       }
 #endif
     return (ret);
@@ -138,10 +152,17 @@ read_16ubit (wvStream * in)
 	  in->stream.libole_stream->read_copy (in->stream.libole_stream,
 					       (guint8 *) & ret, 2);
       }
-    else
+    else if (in->kind == FILE_STREAM)
       {
 	  fread (&ret, sizeof (U8), 2, in->stream.file_stream);
       }
+    else
+      {
+	return  *((U16 *) (in->stream.memory_stream->mem + 
+		 in->stream.memory_stream->current));
+      }
+
+
 #endif
     return (ret);
 }
@@ -156,9 +177,14 @@ read_8ubit (wvStream * in)
 					       (guint8 *) & ret, 1);
 	  return (ret);
       }
-    else
+    else if (in->kind == FILE_STREAM)
       {
 	  return (getc (in->stream.file_stream));
+      }
+    else
+      {
+	return  *((U8 *)(in->stream.memory_stream->mem + 
+		 in->stream.memory_stream->current));
       }
 }
 
@@ -170,9 +196,15 @@ wvStream_read (void *ptr, size_t size, size_t nmemb, wvStream * in)
 	  return ((U32) in->stream.libole_stream->
 		  read_copy (in->stream.libole_stream, ptr, size * nmemb));
       }
-    else
+    else if (in->kind == FILE_STREAM)
       {
 	  return (fread (ptr, size, nmemb, in->stream.file_stream));
+      }
+    else
+      {
+	memcpy(ptr, in->stream.memory_stream->mem + 
+                    in->stream.memory_stream->current,size * nmemb);
+	return size * nmemb;
       }
 }
 
@@ -184,9 +216,13 @@ wvStream_rewind (wvStream * in)
 	  in->stream.libole_stream->lseek (in->stream.libole_stream, 0,
 					   MsOleSeekSet);
       }
-    else
+    else if (in->kind == FILE_STREAM)
       {
 	  rewind (in->stream.file_stream);
+      }
+    else
+      {
+	in->stream.memory_stream->current = 0;
       }
 }
 
@@ -198,9 +234,14 @@ wvStream_goto (wvStream * in, long position)
 	  return ((U32) in->stream.libole_stream->
 		  lseek (in->stream.libole_stream, position, MsOleSeekSet));
       }
-    else
+    else if (in->kind == FILE_STREAM)
       {
 	  return ((U32) fseek (in->stream.file_stream, position, SEEK_SET));
+      }
+    else
+      {
+	in->stream.memory_stream->current = position;
+        return 0;
       }
 }
 
@@ -212,9 +253,13 @@ wvStream_offset (wvStream * in, long offset)
 	  return ((U32) in->stream.libole_stream->
 		  lseek (in->stream.libole_stream, offset, MsOleSeekCur));
       }
-    else
+    else if (in->kind == FILE_STREAM)
       {
 	  return ((U32) fseek (in->stream.file_stream, offset, SEEK_CUR));
+      }
+    else
+      {
+	in->stream.memory_stream->current += offset;
       }
 }
 
@@ -226,9 +271,15 @@ wvStream_offset_from_end (wvStream * in, long offset)
 	  return ((U32) in->stream.libole_stream->
 		  lseek (in->stream.libole_stream, offset, MsOleSeekEnd));
       }
-    else
+    else if(in->kind == FILE_STREAM)
       {
 	  return ((U32) fseek (in->stream.file_stream, offset, SEEK_END));
+      }
+    else
+      {
+	in->stream.memory_stream->current = 
+	in->stream.memory_stream->size + offset;
+        return 0;
       }
 }
 
@@ -240,12 +291,28 @@ wvStream_tell (wvStream * in)
 	  return ((U32) in->stream.libole_stream->
 		  tell (in->stream.libole_stream));
       }
-    else
+    else if(in->kind == FILE_STREAM)
       {
 	  return ((U32) ftell (in->stream.file_stream));
       }
+    else
+      {
+	return (in->stream.memory_stream->current);
+      }
 }
 
+U32
+wvStream_size (wvStream * in)
+{
+  U32 size;
+
+  long offset = wvStream_tell(in);
+  wvStream_offset_from_end(in,0);
+  size = wvStream_tell(in);
+  wvStream_offset(in,offset);
+
+  return size;
+}
 
 U32
 wvStream_close (wvStream * in)
@@ -260,14 +327,22 @@ wvStream_close (wvStream * in)
 	  return (ret);
       }
     else
+    if (in->kind == FILE_STREAM)
       {
 	  U32 ret;
 	  ret = (U32) fclose (in->stream.file_stream);
 	  wvFree (in);
 	  return (ret);
       }
+    else
+    if (in->kind == MEMORY_STREAM)
+      {
+	  free (in->stream.memory_stream->mem);
+	  wvFree (in);
+	  return 0;
+      }
+    else abort();
 }
-
 
 /* wvStream-kind-independent functions below */
 

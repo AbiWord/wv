@@ -19,12 +19,20 @@ extern "C" {
  */
     typedef enum {
 	LIBOLE_STREAM,
-	FILE_STREAM
+	FILE_STREAM,
+	MEMORY_STREAM
     } wvStreamKind;
 
+    typedef struct {
+      char *mem;
+      unsigned long current;
+      unsigned long size;
+    } MemoryStream;
+    
     typedef union {
 	FILE *file_stream;
 	MsOleStream *libole_stream;
+	MemoryStream *memory_stream;
     } wvInternalStream;
 
     typedef struct {
@@ -4429,6 +4437,7 @@ Property       PID            Type            Default        Description
     U32 wvStream_goto (wvStream * stream, long position);
     U32 wvStream_offset (wvStream * stream, long offset);
     U32 wvStream_offset_from_end (wvStream * stream, long offset);
+    U32 wvStream_size (wvStream * stream);
     U32 wvStream_tell (wvStream * stream);
 
 /* These functions take care of memory/file management for wvStreams */

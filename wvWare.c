@@ -71,7 +71,7 @@ char *
 wvHtmlGraphic (wvParseStruct * ps, Blip * blip)
 {
     char *name;
-    FILE *fd;
+    wvStream * fd;
     char test[3];
 
     name = figure_name (ps);
@@ -88,18 +88,13 @@ wvHtmlGraphic (wvParseStruct * ps, Blip * blip)
       case msoblipJPEG:
       case msoblipDIB:
       case msoblipPNG:
-	  fd = (FILE *) (blip->blip.bitmap.m_pvBits)->stream.file_stream;
+	  fd =  (blip->blip.bitmap.m_pvBits);
 	  test[2] = '\0';
-	  test[0] = getc (fd);
-#if 1
-	  test[1] = getc (fd);
-	  rewind (fd);
+	  test[0] = read_8ubit (fd);
+
+	  test[1] = read_8ubit (fd);
+	  wvStream_rewind (fd);
 	  if (!(strcmp (test, "BM")))
-#else
-	  test[1] = '\0';
-	  ungetc (test[1], fd);
-	  if (!(strcmp (test, "B")))
-#endif
 	    {
 		wvAppendStr (&name, ".bmp");
 		if (0 != HandleBitmap (ps, name, &blip->blip.bitmap))
@@ -155,8 +150,10 @@ wvHtmlGraphic (wvParseStruct * ps, Blip * blip)
 int
 HandleBitmap (wvParseStruct * ps, char *name, BitmapBlip * bitmap)
 {
-    int c;
-    FILE *fd;
+    wvStream * pwv = bitmap->m_pvBits;
+    FILE *fd = NULL;
+    size_t size = 0, i;
+
     if (ps->dir) chdir (ps->dir);
     fd = fopen (name, "wb");
     if (ps->dir) chdir (wv_cwd);
@@ -165,8 +162,11 @@ HandleBitmap (wvParseStruct * ps, char *name, BitmapBlip * bitmap)
 	fprintf (stderr,"\nCannot open %s for writing:%s\n",name,strerror (errno));
 	exit (1);
       }
-    while (EOF != (c = getc(((wvStream*)(bitmap->m_pvBits))->stream.file_stream)))
-      fputc (c, fd);
+    size = wvStream_size (pwv);
+    wvStream_rewind(pwv);
+
+    for (i = 0; i < size; i++)
+      fputc (read_8ubit(pwv), fd);
     fclose (fd);
     wvTrace (("Name is %s\n", name));
     return (0);
@@ -176,8 +176,10 @@ HandleBitmap (wvParseStruct * ps, char *name, BitmapBlip * bitmap)
 int
 HandleMetafile (wvParseStruct * ps, char *name, MetaFileBlip * bitmap)
 {
-    int c;
-    FILE *fd;
+    wvStream * pwv = bitmap->m_pvBits;
+    FILE *fd = NULL;
+    size_t size = 0, i;
+
     if (ps->dir) chdir (ps->dir);
     fd = fopen (name, "wb");
     if (ps->dir) chdir (wv_cwd);
@@ -186,8 +188,11 @@ HandleMetafile (wvParseStruct * ps, char *name, MetaFileBlip * bitmap)
 	fprintf (stderr,"\nCannot open %s for writing:%s\n",name,strerror (errno));
 	exit (1);
       }
-    while (EOF != (c = getc(((wvStream*)(bitmap->m_pvBits))->stream.file_stream)))
-	fputc (c, fd);
+    size = wvStream_size (pwv);
+    wvStream_rewind(pwv);
+
+    for (i = 0; i < size; i++)
+      fputc (read_8ubit(pwv), fd);
     fclose (fd);
     wvTrace (("Name is %s\n", name));
     return (0);
