@@ -38,6 +38,10 @@
 #include <unistd.h>
 #else
 
+#if 0
+#include <io.h> 
+#endif
+
 #define S_IRUSR 0000400 
 #define S_IWUSR 0000200 
 #define S_IRGRP 0000040 

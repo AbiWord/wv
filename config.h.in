@@ -1,5 +1,5 @@
 #ifndef CONFIG_H_CALLED
-#define CONFIG_H_CALLED
+#define CONFIG_H_CALLED 1
 
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
@@ -97,4 +97,4 @@
 
 #undef HAVE_MMAP
 
-#endif
+#endif /* CONFIG_H_CALLED */

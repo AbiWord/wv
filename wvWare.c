@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include "getopt.h"
 #include "config.h"
 #include "wv.h"
 

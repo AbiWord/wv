@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(mswordview.c)
+AC_INIT(wvWare.c)
 
 dnl Checks for programs.
 AC_PROG_LEX

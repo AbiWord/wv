@@ -6,13 +6,13 @@ if [ ${#} -ne "2" ]; then
 	exit 1
 fi
 
-which wvDVI 2>&1 >/dev/null
+which wvDVI >/dev/null 2>&1
 if [ ${?} -ne "0" ]; then
 	echo "Could not find required program 'wvDVI'"
 	exit 1
 fi
 
-which dvips 2>&1 >/dev/null
+which dvips >/dev/null 2>&1
 if [ ${?} -ne "0" ]; then
 	echo "Could not find required program 'dvips'"
 	exit 1
@@ -21,14 +21,14 @@ fi
 # intermediate file
 DVI_FILE="${2}.dvi"
 
-wvDVI "${1}" "${DVI_FILE}" 2>&1 >/dev/null
+wvDVI "${1}" "${DVI_FILE}" >/dev/null 2>&1
 if [ ${?} -ne "0" ]; then
 	echo "Could not convert into DVI"
 	exit 1
 fi
 
 
-dvips -o "${2}" "${DVI_FILE}" 2>&1 >/dev/null
+dvips -o "${2}" "${DVI_FILE}" >/dev/null 2>&1
 if [ ${?} -ne "0" ]; then
 	echo "Could not convert into Postscript"
 	exit 1
@@ -36,5 +36,3 @@ fi
 
 #clean up
 rm -f "${DVI_FILE}"
-
-exit ${?}

@@ -6,7 +6,7 @@ if [ ${#} -ne "1" ]; then
 fi
 
 # check our requirements
-type wvPS 2>&1 >/dev/null
+type wvPS >/dev/null 2>&1
 if [ ${?} -ne "0" ]; then
 	echo "Error: required program 'wvPS' was not found"
 	exit 1
@@ -16,19 +16,19 @@ fi
 GV=""
 
 # check for gnome ghost-view first
-type ggv 2>&1 >/dev/null
+type ggv >/dev/null 2>&1
 if [ ${?} -eq "0" ]; then
 	GV="ggv"
 else
 	# TODO: does kde have something?
 
 	# try to default back onto gv
-	type gv 2>&1 >/dev/null
+	type gv >/dev/null 2>&1
 	if [ ${?} -eq "0" ]; then
 		GV="gv"
 	else
 		# old solaris systems
-		type ghostview 2>&1 >/dev/null
+		type ghostview >/dev/null 2>&1
 		if [ ${?} -eq "0" ]; then
 			GV="ghostview"
 		else
@@ -44,12 +44,26 @@ fi
 # of semi-uniqueness
 FILE=`basename ${1}`
 TMPPS="/tmp/${FILE}-${USER}-${$}.ps" 
-wvPS ${1} ${TMPPS}
+
+# Make sure all graphics go into /tmp as well
+cp ${1} /tmp/$FILE
+
+# Extract graphics
+wvLatex "/tmp/$FILE" "/tmp/$FILE.tex" 2>/dev/null >/dev/null
+
+# Graphics conversion if make_epses.sh installed:
+type make_epses.sh 2>&1 >/dev/null
+  if [ ${?} -eq "0" ]; then
+    (cd /tmp; make_epses.sh)
+  fi
+
+wvPS /tmp/$FILE ${TMPPS}
 if [ ${?} -ne "0" ]; then 
 	echo "Could not translate into Postscript" 
 	exit 1 
 fi 
 
+
 # call our ghost-viewer
 exec "${GV} ${TMPPS}"
-exit ${?} 
+rm -f ${TMPPS}

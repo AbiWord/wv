@@ -12,7 +12,7 @@ fi
 
 # start out optimistic
 USING_LYNX=1
-which lynx 2>&1 >/dev/null
+which lynx >/dev/null 2>&1
 if [ ${?} -ne "0" ]; then
 	echo "Could not find required program 'lynx'"
 	echo "Not using lynx. Ouput will be pretty bad."
@@ -22,7 +22,7 @@ fi
 if [ ${USING_LYNX} -ne "0" ]; then
 
     # first, test for wvHtml
-    which wvHtml 2>&1 >/dev/null
+    which wvHtml >/dev/null 2>&1
     if [ ${?} -ne "0" ]; then
        	echo "Could not find required program 'wvHtml'"
 	exit 1
@@ -31,7 +31,7 @@ if [ ${USING_LYNX} -ne "0" ]; then
     # intermediate file
     TMP_FILE="/tmp/wv${1}.html"
 
-    wvHtml "${1}" "${TMP_FILE}" 2>&1 >/dev/null
+    wvHtml "${1}" "${TMP_FILE}" >/dev/null 2>&1
     if [ ${?} -ne "0" ]; then
 	echo "Could not convert into HTML"
 	exit 1
@@ -53,5 +53,3 @@ else
     # 'strings' on the word document though :)
     wvWare -x ${libdir}/wv/wvText.xml "${1}" > "${2}"
 fi
-
-exit 0

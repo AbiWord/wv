@@ -10,11 +10,10 @@ if [ ${#} -ne "2" ]; then
 	exit 1
 fi
 
-which wvWare 2>&1 >/dev/null
+which wvWare >/dev/null 2>&1
 if [ ${?} -ne "0" ]; then
     echo "Could not find required program 'wvWare'"
     exit 1
 fi
 
 wvWare -x ${libdir}/wv/wvCleanLaTeX.xml "${1}" > "${2}"
-exit ${?}

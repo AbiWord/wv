@@ -751,12 +751,12 @@ typedef struct _DOP
 	U32 reserved1:1;
 	U32 grpfIhdt:8;
 	U32 rncFtn:2;	/*how to restart footnotes*/
-	U16 fFtnRestart:1; /* Word 2*/
+	U32 fFtnRestart:1; /* Word 2*/
 
 	U32 nFtn:15;	/*first footnote no. WORD 2: int :15*/
 
    	U8 irmBar;    /* W2 */
-	U16 irmProps:7; /* W2 */
+	U32 irmProps:7; /* W2 */
 
 	U32 fOutlineDirtySave:1;
 	U32 reserved2:7;
@@ -776,18 +776,18 @@ typedef struct _DOP
 	U32 fLockAtn:1;
 	U32 fMirrorMargins:1;
 
-	U16 fKeepFileFormat:1; /* W2 */
+	U32 fKeepFileFormat:1; /* W2 */
 
 	U32 reserved3:1;
 
 	U32 fDfltTrueType:1;
 	U32 fPagSuppressTopSpacing:1;
 
-	U16 fRTLAlignment:1; /* W2 */
-        U16 reserved3a:6;    /* " */
-        U16 reserved3b:7;    /* " */
+	U32 fRTLAlignment:1; /* W2 */
+        U32 reserved3a:6;    /* " */
+        U32 reserved3b:7;    /* " */
 
-	U16 fSpares:16;      /* W2 */
+	U32 fSpares:16;      /* W2 */
 
 	U32 fProtEnabled:1;
 	U32 fDispFormFldSel:1;
@@ -801,14 +801,14 @@ typedef struct _DOP
 
 	U16 dxaTab;
 
-	U16 ftcDefaultBi; /* W2 */
+	U32 ftcDefaultBi; /* W2 */
 
 	U16 wSpare;
 	U16 dxaHotZ;
 	U16 cConsecHypLim;
 	U16 wSpare2;
 
-	U16 wSpare3; /* W2 */
+	U32 wSpare3; /* W2 */
 
 	DTTM dttmCreated;
 	DTTM dttmRevised;

@@ -11,4 +11,3 @@ if [ ${#} -ne "2" ]; then
 fi
 
 wvWare -x ${libdir}/wv/wvWml.xml "${1}" > "${2}"
-exit ${?}

@@ -82,8 +82,10 @@ CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I. -I./ -I$(srcdir)/ -I$(srcdir)/iconv/ 
 CFLAGS += \
 	-I$(srcdir)/libole2/ \
 	-I$(srcdir)/glib-wv/ \
-	-I$(srcdir)/oledecod/ \
-	-Wall
+	-I$(srcdir)/oledecod/
+
+# not supported by lots of compilers
+#	-Wall
 
 MKINSTALLDIRS = $(srcdir)/mkinstalldirs
 
@@ -433,6 +435,7 @@ install: installdirs all
 	$(INSTALL) $(srcdir)/wvWml $(bindir)/wvWml
 	$(INSTALL) $(srcdir)/wv-libconfig $(bindir)/wv-libconfig
 	$(INSTALL) $(srcdir)/wv-incconfig $(bindir)/wv-incconfig
+	$(INSTALL) $(srcdir)/make_epses.sh $(bindir)/make_epses.sh
 	$(INSTALL_DATA) $(srcdir)/wvWare.1 $(mandir)/man1/
 	$(INSTALL_DATA) $(srcdir)/wvHtml.1 $(mandir)/man1/
 	$(INSTALL_DATA) $(srcdir)/wvLatex.1 $(mandir)/man1/
