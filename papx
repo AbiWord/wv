@@ -1,6 +1,0 @@
-typedef struct _PAPX
-	{
-	U8  cw;
- 	U16 istd;
- 	U8 *grpprl;
-	} PAPX;
