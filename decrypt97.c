@@ -74,7 +74,7 @@ verifypwd (U8 pwarray[64], U8 docid[16], U8 salt[64], U8 hashedsalt[16],
 
 	  if (offset == 64)
 	    {
-		wvMD5Update (&valContext, pwarray, 64);
+		wvMD5Update (valContext, pwarray, 64);
 		keyoffset = tocopy;
 		tocopy = 5 - tocopy;
 		offset = 0;
