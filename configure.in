@@ -2,6 +2,9 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(fib.c)
 AC_CONFIG_HEADER(config.h)
 
+VERSION=0.6.7
+AC_SUBST(VERSION)
+
 dnl Checks for programs.
 dnl AC_PROG_CC
 dnl AC_PROG_CC shoves in -g by default, i *really* hate this so here goes...
@@ -504,6 +507,7 @@ AC_SUBST(LIBOBJS)
 
 AC_OUTPUT(
 Makefile 
+version.c
 wvAbw
 wvDVI
 wvHtml

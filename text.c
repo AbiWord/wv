@@ -2396,7 +2396,10 @@ wvConvertUnicodeToLaTeX (U16 char16)
       }
     /* Debugging aid: */
     if (char16 >= 0x80)
+      {
 	printf ("[%x]", char16);
+	return (1);
+      }
     return (0);
 }
 

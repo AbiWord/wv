@@ -100,8 +100,13 @@ wv_exec="$exec_prefix/bin/wvWare"
 if test -x "$wv_exec"; then
   okay=yes
 else
-  echo "error: no executable at '$wv_exec'"
-  exit 1
+  wv_version=`wvWare -v 2>&1 | cut -f 2 -d " "`
+  if test "x$wv_version" = "x@VERSION@"; then
+    wv_exec="wvWare"
+  else
+    echo "error: no executable at '$wv_exec' or in path"
+    exit 1
+  fi
 fi
 
 if test "x$datadir" = "x"; then
