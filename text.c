@@ -407,7 +407,7 @@ void wvOutputFromUnicode(U16 eachchar,char *outputtype)
 	*(ibuf + 1) = temp;
       }
 
-    if(wv_iconv(iconv_handle, (char**)&ibuf, &ibuflen, &obuf, &obuflen) == (iconv_t)-1)
+    if(wv_iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen) == (size_t)-1)
       {
 	wvError(("iconv failed errno: %d",errno));
       }
