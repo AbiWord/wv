@@ -3915,6 +3915,9 @@ wvParseConfig (state_data * myhandle)
 	hdl.warning = NULL;
 	hdl.error = NULL;
 	hdl.fatalError = NULL;
+	hdl.getParameterEntity = NULL;
+	hdl.cdataBlock = NULL;
+	hdl.externalSubset = NULL;
 
 	if (myhandle->fp)
 	{
@@ -4032,6 +4035,9 @@ wvExpand (expand_data * myhandle, char *buf, int len)
 	hdl.warning = NULL;
 	hdl.error = NULL;
 	hdl.fatalError = NULL;
+	hdl.getParameterEntity = NULL;
+	hdl.cdataBlock = NULL;
+	hdl.externalSubset = NULL;
 
 	ctxt = xmlCreateMemoryParserCtxt ((const char *) buf, len);
 	if (ctxt == NULL)
