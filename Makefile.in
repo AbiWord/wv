@@ -282,8 +282,18 @@ else
        XML = 
 endif
 
+ifeq ($(BUILD_FOR_ABIWORD),1)
+WVEXECS = 
+else
+WVEXECS = wv-libconfig wv-incconfig \
+	wvSummary$(EXEEXT) \
+	wvWare$(EXEEXT) \
+	wvRTF${EXEEXT} \
+	wvConvert$(EXEEXT) \
+	wvVersion$(EXEEXT)
+endif
 
-all: wvSummary$(EXEEXT) wvWare$(EXEEXT) wvRTF${EXEEXT} wvConvert$(EXEEXT) wvVersion$(EXEEXT) wv-libconfig wv-incconfig
+all: WVSUBDIRS libwv.a $(WVEXECS)
 
 wvRTF$(EXEEXT): wvRTF.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvRTF.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
@@ -319,7 +329,9 @@ testparse$(EXEEXT):  testparse.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 laolareplace.$(OBJEXT): $(srcdir)/laolareplace.c 
 	$(CC) $(DEFS) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) -c $(srcdir)/$*.c 
 
-libwv.a:$(MYOBJECTS) $(EXPORTER) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE BLIBOLE2
+WVSUBDIRS:$(EXPORTER) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE BLIBOLE2
+
+libwv.a:$(MYOBJECTS) $(EXPORTER_OBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE)
 	$(AR) rc $@ $(MYOBJECTS) $(EXPORTER_OBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE)
 
 	$(RANLIB) $@
