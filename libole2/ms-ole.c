@@ -15,7 +15,6 @@
 #include <unistd.h>
 #endif
 
-/* #include <sys/types.h> */
 #include <sys/stat.h>	/* for struct stat */
 #include <fcntl.h>
 
@@ -168,7 +167,7 @@ close_wrap (int fd)
 static ssize_t
 write_wrap (int fd, const void *buf, size_t count)
 {
-	return write (fd, (void*)buf, count);
+	return write (fd, (void *)buf, count);
 }
 
 static off_t
@@ -242,7 +241,6 @@ take_wrapper_functions (MsOle *f, MsOleSysWrappers *wrappers)
 	else
 		f->syswrap = wrappers;
 }
-
 
 /* 
  * A global variable to enable calles to check_stream,
@@ -339,7 +337,7 @@ write_cache_block (MsOle *f, BBBlkAttr *attr)
 	offset = (attr->blk+1)*BB_BLOCK_SIZE;
 	if (f->syswrap->lseek (f->file_des, offset, SEEK_SET)==(off_t)-1 ||
 	    f->syswrap->write (f->file_des, attr->data, BB_BLOCK_SIZE) == -1)
-		g_error ("Fatal error writing block %d at %d\n", attr->blk, offset);
+		g_warning ("Fatal error writing block %d at %d\n", attr->blk, offset);
 #if OLE_DEBUG > 0
 	g_print ("Writing cache block %d to offset %d\n",
 		 attr->blk, offset);
@@ -462,14 +460,14 @@ get_block_ptr (MsOle *f, BLP b, gboolean forwrite)
 #define PPS_GET_TYPE(p) ((MsOleType)( MS_OLE_GET_GUINT8 (p + 0x42)))
 #define PPS_SET_STARTBLOCK(p,i)    ( MS_OLE_SET_GUINT32 (p + 0x74, i))
 #define PPS_SET_SIZE(p,i)          ( MS_OLE_SET_GUINT32 (p + 0x78, i))
-#define PPS_SET_TYPE(p,i)          ( MS_OLE_SET_GUINT8 (p + 0x42, i))
+#define PPS_SET_TYPE(p,i)          ( MS_OLE_SET_GUINT8  (p + 0x42, i))
 
 /* Try to mark the Big Block "b" as as unused if it is marked as "c", in the
    FAT "f". */
-#define TRY_MARK_UNUSED_BLOCK(f,block,mark) {                               \
-        if (g_array_index ((f), BLP, (block)) != (mark)) {                  \
-        g_warning ("Tried to mark as unused the block %d which has %d\n",  \
-                   (block), g_array_index ((f), BLP, (block)));             \
+#define TRY_MARK_UNUSED_BLOCK(f,block,mark) {                                    \
+        if (g_array_index ((f), BLP, (block)) != (mark)) {			 \
+	        g_warning ("Tried to mark as unused the block %d which has %d\n",\
+                   (block), g_array_index ((f), BLP, (block)));                  \
         } else { g_array_index ((f), BLP, (block)) = UNUSED_BLOCK; } }
 
 /* FIXME: This needs proper unicode support ! current support is a guess */
@@ -511,10 +509,10 @@ dump_header (MsOle *f)
 {
 	g_print ("--------------------------MsOle HEADER-------------------------\n");
 	g_print ("Num BBD Blocks : %d Root %%d, SB blocks %d\n",
-		f->bb?f->bb->len:-1,
+		 f->bb?f->bb->len:-1,
 /*		f->pps?f->pps->len:-1, */
 /* FIXME tenix, here is not f->num_pps? */
-		f->sb?f->sb->len:-1);
+		 f->sb?f->sb->len:-1);
 	g_print ("-------------------------------------------------------------\n");
 }
 
@@ -804,13 +802,13 @@ remap_file (MsOle *f, guint blocks)
 
 	/* Extend that file by blocks */
 	if (f->syswrap->getfilesize (file, &filesize)) {
-		g_error ("Serious error extending file\n");
+		g_warning ("Serious error extending file\n");
 		f->mem = 0;
 		return;
 	}
 
 	if (f->syswrap->lseek (file, 0, SEEK_END) == (off_t)-1) {
-		g_error ("Serious error extending file\n");
+		g_warning ("Serious error extending file\n");
 		f->mem = 0;
 		return;
 	}
@@ -819,13 +817,13 @@ remap_file (MsOle *f, guint blocks)
 		if (f->syswrap->write (file, zeroblock, BB_BLOCK_SIZE -
 				       ((icount == blocks - 1) ? 1 : 0))
 		    == -1) {
-			g_error ("Serious error extending file\n");
+			g_warning ("Serious error extending file\n");
 			f->mem = 0;
 			return;
 		}
 	}
 	if (f->syswrap->write (file, &zero, 1) == -1) {
-		g_error ("Serious error extending file\n");
+		g_warning ("Serious error extending file\n");
 		f->mem = 0;
 		return;
 	}
@@ -996,7 +994,7 @@ get_pps_ptr (MsOle *f, PPS_IDX i, gboolean forwrite)
 		blk = NEXT_BB (f, blk);
 	}
 	if (blk == END_OF_CHAIN) {
-		g_error ("Serious error finding pps %d\n", i);
+		g_warning ("Serious error finding pps %d\n", i);
 		return 0;
 	}
 
@@ -1034,7 +1032,7 @@ pps_decode_tree (MsOle *f, PPS_IDX p, PPS *parent)
 	pps->sig      = PPS_SIG;
 	mem           = get_pps_ptr (f, p, FALSE);
 	if (!mem) {
-		g_error ("Serious directory error %d\n", p);
+		g_warning ("Serious directory error %d\n", p);
 		f->pps = NULL;
 		return;
 	}
@@ -1098,10 +1096,10 @@ read_pps (MsOle *f)
 
 	if (!f->pps || g_list_length (f->pps) < 1 ||
 	    g_list_length (f->pps) > 1) {
-		g_error ("Invalid root chain\n");
+		g_warning ("Invalid root chain\n");
 		return 0;
 	} else if (!f->pps->data) {
-		g_error ("No root entry\n");
+		g_warning ("No root entry\n");
 		return 0;
 	}
 
@@ -1123,7 +1121,7 @@ read_pps (MsOle *f)
 	}
 	
 	if (!f->pps) {
-		g_error ("Root directory too small\n");
+		g_warning ("Root directory too small\n");
 		return 0;
 	}
 	return 1;
@@ -1362,7 +1360,7 @@ read_sb (MsOle *f)
 	while (ptr != END_OF_CHAIN) {
 		if (ptr == UNUSED_BLOCK ||
 		    ptr == SPECIAL_BLOCK) {
-			g_error ("Corrupt small block file: serious error, "
+			g_warning ("Corrupt small block file: serious error, "
 				 "invalid block in chain\n");
 			g_array_free (f->sbf, TRUE);
 			f->sbf = 0;
@@ -1387,8 +1385,8 @@ read_sb (MsOle *f)
 		guint32 lp;
 		if (ptr == UNUSED_BLOCK ||
 		    ptr == SPECIAL_BLOCK) {
-			g_error ("Corrupt file descriptor: serious error, "
-				 "invalid block in chain\n");
+			g_warning ("Corrupt file descriptor: serious error, "
+				   "invalid block in chain\n");
 			g_array_free (f->sb, TRUE);
 			f->sb = 0;
 			return 0;
@@ -1407,8 +1405,8 @@ read_sb (MsOle *f)
 		g_array_set_size (f->sb, lastidx+1);
 	
 	if (f->sbf->len * BB_BLOCK_SIZE < f->sb->len*SB_BLOCK_SIZE) {
-		g_error ("Not enough small block file for descriptors\n"
-			 "sbf->len == %d, sb->len == %d\n", f->sbf->len,
+		g_warning ("Not enough small block file for descriptors\n"
+			   "sbf->len == %d, sb->len == %d\n", f->sbf->len,
 			f->sb->len);
 		return 0;
 	}
@@ -1654,7 +1652,7 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 
 			if (!f->mem ||
 			    (f->syswrap->read (file, f->mem, BB_BLOCK_SIZE) == -1)) {
-				g_error ("Error reading header\n");
+				g_warning ("Error reading header\n");
 				g_free (f);
 				*fs = NULL;
 				return MS_OLE_ERR_EXIST;
@@ -1670,7 +1668,7 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 		if (!f->mem
 		    || (f->syswrap->read (file, f->mem, BB_BLOCK_SIZE)
 			== -1)) {
-			g_error ("Error reading header\n");
+			g_warning ("Error reading header\n");
 			g_free (f);
 			*fs = NULL;
 			return MS_OLE_ERR_EXIST;
@@ -1691,7 +1689,7 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 			   name, f->length);
 
 	if (!ms_ole_setup (f)) {
-		g_error ("'%s' : duff file !\n", name);
+		g_warning ("'%s' : duff file !\n", name);
 		ms_ole_destroy (fs);
 		return MS_OLE_ERR_FORMAT;
 	}
@@ -1735,7 +1733,7 @@ ms_ole_create_vfs (MsOle **fs, const char *name, gboolean try_mmap,
 				       O_RDWR|O_CREAT|O_TRUNC/*|O_NONBLOCK*/,
 				       S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP))
 	    == -1) {
-		g_error ("Can't create file '%s'\n", name);
+		g_warning ("Can't create file '%s'\n", name);
 		g_free (f);
 		*fs = NULL;
 		return MS_OLE_ERR_PERM;
@@ -1744,8 +1742,8 @@ ms_ole_create_vfs (MsOle **fs, const char *name, gboolean try_mmap,
 	if ((f->syswrap->lseek (file, BB_BLOCK_SIZE * init_blocks - 1,
 		    SEEK_SET) == (off_t)-1) ||
 	    (f->syswrap->write (file, &zero, 1) == -1)) {
-		g_error ("Serious error extending file to %d bytes\n",
-			 BB_BLOCK_SIZE*init_blocks);
+		g_warning ("Serious error extending file to %d bytes\n",
+			   BB_BLOCK_SIZE*init_blocks);
 		g_free (f);
 		*fs = NULL;
 		return MS_OLE_ERR_SPACE;
@@ -1809,7 +1807,7 @@ ms_ole_create_vfs (MsOle **fs, const char *name, gboolean try_mmap,
 		f->bb  = g_array_new (FALSE, FALSE, sizeof(BLP));
 		f->sb  = g_array_new (FALSE, FALSE, sizeof(BLP));
 		f->sbf = g_array_new (FALSE, FALSE, sizeof(BLP));
-		p           = g_new(PPS, 1);
+		p           = g_new (PPS, 1);
 		p->sig      = PPS_SIG;
 		p->name     = g_strdup ("Root Entry");
 		p->start    = END_OF_CHAIN;
@@ -1843,12 +1841,12 @@ destroy_pps (GList *l)
 		PPS *pps = tmp->data;
 		if (pps->name) {
 			g_free (pps->name);
-			pps->name = 0;
+			pps->name = NULL;
 		}
 		destroy_pps (pps->children);
-		pps->children = 0;
+		pps->children = NULL;
 		g_free (pps);
-		pps = 0;
+		pps = NULL;
 	}
 	g_list_free (l);
 }
@@ -1885,27 +1883,25 @@ ms_ole_destroy (MsOle **ptr)
 #endif
 		} else {
 			guint32 i;
-			if (f->bbattr) {
-			  for (i = 0; (f->bbattr) && (i < f->bbattr->len); i++) {
+			for (i = 0; (f->bbattr) && (i < f->bbattr->len); i++) {
 				BBBlkAttr *attr = g_ptr_array_index (f->bbattr, i);
 				if (f->dirty && attr->dirty)
 					write_cache_block (f, attr);
 				g_free (attr->data);
-				attr->data = 0;
-			  }
-			  f->bbattr = 0;
+				attr->data = NULL;
 			}
+			f->bbattr = NULL;
 			if (f->dirty) {
 				f->syswrap->lseek (f->file_des, 0, SEEK_SET);
 				f->syswrap->write (f->file_des, f->mem,
 						   BB_BLOCK_SIZE);
 			}
 			g_free (f->mem);
-			f->mem = 0;
+			f->mem = NULL;
 		}
 
 		destroy_pps (f->pps);
-		f->pps = 0;
+		f->pps = NULL;
 
 		f->syswrap->close (f->file_des);
 		g_free (f);
@@ -2021,12 +2017,12 @@ free_allocation (MsOle *f, guint32 startblock, gboolean is_big_block_stream)
 		while (p != END_OF_CHAIN) {
 			BLP next = NEXT_BB (f,p);
 			if (next == p) {
-				g_error ("Serious bug: cyclic ring in BB allocation\n");
+				g_warning ("Serious bug: cyclic ring in BB allocation\n");
 				return;
 			} else if (p == SPECIAL_BLOCK ||
 				   p == UNUSED_BLOCK) {
-				g_error ("Serious bug: Special / Unused block "
-					 "in BB allocation\n");
+				g_warning ("Serious bug: Special / Unused block "
+					   "in BB allocation\n");
 				return;
 			}
 			g_array_index (f->bb, BLP, p) = UNUSED_BLOCK;
@@ -2039,12 +2035,12 @@ free_allocation (MsOle *f, guint32 startblock, gboolean is_big_block_stream)
 		while (p != END_OF_CHAIN) {
 			BLP next = NEXT_SB (f,p);
 			if (next == p) {
-				g_error ("Serious bug: cyclic ring in SB allocation\n");
+				g_warning ("Serious bug: cyclic ring in SB allocation\n");
 				return;
 			} else if (p == SPECIAL_BLOCK ||
 				   p == UNUSED_BLOCK) {
-				g_error ("Serious bug: Special / Unused block "
-					 "in SB allocation\n");
+				g_warning ("Serious bug: Special / Unused block "
+					   "in SB allocation\n");
 				return;
 			}
 			g_array_index (f->sb, BLP, p) = UNUSED_BLOCK;
@@ -2134,7 +2130,7 @@ ms_ole_read_ptr_bb (MsOleStream *s, MsOlePos length)
 	g_return_val_if_fail (s, NULL);
 
 	if (!s->blocks || blockidx >= s->blocks->len) {
-		g_error ("Reading from NULL file\n");
+		g_warning ("Reading from NULL file\n");
 		return NULL;
 	}
 
@@ -2180,7 +2176,7 @@ ms_ole_read_ptr_sb (MsOleStream *s, MsOlePos length)
 	g_return_val_if_fail (s, NULL);
 
 	if (!s->blocks || blockidx >= s->blocks->len) {
-		g_error ("Reading from NULL file\n");
+		g_warning ("Reading from NULL file\n");
 		return NULL;
 	}
 
@@ -2227,7 +2223,7 @@ ms_ole_read_copy_bb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 	g_return_val_if_fail (ptr, 0);
 
 	if (!s->blocks) {
-		g_error ("Reading from NULL file\n");
+		g_warning ("Reading from NULL file\n");
 		return 0;
 	}
 
@@ -2283,7 +2279,7 @@ ms_ole_read_copy_sb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 	g_return_val_if_fail (ptr, 0);
 
 	if (!s->blocks) {
-		g_error ("Reading from NULL file\n");
+		g_warning ("Reading from NULL file\n");
 		return 0;
 	}
 
@@ -2882,7 +2878,7 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
 			    b == SPECIAL_BLOCK ||
 			    b == UNUSED_BLOCK) {
 
-				g_error ("Panic: broken stream, truncating to block %d\n", lp);
+				g_warning ("Panic: broken stream, truncating to block %d\n", lp);
 				s->size = (lp-1)*BB_BLOCK_SIZE;
 				panic   = 1;
 
@@ -2899,7 +2895,7 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
 		}
 		if (b != END_OF_CHAIN) {
 			BLP next;
-			g_error ("Panic: extra unused blocks on end of '%s', wiping it\n",
+			g_warning ("Panic: extra unused blocks on end of '%s', wiping it\n",
 				p->name);
 			while (b != END_OF_CHAIN &&
 			       b != UNUSED_BLOCK &&
@@ -2934,7 +2930,7 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
 			    b == SPECIAL_BLOCK ||
 			    b == UNUSED_BLOCK) {
 
-				g_error ("Panic: broken stream, truncating to block %d\n", lp);
+				g_warning ("Panic: broken stream, truncating to block %d\n", lp);
 				s->size = (lp-1)*SB_BLOCK_SIZE;
 				panic   = 1;
 #if OLE_DEBUG > 0
@@ -2950,7 +2946,7 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
 		}
 		if (b != END_OF_CHAIN) {
 			BLP next;
-			g_error ("Panic: extra unused blocks on end of '%s', wiping it\n",
+			g_warning ("Panic: extra unused blocks on end of '%s', wiping it\n",
 				p->name);
 			while (b != END_OF_CHAIN &&
 			       b != UNUSED_BLOCK &&
@@ -2960,7 +2956,7 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
 				b = next;
 			}
 			if (b != END_OF_CHAIN)
-				g_error ("Panic: even more serious block error\n");
+				g_warning ("Panic: even more serious block error\n");
 		}
 	}
 	*stream = s;

@@ -4,6 +4,8 @@
  * Authors:
  *    Michael Meeks (michael@imaginator.com)
  *    Arturo Tena (arturo@directmail.org)
+ *
+ * Copyright 1998-2001 Ximian, Inc., Arturo Tena
  **/
 
 #ifndef MS_OLE_H
@@ -11,13 +13,13 @@
 
 /* This should be done in glib */
 #ifndef _WIN32
-#include <fcntl.h>	/* for mode_t */
+#      include <fcntl.h>       /* for mode_t */
 #else
-typedef unsigned short mode_t; 
-typedef size_t ssize_t;
-typedef /* signed */ long off_t;
-typedef /* unsigned?*/ long caddr_t;
-#endif  
+	typedef unsigned long mode_t;
+	typedef size_t ssize_t;
+	typedef /* signed */ long off_t;
+	typedef /* unsigned? */ long caddr_t;
+#endif
 
 #include <glib.h>
 
