@@ -7,6 +7,7 @@ int wvGetTC_internal(version ver,TC *tc,FILE *infd,U8 *pointer)
     {
     U16 temp16;
 	BRC10 brc10;
+	wvError(("TC ver %d\n",ver));
 
 #ifdef PURIFY
     wvInitTC(tc);
@@ -47,7 +48,6 @@ int wvGetTC_internal(version ver,TC *tc,FILE *infd,U8 *pointer)
 		another example I have disabled the two
 		of them
 		*/
-#if 0
 		tc->fVertical = (temp16 & 0x0004) >> 2;
 		tc->fBackward = (temp16 & 0x0008) >> 3;
 		tc->fRotateFont = (temp16 & 0x0010) >> 4;
@@ -55,7 +55,6 @@ int wvGetTC_internal(version ver,TC *tc,FILE *infd,U8 *pointer)
 		tc->fVertRestart = (temp16 & 0x0040) >> 6;
 		tc->vertAlign = (temp16 & 0x0180) >> 7;
 		tc->fUnused = (temp16 & 0xFE00) >> 9;
-#endif
 
 		wvGetBRC10_internal(&brc10,infd,pointer);
 		wvConvertBRC10ToBRC(&tc->brcTop,&brc10);

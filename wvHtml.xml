@@ -1,4 +1,8 @@
 <main>
+<charentity>
+<begin>HTML</begin>
+</charentity>
+
 <document>
 <begin>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/REC-html40/loose.dtd&quot;&gt;
 &lt;html&gt; 
@@ -98,6 +102,20 @@ Document created with &lt;a href=&quot;http://www.wvWare.com&quot;&gt;wvWare/<ve
 <begin>&lt;li&gt;</begin>
 <end></end>
 </entry>
+
+
+<!-- 
+this tableoverride option can be used to turn off handling of
+these tags in tables, which I find is necessary for at least netscape
+-->
+<tableoverrides>
+<ParaBefore>0</ParaBefore>
+<ParaRight>0</ParaRight>
+<ParaAfter>0</ParaAfter>
+<ParaLeft>0</ParaLeft>
+<ParaLeft1>0</ParaLeft1>
+<VertMergedCells>0</VertMergedCells>
+</tableoverrides>
 
 <table>
 <begin>&lt;table width=&quot;<tablerelwidth/>%&quot; border=&quot;1&quot; cols=&quot;<no_cols/>&quot; rows=&quot;<no_rows/>&quot;&gt;</begin>
@@ -305,17 +323,6 @@ border-right: thin <borderrightstyle/> <borderrightcolor/>;
 border-bottom: thin <borderbottomstyle/> <borderbottomcolor/>
 -->
 
-<!-- 
-this tableoverride option can be used to turn off handling of
-these tags in tables, which I find is necessary for at least netscape
--->
-<tableoverrides>
-<ParaBefore>0</ParaBefore>
-<ParaRight>0</ParaRight>
-<ParaAfter>0</ParaAfter>
-<ParaLeft>0</ParaLeft>
-<ParaLeft1>0</ParaLeft1>
-</tableoverrides>
 
 <pmargin>
 <begin>margin: <mmParaBefore/> <mmParaRight/> <mmParaAfter/> <mmParaLeft/>;</begin>

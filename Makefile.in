@@ -22,7 +22,6 @@ iconv/codepage-1252.$(OBJEXT)   \
 iconv/codepage-1255.$(OBJEXT)   \
 iconv/codepage-1253.$(OBJEXT)   \
 iconv/codepage-1256.$(OBJEXT)   \
-iconv/ucs-2.$(OBJEXT)        \
 iconv/koi8-r.$(OBJEXT)          \
 iconv/iso-8859-15.$(OBJEXT)     \
 iconv/tis-620.$(OBJEXT)         \
@@ -149,7 +148,6 @@ MYOBJECTS =	\
 	bte.$(OBJEXT) \
 	bx.$(OBJEXT) \
 	fkp.$(OBJEXT) \
-	codepage-1252.$(OBJEXT) \
 	text.$(OBJEXT) \
 	decode_complex.$(OBJEXT) \
 	wvTextEngine.$(OBJEXT) \

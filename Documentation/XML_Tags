@@ -28,8 +28,7 @@ end is output at the end table event.
 
 There are a number of tags which only exist with table, there are
 <tablerelwidth/>, 	this is the percentage width of the table in
-terms of the total page width, the number printed here will contain % at
-the end automatically
+terms of the total page width.
 <no_cols/>, this is the maximum number of columns that are in this
 table.
 <no_rows/>, this is the maximum number of rows that are in this
@@ -72,8 +71,9 @@ Tags that may exist inside a cell are
 <rowspan/>, this is the number of rows that this cell spans
 <colspan/>, this is the number of columns that this cell spans,
 <cellrelwidth/>, this is the percentage width of the cell in
-terms on the total table width, the number printed here will contain %
-at the end automatically
+terms on the total table width, handy for html
+<cellrelpagewidth/>, this is the percentage width of the cell in
+terms on the total page width, handy for latex
 <cellbgcolor/>, this will print the color of the background of the cell
 (word can color each cell seperately), the color will be as speced
 in the color tags mentioned later

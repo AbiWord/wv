@@ -104,6 +104,12 @@ int main(int argc,char **argv)
 			}
 		}
 
+	if (optind >= argc)
+		{
+		fprintf(stderr,"No file name given to open\n");
+		return(-1);
+		}
+
 	input = fopen(argv[optind],"rb");
 	if (!input)
 		{
@@ -316,6 +322,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 	data->norows = &ps->norows;
 	if (i==0)
 		{
+		wvSetEntityConverter(data);
 		data->filename = ps->filename;
 		data->whichcell=0;
 		data->whichrow=0;

@@ -11,6 +11,7 @@ int (*charhandler)(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)=NULL;
 int (*scharhandler)(wvParseStruct *ps,U16 eachchar,CHP *achp)=NULL;
 int (*elehandler)(wvParseStruct *ps,wvTag tag, void *props, int dirty)=NULL;
 int (*dochandler)(wvParseStruct *ps,wvTag tag)=NULL;
+int (*wvConvertUnicodeToEntity)(U16 char16)=NULL;
 
 int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps, CHP *achp)
 	{
@@ -246,7 +247,7 @@ void wvOutputFromUnicode(U16 eachchar,char *outputtype)
     ibuf = buffer;
     obuf = buffer2;
 
-	if (wvConvertUnicodeToHtml(eachchar))
+	if ((wvConvertUnicodeToEntity != NULL) && wvConvertUnicodeToEntity(eachchar))
 		return;
 
 	 /* All reserved positions of from code (last 12 characters) and to code   */
@@ -375,12 +376,16 @@ int wvIsEmptyPara(PAP *apap,expand_data *data,int inc)
 		wvTrace(("This Para is in cell %d %d\n",data->whichrow,data->whichcell));
 		if (*data->vmerges)
 			{
-			wvTrace(("%d\n",(*data->vmerges)[data->whichrow][data->whichcell]));
-			if ((*data->vmerges)[data->whichrow][data->whichcell] == 0)
+			/* only ignore a vertically merged cell if the setting in the config file have been set that way */
+			if ( data && data->sd && data->sd->elements[TT_TABLEOVERRIDES].str && data->sd->elements[TT_TABLEOVERRIDES].str[5] )
 				{
-				wvTrace(("Skipping the next paragraph\n"));
-				if (inc) data->whichcell++;
-				return(1);
+				wvTrace(("%d\n",(*data->vmerges)[data->whichrow][data->whichcell]));
+				if ((*data->vmerges)[data->whichrow][data->whichcell] == 0)
+					{
+					wvTrace(("Skipping the next paragraph\n"));
+					if (inc) data->whichcell++;
+					return(1);
+					}
 				}
 			}
 		}
@@ -529,6 +534,79 @@ void wvSetDocumentHandler(int (*proc)(wvParseStruct *,wvTag))
 	dochandler = proc;
 	}
 
+void wvSetEntityConverter(expand_data *data)
+	{
+	if ( (data->sd) && (data->sd->elements[TT_CHARENTITY].str) && (data->sd->elements[TT_CHARENTITY].str[0]) )
+		{
+		wvExpand(data,data->sd->elements[TT_CHARENTITY].str[0],
+		strlen(data->sd->elements[TT_CHARENTITY].str[0]));
+		if (data->retstring)
+			{
+			if (!(strcasecmp(data->retstring,"HTML")))
+				wvConvertUnicodeToEntity = wvConvertUnicodeToHtml;
+			else if (!(strcasecmp(data->retstring,"LaTeX")))
+				wvConvertUnicodeToEntity = wvConvertUnicodeToLaTeX;
+			wvTrace((Using "%s entity conversion in conjunction with ordinary charset conversion\n",data->retstring));
+			wvFree(data->retstring);
+			}
+    	}
+	}
+
+
+int wvConvertUnicodeToLaTeX(U16 char16)
+	{
+	switch(char16)
+		{
+		case 37:
+			printf("\\%");
+			return(1);
+		case 11:
+			printf("newline\n");
+			return(1);
+		case 30:
+		case 31:
+		case 45:
+		case 0x2013:
+			printf("-");
+			return(1);
+		case 12:
+		case 13:
+		case 14:
+		case 7:
+			return(1);
+		case 34:
+			printf("\"");
+			return(1);
+		case 38:
+			printf("&");
+			return(1);
+		case 60:
+			printf("<");
+			return(1);
+		case 62:
+			printf(">");
+			return(1);
+        case 0xdc:
+            printf("\\\"U");
+            return(1);
+        case 0xfc:
+            printf("\\\"u");
+            return(1);
+		case 0x2019:
+			printf("'");
+			return(1);
+		case 0x2215:
+			printf("/");
+			return(1);
+		case 0xF8E7:	/* without this, things should work in theory, but not for me */
+			printf("_");
+			return(1);
+		case 0x2018:
+			printf("`");
+			return(1);
+		}
+	return(0);
+	}
 
 int wvConvertUnicodeToHtml(U16 char16)
 	{

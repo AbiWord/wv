@@ -121,6 +121,7 @@ static TokenTable s_Tokens[] =
 	{	"mmLineHeight",		TT_mmLineHeight},
     {   "document",      TT_DOCUMENT     	},
 	 {	 "picture",		  TT_PICTURE		},
+	 {	 "charentity",		TT_CHARENTITY	},
 	  {	  "pixPicWidth",	TT_pixPicWidth	},
 	  {	  "pixPicHeight",	TT_pixPicHeight	},
 	  {	  "htmlAlignGuess",	TT_htmlAlignGuess },
@@ -145,6 +146,7 @@ static TokenTable s_Tokens[] =
 		{	"ParaLeft",	 	TT_ParaLeft		},
 		{	"ParaRight",	 TT_ParaRight		},
 		{	"ParaLeft1",	 TT_ParaLeft1		},
+		{	"VertMergedCells",	 TT_VertMergedCells},
        {   "block",       	 TT_BLOCK     	 	},
         {   "justification", TT_JUSTIFICATION	},
          {   "just",       	 TT_JUST     	 	},
@@ -2070,6 +2072,7 @@ void startElement(void *userData, const char *name, const char **atts)
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
 		case TT_PICTURE:
+		case TT_CHARENTITY:
 		case TT_PMARGIN:
 		case TT_PBORDER:
 			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*1);
@@ -2085,12 +2088,18 @@ void startElement(void *userData, const char *name, const char **atts)
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
 			break;
-		case TT_TABLEOVERRIDES:
 		case TT_JUSTIFICATION:
 		case TT_numbering:
 			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*5);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=5;
 			for(i=0;i<5;i++)
+				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
+			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
+			break;
+		case TT_TABLEOVERRIDES:
+			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*6);
+			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=6;
+			for(i=0;i<6;i++)
 				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
@@ -2154,6 +2163,11 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_NUMBER4D:
 		case TT_ParaLeft1:
 			mydata->current = &(mydata->currentele->str[4]);
+			wvAppendStr(mydata->current,"<begin>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_VertMergedCells:
+			mydata->current = &(mydata->currentele->str[5]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
@@ -2921,6 +2935,7 @@ void endElement(void *userData, const char *name)
 		case TT_ParaAfter:
 		case TT_ParaLeft:
 		case TT_ParaLeft1:
+		case TT_VertMergedCells:
 		case TT_LEFT:
 		case TT_RIGHT:
 		case TT_CENTER:

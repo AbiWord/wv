@@ -2158,7 +2158,8 @@ is moved to tap.rgtc. sprmTDefTable is only stored in PAPXs.
 void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 	{
 	U16 len;
-	int i,t,oldpos,type;
+	int i,t,oldpos;
+	version type;
 	len = dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
 	wvTrace(("wvApplysprmTDefTable\n"));
@@ -2166,7 +2167,7 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 	(*pos)++;
 	oldpos = (*pos)-2;
 	wvTrace(("oldpos is %x\n",oldpos));
-	wvTrace(("C: there are %d cells\n",tap->itcMac));
+	wvError(("C: there are %d cells\n",tap->itcMac));
 	for (i=0;i<tap->itcMac + 1;i++)
 		{
 		tap->rgdxaCenter[i] = (S16)dread_16ubit(NULL,&pointer);
@@ -2174,7 +2175,7 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 		(*pos)+=2;
 		}
 
-	wvTrace(("HERE-->pos is now %d, the len was %d, there is %d left\n",*pos,len,len-(*pos-oldpos)));
+	wvError(("HERE-->pos is now %d, the len was %d, there is %d left\n",*pos,len,len-(*pos-oldpos)));
 
 	if ( (len-(*pos-oldpos)) < (cb6TC * tap->itcMac) )
 		{
@@ -2184,9 +2185,9 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 		}
 
 	if ( (len-(*pos-oldpos)) < (cbTC * tap->itcMac) )
-		type = 1;
+		type = WORD6;
 	else
-		type = 0;
+		type = WORD8;
 
 	wvTrace(("type is %d\n",type));
 
@@ -2195,7 +2196,7 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 	for (i=0;i<tap->itcMac;i++)
 		{
 		t = wvGetTCFromBucket(type,&(tap->rgtc[i]),pointer);
-		wvTrace(("DefTable merge is %d\n",tap->rgtc[i].fVertMerge));
+		wvError(("DefTable merge is %d\n",tap->rgtc[i].fVertMerge));
 		/* for christ sake !!, word 8 stores word 6 sized TC's in this sprm ! */
 		(*pos)+=t;
 		pointer+=t;
@@ -2233,7 +2234,7 @@ void wvApplysprmTDefTable10(TAP *tap,U8 *pointer,U16 *pos)
 		}
 	for (i=0;i<tap->itcMac;i++)
 		{
-		t=wvGetTCFromBucket(1,&(tap->rgtc[i]),pointer);
+		t=wvGetTCFromBucket(WORD6,&(tap->rgtc[i]),pointer);
 		(*pos)+=t;
 		pointer+=t;
 		}
@@ -2674,7 +2675,7 @@ only in grpprls linked to piece table entries.
 void wvApplysprmTVertMerge(TAP *tap,U8 *pointer,U16 *pos)
 	{
 	U8 index,props,count;
-	wvTrace(("doing Vertical merge\n"));
+	wvError(("doing Vertical merge\n"));
 
 	count = dgetc(NULL,&pointer);
 	wvTrace(("count is %d\n",count));	/* check against word 8 please */

@@ -48,7 +48,16 @@ Changes to to 0.5.43
 	* added cellrelpagewidth to tokens which appears to work a 
 	charm with the latex conversion, cheers to David C Sterratt
 	for pointing pointing me on the way.
+	* added dop to wvParseStruct so abi can get default tab 
+	distance.
+	* remodeled the html entity lookup, and added the basics
+	of a latex entity lookup.
+	* removed the now unnecessary codepage 1252 html entity
+	lookup.
+	* I had left wvGetTC out of sync with the new WORD8 version
+	numbering
 ALL TODO
+	* dop needs to be checked for word 6/7 compatability
 
 	* allow latex or html or raw text conversion options.
 

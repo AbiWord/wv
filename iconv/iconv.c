@@ -34,15 +34,14 @@ convertt inputs[NOINPUTS] =
 	{ "CP1257", wvConvert1257ToUnicode }
 };
 
-#define NOOUTPUTS 5
+#define NOOUTPUTS 4
 
 convertt outputs[NOOUTPUTS] = 
 {
 	{ "utf-8", 			wvConvertUnicodeToUTF_8},
 	{ "iso-8859-15", 	wvConvertUnicodeToiso8859_15},
 	{ "koi8-r", 		wvConvertUnicodeToKOI8_R},
-	{ "tis-620", 		wvConvertUnicodeToTIS620},
-	{ "ucs-2", 			wvConvertUnicodeToUCS_2}
+	{ "tis-620", 		wvConvertUnicodeToTIS620}
 };
 
 iconv_t iconv_open (const char *tocode, const char *fromcode)

@@ -2479,6 +2479,8 @@ typedef enum _TT
 	TT_htmlgraphic,
 	TT_no_rows,
 	TT_no_cols,
+	TT_CHARENTITY,
+	TT_VertMergedCells,
 	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 
@@ -2830,9 +2832,8 @@ int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U3
 int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps,CHP *achp);
 void wvOutputFromUnicode(U16 eachchar,char *outputtype);
 
-int wvConvert1252ToHtml(U16 char8);
-
 int wvConvertUnicodeToHtml(U16 char16);
+int wvConvertUnicodeToLaTeX(U16 char16);
 U16 wvConvertSymbolToUnicode(U16 char16);
 
 U16 wvHandleCodePage(U16 eachchar,U16 lid);
