@@ -451,6 +451,7 @@ default_to_libiconv=yes
 AC_ARG_WITH(libiconv,[  --with-libiconv[=DIR]   use libiconv [in DIR]],[
 	if [ test "$withval" = "no" ]; then
 		check_for_libiconv=no
+		default_to_libiconv=no
 	elif [ test "$withval" != "yes" ]; then
 		check_for_libiconv=yes
 		LIBICONV_DIR=$withval
