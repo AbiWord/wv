@@ -202,11 +202,12 @@ static const wvLanguageId mLanguageIds[] =
 		{ "zh-HK", 0x0c04 }, /* Chinese (Hong Kong) */		
 		{ "zh-SG", 0x1004 }, /* Chinese (Singapore) */
 		{ "", 0x1404 }, /* Chinese (Macau SAR) */
-		{ "", 0x041a }, /* Croatian */
+		{ "hr-HR", 0x041a }, /* Croatian */
 		{ "cs-CZ", 0x0405 }, /* Czech */
 		{ "da-DK", 0x0406 }, /* Danish */
+		{ "", 0x465 }, /* Divehi */
 		{ "nl-NL", 0x0413 }, /* Dutch (Netherlands) */		
-		{ "", 0x0813 }, /* Dutch (Belgium) */
+		{ "nl-BE", 0x0813 }, /* Dutch (Belgium) */
 		{ "en-US", 0x0409 }, /* English (USA) */
 		{ "en-GB", 0x0809 }, /* English (UK) */
 		{ "en-AU", 0x0c09 }, /* English (Australia) */
@@ -220,7 +221,7 @@ static const wvLanguageId mLanguageIds[] =
 		{ "", 0x2c09 }, /* English (Trinidad) */		
 		{ "", 0x3009 }, /* English (Zimbabwe) */
 		{ "", 0x3409 }, /* English (Phillipines) */
-		{ "", 0x0425 }, /* Estonian */
+		{ "et-EE", 0x0425 }, /* Estonian */
 		{ "", 0x0438 }, /* Faeroese */
 		{ "fa-IR", 0x0429 }, /* Farsi */
 		{ "fi-FI", 0x040b }, /* Finnish */		
@@ -228,13 +229,14 @@ static const wvLanguageId mLanguageIds[] =
 		{ "fr-BE", 0x080c }, /* French (Belgium) */
 		{ "fr-CA", 0x0c0c }, /* French (Canada) */
 		{ "fr-CH", 0x100c }, /* French (Switzerland) */
-		{ "", 0x140c }, /* French (Luxembourg) */
+		{ "fr-LU", 0x140c }, /* French (Luxembourg) */
 		{ "", 0x180c }, /* French (Monaco) */		
+		{ "", 0x0456 }, /* Galician */
 		{ "ka-GE", 0x0437 }, /* Georgian */
 		{ "de-DE", 0x0407 }, /* German (Germany) */
 		{ "de-CH", 0x0807 }, /* German (Switzerland) */
 		{ "de-AT", 0x0c07 }, /* German (Austria) */
-		{ "", 0x1007 }, /* German (Luxembourg) */
+		{ "de-LU", 0x1007 }, /* German (Luxembourg) */
 		{ "", 0x1407 }, /* German (Liechtenstein) */		
 		{ "el-GR", 0x0408 }, /* Greek */
 		{ "", 0x0447 }, /* Gugarati */
@@ -252,6 +254,7 @@ static const wvLanguageId mLanguageIds[] =
 		{ "", 0x0457 }, /* Konkani */
 		{ "ko-KR", 0x0412 }, /* Korean */
 		{ "", 0x0812 }, /* Korean (Johab) */
+		{ "", 0x0440 }, /* Kyrgyz */
 		{ "lv-LV", 0x0426 }, /* Latvian */
 		{ "lt-LT", 0x0427 }, /* Lithuanian */		
 		{ "lt-LT", 0x0827 }, /* Lithuanian (Classic) */
@@ -315,7 +318,7 @@ static const wvLanguageId mLanguageIds[] =
 		{ "tr-TR", 0x041f }, /* Turkish */
 		{ "uk-UA", 0x0422 }, /* Ukrainian */		
 		{ "", 0x0420 }, /* Urdu (Pakistan) */
-		{ "", 0x0820 }, /* Urdo (India) */
+		{ "", 0x0820 }, /* Urdu (India) */
 		{ "", 0x0443 }, /* Uzbek (Latin) */
 		{ "", 0x0843 }, /* Uzbek (Cyrillic) */
 		{ "", 0x0433 }, /* Venda */
