@@ -27,13 +27,13 @@ SHELL = /bin/sh
 
 .SUFFIXES: .C .o
 
-all: XMLTOK XMLPARSE
+all: BXMLTOK BXMLPARSE
 
-XMLTOK:
+BXMLTOK:
 	@echo making xmltok in xmltok
 	@(cd xmltok && $(MAKE)) || exit 1
 
-XMLPARSE:
+BXMLPARSE:
 	@echo making xmlparse in xmlparse
 	@(cd xmlparse && $(MAKE)) || exit 1
 

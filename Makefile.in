@@ -287,25 +287,25 @@ endif
 
 all: wvSummary$(EXEEXT) wvWare$(EXEEXT) wvRTF${EXEEXT} wvConvert$(EXEEXT) wvSimpleCLX$(EXEEXT) wvVersion$(EXEEXT) wv-libconfig wv-incconfig
 
-wvRTF$(EXEEXT): wvRTF.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
+wvRTF$(EXEEXT): wvRTF.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvRTF.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvSummary$(EXEEXT): wvSummary.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a 
+wvSummary$(EXEEXT): wvSummary.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a 
 	$(CC)  -o $@ wvSummary.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvSimpleCLX$(EXEEXT): wvSimpleCLX.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
+wvSimpleCLX$(EXEEXT): wvSimpleCLX.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvSimpleCLX.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvVersion$(EXEEXT): wvVersion.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
+wvVersion$(EXEEXT): wvVersion.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvVersion.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvConvert$(EXEEXT): wvConvert.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
+wvConvert$(EXEEXT): wvConvert.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvConvert.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvWare$(EXEEXT): wvWare.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
+wvWare$(EXEEXT): wvWare.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvWare.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvGraphicConvert$(EXEEXT): wvGraphicConvert.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
+wvGraphicConvert$(EXEEXT): wvGraphicConvert.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvGraphicConvert.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wv-libconfig: Makefile
@@ -321,7 +321,7 @@ wv-incconfig: Makefile
 lex.yy.c: parser.lex
 	$(LEX) parser.lex
 
-testparse$(EXEEXT):  testparse.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
+testparse$(EXEEXT):  testparse.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ testparse.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS)  $(LDFLAGS)
 
 error.$(OBJEXT): $(srcdir)/error.c Makefile
@@ -330,20 +330,20 @@ error.$(OBJEXT): $(srcdir)/error.c Makefile
 laolareplace.$(OBJEXT): $(srcdir)/laolareplace.c 
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
-libwv.a:$(MYOBJECTS) $(EXPORTER) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE LIBOLE2
+libwv.a:$(MYOBJECTS) $(EXPORTER) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE BLIBOLE2
 	$(AR) rc $@ $(MYOBJECTS) $(EXPORTER_OBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE)
 
 	$(RANLIB) $@
 
-EXPORTER:
+BEXPORTER:
 	@echo making wvexporter in exporter
 	@(cd exporter && $(MAKE)) || exit 1
 
-ICONV:
+BICONV:
 	@echo making iconv in iconv
 	@(cd iconv && $(MAKE)) || exit 1
 
-MAGICK:
+BMAGICK:
 	@echo making magick in magick  
 	@(cd magick && $(MAKE)) || exit 1
 
@@ -361,16 +361,16 @@ XMLPARSER:
 	@echo using system libxml... will not compile expat
 endif
 
-LIBOLE2:	GLIB-WV
+BLIBOLE2:	BGLIB-WV
 	@echo making libole2 in libole2
 	@(cd libole2 && $(MAKE)) || exit 1
 
 ifneq ($(HAVE_GLIB),1)
-GLIB-WV:
+BGLIB-WV:
 	@echo making glib-wv in glib-wv
 	@(cd glib-wv && $(MAKE)) || exit 1
 else
-GLIB-WV:
+BGLIB-WV:
 	@echo not making glib-wv... using system glib instead
 endif
 

@@ -99,7 +99,7 @@ AC_ARG_WITH(exporter,
    if test x$withval = xno; then
 	EXPORTER=
    else
-	EXPORTER=EXPORTER
+	EXPORTER=BEXPORTER
    fi
 )
 
@@ -319,7 +319,7 @@ if test "$have_iconv" = "no"; then
         AC_DEFINE(USE_ICONV)
         have_iconv=yes],[
         ICONVOBJS="\$(RICONVOBJS)"
-        ICONV="ICONV"
+        ICONV="BICONV"
         AC_MSG_WARN(*** Get Iconv ***)])
 fi
 
@@ -380,7 +380,7 @@ AC_MSG_RESULT($have_codepages)
 if test $have_codepages = no; then
 AC_DEFINE(MUST_USE_INTERNAL_ICONV_TABLE)
 ICONVOBJS="\$(RICONVOBJS)"
-ICONV="ICONV"
+ICONV="BICONV"
 fi
 ])
 
@@ -460,12 +460,12 @@ if test -n "$MAGICK_CONFIG"; then
         AC_CHECK_LIB(Magick, GetImageInfo,[
             MAGICK_CFLAGS=$m_cppflags
             MAGICK_LIBS=$m_ldflags
-            MAGICK="MAGICK"
+            MAGICK="BMAGICK"
             MAGICKOBJS="\$(RMAGICKOBJS)"]))
 fi
 
 if test -z "$MAGICK"; then
-	MAGICK="MAGICK"
+	MAGICK="BMAGICK"
 	MAGICK_CFLAGS="-I./magick"
 	MAGICK_LIBS=""
 	MAGICKOBJS="\$(RMAGICKOBJS)"
