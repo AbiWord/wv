@@ -173,6 +173,7 @@ extern "C" {
 
 /** beginning of clean interface **/
     void wvRealError (char *file, int line, char *msg);
+    void wvRealTrace (char *file, int line, char *msg);
 #define wvError( args ) wvRealError(__FILE__,__LINE__, wvFmtMsg args )
     void wvWarning (char *fmt, ...);
     void wvFree (void *ptr);
