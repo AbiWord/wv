@@ -1087,6 +1087,11 @@ get_pps_ptr (MsOle *f, PPS_IDX i, gboolean forwrite)
 	g_print ("get_pps_ptr: blk = %d\n", blk);
 #endif
 
+	if ( blk > BLOCK_COUNT(f)) {
+		g_warning ("Serious error finding pps %d\n", i);
+		return 0;
+	}
+
 	if (forwrite)
 		return BB_W_PTR(f, blk) + (i%(BB_BLOCK_SIZE/PPS_BLOCK_SIZE))*PPS_BLOCK_SIZE;
 	else
