@@ -120,6 +120,15 @@ void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype)
 		case 62:
 			printf("&gt;");
 			return;
+		case 0x85:
+#if 0
+/* this just looks awful in netscape 4.5, so im going to do a very foolish
+thing and just put ... instead of this
+*/
+			printf("&#133;");	/*is there a proper html name for ... ?*/
+#endif
+			printf("...");	
+			return;
 		case 0x92:
 			printf("'");
 			return;

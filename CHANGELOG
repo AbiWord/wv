@@ -1,28 +1,13 @@
-Changes to to 0.5.35
-	* tables.
-	* wvToggle was still in todo, it was fixed a while ago
-	* made decode_complex stsh into a ps->stsh, I obviously missed
-	it before, this is the problem with having both decode_complex and
-	decode_simple with unshared components, gagh!
-	* complex mode tables might even work now.
-	* table relative widths now in as well, percentage of screen, uses
-	the sep, so sep has been put into the expand_data struct, which needs
-	to be cleaned up, i propose putting chp pap and sep into wvParseStruct
-	rather than props, and making expand_data have a pointer to wvparsestruct 
-	* fixed section code begin and end crash.
-	* complex mode colspan and rowspan, and various support functions.
-	* wvHtml can find the config file on its own, and has a command line
-	option (-x) to find it.
-	* some fixes to wvConvert which I havnt looked at in a while, so as
-	to get it to work, and to include the password and other changes that
-	made their way into wvHtml.
+Changes to to 0.5.36
 ALL TODO
 	* fully implement tablelooks, the flags in particular, and maybe the 
 	colors for the bg should be farmed out to sperate config options rather
 	than piggy backing on the other colors, also why did one of the text
 	foregrounds not work on its own, while the others did, and is there
 	one of two cases where our grid will not handle every case ?
-	
+
+	* bring in some stylesheet constructs, such as para indentation and
+	font size and color and so on. move things that direction instead.
 
 	* title not being done in the correct charset
 	* add another option for table width, i.e. tableabswidth.
@@ -96,7 +81,7 @@ ALL TODO
 	i dont see that as essential.
 	* inside/outside page numbering doesnt work, dont know where its set, one
 	of the DOP fields ?
-	* gtk+dps wysiwyg viewer, output to ps from this
+	* gnome canvas wysiwyg viewer, output to ps from this
 	* use incremental zlib functions to do decompressing rather than use mmap,
 	someone who doesnt have mmap on their system can send me a patch for this one
 	;-)
@@ -104,6 +89,24 @@ ALL TODO
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.35
+	* tables.
+	* wvToggle was still in todo, it was fixed a while ago
+	* made decode_complex stsh into a ps->stsh, I obviously missed
+	it before, this is the problem with having both decode_complex and
+	decode_simple with unshared components, gagh!
+	* complex mode tables might even work now.
+	* table relative widths now in as well, percentage of screen, uses
+	the sep, so sep has been put into the expand_data struct, which needs
+	to be cleaned up, i propose putting chp pap and sep into wvParseStruct
+	rather than props, and making expand_data have a pointer to wvparsestruct 
+	* fixed section code begin and end crash.
+	* complex mode colspan and rowspan, and various support functions.
+	* wvHtml can find the config file on its own, and has a command line
+	option (-x) to find it.
+	* some fixes to wvConvert which I havnt looked at in a while, so as
+	to get it to work, and to include the password and other changes that
+	made their way into wvHtml.
 Changes to to 0.5.34
 	* added cellwidth percentage as well to wvHtml.xml to make the cells the
 	same ratio width in html as in the original word.
