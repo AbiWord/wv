@@ -35,7 +35,6 @@ CSRCS=	laolareplace.c \
 	blip.c \
 	utf.c \
 	field.c \
-	formatting.c \
 	references.c \
 	gpprl.c \
 	papchpsep.c \
