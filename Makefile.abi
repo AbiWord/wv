@@ -185,7 +185,7 @@ CSRCS= \
 	exporter/tlp.c \
 	exporter/wkb.c
 
-CFLAGS+=		-I. -I./iconv -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
+CFLAGS+=		-I. -I./exporter/ -I./iconv -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
 
 
 CSRCS+= \

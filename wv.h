@@ -13,7 +13,7 @@ int strcasecmp(const char *s1, const char *s2);
 #endif
 #endif
 
-int getopt(int argc, char * const argv[], const char *optstring);
+  /* int getopt(int argc, char * const argv[], const char *optstring);*/
 /* end redefs */
 
 #include <time.h>
