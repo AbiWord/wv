@@ -341,9 +341,6 @@ lex.yy.c: parser.lex
 testparse$(EXEEXT):  testparse.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ testparse.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS)  $(LDFLAGS)
 
-laolareplace.$(OBJEXT): $(srcdir)/laolareplace.c 
-	$(CC) $(INCLUDES) $(DEFS) $(CPPFLAGS) $(CFLAGS) -c $(srcdir)/$*.c 
-
 WVSUBDIRS:$(EXPORTER) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE BLIBOLE2
 
 libwv.a:$(MYOBJECTS) $(EXPORTER_OBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE)
@@ -394,6 +391,9 @@ else
 BGLIB-WV:
 	@echo not making glib-wv... using system glib instead
 endif
+
+version.$(OBJEXT):	$(top_srcdir)/configure.in
+	$(CC) $(INCLUDES) $(DEFS) $(CPPFLAGS) $(CFLAGS) -c version.c
 
 %.$(OBJEXT): $(srcdir)/%.c 
 	$(CC) $(INCLUDES) $(DEFS) $(CPPFLAGS) $(CFLAGS) -c $(srcdir)/$*.c 
