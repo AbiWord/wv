@@ -150,7 +150,8 @@ libwv_la_SOURCES = \
 	bmptopng.c \
 	basename.c \
 	laolareplace.c \
-	isbidi.c
+	isbidi.c \
+	plcf.c
 
 OTHERHEADERS = \
 	bintree.h \
