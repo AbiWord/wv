@@ -10,6 +10,7 @@ void wvGetSTSHI(STSHI *item,U16 cbSTSHI,FILE *fd)
 	int i;
 	U16 count=0;
 
+
 	wvInitSTSHI(item);	/* zero any new fields that might not exist in the file*/
 
     item->cstd = read_16ubit(fd);
@@ -89,7 +90,7 @@ void wvInitSTD(STD *item)
 	item->fHasUpe=0;
 	item->fMassCopy=0;
 	item->sgc=0;
-	item->istdBase=0;
+	item->istdBase=istdNil;
 	item->cupx=0;
 	item->istdNext=0;
 	item->bchUpe=0;
@@ -272,7 +273,9 @@ void wvReleaseSTSH(STSH *item)
 
 void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 	{
-	U16 cbStshi,cbStd,i,word6;
+	U16 cbStshi,cbStd,i,word6,j,k;
+	U16 *chains1;
+	U16 *chains2;
 	if (len == 0)
 		{
 		item->Stshi.cstd=0;
@@ -289,6 +292,9 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 		item->std=NULL;
 		return;
 		}
+	chains1 = (U16 *)malloc(sizeof(U16) * item->Stshi.cstd);
+	chains2 = (U16 *)malloc(sizeof(U16) * item->Stshi.cstd);
+
 	item->std = (STD *)malloc(sizeof(STD) * item->Stshi.cstd);
 	if (item->std == NULL)
 		{
@@ -303,98 +309,182 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 		{
 		cbStd = read_16ubit(fd);
 		wvTrace(("index is %d,cbStd is %d, should end on %x\n",i,cbStd,ftell(fd)+cbStd));
-		if (cbStd == 0)
-			wvInitSTD(&(item->std[i]));
-		else
+		if (cbStd != 0)
 			{
 			word6 = wvGetSTD(&(item->std[i]),item->Stshi.cbSTDBaseInFile,fd);
+			wvTrace(("istdBase is %d, type is %d, 6|8 version is %d\n",item->std[i].istdBase,item->std[i].sgc,word6));
+			}
+		wvTrace(("actually ended on %x\n",ftell(fd)));
+		chains1[i] = item->std[i].istdBase;
+		}
 
-			wvTrace(("istdBase is %d, type is %d\n",item->std[i].istdBase,item->std[i].sgc));
-			/* 
-			at this stage we should create the UPE from the available
-			data
-			*/
-			if ((item->std[i].istdBase >= i) && (item->std[i].istdBase != istdNil))
+	for(i=0;i<item->Stshi.cstd;i++)
+		{
+		if (item->std[i].istdBase == istdNil)
+			wvGenerateStyle(item,i,word6);
+		wvTrace(("1: No %d,Base is %d\n",i,chains1[i]));
+		}
+
+	j=0;
+	while(j<11)
+		{
+		int finished=1;
+		for(i=0;i<item->Stshi.cstd;i++)
+			{
+			if ( (chains1[i] != istdNil) && (chains1[chains1[i]] == istdNil))
 				{
-				wvError(("ISTD's out of sequence, current no is %d, but base is %d\n",i,item->std[i].istdBase));
-				switch (item->std[i].sgc)
-                    {
-                    case sgcPara:
-                        wvInitPAPFromIstd(&(item->std[i].grupe[0].apap),istdNil,item);
-                        wvInitCHPFromIstd(&(item->std[i].grupe[1].achp),istdNil,item);
-                        if (item->std[i].grupe[1].achp.istd != istdNormalChar)
-                            {
-                            wvWarning("chp should have had istd set to istdNormalChar, doing it manually\n");
-                            item->std[i].grupe[1].achp.istd = istdNormalChar;
-                            }
-                        break;
-                    case sgcChp:
-                        wvInitCHPXFromIstd(&(item->std[i].grupe[0].chpx),istdNil,item);
-                        break;
-                    }
-
-				continue;
+				chains2[i] = istdNil;
+				wvTrace(("Generating istd no %d\n",i));
+				wvGenerateStyle(item,i,word6);
+				finished=0;
 				}
-			
+			else
+				chains2[i] = chains1[i];
+			wvTrace(("%d: No %d, Base is %d\n",j,i,chains2[i]));
+			}
+		for(i=0;i<item->Stshi.cstd;i++)
+			chains1[i] = chains2[i];
+		if (finished) break;
+		j++;
+		}
+
+#if 0	
+	for(i=0;i<item->Stshi.cstd;i++)
+		{
+		if (item->std[i].cupx == 0)
+			{
+			wvError(("Empty Slot %d\n",i));
+			continue;
+			}
+		if ((item->std[i].istdBase >= i) && (item->std[i].istdBase != istdNil))
+			{
+			wvError(("ISTD's out of sequence, current no is %d, but base is %d\n",i,item->std[i].istdBase));
 			switch (item->std[i].sgc)
 				{
 				case sgcPara:
-					wvTrace(("doing paragraph, len is %d\n",item->std[i].grupxf[0].cbUPX));
-					wvTrace(("doing paragraph, len is %d\n",item->std[i].grupxf[1].cbUPX));
-					wvInitPAPFromIstd(&(item->std[i].grupe[0].apap),(U16)item->std[i].istdBase,item);
-					if (word6)
-						wvAddPAPXFromBucket6(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item);
-					else
-						wvAddPAPXFromBucket(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item,NULL);
-						/* data is NULL because HugePAPX cannot occur in this circumstance, according to the
-						docs */
-
-					wvInitCHPFromIstd(&(item->std[i].grupe[1].achp),(U16)item->std[i].istdBase,item);
-
-					wvTrace(("here1\n"));
-					
-					if (word6)
-						wvAddCHPXFromBucket6(&(item->std[i].grupe[1].achp),&(item->std[i].grupxf[1]),item);
-					else
-						wvAddCHPXFromBucket(&(item->std[i].grupe[1].achp),&(item->std[i].grupxf[1]),item);
-
-					wvTrace(("here2\n"));
-
+					wvInitPAPFromIstd(&(item->std[i].grupe[0].apap),istdNil,item);
+					wvInitCHPFromIstd(&(item->std[i].grupe[1].achp),istdNil,item);
 					if (item->std[i].grupe[1].achp.istd != istdNormalChar)
 						{
 						wvWarning("chp should have had istd set to istdNormalChar, doing it manually\n");
 						item->std[i].grupe[1].achp.istd = istdNormalChar;
 						}
-
 					break;
 				case sgcChp:
-					wvInitCHPXFromIstd(&(item->std[i].grupe[0].chpx),(U16)item->std[i].istdBase,item);
-
-					if (word6)
-						wvUpdateCHPXBucket(&(item->std[i].grupxf[0]));
-						
-					wvMergeCHPXFromBucket(&(item->std[i].grupe[0].chpx),&(item->std[i].grupxf[0]));
-					/* UPE.chpx.istd is set to the style's istd */
-					item->std[i].grupe[0].chpx.istd = i;	 /*?*/
-					break;
-				default:
-					wvWarning("New document type\n");
+					wvInitCHPXFromIstd(&(item->std[i].grupe[0].chpx),istdNil,item);
 					break;
 				}
+
+			continue;
 			}
-		wvTrace(("actually ended on %x\n",ftell(fd)));
+		wvGenerateStyle(item,i,word6);
+#endif
+
+#if 0		
+		switch (item->std[i].sgc)
+			{
+			case sgcPara:
+				wvTrace(("doing paragraph, len is %d\n",item->std[i].grupxf[0].cbUPX));
+				wvTrace(("doing paragraph, len is %d\n",item->std[i].grupxf[1].cbUPX));
+				wvInitPAPFromIstd(&(item->std[i].grupe[0].apap),(U16)item->std[i].istdBase,item);
+				if (word6)
+					wvAddPAPXFromBucket6(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item);
+				else
+					wvAddPAPXFromBucket(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item,NULL);
+					/* data is NULL because HugePAPX cannot occur in this circumstance, according to the
+					docs */
+
+				wvInitCHPFromIstd(&(item->std[i].grupe[1].achp),(U16)item->std[i].istdBase,item);
+
+				wvTrace(("here1\n"));
+				
+				if (word6)
+					wvAddCHPXFromBucket6(&(item->std[i].grupe[1].achp),&(item->std[i].grupxf[1]),item);
+				else
+					wvAddCHPXFromBucket(&(item->std[i].grupe[1].achp),&(item->std[i].grupxf[1]),item);
+
+				wvTrace(("here2\n"));
+
+				if (item->std[i].grupe[1].achp.istd != istdNormalChar)
+					{
+					wvWarning("chp should have had istd set to istdNormalChar, doing it manually\n");
+					item->std[i].grupe[1].achp.istd = istdNormalChar;
+					}
+
+				break;
+			case sgcChp:
+				wvInitCHPXFromIstd(&(item->std[i].grupe[0].chpx),(U16)item->std[i].istdBase,item);
+
+				if (word6)
+					wvUpdateCHPXBucket(&(item->std[i].grupxf[0]));
+					
+				wvMergeCHPXFromBucket(&(item->std[i].grupe[0].chpx),&(item->std[i].grupxf[0]));
+				/* UPE.chpx.istd is set to the style's istd */
+				item->std[i].grupe[0].chpx.istd = i;	 /*?*/
+				break;
+			default:
+				wvWarning("New document type\n");
+				break;
+			}
 		}
+#endif
+
+	wvFree(chains1);
+	wvFree(chains2);
 	}
 
 
+void wvGenerateStyle(STSH *item,U16 i,U16 word6)
+	{
+	if (item->std[i].cupx == 0)
+		{
+		wvTrace(("Empty Slot %d\n",i));
+		return;
+		}
 
+	switch (item->std[i].sgc)
+		{
+		case sgcPara:
+			wvTrace(("doing paragraph, len is %d\n",item->std[i].grupxf[0].cbUPX));
+			wvTrace(("doing paragraph, len is %d\n",item->std[i].grupxf[1].cbUPX));
+			wvInitPAPFromIstd(&(item->std[i].grupe[0].apap),(U16)item->std[i].istdBase,item);
+			if (word6)
+				wvAddPAPXFromBucket6(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item);
+			else
+				wvAddPAPXFromBucket(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item,NULL);
+				/* data is NULL because HugePAPX cannot occur in this circumstance, according to the
+				docs */
 
+			wvInitCHPFromIstd(&(item->std[i].grupe[1].achp),(U16)item->std[i].istdBase,item);
 
+			wvTrace(("here1\n"));
+			
+			if (word6)
+				wvAddCHPXFromBucket6(&(item->std[i].grupe[1].achp),&(item->std[i].grupxf[1]),item);
+			else
+				wvAddCHPXFromBucket(&(item->std[i].grupe[1].achp),&(item->std[i].grupxf[1]),item);
 
+			wvTrace(("here2\n"));
 
+			if (item->std[i].grupe[1].achp.istd != istdNormalChar)
+				{
+				wvWarning("chp should have had istd set to istdNormalChar, doing it manually\n");
+				item->std[i].grupe[1].achp.istd = istdNormalChar;
+				}
 
+			break;
+		case sgcChp:
+			wvInitCHPXFromIstd(&(item->std[i].grupe[0].chpx),(U16)item->std[i].istdBase,item);
 
-
-
-
-
+			if (word6)
+				wvUpdateCHPXBucket(&(item->std[i].grupxf[0]));
+				
+			wvMergeCHPXFromBucket(&(item->std[i].grupe[0].chpx),&(item->std[i].grupxf[0]));
+			/* UPE.chpx.istd is set to the style's istd */
+			item->std[i].grupe[0].chpx.istd = i;	 /*?*/
+			break;
+		default:
+			wvWarning("New document type\n");
+			break;
+		}
+	}

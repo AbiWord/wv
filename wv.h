@@ -156,10 +156,14 @@ char *wvWideCharToMB(U16 char16);
 
 typedef enum
 	{
-	WORD8 = 0x0000,
-	WORD7 = 0x0003,
-	WORD6 = 0x0002,
-	WORD2 = 0x0001 /* temporary */
+	WORD1 = 0x0000, 
+	WORD2 = 0x0001, 
+	WORD3 = 0x0002, 
+	WORD4 = 0x0003, 
+	WORD5 = 0x0004, 
+	WORD6 = 0x0005, 
+	WORD7 = 0x0006, 
+	WORD8 = 0x0007
 	} version;
 
 typedef struct _FIB
@@ -1647,6 +1651,7 @@ typedef struct _STSH
 
 void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd);
 void wvReleaseSTSH(STSH *item);
+void wvGenerateStyle(STSH *item,U16 i,U16 type);
 
 
 void wvInitPAPFromIstd(PAP *apap,U16 istdBase,STSH *stsh);
@@ -1818,10 +1823,13 @@ typedef enum _SprmName
 	{
 	/*
 	these ones are ones I made up entirely to match
-	an unnamed pattern in word 95 files, whose 
+	unnamed patterns in word 95 files, whose 
 	purpose is currently unknown
 	*/
 	sprmTUNKNOWN1		  = 0xD400 ,
+	sprmPUNKNOWN2		  = 0x2400 ,	/* word 7 0x39 */
+	sprmPUNKNOWN3		  = 0x2401 ,	/* word 7 0x3a */
+	sprmPUNKNOWN4		  = 0x4400 ,	/* word 7 0x3b */
 
 	
 	/* 

@@ -991,7 +991,10 @@ void wvApplysprmPIstdPermute(PAP *apap,U8 *pointer,U16 *pos)
 	*/
 
 	if ((apap->istd > istdFirst) && (apap->istd<=istdLast))
+		{
+		wvError(("%d %d %d\n",apap->istd,istdFirst,istdLast));
 		apap->istd = rgistd[apap->istd - istdFirst];
+		}
 	wvFree(rgistd);
 	}
 
@@ -1467,7 +1470,6 @@ void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos)
 
 void wvApplysprmCSymbol(version ver,CHP *achp,U8 *pointer,U16 *pos)
 	{
-	wvTrace(("ver is %d\n",ver));
 	if (ver == WORD8)
 		{
 	/*
@@ -2778,9 +2780,9 @@ SprmName rgsprmWord6[256] =
 	sprmNoop/*          54*/,
 	sprmNoop/*          55*/,
 	sprmNoop/*          56*/,
-	sprmNoop/*          57*/,
-	sprmNoop/*          58*/,
-	sprmNoop/*          59*/,
+	sprmPUNKNOWN2/*     57*/,
+	sprmPUNKNOWN3/*     58*/,
+	sprmPUNKNOWN4/*     59*/,
 	sprmNoop/*          60*/,
 	sprmNoop/*          61*/,
 	sprmNoop/*          62*/,

@@ -226,7 +226,7 @@ clean: cleansub
 	rm -rf *.o $(GETOPT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) core a.out *.a
 
 distclean: realcleansub
-	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.o wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvGraphicConvert$(EXEEXT) core out* analyze/* .pure
+	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.o wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvSimpleCLX$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvGraphicConvert$(EXEEXT) core out* analyze/* .pure
 
 realclean: distclean
 	rm -rf lex.yy.c

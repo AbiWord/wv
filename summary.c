@@ -359,3 +359,13 @@ int wvSumInfoOpenStream(SummaryInfo *si,FILE *stream)
     wvGetSummaryInfo(si,stream,fid.dwOffset);
     return(0);
     }
+
+int wvOLESummaryStream(char *filename,FILE **summary)
+	{
+	int ret;
+    FILE *input,*mainfd,*tablefd0,*tablefd1,*data;
+    input = fopen(filename,"rb");
+    ret = wvOLEDecode(input,&mainfd,&tablefd0,&tablefd1,&data,summary);
+    return(ret);
+	}
+

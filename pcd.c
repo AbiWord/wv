@@ -75,17 +75,6 @@ int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,FILE *fd)
             wvGetPCD(&((*pcd)[i]),fd);
 			wvTrace(("pcd fc is %x, complex is %d, index is %d\n",(*pcd)[i].fc,(*pcd)[i].prm.fComplex,(*pcd)[i].prm.para.var2.igrpprl));
 			}
-		for (i=0;i<*nopcd;i++)
-			{
-			wvTrace(("From %x to %x\n",(*pcd)[i].fc,(*pcd)[i].fc + ((*pos)[i+1]-(*pos)[i])*2 ));
-
-			if ( ((*pcd)[i].fc + ((*pos)[i+1]-(*pos)[i])*2 ) == (*pcd)[i+1].fc )
-				wvTrace(("probably 16bit\n"));
-			else if ( ((*pcd)[i].fc + ((*pos)[i+1]-(*pos)[i])*2 ) > (*pcd)[i+1].fc )
-				wvTrace(("not 16 bit\n"));
-			else
-				wvTrace(("maybe 16bit\n"));
-			}
         }
 	return(0);
 	}

@@ -572,7 +572,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_FILENAME:
 			wvAppendStr(&mydata->retstring,mydata->filename);
-			mydata->currentlen = strlen(mydata->filename);
+			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_VERSION:
 			wvTrace(("the version is %s\n",wv_version));

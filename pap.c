@@ -37,7 +37,7 @@ void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh,FILE *data)
 #endif
 		pointer = upxf->upx.papx.grpprl+i;
 		if (i < upxf->cbUPX-2)
-			wvApplySprmFromBucket(0,sprm,apap,NULL,NULL,stsh,pointer,&i,data);
+			wvApplySprmFromBucket(WORD8,sprm,apap,NULL,NULL,stsh,pointer,&i,data);
 		}
 	}
 
@@ -79,7 +79,7 @@ void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh)
 		 * word 6 sprm lists being stored in the file
 		 */
 		if (i < upxf->cbUPX-2)
-			wvApplySprmFromBucket(1,sprm,apap,NULL,NULL,stsh,pointer,&i,NULL);
+			wvApplySprmFromBucket(WORD6,sprm,apap,NULL,NULL,stsh,pointer,&i,NULL);
 		}
 	}
 

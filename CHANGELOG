@@ -1,23 +1,33 @@
 Changes to to 0.5.39
+	* made a new wvHtml conversion page, looks nice to me, online bug listing, 
+	its hardly a bugzilla bug it serves better for my needs.
 	* added placeholder.png and wvOnline.xml to cvs, neither of which are of
 	any real importance except for the interim.
 	* added <filename/> variable, handy for the online converter.
+	* added three sprms of (now) known length and unknown purpose to word7
+	sprm list.
+	* NONE of the word documents that I have (4747 of them, 556Megs) now crash
+	with the current version, this is not to say there there are not serious
+	crashable bugs, or that the output is sane, just that it is now quite
+	reliable.
+	* versioning enum extended and renumbered to handle all word formats in
+	the future, hardcoded 0 and 1 changed to WORD8 and WORD6.
+	* finally hacked in preliminary stylesheet code to get the dependancies
+	in the correct order, its a bit crufty (!), but it does the trick for
+	now.
 ALL TODO
 	* Got to think of some way to keep the list stuff in sync with the margins 
 	of the enclosed paragraphs in html output.
 
-	* break stylesheet into two, first read all the poxy little sprms into one 
-	location and afterwards do the pap and chp generation.
-
 	* need to add a color Auto thing that figures out what color goes against 
 	what fore or back ground.
+
 	* multiple columns are part of section code, how to support this in html 
 	without brain failure.
 
 	* put the default text and char stuff into one single "style", and then 
 	try and figure out a way to save arbitrary no of styles into some nice 
 	structure for later seaching and stylesheet implementation.
-
 
 	* title not being done in the correct charset
 

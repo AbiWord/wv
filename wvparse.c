@@ -90,6 +90,7 @@ void wvSetPassword(char *password,wvParseStruct *ps)
 int wvOpenPreOLE(FILE **input, FILE **mainfd, FILE **tablefd0, FILE **tablefd1,FILE **data, FILE **summary)
 	{
 	int ret=-1;
+	U16 magic;
 
 	*mainfd=*input;
 	*tablefd0=*input;
@@ -101,10 +102,16 @@ int wvOpenPreOLE(FILE **input, FILE **mainfd, FILE **tablefd0, FILE **tablefd1,F
 		rewind(*input);
 	else
 		return(ret);
-	getc(*input);
-	if (0xa5 == getc(*input))
+	magic = read_16ubit(*input);
+	if (0xa5db == magic)
 		{
-		wvError(("Theres a good change that this is a pre word 6 doc of nFib %d\n",read_16ubit(*input)));
+		wvError(("Theres a good change that this is a word 2 doc of nFib %d\n",read_16ubit(*input)));
+		rewind(*input);
+		return(-1);
+		}
+	else if (0x37fe == magic)
+		{
+		wvError(("Theres a good change that this is a word 5 doc of nFib %d\n",read_16ubit(*input)));
 		rewind(*input);
 		return(-1);
 		}

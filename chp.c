@@ -31,7 +31,7 @@ void wvAddCHPXFromBucket(CHP *achp,UPXF *upxf,STSH *stsh)
 		wvError(("sprm is %x, i is %d\n",sprm,i));
 #endif
 		pointer = upxf->upx.chpx.grpprl+i;
-		wvApplySprmFromBucket(0,sprm,NULL,achp,NULL,stsh,pointer,&i,NULL);
+		wvApplySprmFromBucket(WORD8,sprm,NULL,achp,NULL,stsh,pointer,&i,NULL);
 		}
 	}
 
@@ -55,7 +55,7 @@ void wvApplyCHPXFromBucket(CHP *achp,CHPX *chpx,STSH *stsh)
 		sprm = bread_16ubit(chpx->grpprl+i,&i);
 		wvTrace(("the sprm is %d\n",sprm));
 		pointer = chpx->grpprl+i;
-		wvApplySprmFromBucket(0,sprm,NULL,achp,NULL,stsh,pointer,&i,NULL);
+		wvApplySprmFromBucket(WORD8,sprm,NULL,achp,NULL,stsh,pointer,&i,NULL);
 		}
 	achp->istd = chpx->istd;
 	}
@@ -90,7 +90,7 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
 #endif
 		
 		pointer = upxf->upx.chpx.grpprl+i;
-		wvApplySprmFromBucket(1,sprm,NULL,achp,NULL,stsh,pointer,&i,NULL);
+		wvApplySprmFromBucket(WORD6,sprm,NULL,achp,NULL,stsh,pointer,&i,NULL);
 		}
 	}
 
