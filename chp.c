@@ -712,7 +712,7 @@ wvAssembleSimpleCHP (wvVersion ver, CHP * achp, const PAP * apap, U32 fc, CHPX_F
 		    strncpy(achp->stylename,stsh->std[achp->istd].xstzName, sizeof(achp->stylename));
 		  }
 		  else {
-		    wvError ("trying to copy null string\n");
+		    wvError (("trying to copy null string\n"));
 		  }
 		}
 
