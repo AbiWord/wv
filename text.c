@@ -230,7 +230,7 @@ U16 wvLangToLIDConverter ( const char * lang )
   else if(!strcmp(lang, "it-IT"))
     return 0x0410;
   else if(!strcmp(lang, "iw-IL"))
-    return 0x0410;
+    return 0x040d;
   else if(!strcmp(lang, "ka-GE"))
     return 0x0437;
   else if(!strcmp(lang, "ja-JP"))
