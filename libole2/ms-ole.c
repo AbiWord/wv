@@ -37,7 +37,7 @@
 #ifdef HAVE_UNISTD_H 
 #include <unistd.h>
 #else
-#include <io.h> 
+
 #define S_IRUSR 0000400 
 #define S_IWUSR 0000200 
 #define S_IRGRP 0000040 
