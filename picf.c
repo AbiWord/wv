@@ -3,50 +3,217 @@
 #include <string.h>
 #include "wv.h"
 
-void wvGetPICF(PICF *apicf,FILE *infd)
+int wvGetPICF(version ver,PICF *apicf,FILE *fd)
 	{
+	char buffer[1024];
+	int ret=0;
+	FILE *f;
 	U8 temp;
+	U32 i;
+	static int s;
+	long pos=ftell(fd);
 
-	apicf->lcb = read_32ubit(infd);
-	apicf->cbHeader = read_16ubit(infd);
-	apicf->mfp_mm = (S16)read_16ubit(infd);
-	apicf->mfp_xExt = (S16)read_16ubit(infd);
-	apicf->mfp_yExt = (S16)read_16ubit(infd);
-	apicf->mfp_hMF = (S16)read_16ubit(infd);
+	apicf->lcb = read_32ubit(fd);
+	apicf->cbHeader = read_16ubit(fd);
+	wvError(("size of pic is %x (%d)\n",apicf->cbHeader,apicf->cbHeader));
+	apicf->mfp_mm = (S16)read_16ubit(fd);
+	wvError(("mm type is %d\n",apicf->mfp_mm));
+	apicf->mfp_xExt = (S16)read_16ubit(fd);
+	apicf->mfp_yExt = (S16)read_16ubit(fd);
+	apicf->mfp_hMF = (S16)read_16ubit(fd);
 	if (apicf->mfp_mm == 99)
-		wvGetBITMAP(&(apicf->obj.bitmap),infd);
+		wvGetBITMAP(&(apicf->obj.bitmap),fd);
 	else 
-		wvGetrc(&(apicf->obj.arc),infd);
-	apicf->dxaGoal = (S16)read_16ubit(infd);
-	apicf->dyaGoal = (S16)read_16ubit(infd);
-	apicf->mx = (S16)read_16ubit(infd);
-	apicf->my = (S16)read_16ubit(infd);
-	apicf->dxaCropLeft = (S16)read_16ubit(infd);
-	apicf->dyaCropTop = (S16)read_16ubit(infd);
-	apicf->dxaCropRight = (S16)read_16ubit(infd);
-	apicf->dyaCropBottom = (S16)read_16ubit(infd);
-	temp = getc(infd);
+		wvGetrc(&(apicf->obj.arc),fd);
+	apicf->dxaGoal = (S16)read_16ubit(fd);
+	apicf->dyaGoal = (S16)read_16ubit(fd);
+	apicf->mx = (S16)read_16ubit(fd);
+	apicf->my = (S16)read_16ubit(fd);
+	apicf->dxaCropLeft = (S16)read_16ubit(fd);
+	apicf->dyaCropTop = (S16)read_16ubit(fd);
+	apicf->dxaCropRight = (S16)read_16ubit(fd);
+	apicf->dyaCropBottom = (S16)read_16ubit(fd);
+	temp = getc(fd);
 
 	apicf->brcl = temp & 0x0F;
 	apicf->fFrameEmpty = (temp & 0x10)>>4;
 	apicf->fBitmap = (temp&0x20)>>5;
+	wvError(("bitmap is %d\n",apicf->fBitmap));
 	apicf->fDrawHatch = (temp&0x40)>>6;
 	apicf->fError = (temp&0x80)>>7;
 
-	apicf->bpp = getc(infd);
-	wvGetBRC(0,&(apicf->brcTop),infd);
-	wvGetBRC(0,&(apicf->brcLeft),infd);
-	wvGetBRC(0,&(apicf->brcBottom),infd);
-	wvGetBRC(0,&(apicf->brcRight),infd);
-	apicf->dxaOrigin = (S16)read_16ubit(infd);
-	apicf->dyaOrigin = (S16)read_16ubit(infd);
-	apicf->cProps = (S16)read_16ubit(infd);
+	apicf->bpp = getc(fd);
+	wvGetBRC(ver,&(apicf->brcTop),fd);
+	wvGetBRC(ver,&(apicf->brcLeft),fd);
+	wvGetBRC(ver,&(apicf->brcBottom),fd);
+	wvGetBRC(ver,&(apicf->brcRight),fd);
+	apicf->dxaOrigin = (S16)read_16ubit(fd);
+	apicf->dyaOrigin = (S16)read_16ubit(fd);
+	if (ver == WORD8)
+		apicf->cProps = (S16)read_16ubit(fd);
+	else
+		apicf->cProps = 0;
+	pos = ftell(fd)-pos;
+	for(i=pos;i<apicf->cbHeader;i++)
+		getc(fd);
+	wvError(("pos is finally %x\n",ftell(fd)));
+	wvError(("len of data is %d\n",apicf->lcb-apicf->cbHeader));
+	/*
+	f = tmpfile();
+	*/
+	sprintf(buffer,"/tmp/newtest-%d",s++);
+	f = fopen(buffer,"w+b");
+	i=0;
+
+	if (apicf->mfp_mm < 90)
+		{
+		U32 len;
+		wvError(("test\n"));
+		ret=1;
+		len = apicf->lcb-apicf->cbHeader;
+
+		i = wvEatOldGraphicHeader(fd);
+		wvError(("len is %d, header len guess is %d\n",len,i));
+		len -= i;
+#if 0
+		/*
+		a msofbtSpContainer amsofbh
+		a msofbtSp amsofbh 
+		a fopt
+		a msofbtBSE amsofbh
+		a BSE amsofbh
+		a FBSE for a dib, and then
+		all this dib information
+		*/
+#else
+		len += 14;
+		wvError(("len is now %d\n",len));
+		fputc(0x42,f);
+		fputc(0x4D,f);
+
+		fputc(len&0x000000FF,f);
+		fputc((len&0x0000FF00)>>8,f);
+		fputc((len&0x00FF0000)>>16,f);
+		fputc((len&0xFF000000)>>24,f);
+
+		fputc(0x00,f);
+		fputc(0x00,f);
+		fputc(0x00,f);
+		fputc(0x00,f);
+
+		fputc(0x36,f);
+		fputc(0x00,f);
+		fputc(0x00,f);
+		fputc(0x00,f);
+#endif
+		}
+
+	for(;i<apicf->lcb-apicf->cbHeader;i++)
+		fputc(getc(fd),f);
+	rewind(f);
+	apicf->rgb = (void *)f;
+	return(ret);
 	}
 
+U32 wvEatOldGraphicHeader(FILE *fd)
+	{
+	U32 X,entry,count=0,test;
+	U16 pad;
+	test = read_32ubit(fd); 	/*0x00090001*/
+	if (test != 0x00090001L)
+		wvError(("Old Graphic\n"));
+	count+=4;
+	test = read_16ubit(fd);	/*0x0300*/
+	if (test != 0x0300)
+		wvError(("Old Graphic\n"));
+	count+=2;
+
+	read_32ubit(fd); 	/*changes*/
+	count+=4;
+	test = read_16ubit(fd);	/*0x0000*/
+	if (test != 0x00000000L)
+		wvError(("Old Graphic\n"));
+	count+=2;
+	X = read_32ubit(fd); 	/*changes, lets call this X*/
+	wvError(("X is %x\n",X));
+	count+=4;
+	read_16ubit(fd);	/*0x0000*/
+	if (test != 0x00000000L)
+		wvError(("Old Graphic\n"));
+	count+=2;
+
+	entry = read_32ubit(fd);
+	count+=4;
+	while ( entry != X)
+		{
+		wvError(("Entry is %x\n",entry));
+		switch(entry)
+			{
+			case 0x00000005L:
+				read_16ubit(fd);
+				count+=2;
+				read_16ubit(fd);
+				count+=2;
+				read_16ubit(fd);
+				count+=2;
+				break;
+			case 0x00000004L:
+				read_16ubit(fd);
+				count+=2;
+				read_16ubit(fd);
+				count+=2;
+				break;
+			default:
+				break;
+			}
+		entry = read_32ubit(fd);
+		count+=4;
+		}
+	wvError(("Entry is %x\n",entry));
+	test = read_16ubit(fd);	/*0x0f43 or 0x0b41*/
+	if ( (test != 0x0f43) && (test != 0x0b41) )
+		wvError(("Old Graphic\n"));
+	pad = test;
+	if (pad == 0x0f43)
+		wvError(("pad\n"));
+	count+=2;
+	
+	test = read_32ubit(fd);	/*0x00cc0020*/
+	if (test != 0x00cc0020)
+		wvError(("Old Graphic\n"));
+	count+=4;
+
+	if (pad == 0x0f43)
+		{
+		test = read_16ubit(fd); /*0x0000*/
+		if (test != 0x0000)
+			wvError(("Old Graphic\n"));
+		count+=2;
+		}
+	
+	read_16ubit(fd);	/*width*/
+	count+=2;
+	read_16ubit(fd);	/*height*/
+	count+=2;
+	test = read_32ubit(fd);	/*0x00000000L*/
+	if (test != 0x00000000L)
+		wvError(("Old Graphic\n"));
+	count+=4;
+	read_16ubit(fd);	/*width*/
+	count+=2;
+	read_16ubit(fd);	/*height*/
+	count+=2;
+	test = read_32ubit(fd);	/*0x00000000L*/
+	if (test != 0x00000000L)
+		wvError(("Old Graphic\n"));
+	count+=4;
+	wvError(("count is %d\n",count));
+	return(count);
+	}
 
 extern int external_knowledge_0x01;
 
-void oldwvGetPICF(PICF *apicf,FILE *infd,U32 offset)
+void oldwvGetPICF(PICF *apicf,FILE *fd,U32 offset)
 	{
 	U32 count=0;
 	U8 temp;
@@ -57,27 +224,27 @@ void oldwvGetPICF(PICF *apicf,FILE *infd,U32 offset)
 	fsp_list *tfsp_list;
 	fopte_list *tfopte_list;
 
-	fseek(infd,offset,SEEK_SET);
+	fseek(fd,offset,SEEK_SET);
 
-	apicf->lcb = read_32ubit(infd);
-	apicf->cbHeader = read_16ubit(infd);
-	apicf->mfp_mm = (S16)read_16ubit(infd);
-	apicf->mfp_xExt = (S16)read_16ubit(infd);
-	apicf->mfp_yExt = (S16)read_16ubit(infd);
-	apicf->mfp_hMF = (S16)read_16ubit(infd);
+	apicf->lcb = read_32ubit(fd);
+	apicf->cbHeader = read_16ubit(fd);
+	apicf->mfp_mm = (S16)read_16ubit(fd);
+	apicf->mfp_xExt = (S16)read_16ubit(fd);
+	apicf->mfp_yExt = (S16)read_16ubit(fd);
+	apicf->mfp_hMF = (S16)read_16ubit(fd);
 	if (apicf->mfp_mm == 99)
-		wvGetBITMAP(&(apicf->obj.bitmap),infd);
+		wvGetBITMAP(&(apicf->obj.bitmap),fd);
 	else 
-		wvGetrc(&(apicf->obj.arc),infd);
-	apicf->dxaGoal = (S16)read_16ubit(infd);
-	apicf->dyaGoal = (S16)read_16ubit(infd);
-	apicf->mx = (S16)read_16ubit(infd);
-	apicf->my = (S16)read_16ubit(infd);
-	apicf->dxaCropLeft = (S16)read_16ubit(infd);
-	apicf->dyaCropTop = (S16)read_16ubit(infd);
-	apicf->dxaCropRight = (S16)read_16ubit(infd);
-	apicf->dyaCropBottom = (S16)read_16ubit(infd);
-	temp = getc(infd);
+		wvGetrc(&(apicf->obj.arc),fd);
+	apicf->dxaGoal = (S16)read_16ubit(fd);
+	apicf->dyaGoal = (S16)read_16ubit(fd);
+	apicf->mx = (S16)read_16ubit(fd);
+	apicf->my = (S16)read_16ubit(fd);
+	apicf->dxaCropLeft = (S16)read_16ubit(fd);
+	apicf->dyaCropTop = (S16)read_16ubit(fd);
+	apicf->dxaCropRight = (S16)read_16ubit(fd);
+	apicf->dyaCropBottom = (S16)read_16ubit(fd);
+	temp = getc(fd);
 
 #ifdef PURIFY
 	apicf->brcl = 0;
@@ -93,14 +260,14 @@ void oldwvGetPICF(PICF *apicf,FILE *infd,U32 offset)
 	apicf->fDrawHatch = (temp&0x40)>>6;
 	apicf->fError = (temp&0x80)>>7;
 
-	apicf->bpp = getc(infd);
-	wvGetBRC(0,&(apicf->brcTop),infd);
-	wvGetBRC(0,&(apicf->brcLeft),infd);
-	wvGetBRC(0,&(apicf->brcBottom),infd);
-	wvGetBRC(0,&(apicf->brcRight),infd);
-	apicf->dxaOrigin = (S16)read_16ubit(infd);
-	apicf->dyaOrigin = (S16)read_16ubit(infd);
-	apicf->cProps = (S16)read_16ubit(infd);
+	apicf->bpp = getc(fd);
+	wvGetBRC(0,&(apicf->brcTop),fd);
+	wvGetBRC(0,&(apicf->brcLeft),fd);
+	wvGetBRC(0,&(apicf->brcBottom),fd);
+	wvGetBRC(0,&(apicf->brcRight),fd);
+	apicf->dxaOrigin = (S16)read_16ubit(fd);
+	apicf->dyaOrigin = (S16)read_16ubit(fd);
+	apicf->cProps = (S16)read_16ubit(fd);
 	/*
 	apicf->rgb = "/tmp/wvscratch2";
 	*/
@@ -110,7 +277,7 @@ void oldwvGetPICF(PICF *apicf,FILE *infd,U32 offset)
 	*/
 	out = tmpfile();
 	for (;count<apicf->lcb;count++)
-		fputc(getc(infd),out);
+		fputc(getc(fd),out);
 	rewind(out);
 
 	external_knowledge_0x01 = 1;	/*no delay streams in use*/

@@ -19,22 +19,6 @@ char failsafe[1];
 
 U16 idlist[NOOFIDS] = {0,0x216,0x3D4,0x542,0x6E0,0x46A,0x7A8,0x800};
 
-void wvGetMSOFBH(MSOFBH *amsofbh,FILE *infd)
-	{
-	U16 dtemp=0;
-	dtemp=read_16ubit(infd);
-
-#ifdef PURIFY
-	amsofbh->ver = 0;
-	amsofbh->inst = 0;
-#endif
-
-	amsofbh->ver = dtemp & 0x000F;
-	amsofbh->inst = dtemp >> 4;
-	amsofbh->fbt = read_16ubit(infd);
-	amsofbh->cbLength = read_32ubit(infd);
-	}
-
 void wvGetFDGG(FDGG *afdgg,FILE *infd)
 	{
 	afdgg->spidMax = read_32ubit(infd);
@@ -51,23 +35,6 @@ void wvGetFIDCL(FIDCL *afidcl,FILE *infd)
 	wvTrace(("dgid %d cspidCur %d\n",afidcl->dgid,afidcl->cspidCur));
 	}
 
-void wvGetFBSE(FBSE *afbse,FILE *infd)
-	{
-	int i;
-	afbse->btWin32 = getc(infd);
-	afbse->btMacOS = getc(infd);
-	for (i=0;i<16;i++)
-		afbse->rgbUid[i] = getc(infd);
-	afbse->tag = read_16ubit(infd);
-	afbse->size = read_32ubit(infd);
-	afbse->cRef = read_32ubit(infd);
-	afbse->foDelay = read_32ubit(infd);
-	afbse->usage = getc(infd);
-	afbse->cbName = getc(infd);
-	afbse->unused2 = getc(infd);
-	afbse->unused3 = getc(infd);
-	}
-
 int wvQueryDelayStream(FBSE *afbse)
 	{
 	if ((afbse->btWin32 ==  msoblipERROR) && (afbse->btMacOS == msoblipERROR))
@@ -79,10 +46,10 @@ int wvQueryDelayStream(FBSE *afbse)
 	return(1);
 	}
 
+#if 0
 char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,FILE *infd)
 	{
 	return("/tmp/rubbish");
-#if 0
 	char *aimage;
 	char *buffer=NULL;
 	int count=0,extra=0;
@@ -132,9 +99,10 @@ char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,FILE *infd)
 	fclose(out);
 	free(aimage);
 	return(buffer);
-#endif
 	}
+#endif
 
+#if 0
 char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *infd)	
 	{
 	return("/tmp/rubbish");
@@ -241,8 +209,9 @@ char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *infd)
 	return(buffer);
 #endif
 	}
+#endif
 
-U32 wvGetFOPTE(FOPTE *afopte,FILE *infd)
+U32 twvGetFOPTE(FOPTE *afopte,FILE *infd)
 	{
 	U32 ret=0;
 	U16 dtemp;
@@ -270,12 +239,6 @@ U32 wvGetFOPTE(FOPTE *afopte,FILE *infd)
 	return(ret);
 	}
 
-
-void wvGetFSP(FSP *afsp,FILE *infd)
-	{
-	afsp->spid = read_32ubit(infd);
-	afsp->grfPersistent = read_32ubit(infd);
-	}
 
 void wvGetFDG(FDG *afdg,FILE *infd)
 	{
@@ -371,7 +334,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 				pfbse_list->next = NULL;
 				pfbse_list->filename[0] = '\0';
 			
-				wvGetFBSE(&(pfbse_list->afbse),out);
+				twvGetFBSE(&(pfbse_list->afbse),out);
 
 
 				if (pfbse_list->afbse.cbName != 0)
@@ -420,12 +383,16 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 						case msoblipWMF:
 						case msoblipEMF:
 						case msoblipPICT:
+							/*
 							name = wvGetMetafile(&amf,&amsofbh,out);
+							*/
 							break;
 						case msoblipJPEG:
 						case msoblipPNG:
 						case msoblipDIB:
+							/*
 							name = wvGetBitmap(&abm,&amsofbh,&afbse,out);
+							*/
 							break;
 						default:
 							for(i=0;i<amsofbh.cbLength;i++)
@@ -496,7 +463,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 						pfopte_list = pfopte_list->next;
 						}
 					pfopte_list->next = NULL;
-					remainder -= wvGetFOPTE(&(pfopte_list->afopte),out);
+					remainder -= twvGetFOPTE(&(pfopte_list->afopte),out);
 					remainder -=6;
 					i+=6;
 					pid = pfopte_list->afopte.pid;
@@ -584,3 +551,23 @@ void wvGetrc(rc *arc,FILE *infd)
 	for (i=0;i<14;i++)
 		arc->bm[i] = getc(infd);
 	}
+
+
+U32 twvGetFBSE(FBSE *afbse,FILE *infd)
+    {
+    int i;
+    afbse->btWin32 = getc(infd);
+    afbse->btMacOS = getc(infd);
+    for (i=0;i<16;i++)
+        afbse->rgbUid[i] = getc(infd);
+    afbse->tag = read_16ubit(infd);
+    afbse->size = read_32ubit(infd);
+    afbse->cRef = read_32ubit(infd);
+    afbse->foDelay = read_32ubit(infd);
+    afbse->usage = getc(infd);
+    afbse->cbName = getc(infd);
+    afbse->unused2 = getc(infd);
+    afbse->unused3 = getc(infd);
+    return(36);
+    }
+

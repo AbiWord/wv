@@ -107,9 +107,9 @@ int wvConvert1252ToHtml(U16 char8)
 			return(1); 
 		case 0x91:    
 #if 0
-			printf("`");  /*LEFT SINGLE QUOTATION MARK*/
-#endif
 			printf("&lsquo;");  /*LEFT SINGLE QUOTATION MARK*/
+#endif
+			printf("`");  /*LEFT SINGLE QUOTATION MARK*/
 			return(1); 
 		case 0x92:    
 #if 0

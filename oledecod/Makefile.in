@@ -1,4 +1,5 @@
 CC = @CC@
+OBJEXT = @OBJEXT@
 
 LEX = @LEX@
 
@@ -12,19 +13,19 @@ CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/..  @WMF_CFLAGS@ -DTTFDIR=\"$(
 
 SHELL = /bin/sh
 
-.SUFFIXES: .C .o
+.SUFFIXES: .C .$(OBJEXT)
 
-MYOBJECTS =  oledecod.o
+MYOBJECTS =  oledecod.$(OBJEXT)
 
-all: oledecod.o
+all: oledecod.$(OBJEXT)
 
-%.o: $(srcdir)/%.c 
+%.$(OBJEXT): $(srcdir)/%.c 
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
 clean:	
 	rm -rf $(MYOBJECTS) core 
 
 realclean:  
-	rm -rf config.cache config.status config.log Makefile *.o core demo
+	rm -rf config.cache config.status config.log Makefile *.$(OBJEXT) core demo
 
 #  DO  NOT  DELETE THIS LINE -- make depend depends on it.

@@ -344,18 +344,25 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 	switch(eachchar)
 		{
 		case 19:
-			state=1;
+			wvError(("field began\n"));
+			ps->fieldstate=1;
 			return(0);
 			break;
 		case 20:
+			wvError(("field middle\n"));
 		case 21:
-			state=0;
+			wvError(("field end\n"));
+			ps->fieldstate=0;
 			return(0);
 			break;
 		}
-	if (state) 
+
+	if (ps->fieldstate) 
+		{
+		fieldCharProc(ps,eachchar,0);	/* temp */
 		return(0);
-	
+		}
+
 	switch(eachchar)
 		{
 		case 0x05:
@@ -363,11 +370,30 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			return(0);
 			break;
 		case 0x01:
-			wvError(("picture 0x01 here, at offset %x in Data Stream\n",achp->fcPic_fcObj_lTagObj));
+			{
+			FILE *f;
+			Blip blip;
+			char *name;
+			long p = ftell(ps->data);
+			wvError(("picture 0x01 here, at offset %x in Data Stream, obj is %d, ole is %d\n",achp->fcPic_fcObj_lTagObj,achp->fObj,achp->fOle2));
 			fseek(ps->data,achp->fcPic_fcObj_lTagObj,SEEK_SET);
-			wvGetPICF(&picf,ps->data);
-			printf("<img alt=\"placeholder\" src=\"placeholder.png\"><br>");
+			wvGetPICF(wvQuerySupported(&ps->fib,NULL),&picf,ps->data);
+			f = (FILE *)picf.rgb;
+			if (wv0x01(&blip,f,picf.lcb-picf.cbHeader))
+				{
+				wvError(("Here\n"));
+				name = wvHtmlGraphic(ps,&blip);
+				printf("<img alt=\"placeholder\" src=\"%s\"><br>",name);
+				wvFree(name);
+				}
+			else
+				{
+				wvError(("Strange No Graphic Data in the 0x01 graphic\n"));
+				printf("<img alt=\"placeholder\" src=\"%s\"><br>","StrangeNoGraphicData");
+				}
+			fseek(ps->data,p,SEEK_SET);
 			return(0);
+			}
 		case 0x08:
 			fspa = wvGetFSPAFromCP(ps->currentcp,ps->fspa,ps->fspapos,ps->nooffspa);
 			data->props = fspa;
@@ -425,38 +451,49 @@ option to support correct symbol font conversion to a viewable format.\n");
 				}
 			}
 		default:
+			if (ps->fieldstate) 
+				fieldCharProc(ps,eachchar,0);	/* test */
 			return(0);
 		}
+
+
+
 	return(0);
 	}
 
 	
 int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 	{
-	static int state,i;
 	switch(eachchar)
 		{
 		case 19:
-			state=1;
-			i=0;
+			wvError(("field began\n"));
+			ps->fieldstate=1;
 			return(0);
 			break;
 		case 20:
+			wvError(("field middle\n"));
 		case 21:
-			state=0;
+			wvError(("field began\n"));
+			ps->fieldstate=0;
 			return(0);
 			break;
 		case 0x08:
 			wvError(("hmm did we loose the fSpec flag ?, this is possibly a bug\n"));
 			break;
 		}
-	if (state) 
+
+	if (ps->fieldstate) 
 		{
-		/*fieldstring[i++] = eachchar;*/
 		fieldCharProc(ps,eachchar,chartype);
 		return(0);
 		}
+
 	wvTrace(("charset is %s, lid is %x, type is %d, char is %x\n",charset,lid,chartype,eachchar));
+
+	if ( (chartype) && (wvQuerySupported(&ps->fib,NULL) == WORD8) )
+		wvError(("lid is %x\n",lid));
+	
 	if (charset != NULL)
 		wvOutputHtmlChar(eachchar,chartype,charset,lid);
 	else

@@ -323,18 +323,20 @@ these tags in tables, which I find is necessary for at least netscape
 </pmargin>
 
 <pborder>
-<begin>border: thin <borderleftstyle/> <borderleftcolor/>;</begin>
-</pborder>
-
-<text>	
 <begin>
-&lt;div align=&quot;<just/>&quot; style=&quot;<paramargin/> <paraborder/>
+border: thin <borderleftstyle/> <borderleftcolor/>;
 <!--
 border-top: thin <bordertopstyle/> <bordertopcolor/>;
 border-left: thin <borderleftstyle/> <borderleftcolor/>;
 border-right: thin <borderrightstyle/> <borderrightcolor/>;
 border-bottom: thin <borderbottomstyle/> <borderbottomcolor/>
 -->
+</begin>
+</pborder>
+
+<text>	
+<begin>
+&lt;div align=&quot;<just/>&quot; style=&quot;<paramargin/> <paraborder/>
 padding: <mmPadTop/> <mmPadRight/> <mmPadBottom/> <mmPadLeft/>; &quot;&gt;
 &lt;p style=&quot;text-indent: <mmParaLeft1/>; text-align: <just/>; line-height: <mmLineHeight/>; color: <parafgcolor/>; background-color: <parabgcolor/>; &quot;&gt;
 </begin>

@@ -443,11 +443,17 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			achp->fFldVanish = bgetc(pointer,pos);
 			break;
 		case sprmCPicLocation:
+			if (ver != WORD8)
+				{
+				wvError(("byte is %x\n",bgetc(pointer,pos)));
+				pointer++;
+				}
 			/*
 			This sprm moves the 4-byte operand of the sprm into the 
 			chp.fcPic field. It simultaneously sets chp.fSpec to 1.
 			*/
 			achp->fcPic_fcObj_lTagObj = bread_32ubit(pointer,pos);
+			wvError(("Len is %x\n",achp->fcPic_fcObj_lTagObj));
 			achp->fSpec = 1;
 			break;
 		case sprmCIbstRMark:

@@ -1,35 +1,47 @@
 EXEEXT = @EXEEXT@
+OBJEXT = @OBJEXT@
 
 LDFLAGS = @LDFLAGS@
 
 #Some Users might have problems with linking against -lz, this is because there is probably an
 #old version of it hanging around in the X dirs, you can add -L/usr/lib to the begging of there 
 #options to fix it.
-#LIBS = -L/usr/lib  @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ -lm
-LIBS =  @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ -lm
+#LIBS = -L/usr/lib @MAGICK_LIBS@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ -lm
+LIBS =  @MAGICK_LIBS@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ -lm
 
 GETOPT = @LIBOBJS@
 
 ICONV = @ICONV@
-
 RICONVOBJS = \
-iconv/codepage-874.o 	\
-iconv/codepage-1250.o 	\
-iconv/codepage-1251.o 	\
-iconv/codepage-1254.o 	\
-iconv/codepage-1257.o 	\
-iconv/codepage-1252.o 	\
-iconv/codepage-1255.o 	\
-iconv/codepage-1253.o 	\
-iconv/codepage-1256.o 	\
-iconv/koi8-r.o 			\
-iconv/iso-8859-15.o		\
-iconv/tis-620.o			\
-iconv/utf-8.o			\
-iconv/iconv.o
-
+iconv/codepage-874.$(OBJEXT)    \
+iconv/codepage-1250.$(OBJEXT)   \
+iconv/codepage-1251.$(OBJEXT)   \
+iconv/codepage-1254.$(OBJEXT)   \
+iconv/codepage-1257.$(OBJEXT)   \
+iconv/codepage-1252.$(OBJEXT)   \
+iconv/codepage-1255.$(OBJEXT)   \
+iconv/codepage-1253.$(OBJEXT)   \
+iconv/codepage-1256.$(OBJEXT)   \
+iconv/koi8-r.$(OBJEXT)          \
+iconv/iso-8859-15.$(OBJEXT)     \
+iconv/tis-620.$(OBJEXT)         \
+iconv/utf-8.$(OBJEXT)           \
+iconv/iconv.$(OBJEXT)
 ICONVOBJS =  @ICONVOBJS@
 
+MAGICK = @MAGICK@
+RMAGICKOBJS = \
+magick/image.$(OBJEXT) \
+magick/blob.$(OBJEXT) \
+magick/colors.$(OBJEXT) \
+magick/error.$(OBJEXT) \
+magick/transform.$(OBJEXT) \
+magick/compress.$(OBJEXT) \
+magick/memory.$(OBJEXT) \
+magick/utility.$(OBJEXT) \
+magick/jpeg.$(OBJEXT) \
+magick/bmp.$(OBJEXT)
+MAGICKOBJS =  @MAGICKOBJS@
 
 #abi's picky warning checks
 #CC = @CC@ -Wall -W -ansi -pedantic
@@ -62,140 +74,145 @@ PERL = @PERL@
 
 VPATH = @srcdir@
 
-CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I. -I./ -I$(srcdir)/ -I$(srcdir)/iconv/ -I$(srcdir)/expat/xmlparse/ -I$(srcdir)/oledecod/  @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DXMLCONFIG=\"$(libdir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(libdir)/wv/wvHtml.xml\" 
+CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I. -I./ -I$(srcdir)/ -I$(srcdir)/iconv/ -I$(srcdir)/magick/ -I$(srcdir)/expat/xmlparse/ -I$(srcdir)/oledecod/  @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DXMLCONFIG=\"$(libdir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(libdir)/wv/wvHtml.xml\" 
 
 MKINSTALLDIRS = $(srcdir)/mkinstalldirs
 
 SHELL = /bin/sh
 
-.SUFFIXES: .C .o
+.SUFFIXES: .C .$(OBJEXT)
 
 MYOBJECTS =	\
-	laolareplace.old.o \
-	support.o \
-	list.o \
-	piecetable.o \
-	stylesheet.o \
-	sprm.o \
-	blip.o \
-	utf.o \
-	field.o \
-	formatting.o \
-	references.o \
-	gpprl.o \
-	papchpsep.o \
-	hyperlink.o \
-	decompresswmf.o \
-	annotations.o \
-	dop.o \
-	roman.o \
-	fib.o \
-	frd.o \
-	atrd.o \
-	sed.o \
-	font.o \
-	ffn.o \
-	fld.o \
-	bkf.o \
-	dttm.o \
-	generic.o \
-	error.o \
-	unicode.o \
-	sttbf.o \
-	xst.o \
-	fspa.o \
-	lst.o \
-	lvl.o \
-	lfo.o \
-	nfc.o \
-	ordinal.o \
-	summary.o \
-	filetime.o \
-	chp.o \
-	brc.o \
-	anld.o \
-	shd.o \
-	dcs.o \
-	numrm.o \
-	asumyi.o \
-	version.o \
-	lspd.o \
-	phe.o \
-	tlp.o \
-	tc.o \
-	tap.o \
-	pap.o \
-	bintree.o \
-	decode_simple.o \
-	pcd.o \
-	prm.o \
-	clx.o \
-	bte.o \
-	bx.o \
-	fkp.o \
-	codepage-1252.o \
-	text.o \
-	decode_complex.o \
-	wvTextEngine.o \
-	wvHtmlEngine.o \
-	wvConfig.o \
-	wvparse.o \
-	reasons.o \
-	sep.o \
-	anlv.o \
-	olst.o \
-	asumy.o \
-	bkd.o \
-	bkl.o \
-	dogrid.o \
-	doptypography.o \
-	pgd.o \
-	rs.o \
-	rr.o \
-	tbd.o \
-	ftxbxs.o \
-	wkb.o \
-	graphics.o \
-	picf.o \
-	crc32.o \
-	md5.o \
-	rc4.o \
-	decrypt97.o \
-	decrypt95.o \
-	twips.o \
-	table.o \
-	symbol.o
+	laolareplace.$(OBJEXT)ld.$(OBJEXT) \
+	support.$(OBJEXT) \
+	list.$(OBJEXT) \
+	piecetable.$(OBJEXT) \
+	stylesheet.$(OBJEXT) \
+	sprm.$(OBJEXT) \
+	blip.$(OBJEXT) \
+	utf.$(OBJEXT) \
+	field.$(OBJEXT) \
+	formatting.$(OBJEXT) \
+	references.$(OBJEXT) \
+	gpprl.$(OBJEXT) \
+	papchpsep.$(OBJEXT) \
+	hyperlink.$(OBJEXT) \
+	decompresswmf.$(OBJEXT) \
+	annotations.$(OBJEXT) \
+	dop.$(OBJEXT) \
+	roman.$(OBJEXT) \
+	fib.$(OBJEXT) \
+	frd.$(OBJEXT) \
+	atrd.$(OBJEXT) \
+	sed.$(OBJEXT) \
+	font.$(OBJEXT) \
+	ffn.$(OBJEXT) \
+	fld.$(OBJEXT) \
+	bkf.$(OBJEXT) \
+	dttm.$(OBJEXT) \
+	generic.$(OBJEXT) \
+	error.$(OBJEXT) \
+	unicode.$(OBJEXT) \
+	sttbf.$(OBJEXT) \
+	xst.$(OBJEXT) \
+	fspa.$(OBJEXT) \
+	lst.$(OBJEXT) \
+	lvl.$(OBJEXT) \
+	lfo.$(OBJEXT) \
+	nfc.$(OBJEXT) \
+	ordinal.$(OBJEXT) \
+	summary.$(OBJEXT) \
+	filetime.$(OBJEXT) \
+	chp.$(OBJEXT) \
+	brc.$(OBJEXT) \
+	anld.$(OBJEXT) \
+	shd.$(OBJEXT) \
+	dcs.$(OBJEXT) \
+	numrm.$(OBJEXT) \
+	asumyi.$(OBJEXT) \
+	version.$(OBJEXT) \
+	lspd.$(OBJEXT) \
+	phe.$(OBJEXT) \
+	tlp.$(OBJEXT) \
+	tc.$(OBJEXT) \
+	tap.$(OBJEXT) \
+	pap.$(OBJEXT) \
+	bintree.$(OBJEXT) \
+	decode_simple.$(OBJEXT) \
+	pcd.$(OBJEXT) \
+	prm.$(OBJEXT) \
+	clx.$(OBJEXT) \
+	bte.$(OBJEXT) \
+	bx.$(OBJEXT) \
+	fkp.$(OBJEXT) \
+	codepage-1252.$(OBJEXT) \
+	text.$(OBJEXT) \
+	decode_complex.$(OBJEXT) \
+	wvTextEngine.$(OBJEXT) \
+	wvHtmlEngine.$(OBJEXT) \
+	wvConfig.$(OBJEXT) \
+	wvparse.$(OBJEXT) \
+	reasons.$(OBJEXT) \
+	sep.$(OBJEXT) \
+	anlv.$(OBJEXT) \
+	olst.$(OBJEXT) \
+	asumy.$(OBJEXT) \
+	bkd.$(OBJEXT) \
+	bkl.$(OBJEXT) \
+	dogrid.$(OBJEXT) \
+	doptypography.$(OBJEXT) \
+	pgd.$(OBJEXT) \
+	rs.$(OBJEXT) \
+	rr.$(OBJEXT) \
+	tbd.$(OBJEXT) \
+	ftxbxs.$(OBJEXT) \
+	wkb.$(OBJEXT) \
+	graphics.$(OBJEXT) \
+	picf.$(OBJEXT) \
+	crc32.$(OBJEXT) \
+	md5.$(OBJEXT) \
+	rc4.$(OBJEXT) \
+	decrypt97.$(OBJEXT) \
+	decrypt95.$(OBJEXT) \
+	twips.$(OBJEXT) \
+	table.$(OBJEXT) \
+	symbol.$(OBJEXT) \
+	fopt.$(OBJEXT) \
+	fbse.$(OBJEXT) \
+	escher.$(OBJEXT) \
+	bmptojpg.$(OBJEXT) \
+	basename.$(OBJEXT)
 
 #XML = -Lexpat/lib -lxmlparse -lxmltok
-XML = 	expat/xmlparse/xmlparse.o \
-    	expat/xmlparse/hashtable.o \
-		expat/xmltok/xmltok.o \
-    	expat/xmltok/xmlrole.o
+XML = 	expat/xmlparse/xmlparse.$(OBJEXT) \
+    	expat/xmlparse/hashtable.$(OBJEXT) \
+		expat/xmltok/xmltok.$(OBJEXT) \
+    	expat/xmltok/xmlrole.$(OBJEXT)
 
-OLE = oledecod/oledecod.o
+OLE = oledecod/oledecod.$(OBJEXT)
 
 all: wvSummary$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSimpleCLX$(EXEEXT) wvVersion$(EXEEXT) wv-libconfig wv-incconfig
 
-wvSummary$(EXEEXT): wvSummary.o $(GETOPT) OLEDECODE libwv.a
-	$(CC)  -o $@ wvSummary.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+wvSummary$(EXEEXT): wvSummary.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+	$(CC)  -o $@ wvSummary.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvSimpleCLX$(EXEEXT): wvSimpleCLX.o $(GETOPT) OLEDECODE libwv.a
-	$(CC)  -o $@ wvSimpleCLX.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+wvSimpleCLX$(EXEEXT): wvSimpleCLX.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+	$(CC)  -o $@ wvSimpleCLX.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvVersion$(EXEEXT): wvVersion.o $(GETOPT) OLEDECODE libwv.a
-	$(CC)  -o $@ wvVersion.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+wvVersion$(EXEEXT): wvVersion.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+	$(CC)  -o $@ wvVersion.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvConvert$(EXEEXT): wvConvert.o $(GETOPT) OLEDECODE libwv.a
-	$(CC)  -o $@ wvConvert.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+wvConvert$(EXEEXT): wvConvert.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+	$(CC)  -o $@ wvConvert.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wvText$(EXEEXT): wvConvert$(EXEEXT)
 	$(LN) -s wvConvert$(EXEEXT) wvText$(EXEEXT)
 
-wvHtml$(EXEEXT): wvHtml.o $(GETOPT) OLEDECODE libwv.a
-	$(CC)  -o $@ wvHtml.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+wvHtml$(EXEEXT): wvHtml.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+	$(CC)  -o $@ wvHtml.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvGraphicConvert$(EXEEXT): wvGraphicConvert.o $(GETOPT) OLEDECODE libwv.a
-	$(CC)  -o $@ wvGraphicConvert.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+wvGraphicConvert$(EXEEXT): wvGraphicConvert.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+	$(CC)  -o $@ wvGraphicConvert.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wv-libconfig: Makefile
 	rm -f wv-libconfig
@@ -210,22 +227,26 @@ wv-incconfig: Makefile
 lex.yy.c: parser.lex
 	$(LEX) parser.lex
 
-testparse$(EXEEXT):  testparse.o $(GETOPT) OLEDECODE libwv.a
-	$(CC)  -o $@ testparse.o $(GETOPT) -L. -lwv $(LIBS)  $(LDFLAGS)
+testparse$(EXEEXT):  testparse.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+	$(CC)  -o $@ testparse.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS)  $(LDFLAGS)
 
-error.o: $(srcdir)/error.c Makefile
+error.$(OBJEXT): $(srcdir)/error.c Makefile
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
-laolareplace.o: $(srcdir)/laolareplace.c 
+laolareplace.$(OBJEXT): $(srcdir)/laolareplace.c 
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
-libwv.a:	$(MYOBJECTS) XMLPARSER $(ICONV)
-	$(AR) rc $@ $(MYOBJECTS) $(ICONVOBJS) $(XML)
+libwv.a:	$(MYOBJECTS) XMLPARSER $(ICONV) $(MAGICK)
+	$(AR) rc $@ $(MYOBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML)
 	$(RANLIB) $@
 
 ICONV:
 	@echo making iconv in iconv
 	@(cd iconv && $(MAKE)) || exit 1
+
+MAGICK:
+	@echo making magick in magick  
+	@(cd magick && $(MAKE)) || exit 1
 
 OLEDECODE:
 	@echo making oledecod in oledecod
@@ -235,7 +256,7 @@ XMLPARSER:
 	@echo making expat in expat
 	@(cd expat && $(MAKE)) || exit 1
 
-%.o: $(srcdir)/%.c 
+%.$(OBJEXT): $(srcdir)/%.c 
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
 cleansub:
@@ -245,15 +266,16 @@ cleansub:
 	@(cd expat && $(MAKE) clean) || exit 1
 	@echo cleaning iconv in iconv 
 	@(cd iconv && $(MAKE) clean) || exit 1
+	@echo cleaning magick in magick
+	@(cd magick && $(MAKE) clean) || exit 1
 
 clean: cleansub
-	rm -rf *.o $(GETOPT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) core a.out *.a
+	rm -rf *.$(OBJEXT) $(GETOPT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) core a.$(OBJEXT)ut *.a
 
 distclean: realcleansub
-	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.o wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvSimpleCLX$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvGraphicConvert$(EXEEXT) core out* analyze/* .pure
+	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.$(OBJEXT) wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvSimpleCLX$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvGraphicConvert$(EXEEXT) core out* analyze/* .pure lex.yy.c libtool
 
 realclean: distclean
-	rm -rf lex.yy.c
 
 realcleansub:
 	@echo real cleaning oledecod in oledecod
@@ -262,6 +284,8 @@ realcleansub:
 	@(cd expat && $(MAKE) realclean) || exit 1
 	@echo real cleaning iconv in iconv 
 	@(cd iconv && $(MAKE) realclean) || exit 1
+	@echo real cleaning magick in magick
+	@(cd magick && $(MAKE) realclean) || exit 1
 
 installdirs:
 	$(MKINSTALLDIRS) $(bindir) \

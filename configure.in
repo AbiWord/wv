@@ -21,7 +21,6 @@ AC_PROG_CC_WORKS
 AC_PROG_CC_GNU
 
 dnl exec suffix for DOSish OSes, autoconf-2.13 required.
-AC_EXEEXT
 
 if test $ac_cv_prog_gcc = yes; then
   GCC=yes
@@ -54,11 +53,27 @@ fi
 
 dnl autoconf stuff ends here
 
+
 AC_PROG_CC_NO_G
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
 
 AC_PROG_RANLIB
+
+# Tests for Windows
+AC_CYGWIN
+AC_EXEEXT
+AC_OBJEXT
+AC_MINGW32
+# End Tests for Windows
+
+# Configure libtool
+#AM_ENABLE_SHARED(no)
+#AM_ENABLE_STATIC(no)
+AC_LIBTOOL_WIN32_DLL
+AM_PROG_LIBTOOL
+#end libtool stuff
+
 
 AC_HEADER_STDC
 dnl AC_HEADER_SYS_WAIT
@@ -519,11 +534,142 @@ fi
 dnl end of iconv
 dnl ========================================================
 
-dnl ===We dont actually need this at all, and its causing problems for everyone===
-dnl BASH_REINSTALL_SIGHANDLERS
+dnl ========================================================
+dnl test for imagemagick
+dnl test for the existance of the MagickConfig program,
+dnl if its not there then we dont have imagemagick, if it
+dnl is there then we still have to do a big dance to get
+dnl something to link against it as it does not provide all
+dnl the information that we need to compile against it
+dnl first try it raw, maybe the author will have fixed it
+dnl by now, then try it with the prefix attached, and then
+dnl try it with the X varient of that, and then try it with
+dnl both.
 
-dnl ===We dont actually need this at all, and its causing problems for some people===
-dnl BASH_SIGNAL_CHECK
+AC_ARG_WITH(Magick,
+[  --with-Magick=\$dir        use system Magick in \$Magici],
+MAGICK_DIR=$withval)
+
+if test "$MAGICK_DIR" = no; then
+	result="no"
+else
+	AC_CHECK_PROG(havemagick,Magick-config,"yes","no")
+	if test "x$havemagick" = xyes; then
+dnl cflags test begins 
+
+		_SAVE_CFLAGS=$CFLAGS
+
+		mflags=`Magick-config --cflags`
+
+		CFLAGS="$mflags $CFLAGS"
+
+		AC_MSG_CHECKING("for magick.h")
+		AC_TRY_COMPILE([#include "magick.h"], [],
+		[result="yes"],
+		[result="no" CFLAGS=$_SAVE_CFLAGS])
+		AC_MSG_RESULT("$result") 
+
+		if test "x$result" = xno; then
+			_SAVE_CFLAGS=$CFLAGS
+
+			mflags=`Magick-config --cflags`
+			CFLAGS="$mflags $CFLAGS"
+			mflags=`Magick-config --prefix`
+			CFLAGS="-I$mflags/include/magick/ $CFLAGS"
+
+			AC_MSG_CHECKING("for magick.h in location 2")
+			AC_TRY_COMPILE([#include "magick.h"], [],
+			[result="yes"],
+			[result="no" CFLAGS=$_SAVE_CFLAGS])
+			AC_MSG_RESULT("$result")
+			
+			if test "x$result" = xno; then
+				_SAVE_CFLAGS=$CFLAGS
+
+				mflags=`Magick-config --cflags`
+				CFLAGS="$mflags $CFLAGS"
+				mflags=`Magick-config --prefix`
+				CFLAGS="-I$mflags/include/X11/magick/ $CFLAGS $X_CFLAGS/X11"
+
+				AC_MSG_CHECKING("for magick.h in location 3")
+				AC_TRY_COMPILE([#include "magick.h"], [],
+				[result="yes"],
+				[result="no" CFLAGS=$_SAVE_CFLAGS])
+				AC_MSG_RESULT("$result")
+			fi
+dnl cflags test ends
+		fi
+
+dnl lib test begins 
+		if test "x$result" = xyes; then
+			_SAVE_CFLAGS=$CFLAGS
+			_SAVE_LDFLAGS=$LDFLAGS
+
+			mflags=`Magick-config --libs`
+
+			LDFLAGS="$mflags $LDFLAGS"
+			CFLAGS="$CFLAGS $X_CFLAGS"
+			
+			AC_CHECK_LIB(Magick, GetImageInfo, 
+			[result="yes" MAGICK_LIBS="$mflags"],
+			[result="no" LDFLAGS=$_SAVE_LDFLAGS])
+
+			if test "x$result" = xno; then
+				_SAVE_LDFLAGS=$LDFLAGS
+				mflags=`Magick-config --libs`
+				LDFLAGS="$mflags $LDFLAGS"
+				AC_CHECK_LIB(Magick, WriteJPEGImage, 
+				[result="yes" MAGICK_LIBS="$mflags $X_LIBS -lX11 $X_EXTRA_LIBS"],
+				[result="no" LDFLAGS=$_SAVE_LDFLAGS],
+				$X_LIBS -lX11 $X_EXTRA_LIBS
+				)
+			fi
+		LDFLAGS=$_SAVE_LDFLAGS
+		CFLAGS=$_SAVE_CFLAGS
+		fi
+dnl lib test ends
+	else
+		result="no";
+	fi
+fi
+
+if test "x$result" != xyes; then
+	MAGICK="MAGICK"
+	MAGICKOBJS="\$(RMAGICKOBJS)"
+
+dnl if we have to use our own then we need libjpeg
+	AC_CHECKING(for JPEG support ...)
+    failed=0;
+    passed=0;
+    AC_CHECK_HEADER(jconfig.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`)
+    AC_CHECK_HEADER(jerror.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`)
+    AC_CHECK_HEADER(jmorecfg.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`)
+    AC_CHECK_HEADER(jpeglib.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`)
+    AC_CHECK_LIB(jpeg,jpeg_read_header,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
+    AC_MSG_CHECKING(if JPEG package is complete)
+    if test $passed -gt 0
+    then
+    if test $failed -gt 0
+    then
+    AC_MSG_RESULT(no -- some components failed test)
+        have_jpeg='no (failed tests)'
+    else
+    LIB_JPEG='-ljpeg'
+    LIBS="$LIB_JPEG $LIBS"
+    AC_DEFINE(HasJPEG)
+    AC_MSG_RESULT(yes)
+        have_jpeg='yes'
+    fi
+    else
+        AC_MSG_RESULT(no)
+    fi
+	
+fi
+
+
+dnl end of imagemagick
+dnl ========================================================
+
 
 if test "x$no_wmf" = xyes; then
 	AC_MSG_WARN(Could not find gdwmf library or some of its components: \nmswordview will not have wmf to gif support: see README)
@@ -568,8 +714,11 @@ AC_CHECK_FUNC(strerror, , [LIBOBJS="$LIBOBJS strerror.o"])
 AC_CHECK_FUNC(strcasecmp, , [LIBOBJS="$LIBOBJS strcasecmp.o"])
 dnl AC_CHECK_FUNCS(waitpid)
 AC_SUBST(LIBOBJS)
-AC_SUBST(ICONVOBJS)
 AC_SUBST(ICONV)
+AC_SUBST(ICONVOBJS)
+AC_SUBST(MAGICK)
+AC_SUBST(MAGICKOBJS)
+AC_SUBST(MAGICK_LIBS)
 AC_SUBST(ZLIB_CFLAGS)
 AC_SUBST(ZLIB_LIBS)
 
@@ -580,4 +729,5 @@ expat/Makefile
 expat/xmltok/Makefile 
 expat/xmlparse/Makefile
 iconv/Makefile
+magick/Makefile
 )

@@ -1,4 +1,8 @@
 Changes to to 0.5.42
+	* temporary bmp for older word6/7 document and legacy 
+	structures appears to be working.
+	* sprmCPicLocation was one too short for word6/7, strange.
+	* picf modified to use older word6/7 version as well.
 	* some modifications so that it can handle documents with 
 	incomplete bte tables. This is only in fullsave, because I
 	doubt the logic behind what ever program is creating them!
@@ -10,15 +14,24 @@ Changes to to 0.5.42
 	the first line indent to the left is x, and there is a border
 	(even if of type none!) then the para is indented too far to
 	the left. This is bug 1524.43 Rules.doc
+	* supported 0x01 graphics ala broken/001-TETMEI.doc
+	0x01 graphics are making their way back in, and are looking
+	better than the old code already.
+
 ALL TODO
+	* all 0x01 bitmap formats first, then 0x08 bitmap formats
+	then decompress wmf, and get libwmf back into action and 
+	get picts together as well.
+
+	* test with a bitmap, duplicate the headers for an escher
+	parsed bitmap so as to convert the strange thing that we
+	have found in WordPerfect2000 into a viable blip for
+	the existing structure.
+
 	* wvSetCharHandler(proc,NATIVE|UNICODE)
 	* attempt to remove completely empty para's with the IsEmpty code
 
-	* support 0x01 graphics ala broken/001-TETMEI.doc
 	
-	* rationalize the char codes, put unicode and cp conversion to
-	html seperately from eachother, and try that before doing any
-	output conversion.
 	* Got to think of some way to keep the list stuff in sync with the margins 
 	of the enclosed paragraphs in html output.
 

@@ -1047,7 +1047,7 @@ typedef struct _BRC
 	U32 reserved:1;
 	} BRC;
 
-void wvGetBRC(version ver,BRC *abrc,FILE *infd);
+void wvGetBRC(version ver,BRC *abrc,FILE *fd);
 int wvGetBRCFromBucket(version ver,BRC *abrc,U8 *pointer);
 void wvInitBRC(BRC *abrc);
 void wvCopyBRC(BRC *dest, BRC *src);
@@ -1336,7 +1336,7 @@ typedef struct _TLP
 
 void wvCopyTLP(TLP *dest,TLP *src);
 void wvInitTLP(TLP *item);
-void wvGetTLP(TLP *item,FILE *infd);
+void wvGetTLP(TLP *item,FILE *fd);
 void wvGetTLPFromBucket(TLP *item,U8 *pointer);
 
 typedef struct _TAP
@@ -2590,7 +2590,8 @@ typedef struct _wvParseStruct
 	FSPA *fspa;
 	U32 *fspapos;
 	U32 nooffspa;
-	
+
+	int fieldstate;
 	char *filename;	
 	}wvParseStruct;
 
@@ -2652,7 +2653,7 @@ returns the same as wvOLEDecode with the addition that
 */
 int wvInitParser(wvParseStruct *ps,FILE *fp);
 
-int wvOpenPreOLE(FILE **input, FILE **mainfd, FILE **tablefd0, FILE **tablefd1,FILE **data, FILE **summary);
+int wvOpenPreOLE(FILE **input, FILE **mafd, FILE **tablefd0, FILE **tablefd1,FILE **data, FILE **summary);
 
 void wvDecodeSimple(wvParseStruct *ps);
 
@@ -3033,9 +3034,6 @@ typedef size_t (*wvConvertToUnicode)(const char **, size_t *, char **, size_t *)
 
 char *wvLIDToCodePageConverter(U16 lid);
 
-/*current insertion position*/
-
-
 typedef struct _MSOFBH
 	{
 	U32 ver : 4;
@@ -3043,6 +3041,9 @@ typedef struct _MSOFBH
 	U32 fbt : 16;
 	U32 cbLength;
 	} MSOFBH;
+
+U32 wvGetMSOFBH(MSOFBH *amsofbh,FILE *fd);
+U32 wvEatmsofbt(MSOFBH *amsofbh,FILE *fd);
 
 /* FDGG - File DGG */
 typedef struct _FDGG
@@ -3077,6 +3078,8 @@ typedef struct _FBSE
    U8      unused2;    /* for the future */
    U8      unused3;    /* for the future */
    } FBSE; 
+
+U32 wvGetFBSE(FBSE *afbse,FILE *fd);
 
 
 typedef enum
@@ -3116,12 +3119,22 @@ typedef enum
 typedef enum
 	{
 	msofbtDggContainer = 0xF000,
+	msofbtSpContainer =	0xF004,
 	msofbtDgg = 0xF006,
 	msofbtBSE = 0xF007,
 	msofbtDg = 0xF008,
-	msofbtOPT = 0xF00B,
+	msofbtSpgr = 0xF009,
 	msofbtSp = 0xF00A,
-	msofbtBlipFirst = 0xF018
+	msofbtOPT = 0xF00B,
+	msofbtTextbox = 0xF00C,
+	msofbtClientTextbox = 0xF00D,
+	msofbtAnchor = 0xF00E,
+	msofbtChildAnchor = 0xF00F,
+	msofbtClientAnchor = 0xF010,
+	msofbtClientData = 0xF011,
+	msofbtBlipFirst = 0xF018,
+	msofbtDeletedPspl = 0xF11D,
+	msofbtOleObject = 0xF11F
 	} MSOFBT;
 
 typedef enum
@@ -3160,7 +3173,7 @@ typedef struct _MetaFileBlip
 	U32           m_cbSave;       /* Cache of saved size (size of m_pvBits) */
 	U8            m_fCompression; /* MSOBLIPCOMPRESSION */
 	U8            m_fFilter;      /* always msofilterNone */
-	U8           *m_pvBits;       /* Compressed bits of metafile. */
+	void          *m_pvBits;       /* Compressed bits of metafile. */
 	} MetaFileBlip;
 
 typedef struct _BitmapBlip
@@ -3173,9 +3186,26 @@ typedef struct _BitmapBlip
 	blip_signature is one of the values defined in MSOBI*/
 	U8  m_rgbUidPrimary[16];    /* optional based on the above check*/
 	U8  m_bTag;            
-	U8  *m_pvBits;              /* raster bits of the blip*/
+	void  *m_pvBits;              /* raster bits of the blip*/
 	} BitmapBlip;
 
+
+typedef struct _Blip
+	{
+	FBSE fbse;
+	U16 type;
+	U16 *name;
+	union
+		{
+		MetaFileBlip metafile;
+		BitmapBlip bitmap;
+		}blip;
+	}Blip;
+
+U32 wvGetBlip(Blip *blip,FILE *fd);
+
+U32 wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *fd);
+U32 wvGetBitmap(BitmapBlip *abm,MSOFBH *amsofbh,FILE *fd);
 
 typedef struct _FOPTE
 	{
@@ -3184,75 +3214,76 @@ typedef struct _FOPTE
 	U32 fBid : 1;     /* value is a blip ID - only valid if fComplex is FALSE */
 	U32 fComplex : 1; /* complex property, value is length */
 	U32 op;
+	U8 *entry;
 	} FOPTE;
 
+U32 wvGetFOPTE(FOPTE *afopte,FILE *fd);
+U32 wvReleaseFOPTE(FOPTE *afopte);
+U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,FILE *fd);
+U32 wvReleaseFOPTEArray(FOPTE **fopte,U32 count);
+
 typedef struct _FSP
-   {
-   U32 spid;           /* The shape id */
-   U32 grfPersistent;
-   } FSP;
-
-struct _fopte_list
 	{
-	FOPTE afopte;
-	struct _fopte_list *next;
-	};
+	U32 spid;           /* The shape id */
+	U32 grfPersistent;
+	} FSP;
 
-typedef struct _fopte_list fopte_list;
+U32 wvGetFSP(FSP *fsp,FILE *fd);
 
-struct _fsp_list
-	{
-	FSP afsp;
-	fopte_list *afopte_list;
-	struct _fsp_list *next;
-	};
-
-typedef struct _fsp_list fsp_list;
-
-struct _fbse_list
-	{
-	FBSE afbse;	
-	char filename[4096];
-	struct _fbse_list *next;
-	};
-
-typedef struct _fbse_list fbse_list;
 
 /* FDG - File DG */
 typedef struct _FDG
-   {
-   U32 csp;          /* The number of shapes in this drawing */
-   U32 spidCur;      /* The last MSOSPID given to an SP in this DG */
-   } FDG;
+	{
+	U32 csp;          /* The number of shapes in this drawing */
+	U32 spidCur;      /* The last MSOSPID given to an SP in this DG */
+	} FDG;
 
-fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *escherstream,FILE *delaystream);
-void wvGetMSOFBH(MSOFBH *amsofbh,FILE *infd);
-void wvGetFDGG(FDGG *afdgg,FILE *infd);
-void wvGetFIDCL(FIDCL *afidcl,FILE *infd);
-void wvGetFBSE(FBSE *afbse,FILE *infd);
-char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *infd);
-char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,FILE *infd);
-U32 wvGetFOPTE(FOPTE *afopte,FILE *infd);
-void wvGetFSP(FSP *afsp,FILE *infd);
-void wvGetFDG(FDG *afdg,FILE *infd);
-int wvQueryDelayStream(FBSE *afbse);
-fbse_list *wvGetSPID(U32 spid,fsp_list *afsp_list,fbse_list *afbse_list);
+typedef struct _FSPGR
+	{
+	RECT   rcgBounds;
+	} FSPGR;
 
+typedef RECT FAnchor,FChildAnchor,FClientAnchor;
+U32 wvGetFAnchor(FAnchor *fanchor,FILE *fd);
 
+typedef struct _FSPContainer
+	{
+	FSPGR fspgr;		/*may not exist */
+	FSP fsp;			/*always will exist */
+	FOPTE *fopte;		/*always */
+	FAnchor	fanchor;	/* one of these will be there */
 
+#if 0	
+	ClientData		/*always */
+	
+	ClientTextbox	/*maybe */
+	Textbox
+	
+	OleObject		/*maybe */
+	DeletedPspl		/*maybe */
+#endif
+	}FSPContainer;
+
+int wv0x01(Blip *blip,FILE *fd,U32 len);
+char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip);
+
+U32 wvGetFSPContainer(FSPContainer *item,MSOFBH *msofbh,FILE *fd);
+
+/* begin temp */
 typedef struct _BITMAP
 	{
 	U8 bm[14];
 	} BITMAP;
 
-void wvGetBITMAP(BITMAP *bmp,FILE *infd);
+void wvGetBITMAP(BITMAP *bmp,FILE *fd);
 
 typedef struct _rc
 	{
 	U8 bm[14];
 	} rc;
 
-void wvGetrc(rc *arc,FILE *infd);
+void wvGetrc(rc *arc,FILE *fd);
+/* end temp */
 
 typedef struct _PICF
 	{
@@ -3291,10 +3322,343 @@ typedef struct _PICF
 	S16 dxaOrigin;
 	S16 dyaOrigin;
 	S16 cProps;
-	S8 *rgb;
+	void *rgb;
 	} PICF;
 
-void wvGetPICF(PICF *apicf,FILE *infd);
+int wvGetPICF(version ver,PICF *apicf,FILE *fd);
+
+void remove_suffix (char *name, const char *suffix);
+
+U32 wvEatOldGraphicHeader(FILE *fd);
+int bmptojpg(char *prefix);
+
+/*current insertion position*/
+
+/*
+Property       PID            Type            Default        Description
+*/
+typedef enum _pid
+	{
+	rotation = 4,	/*LONG            0              fixed point:*/
+	fLockRotation =         119,	/*BOOL           FALSE           No rotation*/
+	fLockAspectRatio = 120,	/*BOOL           FALSE           Don't allow*/
+	fLockPosition = 121,	/*BOOL           FALSE           Don't allow*/
+	fLockAgainstSelect = 122,	/*BOOL           FALSE           Shape may not*/
+	fLockCropping = 123,	/*BOOL           FALSE           No cropping*/
+	fLockVertices = 124,	/*BOOL           FALSE           Edit Points*/
+	fLockText = 125,	/*BOOL           FALSE           Do not edit*/
+	fLockAdjustHandles = 126,	/*BOOL           FALSE           Do not adjust*/
+	fLockAgainstGrouping = 127,	/*BOOL           FALSE           Do not group*/
+	lTxid = 128,	/*LONG           0               id for the text,*/
+	dxTextLeft = 129,	/*LONG           1/10 inch       margins relative*/
+	dyTextTop = 130,	/*LONG           1/20 inch*/
+	dxTextRight = 131,	/*LONG           1/10 inch*/
+	dyTextBottom = 132,	/*LONG           1/20 inch*/
+	WrapText = 133,	/*MSOWRAPMODE    FALSE           Wrap text at*/
+	scaleText = 134,	/*LONG           0               Text zoom/scale*/
+	anchorText = 135,	/*MSOANCHOR      Top             How to anchor*/
+	txflTextFlow = 136,	/*MSOTXFL        HorzN           Text flow*/
+	cdirFont = 137,	/*MSOCDIR        msocdir0        Font rotation*/
+	hspNext = 138,	/*MSOHSP         NULL            ID of the next*/
+	txdir = 139,	/*MSOTXDIR       LTR             Bi-Di Text*/
+	fSelectText = 187,	/*BOOL           TRUE            TRUE if single*/
+	fAutoTextMargin = 188,	/*BOOL           FALSE           use host's*/
+	fRotateText = 189,	/*BOOL           FALSE           Rotate text with*/
+	fFitShapeToText = 190,	/*BOOL           FALSE           Size shape to*/
+	fFitTextToShape = 191,	/*BOOL           FALSE           Size text to fit*/
+	gtextUNICODE = 192,    /*WCHAR*           NULL           UNICODE text*/
+	gtextRTF = 193,    /*char*            NULL           RTF text*/  
+	gtextAlign = 194,  /*MSOGEOTEXTALIGN  Center         alignment on*/
+	gtextSize = 195,   /*LONG             36<<16         default point*/
+	gtextSpacing = 196,    /*LONG             1<<16          fixed point*/
+	gtextFont = 197,   /*WCHAR*           NULL           font family*/
+	gtextFReverseRows = 240,   /*BOOL             FALSE          Reverse row*/
+	fGtext = 241,  /*BOOL             FALSE          Has text*/  
+	gtextFVertical = 242,  /*BOOL             FALSE          Rotate*/    
+	gtextFKern = 243,  /*BOOL             FALSE          Kern*/      
+	gtextFTight = 244, /*BOOL             FALSE          Tightening or*/
+	gtextFStretch = 245,   /*BOOL             FALSE          Stretch to*/
+	gtextFShrinkFit = 246, /*BOOL             FALSE          Char bounding*/
+	gtextFBestFit = 247,   /*BOOL             FALSE          Scale*/     
+	gtextFNormalize = 248, /*BOOL             FALSE          Stretch char*/
+	gtextFDxMeasure = 249, /*BOOL             FALSE          Do not*/    
+	gtextFBold = 250,  /*BOOL             FALSE          Bold font*/ 
+	gtextFItalic = 251,    /*BOOL             FALSE          Italic font*/
+	gtextFUnderline = 252, /*BOOL             FALSE          Underline*/ 
+	gtextFShadow = 253,    /*BOOL             FALSE          Shadow font*/
+	gtextFSmallcaps = 254, /*BOOL             FALSE          Small caps*/
+	gtextFStrikethrough = 255, /*BOOL             FALSE          Strike*/    
+	cropFromTop = 256,	/*LONG          0                      16.16 fraction times total image*/
+	cropFromBottom = 257,	/*LONG          0*/
+	cropFromLeft = 258,	/*LONG          0*/
+	cropFromRight = 259,	/*LONG          0*/
+	pib = 260,	/*IMsoBlip*     NULL                   Blip to display*/
+	pibName = 261,	/*WCHAR*        NULL                   Blip file name*/
+	pibFlags = 262,	/*MSOBLIPFLAGS  Comment                Blip flags*/
+	pictureTransparent = 263,	/*LONG          ~0                     transparent color (none if ~0UL)*/
+	pictureContrast = 264,	/*LONG          1<<16                  contrast setting*/
+	pictureBrightness = 265,	/*LONG          0                      brightness setting*/
+	pictureGamma = 266,	/*LONG          0                      16.16 gamma*/
+	pictureId = 267,	/*LONG          0                      Host-defined ID for OLE objects*/
+	pictureDblCrMod = 268,	/*MSOCLR        This                   Modification used if shape has*/
+	pictureFillCrMod = 269,	/*MSOCLR        undefined*/
+	pictureLineCrMod = 270,	/*MSOCLR        undefined*/
+	pibPrint = 271,	/*IMsoBlip*     NULL                   Blip to display when printing*/
+	pibPrintName = 272,	/*WCHAR*        NULL                   Blip file name*/
+	pibPrintFlags = 273,	/*MSOBLIPFLAGS  Comment                Blip flags*/
+	fNoHitTestPicture = 316,	/*BOOL          FALSE                  Do not hit test the picture*/
+	pictureGray = 317,	/*BOOL          FALSE                  grayscale display*/
+	pictureBiLevel = 318,	/*BOOL          FALSE                  bi-level display*/
+	pictureActive = 319,	/*BOOL          FALSE                  Server is active (OLE objects*/
+	geoLeft = 320,	/*LONG           0                   Defines the G*/
+	geoTop = 321,	/*LONG           0*/
+	geoRight = 322,	/*LONG           21600*/
+	geoBottom = 323,	/*LONG           21600*/
+	shapePath = 324,	/*MSOSHAPEPATH   msoshapeLinesClosed*/
+	pVertices = 325,	/*IMsoArray      NULL                An array of*/
+	pSegmentInfo = 326,	/*IMsoArray      NULL*/
+	adjustValue = 327,	/*LONG           0                   Adjustment*/
+	adjust2Value = 328,	/*LONG           0*/
+	adjust3Value = 329,	/*LONG           0*/
+	adjust4Value = 330,	/*LONG           0*/
+	adjust5Value = 331,	/*LONG           0*/
+	adjust6Value = 332,	/*LONG           0*/
+	adjust7Value = 333,	/*LONG           0*/
+	adjust8Value = 334,	/*LONG           0*/
+	adjust9Value = 335,	/*LONG           0*/
+	adjust10Value = 336,	/*LONG           0*/
+	fShadowOK = 378,	/*BOOL           TRUE                Shadow may be*/
+	f3DOK = 379,	/*BOOL           TRUE                3D may be set*/
+	fLineOK = 380,	/*BOOL           TRUE                Line style may*/
+	fGtextOK = 381,	/*BOOL           FALSE               Text effect*/
+	fFillShadeShapeOK = 382,	/*BOOL           FALSE*/
+	fFillOK = 383,	/*BOOL           TRUE                OK to fill the*/
+	fillType = 384,	/*MSOFILLTYPE   Solid       Type of fill*/
+	fillColor = 385,	/*MSOCLR        white       Foreground color*/
+	fillOpacity = 386,	/*LONG          1<<16       Fixed 16.16*/
+	fillBackColor = 387,	/*MSOCLR        white       Background color*/
+	fillBackOpacity = 388,	/*LONG          1<<16       Shades only*/
+	fillCrMod = 389,	/*MSOCLR        undefined   Modification for BW*/
+	fillBlip = 390,	/*IMsoBlip*     NULL        Pattern/texture*/
+	fillBlipName = 391,	/*WCHAR*        NULL        Blip file name*/
+	fillBlipFlags = 392,	/*MSOBLIPFLAGS  Comment     Blip flags*/
+	fillWidth = 393,	/*LONG          0           How big (A units) to*/
+	fillHeight = 394,	/*LONG          0*/
+	fillAngle = 395,	/*LONG          0           Fade angle - degrees in*/
+	fillFocus = 396,	/*LONG          0           Linear shaded fill focus*/
+	fillToLeft = 397,	/*LONG          0           Fraction 16.16*/
+	fillToTop = 398,	/*LONG          0           Fraction 16.16*/
+	fillToRight = 399,	/*LONG          0           Fraction 16.16*/
+	fillToBottom = 400,	/*LONG          0           Fraction 16.16*/
+	fillRectLeft = 401,	/*LONG          0           For shaded fills, use*/
+	fillRectTop = 402,	/*LONG          0*/
+	fillRectRight = 403,	/*LONG          0*/
+	fillRectBottom = 404,	/*LONG          0*/
+	fillDztype = 405,	/*MSODZTYPE     Default*/
+	fillShadePreset = 406,	/*LONG          0           Special shades*/
+	fillShadeColors = 407,	/*IMsoArray     NULL        a preset array of colors*/
+	fillOriginX = 408,	/*LONG          0*/
+	fillOriginY = 409,	/*LONG          0*/
+	fillShapeOriginX = 410,	/*LONG          0*/
+	fillShapeOriginY = 411,	/*LONG          0*/
+	fillShadeType = 412,	/*MSOSHADETYPE  Default    Type of*/
+	fFilled = 443,	/*BOOL          TRUE        Is shape filled?*/
+	fHitTestFill = 444,	/*BOOL          TRUE        Should we hit test fill?*/
+	fillShape = 445,	/*BOOL          TRUE        Register pattern on*/
+	fillUseRect = 446,	/*BOOL          FALSE       Use the large rect?*/
+	fNoFillHitTest = 447,	/*BOOL          FALSE       Hit test a shape as*/
+	lineColor = 448,	/*MSOCLR            black             Color of line*/
+	lineOpacity = 449,	/*LONG              1<<16             Not implemented*/
+	lineBackColor = 450,	/*MSOCLR            white             Background color*/
+	lineCrMod = 451,	/*MSOCLR            undefined         Modification for*/
+	lineType = 452,	/*MSOLINETYPE       Solid             Type of line*/
+	lineFillBlip = 453,	/*IMsoBlip*         NULL              Pattern/texture*/
+	lineFillBlipName = 454,	/*WCHAR*            NULL              Blip file name*/
+	lineFillBlipFlags = 455,	/*MSOBLIPFLAGS      Comment           Blip flags*/
+	lineFillWidth = 456,	/*LONG              0                 How big (A*/
+	lineFillHeight = 457,	/*LONG              0*/
+	lineFillDztype = 458,	/*MSODZTYPE         Default           How to interpret*/
+	lineWidth = 459,	/*LONG              9525              A units; 1pt ==*/
+	lineMiterLimit = 460,	/*LONG              8<<16             ratio (16.16) of*/
+	lineStyle = 461,	/*MSOLINESTYLE      Simple            Draw parallel*/
+	lineDashing = 462,	/*MSOLINEDASHING    Solid             Can be*/
+	lineDashStyle = 463,	/*IMsoArray         NULL              As Win32*/
+	lineStartArrowhead = 464,	/*MSOLINEEND        NoEnd             Arrow at start*/
+	lineEndArrowhead = 465,	/*MSOLINEEND        NoEnd             Arrow at end*/
+	lineStartArrowWidth = 466,	/*MSOLINEENDWIDTH   MediumWidthArrow  Arrow at start*/
+	lineStartArrowLength = 467,	/*MSOLINEENDLENGTH  MediumLenArrow    Arrow at end*/
+	lineEndArrowWidth = 468,	/*MSOLINEENDWIDTH   MediumWidthArrow  Arrow at start*/
+	lineEndArrowLength = 469,	/*MSOLINEENDLENGTH  MediumLenArrow    Arrow at end*/
+	lineJoinStyle = 470,	/*MSOLINEJOIN       JoinRound         How to join*/
+	lineEndCapStyle = 471,	/*MSOLINECAP        EndCapFlat        How to end lines*/
+	fArrowheadsOK = 507,	/*BOOL              FALSE             Allow arrowheads*/
+	fLine = 508,	/*BOOL              TRUE              Any line?*/
+	fHitTestLine = 509,	/*BOOL              TRUE              Should we hit*/
+	lineFillShape = 510,	/*BOOL              TRUE              Register pattern*/
+	fNoLineDrawDash = 511,	/*BOOL              FALSE             Draw a dashed*/
+	shadowType = 512,	/*MSOSHADOWTYPE  Offset          Type of*/
+	shadowColor = 513,	/*MSOCLR         0x808080        Foreground*/
+	shadowHighlight = 514,	/*MSOCLR         0xCBCBCB        Embossed*/
+	shadowCrMod = 515,	/*MSOCLR         undefined       Modification*/
+	shadowOpacity = 516,	/*LONG           1<<16           Fixed 16.16*/
+	shadowOffsetX = 517,	/*LONG           25400           Offset shadow*/
+	shadowOffsetY = 518,	/*LONG           25400           Offset shadow*/
+	shadowSecondOffsetX = 519,	/*LONG           0               Double offset*/
+	shadowSecondOffsetY = 520,	/*LONG           0               Double offset*/
+	shadowScaleXToX = 521,	/*LONG           1<<16           16.16*/
+	shadowScaleYToX = 522,	/*LONG           0               16.16*/
+	shadowScaleXToY = 523,	/*LONG           0               16.16*/
+	shadowScaleYToY = 524,	/*LONG           1<<16           16.16*/
+	shadowPerspectiveX = 525,	/*LONG           0               16.16 /*/
+	shadowPerspectiveY = 526,	/*LONG           0               16.16 /*/
+	shadowWeight = 527,	/*LONG           1<<8            scaling*/
+	shadowOriginX = 528,	/*LONG           0*/
+	shadowOriginY = 529,	/*LONG           0*/
+	fShadow = 574,	/*BOOL           FALSE           Any shadow?*/
+	fshadowObscured = 575,	/*BOOL           FALSE           Excel5-style*/
+	perspectiveType = 576,	/*MSOXFORMTYPE   Shape           Where transform*/
+	perspectiveOffsetX = 577,	/*LONG           0               The LONG values*/
+	perspectiveOffsetY = 578,	/*LONG           0*/
+	perspectiveScaleXToX = 579,	/*LONG           1<<16*/
+	perspectiveScaleYToX = 580,	/*LONG           0*/
+	perspectiveScaleXToY = 581,	/*LONG           0*/
+	perspectiveScaleYToY = 582,	/*LONG           1<<16*/
+	perspectivePerspectiveX = 583,	/*LONG           0*/
+	perspectivePerspectiveY = 584,	/*LONG           0*/
+	perspectiveWeight = 585,	/*LONG           1<<8            Scaling factor*/
+	perspectiveOriginX = 586,	/*LONG           1<<15*/
+	perspectiveOriginY = 587,	/*LONG           1<<15*/
+	fPerspective = 639,	/*BOOL           FALSE           On/off*/
+	c3DSpecularAmt = 640,	/*LONG    0               Fixed-point 16.16*/
+	c3DDiffuseAmt = 641,	/*LONG    65536           Fixed-point 16.16*/
+	c3DShininess = 642,	/*LONG    5               Default gives OK*/
+	c3DEdgeThickness = 643,	/*LONG    12700           Specular edge*/
+	c3DExtrudeForward = 644,	/*LONG    0               Distance of extrusion*/
+	c3DExtrudeBackward = 645,	/*LONG    457200*/
+	c3DExtrudePlane = 646,	/*LONG    0               Extrusion direction*/
+	c3DExtrusionColor = 647,	/*MSOCLR  FillThenLine   Basic color*/
+	c3DCrMod = 648,	/*MSOCLR  undefined       Modification for BW*/
+	f3D = 700,	/*BOOL    FALSE           Does this shape have a*/
+	fc3DMetallic = 701,	/*BOOL    0               Use metallic*/
+	fc3DUseExtrusionColor = 702,	/*BOOL    FALSE*/
+	fc3DLightFace = 703,	/*BOOL    TRUE*/
+	c3DYRotationAngle = 704,	/*LONG             0              degrees (16.16)*/
+	c3DXRotationAngle = 705,	/*LONG             0              degrees (16.16)*/
+	c3DRotationAxisX = 706,	/*LONG             100            These specify*/
+	c3DRotationAxisY = 707,	/*LONG             0*/
+	c3DRotationAxisZ = 708,	/*LONG             0*/
+	c3DRotationAngle = 709,	/*LONG             0              degrees (16.16)*/
+	c3DRotationCenterX = 710,	/*LONG             0              rotation center*/
+	c3DRotationCenterY = 711,	/*LONG             0              rotation center*/
+	c3DRotationCenterZ = 712,	/*LONG             0              rotation center*/
+	c3DRenderMode = 713,	/*MSO3DRENDERMODE  FullRender     Full,wireframe,*/
+	c3DTolerance = 714,	/*LONG             30000          pixels (16.16)*/
+	c3DXViewpoint = 715,	/*LONG             1250000        X view point*/
+	c3DYViewpoint = 716,	/*LONG             -1250000       Y view point*/
+	c3DZViewpoint = 717,	/*LONG             9000000        Z view distance*/
+	c3DOriginX = 718,	/*LONG             32768*/
+	c3DOriginY = 719,	/*LONG             -32768*/
+	c3DSkewAngle = 720,	/*LONG             -8847360       degree (16.16)*/
+	c3DSkewAmount = 721,	/*LONG             50             Percentage skew*/
+	c3DAmbientIntensity = 722,	/*LONG             20000          Fixed point*/
+	c3DKeyX = 723,	/*LONG             50000          Key light*/
+	c3DKeyY = 724,	/*LONG             0              tion; only*/
+	c3DKeyZ = 725,	/*LONG             10000          magnitudes*/
+	c3DKeyIntensity = 726,	/*LONG             38000          Fixed point*/
+	c3DFillX = 727,	/*LONG             -50000         Fill light*/
+	c3DFillY = 728,	/*LONG             0              tion; only*/
+	c3DFillZ = 729,	/*LONG             10000          magnitudes*/
+	c3DFillIntensity = 730,	/*LONG             38000          Fixed point*/
+	fc3DConstrainRotation = 763,	/*BOOL             TRUE*/
+	fc3DRotationCenterAuto = 764,	/*BOOL             FALSE*/
+	fc3DParallel = 765,	/*BOOL             1              Parallel*/
+	fc3DKeyHarsh = 766,	/*BOOL             1              Is key lighting*/
+	fc3DFillHarsh = 767,	/*BOOL             0              Is fill*/
+	hspMaster = 769,	/*MSOHSP      NULL        master shape*/
+	cxstyle = 771,	/*MSOCXSTYLE  None       Type of*/
+	bWMode = 772,	/*MSOBWMODE   Automatic  Settings for*/
+	bWModePureBW = 773,	/*MSOBWMODE   Automatic*/
+	bWModeBW = 774,	/*MSOBWMODE   Automatic*/
+	fOleIcon = 826,	/*BOOL        FALSE       For OLE objects,*/
+	fPreferRelativeResize = 827,	/*BOOL        FALSE       For UI only. Prefer*/
+	fLockShapeType = 828,	/*BOOL        FALSE       Lock the shape type*/
+	fDeleteAttachedObject = 830,	/*BOOL        FALSE*/
+	fBackground = 831,	/*BOOL        FALSE       If TRUE, this is the*/
+	spcot = 832,	/*MSOSPCOT  TwoSegment  Callout type*/
+	dxyCalloutGap = 833,	/*LONG      1/12 inch   Distance from box to*/
+	spcoa = 834,	/*MSOSPCOA  Any         Callout angle*/
+	spcod = 835,	/*MSOSPCOD  Specified   Callout drop type*/
+	dxyCalloutDropSpecified = 836,	/*LONG      9 points    if msospcodSpecified, the*/
+	dxyCalloutLengthSpecified = 837,	/*LONG      0           if*/
+	fCallout = 889,	/*BOOL      FALSE       Is the shape a callout?*/
+	fCalloutAccentBar = 890,	/*BOOL      FALSE       does callout have accent*/
+	fCalloutTextBorder = 891,	/*BOOL      TRUE        does callout have a text*/
+	fCalloutMinusX = 892,	/*BOOL      FALSE*/
+	fCalloutMinusY = 893,	/*BOOL      FALSE*/
+	fCalloutDropAuto = 894,	/*BOOL      FALSE       If true, then we*/
+	fCalloutLengthSpecified = 895,	/*BOOL      FALSE       if true, we look at*/
+	wzName = 896,	/*WCHAR*         NULL            Shape Name*/
+	wzDescription = 897,	/*WCHAR*         NULL            alternate*/
+	pihlShape = 898,	/*IHlink*        NULL            The hyperlink*/
+	pWrapPolygonVertices = 899,	/*IMsoArray      NULL            The polygon*/
+	dxWrapDistLeft = 900,	/*LONG           1/8 inch        Left wrapping*/
+	dyWrapDistTop = 901,	/*LONG           0               Top wrapping*/
+	dxWrapDistRight = 902,	/*LONG           1/8 inch        Right*/
+	dyWrapDistBottom = 903,	/*LONG           0               Bottom*/
+	lidRegroup = 904,	/*LONG           0               Regroup ID*/
+	fEditedWrap = 953,	/*BOOL           FALSE           Has the wrap*/
+	fBehindDocument = 954,	/*BOOL           FALSE           Word-only*/
+	fOnDblClickNotify = 955,	/*BOOL           FALSE           Notify client*/
+	fIsButton = 956,	/*BOOL           FALSE           A button*/
+	fOneD = 957,	/*BOOL           FALSE           1D adjustment*/
+	fHidden = 958,	/*BOOL           FALSE           Do not*/
+	fPrint = 959	/*BOOL           TRUE            Print this*/
+ 	} pid;
+
+
+struct _fopte_list
+	{
+	FOPTE afopte;
+	struct _fopte_list *next;
+	};
+
+typedef struct _fopte_list fopte_list;
+
+struct _fsp_list
+	{
+	FSP afsp;
+	fopte_list *afopte_list;
+	struct _fsp_list *next;
+	};
+
+typedef struct _fsp_list fsp_list;
+
+struct _fbse_list
+	{
+	FBSE afbse;	
+	char filename[4096];
+	struct _fbse_list *next;
+	};
+
+typedef struct _fbse_list fbse_list;
+
+
+
+fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *escherstream,FILE *delaystream);
+void wvGetFDGG(FDGG *afdgg,FILE *fd);
+void wvGetFIDCL(FIDCL *afidcl,FILE *fd);
+void wvGetFDG(FDG *afdg,FILE *fd);
+int wvQueryDelayStream(FBSE *afbse);
+fbse_list *wvGetSPID(U32 spid,fsp_list *afsp_list,fbse_list *afbse_list);
+U32 twvGetFBSE(FBSE *item,FILE *fd);
+
+
+
+
+
+
+
+
 
 /*Summary Information Stream*/
 
@@ -3858,10 +4222,10 @@ void decode_clx_header(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begin
 void decode_clx_footer(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,FILE *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
 int decode_clx_endnote(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,FILE *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
 
-void decode_simple(FILE *mainfd,FILE *tablefd,FILE *data,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
-int decode_simple_footer(FILE *mainfd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
-int decode_simple_endnote(FILE *mainfd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
-void decode_simple_header(FILE *mainfd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
+void decode_simple(FILE *mafd,FILE *tablefd,FILE *data,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
+int decode_simple_footer(FILE *mafd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
+int decode_simple_endnote(FILE *mafd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
+void decode_simple_header(FILE *mafd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
 
 int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fields,FILE *main,FILE *data,FFN_STTBF *ffn_sttbf,list_info *a_list_info,textportions *portions,int *issection,style *sheet);
 void decode_f_reference(textportions *portions);
@@ -3931,7 +4295,7 @@ int get_piecetable(FILE *in,U32 **rgfc,U32 **avalrgfc,U16 **sprm,U32 *clxcount);
 
 int find_piece_cp(U32 sepcp,U32  *rgfc,int nopieces);
 
-obj_by_spid * get_blips(U32 fcDggInfo,U32 lcbDggInfo,FILE *tablefd,FILE *mainfd,int *noofblips,int streamtype,obj_by_spid **realhead);
+obj_by_spid * get_blips(U32 fcDggInfo,U32 lcbDggInfo,FILE *tablefd,FILE *mafd,int *noofblips,int streamtype,obj_by_spid **realhead);
 void output_draw(U32 cp,textportions *portions);
 
 void do_indent(pap *apap);
@@ -3965,7 +4329,7 @@ char *ms_strlower(char *in);
 2 if it isnt an ole file
 3 if its corrupt 
 */
-int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE **tablefd1,FILE **data,FILE **summary);
+int wvOLEDecode(FILE *input, FILE **mafd, FILE **tablefd0, FILE **tablefd1,FILE **data,FILE **summary);
 int wvOLESummaryStream(char *filename,FILE **summary);
 
 long get_picture_header(U32 fcPic,FILE *data,U32 *len,U16 *datatype);
@@ -3984,7 +4348,7 @@ U32 decode_e_annotation(bookmark_limits *l_bookmarks);
 U16 *decode_hyperlink(int letter, unsigned long int *swallowcp1, unsigned long int *swallowcp2, U16 **deleteme);
 U16 *decode_crosslink(int letter,unsigned long int *swallowcp1, unsigned long int *swallowcp2);
 
-void decode_annotations(FILE *mainfd,FILE *tablefd,textportions *portions);
+void decode_annotations(FILE *mafd,FILE *tablefd,textportions *portions);
 
 int decompress(FILE *inputfile,char *outputfile,U32 inlen,U32 outlen);
 void myfreeOLEtree(void);
@@ -4016,7 +4380,7 @@ char *argument(void);
 
 int query_piece_cp(U32 *rgfc,U32* avalrgfc,int nopieces,U32 querycp,U32 *nextpiececp,int *flag_8_16);
 int query_piece_cp_seek(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U32 *nextpiececp,int *flag_8_16,FILE *fd);
-void fill_table_info(pap *apap,U32 tapfc1, U32 *plcfbtePapx,U32 intervals, FILE *mainfd,style *sheet,list_info *a_list_info);
+void fill_table_info(pap *apap,U32 tapfc1, U32 *plcfbtePapx,U32 intervals, FILE *mafd,style *sheet,list_info *a_list_info);
 
 char *expand_variables(char *in, pap *apap);
 char *expand_element(char *in, char *fontface, char *color, char *size);
@@ -4033,7 +4397,7 @@ int allowedfont(style *sheet,U16 istd);
 /*interim*/
 U32 wvGetSPIDfromCP(U32 cp,textportions *portions);
 void wvDumpPicture(U32 pos,FILE *fd);
-void oldwvGetPICF(PICF *apicf,FILE *infd,U32 offset);
+void oldwvGetPICF(PICF *apicf,FILE *fd,U32 offset);
 
 /* have to have pap replaced with PAP, and change the text output code to the new ones, whenever they are ready*/
 void wvGetListInfo(pap *apap, chp *achp,LFO *lfo, LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U16 noofLST,style *sheet,FFN_STTBF *ffn_sttbf);

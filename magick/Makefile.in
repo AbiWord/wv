@@ -3,9 +3,6 @@ OBJEXT = @OBJEXT@
 
 SHELL=/bin/sh
 
-INSTALL = @INSTALL@
-INSTALL_DATA = @INSTALL_DATA@
-
 @SET_MAKE@
 
 prefix=@prefix@
@@ -19,29 +16,26 @@ PERL = @PERL@
 
 VPATH = @srcdir@
 
-CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/../
+CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/../ -I. -I./ -I.. -I../
 
 SHELL = /bin/sh
 
 .SUFFIXES: .C .$(OBJEXT)
 
-ICONVOBJECTS =	\
-	iconv.$(OBJEXT) \
-	codepage-874.$(OBJEXT) \
-	codepage-1250.$(OBJEXT) \
-	codepage-1251.$(OBJEXT) \
-	codepage-1252.$(OBJEXT) \
-	codepage-1253.$(OBJEXT) \
-	codepage-1254.$(OBJEXT) \
-	codepage-1255.$(OBJEXT) \
-	codepage-1256.$(OBJEXT) \
-	codepage-1257.$(OBJEXT) \
-	iso-8859-15.$(OBJEXT) \
-	tis-620.$(OBJEXT) \
-	utf-8.$(OBJEXT) \
-	koi8-r.$(OBJEXT)
+MAGICKOBJECTS =	\
+	image.$(OBJEXT) \
+	blob.$(OBJEXT) \
+	colors.$(OBJEXT) \
+	error.$(OBJEXT) \
+	transform.$(OBJEXT) \
+	compress.$(OBJEXT) \
+	memory.$(OBJEXT) \
+	utility.$(OBJEXT) \
+	jpeg.$(OBJEXT) \
+	bmp.$(OBJEXT)
 
-all: $(ICONVOBJECTS)
+
+all: $(MAGICKOBJECTS)
 
 %.$(OBJEXT): $(srcdir)/%.c 
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
