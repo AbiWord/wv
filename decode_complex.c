@@ -511,7 +511,8 @@ encoded into the first 22 bytes.
     wvInitPAPX_FKP (&para_fkp);
     wvInitCHPX_FKP (&char_fkp);
 
-    wvHandleDocument (ps, DOCBEGIN);
+    if(wvHandleDocument (ps, DOCBEGIN))
+		goto  finish_processing;
 
 	/*get stream size for bounds checking*/
 	stream_size = wvStream_size(ps->mainfd);
@@ -834,6 +835,7 @@ encoded into the first 22 bytes.
 #endif
       }
 
+ finish_processing:
     if (char_pendingclose)
       {
 	  wvInitCHP (&achp);

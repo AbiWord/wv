@@ -246,7 +246,8 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
     wvInitPAPX_FKP (&para_fkp);
     wvInitCHPX_FKP (&char_fkp);
 
-    wvHandleDocument (ps, DOCBEGIN);
+    if(wvHandleDocument (ps, DOCBEGIN))
+		goto  finish_processing;
 
 
 	/*get stream size for bounds checking*/
@@ -504,6 +505,7 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 
       }
 
+ finish_processing:
     if (char_pendingclose)
       {
 	  wvInitCHP (&achp);
