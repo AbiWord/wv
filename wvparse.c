@@ -81,6 +81,7 @@ wvInitParser (wvParseStruct * ps, char *path)
 	      return (ret);
 	  break;
       case 3:
+      case 5:
 	  wvError (("Bad Ole\n"));
 	  return (3);
 	  break;
