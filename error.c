@@ -46,16 +46,12 @@ void wvWarning(char *fmt, ...)
     fflush(wvwarn);
     }
 
-void wvRealTrace(char *file, int line,char *fmt, ...)
+void wvRealTrace(char *file, int line, char * msg)
     {
 #ifdef DEBUG
-    va_list argp;
     if (wvtrace == NULL)
         return;
-    fprintf(wvtrace , "wvTrace: (%s:%d) ",file,line);
-    va_start(argp, fmt);
-    vfprintf(wvtrace, fmt, argp);
-    va_end(argp);
+    fprintf(wvtrace , "wvTrace: (%s:%d) %s ",file,line, msg);
     fflush(wvtrace);
 #endif
     }
