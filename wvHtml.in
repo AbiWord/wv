@@ -95,8 +95,8 @@ if test "x$o_file" = "x"; then
 fi
 name=`basename "$o_file"`
 if test "x$o_file" != "x$name"; then
-  echo "* * * Better to use '--targetdir' for writing in another directory * * *"
-  exit 1
+  t_dir=`dirname "$o_file"`
+  o_file=$name
 fi
 name=`echo $name | sed 's/\.[^\.]*$//'`
 
