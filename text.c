@@ -551,6 +551,12 @@ void wvSetEntityConverter(expand_data *data)
 
 int wvConvertUnicodeToLaTeX(U16 char16)
 	{
+ 	if( (char16 >= 0x9f) && (char16 <= 0xff) ) 
+ 	{ 
+  		printf("%c", char16); 
+  		return(1); 
+ 	} 
+	
 	switch(char16)
 		{
 		case 37:
@@ -592,10 +598,6 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 	put through as these are legal iso-8859-1 symbols.
 	-- MV 4.7.2000
 	*/
-
-		case 0x9f ... 0xff:
-			printf("%c", char16);
-			return(1);
 
 		case 0x2019:
 			printf("'");  /* Right single quote, Win */
