@@ -1,5 +1,7 @@
 #!/bin/sh
 
+wv_script_name="$0"
+
 which latex >/dev/null 2>&1
 if [ ${?} -ne "0" ]; then
   echo "Could not find required program 'latex'"
@@ -50,7 +52,7 @@ while test $# -gt 0; do
       ;;
     -\? | -h | --help)
       cat << EOF
-Usage: $1 [OPTIONS] <input-file> <output-file>
+Usage: $wv_script_name [OPTIONS] <input-file> <output-file>
 Options:
       --prefix=<DIR>        Set prefix (default is @prefix@)
       --exec-prefix=<DIR>   Set exec_prefix (default is @exec_prefix@)
