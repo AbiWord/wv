@@ -670,6 +670,7 @@ wvAssembleSimpleCHP (wvVersion ver, CHP * achp, U32 fc, CHPX_FKP * fkp,
     int ret = 0;
     U16 tistd;
 
+	
     /* initialize CHP to para's stylesheet character properties
        * this should have resolved all the other stylesheet dependencies
        * for us, when the stsh's were initialized. */
@@ -678,9 +679,9 @@ wvAssembleSimpleCHP (wvVersion ver, CHP * achp, U32 fc, CHPX_FKP * fkp,
        * been set to the current paragraph properties' stylesheet */
     tistd = achp->istd;
     wvInitCHPFromIstd (achp, achp->istd, stsh);
-    achp->istd = tistd;
+	achp->istd = tistd;
 
-    /*index is the i in the text above */
+	/*index is the i in the text above */
     /* the PAPX version of the function only looks at rgfc's, which are
        * the same for CHPX and PAPX FKPs, so we'll reuse the function */
     index = wvGetIndexFCInFKP_PAPX ((PAPX_FKP *) fkp, fc);
@@ -702,6 +703,14 @@ wvAssembleSimpleCHP (wvVersion ver, CHP * achp, U32 fc, CHPX_FKP * fkp,
 	  else
 	      wvAddCHPXFromBucket6 (achp, &upxf, stsh);
       }
+
+	if(achp->istd != tistd)
+	{
+		/* the chpx contained instruction to apply character style; we
+		   want to remember its name */
+		strncpy(achp->stylename,stsh->std[achp->istd].xstzName, sizeof(achp->stylename));
+	}
+	
     return (ret);
 }
 
@@ -719,7 +728,8 @@ wvGetCHPX (wvVersion ver, CHPX * item, U8 * page, U16 * pos)
     else
 	item->grpprl = NULL;
 
-    item->istd = 0;		/* I have no idea what to set this to... */
+    item->istd = 0;		/* I have no idea what to set this to... --
+						   nothing; the istd is contained in the grpprl*/
 
     for (i = 0; i < item->cbGrpprl; i++)
 	wvTrace (("chpx byte is %x\n", item->grpprl[i]));
