@@ -8,7 +8,9 @@ INCLUDES = -I. -I$(top_builddir) -I$(srcdir) -I$(top_srcdir)/libole2 -I$(top_src
 
 CPPFLAGS = @CPPFLAGS@ @GLIB_CFLAGS@ @ICONV_CFLAGS@ @ZLIB_CFLAGS@
 
-include_HEADERS = wvexporter.h
+wvhdrdir = $(includedir)/wv
+
+wvhdr_HEADERS = wvexporter.h
 
 noinst_LTLIBRARIES = libexporter.la
 
