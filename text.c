@@ -2156,7 +2156,7 @@ char *
 wvConvertStylename(char *stylename, char *outputtype)
 {
     static char cached_outputtype[36];
-    static iconv_t iconv_handle = NULL;
+    static iconv_t iconv_handle = (iconv_t)-1;
     /**FIXME: 100 is just the size of stylename[] from wv.h**/
     static char buffer[100];
     char *ibuf, *obuf;

@@ -503,6 +503,8 @@ install: installdirs all
 	$(INSTALL_DATA) $(src_xmldir)/wvWml.xml $(datadir)/wv/wvWml.xml
 	$(INSTALL_DATA) $(src_xmldir)/wvCleanLaTeX.xml $(datadir)/wv/wvCleanLaTeX.xml
 	$(INSTALL_DATA) $(src_xmldir)/wvConfig.xml $(datadir)/wv/wvConfig.xml
+	$(INSTALL_DATA) $(src_xmldir)/wvXml.xml $(datadir)/wv/wvXml.xml
+	$(INSTALL_DATA) $(src_xmldir)/wvXml.dtd $(datadir)/wv/wvXml.dtd
 	for filename in wingdingfont/*.gif; do \
 		$(INSTALL_DATA) $$filename $(datadir)/wv/wingdingfont; \
 	done
