@@ -107,6 +107,18 @@ int HandleBitmap(char *name,BitmapBlip *bitmap)
 	return(0);
 	}
 
+void wvReleaseEscher(escherstruct *item)
+	{
+	wvReleaseDggContainer(&item->dggcontainer);
+	wvReleaseDgContainer(&item->dgcontainer);
+	}
+
+void wvInitEscher(escherstruct *item)
+	{
+	wvInitDggContainer(&item->dggcontainer);
+	wvInitDgContainer(&item->dgcontainer);
+	}
+
 void wvGetEscher(escherstruct *item,U32 offset,U32 len,FILE *fd,FILE *delay)
 	{
 	U32 count=0;
@@ -114,6 +126,7 @@ void wvGetEscher(escherstruct *item,U32 offset,U32 len,FILE *fd,FILE *delay)
 	long pos;
 	fseek(fd,offset,SEEK_SET);
 	wvError(("offset %x, len %d\n",offset,len));
+	wvInitEscher(item);
 	while (count < len)
 		{
 		count += wvGetMSOFBH(&amsofbh,fd);
@@ -134,6 +147,20 @@ void wvGetEscher(escherstruct *item,U32 offset,U32 len,FILE *fd,FILE *delay)
 			}
 		}
 	wvError(("offset %x, len %d (pos %x)\n",offset,len,ftell(fd)));
+	}
+
+void wvReleaseDggContainer(DggContainer *item)
+	{
+	wvReleaseSplitMenuColors(&item->splitmenucolors);
+	wvReleaseDgg(&item->dgg);
+	wvReleaseBstoreContainer(&item->bstorecontainer);
+	}
+
+void wvInitDggContainer(DggContainer *item)
+	{
+	wvInitSplitMenuColors(&item->splitmenucolors);
+	wvInitDgg(&item->dgg);
+	wvInitBstoreContainer(&item->bstorecontainer);
 	}
 
 U32 wvGetDggContainer(DggContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay)
@@ -174,19 +201,38 @@ U32 wvGetDggContainer(DggContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay)
 	return(count);
 	}
 
-U32 wvReleaseDgContainer(DgContainer *item)
+void wvReleaseDgContainer (DgContainer * item)
 	{
-#if 0
-	wvFree(item->spgrcontainer);
-#endif
+	U32 i;
+	for (i = 0; i < item->no_spgrcontainer; i++)
+		wvReleaseSpgrContainer (&(item->spgrcontainer[i]));
+	wvFree (item->spgrcontainer);
+	}
+
+void wvInitDgContainer (DgContainer * item)
+	{
+	item->no_spgrcontainer = 0;
+	item->spgrcontainer=NULL;
+	}
+
+void wvReleaseBstoreContainer(BstoreContainer *item)
+	{
+	U32 i;
+	for (i=0;i<item->no_fbse;i++)
+		wvReleaseBlip(&item->blip[i]);
+	wvFree(item->blip);
+	}
+
+void wvInitBstoreContainer(BstoreContainer *item)
+	{
+	item->no_fbse=0;
+	item->blip=NULL;
 	}
 
 U32 wvGetBstoreContainer(BstoreContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay)
 	{
 	MSOFBH amsofbh;
 	U32 count=0;
-	item->no_fbse=0;
-	item->blip=NULL;
 	while (count < msofbh->cbLength)
 		{
 		count += wvGetMSOFBH(&amsofbh,fd);
@@ -213,8 +259,6 @@ U32 wvGetDgContainer(DgContainer *item,MSOFBH *msofbh,FILE *fd)
 	{
 	MSOFBH amsofbh;
 	U32 count=0;
-	item->spgrcontainer=NULL;
-	item->no_spgrcontainer=0;
 
 	while (count < msofbh->cbLength)
 		{
@@ -262,6 +306,18 @@ FSPContainer *wvFindSPID(SpgrContainer *item,S32 spid)
 	}
 
 
+void wvReleaseSpgrContainer(SpgrContainer *item)
+	{
+	U32 i;
+	for(i=0;i<item->no_spcontainer;i++)
+		wvReleaseFSPContainer(&(item->spcontainer[i]));
+	wvFree(item->spcontainer);
+	for(i=0;i<item->no_spgrcontainer;i++)
+		wvReleaseSpgrContainer(&(item->spgrcontainer[i]));
+	wvFree(item->spgrcontainer);
+	}
+
+	
 U32 wvGetSpgrContainer(SpgrContainer *item,MSOFBH *msofbh,FILE *fd)
 	{
 	MSOFBH amsofbh;
@@ -308,7 +364,13 @@ U32 wvGetFDG(FDG *afdg,FILE *fd)
     }
 
 
-U32 wvReleaseSplitMenuColors(SplitMenuColors *splitmenucolors)
+void wvInitSplitMenuColors(SplitMenuColors *splitmenucolors)
+	{
+	splitmenucolors->noofcolors=0;
+	splitmenucolors->colors=NULL;
+	}
+
+void wvReleaseSplitMenuColors(SplitMenuColors *splitmenucolors)
 	{
 	wvFree(splitmenucolors->colors);
 	}
@@ -323,14 +385,17 @@ U32 wvGetSplitMenuColors(SplitMenuColors *splitmenucolors,MSOFBH *amsofbh,FILE *
 		for(i=0;i<splitmenucolors->noofcolors;i++)
 			splitmenucolors->colors[i] = read_32ubit(fd);
 		}
-	else
-		splitmenucolors->colors=NULL;
 	return(i*4);
 	}
 
-U32 wvReleaseDgg(Dgg *dgg)
+void wvReleaseDgg(Dgg *dgg)
 	{
 	wvFree(dgg->fidcl);
+	}
+
+void wvInitDgg(Dgg *dgg)
+	{
+	dgg->fidcl=NULL;
 	}
 
 U32 wvGetDgg(Dgg *dgg,MSOFBH *amsofbh,FILE *fd)
@@ -339,9 +404,7 @@ U32 wvGetDgg(Dgg *dgg,MSOFBH *amsofbh,FILE *fd)
 	U32 no;
 	U32 i;
 	count+=wvGetFDGG(&dgg->fdgg,fd);
-	if (dgg->fdgg.cidcl == 0)
-		dgg->fidcl = NULL;
-	else
+	if (dgg->fdgg.cidcl != 0)
 		{
 		wvTrace(("There are %d bytes left\n",amsofbh->cbLength-count));
 		no = (amsofbh->cbLength-count)/8;
@@ -349,9 +412,12 @@ U32 wvGetDgg(Dgg *dgg,MSOFBH *amsofbh,FILE *fd)
 			{
 			wvWarning("Must be %d, not %d as specs, test algor gives %d\n",no,dgg->fdgg.cidcl,dgg->fdgg.cspSaved-dgg->fdgg.cidcl);
 			}
-		dgg->fidcl = (FIDCL *)malloc(sizeof(FIDCL) * no);
-		for(i=0;i<no;i++)
-			count+=wvGetFIDCL(&(dgg->fidcl[i]),fd);
+		if (no)
+			{
+			dgg->fidcl = (FIDCL *)malloc(sizeof(FIDCL) * no);
+			for(i=0;i<no;i++)
+				count+=wvGetFIDCL(&(dgg->fidcl[i]),fd);
+			}
 		}
 	return(count);
 	}
@@ -378,6 +444,7 @@ U32 wvGetFDGG(FDGG *afdgg,FILE *fd)
 
 int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps)
 	{
+	int ret=0;
 	U32 i;
 	escherstruct item;
 	FSPContainer *answer;
@@ -391,13 +458,11 @@ int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps)
 			break;
 		}
 
-	if (!answer)
-		{
-		wvError(("Damn found nothing\n"));
-		return(0);
-		}
 	i=0;
-	if (answer->fopte)
+	if (!answer)
+		wvError(("Damn found nothing\n"));
+	else if (answer->fopte)
+		{
 		while(answer->fopte[i].pid != 0)
 			{
 			if (answer->fopte[i].pid == 260)
@@ -410,12 +475,16 @@ int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps)
 					wvError(("Copied Blip\n"));
 					wvCopyBlip(blip,&(item.dggcontainer.bstorecontainer.blip[answer->fopte[i].op-1]));
 					wvError(("type is %d\n",blip->type));
-					return(1);
+					ret = 1;
+					break;
 					}
 				}
 			i++;
 			}
+		}
 	wvError(("spid is %x\n",spid));
+	wvReleaseEscher(&item);
+	return(ret);
 	}
 
 int wv0x01(Blip *blip,FILE *fd,U32 len)
@@ -456,6 +525,7 @@ int wv0x01(Blip *blip,FILE *fd,U32 len)
 			case msofbtSpContainer:
 				wvError(("Container at %x\n",ftell(fd)));
 				count += wvGetFSPContainer(&item,&amsofbh,fd);
+				wvReleaseFSPContainer(&item);
 				break;
 			case msofbtBSE:
 				wvError(("Blip at %x\n",ftell(fd)));
@@ -490,15 +560,23 @@ U32 wvGetFSPGR(FSPGR *item,FILE *fd)
 	return(16);
 	}
 
-U32 wvReleaseFSPContainer(FSPContainer *item,MSOFBH *msofbh,FILE *fd)
+void wvReleaseFSPContainer(FSPContainer *item)
 	{
+	wvReleaseFOPTEArray(&item->fopte);
+	wvReleaseClientData(&item->clientdata);
+	}
+
+void wvInitFSPContainer(FSPContainer *item)
+	{
+	wvInitFOPTEArray(&item->fopte);
+	wvInitClientData(&item->clientdata);
 	}
 
 U32 wvGetFSPContainer(FSPContainer *item,MSOFBH *msofbh,FILE *fd)
 	{
 	MSOFBH amsofbh;
 	U32 count=0;
-
+	wvInitFSPContainer(item);
 	while (count < msofbh->cbLength)
 		{
 		count += wvGetMSOFBH(&amsofbh,fd);
@@ -553,6 +631,16 @@ U32 wvGetFSPContainer(FSPContainer *item,MSOFBH *msofbh,FILE *fd)
 	return(count);
 	}
 
+void wvInitClientData(ClientData *item)
+	{
+	item->data=NULL;
+	}
+
+void wvReleaseClientData(ClientData *item)
+	{
+	wvFree(item->data);
+	}
+
 U32 wvGetClientData(ClientData *item,MSOFBH *msofbh,FILE *fd)
 	{
 	U32 i;
@@ -566,13 +654,6 @@ U32 wvGetClientData(ClientData *item,MSOFBH *msofbh,FILE *fd)
 		item->data=NULL;
 	}
 	
-void wvReleaseClientData(ClientData *item)
-	{
-	wvFree(item->data);
-	}
-
-
-
 U32 wvGetMSOFBH(MSOFBH *amsofbh,FILE *fd)
     {
     U16 dtemp=0;

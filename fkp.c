@@ -1,10 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#else
-#define ssize_t size_t
-#endif
+#include "config.h"
 #include "wv.h"
 
 void internal_wvReleasePAPX_FKP(PAPX_FKP *fkp)

@@ -994,6 +994,11 @@ void wvApplysprmPIstdPermute(PAP *apap,U8 *pointer,U16 *pos)
 	if ((cch-6)/2 != 0)
 		{
 		rgistd = (U16 *)malloc(sizeof(U16) * ((cch-6)/2));
+		if (rgistd == NULL)
+			{
+			wvError(("Could not allocate %d\n",sizeof(U16) * ((cch-6)/2)));
+			return;
+			}
 		for(i=0;i<(cch-6)/2;i++)
 			{
 			rgistd[i] = dread_16ubit(NULL,&pointer);
@@ -2852,9 +2857,9 @@ SprmName rgsprmWord6[256] =
 	sprmCMajority50/*   108*/,
 	sprmCHpsMul/*       109*/,
 	sprmCYsri/*    		110*/,	/* new name */
-	sprmNoop/*          111*/,
-	sprmNoop/*          112*/,
-	sprmNoop/*          113*/,
+	sprmCUNKNOWN5/*     111*/,
+	sprmCUNKNOWN6/*     112*/,
+	sprmCUNKNOWN7/*     113*/,
 	sprmNoop/*          114*/,
 	sprmNoop/*          115*/,
 	sprmNoop/*          116*/,

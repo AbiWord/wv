@@ -650,7 +650,7 @@ dnl if we have to use our own then we need libpng
 		passed=0;
 		AC_CHECK_HEADER(png.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
 		AC_CHECK_HEADER(pngconf.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
-		AC_CHECK_LIB(png,png_info_init,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
+		AC_CHECK_LIB(png,png_info_init,passed=`expr $passed + 1`,failed=`expr $failed + 1`,-lm)
 		AC_MSG_CHECKING(if PNG package is complete)
 		if test $passed -gt 0
 		then
@@ -719,7 +719,9 @@ dnl check for strerror
 AC_CHECK_FUNC(strerror, , [LIBOBJS="$LIBOBJS strerror.o"])
 dnl check for strcasecmp
 AC_CHECK_FUNC(strcasecmp, , [LIBOBJS="$LIBOBJS strcasecmp.o"])
-dnl AC_CHECK_FUNCS(waitpid)
+dnl check for memcpy, if not there we'll use bcopy
+AC_CHECK_FUNCS(memcpy)
+
 AC_SUBST(LIBOBJS)
 AC_SUBST(ICONV)
 AC_SUBST(ICONVOBJS)

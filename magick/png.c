@@ -51,9 +51,9 @@
 /*
   Include declarations.
 */
-#include "config.h"
 #include "magick.h"
 #include "defines.h"
+#include "config.h"
 
 #if defined(HasPNG)
 #include "png.h"

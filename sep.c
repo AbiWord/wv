@@ -162,7 +162,7 @@ int wvAddSEPXFromBucket(SEP *asep,SEPX *item,STSH *stsh)
     fprintf(stderr,"\n");
 	i=0;
 #endif
-    while (i < item->cb)
+    while (i < item->cb-2)
         {
         sprm = bread_16ubit(item->grpprl+i,&i);
         pointer = item->grpprl+i;

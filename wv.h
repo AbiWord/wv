@@ -1830,6 +1830,9 @@ typedef enum _SprmName
 	sprmPUNKNOWN2		  = 0x2400 ,	/* word 7 0x39 */
 	sprmPUNKNOWN3		  = 0x2401 ,	/* word 7 0x3a */
 	sprmPUNKNOWN4		  = 0x4400 ,	/* word 7 0x3b */
+	sprmCUNKNOWN5		  = 0x4800 ,	/* word 7 0x6f */
+	sprmCUNKNOWN6		  = 0x4801 ,	/* word 7 0x70 */
+	sprmCUNKNOWN7		  = 0x4802 ,	/* word 7 0x71 */
 
 	
 	/* 
@@ -3237,6 +3240,7 @@ typedef struct _Blip
 	}Blip;
 
 U32 wvGetBlip(Blip *blip,FILE *fd,FILE *delay);
+void wvReleaseBlip(Blip *blip);
 
 U32 wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *fd);
 void wvCopyMetafile(MetaFileBlip *dest,MetaFileBlip *src);
@@ -3256,7 +3260,8 @@ typedef struct _FOPTE
 U32 wvGetFOPTE(FOPTE *afopte,FILE *fd);
 U32 wvReleaseFOPTE(FOPTE *afopte);
 U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,FILE *fd);
-U32 wvReleaseFOPTEArray(FOPTE **fopte,U32 count);
+void wvReleaseFOPTEArray(FOPTE **fopte);
+void wvInitFOPTEArray(FOPTE **fopte);
 
 typedef struct _FSP
 	{
@@ -3265,7 +3270,6 @@ typedef struct _FSP
 	} FSP;
 
 U32 wvGetFSP(FSP *fsp,FILE *fd);
-
 
 /* FDG - File DG */
 typedef struct _FDG
@@ -3308,6 +3312,7 @@ int wv0x01(Blip *blip,FILE *fd,U32 len);
 char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip);
 
 U32 wvGetFSPContainer(FSPContainer *item,MSOFBH *msofbh,FILE *fd);
+void wvReleaseFSPContainer(FSPContainer *item);
 
 /* begin temp */
 typedef struct _BITMAP
@@ -3402,17 +3407,24 @@ typedef struct _DggContainer
 
 
 U32 wvGetDggContainer(DggContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay);
+void wvReleaseDggContainer(DggContainer *item);
+void wvInitDggContainer(DggContainer *item);
 U32 wvGetBstoreContainer(BstoreContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay);
+void wvReleaseBstoreContainer(BstoreContainer *item);
+void wvInitBstoreContainer(BstoreContainer *item);
 
 
 U32 wvGetDgg(Dgg *dgg,MSOFBH *amsofbh,FILE *fd);
+void wvReleaseDgg(Dgg *dgg);
+void wvInitDgg(Dgg *dgg);
 
 U32 wvGetFDGG(FDGG *afdgg,FILE *fd);
 U32 wvGetFIDCL(FIDCL *afidcl,FILE *fd);
 
 	
 U32 wvGetSplitMenuColors(SplitMenuColors *splitmenucolors,MSOFBH *amsofbh,FILE *fd);
-U32 wvReleaseSplitMenuColors(SplitMenuColors *splitmenucolors);
+void wvReleaseSplitMenuColors(SplitMenuColors *splitmenucolors);
+void wvInitSplitMenuColors(SplitMenuColors *splitmenucolors);
 
 typedef struct _SpgrContainer
 	{
@@ -3435,13 +3447,16 @@ typedef struct _DgContainer
 	}DgContainer;
 
 U32 wvGetDgContainer(DgContainer *item,MSOFBH *msofbh,FILE *fd);
-U32 wvReleaseDgContainer(DgContainer *item);
+void wvReleaseDgContainer(DgContainer *item);
+void wvInitDgContainer(DgContainer *item);
 U32 wvGetFDG(FDG *afdg,FILE *fd);
 U32 wvGetSpgrContainer(SpgrContainer *item,MSOFBH *msofbh,FILE *fd);
+void wvReleaseSpgrContainer(SpgrContainer *item);
 U32 wvGetFSPGR(FSPGR *item,FILE *fd);
 
 U32 wvGetClientData(ClientData *item,MSOFBH *msofbh,FILE *fd);
 void wvReleaseClientData(ClientData *item);
+void wvInitClientData(ClientData *item);
 FSPContainer *wvFindSPID(SpgrContainer *item,S32 spid);
 
 typedef struct _escherstruct
@@ -3451,6 +3466,9 @@ typedef struct _escherstruct
 	} escherstruct;
 
 void wvGetEscher(escherstruct *item,U32 offset, U32 len, FILE *fd,FILE *delay);
+void wvInitEscher(escherstruct *item);
+void wvReleaseEscher(escherstruct *item);
+
 
 void wvStrToUpper(char *str);
 

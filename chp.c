@@ -24,7 +24,7 @@ void wvAddCHPXFromBucket(CHP *achp,UPXF *upxf,STSH *stsh)
     fprintf(stderr,"\n");
 	i=0;
 #endif
-	while (i < upxf->cbUPX)
+	while (i < upxf->cbUPX-2)
 		{
 		sprm = bread_16ubit(upxf->upx.chpx.grpprl+i,&i);
 #ifdef SPRMTEST

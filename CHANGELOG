@@ -11,6 +11,12 @@ Changes to to 0.5.43
 	* added --dir option to wvHtml so that pictures can be placed in
 	a seperate directory
 	* removed some more unnecessary element by element copies
+	* found the lengths for word7 sprms of 111 112 and 113, but i
+	dont know what they do, nonetheless they are now defused and
+	made safe.
+	* make configure.in test for memcpy as well and use bcopy if
+	not
+	* define ssize_t in config.h if unistd.h is not available
 ALL TODO
 	* allow latex or html or raw text conversion options.
 

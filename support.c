@@ -28,25 +28,28 @@ indentation.
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include "config.h"
 #include "wv.h"
+
 #ifdef HAVE_WMF
-#include "gdwmfapi.h"
-
-#include <sys/mman.h>
-
-extern listentry *ourlist;
-extern int list;
+#	include "gdwmfapi.h"
+	extern listentry *ourlist;
+	extern int list;
 #endif
 
 U32 read_32ubit(FILE *in)
 	{
-	U16 temp1,temp2;
 	U32 ret;
+#ifdef WORDS_BIGENDIAN
+	U16 temp1,temp2;
 	temp1 = read_16ubit(in);
 	temp2 = read_16ubit(in); 
 	ret = temp2;
 	ret = ret << 16;
 	ret += temp1;
+#else
+	fread(&ret,sizeof(U8),4,in);
+#endif
 	return(ret);
 	}
 
@@ -77,13 +80,17 @@ U32 bread_32ubit(U8 *in,U16 *pos)
 
 U16 read_16ubit(FILE *in)
 	{
-	U8 temp1,temp2;
 	U16 ret;
+#ifdef WORDS_BIGENDIAN
+	U8 temp1,temp2;
 	temp1 = getc(in);
 	temp2 = getc(in);
 	ret = temp2;
 	ret = ret << 8;
 	ret += temp1;
+#else
+	fread(&ret,sizeof(U8),2,in);
+#endif
 	return(ret);
 	}
 

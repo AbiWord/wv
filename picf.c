@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include "wv.h"
 
 int wvGetPICF(version ver,PICF *apicf,FILE *fd)
@@ -60,6 +61,12 @@ int wvGetPICF(version ver,PICF *apicf,FILE *fd)
 	wvTrace(("len of data is %d\n",apicf->lcb-apicf->cbHeader));
 	wvTrace(("ends at %x\n",ftell(fd)+apicf->lcb-apicf->cbHeader));
 	f = tmpfile();
+	if (f == NULL)
+		{
+		wvError(("Couldnt create tmpfile: %s\n",strerror(errno)));
+		apicf->rgb = NULL;
+		return(ret);
+		}
 	/*
 	sprintf(buffer,"/tmp/newtest-%d",s++);
 	f = fopen(buffer,"w+b");

@@ -31,6 +31,11 @@ void wvCopyBlip(Blip *dest,Blip *src)
         }
 	}
 
+void wvReleaseBlip(Blip *blip)
+	{
+	wvFree(blip->name);
+	}
+
 U32 wvGetBlip(Blip *blip,FILE *fd,FILE *delay)
 	{
 	U32 i,count,count2;

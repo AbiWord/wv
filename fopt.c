@@ -12,11 +12,23 @@ U32 wvGetFAnchor(FAnchor *item,FILE *fd)
 	return(4);
 	}
 
-U32 wvReleaseFOPTEArray(FOPTE **fopte,U32 count)
+void wvInitFOPTEArray(FOPTE **fopte)
 	{
-	U32 i;
-	for(i=0;i<count;i++)
-		wvReleaseFOPTE(&((*fopte)[i]));
+	*fopte=NULL;
+	}
+
+void wvReleaseFOPTEArray(FOPTE **fopte)
+	{
+	U32 i=0;
+	if (*fopte)
+		{
+		while((*fopte)[i].pid != 0)
+			{
+			wvFree((*fopte)[i].entry);
+			i++;
+			}
+		wvFree(*fopte);
+		}
 	}
 
 U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,FILE *fd)

@@ -76,3 +76,10 @@
 
 /* define if you have libpng */
 #undef HasPNG
+
+/* Define if you have the memcpy function.  */
+#undef HAVE_MEMCPY
+
+#ifndef HAVE_MEMCPY
+#define memcpy(d, s, n) bcopy ((s), (d), (n))
+#endif /* not HAVE_MEMCPY */
