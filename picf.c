@@ -157,7 +157,7 @@ wvEatOldGraphicHeader (wvStream * fd, U32 len)
     X = read_32ubit (fd);	/*changes, lets call this X */
     wvError (("X is %x\n", X));
     count += 4;
-    read_16ubit (fd);		/*0x0000 */
+    test = read_16ubit (fd);		/*0x0000 */
     if (test != 0x00000000L)
 	wvError (("Old Graphic\n"));
     count += 2;
