@@ -60,7 +60,6 @@ immediately before the FKP FC.
 int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,FILE *fd)
 	{
 	U32 currentfc;
-	U32 test,rettest;
 	BTE entry;
 	long currentpos;
 	currentfc = wvConvertCPToFC(currentcp,clx);
@@ -250,8 +249,10 @@ int wvGetComplexCharBounds(int version, CHPX_FKP *fkp, U32 *fcFirst,
 
 int wvGetComplexCharfcLim(int version, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, FILE *fd)
 	{
-	U32 fcTest,beginfc;
+	U32 fcTest/*,beginfc*/;
+	/*
 	BTE entry;
+	*/
 	*fcLim=0xffffffffL;
 	/* this only works with the initial rgfc array, which is the
 	 * same for both CHPX and PAPX FKPs */
@@ -309,9 +310,9 @@ int wvGetComplexCharfcLim(int version, U32 *fcLim, U32 currentfc, CLX *clx, BTE 
 
 int wvGetComplexCharfcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, FILE *fd)
 	{
-	U32 fcTest,endfc;
-	BTE entry;
-	/* this only works with the initial rgfc array, which is the
+	U32 fcTest/*,endfc*/;
+	/*BTE entry;*/
+	/* this only works with the initial rgfc array, which is the */
 	fcTest = wvSearchNextLargestFCCHPX_FKP(fkp,currentfc);
 
 	wvTrace(("fcTest (s) is %x\n",fcTest));

@@ -27,7 +27,7 @@ extern char *outputfilename;
 int main(int argc,char **argv)
 	{
 	FILE *input,*out;
-	int ret;
+	int ret=0;
 	PICF apicf;
 	int count;
 

@@ -1,17 +1,11 @@
-Changes to to 0.5.27
-	* expanded the list info wvParseStruct to include all of the structures.
-	* made the stylesheet code safe, but its a fix until i do the out of 
-	sequence istd initalizing correctly.
-	* removed blank line from expat Makefile, Keith Wear <keith.wear@wcom.com>
-	* get list info extracted, make ul vs ol descision, get entry begin
-	* continued with lists, maybe change struct to include chp and pap simultaneously
-	as i might need it for the lists, extract start value for html, and number nfc
-	to use as well, for the case of symbols (nfc tells me i think ?) swap to ul
-	rather than ol, thus we need a reciprocol mechanism in the config file.
-	* lists look good, releaseing to the world
+Changes to to 0.5.29
 ALL TODO
 	* word 6 and 95 lists are different, and there is supposedly cases there the
 	word 97 can use word 6 style lists, though its supposedly unlikely.
+	* remove all the lex rubbish, and take mswordview itself out of the default
+	Makefile dammit.
+	* we need character formatting for the <li> itself, we can do this I 
+	suppose, but i'll hold off on that for a while.
 
 	* tables.
 	* fontface and size for char runs..
@@ -119,6 +113,37 @@ ALL TODO
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.28
+	* added sprmPNLvlAnm into sprm.c for compatibility with word6/95
+	* sorted out where there are two lists under each other at the same
+	level but of different types. 
+	* Now the list code has become very tied down to being html output, i
+	have been keeping things reasonably flexible with the config file, ah
+	well, its not a serious problem at all.
+	* well now interesting, supported-list-features.doc is now a very 
+	bloody awkware set of lists, and its encouraging to note that word97
+	makes a real mess out of it. While an argument can be made that there
+	should not be a seperate para for each <li> element, compare the 
+	word97 output against the wvHtml output. word97 restarts each of the
+	lists from scratch, hur hur.
+	* removed lex dependancies from the Makefile, and split some of the
+	olderstuff into temporary old* files, which will all be removed one
+	by one.
+	* make does not make mswordview by default, time to wean everyone off
+	that one.
+	* mswordview itself probably doesnt work anymore, use the stable 
+	version if you want this program
+Changes to to 0.5.27
+	* expanded the list info wvParseStruct to include all of the structures.
+	* made the stylesheet code safe, but its a fix until i do the out of 
+	sequence istd initalizing correctly.
+	* removed blank line from expat Makefile, Keith Wear <keith.wear@wcom.com>
+	* get list info extracted, make ul vs ol descision, get entry begin
+	* continued with lists, maybe change struct to include chp and pap simultaneously
+	as i might need it for the lists, extract start value for html, and number nfc
+	to use as well, for the case of symbols (nfc tells me i think ?) swap to ul
+	rather than ol, thus we need a reciprocol mechanism in the config file.
+	* lists look good, releaseing to the world
 Changes to to 0.5.26
 	* some checking showed that I had the wrong name for the koi encoding,
 	koi8-r is the correct name, and ive changed it to that.

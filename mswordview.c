@@ -5292,3 +5292,330 @@ void chpson()
 	}
 
 
+int nostyles;
+
+extern FILE *erroroutput;
+extern int noconfig_styles;
+
+
+style *decode_stylesheet(FILE *tablefd,U32 stsh,U32 stshlen,config_style *Xin_style)
+	{
+	U16 sprm=0;
+	U16 j;
+	int i,upxbytes,len,m;
+	U16 thingy;
+	config_style *in_style = Xin_style;
+	
+	U16 cb;
+	style *stylelist;
+	U16 pos;
+	int baseistd;
+	int tempistd;
+
+	long temp;
+
+	error(erroroutput,"the new stsh is (%x), len (%x)\n",stsh,stshlen);
+
+	fseek(tablefd,stsh,SEEK_SET);
+	error(erroroutput,"not really stsh size is %ld\n",read_16ubit(tablefd));
+	
+	nostyles = read_16ubit(tablefd);
+	error(erroroutput,"count of styles is %d\n",nostyles);
+	error(erroroutput,"cbSTDBaseInFile is %ld\n",read_16ubit(tablefd));
+	for (i=0;i<7;i++)
+		read_16ubit(tablefd);
+
+	stylelist = (style *) malloc(sizeof(style) * nostyles);
+	if (stylelist == NULL)
+		{
+		wvError(("arse no mem for styles !\n"));
+		exit(-1);
+		}
+
+	temp = ftell(tablefd);
+	wvGetSTSH(&stylelist[0].stsh,stsh,stshlen,tablefd);
+	fseek(tablefd,temp,SEEK_SET);
+
+	for (m=0;m<nostyles;m++)
+		{
+		cb = read_16ubit(tablefd);
+		error(erroroutput,"size of std %ld\n",cb);
+
+		init_pap(&stylelist[m].thepap);
+
+		init_chp(&stylelist[m].thechp);
+
+		stylelist[m].name=NULL;
+		stylelist[m].end=NULL;
+		stylelist[m].begin=NULL;
+		stylelist[m].prespace=NULL;
+		stylelist[m].postspace=NULL;
+		stylelist[m].bold=NULL;
+		stylelist[m].italic=NULL;
+		stylelist[m].font=NULL;
+		stylelist[m].Default=NULL;
+		
+		error(erroroutput,"m val is %d\n",m);
+
+		if (cb != 0)
+			{
+			pos=0;
+
+			read_16ubit(tablefd);
+			pos+=2;
+			j = read_16ubit(tablefd);
+			pos+=2;
+			baseistd = j>>4;
+			error(erroroutput,"based upon istd is %d %d",j,baseistd);
+			if (baseistd < 0x0ffe)	
+				{
+				if (baseistd < m)
+					fill_pap(stylelist,m,baseistd);
+				else
+					error(erroroutput,"how can i be based on a style that i havent seen yet?\n");
+				}
+			else
+				error(erroroutput,"WARNING strange and unsupported istd base %x\n",baseistd);
+			j = read_16ubit(tablefd);
+			pos+=2;
+			error(erroroutput,"# of upx is %d %d\n",j,j>>12); 
+			upxbytes = j;
+			for (i=0;i<2;i++)
+				{
+				read_16ubit(tablefd);
+				pos+=2;
+				}
+			len = read_16ubit(tablefd);
+			pos+=2;
+			error(erroroutput,"name len is %d, m is %d\n",len,m);
+			stylelist[m].name = (char *)malloc(len+1);
+			error(erroroutput,"name len was %d,\n",len);
+
+			for(i=0;i<len+1;i++)
+				{
+				thingy = read_16ubit(tablefd);
+				pos+=2;
+				error(erroroutput,"thingy is %ld (%X) (-%x-) (-%c-)\n",thingy,thingy,thingy,thingy);
+				stylelist[m].name[i] = thingy;
+				}
+			/*
+			stylelist[m].name[i] = '\0';
+			*/
+			error(stderr,"the style name is %s\n",stylelist[m].name);
+
+			error(erroroutput,"pos is %x and %d",ftell(tablefd),pos);
+
+			if ((pos+1)/2 != pos/2)
+				{
+				/*eat odd bytes*/
+				error(erroroutput,"odd offset\n");
+				fseek(tablefd,1,SEEK_CUR);
+				pos++;
+				}
+
+			if (pos == cb)
+				{
+				error(erroroutput,"continuing\n");
+				continue;
+				}
+			else if (pos > cb)
+				{
+				error(erroroutput,"rewinding & continuing\n");
+				fseek(tablefd,cb-pos,SEEK_CUR);
+				continue;
+				}
+			if ((pos+1)/2 != pos/2)
+				{
+				/*eat odd bytes*/
+				error(erroroutput,"odd offset\n");
+				fseek(tablefd,1,SEEK_CUR);
+				pos++;
+				}
+
+			if (pos == cb)
+				{
+				error(erroroutput,"continuing\n");
+				continue;
+				}
+			else if (pos > cb)
+				{
+				error(erroroutput,"rewinding & continuing\n");
+				fseek(tablefd,cb-pos,SEEK_CUR);
+				continue;
+				}
+
+			/*read some kind of len variable, hairy territory again*/
+			upxbytes = read_16ubit(tablefd);
+			pos+=2;
+			error(erroroutput,"1 eat %d bytes",upxbytes);
+			j=0;
+			if (upxbytes > 1)
+				{
+				tempistd = read_16ubit(tablefd);
+				pos+=2;
+				j+=2;
+				if (tempistd != m)
+					{
+					error(erroroutput,"istds mismatch is %x %x\n",m,tempistd);
+					/*treat it as a sprm instead*/
+					sprm = tempistd;
+					}
+				else
+					{
+					if (j < upxbytes)
+						{
+						sprm = read_16ubit(tablefd);
+						j+=2;
+						pos+=2;
+						}
+					}
+				}
+
+			while (j<upxbytes)
+				{
+				error(erroroutput," j was %d\n",j);
+				pos-=j;
+				decode_sprm(tablefd,sprm,&(stylelist[m].thepap),&(stylelist[m].thechp),NULL,&j,NULL,stylelist,stylelist[m].thepap.istd);
+				error(erroroutput," j is %d\n",j);
+				pos+=j;
+				if (j>=upxbytes)
+					break;
+				sprm = read_16ubit(tablefd);
+				j+=2;
+				pos+=2;
+				}
+
+			if ((pos+1)/2 != pos/2)
+				{
+				/*eat odd bytes*/
+				error(erroroutput,"odd offset\n");
+				fseek(tablefd,1,SEEK_CUR);
+				error(erroroutput,"were at %x\n",ftell(tablefd));
+				pos++;
+				}
+
+			if (pos == cb)
+				{
+				error(erroroutput,"continuing\n");
+				continue;
+				}
+			else if (pos > cb)
+				{
+				error(erroroutput,"rewinding & continuing\n");
+				fseek(tablefd,cb-pos,SEEK_CUR);
+				continue;
+				}
+
+			/*then this is the len of bytes of the next stuff*/
+			upxbytes = read_16ubit(tablefd);
+			pos+=2;
+			error(erroroutput,"2 eat %d bytes",upxbytes);
+
+			/*k this is the good stuff*/
+			j=0;
+			while (j < upxbytes)
+				{
+				sprm = read_16ubit(tablefd);
+				j+=2;
+				pos+=2;
+				error(erroroutput," j was %d\n",j);
+				pos-=j;
+				decode_sprm(tablefd,sprm,&(stylelist[m].thepap),&(stylelist[m].thechp),NULL,&j,NULL,stylelist,stylelist[m].thepap.istd);
+				error(erroroutput," j is %d\n",j);
+				pos+=j;
+				}
+			
+			if ((pos+1)/2 != pos/2)
+				{
+				/*eat odd bytes*/
+				error(erroroutput,"odd offset\n");
+				fseek(tablefd,1,SEEK_CUR);
+				pos++;
+				}
+
+			error(erroroutput,"m val %d, ilfo is %d\n",m,stylelist[m].thepap.ilfo);
+			/*
+			search for the same name in the config file list, and modify the style
+			in relation to that.
+			*/
+			in_style = Xin_style;
+			for (i=0;i<noconfig_styles;i++)
+				{
+				/*
+				if (!(strcmp( ms_strlower(stylelist[m].name),ms_strlower(in_style->name) )))
+				*/
+				if (!(strcasecmp(stylelist[m].name,in_style->name)))
+					{
+					error(stderr,"found match for %s\n",stylelist[m].name);
+					stylelist[m].begin = in_style->begin;
+					stylelist[m].end = in_style->end;
+					stylelist[m].prespace = in_style->prespace;
+					stylelist[m].postspace = in_style->postspace;
+					stylelist[m].Default = in_style->Default;
+					stylelist[m].bold = in_style->bold;
+					stylelist[m].font = in_style->font;
+					stylelist[m].italic = in_style->italic;
+					break;
+					}
+				in_style = in_style->next;
+				}
+			}
+		}
+	return(stylelist);
+	}
+
+
+void fill_pap(style *stylelist,int m,int b)
+	{
+	stylelist[m].thepap.fInTable = stylelist[b].thepap.fInTable;
+	stylelist[m].thepap.fTtp= stylelist[b].thepap.fTtp;
+	stylelist[m].thepap.ilvl = stylelist[b].thepap.ilvl;
+	stylelist[m].thepap.ilfo = stylelist[b].thepap.ilfo;
+	stylelist[m].thepap.list_data=stylelist[b].thepap.list_data;
+	stylelist[m].thepap.leftmargin=stylelist[b].thepap.leftmargin;
+	stylelist[m].thepap.firstline=stylelist[b].thepap.firstline;
+
+	stylelist[m].thechp.fBold=stylelist[b].thechp.fBold;
+	stylelist[m].thechp.fItalic=stylelist[b].thechp.fItalic;
+	stylelist[m].thechp.fCaps =stylelist[b].thechp.fCaps;
+	stylelist[m].thechp.sfxtText=stylelist[b].thechp.sfxtText;
+	stylelist[m].thechp.ftcAscii=stylelist[b].thechp.ftcAscii;
+	stylelist[m].thechp.ftcFE=stylelist[b].thechp.ftcFE;
+	stylelist[m].thechp.ftcOther=stylelist[b].thechp.ftcOther;
+	stylelist[m].thechp.fontsize=stylelist[b].thechp.fontsize;
+	stylelist[m].thechp.supersubscript= stylelist[b].thechp.supersubscript;
+	stylelist[m].thechp.fontcode=stylelist[b].thechp.fontcode;
+	stylelist[m].thechp.fontspec=stylelist[b].thechp.fontspec;
+	strcpy(stylelist[m].thechp.color,stylelist[b].thechp.color);
+	stylelist[m].thechp.underline=stylelist[b].thechp.underline;
+	stylelist[m].thechp.fSpec=stylelist[b].thechp.fSpec;
+	stylelist[m].thechp.fObj=stylelist[b].thechp.fObj;
+	stylelist[m].thechp.idctHint=stylelist[b].thechp.idctHint;
+	stylelist[m].thechp.fcPic=stylelist[b].thechp.fcPic;
+	stylelist[m].thechp.fData=stylelist[b].thechp.fData;
+	stylelist[m].thechp.fStrike=stylelist[b].thechp.fStrike;
+	stylelist[m].thechp.fDStrike=stylelist[b].thechp.fDStrike;
+	}
+
+
+int allowedfont(style *sheet,U16 istd)
+	{
+	if (sheet[istd].font != NULL)
+        {
+        if (!(strcmp(sheet[istd].font,"off")))
+            return(0);
+        else
+            return(1);
+        }
+    else if (sheet[istd].Default != NULL)
+        {
+        if (!(strcmp(sheet[istd].Default,"off")))
+            {
+            return(0);
+            error(stderr,"font face turned off\n");
+            }
+        else
+            return(1);
+        }
+	return(1);
+	}

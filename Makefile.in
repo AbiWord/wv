@@ -36,7 +36,9 @@ mandir=@mandir@
 includedir = @includedir@
 PERL = @PERL@
 
-CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -Iexpat/xmlparse -Ioledecod -I. @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DCONFIGFILE=\"$(libdir)/wv/config-mswordview\" -DPATTERNDIR=\"file:$(libdir)/wv/patterns\" -DSYMBOLFONTDIR=\"file:$(libdir)/wv/symbolfont\" -DWINGDINGFONTDIR=\"file:$(libdir)/wv/wingdingfont\"
+VPATH = @srcdir@
+
+CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I$(srcdir)/expat/xmlparse -I$(srcdir)/oledecod -I$(srcdir)/ @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DCONFIGFILE=\"$(libdir)/wv/config-mswordview\" -DPATTERNDIR=\"file:$(libdir)/wv/patterns\" -DSYMBOLFONTDIR=\"file:$(libdir)/wv/symbolfont\" -DWINGDINGFONTDIR=\"file:$(libdir)/wv/wingdingfont\"
 
 MKINSTALLDIRS = $(srcdir)/mkinstalldirs
 
@@ -45,7 +47,6 @@ SHELL = /bin/sh
 .SUFFIXES: .C .o
 
 MYOBJECTS =	\
-	mswordview.o \
 	laolareplace.old.o \
 	support.o \
 	list.o \
@@ -62,7 +63,6 @@ MYOBJECTS =	\
 	papchpsep.o \
 	hyperlink.o \
 	decompresswmf.o \
-	table.o \
 	annotations.o \
 	dop.o \
 	roman.o \
@@ -97,7 +97,6 @@ MYOBJECTS =	\
 	numrm.o \
 	asumyi.o \
 	version.o \
-	lex.yy.o \
 	lspd.o \
 	phe.o \
 	tlp.o \
@@ -149,10 +148,10 @@ OLE = oledecod/oledecod.o
 
 CRYPT = crypt/rc4.o crypt/md5.o
 
-all: mswordview$(EXEEXT) wvSummary$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) wv-libconfig wv-incconfig
+all: wvSummary$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSimpleCLX$(EXEEXT) wv-libconfig wv-incconfig
 
-mswordview$(EXEEXT):  main.o $(GETOPT) OLEDECODE libwv.a
-	$(CC)  -o $@ main.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+mswordview$(EXEEXT):  mswordview.o main.o lex.yy.o oldlist.o oldblip.o oldtable.o oldchp.o oldsprm.o oldsupport.o $(GETOPT) OLEDECODE libwv.a
+	$(CC)  -o $@ main.o  mswordview.o lex.yy.o oldtable.o oldlist.o oldblip.o oldsprm.o oldchp.o oldsupport.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wvSummary$(EXEEXT): wvSummary.o $(GETOPT) OLEDECODE libwv.a
 	$(CC)  -o $@ wvSummary.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
@@ -210,8 +209,8 @@ CRYPTCODE:
 	@echo making rc4 in crypt
 	@(cd crypt && $(MAKE)) || exit 1
 
-%.o: %.c 
-	$(CC) $(CFLAGS) -c $*.c -o $*.o
+%.o: $(srcdir)/%.c 
+	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
 cleansub:
 	@echo cleaning oledecod in oledecod

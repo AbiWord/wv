@@ -4,7 +4,6 @@
 
 void wvGetPICF(PICF *apicf,FILE *infd,U32 offset)
 	{
-	int count=0;
 	U8 temp;
 
 	fseek(infd,offset,SEEK_SET);

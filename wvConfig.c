@@ -328,11 +328,14 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	expand_data *mydata = (expand_data *)userData;
 	char *text,*str;
 	const char *ctext;
-	static int bold,italic,strike,outline,smallcaps,caps,vanish,underline,
+	static int bold,italic,strike,outline,smallcaps,caps,vanish,
 	shadow,lowercase,emboss,imprint,dstrike,iss,kul,color,fontstr,proprmark,
 	animation,delete,added,FldRMark,ilfo,ilvl=-1,ulist,olist;
 	char buffer[64];
 	static LVL lvl;
+	static U32 lastid=0;
+	static LFO *retlfo;
+
 
 	tokenIndex = s_mapNameToToken(name);
 	wvTrace(("name = %s tokenIndex = %d\n", name, tokenIndex));
@@ -384,9 +387,6 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_START:
-			/*
-			sprintf(buffer,"%d",lvl.lvlf.iStartAt);
-			*/
 			sprintf(buffer,"%d",mydata->liststartnos[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl]);
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
@@ -435,10 +435,9 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_ULISTB:
 		    wvTrace(("ilfo is %d\n",((PAP*)(mydata->props))->ilfo));
-			
-			if ( ((PAP*)(mydata->props))->ilfo )
+			if (wvIsListEntry((PAP*)(mydata->props),wvQuerySupported(mydata->fib,NULL)))
 				{
-				if (wvGetListEntryInfo(&lvl,(PAP*)(mydata->props),mydata->lfo,mydata->lfolvl,mydata->lvl,mydata->nolfo, mydata->lst, mydata->noofLST))
+				if (wvGetListEntryInfo(&mydata->liststartnos,&lvl,&retlfo,(PAP*)(mydata->props),&mydata->lfo,mydata->lfolvl,mydata->lvl,&mydata->nolfo, mydata->lst, mydata->noofLST,wvQuerySupported(mydata->fib,NULL)))
 					{
 					wvError(("aborted list entry, more work needed obviously\n"));
 					return;
@@ -459,6 +458,8 @@ void exstartElement(void *userData, const char *name, const char **atts)
 							mydata->liststartnos[i] = mydata->finallvl[i].lvlf.iStartAt;
 						}
 					}
+
+
 
 				if (((PAP*)(mydata->props))->ilvl > ilvl)
 					while (ilvl < ((PAP*)(mydata->props))->ilvl)
@@ -492,6 +493,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 						}
 				ilfo = ((PAP*)(mydata->props))->ilfo;
 				ilvl = ((PAP*)(mydata->props))->ilvl;
+				lastid = retlfo->lsid;
 				ulist=1;
 				wvTrace(("start number still set to %d\n",mydata->liststartnos[(ilfo-1)*9+ilvl]));
 				}
@@ -524,16 +526,16 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_OLISTB:
 		    wvTrace(("ilfo is %d\n",((PAP*)(mydata->props))->ilfo));
-			if ( ((PAP*)(mydata->props))->ilfo )
+			if (wvIsListEntry((PAP*)(mydata->props),wvQuerySupported(mydata->fib,NULL)))
 				{
-				if (wvGetListEntryInfo(&lvl,(PAP*)(mydata->props),mydata->lfo,mydata->lfolvl,mydata->lvl,mydata->nolfo, mydata->lst, mydata->noofLST))
+				if (wvGetListEntryInfo(&mydata->liststartnos,&lvl,&retlfo,(PAP*)(mydata->props),&mydata->lfo,mydata->lfolvl,mydata->lvl,&mydata->nolfo, mydata->lst, mydata->noofLST,wvQuerySupported(mydata->fib,NULL)))
 					{
 					wvError(("aborted list entry, more work needed obviously\n"));
 					return;
 					}
 				else
 					{
-					int i,ok;
+					int i;
 					wvTrace(("start number is %d, type is %d\n",lvl.lvlf.iStartAt,lvl.lvlf.nfc));
 					wvTrace(("lfo is %d, ilvi is %d\n",((PAP*)(mydata->props))->ilfo,((PAP*)(mydata->props))->ilvl));
 					if (mydata->liststartnos[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl] == 0xffffffffL) 
@@ -554,6 +556,38 @@ void exstartElement(void *userData, const char *name, const char **atts)
 						return;
 						}
 					}
+
+				if ( (((PAP*)(mydata->props))->ilvl == ilvl) && (retlfo->lsid != lastid) )
+					{
+					if (ulist)
+						{
+						wvTrace(("str is %s\n",mydata->sd->elements[TT_ULIST].str[1]));
+						text = (char *)malloc(strlen(mydata->sd->elements[TT_ULIST].str[1])+1);
+						strcpy(text,mydata->sd->elements[TT_ULIST].str[1]);
+						str = mydata->retstring;
+						wvExpand(mydata,text,strlen(text));
+						wvAppendStr(&str,mydata->retstring);
+						wvFree(mydata->retstring);
+						mydata->retstring = str;
+						wvFree(text);
+						mydata->currentlen = strlen(mydata->retstring);
+						}
+					else if (olist)
+						{
+						wvTrace(("str is %s\n",mydata->sd->elements[TT_OLIST].str[1]));
+						text = (char *)malloc(strlen(mydata->sd->elements[TT_OLIST].str[1])+1);
+						strcpy(text,mydata->sd->elements[TT_OLIST].str[1]);
+						str = mydata->retstring;
+						wvExpand(mydata,text,strlen(text));
+						wvAppendStr(&str,mydata->retstring);
+						wvFree(mydata->retstring);
+						mydata->retstring = str;
+						wvFree(text);
+						mydata->currentlen = strlen(mydata->retstring);
+						}
+					ilvl--;
+					}
+					
 				if (((PAP*)(mydata->props))->ilvl > ilvl)
 					while (ilvl < ((PAP*)(mydata->props))->ilvl)
 						{
@@ -586,6 +620,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 						}
 				ilfo = ((PAP*)(mydata->props))->ilfo;
 				ilvl = ((PAP*)(mydata->props))->ilvl;
+				lastid = retlfo->lsid;
 				olist=1;
 				wvTrace(("start number still set to %d\n",mydata->liststartnos[(ilfo-1)*9+ilvl]));
 				}

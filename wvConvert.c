@@ -93,6 +93,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
 	data->noofLST = ps->noofLST;
 	data->liststartnos = ps->liststartnos;
 	data->finallvl = ps->finallvl;
+    data->fib = &ps->fib;
 
 	data->charset = wvAutoCharset(&ps->clx);
 	data->props = props;
@@ -137,6 +138,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 	data->noofLST = ps->noofLST;
 	data->liststartnos = ps->liststartnos;
 	data->finallvl = ps->finallvl;
+    data->fib = &ps->fib;
 	
 	data->charset = wvAutoCharset(&ps->clx);
 

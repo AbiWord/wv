@@ -980,6 +980,7 @@ int wvInvalidLFOLVL(LFOLVL *item);
 int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl,U32 offset,U32 len,FILE *fd);
 int wvReleaseLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 nooflvl);
 
+
 char *wvGenerateNFC(int value,int no_type);
 char *wvOrdinal(U32 x);
 U16 *wvListString(int ilfo,int ilvl,LST *alst);
@@ -1446,6 +1447,7 @@ typedef struct _PAP
 
 void wvCopyPAP(PAP *dest,PAP *src);
 void wvInitPAP(PAP *item);
+int wvIsListEntry(PAP *apap,int version);
 
 
 typedef U16 BF;
@@ -2354,6 +2356,8 @@ typedef struct _expand_data
 	U32 *liststartnos;
 	LVL *finallvl;
 
+	FIB *fib;
+
 	void *props; /* holds PAP/CHP/etc */
 	U16 charset;
 	
@@ -2589,7 +2593,7 @@ U16 wvConvert1252Toiso8859_15(U8 char8);
 
 U16 wvConvertUnicodeToiso8859_15(U16 char16);
 
-
+U16 wvConvertUnicodeToKOI8_R(U16 char16);
 
 int wvConvert1252ToHtml(U8 char8);
 
@@ -2800,7 +2804,8 @@ int wvGetComplexCharfcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
 
 void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype);
 
-int wvGetListEntryInfo(LVL *retlvl,PAP *apap,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U32 noofLST);
+int wvGetListEntryInfo(U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST *lst, U32 noofLST,int version);
+
 
 
 /*current addition position*/
