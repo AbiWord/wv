@@ -560,7 +560,7 @@ docProc (wvParseStruct * ps, wvTag tag)
 static void
 do_version (void)
 {
-    printf ("wvRTF version 0.6.5\n");
+    printf ("wvRTF version 0.6.7\n");
 }
 
 static void
