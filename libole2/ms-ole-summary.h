@@ -7,16 +7,13 @@
  *    Caolan McNamara (Caolan.McNamara@ul.ie)
  * Built on work by:
  *    Somar Software's CPPSUM (http://www.somar.com)
- *
- * Copyright 1998-2000 Helix Code, Inc., Frank Chiulli, and others.
  **/
 
 #ifndef MS_OLE_SUMMARY_H
 #define MS_OLE_SUMMARY_H
 
 #include <time.h>
-#include <libole2/ms-ole.h>
-
+#include "ms-ole.h"
 /*
  * MS Ole Property Set IDs
  * The SummaryInformation stream contains the SummaryInformation property set.
@@ -139,10 +136,12 @@ typedef enum {
 #define MsOleSummarySecurityRO                    0x04
 #define MsOleSummarySecurityLockedForAnnotations  0x08
 
+#if 0
 typedef struct {
 	GTimeVal time;
 	GDate    date;
 } MsOleSummaryTime;
+#endif
 
 typedef struct {
 	guint32 len;
@@ -161,9 +160,12 @@ guint16			ms_ole_summary_get_short	(MsOleSummary *si,
 guint32			ms_ole_summary_get_long		(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 gboolean *available);
+#if 0
 GTimeVal		ms_ole_summary_get_time		(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 gboolean *available);
+#endif
+
 MsOleSummaryPreview	ms_ole_summary_get_preview	(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 gboolean *available);
@@ -183,9 +185,11 @@ void			ms_ole_summary_set_short	(MsOleSummary *si,
 void			ms_ole_summary_set_long		(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 guint32 i);
+#if 0
 void			ms_ole_summary_set_time		(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 GTimeVal time);
+#endif
 void			ms_ole_summary_set_preview	(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 const

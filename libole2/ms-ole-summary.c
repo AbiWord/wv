@@ -2,24 +2,23 @@
  * ms-ole-summary.c: MS Office OLE support
  *
  * Authors:
- *    Frank Chiulli (fc-linux@home.com)
  *    Michael Meeks (mmeeks@gnu.org)
+ *    Frank Chiulli (fc-linux@home.com)
  * From work by:
  *    Caolan McNamara (Caolan.McNamara@ul.ie)
  * Built on work by:
  *    Somar Software's CPPSUM (http://www.somar.com)
- *
- * Copyright 1998-2000 Helix Code, Inc., Frank Chiulli, and others.
  **/
 
-#include <config.h>
-#include <glib.h>
 #include <stdio.h>
 #include <string.h>
+#include <glib.h>
+#include "ms-ole.h"
+#include "ms-ole-summary.h"
 
-#include <libole2/ms-ole.h>
-#include <libole2/ms-ole-summary.h>
-
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #define SUMMARY_ID(x) ((x) & 0xff)
 
@@ -57,7 +56,7 @@ read_items (MsOleSummary *si, MsOlePropertySetID ps_id)
 {
 	gint sect;
 	
-	for (sect = 0; sect < si->sections->len; sect++) {
+	for (sect = 0; sect < (gint) si->sections->len; sect++) {
 		MsOleSummarySection st;
 		guint8 data[8];
 		gint   i;
@@ -77,7 +76,7 @@ read_items (MsOleSummary *si, MsOlePropertySetID ps_id)
 		if (st.props == 0)
 			continue;
 		
-		for (i = 0; i < st.props; i++) {
+		for (i = 0; i < (gint) st.props; i++) {
 			item_t item;
 			if (!si->s->read_copy (si->s, data, 8))
 				return FALSE;
@@ -506,26 +505,11 @@ ms_ole_summary_get_properties (MsOleSummary *si)
 
 	ans = g_array_new (FALSE, FALSE, sizeof (MsOleSummaryPID));
 	g_array_set_size  (ans, si->items->len);
-	for (i = 0; i < si->items->len; i++)
+	for (i = 0; i < (gint) si->items->len; i++)
 		g_array_index (ans, MsOleSummaryPID, i) = 
 			g_array_index (si->items, item_t, i).id;
 
 	return ans;
-}
-
-static void
-free_write_items (MsOleSummary *si)
-{
-	GList *ptr;
-	g_return_if_fail (si != NULL);
-
-	for (ptr = si->write_items; ptr != NULL ; ptr = ptr->next) {
-		write_item_t *w = ptr->data;
-		g_free (w->data);
-		w->data = NULL;
-		g_free (w);
-	}
-	g_list_free (si->write_items);
 }
 
 /**
@@ -540,10 +524,8 @@ ms_ole_summary_close (MsOleSummary *si)
 	g_return_if_fail (si != NULL);
 	g_return_if_fail (si->s != NULL);
 
-	if (!si->read_mode) {
+	if (!si->read_mode)
 		write_items (si);
-		free_write_items (si);
-	}
 	
 	if (si->sections)
 		g_array_free (si->sections, TRUE);
@@ -579,9 +561,9 @@ seek_to_record (MsOleSummary *si, MsOleSummaryPID id)
 	g_return_val_if_fail (si->items, FALSE);
 
 	/* These should / could be sorted for speed */
-	for (i = 0; i < si->items->len; i++) {
+	for (i = 0; i < (gint) si->items->len; i++) {
 		item_t item = g_array_index (si->items, item_t, i);
-		if (item.id == SUMMARY_ID(id)) {
+		if (item.id == (guint32) SUMMARY_ID(id)) {
 			gboolean is_summary, is_doc_summary;
 
 			is_summary     = ((si->ps_id == MS_OLE_PS_SUMMARY_INFO) && 
@@ -640,7 +622,7 @@ ms_ole_summary_get_string (MsOleSummary *si, MsOleSummaryPID id,
 
 	ans = g_new (gchar, len + 1);
 	
-	if (!si->s->read_copy (si->s, ans, len)) {
+	if (!si->s->read_copy (si->s, (guint8 *)ans, len)) {
 		g_free (ans);
 		return NULL;
 	}
@@ -974,6 +956,7 @@ unixtime_to_filetime (time_t unix_time, unsigned int *time_high, unsigned int *t
  * 
  * Return value: FIXME
  **/
+#if 0
 GTimeVal
 ms_ole_summary_get_time (MsOleSummary *si, MsOleSummaryPID id,
 			 gboolean *available)
@@ -1016,6 +999,7 @@ ms_ole_summary_get_time (MsOleSummary *si, MsOleSummaryPID id,
 	*available = TRUE;
 	return time;
 }
+#endif
 
 /**
  * ms_ole_summary_preview_destroy:
@@ -1139,6 +1123,7 @@ ms_ole_summary_set_preview (MsOleSummary *si, MsOleSummaryPID id,
  * 
  * FIXME
  **/
+#if 0
 void
 ms_ole_summary_set_time (MsOleSummary *si, MsOleSummaryPID id,
 			 GTimeVal time)
@@ -1162,6 +1147,7 @@ ms_ole_summary_set_time (MsOleSummary *si, MsOleSummaryPID id,
 	MS_OLE_SET_GUINT32 (w->data + 4, time_low);
 	MS_OLE_SET_GUINT32 (w->data + 8, time_high);
 }
+#endif
 
 /**
  * ms_ole_summary_set_boolean:
