@@ -175,7 +175,7 @@ static const wvLanguageId mLanguageIds[] =
 		{ "-none-", 0x0400 }, /* none */
 		{ "af-ZA", 0x0436 }, /* Afrikaans */
 		{ "am", 0x045e }, /* Amharic */
-		{ "al-AL", 0x041c }, /* Albanian */
+		{ "sq-AL", 0x041c }, /* Albanian */
 		{ "ar-SA", 0x0401 }, /* Arabic (Saudi) */
 		{ "ar-IQ", 0x0801 }, /* Arabic (Iraq) */
 		{ "ar-EG", 0x0c01 }, /* Arabic (Egypt) */		
