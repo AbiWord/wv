@@ -13,7 +13,9 @@ CharsetTable c_Tokens[] =
 {
     { "utf-8",UTF8 },
     { "iso-5589-15",ISO_5589_15 },
-    { "cp-1252",CP1252 }
+    { "cp-1252",CP1252 },
+    { "koi-8",KOI8 }
+	/* add your charset here */
 };
 
 const char *wvGetCharset(U16 charset)
@@ -26,6 +28,17 @@ const char *wvGetCharset(U16 charset)
         }
     return(NULL);
     }
+
+U16 wvLookupCharset(char *optarg)
+	{
+	unsigned int k;
+    for (k=0; k<CharsetTableSize; k++)
+        {
+        if (0 == strcasecmp(c_Tokens[k].m_name,optarg))
+            return(c_Tokens[k].m_type);
+        }
+    return(0xffff);
+	}
 
 int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStruct *ps)
 	{
@@ -142,6 +155,9 @@ void wvOutputFromCP1252(U16 eachchar,U8 outputtype)
 				}
 			printf("%c",temp16);
 			break;
+		case KOI8:
+			wvError(("It is my belief that there is no russian word 97 documents in 8bit mode, if I am wrong then this is my mistake, please send me this document if it is actually in russian\n"));
+			break;
 		/*add your own charset here*/
 		}
 	}
@@ -161,6 +177,15 @@ void wvOutputFromUnicode(U16 eachchar,U8 outputtype)
 		case ISO_5589_15:
 			temp16 = wvConvertUnicodeToiso8859_15(eachchar);
 			if (temp16 == 0xffff)
+				{
+				printf("?");
+				return;
+				}
+			printf("%c",temp16);
+			break;
+		case KOI8:
+			temp16 = wvConvertUnicodeToKOI8_R(eachchar);
+			if (temp16 = 0xffff)
 				{
 				printf("?");
 				return;
@@ -236,15 +261,27 @@ void wvBeginSection(expand_data *data)
 
 void wvBeginPara(expand_data *data)
 	{
-	if ( (data != NULL) &&  (data->sd != NULL) && (data->sd->elements[TT_PARA].str[0]!= NULL) )
+	if (data != NULL)
 		{
-		wvExpand(data,data->sd->elements[TT_PARA].str[0],
-		strlen(data->sd->elements[TT_PARA].str[0]));
-		if (data->retstring)
+		if ( (data->sd != NULL) && (data->sd->elements[TT_PARA].str[0]!= NULL) )
 			{
-			wvTrace(("para begin is now %s",data->retstring));
-			printf("%s",data->retstring);
-			wvFree(data->retstring);
+			wvExpand(data,data->sd->elements[TT_PARA].str[0],strlen(data->sd->elements[TT_PARA].str[0]));
+			if (data->retstring)
+				{
+				printf("%s",data->retstring);
+				wvFree(data->retstring);
+				}
+			}
+
+		if (((PAP *)data->props)->ilfo)
+			{
+			wvTrace(("This paragraph is a list entry\n"));
+			/*
+			find all the list information and print out the text of the list
+
+			we can be sure at this stage that all char props are ended, so we
+			can create what we need to contain the number text right here
+			*/
 			}
 		}
 	}
@@ -253,8 +290,7 @@ void wvEndPara(expand_data *data)
 	{
 	if ( (data->sd != NULL) && (data->sd->elements[TT_PARA].str[1]!= NULL) )
 		{
-		wvExpand(data,data->sd->elements[TT_PARA].str[1],
-		strlen(data->sd->elements[TT_PARA].str[1]));
+		wvExpand(data,data->sd->elements[TT_PARA].str[1],strlen(data->sd->elements[TT_PARA].str[1]));
 		if (data->retstring)
 			{
 			wvTrace(("para end is now %s",data->retstring));

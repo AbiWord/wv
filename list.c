@@ -1158,3 +1158,202 @@ void decode_s_list(pap *apap,chp *achp,list_info *a_list_info,FFN_STTBF *ffn_stt
 			}
 		}
 	}
+
+
+
+/* experimental */
+
+/*
+Paragraph List Formatting
+
+Given a paragraph and its corresponding PAP, the following process must be
+followed to find out the paragraph's list information:
+
+   * Using the pap.ilfo, look up the LFO record in the pllfo with that
+     (1-based) index.
+
+   * Using the LFO, and the pap.ilvl, check to see if there are any
+     overrides for this particular level. If so, and if the override
+     pertains to both formatting and start-at value, use the LVL record from
+     the correct LFOLVL in the LFO, and skip to step 5.
+
+   * If the override does not pertain to either formatting or start-at
+     value, we must look up the LST for this list. Using the LFO's List ID,
+     search the rglst for the LST with that List ID.
+
+   * Now, take from this LST any information (formatting or start-at value)
+     we still need after consulting the LFO.
+
+   * Once we've got the correct LVL record, apply the lvl.grpprlPapx to the
+     PAP. It may adjust the indents and tab settings for the paragraph.
+
+   * Use the other information in the LVL, such as the start at, number
+     text, and grpprlChpx, to determine the appearance of the actual
+     paragraph number text.
+*/
+U16 *wvGetListEntryInfo(PAP *apap, CHP *achp,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U32 noofLST,STSH *stsh)
+	{
+	LST *alst=NULL;
+	LVL templvl;
+	U8 usetemp=0;
+	U16 *str=NULL;
+	int i,number=0;
+	U32 oldno = 0xffffffff;
+	chp ourchp;
+	int issection;
+	U8 *pointer;
+	U16 sprm,j;
+
+	if (apap->ilfo == 2047)
+		{
+		/*word 6 anld, parse that instead*/
+		return;
+		}
+	else if (apap->ilfo == 0) 
+		{
+		/* no number */
+		return;
+		}
+	if (apap->ilfo > nolfo) 
+		{
+		wvWarning("ilfo no %d, is greater than the number of existing lfo's (%d)\n",apap->ilfo,nolfo);
+		return;
+		}
+
+	/*
+	Using the pap.ilfo, look up the LFO record in the pllfo with that
+    (1-based) index. == lfo[apap->ilfo]
+	*/
+
+	if (lfo[apap->ilfo-1].clfolvl)
+		{
+   		/* 
+		Using the LFO, and the pap.ilvl, check to see if there are any 
+		overrides for this particular level. If so, and if the override
+     	pertains to both formatting and start-at value, use the LVL record 
+		from the correct LFOLVL in the LFO, and skip to step 5.
+		*/
+		wvTrace(("some overridden levels\n"));
+
+		/* 
+		there are some levels overridden, find out if the level being overridden
+		is the same as the level the paragraph wants
+		*/
+		for (i=0;i<apap->ilfo-1;i++)
+			number+=lfo[i].clfolvl;
+
+		for(i=0;i<lfo[apap->ilfo-1].clfolvl;i++)
+			{
+			if (lfolvl[i+number].ilvl == apap->ilvl)
+				{
+				/* the requested level is overridden */
+				if ((lfolvl[i+number].fFormatting) && (lfolvl[i+number].fStartAt))
+					{
+					/*save the existing lvl and swap in this new one instead*/
+					alst = wvSearchLST(lfo[apap->ilfo-1].lsid,lst,noofLST);
+					wvCopyLVL(&templvl,&(alst->lvl[apap->ilvl]));
+					usetemp=1;
+
+					/*use the LVL record from the correct LFOLVL in the LFO*/
+					wvCopyLVL(&(alst->lvl[apap->ilvl]),&(lvl[i+number]));
+					}
+				else if (lfolvl[i+number].fStartAt)
+					{
+					alst = wvSearchLST(lfo[apap->ilfo-1].lsid,lst,noofLST);
+					/*replace the start with the new start*/
+					oldno = alst->lvl[apap->ilvl].lvlf.iStartAt;
+					alst->lvl[apap->ilvl].lvlf.iStartAt = lfolvl[i+number].iStartAt;
+					}
+				else if (lfolvl[i+number].fFormatting)
+					{
+					/*save the existing lvl and swap in this new one instead*/
+					alst = wvSearchLST(lfo[apap->ilfo-1].lsid,lst,noofLST);
+					wvCopyLVL(&templvl,&(alst->lvl[apap->ilvl]));
+					usetemp=1;
+
+					/*use the LVL record from the correct LFOLVL in the LFO*/
+					wvCopyLVL(&(alst->lvl[apap->ilvl]),&(lvl[i+number]));
+
+					/*move the original start no back into this one*/
+					alst->lvl[apap->ilvl].lvlf.iStartAt = templvl.lvlf.iStartAt;
+					}
+				}
+			}
+		}		
+	
+	if (alst == NULL)
+		{
+		/* 
+		if there no overridden levels i assume that we 
+		search for the appropiate LST 
+		*/
+		wvTrace(("no overridden levels\n"));
+		alst = wvSearchLST(lfo[apap->ilfo-1].lsid,lst,noofLST);
+		}
+
+	if (alst != NULL)
+		{
+		/* 
+		modify the paragraph properties if necessary from our linked
+		paragraph properties
+		*/
+#if 0
+		wvAddPAP_FromBucket(apap,alst->lvl[apap->ilvl].grpprlPapx,
+		alst->lvl[apap->ilvl].lvlf.cbGrpprlPapx,sheet);
+#else 
+		j = 0;
+		while (j < alst->lvl[apap->ilvl].lvlf.cbGrpprlPapx)   
+			{
+			sprm = bread_16ubit(alst->lvl[apap->ilvl].grpprlPapx+i,&j);
+			wvTrace(("sprm is %x\n",sprm));
+			pointer = alst->lvl[apap->ilvl].grpprlPapx+i;
+			wvApplySprmFromBucket(0,sprm,apap,NULL,NULL,stsh,pointer,&j);
+			}
+#endif
+
+		str = wvListString(apap->ilfo-1,apap->ilvl,alst);
+#if 0
+		if (str) 
+			{
+			/*
+			make copy of the chp, apply the list to it
+			and output the letters of the list numbering
+			*/
+
+			twvCopyCHP(&ourchp,achp);
+			wvAddCHP_FromBucket(&ourchp,alst->lvl[apap->ilvl].grpprlChpx,
+			alst->lvl[apap->ilvl].lvlf.cbGrpprlChpx,sheet);
+			decode_e_chp(&ourchp);
+			decode_s_chp(&ourchp,ffn_sttbf,sheet);
+
+			i=0;
+			while (str[i] != 0)
+				{
+				decode_letter(str[i],0,
+				apap,&ourchp,
+				NULL,NULL,NULL,ffn_sttbf,NULL,NULL,&issection,sheet);
+				
+				realcp--;
+				cp--;
+				i++;
+				}
+
+		
+			decode_e_chp(achp);
+			decode_s_chp(achp,ffn_sttbf,sheet);
+			
+			wvFree(str);
+			}
+#endif
+
+		/*put everything back as we found it*/
+		if (usetemp)
+			wvCopyLVL(&(alst->lvl[apap->ilvl]),&templvl);
+
+		if (oldno != 0xffffffff)
+			alst->lvl[apap->ilvl].lvlf.iStartAt = oldno;
+		}
+	else
+		wvError(("No LST found for list\n"));
+	return(str);
+	}

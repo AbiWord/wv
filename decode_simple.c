@@ -37,6 +37,9 @@ void wvDecodeSimple(wvParseStruct *ps)
 	SED *sed;
 	SEP sep;
 	U32 *posSedx;
+	LFOLVL *lfolvl;
+	LVL *lvl;
+	U32 nolfo,nooflvl;
 
 	/*we will need the stylesheet to do anything useful with layout and look*/
 	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
@@ -52,6 +55,10 @@ void wvDecodeSimple(wvParseStruct *ps)
 		wvGetSTTBF6(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
 	else /*word 97*/
 		wvGetSTTBF(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
+
+
+	/*Extract all the list information that we will need to handle lists later on*/
+	wvGetLFO_records(&ps->lfo,&lfolvl,&lvl,&nolfo,&nooflvl,ps->fib.fcPlfLfo,ps->fib.lcbPlfLfo,ps->tablefd);
 
 	/* 
 	despite what some parts of the spec might have you believe you still need to 
@@ -205,6 +212,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	wvHandleDocument(ps,DOCEND);
 	wvFree(posSedx);
 	wvFree(sed);
+	wvReleaseLFO_records(&ps->lfo,&lfolvl,&lvl,nooflvl);
 	wvReleaseSTTBF(&ps->anSttbfAssoc);
     wvFree(btePapx);
 	wvFree(posPapx);

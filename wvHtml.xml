@@ -1,7 +1,7 @@
 <main>
 
 <document>
-<begin>
+<begin>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/REC-html40/loose.dtd&quot;&gt;
 &lt;html&gt; 
 &lt;head&gt; 
 &lt;META HTTP-EQUIV=&quot;Content-Type&quot; CONTENT=&quot;text/html; charset=<charset/>&quot;&gt;
@@ -10,11 +10,19 @@
 <title/>
 &lt;/title&gt; 
 &lt;/head&gt; 
-&lt;body&gt;
+&lt;body bgcolor=&quot;#FFFFFF&quot; text=&quot;#000000&quot; link=&quot;#0000ee&quot; vlink=&quot;#551a8b&quot;&gt;
 </begin>
 <end>
 &lt;hr&gt;
-Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordView.html&quot;&gt;wvWare/<version/>&lt;/a&gt;
+&lt;address&gt;
+&lt;a href=&quot;http://www.wvWare.com&quot;&gt;&lt;img
+src=&quot;wvSmall.gif&quot; height=31 width=47
+align=left border=0 alt=&quot;wvWare&quot;&gt;&lt;/a&gt;
+&lt;a href=&quot;http://validator.w3.org/check/referer&quot;&gt;&lt;img
+src=&quot;http://validator.w3.org/images/vh40.gif&quot; height=31 width=88
+align=right border=0 alt=&quot;Valid HTML 4.0!&quot;&gt;&lt;/a&gt;
+Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordView.html&quot;&gt;wvWare/<version/>&lt;/a&gt;&lt;br&gt;
+&lt;/address&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </end>
@@ -28,14 +36,33 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 <asian>&lt;!--Could Someone who sees this tag tell me what was is this type of justification, asian languages only i thing--&gt;</asian>
 </justification>
 
+<olist>
+<begin>&lt;ol&gt;
+</begin>
+<end>&lt;/ol&gt;</end>
+</olist>
+
+<ulist>
+<begin>&lt;ul&gt;
+</begin>
+<end>&lt;/ul&gt;</end>
+</ulist>
+
+<entry>
+<begin>&lt;li&gt;</begin>
+<end>&lt;/li&gt;</end>
+</entry>
+
 <paragraph>
 <begin>
-&lt;p&gt;
+<olist.end/><olist.begin/><ulist.end/><ulist.begin/><entry.begin/>
 &lt;div align=&quot;<just/>&quot;&gt;
+&lt;p&gt;
 </begin>
 <end>
-&lt;/div&gt;
 &lt;/p&gt;
+&lt;/div&gt;
+<entry.end/>
 </end>
 </paragraph>
 
@@ -49,7 +76,7 @@ revision marked text is to be displayed
 
 use either this line...
 -->
-<RMarkDel><begin>&lt;s&gt;</begin><end>&lt;/s&gt;</end></RMarkDel>
+<RMarkDel><begin>&lt;s&gt;</begin><end>&lt;/s&gt;&lt;a href=&quot;#author<ibstRMarkDel/>&quot;&gt;[Author ID<ibstRMarkDel/>: at <dttmRMarkDel/> ]&lt;/a&gt;</end></RMarkDel>
 
 <!--
 or uncomment below to make deleted text dissappear (well, become commented out)
@@ -70,7 +97,7 @@ and will be displayed with underline when revision marked text is to be displaye
 
 use either this line...
 -->
-<RMark><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></RMark>
+<RMark><begin>&lt;u&gt;</begin><end>&lt;/u&gt;&lt;a href=&quot;#author<ibstRMark/>&quot;&gt;[Author ID<ibstRMark/>: at <dttmRMark/>]&lt;/a&gt;</end></RMark>
 
 <!--
 or uncomment below to make the underline dissappear
@@ -111,6 +138,21 @@ keep them for font face and do that later.
 <wave><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></wave>
 
 <!--
+text whose properties have been changed since the last time revision marks have been accepted 
+and will be displayed with a note showing the change points.
+
+use either this line (which admit it a bit scary looking, but harmless)...
+-->
+<PropRMark><begin>&lt;a href=&quot;#author<ibstPropRMark/>&quot;&gt;--&amp;gt;&lt;/a&gt;</begin><end>&lt;a href=&quot;#author<ibstPropRMark/>&quot;&gt;[Author ID<ibstPropRMark/>: at <dttmPropRMark/>]&lt;/a&gt;</end></PropRMark>
+
+<!--
+or uncomment below to make the notes dissappear
+-->
+<!--
+<PropRMark><begin></begin><end></end></PropRMark>
+-->
+
+<!--
 <color>
 -->
 <Black><begin>Black</begin><end></end></Black>
@@ -133,14 +175,46 @@ keep them for font face and do that later.
 </color>
 -->
 
+<!--
+<animation>
+-->
+<LasVegas><begin>&lt;blink&gt;</begin><end>&lt;/blink&gt;</end></LasVegas>
+<BackgroundBlink><begin>&lt;blink&gt;</begin><end>&lt;/blink&gt;</end></BackgroundBlink>
+<SparkleText><begin>&lt;blink&gt;</begin><end>&lt;/blink&gt;</end></SparkleText>
+<MarchingAnts><begin>&lt;blink&gt;</begin><end>&lt;/blink&gt;</end></MarchingAnts>
+<MarchingRedAnts><begin>&lt;blink&gt;</begin><end>&lt;/blink&gt;</end></MarchingRedAnts>
+<Shimmer><begin>&lt;blink&gt;</begin><end>&lt;/blink&gt;</end></Shimmer>
+<!--
+</animation>
+-->
+
+<!--
+I dont understand what this one is, and ive never come across it
+
+use this sample line (which admit it a bit scary looking, but harmless)...
+-->
+<DispFldRMark><begin>&lt;a href=&quot;#author<ibstDispFldRMark/>&quot;&gt;--&amp;gt;&lt;/a&gt;</begin><end>&lt;a href=&quot;#author<ibstDispFldRMark/>&quot;&gt;[Author ID<ibstDispFldRMark/>: at <dttmDispFldRMark/> (<xstDispFldRMark/>)]&lt;/a&gt;</end></DispFldRMark>
+
+<!--
+or uncomment below to ignore it, the previous might even crash wv ?
+-->
+<!--
+<DispFldRMark><begin></begin><end></end></DispFldRMark>
+-->
+
+<animation>
+<begin><LasVegas.begin/><BackgroundBlink.begin/><SparkleText.begin/><MarchingAnts.begin/><MarchingRedAnts.begin/><Shimmer.begin/></begin>
+<end><Shimmer.end/><MarchingRedAnts.end/><MarchingAnts.end/><SparkleText.end/><BackgroundBlink.end/><LasVegas.end/></end>
+</animation>
+
 <fontstr>
 <begin>&lt;font color="<black.begin/><blue.begin/><cyan.begin/><green.begin/><magenta.begin/><red.begin/><yellow.begin/><white.begin/><dkblue.begin/><dkcyan.begin/><dkgreen.begin/><dkmagenta.begin/><dkred.begin/><dkyellow.begin/><dkgray.begin/><ltgray.begin/>"&gt;</begin>
 <end><ltgray.end/><dkgray.end/><dkyellow.end/><dkred.end/><dkmagenta.end/><dkgreen.end/><dkcyan.end/><dkblue.end/><white.end/><yellow.end/><red.end/><magenta.end/><green.end/><cyan.end/><blue.end/><black.end/>&lt;/font&gt;</end>
 </fontstr>
 
 <character>
-<begin><fontstr.begin/><bold.begin/><italic.begin/><strike.begin/><RMarkDel.begin/><outline.begin/><smallcaps.begin/><caps.begin/><vanish.begin/><RMark.begin/><shadow.begin/><lowercase.begin/><emboss.begin/><imprint.begin/><dstrike.begin/><super.begin/><sub.begin/><single.begin/><word.begin/><double.begin/><dotted.begin/><hidden.begin/><thick.begin/><dash.begin/><dot.begin/><dotdash.begin/><dotdotdash.begin/><wave.begin/></begin>
-<end><wave.end/><dotdotdash.end/><dotdash.end/><dot.end/><dash.end/><thick.end/><hidden.end/><dotted.end/><double.end/><word.end/><single.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/></end>
+<begin><PropRMark.begin/><DispFldRMark.begin/><animation.begin/><fontstr.begin/><bold.begin/><italic.begin/><strike.begin/><RMarkDel.begin/><outline.begin/><smallcaps.begin/><caps.begin/><vanish.begin/><RMark.begin/><shadow.begin/><lowercase.begin/><emboss.begin/><imprint.begin/><dstrike.begin/><super.begin/><sub.begin/><single.begin/><word.begin/><double.begin/><dotted.begin/><hidden.begin/><thick.begin/><dash.begin/><dot.begin/><dotdash.begin/><dotdotdash.begin/><wave.begin/></begin>
+<end><wave.end/><dotdotdash.end/><dotdash.end/><dot.end/><dash.end/><thick.end/><hidden.end/><dotted.end/><double.end/><word.end/><single.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/><animation.end/><DispFldRMark.end/><PropRMark.end/></end>
 </character>
 
 </main>

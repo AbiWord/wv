@@ -62,6 +62,15 @@ TokenTable s_Tokens[] =
           {   "right",       	 TT_RIGHT     	 	},
           {   "center",        TT_CENTER     	 	},
           {   "asian",       	 TT_ASIAN     	 	},
+	   {	"olist",	 		 TT_OLIST,			},
+		{	"olist.begin",	 TT_OLISTB,			},
+		{	"olist.end", 	 TT_OLISTE,			},
+	   {	"ulist",	 	 TT_ULIST,			},
+		{	"ulist.begin",	 TT_ULISTB,			},
+		{	"ulist.end", 	 TT_ULISTE,			},
+	   {	"entry",	 	 TT_ENTRY,			},
+		{	"entry.begin",	 TT_ENTRYB,			},
+		{	"entry.end", 	 TT_ENTRYE,			},
 	   {	"character",	 TT_CHAR			},
 	    {	"bold",			 TT_BOLD			},
 	     {	"bold.begin",	 TT_BOLDB			},
@@ -198,6 +207,44 @@ TokenTable s_Tokens[] =
 		{	"color",	 	 TT_COLOR,			},
 		 {	"color.begin",	 TT_COLORB,			},
 		 {	"color.end", 	 TT_COLORE,			},
+		{	"ibstrmark",	 TT_ibstRMark,		},
+		{	"ibstrmarkdel",	 TT_ibstRMarkDel,	},
+		{	"dttmRMark",	 TT_dttmRMark,		},
+		{	"dttmRMarkDel",	 TT_dttmRMarkDel,	},
+		{	"proprmark",	 TT_PropRMark,		},
+		 {	"proprmark.begin",TT_PropRMarkB,	},
+		 {	"proprmark.end", TT_PropRMarkE,		},
+		{	"ibstPropRMark", TT_ibstPropRMark,	},
+		{	"dttmPropRMark", TT_dttmPropRMark,	},
+		{	"LasVegas",	 	 TT_LasVegas,		},
+		 {	"LasVegas.begin",TT_LasVegasB,		},
+		 {	"LasVegas.end",  TT_LasVegasE,		},
+		{	"BackgroundBlink",TT_BackgroundBlink,},
+		 {	"BackgroundBlink.begin",TT_BackgroundBlinkB,},
+		 {	"BackgroundBlink.end", TT_BackgroundBlinkE,},
+		{	"SparkleText",	 TT_SparkleText,	},
+		 {	"SparkleText.begin",TT_SparkleTextB,},
+		 {	"SparkleText.end",TT_SparkleTextE,	},
+		{	"MarchingAnts",	 TT_MarchingAnts,	},
+		 {	"MarchingAnts.begin",TT_MarchingAntsB,},
+		 {	"MarchingAnts.end",TT_MarchingAntsE,},
+		{	"MarchingRedAnts",TT_MarchingRedAnts,},
+		 {	"MarchingRedAnts.begin",TT_MarchingRedAntsB,},
+		 {	"MarchingRedAnts.end",TT_MarchingRedAntsE,},
+		{	"Shimmer",	 	 TT_Shimmer,		},
+		 {	"Shimmer.begin", TT_ShimmerB,		},
+		 {	"Shimmer.end",   TT_ShimmerE,		},
+		{	"ANIMATION",	 TT_ANIMATION,		},
+		 {	"ANIMATION.begin",TT_ANIMATIONB,	},
+		 {	"ANIMATION.end", TT_ANIMATIONE,		},
+		{	"DispFldRMark",	 TT_DispFldRMark,	},
+		 {	"DispFldRMark.begin",TT_DispFldRMarkB,},
+		 {	"DispFldRMark.end", TT_DispFldRMarkE,},
+		{	"ibstDispFldRMark", TT_ibstDispFldRMark,},
+		{	"dttmDispFldRMark", TT_dttmDispFldRMark,},
+		{	"xstDispFldRMark",	TT_xstDispFldRMark,},
+
+
     {   "*",             TT_OTHER        	} /* must be last */
 };
 
@@ -274,7 +321,9 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	char *text,*str;
 	const char *ctext;
 	static int bold,italic,strike,outline,smallcaps,caps,vanish,underline,
-	shadow,lowercase,emboss,imprint,dstrike,iss,kul,color,fontstr;
+	shadow,lowercase,emboss,imprint,dstrike,iss,kul,color,fontstr,proprmark,
+	animation,delete,added,FldRMark,ilfo,ilvl=-1;
+	char buffer[64];
 
 	tokenIndex = s_mapNameToToken(name);
 	wvTrace(("name = %s tokenIndex = %d\n", name, tokenIndex));
@@ -325,11 +374,172 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			wvFree(text);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
+		case TT_ULISTE:
+		    wvTrace(("ilfo is %d\n",((PAP*)(mydata->props))->ilfo));
+			if ( (ilfo != 0) && (ilfo != ((PAP*)(mydata->props))->ilfo) )
+				{
+				while (ilvl >= 0)
+					{
+					wvTrace(("str is %s\n",mydata->sd->elements[TT_ULIST].str[1]));
+					text = (char *)malloc(strlen(mydata->sd->elements[TT_ULIST].str[1])+1);
+					strcpy(text,mydata->sd->elements[TT_ULIST].str[1]);
+					str = mydata->retstring;
+					wvExpand(mydata,text,strlen(text));
+					wvAppendStr(&str,mydata->retstring);
+					wvFree(mydata->retstring);
+					mydata->retstring = str;
+					wvFree(text);
+					mydata->currentlen = strlen(mydata->retstring);
+					ilvl--;
+					}
+				ilfo = 0;
+				ilvl = -1;
+				}
+			break;
+		case TT_ULISTB:
+		    wvTrace(("ilfo is %d\n",((PAP*)(mydata->props))->ilfo));
+			/*
+			U16 *wvGetListEntryInfo(PAP *apap, CHP *achp,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U32 noofLST,STSH *stsh);
+			*/
+			if ( ((PAP*)(mydata->props))->ilfo )
+				{
+				if (((PAP*)(mydata->props))->ilvl > ilvl)
+					while (ilvl < ((PAP*)(mydata->props))->ilvl)
+						{
+						wvTrace(("str is %s\n",mydata->sd->elements[TT_ULIST].str[0]));
+						text = (char *)malloc(strlen(mydata->sd->elements[TT_ULIST].str[0])+1);
+						strcpy(text,mydata->sd->elements[TT_ULIST].str[0]);
+						str = mydata->retstring;
+						wvExpand(mydata,text,strlen(text));
+						wvAppendStr(&str,mydata->retstring);
+						wvFree(mydata->retstring);
+						mydata->retstring = str;
+						wvFree(text);
+						mydata->currentlen = strlen(mydata->retstring);
+						ilvl++;
+						}
+				else if (((PAP*)(mydata->props))->ilvl < ilvl)
+					while (ilvl > ((PAP*)(mydata->props))->ilvl)
+						{
+						wvTrace(("str is %s\n",mydata->sd->elements[TT_ULIST].str[1]));
+						text = (char *)malloc(strlen(mydata->sd->elements[TT_ULIST].str[1])+1);
+						strcpy(text,mydata->sd->elements[TT_ULIST].str[1]);
+						str = mydata->retstring;
+						wvExpand(mydata,text,strlen(text));
+						wvAppendStr(&str,mydata->retstring);
+						wvFree(mydata->retstring);
+						mydata->retstring = str;
+						wvFree(text);
+						mydata->currentlen = strlen(mydata->retstring);
+						ilvl--;
+						}
+				ilfo = ((PAP*)(mydata->props))->ilfo;
+				ilvl = ((PAP*)(mydata->props))->ilvl;
+				}
+			break;
+		case TT_OLISTE:
+		    wvTrace(("ilfo is %d\n",((PAP*)(mydata->props))->ilfo));
+			if ( (ilfo != 0) && (ilfo != ((PAP*)(mydata->props))->ilfo) )
+				{
+				while (ilvl >= 0)
+					{
+					wvTrace(("str is %s\n",mydata->sd->elements[TT_OLIST].str[1]));
+					text = (char *)malloc(strlen(mydata->sd->elements[TT_OLIST].str[1])+1);
+					strcpy(text,mydata->sd->elements[TT_OLIST].str[1]);
+					str = mydata->retstring;
+					wvExpand(mydata,text,strlen(text));
+					wvAppendStr(&str,mydata->retstring);
+					wvFree(mydata->retstring);
+					mydata->retstring = str;
+					wvFree(text);
+					mydata->currentlen = strlen(mydata->retstring);
+					ilvl--;
+					}
+				ilfo = 0;
+				ilvl = -1;
+				}
+			break;
+		case TT_OLISTB:
+		    wvTrace(("ilfo is %d\n",((PAP*)(mydata->props))->ilfo));
+			/*
+			U16 *wvGetListEntryInfo(PAP *apap, CHP *achp,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U32 noofLST,STSH *stsh);
+			*/
+			if ( ((PAP*)(mydata->props))->ilfo )
+				{
+				if (((PAP*)(mydata->props))->ilvl > ilvl)
+					while (ilvl < ((PAP*)(mydata->props))->ilvl)
+						{
+						wvTrace(("str is %s\n",mydata->sd->elements[TT_OLIST].str[0]));
+						text = (char *)malloc(strlen(mydata->sd->elements[TT_OLIST].str[0])+1);
+						strcpy(text,mydata->sd->elements[TT_OLIST].str[0]);
+						str = mydata->retstring;
+						wvExpand(mydata,text,strlen(text));
+						wvAppendStr(&str,mydata->retstring);
+						wvFree(mydata->retstring);
+						mydata->retstring = str;
+						wvFree(text);
+						mydata->currentlen = strlen(mydata->retstring);
+						ilvl++;
+						}
+				else if (((PAP*)(mydata->props))->ilvl < ilvl)
+					while (ilvl > ((PAP*)(mydata->props))->ilvl)
+						{
+						wvTrace(("str is %s\n",mydata->sd->elements[TT_OLIST].str[1]));
+						text = (char *)malloc(strlen(mydata->sd->elements[TT_OLIST].str[1])+1);
+						strcpy(text,mydata->sd->elements[TT_OLIST].str[1]);
+						str = mydata->retstring;
+						wvExpand(mydata,text,strlen(text));
+						wvAppendStr(&str,mydata->retstring);
+						wvFree(mydata->retstring);
+						mydata->retstring = str;
+						wvFree(text);
+						mydata->currentlen = strlen(mydata->retstring);
+						ilvl--;
+						}
+				ilfo = ((PAP*)(mydata->props))->ilfo;
+				ilvl = ((PAP*)(mydata->props))->ilvl;
+				}
+			break;
+		case TT_ENTRYB:
+		    wvTrace(("ilvl is %d\n",((PAP*)(mydata->props))->ilvl));
+			if ( ilfo )
+				{
+				wvTrace(("str is %s\n",mydata->sd->elements[TT_ENTRY].str[0]));
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_ENTRY].str[0])+1);
+				strcpy(text,mydata->sd->elements[TT_ENTRY].str[0]);
+				str = mydata->retstring;
+				wvExpand(mydata,text,strlen(text));
+				wvAppendStr(&str,mydata->retstring);
+				wvFree(mydata->retstring);
+				mydata->retstring = str;
+				wvFree(text);
+				mydata->currentlen = strlen(mydata->retstring);
+				}
+			break;
+		case TT_ENTRYE:
+		    wvTrace(("ilvl is %d\n",((PAP*)(mydata->props))->ilvl));
+			if ( ilfo )
+				{
+				wvTrace(("str is %s\n",mydata->sd->elements[TT_ENTRY].str[1]));
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_ENTRY].str[1])+1);
+				strcpy(text,mydata->sd->elements[TT_ENTRY].str[1]);
+				str = mydata->retstring;
+				wvExpand(mydata,text,strlen(text));
+				wvAppendStr(&str,mydata->retstring);
+				wvFree(mydata->retstring);
+				mydata->retstring = str;
+				wvFree(text);
+				mydata->currentlen = strlen(mydata->retstring);
+				}
+			break;
 		case TT_BOLDB:
 			HANDLE_B_CHAR_ELE(TT_BOLD,fBold,bold,1)
 			break;
+		case TT_DispFldRMarkB:
+			HANDLE_B_CHAR_ELE(TT_DispFldRMark,fDispFldRMark,FldRMark,1)
+			break;
 		case TT_RMarkDelB:
-			HANDLE_B_CHAR_ELE(TT_RMarkDel,fRMarkDel,strike,1)
+			HANDLE_B_CHAR_ELE(TT_RMarkDel,fRMarkDel,delete,1)
 			break;
 		case TT_OUTLINEB:
 			HANDLE_B_CHAR_ELE(TT_OUTLINE,fOutline,outline,1)
@@ -341,7 +551,10 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			HANDLE_B_CHAR_ELE(TT_ITALIC,fItalic,italic,1)
 			break;
 		case TT_RMarkDelE:
-			HANDLE_E_CHAR_ELE(TT_RMarkDel,fRMarkDel,strike,1)
+			HANDLE_E_CHAR_ELE(TT_RMarkDel,fRMarkDel,delete,1)
+			break;
+		case TT_DispFldRMarkE:
+			HANDLE_E_CHAR_ELE(TT_DispFldRMark,fDispFldRMark,FldRMark,1)
 			break;
 		case TT_OUTLINEE:
 			HANDLE_E_CHAR_ELE(TT_OUTLINE,fOutline,outline,1)
@@ -374,10 +587,10 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			HANDLE_E_CHAR_ELE(TT_VANISH,fVanish,vanish,1)
 			break;
 		case TT_RMarkB:
-			HANDLE_B_CHAR_ELE(TT_RMark,fRMark,underline,1)
+			HANDLE_B_CHAR_ELE(TT_RMark,fRMark,added,1)
 			break;
 		case TT_RMarkE:
-			HANDLE_E_CHAR_ELE(TT_RMark,fRMark,underline,1)
+			HANDLE_E_CHAR_ELE(TT_RMark,fRMark,added,1)
 			break;
 		case TT_SHADOWB:
 			HANDLE_B_CHAR_ELE(TT_SHADOW,fShadow,shadow,1)
@@ -485,6 +698,24 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			HANDLE_E_CHAR_ELE(s_Tokens[tokenIndex].m_type-2,ico,color,(s_Tokens[tokenIndex].m_type-TT_BLACKE)/3+1)
 			break;
 
+		case TT_LasVegasB:
+		case TT_BackgroundBlinkB:
+		case TT_SparkleTextB:
+		case TT_MarchingAntsB:
+		case TT_MarchingRedAntsB:
+		case TT_ShimmerB:
+			HANDLE_B_CHAR_ELE(s_Tokens[tokenIndex].m_type-1,sfxtText,animation,(s_Tokens[tokenIndex].m_type-TT_LasVegasB)/3+1)
+			break;
+
+		case TT_LasVegasE:
+		case TT_BackgroundBlinkE:
+		case TT_SparkleTextE:
+		case TT_MarchingAntsE:
+		case TT_MarchingRedAntsE:
+		case TT_ShimmerE:
+			HANDLE_E_CHAR_ELE(s_Tokens[tokenIndex].m_type-2,sfxtText,animation,(s_Tokens[tokenIndex].m_type-TT_LasVegasE)/3+1)
+			break;
+
 		case TT_FONTSTRB:
 			wvTrace(("flag is %d\n",((CHP*)(mydata->props))->ico)); 
 			wvTrace(("str is %s\n",mydata->sd->elements[TT_FONTSTR].str[0])); 
@@ -519,7 +750,91 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				mydata->currentlen = strlen(mydata->retstring); 
 				fontstr=0; 
 				}
-		
+			break;
+
+		case TT_ANIMATIONB:
+			wvTrace(("flag is %d\n",((CHP*)(mydata->props))->sfxtText)); 
+			wvTrace(("str is %s\n",mydata->sd->elements[TT_ANIMATION].str[0])); 
+			if ( (((CHP*)(mydata->props))->sfxtText) && (animation == 0) ) 
+				{ 
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_ANIMATION].str[0])+1); 
+				strcpy(text,mydata->sd->elements[TT_ANIMATION].str[0]); 
+				str = mydata->retstring; 
+				wvExpand(mydata,text,strlen(text)); 
+				wvAppendStr(&str,mydata->retstring); 
+				wvFree(mydata->retstring); 
+				mydata->retstring = str; 
+				wvFree(text); 
+				mydata->currentlen = strlen(mydata->retstring); 
+				animation=1; 
+				}
+			
+			break;
+		case TT_ANIMATIONE:
+			wvTrace(("flag is %d\n",((CHP*)(mydata->props))->sfxtText)); 
+			wvTrace(("str is %s\n",mydata->sd->elements[TT_ANIMATION].str[0])); 
+			if (animation) 
+				{ 
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_ANIMATION].str[1])+1); 
+				strcpy(text,mydata->sd->elements[TT_ANIMATION].str[1]); 
+				str = mydata->retstring; 
+				wvExpand(mydata,text,strlen(text)); 
+				wvAppendStr(&str,mydata->retstring); 
+				wvFree(mydata->retstring); 
+				mydata->retstring = str; 
+				wvFree(text); 
+				mydata->currentlen = strlen(mydata->retstring); 
+				animation=0; 
+				}
+			break;
+			
+		case TT_ibstRMark:
+			sprintf(buffer,"%d",((CHP*)(mydata->props))->ibstRMark);
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_ibstRMarkDel:
+			sprintf(buffer,"%d",((CHP*)(mydata->props))->ibstRMarkDel);
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_ibstDispFldRMark:
+			sprintf(buffer,"%d",((CHP*)(mydata->props))->ibstDispFldRMark);
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_dttmRMark:
+			wvAppendStr(&mydata->retstring,wvDTTMtoUnix(&(((CHP*)(mydata->props))->dttmRMark)));
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_dttmRMarkDel:
+			wvAppendStr(&mydata->retstring,wvDTTMtoUnix(&(((CHP*)(mydata->props))->dttmRMarkDel)));
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_dttmDispFldRMark:
+			wvAppendStr(&mydata->retstring,wvDTTMtoUnix(&(((CHP*)(mydata->props))->dttmDispFldRMark)));
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_xstDispFldRMark:
+			text = wvWideStrToMB(((CHP*)(mydata->props))->xstDispFldRMark);
+			wvAppendStr(&mydata->retstring,text);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_PropRMarkB:
+			HANDLE_B_CHAR_ELE(TT_PropRMark,fPropRMark,proprmark,1)
+			break;
+		case TT_PropRMarkE:
+			HANDLE_E_CHAR_ELE(TT_PropRMark,fPropRMark,proprmark,1)
+			break;
+		case TT_ibstPropRMark:
+			wvTrace(("flag is %d\n",((CHP*)(mydata->props))->ibstPropRMark)); 
+			sprintf(buffer,"%d",((CHP*)(mydata->props))->ibstPropRMark);
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_dttmPropRMark:
+			wvAppendStr(&mydata->retstring,wvDTTMtoUnix(&(((CHP*)(mydata->props))->dttmPropRMark)));
+			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		}
 
@@ -584,6 +899,18 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_DKGRAY:
 		case TT_LTGRAY:
 		case TT_FONTSTR:
+		case TT_ANIMATION:
+		case TT_PropRMark:
+		case TT_LasVegas:
+		case TT_BackgroundBlink:
+		case TT_SparkleText:
+		case TT_MarchingAnts:
+		case TT_MarchingRedAnts:
+		case TT_Shimmer:
+		case TT_DispFldRMark:
+		case TT_OLIST:
+		case TT_ULIST:
+		case TT_ENTRY:
 			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*2);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=2;
 			for(i=0;i<2;i++)
@@ -655,6 +982,10 @@ void startElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(mydata->current,"<rmarkdel.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
+		case TT_DispFldRMarkB:
+			wvAppendStr(mydata->current,"<DispFldRMark.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
 		case TT_ITALICB:
 			wvAppendStr(mydata->current,"<italic.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -673,6 +1004,10 @@ void startElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_RMarkDelE:
 			wvAppendStr(mydata->current,"<rmarkdel.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_DispFldRMarkE:
+			wvAppendStr(mydata->current,"<DispFldRMark.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_BOLDB:
@@ -1006,6 +1341,140 @@ void startElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(mydata->current,"<fontstr.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
+
+		case TT_ANIMATIONB:
+			wvAppendStr(mydata->current,"<animation.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_ANIMATIONE:
+			wvAppendStr(mydata->current,"<animation.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+
+		case TT_ibstRMark:
+			wvAppendStr(mydata->current,"<ibstrmark/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_ibstRMarkDel:
+			wvAppendStr(mydata->current,"<ibstrmarkdel/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_ibstDispFldRMark:
+			wvAppendStr(mydata->current,"<ibstdispfldrmark/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+
+		case TT_dttmRMark:
+			wvAppendStr(mydata->current,"<dttmrmark/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_dttmRMarkDel:
+			wvAppendStr(mydata->current,"<dttmrmarkdel/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_dttmDispFldRMark:
+			wvAppendStr(mydata->current,"<dttmdispfldrmark/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_xstDispFldRMark:
+			wvAppendStr(mydata->current,"<xstDispFldRMark/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_PropRMarkB:
+			wvAppendStr(mydata->current,"<proprmark.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_PropRMarkE:
+			wvAppendStr(mydata->current,"<proprmark.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_ibstPropRMark:
+			wvAppendStr(mydata->current,"<ibstPropRMark/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_dttmPropRMark:
+			wvAppendStr(mydata->current,"<dttmPropRMark/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+
+		case TT_LasVegasB:
+			wvAppendStr(mydata->current,"<lasvegas.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_BackgroundBlinkB:
+			wvAppendStr(mydata->current,"<backgroundblink.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_SparkleTextB:
+			wvAppendStr(mydata->current,"<sparkletext.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_MarchingAntsB:
+			wvAppendStr(mydata->current,"<marchingants.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_MarchingRedAntsB:
+			wvAppendStr(mydata->current,"<marchingredants.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_ShimmerB:
+			wvAppendStr(mydata->current,"<shimmer.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+
+		case TT_LasVegasE:
+			wvAppendStr(mydata->current,"<lasvegas.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_BackgroundBlinkE:
+			wvAppendStr(mydata->current,"<backgroundblink.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_SparkleTextE:
+			wvAppendStr(mydata->current,"<sparkletext.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_MarchingAntsE:
+			wvAppendStr(mydata->current,"<marchingants.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_MarchingRedAntsE:
+			wvAppendStr(mydata->current,"<marchingredants.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_ShimmerE:
+			wvAppendStr(mydata->current,"<shimmer.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+
+		case TT_OLISTB:
+			wvAppendStr(mydata->current,"<olist.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+			break;
+		case TT_OLISTE:
+			wvAppendStr(mydata->current,"<olist.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_ULISTB:
+			wvAppendStr(mydata->current,"<ulist.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+			break;
+		case TT_ULISTE:
+			wvAppendStr(mydata->current,"<ulist.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_ENTRYB:
+			wvAppendStr(mydata->current,"<entry.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+			break;
+		case TT_ENTRYE:
+			wvAppendStr(mydata->current,"<entry.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		
 		}
 	}
 
@@ -1123,6 +1592,39 @@ void endElement(void *userData, const char *name)
 		case TT_FONTSTRE:
 		case TT_COLORB:
 		case TT_COLORE:
+		case TT_ibstRMark:
+		case TT_ibstRMarkDel:
+		case TT_ibstDispFldRMark:
+		case TT_dttmRMark:
+		case TT_dttmRMarkDel:
+		case TT_dttmDispFldRMark:
+		case TT_xstDispFldRMark:
+		case TT_PropRMarkB:
+		case TT_PropRMarkE:
+		case TT_ibstPropRMark:
+		case TT_dttmPropRMark:
+		case TT_LasVegasB:
+		case TT_BackgroundBlinkB:
+		case TT_SparkleTextB:
+		case TT_MarchingAntsB:
+		case TT_MarchingRedAntsB:
+		case TT_ShimmerB:
+		case TT_LasVegasE:
+		case TT_BackgroundBlinkE:
+		case TT_SparkleTextE:
+		case TT_MarchingAntsE:
+		case TT_MarchingRedAntsE:
+		case TT_ShimmerE:
+		case TT_ANIMATIONB:
+		case TT_ANIMATIONE:
+		case TT_DispFldRMarkB:
+		case TT_DispFldRMarkE:
+		case TT_OLISTB:
+		case TT_OLISTE:
+		case TT_ULISTB:
+		case TT_ULISTE:
+		case TT_ENTRYB:
+		case TT_ENTRYE:
 			break;
 		default:
 			mydata->currentlen=0;

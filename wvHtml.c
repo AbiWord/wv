@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "config.h"
 #include "wv.h"
 /*
 Released under GPL, written by Caolan.McNamara@ul.ie.
@@ -24,6 +25,14 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props);
 int mydochandler(wvParseStruct *ps,wvTag tag);
 int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype);
 
+void usage( void )
+	{
+	printf("Usage: wvHtml [--charset charset] filename.doc\n");
+	exit(-1);
+	}
+
+U16 charset=0xffff;
+
 int main(int argc,char **argv)
 	{
 	FILE *input;
@@ -31,14 +40,38 @@ int main(int argc,char **argv)
 	state_data myhandle;
 	expand_data expandhandle;
 	wvParseStruct ps;
+	int c,index=0;
+	static struct option long_options[] =
+        {
+        { "charset",1,0,'c'},
+        { 0,      0, 0, '0' },
+        };
 
+	wvInitError();
 
 	if (argc < 2) 
-		{
-		printf("Usage: wvHtml filename.doc\n");
-		return(-1);
+		usage();
+
+	 while (1)
+        { 
+        c = getopt_long (argc, argv, "c:", long_options, &index);
+        if (c == -1)
+            break;
+		switch(c)
+			{
+			case 'c':
+				if (optarg)
+					charset = wvLookupCharset(optarg);
+				else
+					wvError(("No argument given to charset"));
+				break;
+			default:
+                usage();
+                break;
+			}
 		}
-	input = fopen(argv[1],"rb");
+
+	input = fopen(argv[optind],"rb");
 
 	ret = wvInitParser(&ps,input);
 	if (ret)
@@ -81,16 +114,17 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
     {
     expand_data *data = (expand_data *)ps->userData;
     data->anSttbfAssoc = &ps->anSttbfAssoc;
-    data->charset = wvAutoCharset(&ps->clx);
+	data->lfo = ps->lfo;
+	if (charset == 0xffff)
+    	data->charset = wvAutoCharset(&ps->clx);
+	else
+		data->charset = charset;
     data->props = props;
 
     switch (tag)
         {
         case PARABEGIN:
             wvBeginPara(data);
-#if 0 
-			wvBeginCharProp(data);	/* danger will break in the future */
-#endif
             break;
         case PARAEND:
             wvEndCharProp(data);	/* danger will break in the future */
@@ -116,7 +150,11 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
     {
     expand_data *data = (expand_data *)ps->userData;
     data->anSttbfAssoc = &ps->anSttbfAssoc;
-    data->charset = wvAutoCharset(&ps->clx);
+	data->lfo = ps->lfo;
+	if (charset == 0xffff)
+	    data->charset = wvAutoCharset(&ps->clx);
+	else
+		data->charset = charset;
 
     switch (tag)
         {
@@ -134,7 +172,10 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 
 
 int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype)
-   {
-   wvOutputHtmlChar(eachchar,chartype,wvAutoCharset(&ps->clx));
-   return(0);
-   }
+	{
+	if (charset != 0xffff)
+		wvOutputHtmlChar(eachchar,chartype,charset);
+	else
+		wvOutputHtmlChar(eachchar,chartype,wvAutoCharset(&ps->clx));
+	return(0);
+	}

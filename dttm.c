@@ -4,12 +4,16 @@
 
 void wvGetDTTM(DTTM *item,FILE *fd)
 	{
-	wvCreateDTTM(item,read_16ubit(fd),read_16ubit(fd));
+	U16 a = read_16ubit(fd);
+	U16 b = read_16ubit(fd);
+	wvCreateDTTM(item,a,b);
 	}
 
 void wvGetDTTMFromBucket(DTTM *item,U8 *pointer)
 	{
-	wvCreateDTTM(item,dread_16ubit(NULL,&pointer),dread_16ubit(NULL,&pointer));
+	U16 a = dread_16ubit(NULL,&pointer);
+	U16 b = dread_16ubit(NULL,&pointer);
+	wvCreateDTTM(item,a,b);
 	}
 
 
@@ -46,3 +50,43 @@ void wvCopyDTTM(DTTM *dest,DTTM *src)
     dest->yr = src->yr;
     dest->wdy = src->wdy;
     }
+
+void wvListDTTM(DTTM *src)
+	{
+	wvTrace(("min is %d\n",src->mint));
+	wvTrace(("hr is %d\n",src->hr));
+	wvTrace(("dom is %d\n",src->dom));
+	wvTrace(("mon is %d\n",src->mon));
+	wvTrace(("yr is %d\n",src->yr));
+	wvTrace(("wdy is %d\n",src->wdy));
+	}
+/* 
+dont free the char * back from this, its engine is
+ctime
+*/
+char *wvDTTMtoUnix(DTTM *src)
+	{
+	/* 
+	im concerned with the lack of yday to i run it
+	through the system to fill it in before using asctime
+	*/
+	time_t t;
+	struct tm out;
+	wvListDTTM(src);
+	out.tm_sec = 0;
+	out.tm_min = src->mint;
+	out.tm_hour = src->hr;
+	out.tm_mday = src->dom;
+	out.tm_mon = src->mon-1;
+	out.tm_year = src->yr;
+	out.tm_wday = src->wdy;
+	out.tm_yday = 0;
+	out.tm_isdst = -1;
+	t = mktime(&out);
+	if (t == -1)
+		{
+		wvError(("Bad Time!!, not critical error\n"));
+		return(NULL);
+		}
+	return(ctime(&t));
+	}

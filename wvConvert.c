@@ -83,6 +83,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
 	{
 	expand_data *data = (expand_data *)ps->userData;
 	data->anSttbfAssoc = &ps->anSttbfAssoc;
+	data->lfo = ps->lfo;
 	data->charset = wvAutoCharset(&ps->clx);
 	data->props = props;
 
@@ -116,6 +117,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 	{
 	expand_data *data = (expand_data *)ps->userData;
 	data->anSttbfAssoc = &ps->anSttbfAssoc;
+	data->lfo = ps->lfo;
 	data->charset = wvAutoCharset(&ps->clx);
 
 	switch (tag)

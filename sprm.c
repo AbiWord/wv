@@ -513,6 +513,7 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvTOGGLE(achp->fCaps,achp,stsh,toggle,fCaps)
 			break;
 		case sprmCFVanish:
+			wvTrace(("vanish modified\n"));
 			toggle = bgetc(pointer,pos);
 			wvTOGGLE(achp->fVanish,achp,stsh,toggle,fVanish)
 			break;

@@ -1,28 +1,52 @@
-Changes to to 0.5.24
-	* righteo, I made some (hopefully) final changes to fast saved handling, and
-	it looks a lot better now. Char attributes are correct, and the issue
-	of para begins and ends being missing from paras that begin in fastsave section
-	appears to be cleared up. There is still spurious character runs being created
-	in this location, but they appear within paragraph blocks, not outside them,
-	and they have no contents so they only create reduntant tags in the html output, 
-	or in the case of the lib makes it more inefficient. So its not 100% but its close
-	enough that it'll make absolutely not difference in the case of an abiword-like
-	app, and only someone looking at the source of the html output will make rude i
-	noises about how crap and ineffecient wv is because it outputs empty tags. So the
-	bottom line it that it is a known misfeature that in the case of fastsaved files 
-	that there is the duplication of empty char attributes in a small limited number 
-	of cases. If you really dislike this, then set options in msword to only create
-	fullsaved files, which you should do anyway, because thats the major reason your
-	word documents are so huge if you ever wondered about that, and its also a huge
-	security hole, e.g. if you edited a confidential document to remove the confidential
-	bits, then you can edit the doc with a hex editor and read all the deleted confidential
-	material !. At some stage i believe i might add a feature to show the original 
-	document that a fastsaved document was based on, it can sometimes scare you to
-	death. 
-	* my resetting char properties at a new para was slightly out, i wasn't fully
-	regenerating the exception run limits.
+Changes to to 0.5.25
+	* added date and author id to revisions, found bug in DTTM. added
+	wvDTTMtoUnix to dttm.c
+	* added animations to config file as blink (hur hur)
+	* i added (even though i have no idea what it is) DispFldRMark to everywhere
+	relevent.
+	* that basically completes everything in the chp that makes any kind of sense
+	in html except for font face and size.
+	* well seeing as the output passes the w3c validator test, the html output
+	be default announces this fact.
+	* added charset option to wvHtml, documented in new wvHtml.1 manpage
+	* added koi-8 from Sergey V. Udaltsov <svu@pop.convey.ru> and added
+	a howto in notes/Charsets-HOWTO
 ALL TODO
+	* continue with lists, maybe change struct to include chp and pap simultaneously
+	as i might need it for the lists, extract start value for html, and number nfc
+	to use as well, for the case of symbols (nfc tells me i think ?) swap to ul
+	rather than ol, thus we need a reciprocol mechanism in the config file.
 
+	* lists and tables.
+	* fontface and size for char runs..
+
+	* now lists... 
+		lists come with number information and also with character formatting
+		which applies to the number text itself, and paragraph information
+		that applies to the paragraph that is the list entry itself. Every
+		list entry is a paragraph.
+
+		So if we are not interested in the character properties of the
+		number text itself we can quite happily convert the list into
+		html with numbering correct and so on.
+
+		If we want the char formatting of the number text we have to 
+		loose the html correctness of list handling.
+
+		The other final case is those weird windows symbols that might be
+		used, we cannot do them in correct html, they must either use
+		the three symbols available to use, or just become bullets.
+
+		We can apply the para stuff to the actual paragraph and some 
+		checking shows that a div is a valid element to put in a list
+		so thats what I will do
+
+
+	* what about a collision between underline and revision added ? and also the 
+	strike and revision deleted ?, what if a mad user created his own collisions. 
+	In the future there will be problems with links being broken by references, 
+	this is a similar problem.
+	
 	* what was i at with sprmCFtcDefault ????, fBold ??, what the...
 
 	* add the rest of the appropiate char props to decode_simple, repeat for
@@ -30,8 +54,6 @@ ALL TODO
 	* search for more SEP sprm diffs between 6 and 8
 	* add in the list extraction code ?
 
-	* maybe someday we should use #pragme pack(1) if we are being compiled
-	with gcc under a little endian platform. That might gain a speed up ?
 
 	* install cygwin thingy at home and test configure mechanism for searching and
 	installing strcasecmp/rint.
@@ -93,14 +115,37 @@ ALL TODO
 	i dont see that as essential.
 	* inside/outside page numbering doesnt work, dont know where its set, one
 	of the DOP fields ?
-	* two pass parser for finding best fit html tables for word tables.
 	* gtk+dps wysiwyg viewer, output to ps from this
 	* use incremental zlib functions to do decompressing rather than use mmap,
 	someone who doesnt have mmap on their system can send me a patch for this one
 	;-)
-	* hyperlink sequence fields ?
 	* doesnt compile under neXt & needs to use gcc for hpux 10.20 ?
 	* do an autoconf check for mman.h and dont do compression if not there.
+	* maybe someday we should use #pragme pack(1) if we are being compiled
+	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.24
+	* righteo, I made some (hopefully) final changes to fast saved handling, and
+	it looks a lot better now. Char attributes are correct, and the issue
+	of para begins and ends being missing from paras that begin in fastsave section
+	appears to be cleared up. There is still spurious character runs being created
+	in this location, but they appear within paragraph blocks, not outside them,
+	and they have no contents so they only create reduntant tags in the html output, 
+	or in the case of the lib makes it more inefficient. So its not 100% but its close
+	enough that it'll make absolutely not difference in the case of an abiword-like
+	app, and only someone looking at the source of the html output will make rude i
+	noises about how crap and ineffecient wv is because it outputs empty tags. So the
+	bottom line it that it is a known misfeature that in the case of fastsaved files 
+	that there is the duplication of empty char attributes in a small limited number 
+	of cases. If you really dislike this, then set options in msword to only create
+	fullsaved files, which you should do anyway, because thats the major reason your
+	word documents are so huge if you ever wondered about that, and its also a huge
+	security hole, e.g. if you edited a confidential document to remove the confidential
+	bits, then you can edit the doc with a hex editor and read all the deleted confidential
+	material !. At some stage i believe i might add a feature to show the original 
+	document that a fastsaved document was based on, it can sometimes scare you to
+	death. 
+	* my resetting char properties at a new para was slightly out, i wasn't fully
+	regenerating the exception run limits.
 Changes to to 0.5.23
 	* added RMarkDel & strike & outline to wvHtml support, handle empty tags 
 	correctly now as well.

@@ -114,6 +114,7 @@ MYOBJECTS =	\
 	fkp.o \
 	codepage-1252.o \
 	iso-5589-15.o \
+	koi8-r.o \
 	text.o \
 	decode_complex.o \
 	wvTextEngine.o \
@@ -259,6 +260,7 @@ install: installdirs $(srcdir)/mswordview$(EXEEXT)
 	$(INSTALL) $(srcdir)/wv-libconfig $(bindir)/wv-libconfig
 	$(INSTALL) $(srcdir)/wv-incconfig $(bindir)/wv-incconfig
 	$(INSTALL_DATA) $(srcdir)/mswordview.1 $(mandir)/man1/
+	$(INSTALL_DATA) $(srcdir)/wvHtml.1 $(mandir)/man1/
 	$(INSTALL_DATA) $(srcdir)/config-mswordview $(libdir)/wv/config-mswordview
 	$(INSTALL_DATA) wv.h $(includedir)/wv.h
 	$(INSTALL_DATA) $(srcdir)/libwv.a $(libdir)/libwv.a

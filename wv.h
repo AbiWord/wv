@@ -600,6 +600,8 @@ void wvGetDTTMFromBucket(DTTM *item,U8 *pointer);
 void wvCreateDTTM(DTTM *dttm,U16 one,U16 two);
 void wvCopyDTTM(DTTM *dest,DTTM *src);
 void wvInitDTTM(DTTM *dttm);
+char *wvDTTMtoUnix(DTTM *src);
+
 
 typedef struct _DOPTYPOGRAPHY
 	{
@@ -2090,8 +2092,10 @@ typedef enum
 	{
 	UTF8,
 	ISO_5589_15,
-	CP1252
+	CP1252,
+	KOI8,
 	/*add your own charset here*/
+	CharsetTableSize		/* must be last entry on pain of death */
 	} wvCharset;
 
 
@@ -2250,7 +2254,52 @@ typedef enum _TT
 	TT_COLOR,
 	TT_COLORB,
 	TT_COLORE,
-	TokenTableSize
+	TT_ibstRMark,
+	TT_ibstRMarkDel,
+	TT_dttmRMark,
+	TT_dttmRMarkDel,
+	TT_PropRMark,
+	TT_PropRMarkB,
+	TT_PropRMarkE,
+	TT_ibstPropRMark,
+	TT_dttmPropRMark,
+	TT_LasVegas,
+	TT_LasVegasB,
+	TT_LasVegasE,
+	TT_BackgroundBlink,
+	TT_BackgroundBlinkB,
+	TT_BackgroundBlinkE,
+	TT_SparkleText,
+	TT_SparkleTextB,
+	TT_SparkleTextE,
+	TT_MarchingAnts,
+	TT_MarchingAntsB,
+	TT_MarchingAntsE,
+	TT_MarchingRedAnts,
+	TT_MarchingRedAntsB,
+	TT_MarchingRedAntsE,
+	TT_Shimmer,
+	TT_ShimmerB,
+	TT_ShimmerE,
+	TT_ANIMATION,
+	TT_ANIMATIONB,
+	TT_ANIMATIONE,
+	TT_DispFldRMark,
+	TT_DispFldRMarkB,
+	TT_DispFldRMarkE,
+	TT_ibstDispFldRMark,
+	TT_dttmDispFldRMark,
+	TT_xstDispFldRMark,
+	TT_OLIST,
+	TT_OLISTB,
+	TT_OLISTE,
+	TT_ULIST,
+	TT_ULISTB,
+	TT_ULISTE,
+	TT_ENTRY,
+	TT_ENTRYB,
+	TT_ENTRYE,
+	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 
 
@@ -2267,9 +2316,9 @@ typedef struct _wvEle
 	char **str;
 	} wvEle;
 
-#define CharsetTableSize 3
 
 const char *wvGetCharset(U16 charset);
+U16 wvLookupCharset(char *optarg);
 
 typedef struct _state_data
 	{
@@ -2283,7 +2332,9 @@ typedef struct _state_data
 
 typedef struct _expand_data
 	{
-	STTBF *anSttbfAssoc;
+	STTBF *anSttbfAssoc;	/* associated strings */
+	LFO *lfo;				/* list tables */
+
 	void *props; /* holds PAP/CHP/etc */
 	U16 charset;
 	
@@ -2364,6 +2415,7 @@ typedef struct _wvParseStruct
 	FILE *summary;
 	FIB fib;
 	STTBF anSttbfAssoc;
+	LFO *lfo;				
 	CLX clx;
 	FFN_STTBF fonts;
 	   
@@ -2719,6 +2771,7 @@ int wvGetComplexCharfcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
 
 void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype);
 
+U16 *wvGetListEntryInfo(PAP *apap, CHP *achp,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U32 noofLST,STSH *stsh);
 
 /*current addition position*/
 
