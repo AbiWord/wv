@@ -9,6 +9,10 @@
 #endif
 #include "wv.h"
 
+extern char *xml_slash;
+
+
+
 static const TokenTable s_Tokens[] = {
     {"TIME", FC_TIME},
     {"\\@", FC_DateTimePicture},
@@ -289,7 +293,7 @@ wvHandleCommandField (wvParseStruct *ps, char *command)
 	 */	break;
 	    case FC_PAGEREF:
 		token = strtok (NULL, "\"\" ");
-		printf ("<a href=\"#%s\">", token);
+		printf ("<a href=\"#%s\" %s>", token, xml_slash);
 		break;
 	    case FC_EDITTIME:
 		token = strtok (NULL, "\"\" ");

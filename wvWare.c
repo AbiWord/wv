@@ -40,10 +40,8 @@ char *config = "wvHtml.xml";
 int   xml_output = 0;
 char *xml_slash  = "";
 
-/* flag for -1 / --nographics1 option */
-int   no_graphics1 = 0;
-
-
+/* flag for disabling graphics */
+int   no_graphics = 0;
 
 int myelehandler (wvParseStruct * ps, wvTag tag, void *props, int dirty);
 int mydochandler (wvParseStruct * ps, wvTag tag);
@@ -231,7 +229,7 @@ do_help (void)
     printf ("  -a --auto-eps=fmt\t\tQuery support for conversion of fmt to eps\n");
     printf ("  -s --suppress=fmt\t\tDon't convert fmt to eps\n");
     printf ("  -X --xml\t\t\tXML ouput\n");
-    printf ("  -1 --nographics1\t\tno 0x01 graphics output\n");
+    printf ("  -1 --nographics\t\tno 0x01 graphics output\n");
     printf ("  -v --version\t\t\tPrint wvWare's version number\n");
     printf ("  -? --help\t\t\tPrint this help message\n");
     printf
@@ -273,7 +271,7 @@ main (int argc, char **argv)
 	{"version", 0, 0, 'v'},
 	{"help", 0, 0, '?'},
 	{"xml", 0, 0, 'X'},
-	{"nographics1", 0, 0, '1'},
+	{"nographics", 0, 0, '1'},
 	{0, 0, 0, 0}
     };
 
@@ -341,7 +339,7 @@ main (int argc, char **argv)
 		break;
 		
 	    case '1':
-		no_graphics1 = 1;
+		no_graphics = 1;
 		break;
 		
 	    default:
@@ -1310,7 +1308,7 @@ mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp)
 
 	      if (achp->fOle2)
 		  exit (139);
-	      if(!no_graphics1) 
+	      if(!no_graphics) 
 	      {
 	      wvStream_goto (ps->data, achp->fcPic_fcObj_lTagObj);
 	      wvGetPICF (wvQuerySupported (&ps->fib, NULL), &picf, ps->data);
@@ -1330,10 +1328,6 @@ mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp)
 	      else
 		  wvStrangeNoGraphicData (config, 0x01);
 	      }
-	      else 
-	      {
-	      wvError (("0x01 graphics not supported at the moment\n"));
-	      }
 
 	      wvStream_goto (ps->data, p);
 	      return (0);
@@ -1344,6 +1338,8 @@ mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp)
 	      char *name;
 	      if (wvQuerySupported (&ps->fib, NULL) == WORD8)
 		{
+		    if(!no_graphics) 
+		    {
 		    if (ps->nooffspa > 0)
 		      {
 			  fspa =
@@ -1384,6 +1380,7 @@ mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp)
 		      {
 			  wvError (("nooffspa was <=0!  Ignoring.\n"));
 		      }
+		    }
 		}
 	      else
 		{
@@ -1563,7 +1560,6 @@ myCharProc (wvParseStruct * ps, U16 eachchar, U8 chartype, U16 lid)
 	wvOutputHtmlChar (eachchar, chartype, wvAutoCharset (ps), lid);
     return (0);
 }
-
 
 int
 wvOpenConfig (state_data *myhandle,char *config)

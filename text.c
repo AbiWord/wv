@@ -2139,6 +2139,13 @@ wvConvertUnicodeToXml (U16 char16)
     return (0);
 }
 
+char *str_copy(char *d, size_t n, char *s)
+{
+    strncpy(d, s, n);
+    d[n-1] = 0;
+    return d;
+}
+
 char *str_append(char *d, size_t n, char *s)
 {
     int max = n - strlen(d) - 1;
@@ -2147,16 +2154,7 @@ char *str_append(char *d, size_t n, char *s)
     return d;
 }    
 
-char *str_copy(char *d, size_t n, char *s)
-{
-    strncpy(d, s, n);
-    d[n-1] = 0;
-    return d;
-}
-
 #define BUF_COPY(d,s) str_copy(d,sizeof(d),s)
-
-
 
 char *
 wvConvertStylename(char *stylename, char *outputtype)

@@ -4,7 +4,7 @@ AC_CONFIG_HEADER(config.h)
 
 dnl I did this wrong, I think. I should have used AC_DEFINE(VERSION,"$VERSION") or similar
 dnl but what's done is done... (fjf)
-VERSION=0.7.3
+VERSION=0.7.4
 AC_SUBST(VERSION)
 
 # Tests for Windows
