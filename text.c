@@ -4,7 +4,6 @@
 #include <errno.h>
 #include "iconv.h"
 #include "wv.h"
-#define WV_SWAP_ICONV = 1
 
 extern TokenTable s_Tokens[];
 
@@ -187,129 +186,22 @@ char *wvLIDToCodePageConverter(U16 lid)
                 };
         return("CP1252");
         }
-/*********************************************************************************************/
-
-#ifdef WV_SWAP_ICONV
-
-/**
- * This next bit of code is messy
- * Basically, iconv's byte order got changed on RH7
- * And some version of Debian. Now I have to detect and
- * Swap byte ordering on the fly
- */
-static U32 approximate(char* out, U32 max_length, U16 c)
-{
-        if (max_length == 0)
-                return 0;
-        if (max_length == 1)
-        {
-                switch (c)
-                {
-                        case 0x201d:
-                        case 0x201c:
-                                *out = '"'; return 1;
-                        default:
-                                return 0;
-                }
-        }       
-        else 
-        {
-                /* 
-                 this case can't happen with current code, so there is no
-                 proper implementation.
-                */
-        }
-        return 0;
-}
-
-static U16 try_UToC(U16 c, iconv_t iconv_handle)
-{
-        char ibuf[2], obuf[10];                 
-        size_t ibuflen = sizeof(ibuf), obuflen=sizeof(obuf);
-        const char* iptr = ibuf;
-        char* optr = obuf;
-        size_t donecnt = 0;
-
-        if (iconv_handle == (iconv_t)-1)
-                return 0;
-        {
-                unsigned char b0 = c & 0xff, b1 = c >>8;
-                ibuf[0] = b0;
-                ibuf[1] = b1;
-        }
-        donecnt = wv_iconv(iconv_handle,(&iptr),&ibuflen,&optr,&obuflen);
-        if (donecnt!=(size_t)-1 && ibuflen==0) 
-        {
-                int len = sizeof(obuf) - obuflen;
-                if (len!=1)
-                        return 0x1ff;/* tell that singlebyte encoding can't represent it*/
-                else
-                        return (unsigned char)*obuf;
-        } else
-                return  0;
-}
-
-static U16 UToNative(U16 c, iconv_t handle)
-{
-    U16 ret = try_UToC(c, handle);
-    if (!ret || ret>0xff) 
-    {
-        char repl;
-        int repl_len = approximate(&repl, 1, c);
-        return repl_len == 1 ? repl : '?';
-    }
-    else
-        return ret;
-}
-
-static int swap_iconv_u2n_always(const char *encname)
-{
-  iconv_t handle = NULL;
-  int rtn = 0;
-
-  handle = iconv_open(encname, "UCS-2");
-  rtn = UToNative(0x20, handle) != 0x20;
-
-  iconv_close(handle);
-  return rtn;
-}
-
-static int swap_iconv_u2n(U16 lid)
-{
-  static int last_lid = -1;
-  int rtn = -1;
-
-  if(lid != last_lid)
-    {
-      rtn = swap_iconv_u2n_always(wvLIDToCodePageConverter(lid));
-      last_lid = lid;
-      wvTrace(("DOM: swapping iconv byte order: (%d, 0x%x)\n", rtn, lid));
-    }
-
-  return rtn;
-}
-
-#endif /* WV_SWAP_ICONV */
-
-/*********************************************************************************************/
 
 U16 wvHandleCodePage(U16 eachchar, U16 lid)
         {
-        char f_code[33];            /* From CCSID                           */
-        char t_code[33];            /* To CCSID                             */
+	char f_code[33];            /* From CCSID                           */
+	char t_code[33];            /* To CCSID                             */
+	char *codepage;
         iconv_t iconv_handle;       /* Conversion Descriptor returned       */
                                                                 /* from iconv_open() function           */
-        char *obuf;                 /* Buffer for converted characters      */
-        char *p;
         size_t ibuflen;               /* Length of input buffer               */
         size_t obuflen;               /* Length of output buffer              */
-        char *ibuf;
-        char *codepage;
-        char buffer[2];
-        char buffer2[2];
-        char brute[2];
 
-	U16 saved = eachchar;
+        U8 *ibuf;
+        U8 *obuf;                 /* Buffer for converted characters      */
+        U8 *p;
+        U8 buffer[2];
+        U8 buffer2[2];
 
        if(eachchar > 0xff)
                {
@@ -330,11 +222,11 @@ U16 wvHandleCodePage(U16 eachchar, U16 lid)
         /* All reserved positions of from code (last 12 characters) and to code   */
         /* (last 19 characters) must be set to hexadecimal zeros.                 */
 
-        memset(f_code,'\0',33);
-        memset(t_code,'\0',33);
+        memset(f_code, '\0', 33);
+        memset(t_code, '\0', 33);
 
-        strcpy(f_code,codepage);
-        strcpy(t_code,"UCS-2");
+        strcpy(f_code, codepage);
+        strcpy(t_code, "UCS-2");
 
         iconv_handle = iconv_open(t_code,f_code);
         if (iconv_handle == (iconv_t)-1)
@@ -343,55 +235,37 @@ U16 wvHandleCodePage(U16 eachchar, U16 lid)
                 return('?');
                 }
 
+	wvTrace(("DOM: iconv opened %s to %s\n", f_code, t_code));
+
         ibuflen = 2;
         obuflen = 2;
         p = obuf;
 
-    wv_iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+	wv_iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+	/* obuf = buffer2; */
+	
+	/* legal because 2 * sizeof(U8) == sizeof(U16) */
+	eachchar = *(U16*)obuf;
+	iconv_close(iconv_handle);
 
-#ifdef WV_SWAP_ICONV
-    if(swap_iconv_u2n(lid))
-      {
-        brute[0] = obuf[0];
-        brute[1] = obuf[1];
-        eachchar = (U16) *brute;
-      }
-    else
-      {
-        brute[1] = obuf[0];
-        brute[0] = obuf[1];
-        eachchar = (U16) *brute;
-      }
-#else
-    eachchar = (U16)*p;
-#endif /* WV_SWAP_ICONV */
-        iconv_close(iconv_handle);
-
-	if(eachchar <= 0)
-	{
-	  /* if something went horribly wrong, return the input char */
-	  wvError(("DOM: reverting to saved char '%c'\n", saved));
-	  eachchar = saved;
-	}
-
-        return(eachchar);
+	return(eachchar);
        }
         
 void wvOutputFromUnicode(U16 eachchar,char *outputtype)
         {
-              U16 i;
-              char f_code[33];  /* From CCSID                       */
+    U16 i;
+    char f_code[33];  /* From CCSID                       */
     char t_code[33];            /* To CCSID                             */
     iconv_t iconv_handle;       /* Conversion Descriptor returned       */
                                 /* from iconv_open() function           */
-    char *obuf;                 /* Buffer for converted characters      */
-        char *p;
+    U8 *obuf;                 /* Buffer for converted characters      */
+    U8 *p;
     size_t ibuflen;               /* Length of input buffer               */
     size_t obuflen;               /* Length of output buffer              */
-        size_t len;
-    char *ibuf;
-    char buffer[2];
-    char buffer2[5];
+    size_t len;
+    U8 *ibuf;
+    U8 buffer[2];
+    U8 buffer2[5];
 
     buffer[0]=(eachchar>>8)&0x00ff;
     buffer[1]=eachchar&0x00ff;
@@ -422,14 +296,6 @@ void wvOutputFromUnicode(U16 eachchar,char *outputtype)
     obuflen = 5;
         p = obuf;
     len = obuflen;
-
-    /* TODO: change this to swap_iconv_n2u() */
-    if(0)
-      {
-        char temp = *ibuf;
-        *ibuf = *(ibuf+1);
-        *(ibuf + 1) = temp;
-      }
 
     if(wv_iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen) == (size_t)-1)
       {
