@@ -2130,7 +2130,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 }
 
 static void
-startElement (void *userData, const XML_Char *name, const XML_Char **atts)
+wvstartElement (void *userData, const XML_Char *name, const XML_Char **atts)
 {
     unsigned int nAtts = 0;
     const XML_Char **p;
@@ -3094,7 +3094,7 @@ startElement (void *userData, const XML_Char *name, const XML_Char **atts)
 }
 
 static void
-endElement (void *userData, const XML_Char *name)
+wvendElement (void *userData, const XML_Char *name)
 {
     state_data *mydata = (state_data *) userData;
     unsigned int token_type;
@@ -3470,8 +3470,8 @@ wvParseConfig (state_data * myhandle)
 	memset(&hdl, 0, sizeof(hdl));
 
 	hdl.getEntity = _getEntity;
-	hdl.startElement = startElement;
-	hdl.endElement = endElement;
+	hdl.startElement = wvstartElement;
+	hdl.endElement = wvendElement;
 	hdl.characters = charData;
 
 	if (myhandle->fp)
@@ -3514,7 +3514,7 @@ wvParseConfig (state_data * myhandle)
     size_t len;
 
     XML_SetUserData (parser, myhandle);
-    XML_SetElementHandler (parser, startElement, endElement);
+    XML_SetElementHandler (parser, wvstartElement, wvendElement);
     XML_SetCharacterDataHandler (parser, charData);
 
     if (myhandle->fp == NULL)
