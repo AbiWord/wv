@@ -5,7 +5,12 @@
 #include <ctype.h>
 #include "wv.h"
 #include "wvinternal.h"
+#ifdef HAVE_GNOME_XML2
+#include <libxml/parser.h>
+#define XML_Char xmlChar
+#else
 #include "xmlparse.h"
+#endif
 
 #define HANDLE_B_PARA_ELE(a,b,c,d) \
 if ( (((PAP*)(mydata->props))->b == d) && (c == 0) ) \
@@ -543,7 +548,7 @@ void wvReleaseStateData(state_data *data)
 	}
 
 
-void exstartElement(void *userData, const char *name, const char **atts)
+static void exstartElement(void *userData, const char *name, const char **atts)
 	{
 	unsigned int tokenIndex;
 	expand_data *mydata = (expand_data *)userData;
@@ -1985,10 +1990,14 @@ void exstartElement(void *userData, const char *name, const char **atts)
 
 	}
 
-void startElement(void *userData, const char *name, const char **atts)
+static void startElement(void *userData, const char *name, const char **atts)
 	{
 	unsigned int nAtts;
+#ifdef HAVE_GNOME
+	const char **p;
+#else
 	const XML_Char **p;
+#endif
 	unsigned int tokenIndex,i;
 	state_data *mydata = (state_data *)userData;
 
@@ -2921,7 +2930,7 @@ void startElement(void *userData, const char *name, const char **atts)
 		}
 	}
 
-void endElement(void *userData, const char *name)
+static void endElement(void *userData, const char *name)
 	{
 	state_data *mydata = (state_data *)userData;
 	unsigned int tokenIndex;
@@ -3168,7 +3177,7 @@ void endElement(void *userData, const char *name)
 	wvTrace(("ele ended\n"));
 	}
 
-void exendElement(void *userData, const char *name)
+static void exendElement(void *userData, const char *name)
 	{
 	/*
 	expand_data *mydata = (expand_data *)userData;
@@ -3199,7 +3208,7 @@ void exendElement(void *userData, const char *name)
 	wvTrace(("ele ended\n"));
 	}
 
-void charData(void* userData, const XML_Char *s, int len)
+static void charData(void* userData, const XML_Char *s, int len)
 	{
 	int i;
 
@@ -3244,7 +3253,7 @@ void charData(void* userData, const XML_Char *s, int len)
 		}
 	}
 
-void excharData(void* userData, const XML_Char *s, int len)
+static void excharData(void* userData, const XML_Char *s, int len)
 	{
 	int i;
 
@@ -3266,6 +3275,14 @@ void excharData(void* userData, const XML_Char *s, int len)
 		}
 	}
 
+#ifdef HAVE_GNOME
+/* GNOME_XML_NOT_YET */
+int wvParseConfig(state_data *myhandle)
+{
+  g_assert_not_reached();
+  return 0;
+}
+#else
 int wvParseConfig(state_data *myhandle)
 	{
 	char buf[BUFSIZ];
@@ -3304,6 +3321,8 @@ int wvParseConfig(state_data *myhandle)
 
 	return 0;
 	}
+#endif
+
 
 
 void wvInitExpandData(expand_data *data)
@@ -3312,6 +3331,14 @@ void wvInitExpandData(expand_data *data)
 	data->currentlen=0;
 	}
 
+#ifdef HAVE_GNOME
+/* GNOME_XML_NOT_YET */
+int wvExpand(expand_data *myhandle,char *buf,int len)
+{
+  g_assert_not_reached();
+  return 0;
+}
+#else
 int wvExpand(expand_data *myhandle,char *buf,int len)
 	{
 	XML_Parser parser = XML_ParserCreate(NULL);
@@ -3335,3 +3362,4 @@ int wvExpand(expand_data *myhandle,char *buf,int len)
 
 	return 0;
 	}
+#endif
