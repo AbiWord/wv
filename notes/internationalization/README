@@ -1,0 +1,8 @@
+Charsets-HOWTO details how to add a specific ouput charset for wv.
+
+Note that personally I'm in favour of utf-8 as the sole output 
+format, but im flexible and will take patches as detailed in
+Charset-HOWTO.
+
+russian.doc and russian.jpg is an example of the optional step 6
+in the HOWTO
