@@ -11,8 +11,6 @@
 
 char *xml_slash = "";
 
-
-
 static const TokenTable s_Tokens[] = {
     {"TIME", FC_TIME},
     {"\\@", FC_DateTimePicture},
@@ -54,20 +52,25 @@ lookahead (char *token, char test1, char test2)
     return (ret);
 }
 
+#define TIMESTR_SIZE 4096
+
 int
 wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 			 time_t * mytime)
 {
     int no;
+    int consumed = 0;
     struct tm *current;
-    char timestr[4096];
+    char timestr[TIMESTR_SIZE];
     char temp[64];
     timestr[0] = '\0';
 
     if (!token)
 	return (0);
     current = localtime (mytime);
-    while (*token)
+
+    /* the '11' is the max width of an integer (10 digits for '4 billion') + nul */
+    while (*token && (consumed < (TIMESTR_SIZE - 11)))
       {
 	  switch (*token)
 	    {
@@ -76,6 +79,7 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		  {
 		      strcat (timestr, "%p");
 		      token += 5;
+		      consumed += 2;
 		  }
 		break;
 	    case 'a':
@@ -83,6 +87,7 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		  {
 		      strcat (timestr, "%P");
 		      token += 5;
+		      consumed += 2;
 		  }
 		break;
 	    case 'M':
@@ -104,6 +109,7 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		      strcat (timestr, "%B");
 		      break;
 		  }
+		consumed += 2;
 		break;
 	    case 's':
 	    case 'S':
@@ -116,6 +122,7 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		      strcat (timestr, "%S");
 		      break;
 		  }
+		consumed += 2;
 		break;
 	    case 'd':
 	    case 'D':
@@ -130,17 +137,20 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		switch (no)
 		  {
 		  case 1:
-		      sprintf (temp, "%d", current->tm_wday);
+		      consumed += sprintf (temp, "%d", current->tm_wday);
 		      strcat (timestr, temp);
 		      break;
 		  case 2:
 		      strcat (timestr, "%d");
+		      consumed += 2;
 		      break;
 		  case 3:
 		      strcat (timestr, "%a");
+		      consumed += 2;
 		      break;
 		  default:
 		      strcat (timestr, "%A");
+		      consumed += 2;
 		      break;
 		  }
 		break;
@@ -162,6 +172,7 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		      strcat (timestr, "%Y");
 		      break;
 		  }
+		consumed += 2;
 		break;
 	    case 'h':
 		no = lookahead (token, 'h', 'h');
@@ -176,6 +187,7 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		      strcat (timestr, "%I");
 		      break;
 		  }
+		consumed += 2;
 		break;
 	    case 'H':
 		no = lookahead (token, 'H', 'H');
@@ -183,11 +195,12 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		switch (no)
 		  {
 		  case 1:
-		      sprintf (temp, "%d", current->tm_hour);
+		      consumed += sprintf (temp, "%d", current->tm_hour);
 		      strcat (timestr, temp);
 		      break;
 		  default:
 		      strcat (timestr, "%H");
+		      consumed += 2;
 		      break;
 		  }
 		break;
@@ -197,11 +210,12 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		switch (no)
 		  {
 		  case 1:
-		      sprintf (temp, "%d", current->tm_min);
+		      consumed += sprintf (temp, "%d", current->tm_min);
 		      strcat (timestr, temp);
 		      break;
 		  default:
 		      strcat (timestr, "%M");
+		      consumed += 2;
 		      break;
 		  }
 		break;
@@ -213,6 +227,7 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		temp[0] = *token;
 		temp[1] = '\0';
 		strcat (timestr, temp);
+		consumed += 1;
 		break;
 	    }
 	  token++;
