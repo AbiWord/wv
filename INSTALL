@@ -1,10 +1,15 @@
-MSWordView
+wv
 ==========
 It should all work hunky dory from a ./configure followed by 
 make and make install, a few sample word 8 files to try this out 
 are included in the examples dir. Recommended libraries to also
 install to convert wmf files are the zlib library and libwmf 
 library, read on for details and download locations.
+(redhat users note that..)
+If your using Red Hat Version 6 you should have both the "zlib" and
+"freetype" loaded. Check with rpm and the cd-rom with /Redhat/RPMS/ 
+on it. You will than just need to get, compile and install libwmf.
+
 
 Configure Options
 =================

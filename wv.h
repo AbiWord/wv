@@ -2345,6 +2345,7 @@ typedef enum _TT
 	TT_TEXTB,
 	TT_TEXTE,
 	TT_CELLWIDTH,
+	TT_CELLBGCOLOR,
 	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 

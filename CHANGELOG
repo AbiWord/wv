@@ -2,10 +2,16 @@ Changes to to 0.5.34
 	* added cellwidth percentage as well to wvHtml.xml to make the cells the
 	same ratio width in html as in the original word.
 	* changed Dk Colors to Dark Colors in wvHtml.xml to get the right colors
+	* tested rowspan lots and lots on examples.
+	* tested colspan. 
+	* wow my god !, there can be either no tc's in sprmTDefTable, word 6 ones,
+	or word 8 ones, you have to work it out depending on the length of the 
+	parameter.
+	* small doc addition by Karl F. Larsen <k5di@totacc.com>
 ALL TODO
 	* add two options for table width, i.e. tableabswidth & tablerelwidth
-	* test rowspan lots and lots on examples.
-	* careful colspan tests.
+	* add background color for cells
+	* implement the x number of table looks.
 	
 	* complex mode colspan and rowspan, and various support functions.
 

@@ -91,6 +91,7 @@ TokenTable s_Tokens[] =
     {   "colspan",       TT_COLSPAN      	},
 	{	"cellwidth",	 TT_CELLWIDTH		},
     {   "rowspan",       TT_ROWSPAN      	},
+    {   "cellbgcolor",   TT_CELLBGCOLOR     },
 
     {   "document",      TT_DOCUMENT     	},
 	 {   "section",       TT_SECTION     	},
@@ -407,8 +408,16 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_ROWSPAN:
-			wvTrace(("This Para is here cell %d %d %d\n",mydata->whichrow,mydata->whichcell,(*mydata->vmerges)[mydata->whichrow][mydata->whichcell]));
+			wvTrace(("This Para is here cell %d %d %d\n",
+			mydata->whichrow,
+			mydata->whichcell,
+			(*mydata->vmerges)[mydata->whichrow][mydata->whichcell]));
 			sprintf(buffer,"%d",(*mydata->vmerges)[mydata->whichrow][mydata->whichcell]);
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_CELLBGCOLOR:
+			sprintf(buffer,"%s","Green");
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
@@ -1156,10 +1165,10 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				{
 				wvTrace(("the current cell is %d\n",mydata->whichcell));
 				wvTrace(("the end boundary is %d\n",  ((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1] ));
-				wvError(("the table look for this cell is %d\n",((PAP*)(mydata->props))->ptap.tlp.itl));
+				wvTrace(("the table look for this cell is %d\n",((PAP*)(mydata->props))->ptap.tlp.itl));
 				if (((PAP*)(mydata->props))->ptap.tlp.itl)
 					{
-					wvError(("table look is %d\n",((PAP*)(mydata->props))->ptap.tlp.itl));
+					wvTrace(("table look is %d\n",((PAP*)(mydata->props))->ptap.tlp.itl));
 					}
 				HANDLE_B_PARA_ELE(TT_CELL,fInTable,fintable,1)
 				}
@@ -1355,6 +1364,10 @@ void startElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_CELLWIDTH:
 			wvAppendStr(mydata->current,"<cellwidth/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_CELLBGCOLOR:
+			wvAppendStr(mydata->current,"<cellbgcolor/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_ROWSPAN:
@@ -1948,6 +1961,7 @@ void endElement(void *userData, const char *name)
 		case TT_COLSPAN:
 		case TT_CELLWIDTH:
 		case TT_ROWSPAN:
+		case TT_CELLBGCOLOR:
 		case TT_VERSION:
 		case TT_JUST:
 		case TT_nfc:
@@ -2106,6 +2120,7 @@ void exendElement(void *userData, const char *name)
 		case TT_CHARSET:
 		case TT_COLSPAN:
 		case TT_ROWSPAN:
+		case TT_CELLBGCOLOR:
 		case TT_CELLWIDTH:
 		case TT_VERSION:
 			break;

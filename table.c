@@ -146,8 +146,13 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
 	InitBintree(&tree,shortCompLT,shortCompEQ);
 
 	for (i=0;i<no;i++)
+		{
 		for (j=0;j<ptap[i].itcMac+1;j++)
+			{
+			wvTrace(("%d\n",ptap[i].rgdxaCenter[j]));
 			InsertNode(&tree,(void *) &(ptap[i].rgdxaCenter[j]) );
+			}
+		}
 
 	testn = NextNode(&tree,NULL);
 	i=0;
