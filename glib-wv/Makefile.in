@@ -1,0 +1,28 @@
+CC = @CC@
+OBJEXT = @OBJEXT@
+
+SHELL=/bin/sh
+
+@SET_MAKE@
+
+srcdir=@srcdir@
+
+CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/
+
+SHELL = /bin/sh
+
+.SUFFIXES: .C .$(OBJEXT)
+:g/\.0/s//\.$(OBJEXT)/g
+
+
+MYOBJECTS = garray.$(OBJEXT) glist.$(OBJEXT) gmem.$(OBJEXT) gmessages.$(OBJEXT) gslist.$(OBJEXT) gstrfuncs.$(OBJEXT) gtree.$(OBJEXT) 
+
+all: $(MYOBJECTS) 
+
+clean:	
+	rm -rf $(MYOBJECTS) core 
+
+realclean:  
+	rm -rf config.cache config.status config.log Makefile *.$(OBJEXT) core demo
+
+#  DO  NOT  DELETE THIS LINE -- make depend depends on it.
