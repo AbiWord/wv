@@ -19,7 +19,7 @@
 src=&quot;wvSmall.gif&quot; height=31 width=47
 align=left border=0 alt=&quot;wvWare&quot;&gt;&lt;/a&gt;
 &lt;a href=&quot;http://validator.w3.org/check/referer&quot;&gt;&lt;img
-src=&quot;http://validator.w3.org/images/vh40.gif&quot; height=31 width=88
+src=&quot;vh40.gif&quot; height=31 width=88
 align=right border=0 alt=&quot;Valid HTML 4.0!&quot;&gt;&lt;/a&gt;
 Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordView.html&quot;&gt;wvWare/<version/>&lt;/a&gt;&lt;br&gt;
 &lt;/address&gt;
@@ -36,8 +36,16 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 <asian>&lt;!--Could Someone who sees this tag tell me what was is this type of justification, asian languages only i thing--&gt;</asian>
 </justification>
 
+<numbering>
+<Arabic>type=&quot;1&quot;</Arabic>
+<UpperRoman>type=&quot;I&quot;</UpperRoman>
+<LowerRoman>type=&quot;i&quot;</LowerRoman>
+<UpperCaseN>type=&quot;A&quot;</UpperCaseN>
+<LowerCaseN>type=&quot;a&quot;</LowerCaseN>
+</numbering>
+
 <olist>
-<begin>&lt;ol&gt;
+<begin>&lt;ol <nfc/> start=&quot;<start/>&quot;&gt;
 </begin>
 <end>&lt;/ol&gt;</end>
 </olist>

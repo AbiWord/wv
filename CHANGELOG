@@ -1,14 +1,19 @@
-Changes to to 0.5.26
-	* some checking showed that I had the wrong name for the koi encoding,
-	koi8-r is the correct name, and ive changed it to that.
-ALL TODO
+Changes to to 0.5.27
+	* expanded the list info wvParseStruct to include all of the structures.
+	* made the stylesheet code safe, but its a fix until i do the out of 
+	sequence istd initalizing correctly.
+	* removed blank line from expat Makefile, Keith Wear <keith.wear@wcom.com>
 	* get list info extracted, make ul vs ol descision, get entry begin
-	* continue with lists, maybe change struct to include chp and pap simultaneously
+	* continued with lists, maybe change struct to include chp and pap simultaneously
 	as i might need it for the lists, extract start value for html, and number nfc
 	to use as well, for the case of symbols (nfc tells me i think ?) swap to ul
 	rather than ol, thus we need a reciprocol mechanism in the config file.
+	* lists look good, releaseing to the world
+ALL TODO
+	* word 6 and 95 lists are different, and there is supposedly cases there the
+	word 97 can use word 6 style lists, though its supposedly unlikely.
 
-	* lists and tables.
+	* tables.
 	* fontface and size for char runs..
 
 	* now lists... 
@@ -114,6 +119,11 @@ ALL TODO
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.26
+	* some checking showed that I had the wrong name for the koi encoding,
+	koi8-r is the correct name, and ive changed it to that.
+	* wvHtml dumps graphics, and wvGraphicConvert is a standlone little app
+	for hacking purposes to open up graphics to external hackers.
 Changes to to 0.5.25
 	* added date and author id to revisions, found bug in DTTM. added
 	wvDTTMtoUnix to dttm.c

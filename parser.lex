@@ -19,7 +19,7 @@ enum tokens {ENDOFINPUT=0, ELEMENTtoken,STYLEtoken,LEFTBRACEtoken,RIGHTBRACEtoke
 
 %}
 whitespace          [ \t\n]
-myalpha               [[:alnum:]><{}\/\[\]=]
+myalpha             [[:alnum:]><{}\/\[\]=]
 /*
 myalpha               [[:alnum:]><{}/\[\]=]
 */
@@ -59,7 +59,7 @@ myalpha               [[:alnum:]><{}/\[\]=]
 <INITIAL>"Italic"                 		return(ITALICtoken);
 <INITIAL>"Font"                 		return(FONTtoken);
 <INITIAL>"Default"                 		return(DEFAULTtoken);
-<INITIAL>{myalpha}{myalpha}*            return(IDENTIFIERtoken);
+<INITIAL>"{myalpha}{myalpha}*"          return(IDENTIFIERtoken);
 %%
 
 #if 0

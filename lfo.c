@@ -34,6 +34,7 @@ int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl
 	i=0;
 	while (i<*nooflvl)
 		{
+		wvInitLVL(&((*lvl)[i]));
 		wvTrace(("pos now %x %d\n",ftell(fd),*nooflvl));
 		wvGetLFOLVL(&((*lfolvl)[i]),fd);
 		if (wvInvalidLFOLVL(&((*lfolvl)[i])) )
@@ -130,6 +131,7 @@ int wvInvalidLFOLVL(LFOLVL *item)
 int wvReleaseLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 nooflvl)
 	{
 	U32 i;
+	wvTrace(("releaseing %d lvl records\n",nooflvl));
 	wvFree(*lfo);
 	wvFree(*lfolvl);
 	for(i=0;i<nooflvl;i++)

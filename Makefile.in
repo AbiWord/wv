@@ -139,13 +139,11 @@ MYOBJECTS =	\
 	graphics.o \
 	picf.o
 
-
 #XML = -Lexpat/lib -lxmlparse -lxmltok
 XML = 	expat/xmlparse/xmlparse.o \
     	expat/xmlparse/hashtable.o \
 		expat/xmltok/xmltok.o \
     	expat/xmltok/xmlrole.o
-
 
 OLE = oledecod/oledecod.o
 
@@ -188,7 +186,7 @@ lex.yy.c: parser.lex
 	$(LEX) parser.lex
 
 testparse$(EXEEXT):  testparse.o $(GETOPT) OLEDECODE libwv.a
-	 $(CC)  -o $@ testparse.o $(GETOPT) -L. -lwv $(LIBS)  $(LDFLAGS)
+	$(CC)  -o $@ testparse.o $(GETOPT) -L. -lwv $(LIBS)  $(LDFLAGS)
 
 error.o: error.c Makefile
 	$(CC) $(CFLAGS) -c $*.c 
@@ -211,7 +209,6 @@ XMLPARSER:
 CRYPTCODE:
 	@echo making rc4 in crypt
 	@(cd crypt && $(MAKE)) || exit 1
-
 
 %.o: %.c 
 	$(CC) $(CFLAGS) -c $*.c -o $*.o

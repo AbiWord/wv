@@ -2,6 +2,13 @@
 #include <stdio.h>
 #include "wv.h"
 
+void wvInitLVL(LVL *lvl)
+	{
+	lvl->grpprlPapx=NULL;
+	lvl->grpprlChpx=NULL;
+	lvl->numbertext=NULL;
+	}
+
 void wvCopyLVL(LVL *dest,LVL *src)
 	{
 	int len,i;

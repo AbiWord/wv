@@ -16,6 +16,7 @@ void wvAddCHPXFromBucket(CHP *achp,UPXF *upxf,STSH *stsh)
 	while (i < upxf->cbUPX)
 		{
 		sprm = bread_16ubit(upxf->upx.chpx.grpprl+i,&i);
+		wvTrace(("sprm is %x, i is %d\n",sprm,i));
 		pointer = upxf->upx.chpx.grpprl+i;
 		wvApplySprmFromBucket(0,sprm,NULL,achp,NULL,stsh,pointer,&i);
 		}

@@ -295,6 +295,10 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 		wvError(("No mem for STD list, of size %d\n",sizeof(STD) * item->Stshi.cstd));
 		return;
 		}
+
+	for(i=0;i<item->Stshi.cstd;i++)
+		wvInitSTD(&(item->std[i]));
+		
 	for(i=0;i<item->Stshi.cstd;i++)
 		{
 		cbStd = read_16ubit(fd);
@@ -336,6 +340,7 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 				{
 				case sgcPara:
 					wvTrace(("doing paragraph, len is %d\n",item->std[i].grupxf[0].cbUPX));
+					wvTrace(("doing paragraph, len is %d\n",item->std[i].grupxf[1].cbUPX));
 					wvInitPAPFromIstd(&(item->std[i].grupe[0].apap),item->std[i].istdBase,item);
 					if (word6)
 						wvAddPAPXFromBucket6(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item);
@@ -343,11 +348,15 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 						wvAddPAPXFromBucket(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item);
 
 					wvInitCHPFromIstd(&(item->std[i].grupe[1].achp),item->std[i].istdBase,item);
+
+					wvTrace(("here1\n"));
 					
 					if (word6)
 						wvAddCHPXFromBucket6(&(item->std[i].grupe[1].achp),&(item->std[i].grupxf[1]),item);
 					else
 						wvAddCHPXFromBucket(&(item->std[i].grupe[1].achp),&(item->std[i].grupxf[1]),item);
+
+					wvTrace(("here2\n"));
 
 					if (item->std[i].grupe[1].achp.istd != istdNormalChar)
 						{

@@ -918,6 +918,7 @@ typedef struct _LVL
 void wvGetLVL(LVL *lvl,FILE *fd);
 void wvCopyLVL(LVL *dest,LVL *src);
 void wvReleaseLVL(LVL *lvl);
+void wvInitLVL(LVL *lvl);
 
 
 /*
@@ -2299,6 +2300,14 @@ typedef enum _TT
 	TT_ENTRY,
 	TT_ENTRYB,
 	TT_ENTRYE,
+	TT_numbering,
+	TT_Arabic,
+	TT_UpperRoman,
+	TT_LowerRoman,
+	TT_UpperCaseN,
+	TT_LowerCaseN,
+	TT_nfc,
+	TT_START,
 	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 
@@ -2333,7 +2342,17 @@ typedef struct _state_data
 typedef struct _expand_data
 	{
 	STTBF *anSttbfAssoc;	/* associated strings */
+	STSH *stsh;
 	LFO *lfo;				/* list tables */
+	LFOLVL *lfolvl;
+	LVL *lvl;
+	U32 nolfo;
+	U32 nooflvl;
+	LST *lst;
+	U16 noofLST;
+
+	U32 *liststartnos;
+	LVL *finallvl;
 
 	void *props; /* holds PAP/CHP/etc */
 	U16 charset;
@@ -2415,9 +2434,19 @@ typedef struct _wvParseStruct
 	FILE *summary;
 	FIB fib;
 	STTBF anSttbfAssoc;
-	LFO *lfo;				
+	LFO *lfo;
+	LFOLVL *lfolvl;
+	LVL *lvl;
+	U32 nolfo;
+	U32 nooflvl;
+	LST *lst;
+	U16 noofLST;
 	CLX clx;
 	FFN_STTBF fonts;
+	STSH stsh;
+
+	LVL *finallvl;
+	U32 *liststartnos;
 	   
 	/*private*/
 	FILE *tablefd0;
@@ -2771,7 +2800,8 @@ int wvGetComplexCharfcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
 
 void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype);
 
-U16 *wvGetListEntryInfo(PAP *apap, CHP *achp,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U32 noofLST,STSH *stsh);
+int wvGetListEntryInfo(LVL *retlvl,PAP *apap,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U32 noofLST);
+
 
 /*current addition position*/
 

@@ -423,6 +423,23 @@ void wvDecodeComplex(wvParseStruct *ps)
 	else
 		wvGetSTTBF(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
 
+	/*Extract all the list information that we will need to handle lists later on*/
+    wvGetLST(&ps->lst,&ps->noofLST,ps->fib.fcPlcfLst,ps->fib.lcbPlcfLst,ps->tablefd);
+    wvGetLFO_records(&ps->lfo,&ps->lfolvl,&ps->lvl,&ps->nolfo,&ps->nooflvl,ps->fib.fcPlfLfo,ps->fib.lcbPlfLfo,ps->tablefd);
+    /* init the starting list number table */
+    if (ps->nolfo)
+        {
+        ps->liststartnos = (U32 *)malloc(9 * ps->nolfo * sizeof(U32));
+        ps->finallvl = (LVL *)malloc(9 * ps->nolfo * sizeof(LVL));
+        for (i=0;i<9 * ps->nolfo;i++) ps->liststartnos[i] = 0xffffffffL;
+        }
+    else
+        {
+        ps->liststartnos=NULL;
+        ps->finallvl=NULL;
+        }
+
+
 	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->tablefd);
 
 	para_fcFirst = char_fcFirst = section_fcFirst = wvConvertCPToFC(0,&ps->clx);

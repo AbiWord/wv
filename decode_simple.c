@@ -15,7 +15,6 @@ pages. for the purposes of headers and footers etc.
 */
 void wvDecodeSimple(wvParseStruct *ps)
 	{
-	STSH stsh;
 	PAPX_FKP para_fkp;
 	CHPX_FKP char_fkp;
 	PAP apap;
@@ -37,12 +36,9 @@ void wvDecodeSimple(wvParseStruct *ps)
 	SED *sed;
 	SEP sep;
 	U32 *posSedx;
-	LFOLVL *lfolvl;
-	LVL *lvl;
-	U32 nolfo,nooflvl;
 
 	/*we will need the stylesheet to do anything useful with layout and look*/
-	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
+	wvGetSTSH(&ps->stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
 
 	/* get font list */
 	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3) )
@@ -56,9 +52,21 @@ void wvDecodeSimple(wvParseStruct *ps)
 	else /*word 97*/
 		wvGetSTTBF(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
 
-
 	/*Extract all the list information that we will need to handle lists later on*/
-	wvGetLFO_records(&ps->lfo,&lfolvl,&lvl,&nolfo,&nooflvl,ps->fib.fcPlfLfo,ps->fib.lcbPlfLfo,ps->tablefd);
+	wvGetLST(&ps->lst,&ps->noofLST,ps->fib.fcPlcfLst,ps->fib.lcbPlcfLst,ps->tablefd);
+	wvGetLFO_records(&ps->lfo,&ps->lfolvl,&ps->lvl,&ps->nolfo,&ps->nooflvl,ps->fib.fcPlfLfo,ps->fib.lcbPlfLfo,ps->tablefd);
+	/* init the starting list number table */
+	if (ps->nolfo) 
+		{
+		ps->liststartnos = (U32 *)malloc(9 * ps->nolfo * sizeof(U32));
+		ps->finallvl = (LVL *)malloc(9 * ps->nolfo * sizeof(LVL));
+		for (i=0;i<9 * ps->nolfo;i++) ps->liststartnos[i] = 0xffffffffL;
+		}
+	else 
+		{
+		ps->liststartnos=NULL;
+		ps->finallvl=NULL;
+		}
 
 	/* 
 	despite what some parts of the spec might have you believe you still need to 
@@ -146,7 +154,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 			if ((section_fcLim == 0xffffffff) || (section_fcLim == j))
 				{
 				wvTrace(("j i is %x %d\n",j,i));
-				wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),&sep,&section_fcFirst,&section_fcLim, i,&ps->clx, sed, posSedx, section_intervals, &stsh,ps->mainfd);
+				wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),&sep,&section_fcFirst,&section_fcLim, i,&ps->clx, sed, posSedx, section_intervals, &ps->stsh,ps->mainfd);
 				wvTrace(("section begins at %x ends %x\n", section_fcFirst, section_fcLim));
 				}
 
@@ -166,7 +174,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 
 			if (j == para_fcFirst)
 				{
-				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &stsh);
+				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
 				wvHandleElement(ps, PARABEGIN, (void*)&apap);
 
 				/*testing the next line, to force the char run to begin after a new para*/
@@ -188,7 +196,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 				wvTrace(("assembling CHP...\n"));
 				/* a CHP's base style is in the para style */
 				achp.istd = apap.istd;
-				wvAssembleSimpleCHP(&achp,char_fcLim, &char_fkp, &stsh);
+				wvAssembleSimpleCHP(&achp,char_fcLim, &char_fkp, &ps->stsh);
 				wvTrace(("CHP assembled.\n"));
 				wvHandleElement(ps, CHARPROPBEGIN, (void*)&achp);
 				char_pendingclose = 1;
@@ -199,7 +207,9 @@ void wvDecodeSimple(wvParseStruct *ps)
 			if ((eachchar == 0x01) && (achp.fSpec))
 				{
 				wvError(("picture here offset %x\n",ftell(ps->mainfd)));
+				/*
 				wvDumpPicture(achp.fcPic_fcObj_lTagObj,ps->data);
+				*/
 				}
 			wvOutputTextChar(eachchar, chartype, charset, &state, ps);
 			}
@@ -217,7 +227,9 @@ void wvDecodeSimple(wvParseStruct *ps)
 	wvHandleDocument(ps,DOCEND);
 	wvFree(posSedx);
 	wvFree(sed);
-	/*wvReleaseLFO_records(&ps->lfo,&lfolvl,&lvl,nooflvl);*/
+	wvFree(ps->liststartnos);
+	wvFree(ps->finallvl);
+	wvReleaseLFO_records(&ps->lfo,&ps->lfolvl,&ps->lvl,ps->nooflvl);
 	wvReleaseSTTBF(&ps->anSttbfAssoc);
     wvFree(btePapx);
 	wvFree(posPapx);
@@ -227,7 +239,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 		wvError(("fcMac did not match end of input !\n"));
 	wvReleaseCLX(&ps->clx);
         wvReleaseFFN_STTBF(&ps->fonts);
-	wvReleaseSTSH(&stsh);
+	wvReleaseSTSH(&ps->stsh);
 	}
 
 

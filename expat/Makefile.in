@@ -38,7 +38,6 @@ PARSEOBJECTS =	\
 TOKENOBJECTS =	\
 	xmltok/xmltok.o \
 	xmltok/xmlrole.o 
-	
 
 all: xmlwf/xmlwf$(EXEEXT) lib/libxmlparse.a lib/libxmltok.a
 

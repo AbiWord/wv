@@ -62,6 +62,14 @@ TokenTable s_Tokens[] =
           {   "right",       	 TT_RIGHT     	 	},
           {   "center",        TT_CENTER     	 	},
           {   "asian",       	 TT_ASIAN     	 	},
+		 {	"nfc",	 		TT_nfc					},
+		 {	"start",		TT_START},
+		 {	"numbering",	 TT_numbering		},
+		  {	"arabic",	 		TT_Arabic},
+		  {	"upperroman",	 	TT_UpperRoman},
+		  {	"lowerroman",	 	TT_LowerRoman},
+		  {	"uppercasen",	 	TT_UpperCaseN},
+		  {	"lowercasen",	 	TT_LowerCaseN},
 	   {	"olist",	 		 TT_OLIST,			},
 		{	"olist.begin",	 TT_OLISTB,			},
 		{	"olist.end", 	 TT_OLISTE,			},
@@ -322,8 +330,9 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	const char *ctext;
 	static int bold,italic,strike,outline,smallcaps,caps,vanish,underline,
 	shadow,lowercase,emboss,imprint,dstrike,iss,kul,color,fontstr,proprmark,
-	animation,delete,added,FldRMark,ilfo,ilvl=-1;
+	animation,delete,added,FldRMark,ilfo,ilvl=-1,ulist,olist;
 	char buffer[64];
+	static LVL lvl;
 
 	tokenIndex = s_mapNameToToken(name);
 	wvTrace(("name = %s tokenIndex = %d\n", name, tokenIndex));
@@ -374,36 +383,83 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			wvFree(text);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
+		case TT_START:
+			/*
+			sprintf(buffer,"%d",lvl.lvlf.iStartAt);
+			*/
+			sprintf(buffer,"%d",mydata->liststartnos[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl]);
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_nfc:
+		    wvTrace(("nfc is %d\n",lvl.lvlf.nfc));
+			if (lvl.lvlf.nfc < 5)
+				{
+				wvTrace(("str is %s\n",mydata->sd->elements[TT_numbering].str[lvl.lvlf.nfc]));
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_numbering].str[lvl.lvlf.nfc])+1);
+				strcpy(text,mydata->sd->elements[TT_numbering].str[lvl.lvlf.nfc]);
+				str = mydata->retstring;
+				wvExpand(mydata,text,strlen(text));
+				wvAppendStr(&str,mydata->retstring);
+				wvFree(mydata->retstring);
+				mydata->retstring = str;
+				wvFree(text);
+				mydata->currentlen = strlen(mydata->retstring);
+				}
+			break;
 		case TT_ULISTE:
 		    wvTrace(("ilfo is %d\n",((PAP*)(mydata->props))->ilfo));
 			if ( (ilfo != 0) && (ilfo != ((PAP*)(mydata->props))->ilfo) )
 				{
-				while (ilvl >= 0)
+				if (ulist)
 					{
-					wvTrace(("str is %s\n",mydata->sd->elements[TT_ULIST].str[1]));
-					text = (char *)malloc(strlen(mydata->sd->elements[TT_ULIST].str[1])+1);
-					strcpy(text,mydata->sd->elements[TT_ULIST].str[1]);
-					str = mydata->retstring;
-					wvExpand(mydata,text,strlen(text));
-					wvAppendStr(&str,mydata->retstring);
-					wvFree(mydata->retstring);
-					mydata->retstring = str;
-					wvFree(text);
-					mydata->currentlen = strlen(mydata->retstring);
-					ilvl--;
+					while (ilvl >= 0)
+						{
+						wvTrace(("str is %s\n",mydata->sd->elements[TT_ULIST].str[1]));
+						text = (char *)malloc(strlen(mydata->sd->elements[TT_ULIST].str[1])+1);
+						strcpy(text,mydata->sd->elements[TT_ULIST].str[1]);
+						str = mydata->retstring;
+						wvExpand(mydata,text,strlen(text));
+						wvAppendStr(&str,mydata->retstring);
+						wvFree(mydata->retstring);
+						mydata->retstring = str;
+						wvFree(text);
+						mydata->currentlen = strlen(mydata->retstring);
+						ilvl--;
+						}
+					ilfo = 0;
+					ilvl = -1;
+					ulist=0;
 					}
-				ilfo = 0;
-				ilvl = -1;
 				}
 			break;
 		case TT_ULISTB:
 		    wvTrace(("ilfo is %d\n",((PAP*)(mydata->props))->ilfo));
-			/*
-			U16 *wvGetListEntryInfo(PAP *apap, CHP *achp,LFO *lfo,LFOLVL *lfolvl,
-			LVL *lvl,U32 nolfo, LST *lst, U32 noofLST,STSH *stsh);
-			*/
+			
 			if ( ((PAP*)(mydata->props))->ilfo )
 				{
+				if (wvGetListEntryInfo(&lvl,(PAP*)(mydata->props),mydata->lfo,mydata->lfolvl,mydata->lvl,mydata->nolfo, mydata->lst, mydata->noofLST))
+					{
+					wvError(("aborted list entry, more work needed obviously\n"));
+					return;
+					}
+				else
+					{
+					int i;
+					wvTrace(("start number is %d, type is %d\n",lvl.lvlf.iStartAt,lvl.lvlf.nfc));
+					if (mydata->liststartnos[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl] == 0xffffffffL) 
+						{
+						mydata->liststartnos[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl] = lvl.lvlf.iStartAt;
+						wvTrace(("start number set to %d\n",mydata->liststartnos[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl]));
+						wvCopyLVL(&mydata->finallvl[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl],&lvl);
+						}
+					for (i=0;i<mydata->nolfo*9;i++)
+						{
+						if ( (i%9 > ((PAP*)(mydata->props))->ilvl) && (mydata->finallvl[i].lvlf.fNoRestart == 0) )
+							mydata->liststartnos[i] = mydata->finallvl[i].lvlf.iStartAt;
+						}
+					}
+
 				if (((PAP*)(mydata->props))->ilvl > ilvl)
 					while (ilvl < ((PAP*)(mydata->props))->ilvl)
 						{
@@ -436,37 +492,68 @@ void exstartElement(void *userData, const char *name, const char **atts)
 						}
 				ilfo = ((PAP*)(mydata->props))->ilfo;
 				ilvl = ((PAP*)(mydata->props))->ilvl;
+				ulist=1;
+				wvTrace(("start number still set to %d\n",mydata->liststartnos[(ilfo-1)*9+ilvl]));
 				}
 			break;
 		case TT_OLISTE:
 		    wvTrace(("ilfo is %d\n",((PAP*)(mydata->props))->ilfo));
 			if ( (ilfo != 0) && (ilfo != ((PAP*)(mydata->props))->ilfo) )
 				{
-				while (ilvl >= 0)
+				if (olist)
 					{
-					wvTrace(("str is %s\n",mydata->sd->elements[TT_OLIST].str[1]));
-					text = (char *)malloc(strlen(mydata->sd->elements[TT_OLIST].str[1])+1);
-					strcpy(text,mydata->sd->elements[TT_OLIST].str[1]);
-					str = mydata->retstring;
-					wvExpand(mydata,text,strlen(text));
-					wvAppendStr(&str,mydata->retstring);
-					wvFree(mydata->retstring);
-					mydata->retstring = str;
-					wvFree(text);
-					mydata->currentlen = strlen(mydata->retstring);
-					ilvl--;
+					while (ilvl >= 0)
+						{
+						wvTrace(("str is %s\n",mydata->sd->elements[TT_OLIST].str[1]));
+						text = (char *)malloc(strlen(mydata->sd->elements[TT_OLIST].str[1])+1);
+						strcpy(text,mydata->sd->elements[TT_OLIST].str[1]);
+						str = mydata->retstring;
+						wvExpand(mydata,text,strlen(text));
+						wvAppendStr(&str,mydata->retstring);
+						wvFree(mydata->retstring);
+						mydata->retstring = str;
+						wvFree(text);
+						mydata->currentlen = strlen(mydata->retstring);
+						ilvl--;
+						}
+					ilfo = 0;
+					ilvl = -1;
+					olist=0;
 					}
-				ilfo = 0;
-				ilvl = -1;
 				}
 			break;
 		case TT_OLISTB:
 		    wvTrace(("ilfo is %d\n",((PAP*)(mydata->props))->ilfo));
-			/*
-			U16 *wvGetListEntryInfo(PAP *apap, CHP *achp,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U32 noofLST,STSH *stsh);
-			*/
 			if ( ((PAP*)(mydata->props))->ilfo )
 				{
+				if (wvGetListEntryInfo(&lvl,(PAP*)(mydata->props),mydata->lfo,mydata->lfolvl,mydata->lvl,mydata->nolfo, mydata->lst, mydata->noofLST))
+					{
+					wvError(("aborted list entry, more work needed obviously\n"));
+					return;
+					}
+				else
+					{
+					int i,ok;
+					wvTrace(("start number is %d, type is %d\n",lvl.lvlf.iStartAt,lvl.lvlf.nfc));
+					wvTrace(("lfo is %d, ilvi is %d\n",((PAP*)(mydata->props))->ilfo,((PAP*)(mydata->props))->ilvl));
+					if (mydata->liststartnos[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl] == 0xffffffffL) 
+						{
+						mydata->liststartnos[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl] = lvl.lvlf.iStartAt;
+						wvCopyLVL(&mydata->finallvl[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl],&lvl);
+						}
+
+					for (i=0;i<mydata->nolfo*9;i++)
+						{
+						if ( (i%9 > ((PAP*)(mydata->props))->ilvl) && (mydata->finallvl[i].lvlf.fNoRestart == 0) )
+							mydata->liststartnos[i] = mydata->finallvl[i].lvlf.iStartAt;
+						}
+
+					if ((lvl.numbertext == NULL) || (lvl.numbertext[0] <= 1))
+						{
+						wvTrace(("no text of any kind in list string\n"));
+						return;
+						}
+					}
 				if (((PAP*)(mydata->props))->ilvl > ilvl)
 					while (ilvl < ((PAP*)(mydata->props))->ilvl)
 						{
@@ -499,6 +586,8 @@ void exstartElement(void *userData, const char *name, const char **atts)
 						}
 				ilfo = ((PAP*)(mydata->props))->ilfo;
 				ilvl = ((PAP*)(mydata->props))->ilvl;
+				olist=1;
+				wvTrace(("start number still set to %d\n",mydata->liststartnos[(ilfo-1)*9+ilvl]));
 				}
 			break;
 		case TT_ENTRYB:
@@ -515,6 +604,9 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				mydata->retstring = str;
 				wvFree(text);
 				mydata->currentlen = strlen(mydata->retstring);
+				/*
+				mydata->liststartnos[(ilfo-1)*9+ilvl]++;
+				*/
 				}
 			break;
 		case TT_ENTRYE:
@@ -531,6 +623,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				mydata->retstring = str;
 				wvFree(text);
 				mydata->currentlen = strlen(mydata->retstring);
+				mydata->liststartnos[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl]++;
 				}
 			break;
 		case TT_BOLDB:
@@ -919,6 +1012,7 @@ void startElement(void *userData, const char *name, const char **atts)
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
 		case TT_JUSTIFICATION:
+		case TT_numbering:
 			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*5);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=5;
 			for(i=0;i<5;i++)
@@ -934,27 +1028,32 @@ void startElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_BEGIN:
 		case TT_LEFT:
+		case TT_Arabic:
 			mydata->current = &(mydata->currentele->str[0]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_END:
 		case TT_CENTER:
+		case TT_UpperRoman:
 			mydata->current = &(mydata->currentele->str[1]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_RIGHT:
+		case TT_LowerRoman:
 			mydata->current = &(mydata->currentele->str[2]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_BLOCK:
+		case TT_UpperCaseN:
 			mydata->current = &(mydata->currentele->str[3]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_ASIAN:
+		case TT_LowerCaseN:
 			mydata->current = &(mydata->currentele->str[4]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -1109,6 +1208,14 @@ void startElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_JUST:
 			wvAppendStr(mydata->current,"<just/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_nfc:
+			wvAppendStr(mydata->current,"<nfc/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_START:
+			wvAppendStr(mydata->current,"<start/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_COLORB:
@@ -1494,6 +1601,11 @@ void endElement(void *userData, const char *name)
 		case TT_CENTER:
 		case TT_BLOCK:
 		case TT_ASIAN:
+		case TT_Arabic:
+		case TT_UpperRoman:
+		case TT_LowerRoman:
+		case TT_UpperCaseN:
+		case TT_LowerCaseN:
 			wvAppendStr(mydata->current,"</begin>");
 			wvTrace(("When we finish the str is %s\n",*(mydata->current)));
 			mydata->currentlen=0;
@@ -1503,6 +1615,8 @@ void endElement(void *userData, const char *name)
 		case TT_CHARSET:
 		case TT_VERSION:
 		case TT_JUST:
+		case TT_nfc:
+		case TT_START:
 		case TT_BOLDB:
 		case TT_BOLDE:
 		case TT_ITALICB:

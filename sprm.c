@@ -484,6 +484,7 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			break;
 		case sprmCFBold:
 			toggle = bgetc(pointer,pos);
+			wvTrace(("toggle here is %d, istd is %d\n",toggle,achp->istd));
 			wvTOGGLE(achp->fBold,achp,stsh,toggle,fBold)
 			break;
 		case sprmCFItalic:

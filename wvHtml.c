@@ -31,7 +31,7 @@ void usage( void )
 	exit(-1);
 	}
 
-U16 charset=0xffff;
+static U16 charset=0xffff;
 
 int main(int argc,char **argv)
 	{
@@ -115,6 +115,16 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
     expand_data *data = (expand_data *)ps->userData;
     data->anSttbfAssoc = &ps->anSttbfAssoc;
 	data->lfo = ps->lfo;
+	data->lfolvl = ps->lfolvl;
+	data->lvl = ps->lvl;
+	data->nolfo = ps->nolfo;
+	data->nooflvl = ps->nooflvl;
+	data->stsh = &ps->stsh;
+	data->lst = ps->lst;
+	data->noofLST = ps->noofLST;
+	data->liststartnos = ps->liststartnos;
+	data->finallvl = ps->finallvl;
+
 	if (charset == 0xffff)
     	data->charset = wvAutoCharset(&ps->clx);
 	else
@@ -151,6 +161,16 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
     expand_data *data = (expand_data *)ps->userData;
     data->anSttbfAssoc = &ps->anSttbfAssoc;
 	data->lfo = ps->lfo;
+	data->lfolvl = ps->lfolvl;
+	data->lvl = ps->lvl;
+	data->nolfo = ps->nolfo;
+	data->nooflvl = ps->nooflvl;
+	data->stsh = &ps->stsh;
+	data->lst = ps->lst;
+	data->noofLST = ps->noofLST;
+	data->liststartnos = ps->liststartnos;
+	data->finallvl = ps->finallvl;
+
 	if (charset == 0xffff)
 	    data->charset = wvAutoCharset(&ps->clx);
 	else

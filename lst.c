@@ -19,10 +19,10 @@ int wvGetLST(LST **lst,U16 *noofLST,U32 offset,U32 len,FILE *fd)
 		return(0);
 
 	fseek(fd,offset,SEEK_SET);
-	fprintf(stderr,"offset is %x, len is %d\n",offset,len);
+	wvTrace(("offset is %x, len is %d\n",offset,len));
 
 	*noofLST = read_16ubit(fd);
-	fprintf(stderr,"noofLST is %d\n",*noofLST);
+	wvTrace(("noofLST is %d\n",*noofLST));
 	if (*noofLST == 0)
 		return(0);
 
@@ -49,16 +49,16 @@ int wvGetLST(LST **lst,U16 *noofLST,U32 offset,U32 len,FILE *fd)
 		}
 	for (i=0;i<*noofLST;i++)
 		{
-		fprintf(stderr,"getting lvl, the id is %x\n",(*lst)[i].lstf.lsid);
+		wvTrace(("getting lvl, the id is %x\n",(*lst)[i].lstf.lsid));
 		if ((*lst)[i].lstf.fSimpleList)
 			{
-			fprintf(stderr,"simple 1\n");
+			wvTrace(("simple 1\n"));
 			wvGetLVL(&((*lst)[i].lvl[0]),fd);
 			(*lst)[i].current_no[0] = (*lst)[i].lvl[0].lvlf.iStartAt;
 			}
 		else
 			{
-			fprintf(stderr,"complex 9\n");
+			wvTrace(("complex 9\n"));
 			for (j=0;j<9;j++)
 				{
 				wvGetLVL(&((*lst)[i].lvl[j]),fd);
@@ -74,7 +74,7 @@ void wvGetLSTF(LSTF *item,FILE *fd)
 	int i;
 	U8 temp8;
     item->lsid = read_32ubit(fd);
-	fprintf(stderr,"lsid is %x\n",item->lsid);
+	wvTrace(("lsid is %x\n",item->lsid));
 	item->tplc = read_32ubit(fd);
     for (i=0;i<9;i++)
 		item->rgistd[i]  = read_16ubit(fd);
