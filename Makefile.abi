@@ -40,7 +40,6 @@ CSRCS=	lex.yy.c \
         gpprl.c \
 	graphics.c \
 	picf.c \
-	wvGraphicConvert.c \
         papchpsep.c \
         hyperlink.c \
         decompresswmf.c \
