@@ -90,7 +90,6 @@ CSRCS= \
 	decode_complex.c \
 	wvTextEngine.c \
 	wvHtmlEngine.c \
-	wvConfig.c \
 	wvparse.c \
 	reasons.c \
 	sep.c \
