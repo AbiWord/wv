@@ -62,13 +62,13 @@ void wvDecodeSimple(wvParseStruct *ps)
 	wvGetSTSH(&ps->stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
 
 	/* get font list */
-	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3) )
+	if ( (wvQuerySupported(&ps->fib,NULL) == WORD6) || (wvQuerySupported(&ps->fib,NULL) == WORD7) )
 		wvGetFFN_STTBF6(&ps->fonts, ps->fib.fcSttbfffn, ps->fib.lcbSttbfffn, ps->tablefd);
 	else
 		wvGetFFN_STTBF(&ps->fonts, ps->fib.fcSttbfffn, ps->fib.lcbSttbfffn, ps->tablefd);
 	      
 	/*we will need the table of names to answer questions like the name of the doc*/
-	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3) )
+	if ( (wvQuerySupported(&ps->fib,NULL) == WORD6) || (wvQuerySupported(&ps->fib,NULL) == WORD7) )
 		wvGetSTTBF6(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
 	else /*word 97*/
 		wvGetSTTBF(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
@@ -110,7 +110,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	we will need the paragraph and character bounds table to make decisions as 
 	to where a para/char run begins and ends
 	*/
-	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3))
+	if ( (wvQuerySupported(&ps->fib,NULL) == WORD6) || (wvQuerySupported(&ps->fib,NULL) == WORD7))
 		{
     	wvGetBTE_PLCF6(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
     	wvGetBTE_PLCF6(&bteChpx,&posChpx,&char_intervals,ps->fib.fcPlcfbteChpx,ps->fib.lcbPlcfbteChpx,ps->tablefd);
@@ -356,7 +356,7 @@ Every character greater than or equal to fcFirst and less than fcLim is part of
 the containing paragraph.
 
 */
-int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc, BTE *bte, U32 *pos,int nobte,FILE *fd)
+int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc, BTE *bte, U32 *pos,int nobte,FILE *fd)
 	{
 	BTE entry;
 	long currentpos;
@@ -381,14 +381,14 @@ int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U3
 	/*The pagenumber of the FKP is entry.pn */
 
 	wvTrace(("pn is %d\n",entry.pn));
-	wvGetPAPX_FKP(version,fkp,entry.pn,fd);
+	wvGetPAPX_FKP(ver,fkp,entry.pn,fd);
 
 	fseek(fd,currentpos,SEEK_SET);
 
 	return(wvGetIntervalBounds(fcFirst,fcLim,currentfc,fkp->rgfc,fkp->crun+1));
 	}
 
-int wvGetSimpleCharBounds(int version, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, FILE *fd)
+int wvGetSimpleCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, FILE *fd)
 	{
 	U32 currentfc;
 	BTE entry;
@@ -412,7 +412,7 @@ int wvGetSimpleCharBounds(int version, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, 
 	/*The pagenumber of the FKP is entry.pn */
 
 	wvTrace(("pn is %d\n",entry.pn));
-	wvGetCHPX_FKP(version, fkp, entry.pn, fd);
+	wvGetCHPX_FKP(ver, fkp, entry.pn, fd);
 
 	fseek(fd, currentpos, SEEK_SET);
 
@@ -457,7 +457,7 @@ sed.fc must be applied to the local SEP. The process thus far has created a
 SEP that describes what the section properties of the section at the last 
 full save. 
 */
-int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd)
+int wvGetSimpleSectionBounds(version ver,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd)
 	{
 	U32 i=0;
 	int ret=0;
@@ -488,8 +488,8 @@ int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 c
 	if (sed[j].fcSepx != 0xffffffffL)
 		{
 		fseek(fd,wvNormFC(sed[j].fcSepx,NULL),SEEK_SET);
-		wvGetSEPX(version,&sepx,fd);
-		if (version == 0)
+		wvGetSEPX(ver,&sepx,fd);
+		if (ver == WORD8)
 			ret = wvAddSEPXFromBucket(sep,&sepx,stsh);
 		else
 			ret = wvAddSEPXFromBucket6(sep,&sepx,stsh);

@@ -156,7 +156,6 @@ int main(int argc,char **argv)
 
 int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
 	{
-	static int i;
 	expand_data *data = (expand_data *)ps->userData;
 	data->anSttbfAssoc = &ps->anSttbfAssoc;
 	data->lfo = &ps->lfo;
@@ -165,7 +164,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
     data->nolfo = &ps->nolfo;
     data->nooflvl = &ps->nooflvl;
 	data->stsh = &ps->stsh;
-	data->lst = ps->lst;
+	data->lst = &ps->lst;
 	data->noofLST = &ps->noofLST;
 	data->liststartnos = &ps->liststartnos;
 	data->finallvl = &ps->finallvl;
@@ -216,7 +215,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
     data->nolfo = &ps->nolfo;
     data->nooflvl = &ps->nooflvl;
 	data->stsh = &ps->stsh;
-	data->lst = ps->lst;
+	data->lst = &ps->lst;
 	data->noofLST = &ps->noofLST;
 	data->liststartnos = &ps->liststartnos;
 	data->finallvl = &ps->finallvl;

@@ -298,10 +298,10 @@ fkp.rgbx[i - 1] to find the PAPX for the paragraph.
 of the paragraph were at the last full save.
 */
 
-int wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
+int wvAssembleSimplePAP(version ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 	{
 	PAPX *papx;
-	int index,i;
+	int index;
 	UPXF upxf;
 	int ret=0;
 	/*index is the i in the text above*/
@@ -330,7 +330,7 @@ int wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 		upxf.cbUPX = papx->cb;
 		upxf.upx.papx.istd = papx->istd;
 		upxf.upx.papx.grpprl = papx->grpprl;
-		if (version == 0)
+		if (ver == WORD8)
 			wvAddPAPXFromBucket(apap,&upxf,stsh);
 		else
 			wvAddPAPXFromBucket6(apap,&upxf,stsh);
@@ -358,13 +358,13 @@ void wvInitPAPX(PAPX *item)
 	item->grpprl=NULL;
 	}
 
-void wvGetPAPX(int version,PAPX *item,U32 offset,FILE *fd)
+void wvGetPAPX(version ver,PAPX *item,U32 offset,FILE *fd)
 	{
 	U16 cw,i;
 	fseek(fd,offset,SEEK_SET);
 	wvTrace(("offset is %x\n",offset));
 	cw = getc(fd);
-	if ( (cw == 0) && (version == 0) )	/* only do this for word 97 */
+	if ( (cw == 0) && (ver == WORD8) )	/* only do this for word 97 */
 		{
 		wvTrace(("cw was pad %d\n",cw));
 		cw = getc(fd);

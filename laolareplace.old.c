@@ -129,7 +129,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
   if(isprint(c)) 
   		{
 		wvError(("File looks like a plain text file.\n"));
-		return 2;
+		return(2);
 	/* check for MS OLE wrapper */
 		} 
 	else 
@@ -144,7 +144,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
      /* read header block */
      if(fread(Block,512,1,input)!=1) {
        wvError(("1 ===========> Input file has faulty OLE format\n"));
-    return 3;
+    return(3);
      }
      num_bbd_blocks=(S32)LongInt(Block+0x2c);
 	 if ((num_bbd_blocks == 0) || (num_bbd_blocks < 0))
@@ -173,7 +173,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
 		if (0x4c+(i*4) > 512)
 			{
 			wvError(("2.1 ===========> Input file has faulty bbd\n"));
-			return 3;
+			return(3);
 			}
        	FilePos = 512*(LongInt(Block+0x4c+(i*4))+1);
 		if (FilePos > fullen)
@@ -372,20 +372,20 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
          FilePos = (pps_start+Offset)* BlockSize;
          bytes = THEMIN(BlockSize,pps_size);
          if (fseek(infile,FilePos,SEEK_SET) != 0) {
-		 wvError(("6 ===========> Input file has faulty OLE format\n"));
+		 /*wvError(("6 ===========> Input file has faulty OLE format\n"));*/
 		  return(3);
 		 }
          if(fread(Block,bytes,1,infile)!=1) {
-           wvError(("5 ===========> Input file has faulty OLE format\n"));
+           /*wvError(("5 ===========> Input file has faulty OLE format\n"));*/
 			wvFree(Root);
 			wvFree(BDepot);
 			wvFree(Block);
            return(3);
          }
          fwrite(Block,bytes,1,OLEfile);
-		 if (pps_start*4 > depot_len)
+		 if ( (pps_start*4 > depot_len) || (pps_start*4 < 0) )
 		 	{
-			wvWarning("5 ===========> Input file has dodgy OLE format\n");
+			/*wvWarning("5 ===========> Input file has dodgy OLE format\n");*/
 			wvFree(Root);
 			wvFree(BDepot);
 			wvFree(Block);

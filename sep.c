@@ -122,7 +122,7 @@ void wvInitSEP(SEP *item)
  	wvInitOLST(&item->olstAnm);
 	} 
 
-void wvGetSEPX(int version,SEPX *item,FILE *fd)
+void wvGetSEPX(version ver,SEPX *item,FILE *fd)
 	{
 	U16 i;
 	item->cb = read_16ubit(fd);

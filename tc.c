@@ -3,7 +3,7 @@
 #include "wv.h"
 #include "wvinternal.h"
 
-int wvGetTC_internal(int version,TC *tc,FILE *infd,U8 *pointer)
+int wvGetTC_internal(version ver,TC *tc,FILE *infd,U8 *pointer)
     {
     U16 temp16;
 	BRC10 brc10;
@@ -14,7 +14,7 @@ int wvGetTC_internal(int version,TC *tc,FILE *infd,U8 *pointer)
 	temp16 = dread_16ubit(infd,&pointer);
 	wvTrace(("temp16 is %x\n",temp16));
 
-	if (version==0)
+	if (ver==WORD8)
 		{
 		tc->fFirstMerged = temp16 & 0x0001;
 		tc->fMerged = (temp16 & 0x0002) >> 1;
@@ -74,9 +74,9 @@ int wvGetTC_internal(int version,TC *tc,FILE *infd,U8 *pointer)
 	return(cbTC);
     }
 
-int wvGetTCFromBucket(int version,TC *abrc,U8 *pointer)
+int wvGetTCFromBucket(version ver,TC *abrc,U8 *pointer)
     {
-    return(wvGetTC_internal(version,abrc,NULL,pointer));
+    return(wvGetTC_internal(ver,abrc,NULL,pointer));
     }
 
 

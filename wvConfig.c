@@ -865,7 +865,8 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				{
 				wvReleaseLVL(&lvl);
 				wvInitLVL(&lvl);
-				if (wvGetListEntryInfo(mydata->finallvl,mydata->liststartnos,&lvl,&retlfo,(PAP*)(mydata->props),mydata->lfo,mydata->lfolvl,mydata->lvl,mydata->nolfo, mydata->lst, *mydata->noofLST,wvQuerySupported(mydata->fib,NULL)))
+		    	wvTrace(("getting ulist list entry %d %d\n",((PAP*)(mydata->props))->ilfo,((PAP*)(mydata->props))->ilvl));
+				if (wvGetListEntryInfo(wvQuerySupported(mydata->fib,NULL),mydata->finallvl,mydata->liststartnos,&lvl,&retlfo,(PAP*)(mydata->props),mydata->lfo,mydata->lfolvl,mydata->lvl,mydata->nolfo, mydata->lst, mydata->noofLST))
 					{
 					wvError(("aborted list entry, more work needed obviously\n"));
 					return;
@@ -932,7 +933,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				{
 				wvReleaseLVL(&lvl);
 				wvInitLVL(&lvl);
-				wvGetListEntryInfo(mydata->finallvl,mydata->liststartnos,&lvl,&retlfo,(PAP*)(mydata->props),mydata->lfo,mydata->lfolvl,mydata->lvl,mydata->nolfo, mydata->lst, *mydata->noofLST,wvQuerySupported(mydata->fib,NULL));
+				wvGetListEntryInfo(wvQuerySupported(mydata->fib,NULL),mydata->finallvl,mydata->liststartnos,&lvl,&retlfo,(PAP*)(mydata->props),mydata->lfo,mydata->lfolvl,mydata->lvl,mydata->nolfo, mydata->lst, mydata->noofLST);
 				}
 			
 			if ( (ilfo != 0) && (ilfo != ((PAP*)(mydata->props))->ilfo) )
@@ -989,12 +990,12 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				}
 			break;
 		case TT_OLISTB:
-		    wvTrace(("ilfo is %d\n",((PAP*)(mydata->props))->ilfo));
 			if (wvIsListEntry((PAP*)(mydata->props),wvQuerySupported(mydata->fib,NULL)))
 				{
 				wvReleaseLVL(&lvl);
 				wvInitLVL(&lvl);
-				if (wvGetListEntryInfo(mydata->finallvl,mydata->liststartnos,&lvl,&retlfo,(PAP*)(mydata->props),mydata->lfo,mydata->lfolvl,mydata->lvl,mydata->nolfo, mydata->lst, *mydata->noofLST,wvQuerySupported(mydata->fib,NULL)))
+		    	wvTrace(("getting olist list entry %d %d\n",((PAP*)(mydata->props))->ilfo,((PAP*)(mydata->props))->ilvl));
+				if (wvGetListEntryInfo(wvQuerySupported(mydata->fib,NULL),mydata->finallvl,mydata->liststartnos,&lvl,&retlfo,(PAP*)(mydata->props),mydata->lfo,mydata->lfolvl,mydata->lvl,mydata->nolfo, mydata->lst, mydata->noofLST))
 					{
 					wvError(("aborted list entry, more work needed obviously\n"));
 					return;

@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <errno.h>
+#include <string.h>
 #include "config.h"
 #include "wv.h"
 /*
@@ -91,42 +93,51 @@ int main(int argc,char **argv)
 		}
 
 	input = fopen(argv[optind],"rb");
+	if (!input)
+		{
+		fprintf(stderr,"Failed to open %s: %s\n",argv[1],strerror(errno));
+		return(-1);
+		}
+
 
 	ret = wvInitParser(&ps,input);
 
-	if (ret == 4)
+	if (ret & 0x8000)
 		{
-		ret = 0;
-		if (password == NULL)
+		if ( (ret & 0x7fff) == WORD8)
 			{
-			wvError(("Password required, this is an encrypted document\n"));
-			return(-1);
-			}
-		else
-			{
-			wvSetPassword(password,&ps);
-			if (wvDecrypt97(&ps))
+			ret = 0;
+			if (password == NULL)
 				{
-				wvError(("Incorrect Password\n"));
+				fprintf(stderr,"Password required, this is an encrypted document\n");
 				return(-1);
 				}
-			}
-		}
-	else if (ret == 7)
-		{
-		ret=0;
-		if (password == NULL)
-			{
-			wvError(("Password required, this is an encrypted document\n"));
-			return(-1);
-			}
-		else
-			{
-			wvSetPassword(password,&ps);
-			if (wvDecrypt95(&ps))
+			else
 				{
-				wvError(("Incorrect Password\n"));
+				wvSetPassword(password,&ps);
+				if (wvDecrypt97(&ps))
+					{
+					wvError(("Incorrect Password\n"));
+					return(-1);
+					}
+				}
+			}
+		else if ( ( (ret & 0x7fff) == WORD7) || ( (ret & 0x7fff) == WORD6))
+			{
+			ret=0;
+			if (password == NULL)
+				{
+				fprintf(stderr,"Password required, this is an encrypted document\n");
 				return(-1);
+				}
+			else
+				{
+				wvSetPassword(password,&ps);
+				if (wvDecrypt95(&ps))
+					{
+					wvError(("Incorrect Password\n"));
+					return(-1);
+					}
 				}
 			}
 		}
@@ -183,7 +194,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
 	data->nolfo = &ps->nolfo;
 	data->nooflvl = &ps->nooflvl;
 	data->stsh = &ps->stsh;
-	data->lst = ps->lst;
+	data->lst = &ps->lst;
 	data->noofLST = &ps->noofLST;
 	data->liststartnos = &ps->liststartnos;
 	data->finallvl = &ps->finallvl;
@@ -247,7 +258,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 	data->nolfo = &ps->nolfo;
 	data->nooflvl = &ps->nooflvl;
 	data->stsh = &ps->stsh;
-	data->lst = ps->lst;
+	data->lst = &ps->lst;
 	data->noofLST = &ps->noofLST;
 	data->liststartnos = &ps->liststartnos;
 	data->finallvl = &ps->finallvl;
@@ -290,7 +301,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 	{
 	static int message,state;
-	PICF picf;
+	/*PICF picf;*/
 	FSPA *fspa;
     expand_data *data = (expand_data *)ps->userData;
 
@@ -376,7 +387,7 @@ option to support correct symbol font conversion to a viewable format.\n");
 				}
 			}
 		default:
-			return;
+			return(0);
 		}
 	return(0);
 	}

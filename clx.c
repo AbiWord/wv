@@ -49,7 +49,7 @@ block contains a grpprl) or 2 (meaning this is the plcfpcd). A clxtGrpprl
 clxtPlcfpcd (2) is followed by a 4-byte lcb which is the count of bytes of
 the piece table. A full saved file will have no clxtGrpprl's.
 */
-void wvGetCLX(int version,CLX *clx,U32 offset,U32 len,FILE *fd)
+void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,FILE *fd)
 	{
 	U8 clxt;
 	U16 cb;
@@ -78,7 +78,7 @@ void wvGetCLX(int version,CLX *clx,U32 offset,U32 len,FILE *fd)
 			}
 		else if (clxt == 2)
 			{
-			if (version == 0)
+			if (ver == WORD8)
 				{
 				lcb = read_32ubit(fd);
 				j+=4;
@@ -97,7 +97,7 @@ void wvGetCLX(int version,CLX *clx,U32 offset,U32 len,FILE *fd)
 			wvGetPCD_PLCF(&clx->pcd,&clx->pos,&clx->nopcd,ftell(fd),lcb,fd);
 			j+=lcb;
 
-			if (version)
+			if (ver == WORD7)
 				{
 				/* DANGER !!, this is a completely mad attempt to differenciate 
 				between word 95 files that use 16 and 8 bit characters. It may

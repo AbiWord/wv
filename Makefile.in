@@ -58,7 +58,6 @@ MYOBJECTS =	\
 	sprm.o \
 	blip.o \
 	utf.o \
-	init_chp.o \
 	field.o \
 	formatting.o \
 	references.o \
@@ -69,7 +68,6 @@ MYOBJECTS =	\
 	annotations.o \
 	dop.o \
 	roman.o \
-	doc_limits.o \
 	fib.o \
 	frd.o \
 	atrd.o \
@@ -157,16 +155,16 @@ XML = 	expat/xmlparse/xmlparse.o \
 
 OLE = oledecod/oledecod.o
 
-all: wvSummary$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSimpleCLX$(EXEEXT) wv-libconfig wv-incconfig
-
-mswordview$(EXEEXT):  mswordview.o main.o lex.yy.o oldlist.o oldblip.o oldtable.o oldchp.o oldsprm.o oldsupport.o $(GETOPT) OLEDECODE libwv.a
-	$(CC)  -o $@ main.o  mswordview.o lex.yy.o oldtable.o oldlist.o oldblip.o oldsprm.o oldchp.o oldsupport.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+all: wvSummary$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSimpleCLX$(EXEEXT) wvVersion$(EXEEXT) wv-libconfig wv-incconfig
 
 wvSummary$(EXEEXT): wvSummary.o $(GETOPT) OLEDECODE libwv.a
 	$(CC)  -o $@ wvSummary.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wvSimpleCLX$(EXEEXT): wvSimpleCLX.o $(GETOPT) OLEDECODE libwv.a
 	$(CC)  -o $@ wvSimpleCLX.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+
+wvVersion$(EXEEXT): wvVersion.o $(GETOPT) OLEDECODE libwv.a
+	$(CC)  -o $@ wvVersion.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wvConvert$(EXEEXT): wvConvert.o $(GETOPT) OLEDECODE libwv.a
 	$(CC)  -o $@ wvConvert.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
@@ -224,10 +222,10 @@ cleansub:
 	@(cd expat && $(MAKE) clean) || exit 1
 
 clean: cleansub
-	rm -rf *.o $(GETOPT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) mswordview$(EXEEXT) wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) core a.out *.a
+	rm -rf *.o $(GETOPT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) core a.out *.a
 
 distclean: realcleansub
-	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.o wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) mswordview$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvGraphicConvert$(EXEEXT) core out* analyze/* .pure
+	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.o wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvGraphicConvert$(EXEEXT) core out* analyze/* .pure
 
 realclean: distclean
 	rm -rf lex.yy.c
@@ -254,6 +252,7 @@ installdirs:
 install: installdirs all
 	$(INSTALL) $(srcdir)/wvSummary$(EXEEXT) $(bindir)/wvSummary$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvSimpleCLX$(EXEEXT) $(bindir)/wvSimpleCLX$(EXEEXT)
+	$(INSTALL) $(srcdir)/wvVersion$(EXEEXT) $(bindir)/wvVersion$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvConvert$(EXEEXT) $(bindir)/wvConvert$(EXEEXT)
 	$(RM) $(bindir)/wvText$(EXEEXT)
 	$(LN) -s $(bindir)/wvConvert$(EXEEXT) $(bindir)/wvText$(EXEEXT)

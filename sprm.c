@@ -139,7 +139,7 @@ U8 wvEatSprm(U16 sprm,U8 *pointer, U16 *pos)
 	return(len);
 	}
 
-Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos)
+Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos)
 	{
 	BRC10 tempBRC10;
 	U16 temp16;
@@ -305,22 +305,22 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			apap->wr = bgetc(pointer,pos);
 			break;
 		case sprmPBrcTop:
-			(*pos)+=wvGetBRCFromBucket(version,&apap->brcTop,pointer);
+			(*pos)+=wvGetBRCFromBucket(ver,&apap->brcTop,pointer);
 			break;
 		case sprmPBrcLeft:
-			(*pos)+=wvGetBRCFromBucket(version,&apap->brcLeft,pointer);
+			(*pos)+=wvGetBRCFromBucket(ver,&apap->brcLeft,pointer);
 			break;
 		case sprmPBrcBottom:
-			(*pos)+=wvGetBRCFromBucket(version,&apap->brcBottom,pointer);
+			(*pos)+=wvGetBRCFromBucket(ver,&apap->brcBottom,pointer);
 			break;
 		case sprmPBrcRight:
-			(*pos)+=wvGetBRCFromBucket(version,&apap->brcRight,pointer);
+			(*pos)+=wvGetBRCFromBucket(ver,&apap->brcRight,pointer);
 			break;
 		case sprmPBrcBetween:
-			(*pos)+=wvGetBRCFromBucket(version,&apap->brcBetween,pointer);
+			(*pos)+=wvGetBRCFromBucket(ver,&apap->brcBetween,pointer);
 			break;
 		case sprmPBrcBar:
-			(*pos)+=wvGetBRCFromBucket(version,&apap->brcBar,pointer);
+			(*pos)+=wvGetBRCFromBucket(ver,&apap->brcBar,pointer);
 			break;
 		case sprmPFNoAutoHyph:
 			apap->fNoAutoHyph = bgetc(pointer,pos);
@@ -384,7 +384,7 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvTrace(("%d\n",apap->nLvlAnm));
 			break;
 		case sprmPAnld:
-			wvApplysprmPAnld(version,apap,pointer,pos);
+			wvApplysprmPAnld(ver,apap,pointer,pos);
 			break;
 		case sprmPPropRMark:
 			wvApplysprmPPropRMark(apap,pointer,pos);
@@ -456,7 +456,7 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvApplysprmCChs(achp,pointer,pos);
 			break;
 		case sprmCSymbol:
-			wvApplysprmCSymbol(version,achp,pointer,pos);
+			wvApplysprmCSymbol(ver,achp,pointer,pos);
 			break;
 		case sprmCFOle2:
 			achp->fOle2 = bgetc(pointer,pos);
@@ -624,7 +624,7 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			(*pos)+=4;
 			break;
 		case sprmCBrc:
-			(*pos)+=wvGetBRCFromBucket(version,&achp->brc,pointer);
+			(*pos)+=wvGetBRCFromBucket(ver,&achp->brc,pointer);
 			break;
 		case sprmCShd:
 			wvGetSHDFromBucket(&apap->shd,pointer);
@@ -675,7 +675,7 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			asep->iHeadingPgn = bgetc(pointer,pos);
 			break;
 		case sprmSOlstAnm:
-			wvApplysprmSOlstAnm(version,asep,pointer,pos);
+			wvApplysprmSOlstAnm(ver,asep,pointer,pos);
 			break;
 		case sprmSDxaColWidth:
 		case sprmSDxaColSpacing:
@@ -799,16 +799,16 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			bgetc(pointer,pos);
 			break;
 		case sprmSBrcTop:
-			(*pos)+=wvGetBRCFromBucket(version,&asep->brcTop,pointer);
+			(*pos)+=wvGetBRCFromBucket(ver,&asep->brcTop,pointer);
 			break;
 		case sprmSBrcLeft:
-			(*pos)+=wvGetBRCFromBucket(version,&asep->brcLeft,pointer);
+			(*pos)+=wvGetBRCFromBucket(ver,&asep->brcLeft,pointer);
 			break;
 		case sprmSBrcBottom:	
-			(*pos)+=wvGetBRCFromBucket(version,&asep->brcBottom,pointer);
+			(*pos)+=wvGetBRCFromBucket(ver,&asep->brcBottom,pointer);
 			break;
 		case sprmSBrcRight:
-			(*pos)+=wvGetBRCFromBucket(version,&asep->brcRight,pointer);
+			(*pos)+=wvGetBRCFromBucket(ver,&asep->brcRight,pointer);
 			break;
 		case sprmSPgbProp:
 			asep->pgbProp = (S16)bread_16ubit(pointer,pos);
@@ -854,7 +854,7 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvApplysprmTDxaGapHalf(&apap->ptap,pointer,pos);
 			break;
 		case sprmTTableBorders:
-			wvApplysprmTTableBorders(version,&apap->ptap,pointer,pos);
+			wvApplysprmTTableBorders(ver,&apap->ptap,pointer,pos);
 			break;
 		case sprmTDefTable10:
 			wvApplysprmTDefTable10(&apap->ptap,pointer,pos);
@@ -878,7 +878,7 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			(*pos)+=cbTLP;
 			break;
 		case sprmTSetBrc:
-			wvApplysprmTSetBrc(version,&apap->ptap,pointer,pos);
+			wvApplysprmTSetBrc(ver,&apap->ptap,pointer,pos);
 			break;
 		case sprmTInsert:
 			wvApplysprmTInsert(&apap->ptap,pointer,pos);
@@ -1361,12 +1361,12 @@ void wvApplysprmPFrameTextFlow(PAP *apap,U8 *pointer,U16 *pos)
 	apap->fRotateFont = (temp16 & 0x0004) >> 2;
 	}
 
-void wvApplysprmPAnld(int version,PAP *apap,U8 *pointer, U16 *pos)
+void wvApplysprmPAnld(version ver,PAP *apap,U8 *pointer, U16 *pos)
 	{
 	dgetc(NULL,&pointer);
 	(*pos)++;
-	wvGetANLD_FromBucket(version,&apap->anld,pointer);
-	if (version == 0)
+	wvGetANLD_FromBucket(ver,&apap->anld,pointer);
+	if (ver == WORD8)
 		(*pos)+=cbANLD;
 	else
 		(*pos)+=cb6ANLD;
@@ -1427,9 +1427,9 @@ void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos)
 	(*pos)+=2;
 	}
 
-void wvApplysprmCSymbol(int version,CHP *achp,U8 *pointer,U16 *pos)
+void wvApplysprmCSymbol(version ver,CHP *achp,U8 *pointer,U16 *pos)
 	{
-	if (version == 0)
+	if (ver == WORD8)
 		{
 	/*
 	Word 8
@@ -1976,10 +1976,10 @@ void wvApplysprmCDispFldRMark(CHP *achp,U8 *pointer,U16 *pos)
 	}
 
 
-void wvApplysprmSOlstAnm(int version,SEP *asep,U8 *pointer,U16 *pos)
+void wvApplysprmSOlstAnm(version ver,SEP *asep,U8 *pointer,U16 *pos)
 	{
 	U8 len = dgetc(NULL,&pointer);
-	wvGetOLSTFromBucket(version,&asep->olstAnm,pointer);
+	wvGetOLSTFromBucket(ver,&asep->olstAnm,pointer);
 	if (len != cbOLST)
 		wvError(("OLST len is different from expected\n"));
 	(*pos)+=len;
@@ -2049,17 +2049,17 @@ void wvApplysprmTDxaGapHalf(TAP *tap,U8 *pointer,U16 *pos)
 sprmTTableBorders (opcode 0xD605) sets the tap.rgbrcTable. The sprm is
 interpreted by moving the 24 bytes of the sprm's operand to tap.rgbrcTable.
 */
-void wvApplysprmTTableBorders(int version,TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTTableBorders(version ver,TAP *tap,U8 *pointer,U16 *pos)
 	{
 	int i,d;
-	if (version == 0)
+	if (ver == WORD8)
 		{
 		dgetc(NULL,&pointer);
 		(*pos)++;
 		}
 	for (i=0;i<6;i++)
 		{
-		d = wvGetBRCFromBucket(version,&(tap->rgbrcTable[i]),pointer);
+		d = wvGetBRCFromBucket(ver,&(tap->rgbrcTable[i]),pointer);
 		pointer+=d;
 		(*pos)+=d;
 		}
@@ -2166,7 +2166,7 @@ void wv2ApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos)
 	{
 	U8 len;
 	U16 itcMac;
-	int i,t,oldpos,type;
+	int i;
 
 	len = dgetc(NULL,&pointer);
 	(*pos)++;
@@ -2195,7 +2195,7 @@ void wvApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos)
 	{
 	U16 len;
 	U16 itcMac;
-	int i,t,oldpos,type;
+	int i,oldpos;
 
 	len = dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
@@ -2286,12 +2286,12 @@ to be set to new values. It has the following format:
 			fChangeTop int  :1   01   
 	4    4  brc  BRC
 */																				  
-void wvApplysprmTSetBrc(int version,TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTSetBrc(version ver,TAP *tap,U8 *pointer,U16 *pos)
 	{
 	U8 itcFirst,itcLim,len,temp8;
 	BRC abrc;
 	int i;
-	if (version == 0)
+	if (ver == WORD8)
 		{
 		len = dgetc(NULL,&pointer);
 		(*pos)++;
@@ -2301,7 +2301,7 @@ void wvApplysprmTSetBrc(int version,TAP *tap,U8 *pointer,U16 *pos)
 	itcLim = dgetc(NULL,&pointer);
 	temp8 = dgetc(NULL,&pointer);
 	(*pos)+=3;
-	(*pos) += wvGetBRCFromBucket(version,&abrc,pointer);
+	(*pos) += wvGetBRCFromBucket(ver,&abrc,pointer);
 
 	for (i=itcFirst;i<itcLim;i++)
 		{

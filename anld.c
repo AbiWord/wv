@@ -3,7 +3,7 @@
 #include "wv.h"
 #include "crc32.h"
 
-void wvGetANLD(int version,ANLD *item,FILE *fd)
+void wvGetANLD(version ver,ANLD *item,FILE *fd)
 	{
 	U8 temp8;
 	int i;
@@ -44,7 +44,7 @@ void wvGetANLD(int version,ANLD *item,FILE *fd)
     item->fSpareX = getc(fd);
 	for (i=0;i<32;i++)
 		{
-		if (version == 0)
+		if (ver == WORD8)
     		item->rgxch[i] = read_16ubit(fd);
 		else
     		item->rgxch[i] = getc(fd);
@@ -52,7 +52,7 @@ void wvGetANLD(int version,ANLD *item,FILE *fd)
 				
 	}
 
-void wvGetANLD_FromBucket(int version,ANLD *item,U8 *pointer8)
+void wvGetANLD_FromBucket(version ver,ANLD *item,U8 *pointer8)
 	{
 	U8 temp8;
 	int i;
@@ -97,7 +97,7 @@ void wvGetANLD_FromBucket(int version,ANLD *item,U8 *pointer8)
     item->fSpareX = dgetc(NULL,&pointer8);
 	for (i=0;i<32;i++)
 		{
-		if (version == 0)
+		if (ver == WORD8)
     		item->rgxch[i] = dread_16ubit(NULL,&pointer8);
 		else
     		item->rgxch[i] = dgetc(NULL,&pointer8);

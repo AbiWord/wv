@@ -8,8 +8,8 @@ void wvGetNUMRM_internal(NUMRM *item,FILE *fd,U8 *pointer);
 void wvGetSHD_internal(SHD *item,FILE *fd,U8 *pointer);
 void wvGetBRC_internal6(BRC *abrc,FILE *infd,U8 *pointer);
 void wvGetTBD_internal(TBD *item,FILE *fd,U8 *pointer);
-void wvGetOLST_internal(int version,OLST *item,FILE *fd,U8 *pointer);
+void wvGetOLST_internal(version ver,OLST *item,FILE *fd,U8 *pointer);
 void wvGetANLV_internal(ANLV *item,FILE *fd,U8 *pointer);
-int wvGetTC_internal(int version,TC *tc,FILE *infd,U8 *pointer);
+int wvGetTC_internal(version ver,TC *tc,FILE *infd,U8 *pointer);
 void wvGetTLP_internal(TLP *item,FILE *infd,U8 *pointer);
 #endif

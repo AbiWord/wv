@@ -21,9 +21,9 @@ void wvGetBRC_internal(BRC *abrc,FILE *infd,U8 *pointer)
     abrc->reserved = (temp8 & 0x80)>>7;
     }
 
-void wvGetBRC(int version,BRC *abrc,FILE *infd)
+void wvGetBRC(version ver,BRC *abrc,FILE *infd)
     {
-	if (version == 0)
+	if (ver == WORD8)
 		wvGetBRC_internal(abrc,infd,NULL);
 	else
 		wvGetBRC_internal6(abrc,infd,NULL);
@@ -47,9 +47,9 @@ void wvGetBRC_internal6(BRC *abrc,FILE *infd,U8 *pointer)
     }
 
 
-int wvGetBRCFromBucket(int version,BRC *abrc,U8 *pointer)
+int wvGetBRCFromBucket(version ver,BRC *abrc,U8 *pointer)
     {
-	if (version == 0)
+	if (ver == WORD8)
 		wvGetBRC_internal(abrc,NULL,pointer);
 	else
 		{

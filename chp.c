@@ -597,7 +597,7 @@ void wvUpdateCHPXBucket(UPXF *src)
  * -JB
  */
 
-int wvAssembleSimpleCHP(int version,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
+int wvAssembleSimpleCHP(version ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
 	{
 	CHPX *chpx;
 	int index,i;
@@ -631,7 +631,7 @@ int wvAssembleSimpleCHP(int version,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh
 		for (i=0;i<chpx->cbGrpprl;i++)
 			upxf.cbUPX = chpx->cbGrpprl;
 		upxf.upx.chpx.grpprl = chpx->grpprl;
-		if (version == 0)
+		if (ver == WORD8)
 			wvAddCHPXFromBucket(achp, &upxf, stsh);
 		else
 			wvAddCHPXFromBucket6(achp, &upxf, stsh);
@@ -640,7 +640,7 @@ int wvAssembleSimpleCHP(int version,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh
 	}
 
 
-void wvGetCHPX(int version, CHPX *item, U32 offset, FILE *fd)
+void wvGetCHPX(version ver, CHPX *item, U32 offset, FILE *fd)
 	{
 	U8 i;
 	fseek(fd, offset, SEEK_SET);

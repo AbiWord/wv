@@ -85,7 +85,7 @@ void wvGetDOP(DOP *dop,U32 fcDop,U32 lcbDop,FILE *fd)
 
 
 	/*
-	not used in word 8 as far as i know, but are in previous versions, 
+	not used in word 8 as far as i know, but are in previous word's
 	*/
 	wvGetCOPTS(&dop->copts,fd);
 

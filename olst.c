@@ -17,7 +17,7 @@ void wvInitOLST(OLST *item)
 	} 
 
 
-void wvGetOLST_internal(int version,OLST *item,FILE *fd,U8 *pointer)
+void wvGetOLST_internal(version ver,OLST *item,FILE *fd,U8 *pointer)
 	{
 	U8 i;
 	for (i=0;i<9;i++)
@@ -26,7 +26,7 @@ void wvGetOLST_internal(int version,OLST *item,FILE *fd,U8 *pointer)
  	item->fSpareOlst2=dgetc(fd,&pointer);
  	item->fSpareOlst3=dgetc(fd,&pointer);
  	item->fSpareOlst4=dgetc(fd,&pointer);
-	if (version == 0)
+	if (ver == WORD8)
 		{
 		for (i=0;i<32;i++)
 			item->rgxch[i]=dread_16ubit(fd,&pointer);
@@ -38,12 +38,12 @@ void wvGetOLST_internal(int version,OLST *item,FILE *fd,U8 *pointer)
 		}
 	}
 
-void wvGetOLST(int version,OLST *item,FILE *fd)
+void wvGetOLST(version ver,OLST *item,FILE *fd)
 	{
-	wvGetOLST_internal(version,item,fd,NULL);
+	wvGetOLST_internal(ver,item,fd,NULL);
 	}
 
-void wvGetOLSTFromBucket(int version,OLST *item,U8 *pointer)
+void wvGetOLSTFromBucket(version ver,OLST *item,U8 *pointer)
 	{
-	wvGetOLST_internal(version,item,NULL,pointer);
+	wvGetOLST_internal(ver,item,NULL,pointer);
 	}

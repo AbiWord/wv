@@ -166,8 +166,27 @@ LST *wvSearchLST(U32 id,LST *lst,U16 noofLST)
 	for(i=0;i<noofLST;i++)
 		{
 		if (lst[i].lstf.lsid == id)
+			{
+			wvTrace(("found id %x\n",id));
 			return(&(lst[i]));
+			}
 		}
 	wvWarning("Couldn't find list id %x\n",id);
 	return(NULL);
+	}
+
+
+int wvInitLST(LST *lst)
+	{
+	U16 j;
+	wvInitLSTF(&lst->lstf);
+	lst->lvl = (LVL *)malloc(9 * sizeof(LVL));
+	lst->current_no = (U32 *)malloc(9 * sizeof(U32));
+
+	for (j=0;j<9;j++)
+		{
+		wvInitLVL(&(lst->lvl[j]));
+		lst->current_no[j] = lst->lvl[j].lvlf.iStartAt;
+		}
+	return(0);
 	}

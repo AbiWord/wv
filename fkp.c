@@ -31,7 +31,7 @@ are recorded in the FKP, unused space is reduced by 17 if CHPX/PAPX
 is already recorded and is reduced by 17+sizeof(PAPX) if property is not
 already recorded.
 */
-void wvGetPAPX_FKP(int version,PAPX_FKP *fkp,U32 pn,FILE *fd)
+void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,FILE *fd)
 	{
 	int i;
 	wvTrace(("seeking to %x to get crun\n",pn*PAGESIZE+(PAGESIZE-1)));
@@ -50,7 +50,7 @@ void wvGetPAPX_FKP(int version,PAPX_FKP *fkp,U32 pn,FILE *fd)
 
 	for (i=0;i<fkp->crun;i++)
 		{
-		if (version == 0)
+		if (ver == WORD8)
 			wvGetBX(&fkp->rgbx[i],fd);
 		else 
 			wvGetBX6(&fkp->rgbx[i],fd);
@@ -66,7 +66,7 @@ void wvGetPAPX_FKP(int version,PAPX_FKP *fkp,U32 pn,FILE *fd)
 		else
 			{
 			wvTrace(("papx index i is %d, offset is %x\n",i,pn*PAGESIZE+fkp->rgbx[i].offset*2));
-			wvGetPAPX(version,&(fkp->grppapx[i]),pn*PAGESIZE+fkp->rgbx[i].offset*2,fd);
+			wvGetPAPX(ver,&(fkp->grppapx[i]),pn*PAGESIZE+fkp->rgbx[i].offset*2,fd);
 			}
 		}
 	}
@@ -199,7 +199,7 @@ int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc)
  * -JB
  */
 
-void wvGetCHPX_FKP(int version, CHPX_FKP *fkp, U32 pn, FILE *fd)
+void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, FILE *fd)
 	{
 	int i;
 	wvTrace(("chpx fkp malloc\n"));
@@ -232,7 +232,7 @@ void wvGetCHPX_FKP(int version, CHPX_FKP *fkp, U32 pn, FILE *fd)
 		     {
 			wvTrace(("chpx index i is %d, offset is %x\n", i,
 				(pn * PAGESIZE) + (fkp->rgb[i] * 2)));
-			wvGetCHPX(version, &(fkp->grpchpx[i]), 
+			wvGetCHPX(ver, &(fkp->grpchpx[i]), 
 				  (pn*PAGESIZE) + (fkp->rgb[i] * 2), fd);
 			}
 		}

@@ -623,7 +623,7 @@ void TheTest(wvParseStruct *ps,U32 piece,BTE *btePapx,U32 *posPapx,U32 para_inte
 	U32 para_fcFirst,para_fcLim;
 	PAPX_FKP para_fkp;
 	PAP apap;
-	int cpiece;
+	int cpiece=0;
 
 	long pos = ftell(ps->mainfd);
 	wvInitPAPX_FKP(&para_fkp);

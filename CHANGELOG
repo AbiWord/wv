@@ -51,6 +51,11 @@ Changes to to 0.5.38
 	sprmDefTable, and there is something wrong with Shd, maybe its me, maybe
 	its word. Either way im working around the problem.
 	* I had broken the word97 decryption, fixed again.
+	* cleaned things up to create a version enum and associated obvious names
+	with the versions so that its more obvious to read and more extendable,
+	encryption is marked in the version by the base version ored with 0x8000.
+	* some mods to the old list conversion to new list format, removes at 
+	least one crash and might solve others, possibly not a full solution.
 ALL TODO
 	* Got to think of some way to keep the list stuff in sync with the margins 
 	of the enclosed paragraphs in html output.

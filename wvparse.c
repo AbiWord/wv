@@ -17,12 +17,25 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 
 	ret = wvOLEDecode(fp,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
 		&ps->data,&ps->summary);
-	if (ret) 
+
+	switch(ret)
 		{
-		wvOpenPreOLE(&fp,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
-		        &ps->data,&ps->summary);
-		return ret;
+		case 0:
+			break;
+		case 2:
+			ret = wvOpenPreOLE(&fp,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
+					&ps->data,&ps->summary);
+			return(ret);
+			break;
+		case 3:
+			wvError(("Bad Ole\n"));
+			return(3);
+			break;
+		default:
+			return(-1);
+			break;
 		}
+
 	if (ps->mainfd == NULL) 
 		{
 		ret = 4;
@@ -37,12 +50,13 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 
 	ret = wvQuerySupported(&ps->fib,&reason);
 
-	if ( (ret != 0) && (ret != 4) && (ret == 7) )
+	if ( (ret&0x7fff) != WORD8 )
 		ps->data = ps->mainfd;
 
-    if ( (ret > 1) && (ret != 2) && (ret != 3) )
+	if ( (ret != WORD8) && (ret != WORD7) && (ret!= WORD6) )
 		{
-		if ((ret != 4) && (ret != 7))
+		/* return the errors and the encrypted files*/
+		if (!(ret & 0x8000))
 			wvError(("%s\n",wvReason(reason)));
 		return(ret);
 		}
@@ -72,18 +86,24 @@ void wvSetPassword(char *password,wvParseStruct *ps)
 
 int wvOpenPreOLE(FILE **input, FILE **mainfd, FILE **tablefd0, FILE **tablefd1,FILE **data, FILE **summary)
 	{
-	if (*input)
-		rewind(*input);
-	getc(*input);
-	if (0xa5 == getc(*input))
-		wvError(("Theres a good change that this is a pre word 6 doc of nFib %d\n",read_16ubit(*input)));
-	if (*input)
-		rewind(*input);
+	int ret=-1;
+
 	*mainfd=*input;
 	*tablefd0=*input;
 	*tablefd1=*input;
 	*data=*input;
 	*summary=NULL;
 
-	return(1);
+	if (*input)
+		rewind(*input);
+	else
+		return(ret);
+	getc(*input);
+	if (0xa5 == getc(*input))
+		{
+		wvError(("Theres a good change that this is a pre word 6 doc of nFib %d\n",read_16ubit(*input)));
+		rewind(*input);
+		return(-1);
+		}
+	return(ret);
 	}

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetPGD(int version,PGD *item,FILE *fd)
+void wvGetPGD(version ver,PGD *item,FILE *fd)
 	{
 	U16 temp16;
 	
@@ -23,7 +23,7 @@ void wvGetPGD(int version,PGD *item,FILE *fd)
 
 	item->lnn=read_16ubit(fd);
 	item->pgn=read_16ubit(fd);
-	if (version == 0)
+	if (ver == WORD8)
 		item->dym=(S32)read_32ubit(fd);
 	else
 		item->dym=0;

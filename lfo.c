@@ -88,6 +88,17 @@ void wvGetLFO(LFO *item,FILE *fd)
     	item->reserved3[i] = getc(fd);
 	}
 
+void wvInitLFO(LFO *item)
+	{
+	int i;
+	item->lsid = 0;
+    item->reserved1 = 0;
+    item->reserved2 = 0;
+    item->clfolvl = 0;
+	for(i=0;i<3;i++)
+    	item->reserved3[i] = 0;
+	}
+
 void wvGetLFOLVL(LFOLVL *item,FILE *fd)
 	{
 	U8 temp8;

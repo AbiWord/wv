@@ -266,6 +266,8 @@ void wvGetFIB(FIB *item,FILE *fd)
 	U16 temp16;
 	U8 temp8;
 
+    item->fEncrypted=0;
+
 	fseek(fd,0,SEEK_SET);
 #ifdef PURIFY
 	wvInitFIB(item);
@@ -273,7 +275,7 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->wIdent = read_16ubit(fd);
 	item->nFib = read_16ubit(fd);
 
-	if ( (wvQuerySupported(item,NULL) == 2) || (wvQuerySupported(item,NULL) == 3) )/*|| (wvQuerySupported(item,NULL) == 4) )*/
+	if ( (wvQuerySupported(item,NULL) == WORD6) || (wvQuerySupported(item,NULL) == WORD7) )
 		{
 		wvInitFIB(item);
 		fseek(fd,-4,SEEK_CUR);
@@ -543,7 +545,7 @@ FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
     {
     FILE *ret;
 
-	if ((wvQuerySupported(fib,NULL) == 0) || (wvQuerySupported(fib,NULL) == 4))		/* word 8+ */
+	if ((wvQuerySupported(fib,NULL)&0x7fff) == WORD8)
 		{
 		if (fib->fWhichTblStm)
 			{
@@ -572,15 +574,15 @@ FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
     }
 
 
-int wvQuerySupported(FIB *fib,int *reason)
+version wvQuerySupported(FIB *fib,int *reason)
     {
-	int ret=0;
+	int ret=WORD8;
 
     /*begin from microsofts kb q 40*/
     if (fib->nFib <101)
         {
         if (reason) *reason=1;
-		ret = 1;
+		ret = WORD2;
         }
 	else
 		{
@@ -588,11 +590,11 @@ int wvQuerySupported(FIB *fib,int *reason)
 			{
 			case 101:
 				if (reason) *reason=2;
-				ret = 2;
+				ret = WORD6;
 			case 103:
 			case 104:
 				if (reason) *reason=3;
-				ret = 3;
+				ret = WORD7;
 			default:
 				break;
 			}
@@ -603,7 +605,7 @@ int wvQuerySupported(FIB *fib,int *reason)
     if (fib->fEncrypted)
         {
         if (reason) *reason=4;
-        ret+=4;
+        ret|=0x8000;
         }
     return(ret);
     }
