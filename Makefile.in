@@ -137,7 +137,9 @@ MYOBJECTS =	\
 	wkb.o \
 	graphics.o \
 	picf.o \
-	crc32.o
+	crc32.o \
+	rc4.o \
+	decrypt.o
 
 #XML = -Lexpat/lib -lxmlparse -lxmltok
 XML = 	expat/xmlparse/xmlparse.o \

@@ -355,6 +355,7 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->lcbStshfOrig = read_32ubit(fd);
 	item->fcStshf = (S32)read_32ubit(fd);
 	item->lcbStshf = read_32ubit(fd);
+
 	item->fcPlcffndRef = (S32)read_32ubit(fd);
 	item->lcbPlcffndRef = read_32ubit(fd);
 	item->fcPlcffndTxt = (S32)read_32ubit(fd);
@@ -595,7 +596,6 @@ int wvQuerySupported(FIB *fib,int *reason)
     if (fib->fEncrypted)
         {
         if (reason) *reason=4;
-		wvWarning(("Encrypted\n"));
         return(4);
         }
     return(0);

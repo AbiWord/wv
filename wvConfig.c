@@ -552,6 +552,8 @@ void exstartElement(void *userData, const char *name, const char **atts)
 					int i;
 					wvTrace(("start number is %d, type is %d\n",lvl.lvlf.iStartAt,lvl.lvlf.nfc));
 					wvTrace(("lfo is %d, ilvi is %d\n",((PAP*)(mydata->props))->ilfo,((PAP*)(mydata->props))->ilvl));
+
+
 					if ((*mydata->liststartnos)[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl] == 0xffffffffL) 
 						{
 						(*mydata->liststartnos)[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl] = lvl.lvlf.iStartAt;
@@ -560,6 +562,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 
 					for (i=0;i<*(mydata->nolfo)*9;i++)
 						{
+						wvTrace(("new list, restart is %d\n",(*mydata->finallvl)[i].lvlf.fNoRestart));
 						if ( (i%9 > ((PAP*)(mydata->props))->ilvl) && ((*mydata->finallvl)[i].lvlf.fNoRestart == 0) )
 							(*mydata->liststartnos)[i] = (*mydata->finallvl)[i].lvlf.iStartAt;
 						}
@@ -568,6 +571,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 						{
 						return;
 						}
+
 					}
 
 

@@ -339,14 +339,10 @@ int wvSumInfoOpenStream(SummaryInfo *si,FILE *stream)
    
     wvGetPropHeader(&header,stream);
     if (header.byteOrder != 0xFFFE)
-        {
         return(1);
-        }
 
     if (header.wFormat != 0)
-        {
         return(1);
-        }
 
     for (i = 0; i < header.cSections; i++)
         {
@@ -358,9 +354,7 @@ int wvSumInfoOpenStream(SummaryInfo *si,FILE *stream)
         }
 
     if (i >= header.cSections)
-        {
-        return(1);
-        }
+		wvTrace(("possible problem\n"));
 
     wvGetSummaryInfo(si,stream,fid.dwOffset);
     return(0);

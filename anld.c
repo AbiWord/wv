@@ -88,6 +88,8 @@ void wvGetANLD_FromBucket(int version,ANLD *item,U8 *pointer8)
     item->dxaIndent = (S16)dread_16ubit(NULL,&pointer8);
     item->dxaSpace = dread_16ubit(NULL,&pointer8);
     item->fNumber1 = dgetc(NULL,&pointer8);
+	if (item->fNumber1 == 46)
+		wvTrace(("This level has not been modified, so you can't believe its nfc\n"));
     item->fNumberAcross = dgetc(NULL,&pointer8);
     item->fRestartHdn = dgetc(NULL,&pointer8);
     item->fSpareX = dgetc(NULL,&pointer8);

@@ -72,6 +72,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 		ps->finallvl=NULL;
 		}
 
+
 	/* 
 	despite what some parts of the spec might have you believe you still need to 
 	get the piecetable from even simple files, some simple files can have 8bit
@@ -125,7 +126,8 @@ void wvDecodeSimple(wvParseStruct *ps)
 	   
 	wvHandleDocument(ps,DOCBEGIN);
 
-	
+
+
 	/*for each piece*/
 	for (piececount=0;piececount<ps->clx.nopcd;piececount++)
 		{
@@ -210,7 +212,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 
 			if ((eachchar == 0x01) && (achp.fSpec))
 				{
-				wvError(("picture here offset %x\n",ftell(ps->mainfd)));
+				wvError(("picture here at offset %x, fcPic of %x\n",ftell(ps->mainfd),achp.fcPic_fcObj_lTagObj));
 				/*
 				wvDumpPicture(achp.fcPic_fcObj_lTagObj,ps->data);
 				*/

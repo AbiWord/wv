@@ -27,7 +27,7 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype);
 
 void usage( void )
 	{
-	printf("Usage: wvHtml [--charset charset] filename.doc\n");
+	printf("Usage: wvHtml [--charset charset] [--password password] filename.doc\n");
 	exit(-1);
 	}
 
@@ -36,6 +36,7 @@ static U16 charset=0xffff;
 int main(int argc,char **argv)
 	{
 	FILE *input;
+	char *password=NULL;
 	int ret;
 	state_data myhandle;
 	expand_data expandhandle;
@@ -44,6 +45,7 @@ int main(int argc,char **argv)
 	static struct option long_options[] =
         {
         { "charset",1,0,'c'},
+        { "password",1,0,'p'},
         { 0,      0, 0, '0' },
         };
 
@@ -65,6 +67,12 @@ int main(int argc,char **argv)
 				else
 					wvError(("No argument given to charset"));
 				break;
+			case 'p':
+				if (optarg)
+					password = optarg;
+				else
+					wvError(("No password given to password option"));
+				break;
 			default:
                 usage();
                 break;
@@ -74,6 +82,26 @@ int main(int argc,char **argv)
 	input = fopen(argv[optind],"rb");
 
 	ret = wvInitParser(&ps,input);
+
+	if (ret == 4)
+		{
+		ret = 0;
+		if (password == NULL)
+			{
+			wvError(("Password required\n"));
+			return(-1);
+			}
+		else
+			{
+			wvSetPassword(password,&ps);
+			if (wvDecrypt97(&ps))
+				{
+				wvError(("Incorrect Password\n"));
+				return(-1);
+				}
+			}
+		}
+
 	if (ret)
 		{
 		wvError(("startup error\n"));

@@ -65,9 +65,10 @@ int wvGetListEntryInfo(LVL **finallvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *ap
 		{
 		retlvl->lvlf.iStartAt = apap->anld.iStartAt;
 		retlvl->lvlf.nfc = apap->anld.nfc;
+		wvTrace(("start %d,type is %d\n",apap->anld.iStartAt,apap->anld.nfc));
 		retlvl->lvlf.jc = apap->anld.jc;
 		retlvl->lvlf.fLegal = 0;	/*?*/
-		retlvl->lvlf.fNoRestart = 1;	/*?*/
+		retlvl->lvlf.fNoRestart = 0;	/*?*/
 		retlvl->lvlf.fPrev = apap->anld.fPrev;
 		retlvl->lvlf.fPrevSpace = apap->anld.fPrevSpace;
 		retlvl->lvlf.fWord6 = 1;
@@ -81,6 +82,8 @@ int wvGetListEntryInfo(LVL **finallvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *ap
 		retlvl->lvlf.reserved2 = 0;
 		retlvl->grpprlChpx = NULL;	/* wrong */
 		retlvl->grpprlPapx = NULL;	/* wrong */
+
+
 
 		/* wrong: begin of numbertext twiddling */
 		wvTrace(("before len %d\n",apap->anld.cxchTextBefore));
@@ -98,6 +101,11 @@ int wvGetListEntryInfo(LVL **finallvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *ap
 		retlvl->numbertext[i+1] = '\0';
 		/* end of numbertext twiddling */
 
+
+		/* temp test */
+		if (retlvl->lvlf.nfc > 5) 
+			retlvl->numbertext[0] = 0;
+
 		
 		/*word 6 anld, parse that instead*/
 		fakeid = wvCheckSumANLD(&apap->anld);
@@ -107,7 +115,76 @@ int wvGetListEntryInfo(LVL **finallvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *ap
 				{
 				wvTrace(("This is not the first time we've seen this list\n"));
 				apap->ilfo = i+1;
-				apap->ilvl = 0;
+
+				
+				if ( (apap->nLvlAnm == 10) || (apap->nLvlAnm == 1) )
+					apap->ilvl = 0;
+				else
+					apap->ilvl = apap->nLvlAnm-1;
+
+				if (apap->ilvl >= 10) apap->ilvl-=10;
+				
+				for (i=0;i<9;i++) (*nos)[(apap->ilfo-1)*9+i] = 0xffffffffL;
+
+				wvTrace(("ilvl %d\n",apap->ilvl));
+
+
+				/* if this anld is a dodgy one 0x2e*/
+				if ( (apap->ilvl) && (apap->anld.fNumber1 == 0x2e) )
+					{
+					wvTrace(("Suspicious\n"));
+					switch(apap->ilvl)
+						{
+						case 1:
+							if (retlvl->lvlf.nfc == 0)
+								retlvl->lvlf.nfc = 4;
+							else if (retlvl->lvlf.nfc == 1)
+								retlvl->lvlf.nfc = 3;
+							break;
+						case 2:
+							if (retlvl->lvlf.nfc == 0)
+								retlvl->lvlf.nfc = 2;
+							else if (retlvl->lvlf.nfc == 1)
+								retlvl->lvlf.nfc = 0;
+							break;
+						case 3:
+							if (retlvl->lvlf.nfc == 0)
+								retlvl->lvlf.nfc = 4;
+							else if (retlvl->lvlf.nfc == 1)
+								retlvl->lvlf.nfc = 4;
+							break;
+						case 4:
+							if (retlvl->lvlf.nfc == 0)
+								retlvl->lvlf.nfc = 0;
+							else if (retlvl->lvlf.nfc == 1)
+								retlvl->lvlf.nfc = 0;
+							break;
+						case 5:
+							if (retlvl->lvlf.nfc == 0)
+								retlvl->lvlf.nfc = 4;
+							else if (retlvl->lvlf.nfc == 1)
+								retlvl->lvlf.nfc = 4;
+							break;
+						case 6:
+							if (retlvl->lvlf.nfc == 0)
+								retlvl->lvlf.nfc = 2;
+							else if (retlvl->lvlf.nfc == 1)
+								retlvl->lvlf.nfc = 2;
+							break;
+						case 7:
+							if (retlvl->lvlf.nfc == 0)
+								retlvl->lvlf.nfc = 4;
+							else if (retlvl->lvlf.nfc == 1)
+								retlvl->lvlf.nfc = 4;
+							break;
+						case 8:
+							if (retlvl->lvlf.nfc == 0)
+								retlvl->lvlf.nfc = 2;
+							else if (retlvl->lvlf.nfc == 1)
+								retlvl->lvlf.nfc = 2;
+							break;
+						}
+					}
 				return(0);
 				}
 			}
@@ -138,7 +215,10 @@ int wvGetListEntryInfo(LVL **finallvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *ap
 			wvCopyLVL(&((*finallvl)[(apap->ilfo-1)*9+i]),retlvl);
 			}
 
-		apap->ilvl = 0;	/* i dunno yet */
+		if ( (apap->nLvlAnm == 10) || (apap->nLvlAnm == 1) )
+			apap->ilvl = 0;
+		else
+			apap->ilvl = apap->nLvlAnm-1;
 
 		/*
 		and set the ilfo and ilvl of the list to point to that fake entry instead

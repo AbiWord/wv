@@ -1,4 +1,6 @@
 Changes to to 0.5.29
+	* NUMBER 1 CHANGE: we now have the ability to decrypt word 97 documents, yippee!!
+
 	* more koi8.c changes from Sergey V. Udaltsov <svu@pop.convey.ru>
 	* removed all the lex rubbish, and took mswordview itself out of the default
 	Makefile dammit.
@@ -34,7 +36,21 @@ Changes to to 0.5.29
 		We can apply the para stuff to the actual paragraph and some 
 		checking shows that a div is a valid element to put in a list
 		so thats what I have done
+	* with the word6 list problem, I have been unable in word95 to create
+	a list underneath another list with the exact same formatting without
+	putting a space between, I have also been unable to create a list
+	to continues from another list. In short I cannot create a list that
+	can break the admittedly insanely hacked mechanism I have devised to
+	leverage word6 lists into the word97 model used internally by the wv
+	library.
+	* some mods to make multilevel word6/95 lists work correctly, completely mad
+	stuff entirely, dragons be here and so on.
+	* minor change to summary.c to allow slightly dodgy but ok docs through the
+	system, happens with msword version 6.0.1 ( a mac version ?)
+	* explicit ul end ala ol end, if the para is the last para of the doc.
 ALL TODO
+	* multilevel word6/95 lists.
+
 	* title not being done in the correct charset
 	* we need character formatting for the <li> itself, we can do this I 
 	suppose, but i'll hold off on that for a while.

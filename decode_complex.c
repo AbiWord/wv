@@ -432,7 +432,11 @@ void wvDecodeComplex(wvParseStruct *ps)
         {
         ps->liststartnos = (U32 *)malloc(9 * ps->nolfo * sizeof(U32));
         ps->finallvl = (LVL *)malloc(9 * ps->nolfo * sizeof(LVL));
-        for (i=0;i<9 * ps->nolfo;i++) ps->liststartnos[i] = 0xffffffffL;
+        for (i=0;i<9 * ps->nolfo;i++) 
+			{
+			ps->liststartnos[i] = 0xffffffffL;
+			wvInitLVL(&(ps->finallvl[i]));
+			}
         }
     else
         {
