@@ -1751,7 +1751,7 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 		f->mem = g_new (guint8, BB_BLOCK_SIZE);
 
 		if (!f->mem ||
-		    f->syswrap->read (file, f->mem, (BB_BLOCK_SIZE == -1),
+		    f->syswrap->read (file, f->mem, BB_BLOCK_SIZE,
 				      f->syswrap->closure)) {
 			g_warning ("Error reading header\n");
 			f->syswrap->close (file, f->syswrap->closure) ;
