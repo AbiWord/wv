@@ -354,7 +354,8 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 	wvTrace(("list: ilvl %d, ilfo %d\n",apap->ilvl,apap->ilfo));	/* ilvl is the list level */
 
 	/* first, get the LFO, and then find the lfovl for this paragraph */
-	myLFO = &ps->lfo[apap->ilfo - 1];
+	if (ps->lfo) 
+	  myLFO = &ps->lfo[apap->ilfo - 1];
 
 	while(i < (S32)apap->ilfo - 1 && i < (S32)ps->nolfo)
 	{
@@ -363,7 +364,10 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 	}
 
 	/* 	remember how many overrides are there for this record */
-	k = ps->lfo[i].clfolvl;
+        if (ps->lfo)
+	  k = ps->lfo[i].clfolvl;
+	else
+	  k = 0;
 
 	/* 	if there are any overrides, then see if one of them applies to this level */
 	if(k && ps->lfolvl)
@@ -454,7 +458,7 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 	{
 		prevLVL = myLVL;
 		prevLVLF = myLVLF;
-		myListId = myLFO->lsid;
+		myListId = myLFO ? myLFO->lsid : 0;
 		wvTrace(("list: using the LVL from LST\n"));
 		i = 0;
 		
