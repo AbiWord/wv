@@ -49,6 +49,8 @@
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#else
+typedef ssize
 #endif
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -89,3 +91,5 @@
 #ifndef HAVE_MEMCPY
 #define memcpy(d, s, n) bcopy ((s), (d), (n))
 #endif /* not HAVE_MEMCPY */
+
+#undef HAVE_MMAP

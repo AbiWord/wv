@@ -3,6 +3,8 @@ Arturo Tena <arturo@directmail.org> <filters@centauri.lci.ulsa.mx>, ole changes
 Brian.Ewins <brian.ewins@bt.com>, much needed speed ups 
 Claude Marinier <claude.marinier@dreo.dnd.ca>, small Makefile patch
 diakka <diakka@staff.sinanet.com>, a make patch
+Ferdinand Gassauer <f.gassauer@aon.at>, for kde link files, to integrate wv
+into the kde desktop in a nice way.
 Harry Shamansky (shamansky@adinc.com), irix makefile patch
 Justin Bradford <justin@ukans.edu>, did quite a bit of work to help getting wv
 	functioning as a library for abiword. Character properties as one example

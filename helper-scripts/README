@@ -1,3 +1,14 @@
+For kde there is an easier way to configure KDE to open
+MS-Word.doc files
+
+Install the following files
+$KDEDIR/share/applnk/wvHtml.kdelnk
+$KDEDIR/share/mimelnk/text/doc.kdelnk
+
+by Ferdinand Gassauer <f.gassauer@aon.at>
+
+
+
 these are all scripts sent to me to make mswordview a suitable
 helper application for netscape or mail programs. i havent looked or used
 them myself, im too tied up in the converter itself for now.

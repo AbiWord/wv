@@ -32,7 +32,6 @@ void wvDecodeSimple(wvParseStruct *ps)
 	BTE *btePapx, *bteChpx;
 	U32 *posPapx, *posChpx;
 	U32 para_intervals, char_intervals, section_intervals,atrd_intervals;
-	U8 state=0;
 	int para_pendingclose=0,char_pendingclose=0,section_pendingclose=0,comment_pendingclose=0;
 	int para_dirty=0,char_dirty=0,section_dirty=0;
 	SED *sed;
@@ -68,9 +67,15 @@ void wvDecodeSimple(wvParseStruct *ps)
 	      
 	/*we will need the table of names to answer questions like the name of the doc*/
 	if ( (wvQuerySupported(&ps->fib,NULL) == WORD6) || (wvQuerySupported(&ps->fib,NULL) == WORD7) )
+		{
 		wvGetSTTBF6(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
+		wvGetSTTBF6(&ps->Sttbfbkmk,ps->fib.fcSttbfbkmk,ps->fib.lcbSttbfbkmk,ps->tablefd);
+		}
 	else /*word 97*/
+		{
 		wvGetSTTBF(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
+		wvGetSTTBF(&ps->Sttbfbkmk,ps->fib.fcSttbfbkmk,ps->fib.lcbSttbfbkmk,ps->tablefd);
+		}
 
 	/*Extract all the list information that we will need to handle lists later on*/
 	wvGetLST(&ps->lst,&ps->noofLST,ps->fib.fcPlcfLst,ps->fib.lcbPlcfLst,ps->tablefd);
@@ -165,7 +170,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 		*/
 		char_fcLim = beginfc;
 		wvTrace(("%d %d %d\n",begincp,endcp,ps->fib.ccpText));	
-		for (i=begincp,j=beginfc;(i<endcp && i<ps->fib.ccpText);i++,j += wvIncFC(chartype))
+		for (i=begincp,j=beginfc;(i<endcp /*&& i<ps->fib.ccpText*/);i++,j += wvIncFC(chartype))
 			{
 			/* character properties */
 			if (j == char_fcLim)
@@ -310,8 +315,8 @@ void wvDecodeSimple(wvParseStruct *ps)
 				ps->endcell=1;
 
 			ps->currentcp = i;
-			wvTrace(("char pos is %x\n",j));
-			wvOutputTextChar(eachchar, chartype, &state, ps,&achp);
+			wvTrace(("char pos is %x %x\n",j,eachchar));
+			wvOutputTextChar(eachchar, chartype, ps,&achp);
 			}
 
 		if (j == para_fcLim)

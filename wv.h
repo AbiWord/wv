@@ -2170,6 +2170,12 @@ typedef enum _FIELDCODE
 	FC_OTHER = 0,
 	FC_TIME,
 	FC_DateTimePicture,
+	FC_HYPERLINK,
+	FC_EDITTIME,
+	FC_TOC,
+	FC_TOC_FROM_RANGE,
+	FC_PAGEREF,
+	FC_EMBED,
 	FieldCodeTableSize	/*must be last entry on pain of death*/
 	}FIELDCODE;
 
@@ -2592,6 +2598,7 @@ typedef struct _wvParseStruct
 	FILE *summary;
 	FIB fib;
 	STTBF anSttbfAssoc;
+	STTBF Sttbfbkmk;
 	LFO *lfo;
 	LFOLVL *lfolvl;
 	LVL *lvl;
@@ -2812,7 +2819,7 @@ int wvIncFC(U8 chartype);
 
 int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,/*CLX *clx,*/ BTE *bte, U32 *pos,int nobte, FILE *fd);
 
-int wvOutputTextChar(U16 eachchar,U8 chartype,U8 *state,wvParseStruct *ps,CHP *achp);
+int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps,CHP *achp);
 void wvOutputFromUnicode(U16 eachchar,char *outputtype);
 
 int wvConvert1252ToHtml(U16 char8);
@@ -2820,7 +2827,7 @@ int wvConvert1252ToHtml(U16 char8);
 int wvConvertUnicodeToHtml(U16 char16);
 U16 wvConvertSymbolToUnicode(U16 char16);
 
-void wvHandleCodePage(U16 eachchar,char *outputtype,U16 lid);
+U16 wvHandleCodePage(U16 eachchar,U16 lid);
 
 void wvDecodeComplex(wvParseStruct *ps);
 int wvGetComplexParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,FILE *fd);
@@ -3052,7 +3059,7 @@ int wvCellBgColor(int whichrow,int whichcell,int nocells,int norows,TLP *tlp);
 
 float wvRelativeWidth(S16 width,SEP *asep);
 
-int fieldCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype);
+int fieldCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid);
 
 #if 0
 typedef struct _wvStyle
@@ -3475,10 +3482,8 @@ typedef struct _escherstruct
 void wvGetEscher(escherstruct *item,U32 offset, U32 len, FILE *fd,FILE *delay);
 void wvInitEscher(escherstruct *item);
 void wvReleaseEscher(escherstruct *item);
-
-
 void wvStrToUpper(char *str);
-
+int decompress(FILE *inputfile,FILE *outputfile,U32 inlen,U32 outlen);
 
 /*current insertion position*/
 
@@ -4494,7 +4499,6 @@ U16 *decode_crosslink(int letter,unsigned long int *swallowcp1, unsigned long in
 
 void decode_annotations(FILE *mafd,FILE *tablefd,textportions *portions);
 
-int decompress(FILE *inputfile,char *outputfile,U32 inlen,U32 outlen);
 void myfreeOLEtree(void);
 
 void output_tablebg(pap *apap);

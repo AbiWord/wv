@@ -24,6 +24,10 @@ Changes to to 0.5.43
 	* implemented TIME field
 	* remove unnecessary expat subdirs
 	* title done in the correct charset
+	* implemented HYPERLINK field
+	* implemented PAGEREF field
+	* added bookmarks to wvParseStruct
+	* wmf files are decompressed and extracted correctly
 ALL TODO
 	* unicode in FIELDS.
 

@@ -169,7 +169,6 @@ void wvListSTTBF(STTBF *item)
 void wvPrintTitle(wvParseStruct *ps,STTBF *item)
     {
     int i=0;
-    U8 dummy;
     CHP achp;
     wvInitCHP(&achp);
 
@@ -182,7 +181,7 @@ void wvPrintTitle(wvParseStruct *ps,STTBF *item)
                 while(item->u16strings[ibstAssocTitle][i])
 					{
 					wvTrace(("title char is %c\n",(item->u16strings[ibstAssocTitle][i])));
-                    wvOutputTextChar(item->u16strings[ibstAssocTitle][i++], 0,&dummy, ps,&achp);
+                    wvOutputTextChar(item->u16strings[ibstAssocTitle][i++], 0, ps,&achp);
 					}
                 return;
                 }
@@ -192,7 +191,7 @@ void wvPrintTitle(wvParseStruct *ps,STTBF *item)
             if (item->s8strings[ibstAssocTitle] != NULL)
                 {
                 while(item->s8strings[ibstAssocTitle][i])
-                    wvOutputTextChar(item->s8strings[ibstAssocTitle][i++], 1,&dummy, ps,&achp);
+                    wvOutputTextChar(item->s8strings[ibstAssocTitle][i++], 1, ps,&achp);
                 return;
                 }
             }

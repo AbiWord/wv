@@ -5,6 +5,7 @@
 #include "wv.h"
 
 int HandleBitmap(char *name,BitmapBlip *bitmap);
+int HandleMetafile(char *name,MetaFileBlip *bitmap);
 
 char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
 	{
@@ -15,7 +16,7 @@ char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
 	char test[3];
 	sprintf(buffer,"%d",i++);
 	name = strdup(ps->filename);
-	wvError(("name is %s\n",name));
+	wvTrace(("name is %s\n",name));
 	remove_suffix (name, ".doc");
 	if (ps->dir != NULL)
 		{
@@ -34,7 +35,7 @@ char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
 	should be wrapped in a modern escher strucure before getting
 	to here, and then handled as normal
 	*/
-	wvError(("type is %d\n",blip->type));
+	wvTrace(("type is %d\n",blip->type));
 	switch(blip->type)
 		{
 		case msoblipJPEG:
@@ -63,12 +64,18 @@ char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
         {
         case msoblipWMF:
 			wvAppendStr(&name,".wmf");
+			if (0 != HandleMetafile(name,&blip->blip.metafile))
+				return(NULL);
 			break;
         case msoblipEMF:
 			wvAppendStr(&name,".emf");
+			if (0 != HandleMetafile(name,&blip->blip.metafile))
+				return(NULL);
 			break;
         case msoblipPICT:
 			wvAppendStr(&name,".pict");
+			if (0 != HandleMetafile(name,&blip->blip.metafile))
+				return(NULL);
             break;
         case msoblipJPEG:
 			wvAppendStr(&name,".jpg");
@@ -103,7 +110,24 @@ int HandleBitmap(char *name,BitmapBlip *bitmap)
 	while (EOF != (c = getc((FILE *)(bitmap->m_pvBits))))
 		fputc(c,fd);
 	fclose(fd);
-	wvError(("Name is %s\n",name));
+	wvTrace(("Name is %s\n",name));
+	return(0);
+	}
+
+int HandleMetafile(char *name,MetaFileBlip *bitmap)
+	{
+	int c;
+	FILE *fd;
+	fd = fopen(name,"wb");
+	if (fd == NULL)
+		{
+		wvError(("Cannot open %s for writing:%s\n",name,strerror(errno)));
+		return(-1);
+		}
+	while (EOF != (c = getc((FILE *)(bitmap->m_pvBits))))
+		fputc(c,fd);
+	fclose(fd);
+	wvTrace(("Name is %s\n",name));
 	return(0);
 	}
 
@@ -125,13 +149,13 @@ void wvGetEscher(escherstruct *item,U32 offset,U32 len,FILE *fd,FILE *delay)
 	MSOFBH amsofbh;
 	long pos;
 	fseek(fd,offset,SEEK_SET);
-	wvError(("offset %x, len %d\n",offset,len));
+	wvTrace(("offset %x, len %d\n",offset,len));
 	wvInitEscher(item);
 	while (count < len)
 		{
 		count += wvGetMSOFBH(&amsofbh,fd);
 		wvTrace(("count is %x,len is %x, next len is %x\n",count,len,amsofbh.cbLength));
-		fprintf(stderr,"type is %x\n	",amsofbh.fbt);
+		wvTrace(("type is %x\n	",amsofbh.fbt));
 		switch(amsofbh.fbt)
 			{
 			case msofbtDggContainer:
@@ -146,7 +170,7 @@ void wvGetEscher(escherstruct *item,U32 offset,U32 len,FILE *fd,FILE *delay)
 				break;
 			}
 		}
-	wvError(("offset %x, len %d (pos %x)\n",offset,len,ftell(fd)));
+	wvTrace(("offset %x, len %d (pos %x)\n",offset,len,ftell(fd)));
 	}
 
 void wvReleaseDggContainer(DggContainer *item)
@@ -172,7 +196,7 @@ U32 wvGetDggContainer(DggContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay)
 		{
 		count += wvGetMSOFBH(&amsofbh,fd);
 		wvTrace(("len is %x, type is %x, count %x,fullen %x\n",amsofbh.cbLength,amsofbh.fbt,count,msofbh->cbLength));
-		fprintf(stderr,"type is %x\n	",amsofbh.fbt);
+		wvTrace(("type is %x\n	",amsofbh.fbt));
 		switch(amsofbh.fbt)
 			{
 			case msofbtDgg:
@@ -236,7 +260,7 @@ U32 wvGetBstoreContainer(BstoreContainer *item,MSOFBH *msofbh,FILE *fd,FILE *del
 	while (count < msofbh->cbLength)
 		{
 		count += wvGetMSOFBH(&amsofbh,fd);
-		fprintf(stderr,"type is %x\n	",amsofbh.fbt);
+		wvTrace(("type is %x\n	",amsofbh.fbt));
 		switch(amsofbh.fbt)
 			{
 			case msofbtBSE:
@@ -264,7 +288,7 @@ U32 wvGetDgContainer(DgContainer *item,MSOFBH *msofbh,FILE *fd)
 		{
 		count += wvGetMSOFBH(&amsofbh,fd);
 		wvTrace(("len is %x, type is %x, count %x,fullen %x\n",amsofbh.cbLength,amsofbh.fbt,count,msofbh->cbLength));
-		fprintf(stderr,"type is %x\n	",amsofbh.fbt);
+		wvTrace(("type is %x\n	",amsofbh.fbt));
 		switch(amsofbh.fbt)
 			{
 			case msofbtDg:
@@ -292,7 +316,7 @@ FSPContainer *wvFindSPID(SpgrContainer *item,S32 spid)
 		{
 		if (item->spcontainer[i].fsp.spid == spid)
 			{
-			wvError(("FOUND IT\n"));
+			wvTrace(("FOUND IT\n"));
 			return(&(item->spcontainer[i]));
 			}
 		}
@@ -332,7 +356,7 @@ U32 wvGetSpgrContainer(SpgrContainer *item,MSOFBH *msofbh,FILE *fd)
 		{
 		count += wvGetMSOFBH(&amsofbh,fd);
 		wvTrace(("len is %x, type is %x, count %x,fullen %x\n",amsofbh.cbLength,amsofbh.fbt,count,msofbh->cbLength));
-		fprintf(stderr,"type is %x\n	",amsofbh.fbt);
+		wvTrace(("type is %x\n	",amsofbh.fbt));
 		switch(amsofbh.fbt)
 			{
 			case msofbtSpContainer:
@@ -448,7 +472,7 @@ int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps)
 	U32 i;
 	escherstruct item;
 	FSPContainer *answer;
-	wvError(("spid is %x\n",spid));
+	wvTrace(("spid is %x\n",spid));
 	wvGetEscher(&item,ps->fib.fcDggInfo,ps->fib.lcbDggInfo,ps->tablefd,ps->mainfd);
 
 	for(i=0;i<item.dgcontainer.no_spgrcontainer;i++)
@@ -472,9 +496,9 @@ int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps)
 				wvTrace(("type is %d (number is %d\n",item.dggcontainer.bstorecontainer.blip[item.dggcontainer.bstorecontainer.no_fbse-1].type,item.dggcontainer.bstorecontainer.no_fbse));
 				if (answer->fopte[i].op <= item.dggcontainer.bstorecontainer.no_fbse)
 					{
-					wvError(("Copied Blip\n"));
+					wvTrace(("Copied Blip\n"));
 					wvCopyBlip(blip,&(item.dggcontainer.bstorecontainer.blip[answer->fopte[i].op-1]));
-					wvError(("type is %d\n",blip->type));
+					wvTrace(("type is %d\n",blip->type));
 					ret = 1;
 					break;
 					}
@@ -482,7 +506,7 @@ int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps)
 			i++;
 			}
 		}
-	wvError(("spid is %x\n",spid));
+	wvTrace(("spid is %x\n",spid));
 	wvReleaseEscher(&item);
 	return(ret);
 	}
@@ -519,16 +543,16 @@ int wv0x01(Blip *blip,FILE *fd,U32 len)
 		{
 		wvTrace(("count is %x,len is %x\n",count,len));
 		count += wvGetMSOFBH(&amsofbh,fd);
-		fprintf(stderr,"type is %x\n	",amsofbh.fbt);
+		wvTrace(("type is %x\n	",amsofbh.fbt));
 		switch(amsofbh.fbt)
 			{
 			case msofbtSpContainer:
-				wvError(("Container at %x\n",ftell(fd)));
+				wvTrace(("Container at %x\n",ftell(fd)));
 				count += wvGetFSPContainer(&item,&amsofbh,fd);
 				wvReleaseFSPContainer(&item);
 				break;
 			case msofbtBSE:
-				wvError(("Blip at %x\n",ftell(fd)));
+				wvTrace(("Blip at %x\n",ftell(fd)));
 				count += wvGetBlip(blip,fd,NULL);
 				ret=1;
 				break;
@@ -544,7 +568,7 @@ int wv0x01(Blip *blip,FILE *fd,U32 len)
 U32 wvGetFSP(FSP *fsp,FILE *fd)
 	{
 	fsp->spid = read_32ubit(fd);
-	wvError(("SPID is %x\n",fsp->spid));
+	wvTrace(("SPID is %x\n",fsp->spid));
 	fsp->grfPersistent = read_32ubit(fd);
 	return(8);
 	}
@@ -581,7 +605,7 @@ U32 wvGetFSPContainer(FSPContainer *item,MSOFBH *msofbh,FILE *fd)
 		{
 		count += wvGetMSOFBH(&amsofbh,fd);
 		wvTrace(("len is %x, type is %x, count %x,fullen %x\n",amsofbh.cbLength,amsofbh.fbt,count,msofbh->cbLength));
-		fprintf(stderr,"type is %x\n	",amsofbh.fbt);
+		wvTrace(("type is %x\n	",amsofbh.fbt));
 		switch(amsofbh.fbt)
 			{
 			case msofbtSpgr:

@@ -757,6 +757,8 @@ dnl check for strcasecmp
 AC_CHECK_FUNC(strcasecmp, , [LIBOBJS="$LIBOBJS strcasecmp.o"])
 dnl check for memcpy, if not there we'll use bcopy
 AC_CHECK_FUNCS(memcpy)
+dnl check for mmap
+AC_FUNC_MMAP
 
 AC_SUBST(LIBOBJS)
 AC_SUBST(ICONV)

@@ -311,7 +311,6 @@ void wvDecodeComplex(wvParseStruct *ps)
 	BTE *btePapx=NULL, *bteChpx=NULL;
 	U32 *posPapx=NULL, *posChpx=NULL;
 	U32 para_intervals, char_intervals,section_intervals,atrd_intervals;
-	U8 state=0;
 	int cpiece=0,npiece=0;
 	PAPX_FKP para_fkp;
 	PAP apap;
@@ -367,9 +366,15 @@ encoded into the first 22 bytes.
 	   
 	/*we will need the table of names to answer questions like the name of the doc*/
 	if ( (wvQuerySupported(&ps->fib,NULL) == WORD6) || (wvQuerySupported(&ps->fib,NULL) == WORD7) )
+		{
 		wvGetSTTBF6(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
+		wvGetSTTBF6(&ps->Sttbfbkmk,ps->fib.fcSttbfbkmk,ps->fib.lcbSttbfbkmk,ps->tablefd);
+		}
 	else
+		{
 		wvGetSTTBF(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
+		wvGetSTTBF(&ps->Sttbfbkmk,ps->fib.fcSttbfbkmk,ps->fib.lcbSttbfbkmk,ps->tablefd);
+		}
 
 	/*Extract all the list information that we will need to handle lists later on*/
     wvGetLST(&ps->lst,&ps->noofLST,ps->fib.fcPlcfLst,ps->fib.lcbPlcfLst,ps->tablefd);
@@ -445,7 +450,7 @@ encoded into the first 22 bytes.
 		*/
 		char_fcLim = beginfc;
 		
-		for (i=begincp,j=beginfc;(i<endcp && i<ps->fib.ccpText);i++,j += wvIncFC(chartype))
+		for (i=begincp,j=beginfc;(i<endcp /*&& i<ps->fib.ccpText*/);i++,j += wvIncFC(chartype))
 			{
 			ps->currentcp = i;
 			/* character properties */
@@ -568,6 +573,7 @@ encoded into the first 22 bytes.
 				wvReleaseCHPX_FKP(&char_fkp);
 				/*try this without using the piece of the end char for anything*/
 				wvGetComplexCharBounds(wvQuerySupported(&ps->fib,NULL),&char_fkp,&char_fcFirst,&char_fcLim,wvConvertCPToFC(i, &ps->clx),&ps->clx, bteChpx, posChpx, char_intervals,piececount,ps->mainfd);
+				wvTrace(("Bounds from %x to %x\n",char_fcFirst,char_fcLim));
 				if (char_fcLim == char_fcFirst)
 					wvError(("I believe that this is an error, and you might see incorrect character properties\n"));
 				 if (0 == char_pendingclose)
@@ -589,7 +595,9 @@ encoded into the first 22 bytes.
 				{
 				/* a CHP's base style is in the para style */
 				achp.istd = apap.istd;
+				wvTrace(("getting chp\n"));
 				char_dirty = wvAssembleSimpleCHP(wvQuerySupported(&ps->fib, NULL),&achp,char_fcLim,&char_fkp,&ps->stsh);
+				wvTrace(("getting complex chp\n"));
 				char_dirty = (wvAssembleComplexCHP(wvQuerySupported(&ps->fib,NULL),&achp,cpiece,&ps->stsh,&ps->clx) ? 1 : char_dirty);
 				wvHandleElement(ps,CHARPROPBEGIN, (void*)&achp,char_dirty);
 				char_pendingclose=1;
@@ -608,8 +616,9 @@ encoded into the first 22 bytes.
 			*/
 			if ((eachchar == 0x07) && (!achp.fSpec))
 				ps->endcell=1;
-		
-			wvOutputTextChar(eachchar,chartype,&state,ps,&achp);
+
+			wvTrace(("char pos is %x %x\n",j,eachchar));
+			wvOutputTextChar(eachchar,chartype,ps,&achp);
 			}
 
 		if (j == para_fcLim)
@@ -855,7 +864,7 @@ int wvAssembleComplexCHP(version ver,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 		val = clx->pcd[cpiece].prm.para.var1.val;
 		pointer = &val;
 #ifdef SPRMTEST
-		wvError(("singleton\n",clx->pcd[cpiece].prm.para.var1.isprm));
+		wvError(("singleton %d\n",clx->pcd[cpiece].prm.para.var1.isprm));
 #endif
 		RetSprm = wvApplySprmFromBucket(ver,wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
 		NULL, achp, NULL,stsh,pointer,&pos,NULL);

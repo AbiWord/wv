@@ -356,12 +356,12 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			wvTrace(("field began\n"));
 			ps->fieldstate++;
 			ps->fieldmiddle=0;
-			fieldCharProc(ps,eachchar,0);	/* temp */
+			fieldCharProc(ps,eachchar,0,0x400);	/* temp */
 			return(0);
 			break;
 		case 20:
 			wvTrace(("field middle\n"));
-			fieldCharProc(ps,eachchar,0);	/* temp */
+			fieldCharProc(ps,eachchar,0,0x400);	/* temp */
 			ps->fieldmiddle=1;
 			return(0);
 			break;
@@ -369,15 +369,15 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			wvTrace(("field end\n"));
 			ps->fieldstate--;
 			ps->fieldmiddle=0;
-			fieldCharProc(ps,eachchar,0);	/* temp */
+			fieldCharProc(ps,eachchar,0,0x400);	/* temp */
 			return(0);
 			break;
 		}
 
 	if (ps->fieldstate)
 		{
-		fieldCharProc(ps,eachchar,0);
-		return(0);
+		if (fieldCharProc(ps,eachchar,0,0x400))
+			return(0);
 		}
 
 	switch(eachchar)
@@ -393,6 +393,8 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			char *name;
 			long p = ftell(ps->data);
 			wvError(("picture 0x01 here, at offset %x in Data Stream, obj is %d, ole is %d\n",achp->fcPic_fcObj_lTagObj,achp->fObj,achp->fOle2));
+			if (achp->fOle2)
+				exit(139);
 			fseek(ps->data,achp->fcPic_fcObj_lTagObj,SEEK_SET);
 			wvGetPICF(wvQuerySupported(&ps->fib,NULL),&picf,ps->data);
 			f = (FILE *)picf.rgb;
@@ -498,8 +500,6 @@ option to support correct symbol font conversion to a viewable format.\n");
 				}
 			}
 		default:
-			if (ps->fieldstate) 
-				fieldCharProc(ps,eachchar,0);	/* test */
 			return(0);
 		}
 
@@ -517,12 +517,12 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 			wvTrace(("field began\n"));
 			ps->fieldstate++;
 			ps->fieldmiddle=0;
-			fieldCharProc(ps,eachchar,0);	/* temp */
+			fieldCharProc(ps,eachchar,chartype,lid);	/* temp */
 			return(0);
 			break;
 		case 20:
 			wvTrace(("field middle\n"));
-			fieldCharProc(ps,eachchar,chartype);
+			fieldCharProc(ps,eachchar,chartype,lid);
 			ps->fieldmiddle=1;
 			return(0);
 			break;
@@ -530,7 +530,7 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 			wvTrace(("field began\n"));
 			ps->fieldmiddle=0;
 			ps->fieldstate--;
-			fieldCharProc(ps,eachchar,0);	/* temp */
+			fieldCharProc(ps,eachchar,chartype,lid);	/* temp */
 			return(0);
 			break;
 		case 0x08:
@@ -540,8 +540,8 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 
 	if (ps->fieldstate)
 		{
-		fieldCharProc(ps,eachchar,chartype);
-		return(0);
+		if (fieldCharProc(ps,eachchar,chartype,lid))
+			return(0);
 		}
 
 	wvTrace(("charset is %s, lid is %x, type is %d, char is %x\n",charset,lid,chartype,eachchar));

@@ -64,7 +64,7 @@ U32 wvGetBlip(Blip *blip,FILE *fd,FILE *delay)
 	count2 = wvGetMSOFBH(&amsofbh,fd);
 	wvTrace(("count is %d\n",count2));
 	wvTrace(("HERE is %x %x (%d)\n",ftell(fd),amsofbh.fbt,amsofbh.fbt-msofbtBlipFirst));
-	fprintf(stderr,"type is %x\n",amsofbh.fbt);
+	wvTrace(("type is %x\n",amsofbh.fbt));
 	switch(amsofbh.fbt-msofbtBlipFirst)
 		{
 		case msoblipWMF:
@@ -257,28 +257,31 @@ U32 wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *fd)
     amf->m_fCompression = getc(fd);
     amf->m_fFilter = getc(fd);
     amf->m_pvBits=NULL;
-    count +=50;
+    count +=34;
 
 
-#if 0
     if (amf->m_fCompression == msocompressionDeflate)
         decompressf = setdecom();
-#endif
-
+	
     tmp = tmpfile();
-	/*
-	tmp = fopen("/tmp/test.wmf.gz","w+b");
-	*/
+	
     for (i=count;i<amsofbh->cbLength;i++)
         fputc(getc(fd),tmp);
 	count+=i;
 
-#if 0
     if (decompressf)
         {
-        decompress(tmp,buffer,amf->m_cbSave,amf->m_cb);
+		/*
+		FILE *final = fopen("/tmp/test.wmf","w+b");
+		*/
+		FILE *final = tmpfile();
+    	rewind(tmp);
+        decompress(tmp,final,amf->m_cbSave,amf->m_cb);
+		fclose(tmp);
+		tmp = final;
     	rewind(tmp);
         }
+#if 0
 
     if (((decompressf) && (amf->m_fCompression == msocompressionDeflate)) || (amf->m_fCompression == msocompressionNone))
         if (amsofbh->fbt-msofbtBlipFirst == msoblipWMF) /*wmf only for now*/

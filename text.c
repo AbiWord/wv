@@ -12,7 +12,7 @@ int (*scharhandler)(wvParseStruct *ps,U16 eachchar,CHP *achp)=NULL;
 int (*elehandler)(wvParseStruct *ps,wvTag tag, void *props, int dirty)=NULL;
 int (*dochandler)(wvParseStruct *ps,wvTag tag)=NULL;
 
-int wvOutputTextChar(U16 eachchar,U8 chartype,U8 *state,wvParseStruct *ps, CHP *achp)
+int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps, CHP *achp)
 	{
 	U16 lid;
 	/* testing adding a language */
@@ -45,9 +45,8 @@ int wvOutputTextChar(U16 eachchar,U8 chartype,U8 *state,wvParseStruct *ps, CHP *
 void wvOutputHtmlChar(U16 eachchar,U8 chartype,char *outputtype,U16 lid)
 	{
 	if (chartype)
-		wvHandleCodePage(eachchar,outputtype,lid);
-	else
-		wvOutputFromUnicode(eachchar,outputtype);
+		eachchar = wvHandleCodePage(eachchar,lid);
+	wvOutputFromUnicode(eachchar,outputtype);
 	}
 
 
@@ -173,7 +172,7 @@ char *wvLIDToCodePageConverter(U16 lid)
 	return("CP1252");
 	}
 
-void wvHandleCodePage(U16 eachchar,char *outputtype,U16 lid)
+U16 wvHandleCodePage(U16 eachchar,U16 lid)
 	{
 	char f_code[33];            /* From CCSID                           */
 	char t_code[33];            /* To CCSID                             */
@@ -193,11 +192,13 @@ void wvHandleCodePage(U16 eachchar,char *outputtype,U16 lid)
 	obuf = buffer2;
 
 	codepage = wvLIDToCodePageConverter(lid);
+	/*
 	if (!(strcasecmp(codepage,"CP1252")))
 		{
 		if (wvConvert1252ToHtml(eachchar))
 			return;
 		}
+	*/
 
 	/* All reserved positions of from code (last 12 characters) and to code   */
 	/* (last 19 characters) must be set to hexadecimal zeros.                 */
@@ -225,7 +226,7 @@ void wvHandleCodePage(U16 eachchar,char *outputtype,U16 lid)
     eachchar += (U8)*p;
 
 	iconv_close(iconv_handle);
-	wvOutputFromUnicode(eachchar,outputtype);
+	return(eachchar);
 	}
 	
 void wvOutputFromUnicode(U16 eachchar,char *outputtype)
@@ -566,6 +567,32 @@ int wvConvertUnicodeToHtml(U16 char16)
 		case 62:
 			printf("&gt;");
 			return(1);
+		/*
+        german characters, im assured that this is the right way to handle them
+        by Markus Schulte <markus@dom.de>
+        */
+        case 0xc4:
+            printf("&Auml;");
+            return(1);
+        case 0xe4:
+            printf("&auml;");
+            return(1);
+        case 0xdc:
+            printf("&Uuml;");
+            return(1);
+        case 0xfc:
+            printf("&uuml;");
+            return(1);
+        case 0xd6:
+            printf("&Ouml;");
+            return(1);
+        case 0xf6:
+            printf("&ouml;");
+            return(1);
+        case 0xdf:
+            printf("&szlig;");
+            return(1);
+        /* end german characters */
 		case 0x2026:
 #if 0
 /* 
