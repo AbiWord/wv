@@ -541,6 +541,18 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
     wvHandleDocument (ps, DOCEND);
     wvFree (posSedx);
     wvFree (sed);
+    wvFree(bkd);
+    wvFree(posBKD);
+    wvFree(ftxbx);
+    wvFree(txbxTxt); 
+#if defined(WIN32)
+   wvReleasePAPX_FKP (&para_fkp);
+   wvReleaseCHPX_FKP (&char_fkp);   
+
+   external_wvReleasePAPX_FKP ();
+   external_wvReleaseCHPX_FKP();
+#endif
+
 
     wvFree (ps->liststartnos);
     wvFree (ps->listnfcs);
