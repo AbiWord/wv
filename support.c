@@ -72,19 +72,26 @@ indentation.
 
 extern pps_entry *stream_tree;
 static wvStream_list *streams = NULL;
+static U32 wvStream_close_stream(wvStream * in);
 
 void
 wvOLEFree (wvParseStruct * ps)
 {
-    wvStream_list *tempList;
+    wvStream_list *tempList = streams;
+
+    while (tempList != NULL)
+      {
+	  wvStream_close(tempList->stream);
+	  tempList = tempList->next;
+      }
 
     while (streams != NULL)
       {
-	  wvStream_close (streams->stream);
 	  tempList = streams->next;
 	  wvFree (streams);
 	  streams = tempList;
       }
+
     if (ps->ole_file != NULL)
       {
 	  ms_ole_destroy (&ps->ole_file);
@@ -368,8 +375,28 @@ wvStream_size (wvStream * in)
   return size;
 }
 
+
 U32
-wvStream_close (wvStream * in)
+wvStream_close(wvStream * in)
+{
+  wvStream_list *s;
+  U32 ret;
+
+  ret = wvStream_close_stream (in);
+
+  for ( s = streams;s != NULL; s=s->next)
+    {
+      if (s->stream == in)
+	{
+	  s->stream = 0;
+	}
+    }
+   
+   return ret;
+}
+
+static U32
+wvStream_close_stream (wvStream * in)
 {
     if ( !in )
       return 0;
