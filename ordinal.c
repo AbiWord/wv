@@ -1,7 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "wv.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include <string.h>
+#include "wv.h"
 
 /*
 http://216.46.233.38/code/functions/convert_numbers_to_words/index.htm
@@ -24,7 +27,7 @@ Caolan.McNamara@ul.ie
 
 char *cvtText[31];
 void cvtInit(void);
-char *convert100(U16 x);
+char *convert100(U32 x);
 char *wvOrdinal(U32 x);
 
 #if 0
@@ -78,12 +81,12 @@ void cvtInit(void)
     cvtText[30] = "Million";
 	}
 
-char *convert100(U16 x)
+char *convert100(U32 x)
 	{
 	U16 t;
 	char *cvt100;
 	
-	cvt100=(char *)malloc(4096);
+	cvt100=(char *)wvMalloc(4096);
 	if (cvt100 == NULL)
 		return(NULL);
 	
@@ -103,15 +106,15 @@ char *convert100(U16 x)
 	if (x > 20)
 		{
 		t = x / 10;
-		strcat(cvt100,cvtText[t + 18]);
-		strcat(cvt100," ");
+		wvStrcat(cvt100,cvtText[t + 18]);
+		wvStrcat(cvt100," ");
 		x = x - (t * 10);
 		}
 	
 	if (x > 0)
 		{
-		strcat(cvt100,cvtText[x]);
-		strcat(cvt100," ");
+		wvStrcat(cvt100,cvtText[x]);
+		wvStrcat(cvt100," ");
 		}
 	return(cvt100);
 	}
@@ -122,7 +125,7 @@ char *wvOrdinal(U32 x)
 	char *Cvt;
 	char *temp;
 	
-	Cvt=(char *)malloc(4096);
+	Cvt=(char *)wvMalloc(4096);
 	if (Cvt == NULL)
 		return(NULL);
 	cvtInit();
@@ -156,7 +159,7 @@ char *wvOrdinal(U32 x)
 		temp = convert100(t);
 		if (temp)
 			{
-			strcat(Cvt,temp);
+			wvStrcat(Cvt,temp);
 			wvFree(temp);
 			}
 		else
@@ -164,8 +167,8 @@ char *wvOrdinal(U32 x)
 			wvFree(Cvt);
 			return(NULL);
 			}
-		strcat(Cvt,cvtText[29]);
-		strcat(Cvt," ");
+		wvStrcat(Cvt,cvtText[29]);
+		wvStrcat(Cvt," ");
 		x = x - (t * 1000);
 		}
 	
@@ -174,7 +177,7 @@ char *wvOrdinal(U32 x)
 		temp = convert100(x);
 		if (temp)
 			{
-			strcat(Cvt,temp);
+			wvStrcat(Cvt,temp);
 			wvFree(temp);
 			}
 		else

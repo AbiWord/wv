@@ -5,9 +5,12 @@ Copyright (C) 1998,1999
 	Caolan McNamara
 
 Real Life: Caolan McNamara           *  Doing: MSc in HCI
-Work: Caolan.McNamara@ul.ie          *  Phone: +353-61-202699
+Work: Caolan.McNamara@ul.ie          *  Phone: +353-86-8790257
 URL: http://skynet.csn.ul.ie/~caolan *  Sig: an oblique strategy
 How would you have done it?
 */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
-char *wv_version="wv ver 0.5.19";
+extern const char wv_version[] = "wvWare version 0.6.4";

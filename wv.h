@@ -1,12 +1,59 @@
 #ifndef MSWORDVIEW_HEADER
 #define MSWORDVIEW_HEADER
-
-#include <time.h>
-
-#ifndef PATH_MAX
-#define PATH_MAX 255 /*seems a reasonable figure*/
+#ifdef __cplusplus
+extern "C" {
 #endif
 
+/* redefs of things that are either in glibc or we have to include them ourselves*/
+#if defined(WIN32) && !defined(__MWERKS__)
+#define strcasecmp(s1,s2) stricmp(s1,s2)
+#else
+#if !defined(__GLIBC__) || (__GLIBC__ < 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2)
+
+  /* #include "getopt.h"*/
+int strcasecmp(const char *s1, const char *s2);
+#endif
+#endif
+
+  /* int getopt(int argc, char * const argv[], const char *optstring);*/
+/* end redefs */
+
+#include <time.h>
+#include <stdio.h>
+
+  /* TODO: find a way to remove this */
+#include "ms-ole.h"
+  /* #include "config.h" */
+
+/* The structure below is used to refer to a wvStream.  Usually,
+ * kind = LIBOLE_STREAM,
+ * but if we can't open a file using LibOLE, we fall back to the old file-based
+ * routines, in which case kind == FILE_STREAM.
+ */
+typedef enum
+	{
+	LIBOLE_STREAM,
+	FILE_STREAM
+	} wvStreamKind;
+		
+typedef union 
+	{
+	FILE* file_stream;
+	MsOleStream* libole_stream;
+	} wvInternalStream;
+	
+typedef struct 
+	{
+	wvStreamKind kind;
+	wvInternalStream stream;
+	}wvStream;
+
+
+#ifndef PATH_MAX
+#define PATH_MAX 1024 /*seems a reasonable figure*/
+#endif
+
+/* these really should be worked out in the configure script to be 100% correct */
 #ifndef U32
 #define U32 unsigned int
 #endif
@@ -20,7 +67,7 @@
 #endif
 
 #ifndef S16
-#define S16 short
+#define S16 signed short
 #endif
 
 #ifndef U8
@@ -28,10 +75,9 @@
 #endif
 
 #ifndef S8
-#define S8 unsigned char
+#define S8 char
 #endif
 
-#define UBit unsigned
 
 #define DEFAULTINDENT 1800
 #define TWIRPS_PER_BQ 1440
@@ -86,7 +132,9 @@ typedef struct tagPANOSE
     U8 bXHeight;
 	} PANOSE;
 
-void wvGetPANOSE(PANOSE *panose,FILE *fd);
+void wvGetPANOSE(PANOSE *panose,wvStream *fd);
+void wvInitPANOSE(PANOSE *item);
+
 
 /*
  * The FONTSIGNATURE tells which Unicode ranges and which code pages
@@ -106,7 +154,9 @@ typedef struct
 	U32 fsCsb[2];
 	} FONTSIGNATURE;
 
-void wvGetFONTSIGNATURE(FONTSIGNATURE *fs,FILE *fd);
+void wvGetFONTSIGNATURE(FONTSIGNATURE *fs,wvStream *fd);
+void wvInitFONTSIGNATURE(FONTSIGNATURE *fs);
+
 
 #ifndef _FILETIME_
 #define _FILETIME_
@@ -118,21 +168,46 @@ typedef struct
 	} FILETIME;
 #endif /* _FILETIME_ */
 
-void wvGetFILETIME(FILETIME *ft,FILE *fd);
+void wvGetFILETIME(FILETIME *ft,wvStream *fd);
 void wvInitFILETIME(FILETIME *ft);
 
 time_t wvDOSFS_FileTimeToUnixTime( const FILETIME *filetime, U32 *remainder );
 int wvFileTimeToDosDateTime(const FILETIME *ft, U16 *fatdate, U16 *fattime );
 /*Wine Portions End*/
 
+char * wvFmtMsg(char * fmt, ...);
+
 /** beginning of clean interface **/
-void wvRealError(char *file, int line,char *fmt, ...);
-#define wvError(fmt, args...) wvRealError(__FILE__,__LINE__,fmt, ## args)
+void wvRealError(char *file, int line, char *msg);
+#define wvError( args ) wvRealError(__FILE__,__LINE__, wvFmtMsg args )
 void wvWarning(char *fmt, ...);
 void wvFree(void *ptr);
 
 char *wvWideStrToMB(U16 *str);
 char *wvWideCharToMB(U16 char16);
+
+typedef enum
+	{
+	WORD1 = 0x0000, 
+	WORD2 = 0x0001, 
+	WORD3 = 0x0002, 
+	WORD4 = 0x0003, 
+	WORD5 = 0x0004, 
+	WORD6 = 0x0005, 
+	WORD7 = 0x0006, 
+	WORD8 = 0x0007
+	} wvVersion;
+
+typedef enum
+	{
+	Dmain,
+	Dfootnote,
+	Dheader,
+	Dannotation,
+	Dendnote,
+	Dtextbox,
+	Dheader_textbox
+	} subdocument;
 
 
 
@@ -166,10 +241,10 @@ typedef struct _FIB
 	U32 fFutureSavedUndo:1 ;			/* Bitfield 0x08 */
 	U32 fWord97Saved:1 ;			/* Bitfield 0x10 */
 	U32 fSpare0:3 ;			/* Bitfield 0xFE */
-	U32 chs:16 ;				/* 0x0014 */
+	U32 chse:16 ;				/* 0x0014 */	/*was chs*/
 	U16 chsTables ;				/* 0x0016 */
-	S32 fcMin ;				/* 0x0018 */
-	S32 fcMac ;				/* 0x001C */
+	U32 fcMin ;				/* 0x0018 */
+	U32 fcMac ;				/* 0x001C */
 	U16 csw ;				/* 0x0020 */
 	U16 wMagicCreated ;				/* 0x0022 */
 	U16 wMagicRevised ;				/* 0x0024 */
@@ -189,9 +264,9 @@ typedef struct _FIB
 	S32 cbMac ;				/* 0x0040 */
 	U32 lProductCreated ;				/* 0x0044 */
 	U32 lProductRevised ;				/* 0x0048 */
-	S32 ccpText ;				/* 0x004C */
+	U32 ccpText ;				/* 0x004C */
 	S32 ccpFtn ;				/* 0x0050 */
-	S32 ccpHdd ;				/* 0x0054 */
+	S32 ccpHdr ;				/* 0x0054 */
 	S32 ccpMcr ;				/* 0x0058 */
 	S32 ccpAtn ;				/* 0x005C */
 	S32 ccpEdn ;				/* 0x0060 */
@@ -394,24 +469,46 @@ typedef struct _FIB
 	U32 lcbSttbListNames ;				/* 0x0376 */
 	S32 fcSttbfUssr ;				/* 0x037A */
 	U32 lcbSttbfUssr ;				/* 0x037E */
+
+	/* Added for Word 2 */
+
+	U32 Spare ;					/* 0x000E */	
+	U16 rgwSpare0 [3] ;				/* 0x0012 */
+	U32 fcSpare0 ;					/* 0x0024 */
+	U32 fcSpare1 ;					/* 0x0028 */
+	U32 fcSpare2 ;					/* 0x002C */
+	U32 fcSpare3 ;					/* 0x0030 */
+	U32 ccpSpare0 ;					/* 0x0048 */
+	U32 ccpSpare1 ;					/* 0x004C */
+	U32 ccpSpare2 ;					/* 0x0050 */
+	U32 ccpSpare3 ;					/* 0x0054 */
+
+	U32 fcPlcfpgd ;					/* 0x0082 */
+	U16 cbPlcfpgd ;					/* 0x0086 */
+
+	U32 fcSpare5 ;					/* 0x0130 */
+	U16 cbSpare5 ;					/* 0x0136 */
+	U32 fcSpare6 ;					/* 0x0130 */
+	U16 cbSpare6 ;					/* 0x0136 */
+	U16 wSpare4 ;					/* 0x013C */
+
 	} FIB;
 
-void wvGetFIB(FIB *item,FILE *fd);
+void wvGetFIB(FIB *item,wvStream *fd);
+void wvGetFIB2(FIB *item,wvStream *fd);
+void wvGetFIB6(FIB *item,wvStream *fd);
 void wvInitFIB(FIB *item);
 
-FILE *wvWhichTableStream(FIB *fib,FILE *tablefd0,FILE *tablefd1);
 
-int wvGetEmpty_PLCF(U32 **cp,U32 *nocps,U32 offset,U32 len,FILE *fd);
-
-int wvDecrypt(FILE *mainfd,char *,U32 lKey);
+int wvGetEmpty_PLCF(U32 **cp,U32 *nocps,U32 offset,U32 len,wvStream *fd);
 
 typedef struct _FRD
 	{
 	S16 frd;
 	} FRD;
 
-void wvGetFRD(FRD *item,FILE *fd);
-int wvGetFRD_PLCF(FRD **frd,U32 **pos,U32 *nofrd,U32 offset,U32 len,FILE *fd);
+void wvGetFRD(FRD *item,wvStream *fd);
+int wvGetFRD_PLCF(FRD **frd,U32 **pos,U32 *nofrd,U32 offset,U32 len,wvStream *fd);
 
 typedef U16 XCHAR;
 
@@ -424,8 +521,8 @@ typedef struct _ATRD
     S32 lTagBkmk;
     } ATRD;
 
-void wvGetATRD(ATRD *item,FILE *fd);
-int wvGetATRD_PLCF(ATRD **atrd,U32 **pos,U32 *noatrd,U32 offset,U32 len,FILE *fd);
+void wvGetATRD(ATRD *item,wvStream *fd);
+int wvGetATRD_PLCF(ATRD **atrd,U32 **pos,U32 *noatrd,U32 offset,U32 len,wvStream *fd);
 
 typedef struct _SED
     {
@@ -435,8 +532,8 @@ typedef struct _SED
     U32 fcMpr;
     } SED;
 
-void wvGetSED(SED *item,FILE *fd);
-int wvGetSED_PLCF(SED **item,U32 **pos,U32 *noitem,U32 offset,U32 len,FILE *fd);
+void wvGetSED(SED *item,wvStream *fd);
+int wvGetSED_PLCF(SED **item,U32 **pos,U32 *noitem,U32 offset,U32 len,wvStream *fd);
 
 typedef struct _FFN
     {
@@ -455,7 +552,9 @@ typedef struct _FFN
     XCHAR xszFfn[65];   /*max size*/
     } FFN;
 
-void wvGetFFN(FFN *item,FILE *fd);
+void wvGetFFN(FFN *item,wvStream *fd);
+void wvGetFFN6(FFN *item,wvStream *fd);
+
 
 typedef struct _FFN_STTBF
     {
@@ -465,7 +564,8 @@ typedef struct _FFN_STTBF
     FFN *ffn;
     } FFN_STTBF;
 
-void wvGetFFN_STTBF(FFN_STTBF *item,U32 offset,U32 len,FILE *fd);
+void wvGetFFN_STTBF(FFN_STTBF *item,U32 offset,U32 len,wvStream *fd);
+void wvGetFFN_STTBF6(FFN_STTBF *item,U32 offset,U32 len,wvStream *fd);
 void wvReleaseFFN_STTBF(FFN_STTBF *item);
 char *wvGetFontnameFromCode(FFN_STTBF *item,int fontcode);
 
@@ -475,58 +575,66 @@ typedef struct _STTBF
 	U16 extendedflag;
 	U16 nostrings;
 	U16 extradatalen;
-	U8 **u8strings;
+	S8 **s8strings;
 	U16 **u16strings;
 	U8 **extradata;
 	} STTBF;
 
-void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,FILE *fd);
+void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,wvStream *fd);
+void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,wvStream *fd);
 void wvListSTTBF(STTBF *item);
 void wvReleaseSTTBF(STTBF *item);
-char *wvGetTitle(STTBF *item);
+void wvGetGrpXst(STTBF *anS,U32 offset,U32 len,wvStream *fd);
+
+
+U16 *UssrStrBegin(STTBF *sttbf,int no);
+
 
 typedef enum
     {
     ibstAssocFileNext = 0,
-    ibstAssocDot,
-    ibstAssocTitle,
-    ibstAssocSubject,
-    ibstAssocKeyWords,
-    ibstAssocComments,
-    ibstAssocAuthor,
-    ibstAssocLastRevBy,
-    ibstAssocDataDoc,
-    ibstAssocHeaderDoc,
-    ibstAssocCriteria1,
-    ibstAssocCriteria2,
-    ibstAssocCriteria3,
-    ibstAssocCriteria4,
-    ibstAssocCriteria5,
-    ibstAssocCriteria6,
-    ibstAssocCriteria7,
-    ibstAssocMax 
+    ibstAssocDot = 1,
+    ibstAssocTitle = 2,
+    ibstAssocSubject = 3,
+    ibstAssocKeyWords = 4,
+    ibstAssocComments = 5,
+    ibstAssocAuthor = 6,
+    ibstAssocLastRevBy = 7,
+    ibstAssocDataDoc = 8,
+    ibstAssocHeaderDoc = 9,
+    ibstAssocCriteria1 = 10,
+    ibstAssocCriteria2 = 11,
+    ibstAssocCriteria3 = 12,
+    ibstAssocCriteria4 = 13,
+    ibstAssocCriteria5 = 14,
+    ibstAssocCriteria6 = 15,
+    ibstAssocCriteria7 = 16,
+    ibstAssocMax = 17,
+    ibstAssocMaxWord6 = 17 		/* just in case */
     } ibst;
 
 
 typedef struct _wv_var1
     {
-    U16 ch:5;
-    U16 reserved:3;
-    U16 flt:8;
+	/* 16 bits for bitfields */
+    U32 ch:5;
+    U32 reserved:3;
+    U32 flt:8;
     } wv_var1;
 
 typedef struct _wv_var2
     {
-    U16 ch:5;
-    U16 reserved:3;
-    U16 fDiffer:1;
-    U16 fZombieEmbed:1;
-    U16 fResultDirty:1;
-    U16 fResultEdited:1;
-    U16 fLocked:1;
-    U16 fPrivateResult:1;
-    U16 fNested:1;
-    U16 fHasSep:1;
+	/* 16 bits for bitfields */
+    U32 ch:5;
+    U32 reserved:3;
+    U32 fDiffer:1;
+    U32 fZombieEmbed:1;
+    U32 fResultDirty:1;
+    U32 fResultEdited:1;
+    U32 fLocked:1;
+    U32 fPrivateResult:1;
+    U32 fNested:1;
+    U32 fHasSep:1;
     } wv_var2;
 
 
@@ -537,27 +645,28 @@ typedef union _FLD
     wv_var2 var2;
     } FLD;
 
-void wvGetFLD(FLD *item,FILE *fd);
-int wvGetFLD_PLCF(FLD **fld,U32 **pos,U32 *nofld,U32 offset,U32 len,FILE *fd);
+void wvGetFLD(FLD *item,wvStream *fd);
+int wvGetFLD_PLCF(FLD **fld,U32 **pos,U32 *nofld,U32 offset,U32 len,wvStream *fd);
 
 typedef struct _COPTS
 	{
-	U16 fNoTabForInd1:1;
-	U16 fNoSpaceRaiseLower:1;
-	U16 fSuppressSpbfAfterPageBreak:1;
-	U16 fWrapTrailSpaces:1;
-	U16 fMapPrintTextColor:1;
-	U16 fNoColumnBalance:1;
-	U16 fConvMailMergeEsc:1;
-	U16 fSupressTopSpacing:1;
-	U16 fOrigWordTableRules:1;
-	U16 fTransparentMetafiles:1;
-	U16 fShowBreaksInFrames:1;
-	U16 fSwapBordersFacingPgs:1;
-	U16 reserved:4;
+	/* 16 bits for bitfields */
+	U32 fNoTabForInd:1;
+	U32 fNoSpaceRaiseLower:1;
+	U32 fSuppressSpbfAfterPageBreak:1;
+	U32 fWrapTrailSpaces:1;
+	U32 fMapPrintTextColor:1;
+	U32 fNoColumnBalance:1;
+	U32 fConvMailMergeEsc:1;
+	U32 fSuppressTopSpacing:1;
+	U32 fOrigWordTableRules:1;
+	U32 fTransparentMetafiles:1;
+	U32 fShowBreaksInFrames:1;
+	U32 fSwapBordersFacingPgs:1;
+	U32 reserved:4;
 	} COPTS;
 
-void wvGetCOPTS(COPTS *copts,FILE *fd);
+void wvGetCOPTS(COPTS *copts,wvStream *fd);
 
 typedef struct _DTTM
 	{
@@ -569,11 +678,13 @@ typedef struct _DTTM
 	U32 wdy:3;
 	} DTTM;
 
-void wvGetDTTM(DTTM *item,FILE *fd);
+void wvGetDTTM(DTTM *item,wvStream *fd);
 void wvGetDTTMFromBucket(DTTM *item,U8 *pointer);
 void wvCreateDTTM(DTTM *dttm,U16 one,U16 two);
 void wvCopyDTTM(DTTM *dest,DTTM *src);
 void wvInitDTTM(DTTM *dttm);
+char *wvDTTMtoUnix(DTTM *src);
+
 
 typedef struct _DOPTYPOGRAPHY
 	{
@@ -589,7 +700,8 @@ typedef struct _DOPTYPOGRAPHY
 	U16 rgxchLPunct[51];
 	} DOPTYPOGRAPHY;
 
-void wvGetDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt,FILE *fd);
+void wvGetDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt,wvStream *fd);
+void wvInitDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt);
 
 
 typedef struct _DOGRID
@@ -597,14 +709,21 @@ typedef struct _DOGRID
 	U16 xaGrid;
 	U16 yaGrid;
 	U16 dxaGrid;
-	U16 dyaGrid;
-	U16 dyGridDisplay:7;
-	U16 fTurnItOff:1;
-	U16 dxGridDisplay:7;
-	U16 fFollowMargins:1;
+	U32 dyaGrid:16;
+	U32 dyGridDisplay:7;
+	U32 fTurnItOff:1;
+	U32 dxGridDisplay:7;
+	U32 fFollowMargins:1;
 	} DOGRID;
 
-void wvGetDOGRID(DOGRID *dogrid,FILE *fd);
+typedef struct _ASUMY
+	{
+	S32 lLevel;
+	} ASUMY;
+
+
+void wvGetDOGRID(DOGRID *dogrid,wvStream *fd);
+void wvInitDOGRID(DOGRID *dog);
 
 typedef struct _ASUMYI
 	{
@@ -619,7 +738,8 @@ typedef struct _ASUMYI
 	U32 lCurrentLevel;
 	} ASUMYI;
 
-void wvGetASUMYI(ASUMYI *asumyi,FILE *fd);
+void wvGetASUMYI(ASUMYI *asumyi,wvStream *fd);
+void wvInitASUMYI(ASUMYI *asu);
 
 typedef struct _DOP
 	{
@@ -631,7 +751,12 @@ typedef struct _DOP
 	U32 reserved1:1;
 	U32 grpfIhdt:8;
 	U32 rncFtn:2;	/*how to restart footnotes*/
-	U32	nFtn:14;	/*first footnote no*/
+	U32 fFtnRestart:1; /* Word 2*/
+
+	U32 nFtn:15;	/*first footnote no. WORD 2: int :15*/
+
+   	U8 irmBar;    /* W2 */
+	U32 irmProps:7; /* W2 */
 
 	U32 fOutlineDirtySave:1;
 	U32 reserved2:7;
@@ -642,6 +767,7 @@ typedef struct _DOP
 	U32 fAutoHyphen:1;
 	U32 fFormNoFields:1;
 	U32 fLinkStyles:1;
+
 	U32 fRevMarking:1;
 	U32 fBackup:1;
 	U32 fExactCWords:1;
@@ -649,9 +775,20 @@ typedef struct _DOP
 	U32 fPagResults:1;
 	U32 fLockAtn:1;
 	U32 fMirrorMargins:1;
+
+	U32 fKeepFileFormat:1; /* W2 */
+
 	U32 reserved3:1;
+
 	U32 fDfltTrueType:1;
 	U32 fPagSuppressTopSpacing:1;
+
+	U32 fRTLAlignment:1; /* W2 */
+        U32 reserved3a:6;    /* " */
+        U32 reserved3b:7;    /* " */
+
+	U32 fSpares:16;      /* W2 */
+
 	U32 fProtEnabled:1;
 	U32 fDispFormFldSel:1;
 	U32 fRMView:1;
@@ -663,10 +800,15 @@ typedef struct _DOP
 	COPTS copts;
 
 	U16 dxaTab;
+
+	U32 ftcDefaultBi; /* W2 */
+
 	U16 wSpare;
 	U16 dxaHotZ;
 	U16 cConsecHypLim;
 	U16 wSpare2;
+
+	U32 wSpare3; /* W2 */
 
 	DTTM dttmCreated;
 	DTTM dttmRevised;
@@ -678,6 +820,8 @@ typedef struct _DOP
 	U32 cCh;
 	U16 cPg;
 	U32 cParas;
+
+	U16 rgwSpareDocSum[3]; /* W2 */
 
 	U32 rncEdn:2;		/*how endnotes are restarted*/
 	U32 nEdn:14;		/*beginning endnote no*/
@@ -696,7 +840,7 @@ typedef struct _DOP
 	U16 cPgFtnEdn;
 	U32 cParasFtnEdn;
 	U32 cLinesFtnEdn;
-	U32 lKeyProtDoc;	/*password protection key (! ??)*/
+	U32 lKeyProtDoc;	/*password protection key (! ?)*/
 
 	U32 wvkSaved:3;
 	U32 wScaleSaved:9;
@@ -705,12 +849,12 @@ typedef struct _DOP
 	U32 iGutterPos:1;
 	U32 fNoTabForInd:1;
 	U32 fNoSpaceRaiseLower:1;
-	U32 fSupressSpbfAfterPageBreak:1;
+	U32 fSuppressSpbfAfterPageBreak:1;
 	U32 fWrapTrailSpaces:1;
 	U32 fMapPrintTextColor:1;
 	U32 fNoColumnBalance:1;
 	U32 fConvMailMergeEsc:1;
-	U32 fSupressTopSpacing:1;
+	U32 fSuppressTopSpacing:1;
 	U32 fOrigWordTableRules:1;
 	U32 fTransparentMetafiles:1;
 	U32 fShowBreaksInFrames:1;
@@ -768,7 +912,8 @@ typedef struct _DOP
 	U16 dywDispPag;
 	} DOP;
 
-void wvGetDOP(DOP *dop,U32 fcDop,U32 lcbDop,FILE *tablefd);
+void wvGetDOP(wvVersion ver,DOP *dop,U32 fcDop,U32 lcbDop,wvStream *tablefd);
+void wvInitDOP(DOP *dop);
 
 typedef struct _BKF
     {
@@ -779,8 +924,10 @@ typedef struct _BKF
     U32 fCol:1;  
     } BKF;
 
-void wvGetBKF(BKF *item,FILE *fd);
-int wvGetBKF_PLCF(BKF **bkf,U32 **pos,U32 *nobkf,U32 offset,U32 len,FILE *fd);
+void wvGetBKF(BKF *item,wvStream *fd);
+int wvGetBKF_PLCF(BKF **bkf,U32 **pos,U32 *nobkf,U32 offset,U32 len,wvStream *fd);
+void wvInitBKF(BKF *item);
+
 
 
 typedef struct _Xst
@@ -790,7 +937,7 @@ typedef struct _Xst
 	U32 noofstrings;
 	} Xst;
 
-void wvGetXst(Xst **xst,U32 offset,U32 len,FILE *fd);
+void wvGetXst(Xst **xst,U32 offset,U32 len,wvStream *fd);
 void wvFreeXst(Xst **xst);
 
 typedef struct _FSPA
@@ -800,46 +947,51 @@ typedef struct _FSPA
     S32 yaTop;
     S32 xaRight;
     S32 yaBottom;
-    U16 fHdr:1;
-    U16 bx:2;
-    U16 by:2;
-    U16 wr:4;
-    U16 wrk:4;
-    U16 fRcaSimple:1;
-    U16 fBelowText:1;
-    U16 fAnchorLock:1;
+	/* 16 bits for bitfields*/
+    U32 fHdr:1;
+    U32 bx:2;
+    U32 by:2;
+    U32 wr:4;
+    U32 wrk:4;
+    U32 fRcaSimple:1;
+    U32 fBelowText:1;
+    U32 fAnchorLock:1;
     S32 cTxbx;
     } FSPA;
 
-void wvGetFSPA(FSPA *item,FILE *fd);
-int wvGetFSPA_PLCF(FSPA **fspa,U32 **pos,U32 *nofspa,U32 offset,U32 len,FILE *fd);
-
+void wvGetFSPA(FSPA *item,wvStream *fd);
+int wvGetFSPA_PLCF(FSPA **fspa,U32 **pos,U32 *nofspa,U32 offset,U32 len,wvStream *fd);
+FSPA *wvGetFSPAFromCP(U32 currentcp,FSPA *fspa,U32 *pos,U32 nofspa);
+void wvInitFSPA(FSPA *item);
 
 typedef struct _LSTF
     {
     U32 lsid;
     U32 tplc;
     U16 rgistd[9];
-    U16 fSimpleList:1;
-    U16 fRestartHdn:1;
-    U16 reserved1:6;
-    U16 reserved2:8;
+	/* 16 bits for bitfields */
+    U32 fSimpleList:1;
+    U32 fRestartHdn:1;
+    U32 reserved1:6;
+    U32 reserved2:8;
     } LSTF;
 
-void wvGetLSTF(LSTF *item,FILE *fd);
-int wvGetLSTF_PLCF(LSTF **lstf,U32 **pos,U32 *nolst,U32 offset,U32 len,FILE *fd);
+void wvGetLSTF(LSTF *item,wvStream *fd);
+void wvInitLSTF(LSTF *item);
+int wvGetLSTF_PLCF(LSTF **lstf,U32 **pos,U32 *nolst,U32 offset,U32 len,wvStream *fd);
 
 typedef struct _LVLF
     {
     U32 iStartAt;
-    U16 nfc:8;
-    U16 jc:2;
-    U16 fLegal:1;  
-    U16 fNoRestart:1;
-    U16 fPrev:1;  
-    U16 fPrevSpace:1;  
-    U16 fWord6:1;  
-    U16 reserved1:1;
+	/* 16 bits for bitfield */
+    U32 nfc:8;
+    U32 jc:2;
+    U32 fLegal:1;  
+    U32 fNoRestart:1;
+    U32 fPrev:1;  
+    U32 fPrevSpace:1;  
+    U32 fWord6:1;  
+    U32 reserved1:1;
     U8 rgbxchNums[9];
     U8 ixchFollow;
     U32 dxaSpace;      
@@ -849,7 +1001,8 @@ typedef struct _LVLF
     U16 reserved2;     
     }LVLF;
 
-void wvGetLVLF(LVLF *item,FILE *fd);
+void wvGetLVLF(LVLF *item,wvStream *fd);
+void wvInitLVLF(LVLF *item);
 void wvCopyLVLF(LVLF *dest,LVLF *src);
 
 
@@ -878,9 +1031,10 @@ typedef struct _LVL
     XCHAR *numbertext;
     } LVL;
 
-void wvGetLVL(LVL *lvl,FILE *fd);
+void wvGetLVL(LVL *lvl,wvStream *fd);
 void wvCopyLVL(LVL *dest,LVL *src);
 void wvReleaseLVL(LVL *lvl);
+void wvInitLVL(LVL *lvl);
 
 
 /*
@@ -908,9 +1062,10 @@ typedef struct _LST
 	U32 *current_no;
     }LST;
 
-int wvGetLST(LST **lst,U16 *noofLST,U32 offset,U32 len,FILE *fd);
+int wvGetLST(LST **lst,U16 *noofLST,U32 offset,U32 len,wvStream *fd);
 void wvReleaseLST(LST **lst,U16 noofLST);
 LST *wvSearchLST(U32 id,LST *lst,U16 noofLST);
+int wvInitLST(LST *lst);
 
 typedef struct _LFO
     {
@@ -921,8 +1076,9 @@ typedef struct _LFO
     U8 reserved3[3];
     } LFO;
 
-void wvGetLFO(LFO *item,FILE *fd);
-int wvGetLFO_PLF(LFO **lfo,U32 *nolfo,U32 offset,U32 len,FILE *fd);
+void wvGetLFO(LFO *item,wvStream *fd);
+void wvInitLFO(LFO *item);
+int wvGetLFO_PLF(LFO **lfo,U32 *nolfo,U32 offset,U32 len,wvStream *fd);
 
 typedef struct _LFOLVL
     {
@@ -936,11 +1092,13 @@ typedef struct _LFOLVL
     U32 reserved4:8;
     } LFOLVL;
 
-void wvGetLFOLVL(LFOLVL *item,FILE *fd);
+void wvGetLFOLVL(LFOLVL *item,wvStream *fd);
+void wvInitLFOLVL(LFOLVL *item);
 int wvInvalidLFOLVL(LFOLVL *item);
 
-int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl,U32 offset,U32 len,FILE *fd);
+int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl,U32 offset,U32 len,wvStream *fd);
 int wvReleaseLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 nooflvl);
+
 
 char *wvGenerateNFC(int value,int no_type);
 char *wvOrdinal(U32 x);
@@ -950,12 +1108,13 @@ typedef U16 LID;
 
 typedef struct _SHD
     {
-    U16 icoFore:5;
-    U16 icoBack:5;
-    U16 ipat:6;
+	/*16 bits in total*/
+    U32 icoFore:5;
+    U32 icoBack:5;
+    U32 ipat:6;
     } SHD;
 
-void wvGetSHD(SHD *item,FILE *fd);
+void wvGetSHD(SHD *item,wvStream *fd);
 void wvGetSHDFromBucket(SHD *item,U8 *pointer);
 void wvInitSHD(SHD *item);
 void wvCopySHD(SHD *dest,SHD *src);
@@ -963,12 +1122,13 @@ void wvCopySHD(SHD *dest,SHD *src);
 
 typedef struct _DCS
     {
-    U16 fdct:3;
-    U16 count:5;
-    U16 reserved:8;
+	/* 16 bits for bitfields */
+    U32 fdct:3;
+    U32 count:5;
+    U32 reserved:8;
     } DCS;
 
-void wvGetDCS(DCS *item,FILE *fd);
+void wvGetDCS(DCS *item,wvStream *fd);
 void wvGetDCSFromBucket(DCS *item,U8 *pointer);
 void wvInitDCS(DCS *item);
 void wvCopyDCS(DCS *dest,DCS *src);
@@ -984,22 +1144,26 @@ typedef struct _BRC
 	U32 reserved:1;
 	} BRC;
 
-void wvGetBRC(BRC *abrc,FILE *infd);
-void wvGetBRCFromBucket(BRC *abrc,U8 *pointer);
+void wvGetBRC(wvVersion ver,BRC *abrc,wvStream *fd);
+int wvGetBRCFromBucket(wvVersion ver,BRC *abrc,U8 *pointer);
 void wvInitBRC(BRC *abrc);
 void wvCopyBRC(BRC *dest, BRC *src);
+int wvEqualBRC(BRC *a,BRC *b);
+
 
 typedef struct _BRC10
 	{
-	U16 dxpLine2Width:3;
-	U16 dxpSpaceBetween:3;
-	U16 dxpLine1Width:3;
-	U16 dxpSpace:5;
-	U16 fShadow:1;
-	U16 fSpare:1;
+	/* 16 bits in total */
+	U32 dxpLine2Width:3;
+	U32 dxpSpaceBetween:3;
+	U32 dxpLine1Width:3;
+	U32 dxpSpace:5;
+	U32 fShadow:1;
+	U32 fSpare:1;
 	} BRC10;
 
-void wvGetBRC10FromBucket(BRC10 *item,U8 *pointer);
+int wvGetBRC10FromBucket(BRC10 *item,U8 *pointer);
+void wvInitBRC10(BRC10 *item);
 void wvConvertBRC10ToBRC(BRC *item,BRC10 *in);
 
 
@@ -1067,9 +1231,11 @@ typedef union _PHE
         } var2;
     } PHE;
 
+
 void wvCopyPHE(PHE *dest,PHE *src,int which);
 void wvInitPHE(PHE *item,int which);
-void wvGetPHE(PHE *dest,int which,FILE *fd);
+void wvGetPHE(PHE *dest,int which,U8 *page,U16 *pos);
+void wvGetPHE6(PHE *dest,U8 *page,U16 *pos);
 
 typedef struct _NUMRM
     {
@@ -1084,7 +1250,7 @@ typedef struct _NUMRM
     XCHAR xst[32];  
     }NUMRM;
 
-void wvGetNUMRM(NUMRM *item,FILE *fd);
+void wvGetNUMRM(NUMRM *item,wvStream *fd);
 void wvGetNUMRMFromBucket(NUMRM *item,U8 *pointer);
 void wvCopyNUMRM(NUMRM *dest,NUMRM *src);
 void wvInitNUMRM(NUMRM *item);
@@ -1125,10 +1291,11 @@ typedef struct _ANLD
     XCHAR rgxch[32];
     } ANLD;
 
-void wvGetANLD(ANLD *item,FILE *fd);
-void wvGetANLD_FromBucket(ANLD *item,U8 *pointer8);
+void wvGetANLD(wvVersion ver,ANLD *item,wvStream *fd);
+void wvGetANLD_FromBucket(wvVersion ver,ANLD *item,U8 *pointer8);
 void wvCopyANLD(ANLD *dest, ANLD *src);
 void wvInitANLD(ANLD *item);
+U32 wvCheckSumANLD(ANLD *item);
 
 #define istdNormalChar 10
 
@@ -1154,7 +1321,7 @@ typedef struct _CHP
 	U32 fEmboss:1;
 	U32 fImprint:1;
 	U32 fDStrike:1;
-	U32 fUsePgsuSettings:1;
+	S32 fUsePgsuSettings:1;		/*?*/
 	U32 reserved1:12;
 	U32 reserved2;
 
@@ -1230,7 +1397,6 @@ void wvCopyCHP(CHP *dest,CHP *src);
 
 typedef struct _TC
     {
-    S32 rgf:16;
     U32 fFirstMerged:1;
     U32 fMerged:1;
     U32 fVertical:1;
@@ -1240,7 +1406,7 @@ typedef struct _TC
     U32 fVertRestart:1;
     U32 vertAlign:2;
     U32 fUnused:7;
-    U8 wUnused;
+    U32 wUnused:16;
     BRC brcTop;
     BRC brcLeft;
     BRC brcBottom;
@@ -1248,6 +1414,7 @@ typedef struct _TC
     } TC;
 
 void wvCopyTC(TC *dest,TC *src);
+int wvGetTCFromBucket(wvVersion ver,TC *abrc,U8 *pointer);
 void wvInitTC(TC *item);
 
 typedef struct _TLP
@@ -1267,7 +1434,8 @@ typedef struct _TLP
 
 void wvCopyTLP(TLP *dest,TLP *src);
 void wvInitTLP(TLP *item);
-
+void wvGetTLP(TLP *item,wvStream *fd);
+void wvGetTLPFromBucket(TLP *item,U8 *pointer);
 
 typedef struct _TAP
     {
@@ -1300,6 +1468,20 @@ typedef struct _TAP
 
 void wvCopyTAP(TAP *dest,TAP *src);
 void wvInitTAP(TAP *item);
+
+typedef struct _TBD	/* 8 bits */
+	{
+	U32 jc:3;
+	U32 tlc:3;
+	U32 reserved:2;
+	} TBD;
+
+void wvInitTBD(TBD *item);
+void wvCopyTBD(TBD *dest,TBD *src);
+void wvGetTBD(TBD *item,wvStream *fd);
+void wvGetTBDFromBucket(TBD *item,U8 *pointer);
+
+
 
 typedef struct _PAP
 	{
@@ -1368,8 +1550,9 @@ typedef struct _PAP
 	BRC brcBar ;
 	S32 dxaFromText ;	
 	S32 dyaFromText ;	
-	S16 dyaHeight:15 ;	
-	S16 fMinHeight:1 ;	
+	/*16 bits for the next two entries*/
+	S32 dyaHeight:15 ;	
+	S32 fMinHeight:1 ;	
 	SHD shd ;		
 	DCS dcs ;		
 	S8 lvl ;		
@@ -1381,13 +1564,16 @@ typedef struct _PAP
 	NUMRM numrm ;		
 	S16 itbdMac ;		
 	S16 rgdxaTab[itbdMax] ;	
-	S8 rgtbd[itbdMax] ;		
+	TBD rgtbd[itbdMax] ;		
 	} PAP;
 
 #define istdNil 4095
 
 void wvCopyPAP(PAP *dest,PAP *src);
+void wvCopyConformPAP(PAP *dest,PAP *src);
 void wvInitPAP(PAP *item);
+int wvIsListEntry(PAP *apap,wvVersion ver);
+int isPAPConform(PAP *current,PAP *previous);
 
 
 typedef U16 BF;
@@ -1403,15 +1589,15 @@ typedef struct _STSHI
     {
     U16  cstd;                          /* Count of styles in stylesheet */
     U16  cbSTDBaseInFile;               /* Length of STD Base as stored in a file */
-    BF   fStdStylenamesWritten:1;       /* Are built-in stylenames stored? */
-    BF   reserved:15;                   /* Spare flags */
-    U16  stiMaxWhenSaved;               /* Max sti known when this file was written */
+    U32  fStdStylenamesWritten:1;       /* Are built-in stylenames stored? */
+    U32  reserved:15;                   /* Spare flags */
+    U32  stiMaxWhenSaved:16;            /* Max sti known when this file was written */
     U16  istdMaxFixedWhenSaved;         /* How many fixed-index istds are there? */
     U16  nVerBuiltInNamesWhenSaved;     /* Current version of built-in stylenames */
     FTC  rgftcStandardChpStsh[3];       /* ftc used by StandardChpStsh for this document */
     } STSHI;
 
-void wvGetSTSHI(STSHI *item,U16 cbSTSHI,FILE *fd);
+void wvGetSTSHI(STSHI *item,U16 cbSTSHI,wvStream *fd);
 void wvInitSTSHI(STSHI *item);
 
 
@@ -1444,8 +1630,25 @@ typedef struct _CHPX
 	} CHPX;
 
 void wvInitCHPX(CHPX *item);
-void wvCopyCHPX(CHPX *dest,CHPX *src);
+void wvCopyCHPX(CHPX *dest, CHPX *src);
 void wvReleaseCHPX(CHPX *item);
+void wvGetCHPX(wvVersion ver, CHPX *item, U8 *page, U16 *pos);
+
+	       
+typedef struct _CHPX_FKP
+	{
+	U32 *rgfc;
+	U8 *rgb;
+	CHPX *grpchpx;
+	U8 crun;
+	} CHPX_FKP;
+
+void wvGetCHPX_FKP(wvVersion ver, CHPX_FKP *fkp, U32 pn, wvStream *fd);
+void wvReleaseCHPX_FKP(CHPX_FKP *fkp);
+void wvInitCHPX_FKP(CHPX_FKP *fkp);
+
+
+
 
 
 typedef union _UPD
@@ -1476,7 +1679,7 @@ typedef UPD UPE;
    that is stored in the file.  When reading STDs from an older version,
    new fields will be zero.
 */
-typedef struct _STD
+typedef struct _wvSTD
     {
     /* Base part of STD: */
     U32 sti:12;          /* invariant style identifier */
@@ -1493,9 +1696,10 @@ typedef struct _STD
     U32 istdNext:12;     /* next style */
     U32 bchUpe:16;          /* offset to end of upx's, start of upe's */
 
-    U16 fAutoRedef:1;    /* auto redefine style when appropriate */
-    U16 fHidden:1;       /* hidden from UI? */
-    U16 reserved:14;        /* unused bits */
+	/* 16 bits in the following bitfields*/
+    U32 fAutoRedef:1;    /* auto redefine style when appropriate */
+    U32 fHidden:1;       /* hidden from UI? */
+    U32 reserved:14;        /* unused bits */
 
     /* Variable length part of STD: */
     XCHAR    *xstzName;        /* sub-names are separated by chDelimStyle */
@@ -1507,10 +1711,16 @@ typedef struct _STD
     UPE *grupe; 
     } STD;
 
-#define sgcPara 1
-#define sgcChp  2
+typedef enum
+    {
+    sgcPara = 1,
+    sgcChp,
+    sgcPic,
+    sgcSep,
+    sgcTap
+    }sgcval;
 
-void wvGetSTD(STD *item,FILE *fd);
+int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,wvStream *fd);
 void wvInitSTD(STD *item);
 void wvReleaseSTD(STD *item);
 
@@ -1537,20 +1747,24 @@ typedef struct _STSH
     STD *std;
     }STSH;
 
-void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd);
+void wvGetSTSH(STSH *item,U32 offset,U32 len,wvStream *fd);
 void wvReleaseSTSH(STSH *item);
+void wvGenerateStyle(STSH *item,U16 i,U16 type);
 
 
 void wvInitPAPFromIstd(PAP *apap,U16 istdBase,STSH *stsh);
-void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh);
+void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh,wvStream *data);
+void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh);
 
 void wvInitCHPFromIstd(CHP *achp,U16 istdBase,STSH *stsh);
 void wvAddCHPXFromBucket(CHP *achp,UPXF *upxf,STSH *stsh);
+void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh);
 
 void wvInitCHPXFromIstd(CHPX *chpx,U16 istdBase,STSH *stsh);
 void wvMergeCHPXFromBucket(CHPX *dest,UPXF *upxf);
+void wvUpdateCHPXBucket(UPXF *src);
 
-typedef S32 ASUMY;
+void wvApplyCHPXFromBucket(CHP *achp,CHPX *chpx,STSH *stsh);
 
 typedef struct _ANLV
 	{
@@ -1569,7 +1783,7 @@ typedef struct _ANLV
 	U32 fSetKul:1;
 	U32 fPrevSpace:1;
 	U32 fBold:1;
-	U32 FItalic:1;
+	U32 fItalic:1;
 	U32 fSmallCaps:1;
 	U32 fCaps:1;
 	U32 fStrike:1;
@@ -1583,6 +1797,13 @@ typedef struct _ANLV
 	U16 dxaSpace;
 	} ANLV;
 
+void wvInitANLV(ANLV *item);
+
+void wvGetANLV(ANLV *item,wvStream *fd);
+void wvGetANLVFromBucket(ANLV *item,U8 *pointer);
+
+
+
 typedef struct _OLST
 	{
  	ANLV rganlv[9];
@@ -1590,8 +1811,13 @@ typedef struct _OLST
  	U8 fSpareOlst2;
  	U8 fSpareOlst3;
  	U8 fSpareOlst4;
- 	XCHAR rgxch[32];
+ 	XCHAR rgxch[64];
 	} OLST;
+
+void wvInitOLST(OLST *);
+void wvGetOLST(wvVersion ver,OLST *item,wvStream *fd);
+void wvGetOLSTFromBucket(wvVersion ver,OLST *item,U8 *pointer);
+
 
 typedef struct _SEP
 	{
@@ -1649,7 +1875,7 @@ typedef struct _SEP
  	U32 dzaGutter;
  	U32 dyaHdrTop;
  	U32 dyaHdrBottom;
- 	S32 ccolM1;
+ 	S16 ccolM1;
  	S8 fEvenlySpaced;
  	S8 reserved3;
  	S32 dxaColumns;
@@ -1661,31 +1887,79 @@ typedef struct _SEP
  	OLST olstAnm;
 	} SEP;
 
-void wvApplySprmFromBucket(U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos);
+void wvInitSEP(SEP *item);
+
+typedef struct _SEPX
+	{
+	U16 cb;
+	U8 *grpprl;
+	} SEPX;
+
+void wvGetSEPX(wvVersion ver,SEPX *item,wvStream *fd);
+void wvReleaseSEPX(SEPX *item);
+int wvAddSEPXFromBucket(SEP *asep,SEPX *item,STSH *stsh);
+int wvAddSEPXFromBucket6(SEP *asep,SEPX *item,STSH *stsh);
 
 typedef struct _Sprm
     {
-    U16 ispmd:9;      /*ispmd unique identifier within sgc group*/
-    U16 fSpec:1;      /*fSpec sprm requires special handling*/
-    U16 sgc:3;        /*sgc   sprm group; type of sprm (PAP, CHP, etc)*/
-    U16 spra:3;       /*spra  size of sprm argument*/
+	/*16 bits in total*/
+    U32 ispmd:9;      /*ispmd unique identifier within sgc group*/
+    U32 fSpec:1;      /*fSpec sprm requires special handling*/
+    U32 sgc:3;        /*sgc   sprm group; type of sprm (PAP, CHP, etc)*/
+    U32 spra:3;       /*spra  size of sprm argument*/
     } Sprm;
 
-typedef enum
-    {
-    sgcPAP = 1,
-    sgcCHP,
-    sgcPIC,
-    sgcSEP,
-    sgcTAP
-    }sgcval;
+
+
+Sprm wvApplySprmFromBucket(wvVersion ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh,U8 *pointer, U16 *pos,wvStream *data);
 
 int wvSprmLen(int spra);
 void wvGetSprmFromU16(Sprm *Sprm,U16 sprm);
-int wvEatSprm(U16 sprm,U8 *pointer, U16 *pos);
+U8 wvEatSprm(U16 sprm,U8 *pointer, U16 *pos);
 
 typedef enum _SprmName
 	{
+	/*
+	these ones are ones I made up entirely to match
+	unnamed patterns in word 95 files, whose 
+	purpose is currently unknown
+	*/
+	sprmTUNKNOWN1		  = 0xD400 ,
+	sprmPUNKNOWN2		  = 0x2400 ,	/* word 7 0x39 */
+	sprmPUNKNOWN3		  = 0x2401 ,	/* word 7 0x3a */
+	sprmPUNKNOWN4		  = 0x4400 ,	/* word 7 0x3b */
+	sprmCUNKNOWN5		  = 0x4800 ,	/* word 7 0x6f */
+	sprmCUNKNOWN6		  = 0x4801 ,	/* word 7 0x70 */
+	sprmCUNKNOWN7		  = 0x4802 ,	/* word 7 0x71 */
+
+	
+	/* 
+	these ones showed up in rgsprmPrm and are mostly 
+	out of date i reckon
+	*/
+	sprmNoop			  = 0x0000 ,	/* this makes sense */
+	sprmPPnbrRMarkNot	  = 0x0000 ,	/* never seen this one */
+
+	/*
+	this subset were not listed in word 8, but i recreated them
+	from the word 8 guidelines and the original word 6, so 
+	basically they will blow things up when ms decides to reuse them
+	in word 2000 or later versions, but what the hell...
+	*/
+	sprmCFStrikeRM		  = 0x0841 ,
+	sprmPNLvlAnm		  = 0x240D ,
+	sprmCFtc			  = 0x483D ,
+	/*end subset*/
+
+	/*
+	one of the sprm's that shows up in word 6 docs is "0", which
+	appears to be either the pap.istd or just an index, seeing
+	as the word 6 people didn't list it, lets just ignore it.
+	as it only happens in word 6 docs, our code happens to 
+	function fine in the current setup, but at some stage 
+	im sure it will bite me hard
+	*/
+
 	sprmPIstd             = 0x4600 ,
 	sprmPIstdPermute      = 0xC601 ,
 	sprmPIncLvl           = 0x2602 ,
@@ -1754,6 +2028,9 @@ typedef enum _SprmName
 	sprmPCrLf             = 0x2444 ,
 	sprmPNumRM            = 0xC645 ,
 	sprmPHugePapx         = 0x6645 ,
+	sprmPHugePapx2        = 0x6646 ,	/* this is the one I have found in
+										the wild, maybe the doc is incorrect
+										in numbering it 6645 C. */
 	sprmPFUsePgsuSettings = 0x2447 ,
 	sprmPFAdjustRight     = 0x2448 ,
 
@@ -1922,22 +2199,24 @@ typedef enum _SprmName
 	sprmTVertAlign        = 0xD62C 
 	} SprmName;
 
+SprmName wvGetrgsprmWord6(U8 in);
+
 void wvApplysprmPIstdPermute(PAP *apap,U8 *pointer,U16 *pos);
 void wvApplysprmPIncLvl(PAP *apap,U8 *pointer,U16 *pos);
 void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos);
 int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *len);
 void wvApplysprmPPc(PAP *apap,U8 *pointer,U16 *len);
 void wvApplysprmPFrameTextFlow(PAP *apap,U8 *pointer,U16 *pos);
-void wvApplysprmPAnld(PAP *apap,U8 *pointer, U16 *pos);
+void wvApplysprmPAnld(wvVersion ver,PAP *apap,U8 *pointer, U16 *pos);
 void wvApplysprmPPropRMark(PAP *apap,U8 *pointer,U16 *pos);
 void wvApplysprmPNumRM(PAP *apap,U8 *pointer, U16 *pos);
-void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos);		/*unfinished*/
+void wvApplysprmPHugePapx(PAP *apap,U8 *pointer,U16 *pos,wvStream *data,STSH *stsh);
 
 void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
-void wvApplysprmCSymbol(CHP *achp,U8 *pointer,U16 *pos);
+void wvApplysprmCSymbol(wvVersion ver,CHP *achp,U8 *pointer,U16 *pos);
 void wvApplysprmCIstdPermute(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
 void wvApplysprmCDefault(CHP *achp,U8 *pointer,U16 *pos);
-void wvApplysprmCPlain(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos);
+void wvApplysprmCPlain(CHP *achp,STSH *stsh);
 void wvApplysprmCHpsInc(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
 void wvApplysprmCSizePos(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
 void wvApplysprmCHpsPosAdj(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
@@ -1947,34 +2226,365 @@ void wvApplysprmCHpsInc1(CHP *achp,U8 *pointer,U16 *pos);
 void wvApplysprmCPropRMark(CHP *achp,U8 *pointer,U16 *pos);
 void wvApplysprmCDispFldRMark(CHP *achp,U8 *pointer,U16 *pos);
 
+void wvApplysprmSOlstAnm(wvVersion ver,SEP *asep,U8 *pointer,U16 *pos);
+void wvApplysprmSPropRMark(SEP *asep,U8 *pointer,U16 *pos);
+
+void wvApplysprmTDxaLeft(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTDxaGapHalf(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTTableBorders(wvVersion ver,TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTDefTable10(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos);
+void wv2ApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTSetBrc(wvVersion ver,TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTInsert(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTDelete(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTDxaCol(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTMerge(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTSplit(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTSetBrc10(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTSetShd(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTSetShdOdd(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTTextFlow(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTVertMerge(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTVertAlign(TAP *tap,U8 *pointer,U16 *pos);
+
+
 U8 wvToggle(U8 in,U8 toggle);
 
 typedef enum
 	{
 	UTF8,
-	ISO_5589_15,
-	CP1252
+	ISO_8859_15,
+	KOI8,
+	TIS620,
 	/*add your own charset here*/
+	CharsetTableSize		/* must be last entry on pain of death */
 	} wvCharset;
 
 
+typedef enum _FIELDCODE
+	{
+	FC_OTHER = 0,
+	FC_TIME,
+	FC_DateTimePicture,
+	FC_HYPERLINK,
+	FC_EDITTIME,
+	FC_TOC,
+	FC_TOC_FROM_RANGE,
+	FC_PAGEREF,
+	FC_EMBED,
+	FieldCodeTableSize	/*must be last entry on pain of death*/
+	}FIELDCODE;
 
-#define TT_OTHER        	0
-#define TT_DOCUMENT     	1       
-#define TT_BEGIN			2       
-#define TT_END				3  	     
-#define TT_TITLE			4
-#define TT_PARA				5
-#define TT_CHARSET			6	
-#define TT_VERSION			7	
-#define TT_JUSTIFICATION 	8
-#define TT_JUST				9
-#define TT_LEFT				10	
-#define TT_RIGHT			11
-#define TT_CENTER			12
-#define TT_BLOCK			13
+typedef enum _TT
+	{
+	TT_OTHER = 0,
+	TT_DOCUMENT,
+	TT_BEGIN,       
+	TT_END,
+	TT_TITLE,
+	TT_PARA,	
+	TT_CHARSET,
+	TT_VERSION,
+	TT_JUSTIFICATION,
+	TT_JUST,
+	TT_LEFT,
+	TT_RIGHT,
+	TT_CENTER,
+	TT_BLOCK,
+	TT_ASIAN,
+	TT_SECTION,
+	TT_BOLD,
+	TT_CHAR,
+	TT_BOLDB,
+	TT_BOLDE,
+	TT_ITALIC,
+	TT_ITALICB,
+	TT_ITALICE,
+	TT_STRIKE,
+	TT_STRIKEB,
+	TT_STRIKEE,
+	TT_RMarkDel,
+	TT_RMarkDelB,
+	TT_RMarkDelE,
+	TT_OUTLINE,
+	TT_OUTLINEB,
+	TT_OUTLINEE,
+	TT_SMALLCAPS,
+	TT_SMALLCAPSB,
+	TT_SMALLCAPSE,
+	TT_CAPS,
+	TT_CAPSB,
+	TT_CAPSE,
+	TT_VANISH,
+	TT_VANISHB,
+	TT_VANISHE,
+	TT_RMark,
+	TT_RMarkB,
+	TT_RMarkE,
+	TT_SHADOW,
+	TT_SHADOWB,
+	TT_SHADOWE,
+	TT_LOWERCASE,
+	TT_LOWERCASEB,
+	TT_LOWERCASEE,
+	TT_EMBOSS,
+	TT_EMBOSSB,
+	TT_EMBOSSE,
+	TT_IMPRINT,
+	TT_IMPRINTB,
+	TT_IMPRINTE,
+	TT_DSTRIKE,
+	TT_DSTRIKEB,
+	TT_DSTRIKEE,
+	TT_SUPER,
+	TT_SUPERB,
+	TT_SUPERE,
+	TT_SUB,
+	TT_SUBB,
+	TT_SUBE,
+	TT_SINGLEU,
+	TT_SINGLEUB,
+	TT_SINGLEUE,
+	TT_WORDU,
+	TT_WORDUB,
+	TT_WORDUE,
+	TT_DOUBLEU,
+	TT_DOUBLEUB,
+	TT_DOUBLEUE,
+	TT_DOTTEDU,
+	TT_DOTTEDUB,
+	TT_DOTTEDUE,
+	TT_HIDDENU,
+	TT_HIDDENUB,
+	TT_HIDDENUE,
+	TT_THICKU,
+	TT_THICKUB,
+	TT_THICKUE,
+	TT_DASHU,
+	TT_DASHUB,
+	TT_DASHUE,
+	TT_DOTU,
+	TT_DOTUB,
+	TT_DOTUE,
+	TT_DOTDASHU,
+	TT_DOTDASHUB,
+	TT_DOTDASHUE,
+	TT_DOTDOTDASHU,
+	TT_DOTDOTDASHUB,
+	TT_DOTDOTDASHUE,
+	TT_WAVEU,
+	TT_WAVEUB,
+	TT_WAVEUE,
+	TT_BLACK,
+	TT_BLACKB,
+	TT_BLACKE,
+	TT_BLUE,
+	TT_BLUEB,
+	TT_BLUEE,
+	TT_CYAN,
+	TT_CYANB,
+	TT_CYANE,
+	TT_GREEN,
+	TT_GREENB,
+	TT_GREENE,
+	TT_MAGENTA,
+	TT_MAGENTAB,
+	TT_MAGENTAE,
+	TT_RED,
+	TT_REDB,
+	TT_REDE,
+	TT_YELLOW,
+	TT_YELLOWB,
+	TT_YELLOWE,
+	TT_WHITE,
+	TT_WHITEB,
+	TT_WHITEE,
+	TT_DKBLUE,
+	TT_DKBLUEB,
+	TT_DKBLUEE,
+	TT_DKCYAN,
+	TT_DKCYANB,
+	TT_DKCYANE,
+	TT_DKGREEN,
+	TT_DKGREENB,
+	TT_DKGREENE,
+	TT_DKMAGENTA,
+	TT_DKMAGENTAB,
+	TT_DKMAGENTAE,
+	TT_DKRED,
+	TT_DKREDB,
+	TT_DKREDE,
+	TT_DKYELLOW,
+	TT_DKYELLOWB,
+	TT_DKYELLOWE,
+	TT_DKGRAY,
+	TT_DKGRAYB,
+	TT_DKGRAYE,
+	TT_LTGRAY,
+	TT_LTGRAYB,
+	TT_LTGRAYE,
+	TT_FONTSTR,
+	TT_FONTSTRB,
+	TT_FONTSTRE,
+	TT_COLOR,
+	TT_COLORB,
+	TT_COLORE,
+	TT_ibstRMark,
+	TT_ibstRMarkDel,
+	TT_dttmRMark,
+	TT_dttmRMarkDel,
+	TT_PropRMark,
+	TT_PropRMarkB,
+	TT_PropRMarkE,
+	TT_ibstPropRMark,
+	TT_dttmPropRMark,
+	TT_LasVegas,
+	TT_LasVegasB,
+	TT_LasVegasE,
+	TT_BackgroundBlink,
+	TT_BackgroundBlinkB,
+	TT_BackgroundBlinkE,
+	TT_SparkleText,
+	TT_SparkleTextB,
+	TT_SparkleTextE,
+	TT_MarchingAnts,
+	TT_MarchingAntsB,
+	TT_MarchingAntsE,
+	TT_MarchingRedAnts,
+	TT_MarchingRedAntsB,
+	TT_MarchingRedAntsE,
+	TT_Shimmer,
+	TT_ShimmerB,
+	TT_ShimmerE,
+	TT_ANIMATION,
+	TT_ANIMATIONB,
+	TT_ANIMATIONE,
+	TT_DispFldRMark,
+	TT_DispFldRMarkB,
+	TT_DispFldRMarkE,
+	TT_ibstDispFldRMark,
+	TT_dttmDispFldRMark,
+	TT_xstDispFldRMark,
+	TT_OLIST,
+	TT_OLISTB,
+	TT_OLISTE,
+	TT_ULIST,
+	TT_ULISTB,
+	TT_ULISTE,
+	TT_ENTRY,
+	TT_ENTRYB,
+	TT_ENTRYE,
+	TT_numbering,
+	TT_Arabic,
+	TT_UpperRoman,
+	TT_LowerRoman,
+	TT_UpperCaseN,
+	TT_LowerCaseN,
+	TT_nfc,
+	TT_START,
+	TT_TABLE,
+	TT_TABLEB,
+	TT_TABLEE,
+	TT_ROW,
+	TT_ROWB,
+	TT_ROWE,
+	TT_CELL,
+	TT_CELLB,
+	TT_CELLE,
+	TT_LASTCELL,
+	TT_LASTCELLB,
+	TT_LASTCELLE,
+	TT_COLSPAN,
+	TT_ROWSPAN,
+	TT_TEXT,
+	TT_TEXTB,
+	TT_TEXTE,
+	TT_CELLRELWIDTH,
+	TT_CELLRELPAGEWIDTH,
+	TT_CELLBGCOLOR,
+	TT_TABLERELWIDTH,
+	TT_STYLE,
+	TT_COMMENT,
+	TT_IBSTANNO,
+	TT_xstUsrInitl,
+	TT_mmParaBefore,
+	TT_mmParaAfter,
+	TT_mmParaLeft,
+	TT_mmParaRight,
+	TT_mmParaLeft1,
 
-#define TokenTableSize 14
+	TT_BORDER,
+	TT_NONED,
+	TT_SINGLED,
+	TT_THICKD,
+	TT_DOUBLED,
+	TT_NUMBER4D,
+	TT_HAIRLINED,
+	TT_DOTD,
+	TT_DASHLARGEGAPD,
+	TT_DOTDASHD,
+	TT_DOTDOTDASHD,
+	TT_TRIPLED,
+	TT_thin_thicksmallgapD,
+	TT_thick_thinsmallgapD,
+	TT_thin_thick_thinsmallgapD,
+	TT_thin_thickmediumgapD,
+	TT_thick_thinmediumgapD,
+	TT_thin_thick_thinmediumgapD,
+	TT_thin_thicklargegapD,
+	TT_thick_thinlargegapD,
+	TT_thin_thick_thinlargegapD,
+	TT_WAVED,
+	TT_DOUBLEWAVED,
+	TT_DASHSMALLGAPD,
+	TT_DASHDOTSTROKEDD,
+	TT_EMBOSS3DD,
+	TT_ENGRAVE3DD,
+	TT_DEFAULTD,
+	TT_BORDERTopSTYLE,
+	TT_BORDERTopCOLOR,
+	TT_BORDERLeftSTYLE,
+	TT_BORDERLeftCOLOR,
+	TT_BORDERRightSTYLE,
+	TT_BORDERRightCOLOR,
+	TT_BORDERBottomSTYLE,
+	TT_BORDERBottomCOLOR,
+	TT_mmPadTop,
+	TT_mmPadRight,
+	TT_mmPadBottom,
+	TT_mmPadLeft,
+	TT_mmLineHeight,
+	TT_PARABGCOLOR,
+	TT_PARAFGCOLOR,
+	TT_PICTURE,
+	TT_pixPicWidth,
+	TT_pixPicHeight,
+	TT_htmlAlignGuess,
+	TT_htmlNextLineGuess,
+	TT_PMARGIN,
+	TT_PBORDER,
+	TT_PARAMARGIN,
+	TT_PARABORDER,
+	TT_TABLEOVERRIDES,
+	TT_ParaBefore,
+	TT_ParaAfter,
+	TT_ParaLeft,
+	TT_ParaRight,
+	TT_ParaLeft1,
+	TT_FILENAME,
+	TT_htmlgraphic,
+	TT_no_rows,
+	TT_no_cols,
+	TT_CHARENTITY,
+	TT_VertMergedCells,
+	TT_DIRECTION,
+	TT_DIR,
+	TokenTableSize	/*must be last entry on pain of death*/
+	} TT;
+
+
 
 typedef struct _TokenTable
 	{
@@ -1982,15 +2592,28 @@ typedef struct _TokenTable
     int             m_type;
 	} TokenTable,CharsetTable,ReasonTable;
 
+/* support for ternary tree lookup of tokens */
+typedef struct tokennode *Tokenptr;
+typedef struct tokennode 
+	{
+	char splitchar;
+	Tokenptr lokid, eqkid, hikid;
+	int token; /* indexes into the token table */
+	} Tokennode;
+
+void tokenTreeInit(void);
+void tokenTreeFreeAll(void);
+
+
 typedef struct _wvEle
 	{
 	int nostr;
 	char **str;
 	} wvEle;
 
-#define CharsetTableSize 3
 
 const char *wvGetCharset(U16 charset);
+U16 wvLookupCharset(char *optarg);
 
 typedef struct _state_data
 	{
@@ -2002,21 +2625,194 @@ typedef struct _state_data
 	FILE *fp;
 	} state_data;
 
+
+
+typedef struct _PRM
+	{
+	/*full total of bits should be 16*/
+	U32 fComplex:1;
+	union
+		{
+		struct 
+			{
+			U32 isprm:7;
+			U32 val:8;
+			} var1;
+		struct
+			{
+			U32 igrpprl:15;
+			} var2;
+		} para;
+	} PRM; 
+
+void wvGetPRM(PRM *item,wvStream *fd);
+void wvInitPRM(PRM *item);
+
+typedef struct _PCD
+	{
+	/*this should be 16 bits for bitfields*/
+ 	U32 fNoParaLast:1;
+	U32 fPaphNil:1;
+	U32 fCopied:1;
+	U32 reserved:5;
+	U32 fn:8;
+ 	U32 fc;
+ 	PRM prm;
+	} PCD;
+
+void wvGetPCD(PCD *item,wvStream *fd);
+void wvInitPCD(PCD *item);
+int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,wvStream *fd);
+int wvReleasePCD_PLCF(PCD *pcd,U32 *pos);
+int wvGuess16bit(PCD *pcd,U32 *pos,U32 nopcd);
+
+typedef struct _CLX
+    {
+    PCD *pcd;
+    U32 *pos;
+    U32 nopcd;
+
+    U16 grpprl_count;
+    U16 *cbGrpprl;
+    U8 **grpprl;
+    }CLX;
+
+
+
+void wvInitCLX(CLX *item);
+void wvGetCLX(wvVersion ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,wvStream *fd);
+void wvReleaseCLX(CLX *clx);
+void wvBuildCLXForSimple6(CLX *clx,FIB *fib);
+
+typedef struct _FDOA
+	{
+	S32 fc;
+	S16 ctxbx;
+	}FDOA;
+
+void wvGetFDOA(FDOA *item,wvStream *fd);
+int wvGetFDOA_PLCF(FDOA **fdoa,U32 **pos,U32 *nofdoa,U32 offset,U32 len,wvStream *fd);
+FDOA *wvGetFDOAFromCP(U32 currentcp,FDOA *fdoa,U32 *pos,U32 nofdoa);
+
+typedef struct _wvParseStruct
+	{
+	/*public*/
+	void *userData;
+
+	/*protected*/
+	wvStream *mainfd;
+	wvStream *tablefd;
+	wvStream *data;
+	wvStream *summary;
+	FIB fib;
+	DOP dop;
+	STTBF anSttbfAssoc;
+	STTBF Sttbfbkmk;
+	LFO *lfo;
+	LFOLVL *lfolvl;
+	LVL *lvl;
+	U32 nolfo;
+	U32 nooflvl;
+	LST *lst;
+	U16 noofLST;
+	CLX clx;
+	FFN_STTBF fonts;
+	STSH stsh;
+
+	LVL *finallvl;
+	U32 *liststartnos;
+	U8 *listnfcs;
+	   
+	/*private*/
+	wvStream *tablefd0;
+	wvStream *tablefd1;
+	U16 password[16];
+	U8 intable;
+	S16 *cellbounds;
+	int nocellbounds;
+	S16 **vmerges;
+	U16 norows;
+	U8 endcell;
+	U32 currentcp;
+	PAP nextpap;
+	
+	FSPA *fspa;
+	U32 *fspapos;
+	U32 nooffspa;
+
+	FDOA *fdoa;
+	U32 *fdoapos;
+	U32 nooffdoa;
+
+	int fieldstate;
+	int fieldmiddle;
+	char *filename;	
+	char *dir;
+	}wvParseStruct;
+
+void wvSetPassword(char *password,wvParseStruct *ps);
+void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no);
+int wvDecrypt95(wvParseStruct *ps);
+int wvDecrypt97(wvParseStruct *ps);
+
+void wvPrintTitle(wvParseStruct *ps,STTBF *item);
+
+wvStream *wvWhichTableStream(FIB *fib,wvParseStruct *ps);
+
+char *wvAutoCharset(wvParseStruct *ps);
+
 typedef struct _expand_data
 	{
-	STTBF *anSttbfAssoc;
-	PAP *apap;
-	U16 charset;
+	STTBF *anSttbfAssoc;	/* associated strings */
+	STSH *stsh;
+	LFO **lfo;				/* list tables */
+	LFOLVL *lfolvl;
+	LVL *lvl;
+	U32 *nolfo;
+	U32 *nooflvl;
+	LST **lst;
+	U16 *noofLST;
+	U8 *intable;
+	U8 *endcell;
+	S16 **cellbounds;
+	int *nocellbounds;
+	S16 ***vmerges;
+	int whichcell;
+	int whichrow;
+
+	U32 **liststartnos;
+	U8 **listnfcs;
+	LVL **finallvl;
+	U16 *norows;
+
+	FIB *fib;
+	DOP *dop;
+
+	void *props; /* holds PAP/CHP/etc */
+	char *charset;
 	
 	char *retstring;
 	U32 currentlen;
 	state_data *sd;
+	SEP *asep;
+	PAP *nextpap;
+	PAP lastpap;
+	char *filename;
+
+	wvParseStruct *ps;
 	} expand_data;
 
 void wvInitExpandData(expand_data *data);
+/* 
+returns the same as wvOLEDecode with the addition that
+4 means that it isnt a word document
+*/
+int wvInitParser(wvParseStruct *ps,char *path);
 
+int wvOpenPreOLE(char* path, wvStream **mafd, wvStream **tablefd0, wvStream **tablefd1,wvStream **data, wvStream **summary);
 
-void wvDecodeSimple(FIB *fib,state_data *myhandle,FILE *mainfd,FILE *tablefd,FILE *data);
+void wvDecodeSimple(wvParseStruct *ps,subdocument whichdoc);
+U32 wvGetBeginFC(wvParseStruct *ps,subdocument whichdoc);
 
 typedef enum
 	{
@@ -2059,66 +2855,28 @@ typedef enum
 	cbTLP = 4,
 	cbTAP = 1728, 
 	cbWKB = 12,
-	cbLSTF = 28
+	cbLSTF = 28,
+	cbFDOA = 6,
+	cbFTXBXS = 22,
+	
+	cb7DOP = 88,
 
+	cb6BTE = 2,
+	cb6FIB = 682,
+	cb6PHE = 6,
+	cb6ANLD = 52,
+	cb6BRC = 2,
+	cb6DOP = 84,
+	cb6PGD = 6,
+	cb6TC = 10,
+	cb6CHP = 42
 	} cbStruct;
-
-typedef union _PRM
-	{
-	U16 fComplex:1;
-	struct 
-		{
-		U16 isprm:7;
-		U16 val:8;
-		} var1;
-	struct
-		{
-		U16 igrpprl:15;
-		} var2;
-	} PRM; 
-
-void wvGetPRM(PRM *item,FILE *fd);
-void wvInitPRM(PRM *item);
-
-typedef struct _PCD
-	{
- 	U16 fNoParaLast:1;
-	U16 fPaphNil:1;
-	U16 fCopied:1;
-	U16 reserved:5;
-	U16 fn:8;
- 	U32 fc;
- 	PRM prm;
-	} PCD;
-
-void wvGetPCD(PCD *item,FILE *fd);
-void wvInitPCD(PCD *item);
-int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,FILE *fd);
-int wvReleasePCD_PLCF(PCD *pcd,U32 *pos);
-
-typedef struct _CLX
-    {
-    PCD *pcd;
-    U32 *pos;
-    U32 nopcd;
-
-    U16 grpprl_count;
-    U16 *cbGrpprl;
-    U8 **grpprl;
-    }CLX;
-
-
-U16 wvAutoCharset(CLX *clx);
-
-void wvInitCLX(CLX *item);
-void wvGetCLX(CLX *clx,U32 offset,U32 len,FILE *fd);
-void wvReleaseCLX(CLX *clx);
 
 U32 wvNormFC(U32 fc,int *flag);
 int wvGetPieceBoundsFC(U32 *begin,U32 *end,CLX *clx,U32 piececount);
 int wvGetPieceBoundsCP(U32 *begin,U32 *end,CLX *clx,U32 piececount);
-U16 wvGetChar(FILE *fd,int chartype);
-
+U16 wvGetChar(wvStream *fd,U8 chartype);
+void * wvMalloc (U32 size);
 
 typedef struct _BTE
     {
@@ -2126,13 +2884,16 @@ typedef struct _BTE
     U32 unused:10;      
     } BTE;
 
-void wvGetBTE(BTE *bte,FILE *fd);
+void wvGetBTE(BTE *bte,wvStream *fd);
 void wvInitBTE(BTE *bte);
-int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd);
+int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,wvStream *fd);
+int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,wvStream *fd);
 void wvCopyBTE(BTE *dest,BTE *src);
 int wvGetBTE_FromFC(BTE *bte, U32 currentfc, BTE *list,U32 *fcs, int nobte);
+void wvListBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte);
 
-#define PAGESIZE 512
+#define WV_PAGESIZE 512
+
 
 typedef struct _BX
 	{
@@ -2140,16 +2901,18 @@ typedef struct _BX
 	PHE phe;
 	} BX;
 
-void wvGetBX(BX *item, FILE *fd);
+void wvGetBX(BX *item, U8 *page, U16 *pos);
+void wvGetBX6(BX *item, U8 *page, U16 *pos);
+
 
 typedef struct _PAPX
 	{
-	U8  cb;
+	U16  cb;
  	U16 istd;
  	U8 *grpprl;
 	} PAPX;
 
-void wvGetPAPX(PAPX *item,U32 offset,FILE *fd);
+void wvGetPAPX(wvVersion ver,PAPX *item,U8 *page,U16 *pos);
 void wvReleasePAPX(PAPX *item);
 void wvInitPAPX(PAPX *item);
 
@@ -2161,33 +2924,30 @@ typedef struct _PAPX_FKP
 	U8 crun;
 	} PAPX_FKP;
 
-void wvGetPAPX_FKP(PAPX_FKP *fkp,U32 pn,FILE *fd);
+void wvGetPAPX_FKP(wvVersion ver,PAPX_FKP *fkp,U32 pn,wvStream *fd);
 void wvReleasePAPX_FKP(PAPX_FKP *fkp);
 void wvInitPAPX_FKP(PAPX_FKP *fkp);
 
 int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *pos, U32 nopos);
-int wvIncFC(int chartype);
+int wvIncFC(U8 chartype);
 
-int wvGetSimpleParaBounds(PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte, FILE *fd);
+int wvGetSimpleParaBounds(wvVersion ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,/*CLX *clx,*/ BTE *bte, U32 *pos,int nobte, wvStream *fd);
 
-void wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state);
-void wvOutputFromCP1252(U16 eachchar,U8 outputtype);
-void wvOutputFromUnicode(U16 eachchar,U8 outputtype);
+int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps,CHP *achp);
+void wvOutputFromUnicode(U16 eachchar,char *outputtype);
 
-U16 wvConvert1252ToUnicode(U8 char8);
-U16 wvConvert1252Toiso8859_15(U8 char8);
+int wvConvertUnicodeToHtml(U16 char16);
+int wvConvertUnicodeToLaTeX(U16 char16);
+U16 wvConvertSymbolToUnicode(U16 char16);
 
-U16 wvConvertUnicodeToiso8859_15(U16 char16);
+U16 wvHandleCodePage(U16 eachchar,U16 lid);
 
-
-
-int wvConvert1252ToHtml(U8 char8);
-
-void wvDecodeComplex(FIB *fib,FILE *mainfd,FILE *tablefd,FILE *data);
-int wvGetComplexParaBounds(U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,FILE *fd);
+void wvDecodeComplex(wvParseStruct *ps);
+int wvGetComplexParaBounds(wvVersion ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,wvStream *fd);
 U32 wvSearchNextLargestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc);
+U32 wvSearchNextLargestFCCHPX_FKP(CHPX_FKP *fkp,U32 currentfc);
 int wvQuerySamePiece(U32 fcTest,CLX *clx,U32 piece);
-int wvGetComplexParafcFirst(U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd);
+int wvGetComplexParafcFirst(wvVersion ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd);
 U32 wvSearchNextSmallestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc);
 U32 wvGetPieceFromCP(U32 cp,CLX *clx);
 int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc);
@@ -2196,8 +2956,8 @@ void wvOLEFree(void);
 
 
 
-int wvText(state_data *myhandle,FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data);
-int wvHtml(state_data *myhandle,FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data);
+int wvText(wvParseStruct *ps);
+int wvHtml(wvParseStruct *ps);
 
 /*
 if you use these you have to close the FILE stream yourself
@@ -2206,15 +2966,16 @@ you can set them to NULL to turn them off if necessary
 */
 void wvSetErrorStream(FILE *in);
 void wvSetWarnStream(FILE *in);
-void wvRealTrace(char *file, int line,char *fmt, ...);
+void wvRealTrace(char *file, int line, char *msg);
 
 #ifdef DEBUG
-#define wvTrace(fmt, args...) wvRealTrace(__FILE__,__LINE__,fmt, ## args)
+#define wvTrace( args ) wvRealTrace(__FILE__,__LINE__, wvFmtMsg args )
 #else
-#define wvTrace(fmt, args...)
+#define wvTrace( args )
 #endif
 
-void wvAssembleSimplePAP(PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh);
+int wvAssembleSimplePAP(wvVersion ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH	*stsh,wvStream *data);
+int wvAssembleComplexCHP(wvVersion ver,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx);
 
 void wvAppendStr(char **orig,const char *add);
 int wvParseConfig(state_data *myhandle);
@@ -2227,36 +2988,214 @@ void wvListStateData(state_data *data);
 
 int wvExpand(expand_data *myhandle,char *buf,int len);
 int wvStrlen(const char *str);
+char *wvStrcat(char *dest, const char *src);
 void wvReleaseStateData(state_data *data);
 
 U32 wvConvertCPToFC(U32 currentcp,CLX *clx);
 
+int wvIsEmptyPara(PAP *apap,expand_data *data,int inc);
 void wvBeginPara(expand_data *data);
 void wvEndPara(expand_data *data);
 
-int wvGetComplexParafcLim(U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd);
+void wvBeginCharProp(expand_data *data,PAP *apap);
+void wvEndCharProp(expand_data *data);
 
+void wvBeginSection(expand_data *data);
+void wvEndSection(expand_data *data);
 
-typedef struct _wvParseStruct
-	{
-	FILE *mainfd;
-	FILE *tablefd0;
-	FILE *tablefd1;
-	FILE *data;
-	FILE *summary;
-	}wvParseStruct;
+void wvBeginComment(expand_data *data);
+void wvEndComment(expand_data *data);
+   
+int wvGetComplexParafcLim(wvVersion ver,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd);
 
-/* 
-returns the same as wvOLEDecode with the addition that
-4 means that it isnt a word document
-*/
-int wvInitParser(wvParseStruct *ps,FILE *fp);
-
-int wvQuerySupported(FIB *fib,int *reason);
+wvVersion wvQuerySupported(FIB *fib,int *reason);
 
 const char *wvReason(int reason);
 
-/*current addition position*/
+void wvSetCharHandler(int (*proc)(wvParseStruct *,U16,U8,U16));
+void wvSetSpecialCharHandler(int (*proc)(wvParseStruct *,U16,CHP *));
+
+
+typedef enum
+	{
+	DOCBEGIN,
+	DOCEND,
+	SECTIONBEGIN,
+	SECTIONEND,
+	PARABEGIN,
+	PARAEND,
+	CHARPROPBEGIN,
+	CHARPROPEND,
+	COMMENTBEGIN,
+	COMMENTEND
+	} wvTag;
+
+int wvHandleElement(wvParseStruct *ps,wvTag tag, void *props, int dirty);
+void wvSetElementHandler(int (*proc)(wvParseStruct *,wvTag, void *props, int dirty));
+int wvHandleDocument(wvParseStruct *ps,wvTag tag);
+void wvSetDocumentHandler(int (*proc)(wvParseStruct *,wvTag));
+
+SprmName wvGetrgsprmPrm(U16 in);
+int wvAssembleComplexPAP(wvVersion ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx,wvStream *data);
+U32 wvGetEndFCPiece(U32 piece,CLX *clx);
+void wvInitSprm(Sprm *Sprm);
+
+void wvInitError(void);
+
+typedef struct _BKD
+    {
+    S16 ipgd_itxbxs;
+    S32 dcpDepend:16;
+    U32 icol:8;
+    U32 fTableBreak:1;
+    U32 fColumnBreak:1;
+    U32 fMarked:1;
+    U32 fUnk:1;
+    U32 fTextOverflow:1;
+    U32 reserved1:3;
+    } BKD;
+
+void wvGetBKD(BKD *item,wvStream *fd);
+int wvGetBKD_PLCF(BKD **bkd,U32 **pos,U32 *nobkd,U32 offset,U32 len,wvStream *fd);
+
+
+
+typedef struct _BKL
+   {
+   S16 ibkf;
+   } BKL;
+
+void wvGetBKL(BKL *item,wvStream *fd);
+int wvGetBKL_PLCF(BKL **bkl,U32 **pos,U32 *nobkl,U32 offset,U32 len,wvStream *fd);
+
+
+typedef struct _PGD
+    {
+    U32 fContinue:1;
+    U32 fUnk:1;
+    U32 fRight:1;
+    U32 fPgnRestart:1;
+
+    /*
+    U32 fGhost:2;   fGhost is fEmptyPage && fAllFtn, and is unioned (sort of with them
+                   in word 97) its existance serves no bloody purpose. The word 6
+                   spec has a different location for fGhost, but i reckon the word97
+                   is right for word 6 as well, but its not like i intend to use
+                   this anyway :-)
+    */
+    U32 fEmptyPage:1;
+    U32 fAllFtn:1;
+
+    U32 fColOnly:1;   /* unused in word 97, but ive retained the name */
+    U32 fTableBreaks:1;
+    U32 fMarked:1;
+    U32 fColumnBreaks:1;
+    U32 fTableHeader:1;
+    U32 fNewPage:1;
+    U32 bkc:4;
+
+    U32 lnn:16;
+    U16 pgn;
+    S32 dym;
+    } PGD;
+
+
+void wvGetPGD(wvVersion ver,PGD *item,wvStream *fd);
+
+
+typedef struct _RS
+    {
+    S16 fRouted;
+    S16 fReturnOrig;
+    S16 fTrackStatus;
+    S16 fDirty;
+    S16 nProtect;
+    S16 iStage;
+    S16 delOption;
+    S16 cRecip;
+    } RS;
+
+void wvGetRS(RS *item,wvStream *fd);
+
+typedef struct _RR
+    {
+    S16 cb;
+    S16 cbSzRecip;
+    } RR;
+
+void wvGetRR(RR *item,wvStream *fd);
+
+typedef struct _FTXBXS
+    {
+    S32 cTxbx_iNextReuse;
+    S32 cReusable;
+    S16 fReusable;
+    S32 reserved;
+    S32 lid;
+    S32 txidUndo;
+    } FTXBXS;
+
+void wvGetFTXBXS(FTXBXS *item,wvStream *fd);
+int wvGetFTXBXS_PLCF(FTXBXS **ftxbxs,U32 **pos,U32 *noftxbxs,U32 offset,U32 len,wvStream *fd);
+
+
+typedef struct _WKB
+    {
+    S16 fn;
+    U16 grfwkb;
+    S32 lvl:16;
+    U32 fnpt:4;
+    U32 fnpd:12;
+    S32 doc;
+    } WKB;
+
+void wvGetWKB(WKB *item,wvStream *fd);
+
+int wvGetSimpleSectionBounds(wvVersion ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,wvStream *fd);
+int wvGetComplexSEP(wvVersion ver,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx);
+
+int wvGetSimpleCharBounds(wvVersion ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, wvStream *fd);
+int wvAssembleSimpleCHP(wvVersion ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh);
+int wvGetComplexCharfcLim(wvVersion ver, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, wvStream *fd);
+int wvGetComplexCharfcFirst(wvVersion ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, wvStream *fd);
+
+void wvOutputHtmlChar(U16 eachchar,U8 chartype,char *outputtype,U16 lid);
+
+int wvGetListEntryInfo(wvVersion ver,LVL **rlvl,U32 **nos,U8 **nfcs,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST **lst, U16 *noofLST);
+
+
+void wvSetPixelsPerInch(S16 hpixels,S16 vpixels);
+float wvTwipsToHPixels(S16 twips);
+float wvTwipsToVPixels(S16 twips);
+float wvTwipsToMM(S16 twips);
+float wvPointsToMM(S16 points);
+
+int wvCellBgColor(int whichrow,int whichcell,int nocells,int norows,TLP *tlp);
+
+#define isodd(a)  ((a/2) != ((a+1)/2))
+
+float wvRelativeWidth(S16 width,SEP *asep);
+
+int fieldCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid);
+
+#if 0
+typedef struct _wvStyle
+	{
+	XCHAR *xstzName;
+	char *characterstring;
+	char *parastring;
+	} wvStyle;
+#endif
+
+ATRD *wvGetCommentBounds(U32 *comment_cpFirst,U32 *comment_cpLim,U32 currentcp,ATRD *atrd,U32 *pos,U32 noatrd,
+STTBF *bookmarks,BKF *bkf,U32 *posBKF,U32 bkf_intervals,BKL *bkl,U32 *posBKL,U32 bkl_intervals);
+
+int cellCompEQ(void *a,void *b);
+int cellCompLT(void *a,void *b);
+
+typedef size_t (*wvConvertToUnicode)(const char **, size_t *, char **, size_t *);
+
+char *wvLIDToCodePageConverter(U16 lid);
 
 typedef struct _MSOFBH
 	{
@@ -2265,6 +3204,9 @@ typedef struct _MSOFBH
 	U32 fbt : 16;
 	U32 cbLength;
 	} MSOFBH;
+
+U32 wvGetMSOFBH(MSOFBH *amsofbh,wvStream *fd);
+U32 wvEatmsofbt(MSOFBH *amsofbh,wvStream *fd);
 
 /* FDGG - File DGG */
 typedef struct _FDGG
@@ -2299,6 +3241,9 @@ typedef struct _FBSE
    U8      unused2;    /* for the future */
    U8      unused3;    /* for the future */
    } FBSE; 
+
+U32 wvGetFBSE(FBSE *afbse,wvStream *fd);
+void wvCopyFBSE(FBSE *dest,FBSE *src);
 
 
 typedef enum
@@ -2338,12 +3283,26 @@ typedef enum
 typedef enum
 	{
 	msofbtDggContainer = 0xF000,
+	msofbtBstoreContainer = 0xF001,
+	msofbtDgContainer = 0xF002,
+	msofbtSpgrContainer = 0xF003,
+	msofbtSpContainer =	0xF004,
 	msofbtDgg = 0xF006,
 	msofbtBSE = 0xF007,
 	msofbtDg = 0xF008,
-	msofbtOPT = 0xF00B,
+	msofbtSpgr = 0xF009,
 	msofbtSp = 0xF00A,
-	msofbtBlipFirst = 0xF018
+	msofbtOPT = 0xF00B,
+	msofbtTextbox = 0xF00C,
+	msofbtClientTextbox = 0xF00D,
+	msofbtAnchor = 0xF00E,
+	msofbtChildAnchor = 0xF00F,
+	msofbtClientAnchor = 0xF010,
+	msofbtClientData = 0xF011,
+	msofbtBlipFirst = 0xF018,
+	msofbtDeletedPspl = 0xF11D,
+	msofbtSplitMenuColors = 0xF11E,
+	msofbtOleObject = 0xF11F
 	} MSOFBT;
 
 typedef enum
@@ -2382,7 +3341,7 @@ typedef struct _MetaFileBlip
 	U32           m_cbSave;       /* Cache of saved size (size of m_pvBits) */
 	U8            m_fCompression; /* MSOBLIPCOMPRESSION */
 	U8            m_fFilter;      /* always msofilterNone */
-	U8           *m_pvBits;       /* Compressed bits of metafile. */
+	void          *m_pvBits;       /* Compressed bits of metafile. */
 	} MetaFileBlip;
 
 typedef struct _BitmapBlip
@@ -2395,85 +3354,122 @@ typedef struct _BitmapBlip
 	blip_signature is one of the values defined in MSOBI*/
 	U8  m_rgbUidPrimary[16];    /* optional based on the above check*/
 	U8  m_bTag;            
-	U8  *m_pvBits;              /* raster bits of the blip*/
+	void  *m_pvBits;              /* raster bits of the blip*/
 	} BitmapBlip;
 
 
+typedef struct _Blip
+	{
+	FBSE fbse;
+	U16 type;
+	U16 *name;
+	union
+		{
+		MetaFileBlip metafile;
+		BitmapBlip bitmap;
+		}blip;
+	}Blip;
+	
+void wvCopyBlip(Blip *dest,Blip *src);
+U32 wvGetBlip(Blip *blip,wvStream *fd,wvStream *delay);
+void wvReleaseBlip(Blip *blip);
+
+U32 wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,wvStream *fd);
+void wvCopyMetafile(MetaFileBlip *dest,MetaFileBlip *src);
+U32 wvGetBitmap(BitmapBlip *abm,MSOFBH *amsofbh,wvStream *fd);
+void wvCopyBitmap(BitmapBlip *dest,BitmapBlip *src);
+
 typedef struct _FOPTE
 	{
-	U16 pid : 14;     /* Property ID */
-	U16 fBid : 1;     /* value is a blip ID - only valid if fComplex is FALSE */
-	U16 fComplex : 1; /* complex property, value is length */
+	/* this should be 16 bits for bitfields, and then 32 bit op*/
+	U32 pid : 14;     /* Property ID */
+	U32 fBid : 1;     /* value is a blip ID - only valid if fComplex is FALSE */
+	U32 fComplex : 1; /* complex property, value is length */
 	U32 op;
+	U8 *entry;
 	} FOPTE;
 
+U32 wvGetFOPTE(FOPTE *afopte,wvStream *fd);
+void wvReleaseFOPTE(FOPTE *afopte);
+U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,wvStream *fd);
+void wvReleaseFOPTEArray(FOPTE **fopte);
+void wvInitFOPTEArray(FOPTE **fopte);
+
 typedef struct _FSP
-   {
-   U32 spid;           /* The shape id */
-   U32 grfPersistent;
-   } FSP;
-
-struct _fopte_list
 	{
-	FOPTE afopte;
-	struct _fopte_list *next;
-	};
+	U32 spid;           /* The shape id */
+	U32 grfPersistent;
+	} FSP;
 
-typedef struct _fopte_list fopte_list;
-
-struct _fsp_list
-	{
-	FSP afsp;
-	fopte_list *afopte_list;
-	struct _fsp_list *next;
-	};
-
-typedef struct _fsp_list fsp_list;
-
-struct _fbse_list
-	{
-	FBSE afbse;	
-	char filename[4096];
-	struct _fbse_list *next;
-	};
-
-typedef struct _fbse_list fbse_list;
+U32 wvGetFSP(FSP *fsp,wvStream *fd);
 
 /* FDG - File DG */
 typedef struct _FDG
-   {
-   U32 csp;          /* The number of shapes in this drawing */
-   U32 spidCur;      /* The last MSOSPID given to an SP in this DG */
-   } FDG;
+	{
+	U32 csp;          /* The number of shapes in this drawing */
+	U32 spidCur;      /* The last MSOSPID given to an SP in this DG */
+	} FDG;
 
-fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *escherstream,FILE *delaystream);
-void wvGetMSOFBH(MSOFBH *amsofbh,FILE *infd);
-void wvGetFDGG(FDGG *afdgg,FILE *infd);
-void wvGetFIDCL(FIDCL *afidcl,FILE *infd);
-void wvGetFBSE(FBSE *afbse,FILE *infd);
-char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *infd);
-char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,FILE *infd);
-U32 wvGetFOPTE(FOPTE *afopte,FILE *infd);
-void wvGetFSP(FSP *afsp,FILE *infd);
-void wvGetFDG(FDG *afdg,FILE *infd);
-int wvQueryDelayStream(FBSE *afbse);
-fbse_list *wvGetSPID(U32 spid,fsp_list *afsp_list,fbse_list *afbse_list);
+typedef struct _FSPGR
+	{
+	RECT   rcgBounds;
+	} FSPGR;
 
+typedef RECT FAnchor,FChildAnchor,FClientAnchor;
+U32 wvGetFAnchor(FAnchor *fanchor,wvStream *fd);
 
+typedef struct _ClientData
+	{
+	U8 *data;
+	}ClientData;
 
+typedef struct _ClientTextbox
+    {
+    U32 *textid;
+    } ClientTextbox;
+
+void wvInitClientTextbox(ClientTextbox *item);
+void wvReleaseClientTextbox(ClientTextbox *item);
+U32 wvGetClientTextbox(ClientTextbox *item,MSOFBH *amsofbh,wvStream *fd);
+
+typedef struct _FSPContainer
+	{
+	FSPGR fspgr;		/*may not exist */
+	FSP fsp;			/*always will exist */
+	FOPTE *fopte;		/*always */
+	FAnchor	fanchor;	/* one of these will be there */
+	ClientData clientdata;	/*always */
+	ClientTextbox	clienttextbox;	/*maybe */
+
+#if 0	
+	Textbox
+	
+	OleObject		/*maybe */
+	DeletedPspl		/*maybe */
+#endif
+	}FSPContainer;
+
+int wv0x01(Blip *blip,wvStream *fd,U32 len);
+char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip);
+
+U32 wvGetFSPContainer(FSPContainer *item,MSOFBH *msofbh,wvStream *fd);
+void wvReleaseFSPContainer(FSPContainer *item);
+
+/* begin temp */
 typedef struct _BITMAP
 	{
 	U8 bm[14];
 	} BITMAP;
 
-void wvGetBITMAP(BITMAP *bmp,FILE *infd);
+void wvGetBITMAP(BITMAP *bmp,wvStream *fd);
 
 typedef struct _rc
 	{
 	U8 bm[14];
 	} rc;
 
-void wvGetrc(rc *arc,FILE *infd);
+void wvGetrc(rc *arc,wvStream *fd);
+/* end temp */
 
 typedef struct _PICF
 	{
@@ -2512,10 +3508,435 @@ typedef struct _PICF
 	S16 dxaOrigin;
 	S16 dyaOrigin;
 	S16 cProps;
-	U8 *rgb;
+	wvStream *rgb;
 	} PICF;
 
-void wvGetPICF(PICF *apicf,FILE *infd,U32 offset);
+int wvGetPICF(wvVersion ver,PICF *apicf,wvStream *fd);
+
+void remove_suffix (char *name, const char *suffix);
+char *base_name (char const *name);
+
+U32 wvEatOldGraphicHeader(wvStream *fd,U32 len);
+int bmptopng(char *prefix);
+
+int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps);
+
+typedef struct _SplitMenuColors
+	{
+	U32 noofcolors;
+	U32 *colors;
+	}SplitMenuColors;
+
+typedef struct _Dgg
+	{
+	FDGG fdgg;
+	FIDCL *fidcl;
+	}Dgg;
+
+typedef struct _BstoreContainer
+	{
+	U32 no_fbse;
+	Blip *blip;
+	}BstoreContainer;
+
+typedef struct _DggContainer
+	{
+	SplitMenuColors splitmenucolors;
+	Dgg dgg;
+	BstoreContainer bstorecontainer;
+	} DggContainer;
+
+
+U32 wvGetDggContainer(DggContainer *item,MSOFBH *msofbh,wvStream *fd,wvStream *delay);
+void wvReleaseDggContainer(DggContainer *item);
+void wvInitDggContainer(DggContainer *item);
+U32 wvGetBstoreContainer(BstoreContainer *item,MSOFBH *msofbh,wvStream *fd,wvStream *delay);
+void wvReleaseBstoreContainer(BstoreContainer *item);
+void wvInitBstoreContainer(BstoreContainer *item);
+
+
+U32 wvGetDgg(Dgg *dgg,MSOFBH *amsofbh,wvStream *fd);
+void wvReleaseDgg(Dgg *dgg);
+void wvInitDgg(Dgg *dgg);
+
+U32 wvGetFDGG(FDGG *afdgg,wvStream *fd);
+U32 wvGetFIDCL(FIDCL *afidcl,wvStream *fd);
+
+	
+U32 wvGetSplitMenuColors(SplitMenuColors *splitmenucolors,MSOFBH
+		*amsofbh,wvStream *fd);
+void wvReleaseSplitMenuColors(SplitMenuColors *splitmenucolors);
+void wvInitSplitMenuColors(SplitMenuColors *splitmenucolors);
+
+typedef struct _SpgrContainer
+	{
+	U32 no_spcontainer;
+	FSPContainer *spcontainer;
+	U32 no_spgrcontainer;
+	struct _SpgrContainer *spgrcontainer;
+	}SpgrContainer;
+
+typedef struct _DgContainer
+	{
+	FDG fdg;
+	U32 no_spgrcontainer;
+  	SpgrContainer *spgrcontainer;
+#if 0
+	SolverContainer solvercontainer;
+	ColorScheme  colorscheme;
+  	RegroupItems regroupitems;
+#endif
+	}DgContainer;
+
+U32 wvGetDgContainer(DgContainer *item,MSOFBH *msofbh,wvStream *fd);
+void wvReleaseDgContainer(DgContainer *item);
+void wvInitDgContainer(DgContainer *item);
+U32 wvGetFDG(FDG *afdg,wvStream *fd);
+U32 wvGetSpgrContainer(SpgrContainer *item,MSOFBH *msofbh,wvStream *fd);
+void wvReleaseSpgrContainer(SpgrContainer *item);
+U32 wvGetFSPGR(FSPGR *item,wvStream *fd);
+
+U32 wvGetClientData(ClientData *item,MSOFBH *msofbh,wvStream *fd);
+void wvReleaseClientData(ClientData *item);
+void wvInitClientData(ClientData *item);
+FSPContainer *wvFindSPID(SpgrContainer *item,S32 spid);
+
+typedef struct _escherstruct
+	{
+	DggContainer dggcontainer;
+	DgContainer dgcontainer;
+	} escherstruct;
+
+void wvGetEscher(escherstruct *item,U32 offset, U32 len, wvStream *fd,wvStream *delay);
+void wvInitEscher(escherstruct *item);
+void wvReleaseEscher(escherstruct *item);
+void wvStrToUpper(char *str);
+int decompress(FILE *inputfile,FILE *outputfile,U32 inlen,U32 outlen);
+
+/*current insertion position*/
+
+/*
+Property       PID            Type            Default        Description
+*/
+typedef enum _pid
+	{
+	rotation = 4,	/*LONG            0              fixed point:*/
+	fLockRotation =         119,	/*BOOL           FALSE           No rotation*/
+	fLockAspectRatio = 120,	/*BOOL           FALSE           Don't allow*/
+	fLockPosition = 121,	/*BOOL           FALSE           Don't allow*/
+	fLockAgainstSelect = 122,	/*BOOL           FALSE           Shape may not*/
+	fLockCropping = 123,	/*BOOL           FALSE           No cropping*/
+	fLockVertices = 124,	/*BOOL           FALSE           Edit Points*/
+	fLockText = 125,	/*BOOL           FALSE           Do not edit*/
+	fLockAdjustHandles = 126,	/*BOOL           FALSE           Do not adjust*/
+	fLockAgainstGrouping = 127,	/*BOOL           FALSE           Do not group*/
+	lTxid = 128,	/*LONG           0               id for the text,*/
+	dxTextLeft = 129,	/*LONG           1/10 inch       margins relative*/
+	dyTextTop = 130,	/*LONG           1/20 inch*/
+	dxTextRight = 131,	/*LONG           1/10 inch*/
+	dyTextBottom = 132,	/*LONG           1/20 inch*/
+	WrapText = 133,	/*MSOWRAPMODE    FALSE           Wrap text at*/
+	scaleText = 134,	/*LONG           0               Text zoom/scale*/
+	anchorText = 135,	/*MSOANCHOR      Top             How to anchor*/
+	txflTextFlow = 136,	/*MSOTXFL        HorzN           Text flow*/
+	cdirFont = 137,	/*MSOCDIR        msocdir0        Font rotation*/
+	hspNext = 138,	/*MSOHSP         NULL            ID of the next*/
+	txdir = 139,	/*MSOTXDIR       LTR             Bi-Di Text*/
+	fSelectText = 187,	/*BOOL           TRUE            TRUE if single*/
+	fAutoTextMargin = 188,	/*BOOL           FALSE           use host's*/
+	fRotateText = 189,	/*BOOL           FALSE           Rotate text with*/
+	fFitShapeToText = 190,	/*BOOL           FALSE           Size shape to*/
+	fFitTextToShape = 191,	/*BOOL           FALSE           Size text to fit*/
+	gtextUNICODE = 192,    /*WCHAR*           NULL           UNICODE text*/
+	gtextRTF = 193,    /*char*            NULL           RTF text*/  
+	gtextAlign = 194,  /*MSOGEOTEXTALIGN  Center         alignment on*/
+	gtextSize = 195,   /*LONG             36<<16         default point*/
+	gtextSpacing = 196,    /*LONG             1<<16          fixed point*/
+	gtextFont = 197,   /*WCHAR*           NULL           font family*/
+	gtextFReverseRows = 240,   /*BOOL             FALSE          Reverse row*/
+	fGtext = 241,  /*BOOL             FALSE          Has text*/  
+	gtextFVertical = 242,  /*BOOL             FALSE          Rotate*/    
+	gtextFKern = 243,  /*BOOL             FALSE          Kern*/      
+	gtextFTight = 244, /*BOOL             FALSE          Tightening or*/
+	gtextFStretch = 245,   /*BOOL             FALSE          Stretch to*/
+	gtextFShrinkFit = 246, /*BOOL             FALSE          Char bounding*/
+	gtextFBestFit = 247,   /*BOOL             FALSE          Scale*/     
+	gtextFNormalize = 248, /*BOOL             FALSE          Stretch char*/
+	gtextFDxMeasure = 249, /*BOOL             FALSE          Do not*/    
+	gtextFBold = 250,  /*BOOL             FALSE          Bold font*/ 
+	gtextFItalic = 251,    /*BOOL             FALSE          Italic font*/
+	gtextFUnderline = 252, /*BOOL             FALSE          Underline*/ 
+	gtextFShadow = 253,    /*BOOL             FALSE          Shadow font*/
+	gtextFSmallcaps = 254, /*BOOL             FALSE          Small caps*/
+	gtextFStrikethrough = 255, /*BOOL             FALSE          Strike*/    
+	cropFromTop = 256,	/*LONG          0                      16.16 fraction times total image*/
+	cropFromBottom = 257,	/*LONG          0*/
+	cropFromLeft = 258,	/*LONG          0*/
+	cropFromRight = 259,	/*LONG          0*/
+	pib = 260,	/*IMsoBlip*     NULL                   Blip to display*/
+	pibName = 261,	/*WCHAR*        NULL                   Blip file name*/
+	pibFlags = 262,	/*MSOBLIPFLAGS  Comment                Blip flags*/
+	pictureTransparent = 263,	/*LONG          ~0                     transparent color (none if ~0UL)*/
+	pictureContrast = 264,	/*LONG          1<<16                  contrast setting*/
+	pictureBrightness = 265,	/*LONG          0                      brightness setting*/
+	pictureGamma = 266,	/*LONG          0                      16.16 gamma*/
+	pictureId = 267,	/*LONG          0                      Host-defined ID for OLE objects*/
+	pictureDblCrMod = 268,	/*MSOCLR        This                   Modification used if shape has*/
+	pictureFillCrMod = 269,	/*MSOCLR        undefined*/
+	pictureLineCrMod = 270,	/*MSOCLR        undefined*/
+	pibPrint = 271,	/*IMsoBlip*     NULL                   Blip to display when printing*/
+	pibPrintName = 272,	/*WCHAR*        NULL                   Blip file name*/
+	pibPrintFlags = 273,	/*MSOBLIPFLAGS  Comment                Blip flags*/
+	fNoHitTestPicture = 316,	/*BOOL          FALSE                  Do not hit test the picture*/
+	pictureGray = 317,	/*BOOL          FALSE                  grayscale display*/
+	pictureBiLevel = 318,	/*BOOL          FALSE                  bi-level display*/
+	pictureActive = 319,	/*BOOL          FALSE                  Server is active (OLE objects*/
+	geoLeft = 320,	/*LONG           0                   Defines the G*/
+	geoTop = 321,	/*LONG           0*/
+	geoRight = 322,	/*LONG           21600*/
+	geoBottom = 323,	/*LONG           21600*/
+	shapePath = 324,	/*MSOSHAPEPATH   msoshapeLinesClosed*/
+	pVertices = 325,	/*IMsoArray      NULL                An array of*/
+	pSegmentInfo = 326,	/*IMsoArray      NULL*/
+	adjustValue = 327,	/*LONG           0                   Adjustment*/
+	adjust2Value = 328,	/*LONG           0*/
+	adjust3Value = 329,	/*LONG           0*/
+	adjust4Value = 330,	/*LONG           0*/
+	adjust5Value = 331,	/*LONG           0*/
+	adjust6Value = 332,	/*LONG           0*/
+	adjust7Value = 333,	/*LONG           0*/
+	adjust8Value = 334,	/*LONG           0*/
+	adjust9Value = 335,	/*LONG           0*/
+	adjust10Value = 336,	/*LONG           0*/
+	fShadowOK = 378,	/*BOOL           TRUE                Shadow may be*/
+	f3DOK = 379,	/*BOOL           TRUE                3D may be set*/
+	fLineOK = 380,	/*BOOL           TRUE                Line style may*/
+	fGtextOK = 381,	/*BOOL           FALSE               Text effect*/
+	fFillShadeShapeOK = 382,	/*BOOL           FALSE*/
+	fFillOK = 383,	/*BOOL           TRUE                OK to fill the*/
+	fillType = 384,	/*MSOFILLTYPE   Solid       Type of fill*/
+	fillColor = 385,	/*MSOCLR        white       Foreground color*/
+	fillOpacity = 386,	/*LONG          1<<16       Fixed 16.16*/
+	fillBackColor = 387,	/*MSOCLR        white       Background color*/
+	fillBackOpacity = 388,	/*LONG          1<<16       Shades only*/
+	fillCrMod = 389,	/*MSOCLR        undefined   Modification for BW*/
+	fillBlip = 390,	/*IMsoBlip*     NULL        Pattern/texture*/
+	fillBlipName = 391,	/*WCHAR*        NULL        Blip file name*/
+	fillBlipFlags = 392,	/*MSOBLIPFLAGS  Comment     Blip flags*/
+	fillWidth = 393,	/*LONG          0           How big (A units) to*/
+	fillHeight = 394,	/*LONG          0*/
+	fillAngle = 395,	/*LONG          0           Fade angle - degrees in*/
+	fillFocus = 396,	/*LONG          0           Linear shaded fill focus*/
+	fillToLeft = 397,	/*LONG          0           Fraction 16.16*/
+	fillToTop = 398,	/*LONG          0           Fraction 16.16*/
+	fillToRight = 399,	/*LONG          0           Fraction 16.16*/
+	fillToBottom = 400,	/*LONG          0           Fraction 16.16*/
+	fillRectLeft = 401,	/*LONG          0           For shaded fills, use*/
+	fillRectTop = 402,	/*LONG          0*/
+	fillRectRight = 403,	/*LONG          0*/
+	fillRectBottom = 404,	/*LONG          0*/
+	fillDztype = 405,	/*MSODZTYPE     Default*/
+	fillShadePreset = 406,	/*LONG          0           Special shades*/
+	fillShadeColors = 407,	/*IMsoArray     NULL        a preset array of colors*/
+	fillOriginX = 408,	/*LONG          0*/
+	fillOriginY = 409,	/*LONG          0*/
+	fillShapeOriginX = 410,	/*LONG          0*/
+	fillShapeOriginY = 411,	/*LONG          0*/
+	fillShadeType = 412,	/*MSOSHADETYPE  Default    Type of*/
+	fFilled = 443,	/*BOOL          TRUE        Is shape filled?*/
+	fHitTestFill = 444,	/*BOOL          TRUE        Should we hit test fill?*/
+	fillShape = 445,	/*BOOL          TRUE        Register pattern on*/
+	fillUseRect = 446,	/*BOOL          FALSE       Use the large rect?*/
+	fNoFillHitTest = 447,	/*BOOL          FALSE       Hit test a shape as*/
+	lineColor = 448,	/*MSOCLR            black             Color of line*/
+	lineOpacity = 449,	/*LONG              1<<16             Not implemented*/
+	lineBackColor = 450,	/*MSOCLR            white             Background color*/
+	lineCrMod = 451,	/*MSOCLR            undefined         Modification for*/
+	lineType = 452,	/*MSOLINETYPE       Solid             Type of line*/
+	lineFillBlip = 453,	/*IMsoBlip*         NULL              Pattern/texture*/
+	lineFillBlipName = 454,	/*WCHAR*            NULL              Blip file name*/
+	lineFillBlipFlags = 455,	/*MSOBLIPFLAGS      Comment           Blip flags*/
+	lineFillWidth = 456,	/*LONG              0                 How big (A*/
+	lineFillHeight = 457,	/*LONG              0*/
+	lineFillDztype = 458,	/*MSODZTYPE         Default           How to interpret*/
+	lineWidth = 459,	/*LONG              9525              A units; 1pt ==*/
+	lineMiterLimit = 460,	/*LONG              8<<16             ratio (16.16) of*/
+	lineStyle = 461,	/*MSOLINESTYLE      Simple            Draw parallel*/
+	lineDashing = 462,	/*MSOLINEDASHING    Solid             Can be*/
+	lineDashStyle = 463,	/*IMsoArray         NULL              As Win32*/
+	lineStartArrowhead = 464,	/*MSOLINEEND        NoEnd             Arrow at start*/
+	lineEndArrowhead = 465,	/*MSOLINEEND        NoEnd             Arrow at end*/
+	lineStartArrowWidth = 466,	/*MSOLINEENDWIDTH   MediumWidthArrow  Arrow at start*/
+	lineStartArrowLength = 467,	/*MSOLINEENDLENGTH  MediumLenArrow    Arrow at end*/
+	lineEndArrowWidth = 468,	/*MSOLINEENDWIDTH   MediumWidthArrow  Arrow at start*/
+	lineEndArrowLength = 469,	/*MSOLINEENDLENGTH  MediumLenArrow    Arrow at end*/
+	lineJoinStyle = 470,	/*MSOLINEJOIN       JoinRound         How to join*/
+	lineEndCapStyle = 471,	/*MSOLINECAP        EndCapFlat        How to end lines*/
+	fArrowheadsOK = 507,	/*BOOL              FALSE             Allow arrowheads*/
+	fLine = 508,	/*BOOL              TRUE              Any line?*/
+	fHitTestLine = 509,	/*BOOL              TRUE              Should we hit*/
+	lineFillShape = 510,	/*BOOL              TRUE              Register pattern*/
+	fNoLineDrawDash = 511,	/*BOOL              FALSE             Draw a dashed*/
+	shadowType = 512,	/*MSOSHADOWTYPE  Offset          Type of*/
+	shadowColor = 513,	/*MSOCLR         0x808080        Foreground*/
+	shadowHighlight = 514,	/*MSOCLR         0xCBCBCB        Embossed*/
+	shadowCrMod = 515,	/*MSOCLR         undefined       Modification*/
+	shadowOpacity = 516,	/*LONG           1<<16           Fixed 16.16*/
+	shadowOffsetX = 517,	/*LONG           25400           Offset shadow*/
+	shadowOffsetY = 518,	/*LONG           25400           Offset shadow*/
+	shadowSecondOffsetX = 519,	/*LONG           0               Double offset*/
+	shadowSecondOffsetY = 520,	/*LONG           0               Double offset*/
+	shadowScaleXToX = 521,	/*LONG           1<<16           16.16*/
+	shadowScaleYToX = 522,	/*LONG           0               16.16*/
+	shadowScaleXToY = 523,	/*LONG           0               16.16*/
+	shadowScaleYToY = 524,	/*LONG           1<<16           16.16*/
+	shadowPerspectiveX = 525,	/*LONG           0               16.16 */
+	shadowPerspectiveY = 526,	/*LONG           0               16.16 */
+	shadowWeight = 527,	/*LONG           1<<8            scaling*/
+	shadowOriginX = 528,	/*LONG           0*/
+	shadowOriginY = 529,	/*LONG           0*/
+	fShadow = 574,	/*BOOL           FALSE           Any shadow?*/
+	fshadowObscured = 575,	/*BOOL           FALSE           Excel5-style*/
+	perspectiveType = 576,	/*MSOXFORMTYPE   Shape           Where transform*/
+	perspectiveOffsetX = 577,	/*LONG           0               The LONG values*/
+	perspectiveOffsetY = 578,	/*LONG           0*/
+	perspectiveScaleXToX = 579,	/*LONG           1<<16*/
+	perspectiveScaleYToX = 580,	/*LONG           0*/
+	perspectiveScaleXToY = 581,	/*LONG           0*/
+	perspectiveScaleYToY = 582,	/*LONG           1<<16*/
+	perspectivePerspectiveX = 583,	/*LONG           0*/
+	perspectivePerspectiveY = 584,	/*LONG           0*/
+	perspectiveWeight = 585,	/*LONG           1<<8            Scaling factor*/
+	perspectiveOriginX = 586,	/*LONG           1<<15*/
+	perspectiveOriginY = 587,	/*LONG           1<<15*/
+	fPerspective = 639,	/*BOOL           FALSE           On/off*/
+	c3DSpecularAmt = 640,	/*LONG    0               Fixed-point 16.16*/
+	c3DDiffuseAmt = 641,	/*LONG    65536           Fixed-point 16.16*/
+	c3DShininess = 642,	/*LONG    5               Default gives OK*/
+	c3DEdgeThickness = 643,	/*LONG    12700           Specular edge*/
+	c3DExtrudeForward = 644,	/*LONG    0               Distance of extrusion*/
+	c3DExtrudeBackward = 645,	/*LONG    457200*/
+	c3DExtrudePlane = 646,	/*LONG    0               Extrusion direction*/
+	c3DExtrusionColor = 647,	/*MSOCLR  FillThenLine   Basic color*/
+	c3DCrMod = 648,	/*MSOCLR  undefined       Modification for BW*/
+	f3D = 700,	/*BOOL    FALSE           Does this shape have a*/
+	fc3DMetallic = 701,	/*BOOL    0               Use metallic*/
+	fc3DUseExtrusionColor = 702,	/*BOOL    FALSE*/
+	fc3DLightFace = 703,	/*BOOL    TRUE*/
+	c3DYRotationAngle = 704,	/*LONG             0              degrees (16.16)*/
+	c3DXRotationAngle = 705,	/*LONG             0              degrees (16.16)*/
+	c3DRotationAxisX = 706,	/*LONG             100            These specify*/
+	c3DRotationAxisY = 707,	/*LONG             0*/
+	c3DRotationAxisZ = 708,	/*LONG             0*/
+	c3DRotationAngle = 709,	/*LONG             0              degrees (16.16)*/
+	c3DRotationCenterX = 710,	/*LONG             0              rotation center*/
+	c3DRotationCenterY = 711,	/*LONG             0              rotation center*/
+	c3DRotationCenterZ = 712,	/*LONG             0              rotation center*/
+	c3DRenderMode = 713,	/*MSO3DRENDERMODE  FullRender     Full,wireframe,*/
+	c3DTolerance = 714,	/*LONG             30000          pixels (16.16)*/
+	c3DXViewpoint = 715,	/*LONG             1250000        X view point*/
+	c3DYViewpoint = 716,	/*LONG             -1250000       Y view point*/
+	c3DZViewpoint = 717,	/*LONG             9000000        Z view distance*/
+	c3DOriginX = 718,	/*LONG             32768*/
+	c3DOriginY = 719,	/*LONG             -32768*/
+	c3DSkewAngle = 720,	/*LONG             -8847360       degree (16.16)*/
+	c3DSkewAmount = 721,	/*LONG             50             Percentage skew*/
+	c3DAmbientIntensity = 722,	/*LONG             20000          Fixed point*/
+	c3DKeyX = 723,	/*LONG             50000          Key light*/
+	c3DKeyY = 724,	/*LONG             0              tion; only*/
+	c3DKeyZ = 725,	/*LONG             10000          magnitudes*/
+	c3DKeyIntensity = 726,	/*LONG             38000          Fixed point*/
+	c3DFillX = 727,	/*LONG             -50000         Fill light*/
+	c3DFillY = 728,	/*LONG             0              tion; only*/
+	c3DFillZ = 729,	/*LONG             10000          magnitudes*/
+	c3DFillIntensity = 730,	/*LONG             38000          Fixed point*/
+	fc3DConstrainRotation = 763,	/*BOOL             TRUE*/
+	fc3DRotationCenterAuto = 764,	/*BOOL             FALSE*/
+	fc3DParallel = 765,	/*BOOL             1              Parallel*/
+	fc3DKeyHarsh = 766,	/*BOOL             1              Is key lighting*/
+	fc3DFillHarsh = 767,	/*BOOL             0              Is fill*/
+	hspMaster = 769,	/*MSOHSP      NULL        master shape*/
+	cxstyle = 771,	/*MSOCXSTYLE  None       Type of*/
+	bWMode = 772,	/*MSOBWMODE   Automatic  Settings for*/
+	bWModePureBW = 773,	/*MSOBWMODE   Automatic*/
+	bWModeBW = 774,	/*MSOBWMODE   Automatic*/
+	fOleIcon = 826,	/*BOOL        FALSE       For OLE objects,*/
+	fPreferRelativeResize = 827,	/*BOOL        FALSE       For UI only. Prefer*/
+	fLockShapeType = 828,	/*BOOL        FALSE       Lock the shape type*/
+	fDeleteAttachedObject = 830,	/*BOOL        FALSE*/
+	fBackground = 831,	/*BOOL        FALSE       If TRUE, this is the*/
+	spcot = 832,	/*MSOSPCOT  TwoSegment  Callout type*/
+	dxyCalloutGap = 833,	/*LONG      1/12 inch   Distance from box to*/
+	spcoa = 834,	/*MSOSPCOA  Any         Callout angle*/
+	spcod = 835,	/*MSOSPCOD  Specified   Callout drop type*/
+	dxyCalloutDropSpecified = 836,	/*LONG      9 points    if msospcodSpecified, the*/
+	dxyCalloutLengthSpecified = 837,	/*LONG      0           if*/
+	fCallout = 889,	/*BOOL      FALSE       Is the shape a callout?*/
+	fCalloutAccentBar = 890,	/*BOOL      FALSE       does callout have accent*/
+	fCalloutTextBorder = 891,	/*BOOL      TRUE        does callout have a text*/
+	fCalloutMinusX = 892,	/*BOOL      FALSE*/
+	fCalloutMinusY = 893,	/*BOOL      FALSE*/
+	fCalloutDropAuto = 894,	/*BOOL      FALSE       If true, then we*/
+	fCalloutLengthSpecified = 895,	/*BOOL      FALSE       if true, we look at*/
+	wzName = 896,	/*WCHAR*         NULL            Shape Name*/
+	wzDescription = 897,	/*WCHAR*         NULL            alternate*/
+	pihlShape = 898,	/*IHlink*        NULL            The hyperlink*/
+	pWrapPolygonVertices = 899,	/*IMsoArray      NULL            The polygon*/
+	dxWrapDistLeft = 900,	/*LONG           1/8 inch        Left wrapping*/
+	dyWrapDistTop = 901,	/*LONG           0               Top wrapping*/
+	dxWrapDistRight = 902,	/*LONG           1/8 inch        Right*/
+	dyWrapDistBottom = 903,	/*LONG           0               Bottom*/
+	lidRegroup = 904,	/*LONG           0               Regroup ID*/
+	fEditedWrap = 953,	/*BOOL           FALSE           Has the wrap*/
+	fBehindDocument = 954,	/*BOOL           FALSE           Word-only*/
+	fOnDblClickNotify = 955,	/*BOOL           FALSE           Notify client*/
+	fIsButton = 956,	/*BOOL           FALSE           A button*/
+	fOneD = 957,	/*BOOL           FALSE           1D adjustment*/
+	fHidden = 958,	/*BOOL           FALSE           Do not*/
+	fPrint = 959	/*BOOL           TRUE            Print this*/
+ 	} pid;
+
+
+struct _fopte_list
+	{
+	FOPTE afopte;
+	struct _fopte_list *next;
+	};
+
+typedef struct _fopte_list fopte_list;
+
+struct _fsp_list
+	{
+	FSP afsp;
+	fopte_list *afopte_list;
+	struct _fsp_list *next;
+	};
+
+typedef struct _fsp_list fsp_list;
+
+struct _fbse_list
+	{
+	FBSE afbse;	
+	char filename[4096];
+	struct _fbse_list *next;
+	};
+
+typedef struct _fbse_list fbse_list;
+
+
+
+fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,wvStream *escherstream,FILE *delaystream);
+int wvQueryDelayStream(FBSE *afbse);
+fbse_list *wvGetSPID(U32 spid,fsp_list *afsp_list,fbse_list *afbse_list);
+U32 twvGetFBSE(FBSE *item,wvStream *fd);
+
+
+
+
+
+
+
+
 
 /*Summary Information Stream*/
 
@@ -2529,7 +3950,7 @@ typedef struct _PropHeader
     U32    cSections;
     } PropHeader;
 
-void wvGetPropHeader(PropHeader *header,FILE *file);
+void wvGetPropHeader(PropHeader *header,wvStream *file);
 
 typedef struct _FIDAndOffset
 	{
@@ -2537,7 +3958,7 @@ typedef struct _FIDAndOffset
     U32 dwOffset;
     } FIDAndOffset;
 
-void wvGetFIDAndOffset(FIDAndOffset *fid,FILE *file);
+void wvGetFIDAndOffset(FIDAndOffset *fid,wvStream *file);
 
 typedef struct _aPro
 		{
@@ -2553,9 +3974,9 @@ typedef struct _SummaryInfo
 	U8 *data;
 	} SummaryInfo;
 
-int wvSumInfoOpenStream(SummaryInfo *si,FILE *stream);
+int wvSumInfoOpenStream(SummaryInfo *si,wvStream *stream);
 
-void wvGetSummaryInfo(SummaryInfo *si,FILE *file,U32 offset);
+void wvGetSummaryInfo(SummaryInfo *si,wvStream *file,U32 offset);
 void wvReleaseSummaryInfo(SummaryInfo *si);
 
 typedef struct _vtB
@@ -2616,12 +4037,15 @@ int wvGetProperty(PropValue *Prop, SummaryInfo *si, U32 pid);
 void wvReleaseProperty(PropValue *Prop);
 
 int wvSumInfoGetString(char *lpStr, U16 cbStr, U32 pid, SummaryInfo *si);
-
 int wvSumInfoGetLong(U32 *lpLong,U32 pid, SummaryInfo *si);
-
 int wvSumInfoGetTime(U16 *yr, U16 *mon, U16 *day, U16 *hr, U16 *min, U16 *sec, U32 pid, SummaryInfo *si);
-
 int wvSumInfoGetPreview(char *lpStr, U16 cbStr, U32 pid, SummaryInfo *si);
+
+void wvGetRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32 *posPapx);
+void wvGetComplexRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piececount);
+void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx);
+void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piece);
+
 
 /*end of clean interface*/
 
@@ -2729,28 +4153,27 @@ struct tchp
     {
 	unsigned short istd;
 
-    U16 fBold:1;
-    U16 fItalic:1;
-	U16 fRMarkDel:1;	
-	U16 fOutline:1; /*not imp yet*/
-	U16 fFldVanish:1; /*not imp yet, internal to word*/
-	U16 fSmallCaps:1;
-	U16 fCaps:1;
-	U16 fVanish:1; /*not imp yet*/
-	U16 fRMark:1; /*not imp yet*/
-	U16 fSpec:1; 
-	U16 fStrike:1;
-	U16 fObj:1;	/*not imp yet*/
-	U16 fShadow:1;	/*not imp yet*/
-	U16 fLowerCase:1;	/*not imp yet*/
-	U16 fData:1;
-	U16 fOle2:1;	/*not imp yet*/
-
-	U16 fEmboss:1;	/*not imp yet*/
-	U16 fImprint:1; /*not imp yet*/
-	U16 fDStrike:1;
-	U16 fUsePgsuSettings:1; /*not imp yet, dont know what it means*/
-	U16 Reserved1:12;	/*unused*/
+    U32 fBold:1;
+    U32 fItalic:1;
+	U32 fRMarkDel:1;	
+	U32 fOutline:1; /*not imp yet*/
+	U32 fFldVanish:1; /*not imp yet, internal to word*/
+	U32 fSmallCaps:1;
+	U32 fCaps:1;
+	U32 fVanish:1; /*not imp yet*/
+	U32 fRMark:1; /*not imp yet*/
+	U32 fSpec:1; 
+	U32 fStrike:1;
+	U32 fObj:1;	/*not imp yet*/
+	U32 fShadow:1;	/*not imp yet*/
+	U32 fLowerCase:1;	/*not imp yet*/
+	U32 fData:1;
+	U32 fOle2:1;	/*not imp yet*/
+	U32 fEmboss:1;	/*not imp yet*/
+	U32 fImprint:1; /*not imp yet*/
+	U32 fDStrike:1;
+	U32 fUsePgsuSettings:1; /*not imp yet, dont know what it means*/
+	U32 Reserved1:12;	/*unused*/
 
 	U32 Reserved2;	/*unused*/
 
@@ -2761,7 +4184,7 @@ struct tchp
 
 	U16 fontsize; /*half points*/
 	U8 supersubscript;
-	U16 fontcode;
+	S16 fontcode;
 	U16 fontspec;
 	char color[8];
 	U16 underline;
@@ -2871,7 +4294,7 @@ struct tlist_info
 
 	U8 *lstarray;
 	int lstcount;
-	int nooflfos;
+	U32 nooflfos;
 	U32 *lst_ids;
 	list_def *a_list_def;
 	int *overridecount;
@@ -2881,9 +4304,9 @@ struct tlist_info
 	temp placed here, will eventually replace the other rubbish
 	*/
 	LFO *lfo;
-	int nolfo;	
+	U32 nolfo;	
 	LFOLVL *lfolvl;
-	int nooflvl;
+	U32 nooflvl;
 	LVL *lvl;
 
 	LST *lst;
@@ -2981,7 +4404,7 @@ struct ttextportions
 	U32 fcMac;
 	U32 ccpText;
 	U32 ccpFtn;
-	U32 ccpHdd;
+	U32 ccpHdr;
 	U32 ccpAtn;
 	U32 ccpEdn;
 	U32 fcPlcfhdd;
@@ -3046,48 +4469,71 @@ typedef struct ttextportions textportions;
 #define DONTIGNORENUM 1
 #define IGNOREALL 2
 
+U32 read_32ubit(wvStream *in);
+U16 read_16ubit(wvStream *in);
+U8 read_8ubit(wvStream *in);
 
-U16 read_16ubit(FILE *);
-U32 read_32ubit(FILE *);
+U32 sread_32ubit(const U8 *in);
+U16 sread_16ubit(const U8 *in);
+U8 sread_8ubit(const U8 *in);
 
-U32 sread_32ubit(U8 *in);
-U16 sread_16ubit(U8 *in);
-U8 sgetc(U8 *in);
-
-U32 dread_32ubit(FILE *in,U8 **list);
-U16 dread_16ubit(FILE *in,U8 **list);
-U8 dgetc(FILE *in,U8 **list);
+U32 dread_32ubit(wvStream *in,U8 **list);
+U16 dread_16ubit(wvStream *in,U8 **list);
+U8 dread_8ubit(wvStream *in,U8 **list);
 
 U32 bread_32ubit(U8 *in,U16 *pos);
 U16 bread_16ubit(U8 *in,U16 *pos);
-U8 bgetc(U8 *in,U16 *pos);
+U8 bread_8ubit(U8 *in,U16 *pos);
 
+/* Perform file-I/O-like operations on wvStreams. */
+U32 wvStream_read(void *ptr, size_t size, size_t nmemb, wvStream *stream);
+void wvStream_rewind(wvStream *stream);
+U32 wvStream_goto(wvStream *stream, long position);
+U32 wvStream_offset(wvStream *stream, long offset);
+U32 wvStream_offset_from_end(wvStream *stream, long offset);
+U32 wvStream_tell(wvStream *stream);
+
+/* These functions take care of memory/file management for wvStreams */
+void wvStream_FILE_create(wvStream** in, FILE* inner);
+void wvStream_libole2_create(wvStream** in, MsOleStream* inner);
+void wvStream_create(wvStream** in, wvStreamKind kind, wvInternalStream inner);
+U32 wvStream_close(wvStream *stream);
+
+/* The above functions store all the streams we open in one of these, so that 
+ * we can clean up nicely.
+ */
+struct twvStream_list
+	{
+	wvStream* stream;
+	struct twvStream_list* next;
+	};
+typedef struct twvStream_list wvStream_list;
 
 void cleanupstreams(char *analyze,char *slashtmp);
 olestream * divide_streams(char *filename,char **analyze,char **slashtmp, char *argv0);
-int decode_word8(FILE *mainfd, FILE *tablefd0,FILE *tablefd1,FILE *data,int core);
-void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSttbFnm,U32 fcPlcfLst,U32 lcbPlcfLst,U32 fcPlfLfo,U32 lcbPlfLfo,style *sheet);
+int decode_word8(wvParseStruct *ps,int core);
+void get_table_info(wvStream *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSttbFnm,U32 fcPlcfLst,U32 lcbPlcfLst,U32 fcPlfLfo,U32 lcbPlfLfo,style *sheet);
 
-pap *get_pap(U32 pageindex,FILE *in,U32 charindex, U32 *nextfc,style *sheet,list_info *a_list_info);
-chp *get_chp(U32 pageindex,FILE *in, FILE *data, U32 charindex, U32 *nextfc,style *sheet,U16 istd);
-sep *get_sep(U32 offset,FILE *in);
+pap *get_pap(U32 pageindex,wvStream *in,U32 charindex, U32 *nextfc,style *sheet,list_info *a_list_info);
+chp *get_chp(U32 pageindex,wvStream *in, FILE *data, U32 charindex, U32 *nextfc,style *sheet,U16 istd);
+sep *get_sep(U32 offset,wvStream *in);
 
-void decode_clx(U32 startpiece,U32 begincp,U32 endcp,FILE *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headfooterflag);
-void decode_clx_header(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,FILE *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
-void decode_clx_footer(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,FILE *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
-int decode_clx_endnote(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,FILE *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
+void decode_clx(U32 startpiece,U32 begincp,U32 endcp,wvStream *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headfooterflag);
+void decode_clx_header(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,wvStream *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
+void decode_clx_footer(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,wvStream *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
+int decode_clx_endnote(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,wvStream *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
 
-void decode_simple(FILE *mainfd,FILE *tablefd,FILE *data,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
-int decode_simple_footer(FILE *mainfd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
-int decode_simple_endnote(FILE *mainfd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
-void decode_simple_header(FILE *mainfd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
+void decode_simple(wvStream *mafd,FILE *tablefd,FILE *data,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
+int decode_simple_footer(wvStream *mafd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
+int decode_simple_endnote(wvStream *mafd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
+void decode_simple_header(wvStream *mafd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
 
-int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fields,FILE *main,FILE *data,FFN_STTBF *ffn_sttbf,list_info *a_list_info,textportions *portions,int *issection,style *sheet);
+int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fields,wvStream *main,FILE *data,FFN_STTBF *ffn_sttbf,list_info *a_list_info,textportions *portions,int *issection,style *sheet);
 void decode_f_reference(textportions *portions);
 void decode_e_reference(textportions *portions);
 void get_next_f_ref(textportions *portions,signed long *nextfootnote);
 void get_next_e_ref(textportions *portions,signed long *nextendnote);
-void decode_annotation(textportions *portions, FILE *main);
+void decode_annotation(textportions *portions);
 
 void decode_s_specials(pap *apap,chp *achp,list_info *a_list_info);
 int decode_s_table(pap *apap,chp *achp,list_info *a_list_info,int silent);
@@ -3109,21 +4555,21 @@ void decode_s_anld(pap *apap,chp *achp,list_info *a_list_info,FFN_STTBF *ffn_stt
 void decode_s_list(pap *apap,chp *achp,list_info *a_list_info,FFN_STTBF *ffn_sttbf,int num,style *sheet);
 void decode_e_list(pap *apap,chp *achp,list_info *a_list_info);
 
-void decode_field(FILE *main,field_info *magic_fields,long *cp,U8 *fieldwas,long *swallowcp1,long *swallowcp2);
+void decode_field(wvStream *main,field_info *magic_fields,long *cp,U8 *fieldwas,unsigned long *swallowcp1,unsigned long *swallowcp2);
 
 int find_FKPno_papx(U32 fc,U32 *plcfbtePapx,U32 intervals);
 int find_FKPno_chpx(U32 fc,U32 *plcfbteChpx,U32 intervals);
 U32 find_FC_sepx(U32 cp,U32 *sepcp,textportions *portions);
-U32 find_next_smallest_fc(U32 charindex,U32 pageindex, FILE *in, S16 *location,long *pos);
-U32 find_next_biggest_fc(U32 charindex,U32 pageindex, FILE *in, U16 *location,long *pos);
-U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, FILE *in, U16 *location,long *pos);
+U32 find_next_smallest_fc(U32 charindex,U32 pageindex, wvStream *in, S16 *location,long *pos);
+U32 find_next_biggest_fc(U32 charindex,U32 pageindex, wvStream *in, U16 *location,long *pos);
+U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, wvStream *in, U16 *location,long *pos);
 
-pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U32 *rgfc,FILE *main,U32 *avalrgfc,U32 *thenextone,U32 *paraendfc,int *paraendpiece,style *sheet,list_info *a_list_info);
-chp * get_complex_chp(U32 fc,U32 *plcfbteChpx,U16 i,U16 nopieces,U32 chpintervals,U32 *rgfc,FILE *main,U32 *avalrgfc,U32 *thenextone,style *sheet,U16 istd);
+pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U32 *rgfc,wvStream *main,U32 *avalrgfc,U32 *thenextone,U32 *paraendfc,int *paraendpiece,style *sheet,list_info *a_list_info);
+chp * get_complex_chp(U32 fc,U32 *plcfbteChpx,U16 i,U16 nopieces,U32 chpintervals,U32 *rgfc,wvStream *main,U32 *avalrgfc,U32 *thenextone,style *sheet,U16 istd);
 
 void decode_gpprls(pap *apap,chp *achp,sep *asep,U16* gpprlindex,int index,tSprm *sprmlists, style *sheet);
 
-style *decode_stylesheet(FILE *tablefd,U32 stsh,U32 stshlen,config_style *in_style);
+style *decode_stylesheet(wvStream *tablefd,U32 stsh,U32 stshlen,config_style *in_style);
 void fill_pap(style *stylelist,int m,int b);
 
 void decode_sprm(FILE* in,U16 clist,pap *retpap,chp *retchp,sep *retsep,U16 *pos,U8 **list, style *sheet,U16 istd);
@@ -3146,11 +4592,11 @@ void decode_footnote(U32 *begin,U32 *len,textportions *portions,int i);
 void decode_endnote(U32 *begin,U32 *len,textportions *portions,int i);
 void decode_footanno(U32 *begin,U32 *len,textportions *portions,int i);
 
-int get_piecetable(FILE *in,U32 **rgfc,U32 **avalrgfc,U16 **sprm,U32 *clxcount);
+int get_piecetable(wvStream *in,U32 **rgfc,U32 **avalrgfc,U16 **sprm,U32 *clxcount);
 
 int find_piece_cp(U32 sepcp,U32  *rgfc,int nopieces);
 
-obj_by_spid * get_blips(U32 fcDggInfo,U32 lcbDggInfo,FILE *tablefd,FILE *mainfd,int *noofblips,int streamtype,obj_by_spid **realhead);
+obj_by_spid * get_blips(U32 fcDggInfo,U32 lcbDggInfo,wvStream *tablefd,FILE *mafd,int *noofblips,int streamtype,obj_by_spid **realhead);
 void output_draw(U32 cp,textportions *portions);
 
 void do_indent(pap *apap);
@@ -3158,8 +4604,6 @@ void do_indent(pap *apap);
 U32 get_fc_from_cp(U32 acp,U32 *rgfc,U32 *avalrgfc,int nopieces);
 
 void end_para(pap *apap, pap *newpap);
-
-int isodd(int i);
 
 /*
 returns slot to use in index array which keeps track of how far each list
@@ -3176,7 +4620,7 @@ void merge_chps(chp *blank,chp *modified,chp *result);
 void init_chp_from_istd(U16 istd,style *sheet,chp *retchp);
 void init_pap_from_istd(U16 istd,style *sheet,pap *retpap);
 
-void get_para_bounds(int currentpiece,U32 fc,U32 *rgfc,U32 *avalrgfc, int nopieces, U32 *plcfbtePapx,U32 intervals, FILE *main);
+void get_para_bounds(int currentpiece,U32 fc,U32 *rgfc,U32 *avalrgfc, int nopieces, U32 *plcfbtePapx,U32 intervals, wvStream *main);
 
 char *ms_strlower(char *in);
 
@@ -3186,10 +4630,10 @@ char *ms_strlower(char *in);
 2 if it isnt an ole file
 3 if its corrupt 
 */
-int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE **tablefd1,FILE **data,FILE **summary);
-int wvOLESummaryStream(char *filename,FILE **summary);
+int wvOLEDecode(char *path, wvStream **mafd, wvStream **tablefd0,wvStream **tablefd1,wvStream **data,wvStream **summary);
+int wvOLESummaryStream(char *filename,wvStream **summary);
 
-long get_picture_header(U32 fcPic,FILE *data,U32 *len,U16 *datatype);
+long get_picture_header(U32 fcPic,wvStream *data,U32 *len,U16 *datatype);
 
 void cleanupglobals(void);
 char *ms_basename(char *filename);
@@ -3199,15 +4643,14 @@ void outputimgsrc(char *filename, int width,int height);
 U32 decode_b_bookmark(bookmark_limits *l_bookmarks, STTBF *bookmarks);
 U32 decode_e_bookmark(bookmark_limits *l_bookmarks);
 
-U32 decode_b_annotation(bookmark_limits *l_bookmarks, STTBF *bookmarks);
+U32 decode_b_annotation(bookmark_limits *l_bookmarks);
 U32 decode_e_annotation(bookmark_limits *l_bookmarks);
 
-U16 *decode_hyperlink(int letter, long int *swallowcp1, long int *swallowcp2, U16 **deleteme);
-U16 *decode_crosslink(int letter,long int *swallowcp1, long int *swallowcp2);
+U16 *decode_hyperlink(int letter, unsigned long int *swallowcp1, unsigned long int *swallowcp2, U16 **deleteme);
+U16 *decode_crosslink(int letter,unsigned long int *swallowcp1, unsigned long int *swallowcp2);
 
-void decode_annotations(FILE *mainfd,FILE *tablefd,textportions *portions);
+void decode_annotations(wvStream *mafd,FILE *tablefd,textportions *portions);
 
-int decompress(FILE *inputfile,char *outputfile,U32 inlen,U32 outlen);
 void myfreeOLEtree(void);
 
 void output_tablebg(pap *apap);
@@ -3221,8 +4664,8 @@ void sectionbreak(sep *asep);
 void copy_tap(tap *rettap,tap *intap);
 void check_auto_color(chp *achp);
 
-Xst *extract_authors(FILE *tablefd,U32 fcGrpXstAtnOwners,U32 lcbGrpXstAtnOwners);
-void extract_bookm_limits(bookmark_limits *l_bookmarks,FILE *tablefd,U32 fcPlcfbkf,U32 lcbPlcfbkf, U32 fcPlcfbkl,U32 lcbPlcfbkl);
+Xst *extract_authors(wvStream *tablefd,U32 fcGrpXstAtnOwners,U32 lcbGrpXstAtnOwners);
+void extract_bookm_limits(bookmark_limits *l_bookmarks,wvStream *tablefd,U32 fcPlcfbkf,U32 lcbPlcfbkf, U32 fcPlcfbkl,U32 lcbPlcfbkl);
 
 int use_fontfacequery(chp *achp);
 
@@ -3230,14 +4673,14 @@ char *notoday(int no);
 
 void convertwmf(char *filename);
 
-int Parse (FILE * in,config_style **in_style,document_style **doc_style,element_style *ele_style);
+int Parse (wvStream * in,config_style **in_style,document_style **doc_style,element_style *ele_style);
 int do_output_start(U32 *avalrgfc,int nopieces,document_style *doc_style);
 void do_output_end(document_style *doc_style,int core,int tail);
 char *argument(void);
 
-int query_piece_cp(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U32 *nextpiececp,int *flag_8_16);
-int query_piece_cp_seek(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U32 *nextpiececp,int *flag_8_16,FILE *fd);
-void fill_table_info(pap *apap,U32 tapfc1, U32 *plcfbtePapx,U32 intervals, FILE *mainfd,style *sheet,list_info *a_list_info);
+int query_piece_cp(U32 *rgfc,U32* avalrgfc,int nopieces,U32 querycp,U32 *nextpiececp,int *flag_8_16);
+int query_piece_cp_seek(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U32 *nextpiececp,int *flag_8_16,wvStream *fd);
+void fill_table_info(pap *apap,U32 tapfc1, U32 *plcfbtePapx,U32 intervals, wvStream *mafd,style *sheet,list_info *a_list_info);
 
 char *expand_variables(char *in, pap *apap);
 char *expand_element(char *in, char *fontface, char *color, char *size);
@@ -3253,14 +4696,22 @@ int allowedfont(style *sheet,U16 istd);
 
 /*interim*/
 U32 wvGetSPIDfromCP(U32 cp,textportions *portions);
+void wvDumpPicture(U32 pos,wvStream *fd);
+void oldwvGetPICF(PICF *apicf,wvStream *fd,U32 offset);
 
 /* have to have pap replaced with PAP, and change the text output code to the new ones, whenever they are ready*/
-void wvGetListInfo(pap *apap, chp *achp,LFO *lfo, LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U32 noofLST,style *sheet,FFN_STTBF *ffn_sttbf);
+void wvGetListInfo(pap *apap, chp *achp,LFO *lfo, LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U16 noofLST,style *sheet,FFN_STTBF *ffn_sttbf);
 /* have to have pap replaced with PAP*/
 void wvAddPAP_FromBucket(pap *pap,U8 *pointer8,U16 len,style *sheet);
 
 /*we have to replace chp with CHP*/
 void wvAddCHP_FromBucket(chp *achp,U8 *pointer8,U16 len,style *sheet);
 void twvCopyCHP(chp *dest,chp *src);
+
+  void wvSetEntityConverter(expand_data *data);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
