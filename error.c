@@ -1,62 +1,72 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
-FILE *wverror=stderr;
-FILE *wvwarn=stderr;
-FILE *wvtrace=stderr;
 
-void wvRealError(char *file, int line,char *fmt, ...)
-    {
-    va_list argp;
-	if (wverror == NULL)
-		return;
-    fprintf(wverror, "wvError: (%s:%d) ",file,line);
-    va_start(argp, fmt);
-    vfprintf(wverror, fmt, argp);
-    va_end(argp);
-    fflush(wverror);
-    }
-
-void wvWarning(char *fmt, ...)
-    {
-    va_list argp;
-	if (wvwarn == NULL)
-		return;
-    fprintf(wvwarn, "wvWarning: ");
-    va_start(argp, fmt);
-    vfprintf(wvwarn, fmt, argp);
-    va_end(argp);
-    fflush(wvwarn);
-    }
-
-void wvRealTrace(char *file, int line,char *fmt, ...)
-    {
 #ifdef DEBUG
-    va_list argp;
-    if (wvtrace == NULL)
-        return;
-    fprintf(wvtrace , "wvTrace: (%s:%d) ",file,line);
-    va_start(argp, fmt);
-    vfprintf(wvtrace, fmt, argp);
-    va_end(argp);
-    fflush(wvtrace);
+#define wvwarn  NULL /* stderr */
+#define wvtrace NULL /* stderr */
+#define wverror NULL /* stderr */
+#else
+#define wvwarn  NULL
+#define wvtrace NULL
+#define wverror NULL
 #endif
-    }
 
+void
+wvInitError (void)
+{
+  wvError (("EXTREME WARNING: using deprecated API\n"));
+}
 
-void wvSetErrorStream(FILE *in)
-    {
-	wverror = in;
-    }
+char *
+wvFmtMsg (char *fmt, ...)
+{
+  static char mybuf[1024];
+  mybuf[0] = 0;
 
-void wvSetWarnStream(FILE *in)
-	{
-	wvwarn = in;
-	}
+#if 0
+  va_list argp;
+  va_start (argp, fmt);
+  vsprintf (mybuf, fmt, argp);
+  va_end (argp);
+#endif  
 
-void wvSetTraceStream(FILE *in)
-	{
-	wvtrace = in;
-	}
+  return mybuf;
+}
+
+void
+wvRealError (char *file, int line, char *msg)
+{
+    if (wverror == NULL)
+	return;
+    fprintf (wverror, "Diagnostic: (%s:%d) %s ", file, line, msg);
+    fflush (wverror);
+}
+
+void
+wvWarning (char *fmt, ...)
+{
+    va_list argp;
+    if (wvwarn == NULL)
+	return;
+    fprintf (wvwarn, "Trace: ");
+    va_start (argp, fmt);
+    vfprintf (wvwarn, fmt, argp);
+    va_end (argp);
+    fflush (wvwarn);
+}
+
+void
+wvRealTrace (char *file, int line, char *msg)
+{
+    if (wvtrace == NULL)
+	return;
+    fprintf (wvtrace, "Trace: (%s:%d) %s ", file, line, msg);
+    fflush (wvtrace);
+}
+
