@@ -11,6 +11,9 @@ static U32 wvPAPX_pn_previous = 0;
 static CHPX_FKP wvCHPX_FKP_previous;
 static U32 wvCHPX_pn_previous = 0;
 
+void internal_wvReleasePAPX_FKP (PAPX_FKP * fkp);
+void internal_wvReleaseCHPX_FKP (CHPX_FKP * fkp);
+
 void
 external_wvReleasePAPX_FKP (void)
 {

@@ -4450,6 +4450,9 @@ Property       PID            Type            Default        Description
     };
     typedef struct twvStream_list wvStream_list;
 
+    void external_wvReleasePAPX_FKP (void);
+    void external_wvReleaseCHPX_FKP (void);
+
     void cleanupstreams (char *analyze, char *slashtmp);
     olestream *divide_streams (char *filename, char **analyze, char **slashtmp,
 			       char *argv0);
