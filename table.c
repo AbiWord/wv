@@ -104,7 +104,10 @@ wvGetFullTableInit (wvParseStruct * ps, U32 para_intervals, BTE * btePapx,
 	  i = para_fcLim;
 
 	  /* ignore the row end markers */
-	  if (apap.ptap.itcMac)
+	  /*if (apap.ptap.itcMac)*/
+	  /* we ascertain the number of rows by counting the end of row
+		 markers. NB: a row marker can have a 0 itcMac*/
+	  if (apap.fTtp)
 	    {
 		test = (TAP *) realloc (test, sizeof (TAP) * (j + 1));
 		wvCopyTAP (&(test[j]), &apap.ptap);
@@ -180,7 +183,7 @@ wvSetTableInfo (wvParseStruct * ps, TAP * ptap, int no)
 
     for (i = 0; i < no; i++)
       {
-	  for (j = 0; j < ptap[i].itcMac + 1; j++)
+		  for (j = 0; j < ptap[i].itcMac + 1; j++)
 	    {
 		wvTrace (("%d\n", ptap[i].rgdxaCenter[j]));
 		InsertNode (&tree, (void *) &(ptap[i].rgdxaCenter[j]));
@@ -811,7 +814,10 @@ wvGetComplexFullTableInit (wvParseStruct * ps, U32 para_intervals,
 	  i = para_fcLim;
 
 	  /* ignore the row end markers */
-	  if ((apap.ptap.itcMac) && (apap.fTtp))
+	  /*  if ((apap.ptap.itcMac) (apap.fTtp))*/
+	  /* we ascertain the number of rows by counting the end of row
+		 markers. NB: a row marker can have a 0 itcMac*/
+	  if (apap.fTtp)
 	    {
 		test = (TAP *) realloc (test, sizeof (TAP) * (j + 1));
 		wvCopyTAP (&(test[j]), &apap.ptap);

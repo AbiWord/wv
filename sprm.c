@@ -1550,7 +1550,7 @@ wvApplysprmPHugePapx (PAP * apap, U8 * pointer, U16 * pos, wvStream * data,
 	  wvError (("No data stream!!\n"));
 	  return;
       }
-    if (0 != wvStream_goto (data, offset))
+    if (0 > wvStream_goto (data, offset))
       {
 	  wvError (("Couldn't seek data stream!!\n"));
 	  apap->fTtp++;
