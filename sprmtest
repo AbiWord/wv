@@ -1,0 +1,7 @@
+-DPURIFY makes purify stop complaining about using bitfields
+-DSPRMTEST forces the wv lib to always log the sprms that 
+pass through it, handy for seeing sprms that are being used 
+with the wrong len, 
+rm chp.o decode_complex.o pap.o sep.o sprm.o is all that needs to
+be recompiled after a change like this in the Makefile
+-DDEBUG enables wvTrace
