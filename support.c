@@ -77,9 +77,7 @@ void
 wvOLEFree (wvParseStruct * ps)
 {
     wvStream_list *tempList;
-    freeOLEtree (stream_tree);	/* Does internal checking, so it doesn't matter
-				   * we just call it with NULL.
-				 */
+
     while (streams != NULL)
       {
 	  wvStream_close (streams->stream);
@@ -91,6 +89,10 @@ wvOLEFree (wvParseStruct * ps)
       {
 	  ms_ole_destroy (&ps->ole_file);
       }
+
+    freeOLEtree (stream_tree);	/* Does internal checking, so it doesn't matter
+				   * we just call it with NULL.
+				 */
 }
 
 
