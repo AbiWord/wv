@@ -2,66 +2,10 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(fib.c)
 AC_CONFIG_HEADER(config.h)
 
+dnl I did this wrong, I think. I should have used AC_DEFINE(VERSION,"$VERSION") or similar
+dnl but what's done is done... (fjf)
 VERSION=0.6.7
 AC_SUBST(VERSION)
-
-dnl Checks for programs.
-dnl AC_PROG_CC
-dnl AC_PROG_CC shoves in -g by default, i *really* hate this so here goes...
-dnl ill shove in the autoconf def of AC_PROG_CC verbatim and remove the -g 
-dnl stuff
-dnl autoconf stuff begins here
-
-AC_DEFUN(AC_PROG_CC_NO_G,
-[AC_BEFORE([$0], [AC_PROG_CPP])dnl
-AC_CHECK_PROG(CC, gcc, gcc)
-if test -z "$CC"; then
-  AC_CHECK_PROG(CC, cc, cc, , , /usr/ucb/cc)
-  test -z "$CC" && AC_MSG_ERROR([no acceptable cc found in \$PATH])
-fi
-
-AC_PROG_CC_WORKS
-AC_PROG_CC_GNU
-
-dnl exec suffix for DOSish OSes, autoconf-2.13 required.
-
-if test "$GCC" = yes; then
-  GCC=yes
-dnl Check whether -g works, even if CFLAGS is set, in case the package
-dnl plays around with CFLAGS (such as to build both debugging and
-dnl normal versions of a library), tasteless as that idea is.
-  ac_test_CFLAGS="${CFLAGS+set}"
-  ac_save_CFLAGS="$CFLAGS"
-  CFLAGS=
-dnl   C Begin
-dnl AC_PROG_CC_G
-dnl   C End
-  if test "$ac_test_CFLAGS" = set; then
-    CFLAGS="$ac_save_CFLAGS"
-dnl   C Begin
-dnl  elif test $ac_cv_prog_cc_g = yes; then
-dnl    CFLAGS="-g -O2"
-dnl   C End
-  else
-    CFLAGS="-O2"
-  fi
-else
-  GCC=
-  test "${CFLAGS+set}" = set 
-dnl   C Begin
-dnl || CFLAGS="-g"
-dnl   C End
-fi
-])
-
-dnl autoconf stuff ends here
-
-
-AC_PROG_CC_NO_G
-AC_PROG_MAKE_SET
-AC_PROG_INSTALL
-
-dnl AC_PROG_RANLIB
 
 # Tests for Windows
 AC_CYGWIN
@@ -70,84 +14,281 @@ AC_OBJEXT
 AC_MINGW32
 # End Tests for Windows
 
-# Configure libtool
-#AM_ENABLE_SHARED(no)
-#AM_ENABLE_STATIC(no)
-AC_LIBTOOL_WIN32_DLL
-AM_PROG_LIBTOOL
-#end libtool stuff
+dnl Checks for programs.
 
+dnl I'm changing back to the default since I think avoiding the -g is rather too elaborate
+dnl but tell me if I'm wrong to do this. The definition has been moved to acinclude.m4, so
+dnl just uncomment AC_PROG_CC_NO_G and comment AC_PROG_CC to return to the original: (fjf)
+dnl AC_PROG_CC_NO_G
+AC_PROG_CC
+
+dnl This is really a check for Mac OS X.1 (or darwin 1.4, whatever...)
+suppress_md=`cat /usr/share/man/man1/ld.1 2>&1 | grep multiply_defined`
+if test "x$suppress_md" != "x"; then
+  CFLAGS="$CFLAGS -Wno-long-long"
+  LDFLAGS="$LDFLAGS -Wl,-multiply_defined -Wl,suppress"
+fi
+
+AC_PROG_MAKE_SET
+AC_PROG_INSTALL
+AC_PROG_RANLIB
+
+dnl Checks for headers.
 
 AC_HEADER_STDC
 dnl AC_HEADER_SYS_WAIT
 dnl AC_TYPE_SIGNAL
 dnl AC_FUNC_WAIT3
 
-AC_CHECK_HEADERS(fcntl.h io.h sys/file.h sys/ioctl.h unistd.h)
-CFLAGS="$CFLAGS $X_CFLAGS"
-
+AC_CHECK_HEADERS(fcntl.h io.h malloc.h sys/file.h sys/ioctl.h unistd.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
-AC_C_CONST
 
-dnl LDFLAGS="$LDFLAGS -lm"
+AC_C_CONST
 
 dnl exporter support
 dnl =======================================================
 
-EXPORTER=
-AC_ARG_WITH(exporter,
-[  --with-exporter         Enable the exporter
-  --without-exporter      Disable the exporter],
-   if test x$withval = xno; then
-	EXPORTER=
-   else
-	EXPORTER=BEXPORTER
-   fi
-)
+AC_ARG_WITH(exporter,[  --with-exporter         build the exporter (default is no)],[
+	if test "x$withval" = "xno"; then
+		EXPORTER=""
+	else
+		dnl Need to watch out for case-insensitive file systems (e.g. HFS+)
+		EXPORTER="BEXPORTER"
+	fi
+],[	EXPORTER=""
+])
 
 AC_SUBST(EXPORTER)
-
-_cppflags=$CPPFLAGS
-_ldflags=$LDFLAGS
 
 dnl zlib support
 dnl =======================================================
 
-AC_ARG_WITH(zlib,
-[  --with-zlib=DIR         use libz in DIR],[
-    if test "$withval" != "no"; then
-        ZLIB_DIR=$withval
-        CPPFLAGS="$CPPFLAGS -I$withval/include"
-        LDFLAGS="$LDFLAGS -L$withval/lib"
-    fi
+_cppflags=$CPPFLAGS
+_ldflags=$LDFLAGS
+
+AC_ARG_WITH(zlib,[  --with-zlib=DIR         use libz in DIR],[
+	if test "x$withval" = "xyes"; then
+		ZLIB_DIR=""
+	elif test "x$withval" != "xno"; then
+		ZLIB_DIR="$withval"
+		CPPFLAGS="$CPPFLAGS -I$withval/include"
+		LDFLAGS="$LDFLAGS -L$withval/lib"
+	else
+		AC_MSG_WARN([No zlib? Are you sure? I think I'll look for it anyway...])
+		ZLIB_DIR=""
+	fi
+],[	ZLIB_DIR=""
 ])
 
-AC_CHECK_HEADER(zlib.h,
-    AC_CHECK_LIB(z, gzread,[
-        AC_DEFINE(HAVE_ZLIB)
-        HAVE_ZLIB=1
-        if test "x$ZLIB_DIR" != "x"; then
-            ZLIB_CFLAGS="-I$ZLIB_DIR/include"
-            ZLIB_LIBS="-L$ZLIB_DIR/lib -lz"
-        else
-            ZLIB_LIBS="-lz"
-        fi],
-        AC_CHECK_LIB(gz, gzread,[
-            AC_DEFINE(HAVE_ZLIB)
-            HAVE_ZLIB=1
-            if test "x$ZLIB_DIR" != "x"; then
-                ZLIB_CFLAGS="-I$ZLIB_DIR/include"
-                ZLIB_LIBS="-L$ZLIB_DIR/lib -lz"
-            else
-                ZLIB_LIBS="-lz"
-            fi])))
+AC_CHECK_HEADER(zlib.h,[
+	AC_CHECK_LIB(z,gzread,[
+		AC_DEFINE(HAVE_ZLIB)
+		HAVE_ZLIB=1
+		if test "x$ZLIB_DIR" != "x"; then
+			ZLIB_CFLAGS="-I$ZLIB_DIR/include"
+			ZLIB_LIBS="-L$ZLIB_DIR/lib -lz"
+		else
+			ZLIB_CFLAGS=""
+			ZLIB_LIBS="-lz"
+		fi
+	],[	AC_CHECK_LIB(gz,gzread,[
+			AC_DEFINE(HAVE_ZLIB)
+			HAVE_ZLIB=1
+			if test "x$ZLIB_DIR" != "x"; then
+				ZLIB_CFLAGS="-I$ZLIB_DIR/include"
+				ZLIB_LIBS="-L$ZLIB_DIR/lib -lgz"
+			else
+				ZLIB_CFLAGS=""
+				ZLIB_LIBS="-lgz"
+			fi
+		],[	dnl Shouldn't this be an error?
+			AC_MSG_WARN([* * * Unable to find zlib, which is kinda necessary. * * *])
+			HAVE_ZLIB=0
+			ZLIB_CFLAGS=""
+			ZLIB_LIBS=""
+		])
+	])
+])
 
-#AC_CHECK_HEADER(libxml/parser.h,
-#       AC_CHECK_LIB(xml, xmlParseDocument,[
-#               AC_DEFINE(HAVE_LIBXML2)
-#               HAVE_LIBXML2=1
-#               LIBXML2_LIBS="-lxml" ]))
+AC_SUBST(ZLIB_CFLAGS)
+AC_SUBST(ZLIB_LIBS)
+
+CPPFLAGS=$_cppflags
+LDFLAGS=$_ldflags
+
+dnl system png support
+dnl ========================================================
+
+_cppflags=$CPPFLAGS
+_ldflags=$LDFLAGS
+
+dnl libpng requires zlib
+CPPFLAGS="$CPPFLAGS $ZLIB_CFLAGS"
+
+AC_ARG_WITH(png,[  --with-png=DIR          use png library in DIR],[
+	if test "x$withval" = "xyes"; then
+		PNG_DIR=""
+	elif test "x$withval" != "xno"; then
+		PNG_DIR=$withval
+		CPPFLAGS="$CPPFLAGS -I$withval/include"
+		LDFLAGS="$LDFLAGS -L$withval/lib"
+	else
+		AC_MSG_WARN([No libpng? Are you sure? I think I'll look for it anyway...])
+		PNG_DIR=""
+	fi
+],[	PNG_DIR=""
+])
+
+AC_CHECK_HEADER(png.h,[
+	AC_CHECK_HEADER(pngconf.h,[
+		AC_CHECK_LIB(png, png_free,[
+			AC_DEFINE(HasPNG)
+			HAVE_PNG=1
+			if test "x$PNG_DIR" != "x"; then
+				PNG_CFLAGS="-I$PNG_DIR/include"
+				PNG_LIBS="-L$PNG_DIR/lib -lpng"
+			else
+				PNG_CFLAGS=""
+				PNG_LIBS="-lpng"
+			fi
+		],[	dnl Shouldn't this be an error?
+			AC_MSG_WARN([* * * Unable to find libpng, which is kinda necessary. * * *])
+			HAVE_PNG=0
+			PNG_CFLAGS=""
+			PNG_LIBS=""
+		],$ZLIB_LIBS -lm)
+	],[	dnl Shouldn't this be an error?
+		AC_MSG_WARN([* * * Missing "pngconf.h" header file * * *])
+		HAVE_PNG=0
+		PNG_CFLAGS=""
+		PNG_LIBS=""
+	])
+],[	dnl Shouldn't this be an error?
+	AC_MSG_WARN([* * * Missing "png.h" header file * * *])
+	HAVE_PNG=0
+	PNG_CFLAGS=""
+	PNG_LIBS=""
+])
+
+AC_SUBST(PNG_CFLAGS)
+AC_SUBST(PNG_LIBS)
+
+CPPFLAGS=$_cppflags
+LDFLAGS=$_ldflags
+
+dnl system XML support
+dnl ========================================================
+
+_cppflags=$CPPFLAGS
+_ldflags=$LDFLAGS
+
+dnl There are various options:
+dnl (1) wv's 'included' expat (default)
+dnl (2) system 'expat' library
+dnl (3) system 'libxml2' library
+dnl (4) 'peer' expat (i.e., AbiWord build) ?
+
+wv_xml="included"
+
+AC_ARG_WITH(expat,[  --with-expat[=DIR]      use system expat (default is no)],[
+	if test "x$withval" = "xyes"; then
+		wv_xml="expat"
+		XML_DIR=""
+	elif test "x$withval" != "xno"; then
+		wv_xml="expat"
+		XML_DIR=$withval
+		CPPFLAGS="$CPPFLAGS -I$withval/include"
+		LDFLAGS="$LDFLAGS -L$withval/lib"
+	fi
+])
+
+AC_ARG_WITH(libxml2,[  --with-libxml2[=DIR]    use system libxml2 (default is no)],[
+	if test "x$wv_xml" = "xexpat"; then
+		AC_MSG_WARN([* * * Cannot specify expat AND libxml2. I'm going to use expat * * *])
+	else
+		if test "x$withval" = "xyes"; then
+			wv_xml="libxml2"
+			XML_DIR=""
+		elif test "x$withval" != "xno"; then
+			wv_xml="libxml2"
+			XML_DIR=$withval
+		fi
+	fi
+])
+
+if test "x$wv_xml" = "xincluded"; then
+	INCLUDED_EXPAT=1
+	HAVE_LIBXML2=0
+	XML_CFLAGS=""
+	XML_LIBS=""
+elif test "x$wv_xml" = "xexpat"; then
+	AC_DEFINE(HAVE_EXPAT)
+	INCLUDED_EXPAT=0
+	HAVE_LIBXML2=0
+	AC_CHECK_HEADER(expat.h,[
+		AC_CHECK_LIB(expat,XML_ParserCreate,[
+			if test "x$XML_DIR" != "x"; then
+				XML_CFLAGS="-I$XML_DIR/include"
+				XML_LIBS="-L$XML_DIR/lib -lexpat"
+			else
+				XML_CFLAGS=""
+				XML_LIBS="-lexpat"
+			fi
+		],[	AC_MSG_ERROR([* * * Unable to find expat library * * *])
+		])
+	],[	AC_MSG_ERROR([* * * Unable to find header file "expat.h" * * *])
+	])
+elif test "x$wv_xml" = "xlibxml2"; then
+	AC_DEFINE(HAVE_LIBXML2)
+	INCLUDED_EXPAT=0
+	HAVE_LIBXML2=1
+
+	if [ test -n "$XML_DIR" ]; then
+		AC_PATH_PROG(XML2_CONFIG,xml2-config, ,[$XML_DIR/bin:$PATH])
+	else
+		AC_PATH_PROG(XML2_CONFIG,xml2-config)
+	fi
+
+	if [ test -n "$XML2_CONFIG" ]; then
+		xml2_cflags=`$XML2_CONFIG --cflags`
+		xml2_libs=`$XML2_CONFIG --libs`
+	else
+		AC_MSG_ERROR([* * * unable to find xml2-config; unable to continue * * *])
+	fi
+
+	CPPFLAGS="$CPPFLAGS $xml2_cflags"
+	LDFLAGS="$LDFLAGS $xml2_libs"
+
+	AC_CHECK_HEADER(libxml/parser.h,[
+		AC_CHECK_LIB(xml2,xmlParseDocument,[
+			XML_CFLAGS="$xml2_cflags"
+			XML_LIBS="$xml2_libs"
+		],[	AC_MSG_ERROR([* * * Unable to find libxml2 library * * *])
+		],$xml2_libs)
+	],[	AC_MSG_ERROR([* * * Unable to find header file "libxml/parser.h" * * *])
+	])
+elif test "x$wv_xml" = "xpeer"; then
+	AC_MSG_ERROR([* * * Glitch! Unsupported value. * * *])
+	INCLUDED_EXPAT=0
+	HAVE_LIBXML2=0
+	XML_CFLAGS=""
+	XML_LIBS=""
+else
+	AC_MSG_ERROR([* * * Glitch! Unexpected value. * * *])
+fi
+
+AC_SUBST(INCLUDED_EXPAT)
+AC_SUBST(HAVE_LIBXML2)
+
+AC_SUBST(XML_CFLAGS)
+AC_SUBST(XML_LIBS)
+
+CPPFLAGS=$_cppflags
+LDFLAGS=$_ldflags
+
+dnl system glib support
+dnl ========================================================
 
 AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$PATH])
 if test -n "$GLIB_CONFIG"; then
@@ -155,64 +296,16 @@ if test -n "$GLIB_CONFIG"; then
        HAVE_GLIB=1
        GLIB_CFLAGS=`$GLIB_CONFIG --cflags`
        GLIB_LIBS=`$GLIB_CONFIG --libs`
+else
+       HAVE_GLIB=0
+       GLIB_CFLAGS=""
+       GLIB_LIBS=""
 fi
 
-CPPFLAGS=$_cppflags
-LDFLAGS=$_ldflags
-
-AC_SUBST(LIBXML2_LIBS)
-AC_SUBST(HAVE_LIBXML2)
-AC_SUBST(GLIB_LIBS)
-AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(HAVE_GLIB)
-AC_SUBST(ZLIB_CFLAGS)
-AC_SUBST(ZLIB_LIBS)
 
-dnl system png support
-dnl ========================================================
-_cppflags=${CPPFLAGS}
-_ldflags=${LDFLAGS}
-
-AC_ARG_WITH(png,
-[  --with-png=DIR          use png library in DIR],[
-  if test "$withval" != "no"; then
-    PNG_DIR=$withval
-    CPPFLAGS="$CPPFLAGS -I$withval/include"
-    if test "x$ZLIB_CFLAGS" != "x"; then
-        CPPFLAGS="$CPPFLAGS $ZLIB_CFLAGS"
-    fi
-    LDFLAGS="$LDFLAGS -L$withval/lib"
-  fi
-])
-
-AC_CHECK_HEADER(png.h,
-    AC_CHECK_HEADER(pngconf.h,
-        AC_CHECK_LIB(png, png_free,[
-            AC_DEFINE(HasPNG)
-            if test "x$PNG_DIR" != "x"; then
-                PNG_CFLAGS="-I$PNG_DIR/include"
-                PNG_LIBS="-L$PNG_DIR/lib -lpng"
-            else
-                PNG_LIBS="-lpng"
-            fi],[
-            AC_CHECK_LIB(png, png_free,[
-                AC_DEFINE(HasPNG)
-                if test "x$PNG_DIR" != "x"; then
-                    PNG_CFLAGS="-I$PNG_DIR/include"
-                    PNG_LIBS="-L$PNG_DIR/lib -lpng"
-                else
-                    PNG_LIBS="-lpng"
-                fi], , $ZLIB_LIBS -lm)])))
-
-CPPFLAGS=$_cppflags
-LDFLAGS=$_ldflags
-AC_SUBST(PNG_CFLAGS)
-AC_SUBST(PNG_LIBS)
-
-AC_CHECK_HEADER(malloc.h, [
-	AC_DEFINE(HAVE_MALLOC_H)
-	HAVE_MALLOC_H=1
-	], no_malloc_h=yes)
+AC_SUBST(GLIB_CFLAGS)
+AC_SUBST(GLIB_LIBS)
 
 dnl system libwmf support
 dnl ========================================================
@@ -362,6 +455,11 @@ fi
 if [ test "$have_iconv" = "no" ]; then
 	AC_MSG_ERROR(* * * iconv is required: ftp://ftp.gnu.org/pub/gnu/libiconv * * *)
 fi
+
+dnl Apparently this trick fails on RedHat 6.2 (and presumably earlier RedHats & other
+dnl concurrent Linux distributions) because g++ issues a warning rather than an error.
+dnl Perhaps we should have something like (I'm not sure about the flag):        (fjf)
+dnl if test "x$GCC" = "xyes"; then CFLAGS="$CFLAGS --fstrict-ansi"; fi
 
 AC_LANG_CPLUSPLUS
 

@@ -33,7 +33,7 @@ returns 1 for not an ole doc
 
 int myelehandler (wvParseStruct * ps, wvTag tag, void *props, int dirty);
 int mydochandler (wvParseStruct * ps, wvTag tag);
-FILE *wvOpenConfig (char *config);
+int wvOpenConfig (state_data *myhandle,char *config);
 
 void
 usage (void)
@@ -142,9 +142,7 @@ main (int argc, char **argv)
 
     wvInitStateData (&myhandle);
 
-    myhandle.fp = wvOpenConfig (config);
-
-    if (myhandle.fp == NULL)
+    if (wvOpenConfig (&myhandle,config) == 0)
 	wvError (("config file not found\n"));
     else
 	ret = wvParseConfig (&myhandle);
@@ -261,8 +259,8 @@ mydochandler (wvParseStruct * ps, wvTag tag)
     return (0);
 }
 
-FILE *
-wvOpenConfig (char *config)
+int
+wvOpenConfig (state_data *myhandle,char *config)
 {
     FILE *tmp;
     int i = 0;
@@ -280,5 +278,7 @@ wvOpenConfig (char *config)
 	  config = XMLCONFIG;
 	  tmp = fopen (config, "rb");
       }
-    return (tmp);
+    myhandle->path = config;
+    myhandle->fp = tmp;
+    return (tmp == NULL ? 0 : 1);
 }

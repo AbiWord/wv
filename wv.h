@@ -2582,8 +2582,8 @@ that indicates their length.
 	char **current;
 	U32 currentlen;
 	FILE *fp;
+	const char *path;
     } state_data;
-
 
 
     typedef struct _PRM {

@@ -6,11 +6,12 @@ LDFLAGS = @LDFLAGS@
 #old version of it hanging around in the X dirs, you can add -L/usr/lib to the begging of there 
 #options to fix it.
 #LIBS = -L/usr/lib @MAGICK_LIBS@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ -lm
-LIBS =  @MAGICK_LIBS@ @PNG_LIBS@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @ICONV_LIBS@ @LIBXML2_LIBS@ @GLIB_LIBS@ -lm
+LIBS =  @MAGICK_LIBS@ @PNG_LIBS@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @ICONV_LIBS@ @XML_LIBS@ @GLIB_LIBS@ -lm
 
 GETOPT = @LIBOBJS@
 EXPORTER=@EXPORTER@
 ICONV = 
+INCLUDED_EXPAT = @INCLUDED_EXPAT@
 HAVE_LIBXML2 = @HAVE_LIBXML2@
 HAVE_GLIB = @HAVE_GLIB@
 RICONVOBJS = \
@@ -46,9 +47,6 @@ magick/bmp.$(OBJEXT) \
 magick/signature.$(OBJEXT)
 MAGICKOBJS =  @MAGICKOBJS@
 
-#abi's picky warning checks
-#CC = @CC@ -Wall -W -ansi -pedantic
-
 CC = @CC@
 
 LEX = @LEX@
@@ -82,14 +80,18 @@ src_mandir=$(srcdir)/help/man
 
 VPATH = @srcdir@
 
-CFLAGS = -DVERSION=\"@VERSION@\" @CPPFLAGS@ @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ @GLIB_CFLAGS@ -ansi -pedantic -I. -I./ -I$(srcdir)/ -I$(srcdir)/magick/ -I$(srcdir)/expat/xmlparse/ -DXMLCONFIG=\"$(datadir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(datadir)/wv/wvHtml.xml\" -I$(srcdir)/libole2/ -I$(srcdir)/oledecod/ @WMF_CFLAGS@ @ICONV_CFLAGS@
+DEFS = @DEFS@ -DVERSION=\"@VERSION@\" -DXMLCONFIG=\"$(datadir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(datadir)/wv/wvHtml.xml\"
+CPPFLAGS = @ICONV_CFLAGS@ @WMF_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @PNG_CFLAGS@ @ZLIB_CFLAGS@ @CPPFLAGS@
+CFLAGS = @CFLAGS@ -ansi -pedantic
+INCLUDES = -I. -I./ -I$(srcdir)/ -I$(srcdir)/magick/  -I$(srcdir)/libole2/ -I$(srcdir)/oledecod/
 
-ifneq ($(HAVE_GLIB),1)
-CFLAGS += "-I$(srcdir)/glib-wv/"
+ifeq ($(INCLUDED_EXPAT),1)
+INCLUDES += "-I$(srcdir)/expat/xmlparse/"
 endif
 
-# not supported by lots of compilers
-#	-Wall
+ifneq ($(HAVE_GLIB),1)
+INCLUDES += "-I$(srcdir)/glib-wv/"
+endif
 
 MKINSTALLDIRS = $(srcdir)/mkinstalldirs
 
@@ -269,7 +271,7 @@ endif
 
 #XML = -Lexpat/lib -lxmlparse -lxmltok
 
-ifneq ($(HAVE_LIBXML2),1)
+ifeq ($(INCLUDED_EXPAT),1)
        XML =   expat/xmlparse/xmlparse.$(OBJEXT) \
                        expat/xmlparse/hashtable.$(OBJEXT) \
                        expat/xmltok/xmltok.$(OBJEXT) \
@@ -319,7 +321,7 @@ testparse$(EXEEXT):  testparse.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ testparse.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS)  $(LDFLAGS)
 
 laolareplace.$(OBJEXT): $(srcdir)/laolareplace.c 
-	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
+	$(CC) $(DEFS) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) -c $(srcdir)/$*.c 
 
 libwv.a:$(MYOBJECTS) $(EXPORTER) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE BLIBOLE2
 	$(AR) rc $@ $(MYOBJECTS) $(EXPORTER_OBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE)
@@ -343,13 +345,13 @@ OLEDECODE:
 	@echo making oledecod in oledecod
 	@(cd oledecod && $(MAKE)) || exit 1
 
-ifneq ($(HAVE_LIBXML2),1)
+ifeq ($(INCLUDED_EXPAT),1)
 XMLPARSER:
 	@echo making expat in expat
 	@(cd expat && $(MAKE)) || exit 1
 else
 XMLPARSER:
-	@echo using system libxml... will not compile expat
+	@echo using system xml support... will not compile expat
 endif
 
 BLIBOLE2:	BGLIB-WV
@@ -366,7 +368,7 @@ BGLIB-WV:
 endif
 
 %.$(OBJEXT): $(srcdir)/%.c 
-	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
+	$(CC) $(DEFS) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) -c $(srcdir)/$*.c 
 
 cleansub:
 	@echo cleaning oledecod in oledecod

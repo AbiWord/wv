@@ -10,9 +10,14 @@
 #include "wvinternal.h"
 #ifdef HAVE_LIBXML2
 #include <libxml/parser.h>
+#include <libxml/parserInternals.h>
 #define XML_Char xmlChar
 #else
+#ifdef HAVE_EXPAT
+#include <expat.h>
+#else
 #include "xmlparse.h"
+#endif
 #endif
 
 #define HANDLE_B_PARA_ELE(a,b,c,d) \
@@ -523,6 +528,7 @@ wvInitStateData (state_data * data)
 {
     int i;
     data->fp = NULL;
+    data->path = NULL;
     data->currentele = NULL;
     data->current = NULL;
     data->currentlen = 0;
@@ -589,7 +595,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 
  /*   printf("exstart: %s \n",name);*/
 
-    tokenIndex = s_mapNameToToken (name);
+    tokenIndex = s_mapNameToToken ((const char *) name);
     switch (s_Tokens[tokenIndex].m_type)
       {
       case TT_TITLE:
@@ -2554,23 +2560,20 @@ exstartElement (void *userData, const char *name, const char **atts)
 }
 
 static void
-startElement (void *userData, const char *name, const char **atts)
+startElement (void *userData, const XML_Char *name, const XML_Char **atts)
 {
-    unsigned int nAtts;
-#ifdef HAVE_LIBXML2
-    const char **p;
-#else
+    unsigned int nAtts = 0;
     const XML_Char **p;
-#endif
     unsigned int tokenIndex, i;
     state_data *mydata = (state_data *) userData;
-
-    p = atts;
-    while (*p)
-	++p;
-    nAtts = (p - atts) >> 1;
-
-    tokenIndex = s_mapNameToToken (name);
+    if (atts)
+      {
+	p = atts;
+	while (*p)
+	  ++p;
+	nAtts = (p - atts) >> 1;
+      }
+    tokenIndex = s_mapNameToToken ((const char *) name);
 /*    printf("start: %s \n",name);*/
 
     wvTrace (("element %s started\n", name));
@@ -3519,12 +3522,12 @@ startElement (void *userData, const char *name, const char **atts)
 }
 
 static void
-endElement (void *userData, const char *name)
+endElement (void *userData, const XML_Char *name)
 {
     state_data *mydata = (state_data *) userData;
     unsigned int tokenIndex;
 
-    tokenIndex = s_mapNameToToken (name);
+    tokenIndex = s_mapNameToToken ((const char *) name);
     switch (s_Tokens[tokenIndex].m_type)
       {
       case TT_BEGIN:
@@ -3778,7 +3781,7 @@ exendElement (void *userData, const char *name)
      */
     unsigned int tokenIndex;
 
-    tokenIndex = s_mapNameToToken (name);
+    tokenIndex = s_mapNameToToken ((const char *) name);
     switch (s_Tokens[tokenIndex].m_type)
       {
       case TT_TITLE:
@@ -3874,12 +3877,73 @@ excharData (void *userData, const XML_Char * s, int len)
 }
 
 #ifdef HAVE_LIBXML2
-/* GNOME_XML_NOT_YET */
+static xmlEntityPtr
+_getEntity (void * user_data, const xmlChar * name)
+{
+	return xmlGetPredefinedEntity (name);
+}
+
 int
 wvParseConfig (state_data * myhandle)
 {
-    g_assert_not_reached ();
-    return 0;
+	int ret = 0;
+
+	xmlSAXHandler hdl; /* flagrant copying from AbiWord */
+	xmlParserCtxtPtr ctxt;
+
+	hdl.internalSubset = NULL;
+	hdl.isStandalone = NULL;
+	hdl.hasInternalSubset = NULL;
+	hdl.hasExternalSubset = NULL;
+	hdl.resolveEntity = NULL;
+	hdl.getEntity = _getEntity;
+	hdl.entityDecl = NULL;
+	hdl.notationDecl = NULL;
+	hdl.attributeDecl = NULL;
+	hdl.elementDecl = NULL;
+	hdl.unparsedEntityDecl = NULL;
+	hdl.setDocumentLocator = NULL;
+	hdl.startDocument = NULL;
+	hdl.endDocument = NULL;
+	hdl.startElement = startElement;
+	hdl.endElement = endElement;
+	hdl.reference = NULL;
+	hdl.characters = charData;
+	hdl.ignorableWhitespace = NULL;
+	hdl.processingInstruction = NULL;
+	hdl.comment = NULL;
+	hdl.warning = NULL;
+	hdl.error = NULL;
+	hdl.fatalError = NULL;
+
+	if (myhandle->fp)
+	{
+		fclose (myhandle->fp);
+		myhandle->fp = NULL;
+	}
+	if (myhandle->path == NULL)
+	{
+		wvError (("No path has been set? Since I'm using libxml2 at the moment, I need a path.\n"));
+		exit (-1);
+	}
+
+	ctxt = xmlCreateFileParserCtxt (myhandle->path);
+	if (ctxt == NULL)
+	{
+		/* by this point we haven't allocated anything so we can just return right here */
+		return 1;
+	}
+	ctxt->sax = &hdl;
+	ctxt->userData = (void *) myhandle;
+
+	xmlParseDocument (ctxt);
+
+        if (!ctxt->wellFormed) ret = 1;
+
+        ctxt->sax = NULL;
+        xmlFreeParserCtxt (ctxt);
+
+	return ret;
 }
 #else
 int
@@ -3936,12 +4000,58 @@ wvInitExpandData (expand_data * data)
 }
 
 #ifdef HAVE_LIBXML2
-/* GNOME_XML_NOT_YET */
 int
 wvExpand (expand_data * myhandle, char *buf, int len)
 {
-    g_assert_not_reached ();
-    return 0;
+	int ret = 0;
+
+	xmlSAXHandler hdl;
+	xmlParserCtxtPtr ctxt;
+
+	hdl.internalSubset = NULL;
+	hdl.isStandalone = NULL;
+	hdl.hasInternalSubset = NULL;
+	hdl.hasExternalSubset = NULL;
+	hdl.resolveEntity = NULL;
+	hdl.getEntity = _getEntity;
+	hdl.entityDecl = NULL;
+	hdl.notationDecl = NULL;
+	hdl.attributeDecl = NULL;
+	hdl.elementDecl = NULL;
+	hdl.unparsedEntityDecl = NULL;
+	hdl.setDocumentLocator = NULL;
+	hdl.startDocument = NULL;
+	hdl.endDocument = NULL;
+	hdl.startElement = exstartElement;
+	hdl.endElement = exendElement;
+	hdl.reference = NULL;
+	hdl.characters = excharData;
+	hdl.ignorableWhitespace = NULL;
+	hdl.processingInstruction = NULL;
+	hdl.comment = NULL;
+	hdl.warning = NULL;
+	hdl.error = NULL;
+	hdl.fatalError = NULL;
+
+	ctxt = xmlCreateMemoryParserCtxt ((const char *) buf, len);
+	if (ctxt == NULL)
+	{
+		/* by this point we haven't allocated anything so we can just return right here */
+		return 1;
+	}
+	ctxt->sax = &hdl;
+	ctxt->userData = (void *) myhandle;
+
+	wvInitExpandData (myhandle);
+
+	xmlParseDocument (ctxt);
+
+        if (!ctxt->wellFormed) ret = 1;
+
+        ctxt->sax = NULL;
+        xmlFreeParserCtxt (ctxt);
+
+	return ret;
 }
 #else
 int

@@ -38,7 +38,7 @@ int mydochandler (wvParseStruct * ps, wvTag tag);
 int myCharProc (wvParseStruct * ps, U16 eachchar, U8 chartype, U16 lid);
 int mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp);
 
-FILE *wvOpenConfig (char *config);
+int wvOpenConfig (state_data *myhandle,char *config);
 
 char * wv_arg_basename = 0;
 char * figure_name (wvParseStruct * ps);
@@ -394,8 +394,8 @@ main (int argc, char **argv)
     wvSetSpecialCharHandler (&ps, mySpecCharProc);
 
     wvInitStateData (&myhandle);
-    myhandle.fp = wvOpenConfig (config);
-    if (myhandle.fp == NULL)
+
+    if (wvOpenConfig (&myhandle,config) == 0)
       {
 	  wvError (("config file not found\n"));
 	  return (-1);
@@ -1523,8 +1523,8 @@ myCharProc (wvParseStruct * ps, U16 eachchar, U8 chartype, U16 lid)
 }
 
 
-FILE *
-wvOpenConfig (char *config)
+int
+wvOpenConfig (state_data *myhandle,char *config)
 {
     FILE *tmp;
     int i = 0;
@@ -1542,7 +1542,9 @@ wvOpenConfig (char *config)
 	  config = HTMLCONFIG;
 	  tmp = fopen (config, "rb");
       }
-    return (tmp);
+    myhandle->path = config;
+    myhandle->fp = tmp;
+    return (tmp == NULL ? 0 : 1);
 }
 
 char * figure_name (wvParseStruct * ps)

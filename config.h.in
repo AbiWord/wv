@@ -97,6 +97,10 @@
 
 #undef HAVE_MMAP
 
+/* Define if you have expat */
+#undef HAVE_EXPAT
+
+/* Define if you have libxml2 */
 #undef HAVE_LIBXML2
 
 /* Define this if the second argument of iconv requires a const */
