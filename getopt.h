@@ -24,6 +24,8 @@ USA.  */
 
 #include "config.h"
 
+#ifndef HAVE_UNISTD_H
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -132,4 +134,5 @@ extern int _getopt_internal ();
 }
 #endif
 
+#endif /* _UNISTD_H */
 #endif /* _GETOPT_H */
