@@ -86,6 +86,7 @@ CSRCS=	laolareplace.old.c \
 	bte.c \
 	bx.c \
 	fkp.c \
+	codepage-1251.c \
 	codepage-1252.c \
 	iso-5589-15.c \
 	tis-620.c \
