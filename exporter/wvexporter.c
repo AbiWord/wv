@@ -406,7 +406,8 @@ size_t wvExporter_writeChars (wvExporter * exp, const U8 * chars)
 	  return 0;
       }
 
-    return wvExporter_writeBytes (exp, sizeof (U8), strlen (chars),
+    return wvExporter_writeBytes (exp, sizeof (U8), 
+				  strlen ((const char *)chars), 
 				  (const void *) chars);
 }
 
