@@ -7,10 +7,21 @@
  **/
 
 #include <stdio.h>
-#include <sys/stat.h>	/* for struct stat */
+
+/* BSDs require unistd.h before including stat.h */
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 #include <sys/types.h>
+#include <sys/stat.h>	/* for struct stat */
 #include <fcntl.h>
+
+/* malloc.h is deprecated */
+/*
 #include <malloc.h>
+*/
+
 #include <assert.h>
 #include <ctype.h>
 #include <glib.h>
