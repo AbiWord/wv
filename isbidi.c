@@ -411,7 +411,7 @@ int wvIsBidiDocumentSimple(wvParseStruct * ps, subdocument whichdoc)
 			if ((section_fcLim == 0xffffffff) || (section_fcLim == j))
 			{
 				wvTrace (("j i is %x %d\n", j, i));
-				// the following call inits sep
+				/* the following call inits sep */
 				section_dirty =
 					wvGetSimpleSectionBounds (ver, ps,
 											  &sep, &section_fcFirst,
