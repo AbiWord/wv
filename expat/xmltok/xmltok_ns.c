@@ -1,3 +1,7 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 const ENCODING *NS(XmlGetUtf8InternalEncoding)()
 {
   return &ns(internal_utf8_encoding).enc;
