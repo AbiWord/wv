@@ -119,20 +119,6 @@ CSRCS= \
 	decrypt97.c \
 	decrypt95.c \
 	table.c \
-	iconv/codepage-874.c \
-	iconv/codepage-1250.c \
-	iconv/codepage-1251.c \
-	iconv/codepage-1254.c \
-	iconv/codepage-1257.c \
-	iconv/codepage-1252.c \
-	iconv/codepage-1255.c \
-	iconv/codepage-1253.c \
-	iconv/codepage-1256.c \
-	iconv/koi8-r.c \
-	iconv/iso-8859-15.c \
-	iconv/tis-620.c \
-	iconv/utf-8.c \
-	iconv/iconv.c \
 	exporter/anld.c \
 	exporter/anlv.c \
 	exporter/asumy.c \
