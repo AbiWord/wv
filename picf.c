@@ -7,7 +7,7 @@
 #endif
 
 #include "wv.h"
-#include "exporter\wvexporter-priv.h"
+#include "exporter/wvexporter-priv.h"
 
 U32 PutWord8Structs(MSOFBH *bse_pic_amsofbh, U8* p, size_t size);
 
