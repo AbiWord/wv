@@ -1173,9 +1173,9 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	while ((j<apap->itbdMac) || (i < itbdAddMax))
 		{
 		wvTrace(("i %d j apap->itbdMac %d %d\n",i,j,apap->itbdMac));
-		wvTrace(("temp_rgdxaTab[j]\n",temp_rgdxaTab[j]));
-		wvTrace(("rgdxaAdd[i]\n",rgdxaAdd[i]));
-		if ( (j<apap->itbdMac) && (temp_rgdxaTab[j] < rgdxaAdd[i]) )
+		wvTrace(("temp_rgdxaTab[j] %d\n",temp_rgdxaTab[j]));
+		wvTrace(("rgdxaAdd[i] %d\n",rgdxaAdd[i]));
+		if ( (j<apap->itbdMac) && (i >= itbdAddMax || temp_rgdxaTab[j] < rgdxaAdd[i]) )
 			{
 			/* if we have one from the retained group that should be added */
 			apap->rgdxaTab[k] = temp_rgdxaTab[j];
@@ -1199,6 +1199,11 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	wvTrace(("k is %d\n",k));
 
 	apap->itbdMac = k;
+
+	for (i = 0; i < apap->itbdMac; i++) {
+	   wvTrace(("tab %d rgdxa %d\n", i, apap->rgdxaTab[i]));
+	}
+	   
 	wvFree(rgtbdAdd);
 	wvFree(rgdxaAdd);
 	wvFree(rgdxaDel);
@@ -1233,7 +1238,7 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 	itbdDelMax = dgetc(NULL,&pointer);
 	(*pos)++;
 
-
+	wvTrace(("itbdDelMax is %d\n",itbdDelMax));
 	if (itbdDelMax != 0)
 		{
 		rgdxaDel = (S16*)malloc(sizeof(S16) * itbdDelMax);
@@ -1306,10 +1311,10 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 	for(j=0;j<apap->itbdMac;j++)
 		{
 		add=1;
-		for(i=0;i<itbdDelMax;i++)
+	        for(i=0;i<itbdDelMax;i++)
 			{
-			if ( (apap->rgdxaTab[j] >= rgdxaDel[i] - rgdxaClose[i])
-				|| (apap->rgdxaTab[j] <= rgdxaDel[i] + rgdxaClose[i]) )
+			   if ( (apap->rgdxaTab[j] >= rgdxaDel[i] - rgdxaClose[i])
+				&& (apap->rgdxaTab[j] <= rgdxaDel[i] + rgdxaClose[i]) )
 				{
 				add=0;
 				break;
@@ -1322,13 +1327,14 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 			}
 		}
 	apap->itbdMac = k;
+	wvTrace(("here %d\n",apap->itbdMac));
 
 	k=0;
 	j=0;
 	i=0;
 	while ((j<apap->itbdMac) || (i < itbdAddMax))
 		{
-		if ( (j<apap->itbdMac) && (temp_rgdxaTab[j] < rgdxaAdd[i]) )
+		if ( (j<apap->itbdMac) && (i >= itbdAddMax || temp_rgdxaTab[j] < rgdxaAdd[i]) )
 			{
 			apap->rgdxaTab[k] = temp_rgdxaTab[j];
 			wvCopyTBD(&apap->rgtbd[k++],&temp_rgtbd[j++]);
@@ -1346,8 +1352,13 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 			}
 		}
 
-	wvTrace(("here\n"));
 	apap->itbdMac = k;
+	wvTrace(("here %d\n",apap->itbdMac));
+
+	for (i = 0; i < apap->itbdMac; i++) {
+	   wvTrace(("tab %d rgdxa %d\n", i, apap->rgdxaTab[i]));
+	}
+   	   
 	wvFree(rgdxaDel);
 	wvFree(rgtbdAdd);
 	wvFree(rgdxaAdd);
