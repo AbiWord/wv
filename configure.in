@@ -641,35 +641,36 @@ dnl if we have to use our own then we need libpng
 #
 # Check for PNG
 #
+_SAVE_CFLAGS=$CFLAGS
+_SAVE_LDFLAGS=$LDFLAGS
 	have_png='no'
 	LIB_PNG=''
-	if test "$with_png" != 'no'
-	then
+	if test "$with_png" != 'no'; then
+
 		AC_CHECKING(for PNG support ...)
 		failed=0;
 		passed=0;
 		AC_CHECK_HEADER(png.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
 		AC_CHECK_HEADER(pngconf.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
-		AC_CHECK_LIB(png,png_info_init,passed=`expr $passed + 1`,failed=`expr $failed + 1`,-lm)
+		AC_CHECK_LIB(png,png_info_init,passed=`expr $passed + 1`,failed=`expr $failed + 1`,$ZLIB_LIBS -lm)
 		AC_MSG_CHECKING(if PNG package is complete)
-		if test $passed -gt 0
-		then
-		if test $failed -gt 0
-		then
-		AC_MSG_RESULT(no -- some components failed test)
-		have_png='no (failed tests)'
+		if test $passed -gt 0; then
+			if test $failed -gt 0; then
+				AC_MSG_RESULT(no -- some components failed test)
+				have_png='no (failed tests)'
+			else
+				LIB_PNG='-lpng'
+				AC_DEFINE(HasPNG)
+				AC_MSG_RESULT(yes)
+				have_png='yes'
+			fi
 		else
-		LIB_PNG='-lpng'
-		LIBS="$LIB_PNG $LIBS"
-		AC_DEFINE(HasPNG)
-		AC_MSG_RESULT(yes)
-		have_png='yes'
-		fi
-		else
-		AC_MSG_RESULT(no)
+			AC_MSG_RESULT(no)
 		fi
 	fi
 fi
+CFLAGS=$_SAVE_CFLAGS
+LDFLAGS=$_SAVE_LDFLAGS
 
 
 dnl end of imagemagick
@@ -692,12 +693,6 @@ if [ test "$SYSTEM_ZLIB" != "" ]; then
 AC_DEFINE(SYSTEM_ZLIB)
 fi
 
-if [ test "$cross_compiling" != "yes" ]; then
-	AC_C_BIGENDIAN
-else
-	AC_DEFINE(WORDS_BIGENDIAN)
-fi
-
 AC_SUBST(TTF_LIBS)
 AC_SUBST(TTF_CFLAGS)
 AC_SUBST(XPM_LIBS)
@@ -711,6 +706,47 @@ AC_SUBST(X_LIBS)
 AC_SUBST(X_EXTRA_LIBS)
 fi
 
+dnl ========================================================
+dnl begin of possible optimization tests
+dnl read notes/optimization
+
+AC_CHECK_SIZEOF(char,1)
+AC_CHECK_SIZEOF(short,2)
+AC_CHECK_SIZEOF(int,4)
+AC_CHECK_SIZEOF(long,4)
+
+if [test "$SIZEOF_CHAR" != "1" ]; then
+    if [test "$SIZEOF_SHORT" != "2" ]; then
+        if [test "$SIZEOF_INT" != "4" ]; then
+            AC_DEFINE(MATCHED_TYPE)
+        fi
+    fi
+fi
+
+if [ test "$cross_compiling" != "yes" ]; then
+    AC_C_BIGENDIAN
+dnl	here we will know the endianness
+	if [ test "$ac_cv_c_bigendian" = "no" ]; then
+	    AC_DEFINE(XML_BYTE_ORDER,12)
+	else 
+		if [ test "$ac_cv_c_bigendian" = "yes" ]; then
+			AC_DEFINE(XML_BYTE_ORDER,21)
+		fi
+	fi
+else
+dnl	here we will not know the endianness, so we will
+dnl go with the mechanism that works everywhere
+    AC_DEFINE(WORDS_BIGENDIAN)
+fi
+
+dnl given matched types and little endian we can read types larger
+dnl than a byte with fread and avoid byteswapping
+
+dnl at some later stage we will have a test to see if the compiler can
+dnl get rid of holes, for the moment we will assume only that we can
+dnl do it if we have __GNUC__ defined
+
+dnl end of possible optimization tests
 
 
 dnl check for getopt
@@ -730,6 +766,7 @@ AC_SUBST(MAGICKOBJS)
 AC_SUBST(MAGICK_LIBS)
 AC_SUBST(ZLIB_CFLAGS)
 AC_SUBST(ZLIB_LIBS)
+AC_SUBST(LIB_PNG)
 
 AC_OUTPUT(
 Makefile 

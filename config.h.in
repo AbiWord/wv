@@ -66,7 +66,13 @@
 
 #include <getopt.h>
 
+#undef MATCHED_TYPE
 #undef WORDS_BIGENDIAN
+#undef XML_BYTE_ORDER
+
+#if defined(__GNUC__) && !defined(WORDS_BIGENDIAN) && defined(MATCHED_TYPE)
+#define NO_HOLES
+#endif
 
 /* define if you have iconv */
 #undef USE_ICONV

@@ -31,6 +31,7 @@ your version of this file under either the MPL or the GPL.
 #include "xmldef.h"
 #include "xmltok.h"
 #include "nametab.h"
+#include "config.h"
 
 #define VTABLE1 \
   { PREFIX(prologTok), PREFIX(contentTok), PREFIX(cdataSectionTok) }, \

@@ -40,7 +40,7 @@ indentation.
 U32 read_32ubit(FILE *in)
 	{
 	U32 ret;
-#ifdef WORDS_BIGENDIAN
+#if defined(WORDS_BIGENDIAN) || !defined(MATCHED_TYPE)
 	U16 temp1,temp2;
 	temp1 = read_16ubit(in);
 	temp2 = read_16ubit(in); 
@@ -81,7 +81,7 @@ U32 bread_32ubit(U8 *in,U16 *pos)
 U16 read_16ubit(FILE *in)
 	{
 	U16 ret;
-#ifdef WORDS_BIGENDIAN
+#if defined(WORDS_BIGENDIAN) || !defined(MATCHED_TYPE)
 	U8 temp1,temp2;
 	temp1 = getc(in);
 	temp2 = getc(in);

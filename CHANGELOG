@@ -17,11 +17,16 @@ Changes to to 0.5.43
 	* make configure.in test for memcpy as well and use bcopy if
 	not
 	* define ssize_t in config.h if unistd.h is not available
+	* mem leaks removed
+	* made expat use the byteordering results for faster working,
+	will default correctly to nothing if this cannot be determined
+	due to cross compiling.
+	* implemented TIME field
 ALL TODO
+	* move unnecessary expat subdirs
 	* allow latex or html or raw text conversion options.
 
-	* mem leaks, more testing, more graphic checks, more escher 
-	records etc etc.
+	* more graphic checks, more escher records etc etc.
 	* promote old graphics into escher format.
 	* decompress wmf etc.
 	* get libwmf back into action and get picts together as well.

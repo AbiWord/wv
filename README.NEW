@@ -16,10 +16,12 @@ created the ole2 document.
 4) wvSimpleCLX, helps distinguish between fast and full saved
 files
 
+5) wvVersion, outputs the version of the word format which the document
+is stored as.
 
 
 <!--
-not done yet include...
+not done yet, but might be fun for someone else include...
 
 wvMacroRemove, deletes macros out of word files
 
@@ -31,7 +33,7 @@ wvAbiword, plugin for abiword
 
 wvStarWriter, plugin for starwriter
 
-wvKword, plugin for KWord, (they'll have to this one themselves, but based
+wvKword, plugin for KWord, (they'll have to do this one themselves, but based
 upon wvAbiword should make it pretty easy, especially if they use the
 xml config file approach that im looking into.
 -->

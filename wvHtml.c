@@ -356,23 +356,27 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			wvTrace(("field began\n"));
 			ps->fieldstate++;
 			ps->fieldmiddle=0;
+			fieldCharProc(ps,eachchar,0);	/* temp */
 			return(0);
 			break;
 		case 20:
 			wvTrace(("field middle\n"));
+			fieldCharProc(ps,eachchar,0);	/* temp */
 			ps->fieldmiddle=1;
+			return(0);
 			break;
 		case 21:
 			wvTrace(("field end\n"));
 			ps->fieldstate--;
 			ps->fieldmiddle=0;
+			fieldCharProc(ps,eachchar,0);	/* temp */
 			return(0);
 			break;
 		}
 
-	if ((ps->fieldstate) && (ps->fieldmiddle==0))
+	if (ps->fieldstate)
 		{
-		fieldCharProc(ps,eachchar,0);	/* temp */
+		fieldCharProc(ps,eachchar,0);
 		return(0);
 		}
 
@@ -513,16 +517,20 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 			wvTrace(("field began\n"));
 			ps->fieldstate++;
 			ps->fieldmiddle=0;
+			fieldCharProc(ps,eachchar,0);	/* temp */
 			return(0);
 			break;
 		case 20:
 			wvTrace(("field middle\n"));
+			fieldCharProc(ps,eachchar,chartype);
 			ps->fieldmiddle=1;
+			return(0);
 			break;
 		case 21:
 			wvTrace(("field began\n"));
 			ps->fieldmiddle=0;
 			ps->fieldstate--;
+			fieldCharProc(ps,eachchar,0);	/* temp */
 			return(0);
 			break;
 		case 0x08:
@@ -530,7 +538,7 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 			break;
 		}
 
-	if ((ps->fieldstate) && (ps->fieldmiddle==0))
+	if (ps->fieldstate)
 		{
 		fieldCharProc(ps,eachchar,chartype);
 		return(0);

@@ -2165,6 +2165,13 @@ typedef enum
 	} wvCharset;
 
 
+typedef enum _FIELDCODE
+	{
+	FC_OTHER = 0,
+	FC_TIME,
+	FC_DateTimePicture,
+	FieldCodeTableSize	/*must be last entry on pain of death*/
+	}FIELDCODE;
 
 typedef enum _TT
 	{

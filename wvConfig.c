@@ -77,7 +77,7 @@ extern char *wv_version;
 
 Tokenptr tokenTreeRoot=NULL;
 
-TokenTable s_Tokens[] =
+static TokenTable s_Tokens[] =
 {
 	{   "*",       		 TT_OTHER           }, /* must be FIRST */
     {   "begin",         TT_BEGIN        	},
@@ -460,7 +460,7 @@ void tokenTreeFreeAll(void)
 	}
 
  /* this loop is called *a lot* so I've made it a binary search*/
-unsigned int s_mapNameToToken(const char* name)
+static unsigned int s_mapNameToToken(const char* name)
 	{
 	Tokenptr p;
 	int i=0;

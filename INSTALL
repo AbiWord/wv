@@ -1,49 +1,75 @@
 wv
 ==========
 It should all work hunky dory from a ./configure followed by 
-make and make install, a few sample word 8 files to try this out 
+make and make install, a few sample word files to try this out 
 are included in the examples dir. Recommended libraries to also
 install to convert wmf files are the zlib library and libwmf 
-library, read on for details and download locations.
+library. Reccomended libraries for bitmap graphic conversion are
+ImageMagick in conjunction with libpng, read on for details and 
+download locations.
 (redhat users note that..)
-If your using Red Hat Version 6 you should have both the "zlib" and
-"freetype" loaded. Check with rpm and the cd-rom with /Redhat/RPMS/ 
-on it. You will than just need to get, compile and install libwmf.
+If your using Red Hat Version 6 you should have the "zlib", "freetype" 
+"ImageMagick" and "png" packages installed. Check with rpm and the 
+cd-rom with /Redhat/RPMS/ on it. You will than just need to get, 
+compile and install libwmf.
 
 
 Configure Options
 =================
-mswordview now requires zlib to be able to uncompress wmf files,
-use 
-./configure --with-zlib=dir_above_zlibs_include&lib_dirs
-if configure does not find zlib on its own, if configure
-does not find zlib then mswordview will still make, but it'll
-warn you about this feature loss. zlib can be found at
+zlib
+----
+libwv now requires zlib to be able to uncompress wmf files,
+
+(Use ./configure --with-zlib=dir_above_zlibs_include&lib_dirs
+if configure does not find zlib on its own)
+
+If configure does not find zlib then libwv will still make, but it'll
+warn you about this feature loss. zlib can be found at 
 http://www.cdrom.com/pub/infozip/zlib
 
-mswordview also needs libwmf to be able to convert wmf files
-to gif files for inclusion in the html output use
-./configure --with-wmf==dir_above_libwmf_include&lib_dirs
-if configure does not find libwmf on its own, if configure
-does not find libwmf then mswordview will still make, but it'll
-warn you that it can't convert those wmf's. libwmf can be
-found at 
+libwmf
+------
+libwv also needs libwmf to be able to convert wmf files
+to gif files for inclusion in the html output.
+
+(Use ./configure --with-wmf==dir_above_libwmf_include&lib_dirs
+if configure does not find libwmf on its own)
+
+If configure does not find libwmf then libwv will still make, but it'll
+warn you that it can't convert those wmf's. libwmf can be found at 
 http://www.csn.ul.ie/~caolan/docs/libwmf.html
 
-mswordview also needs freetype to be able to allow libwmf to
+freetype
+--------
+libwv also needs freetype to be able to allow libwmf to
 output text in its conversion of wmf files to gif.
-./configure --with-ttf=dir_above_ttf_includes&lib_dirs
-it can be found at
-http://www.freetype.org
-*note* libwmf also has to be compiled with freetype support for this
-to work.
 
+(Use ./configure --with-ttf=dir_above_ttf_includes&lib_dirs
+if configure does not find freetype on its own)
+
+It can be found at http://www.freetype.org, *note* libwmf also has to be 
+compiled with freetype support for this to work.
+
+ImageMagick
+-----------
+libwv also needs ImageMagick to be able to convert bmp files
+to png, as well as other format conversions
+
+(Use ./configure --with-Magick=dir_above_Magick_includes&lib_dirs
+if configure does not find Magick on its own)
+
+It can be found at http://www.wizards.dupont.com/cristy/ImageMagick.html
+*note* ImageMagick as to be compiled with png support for this to be of
+any use.
+
+General
+-------
 In each case the dir argument to configure can either be the dir 
 *above* the include and lib dirs where the component can be found. 
 Or the actual dir where *both* the lib and include files exist.
 
-
-But in general if you install zlib,libwmf and freetype, then you just have
+But in general if you install zlib,libwmf,freetype, png and ImageMagick, then 
+you just have
 to do
 ./configure
 make
@@ -57,7 +83,7 @@ if make gives up without compiling a single thing then try
 gmake -f Makefile 
 instead, this is a for systems with old make, like Irix for example.
 
-(2) Cant install mswordview from a make install
+(2) Cant install libwv from a make install
 If install fails due to some systems not allowing installs into user dirs
 change the INSTALL variable in the Makefiles to the path of the included
 install-sh, this is the kind of thing that happens on AIX.
@@ -65,21 +91,21 @@ install-sh, this is the kind of thing that happens on AIX.
 (3) Final link fails with "undefined reference to `uncompress'"
 Now there is one possible problem that i've come across, for some reason
 on my old redhat4.2 system there was a libz.a in /usr/X11R6/lib that
-mswordview was linking against rather than the correct one in /usr/lib.
+libwv was linking against rather than the correct one in /usr/lib.
 To fix that i just deleted it :-). You can recognize this problem if the
 make breaks like this at link time
-gcc -lm -o mswordview mswordview.o laolareplace.old.o support.o list.o 
+gcc -lm -o libwv libwv.o laolareplace.old.o support.o list.o 
 	piecetable.o stylesheet.o sprm.o blip.o utf.o init_chp.o field.o 
 	formatting.o references.o gpprl.o papchpsep.o hyperlink.o decompresswmf.o 
 	table.o annotations.o dop.o roman.o  oledecod/oledecod.o -lz   
 	-L/usr/X11R6/lib  -lX11  -lgdwmf -lwmf -lxgd -ldib -lXpm -lttf 
 decompresswmf.o: In function `decompress':
 decompresswmf.o(.text+0x211): undefined reference to `uncompress'
-gmake: *** [mswordview] Error 1
+gmake: *** [libwv] Error 1
 
 The solution is to either delete /usr/X11R6/lib/libz.a or place -L/usr/lib
 or -L/usr/local/lib (whichever one has libz.a in it) before -lz i.e
-gcc -lm -o mswordview mswordview.o laolareplace.old.o support.o list.o 
+gcc -lm -o libwv libwv.o laolareplace.old.o support.o list.o 
     piecetable.o stylesheet.o sprm.o blip.o utf.o init_chp.o field.o 
 	formatting.o references.o gpprl.o papchpsep.o hyperlink.o decompresswmf.o 
 	table.o annotations.o dop.o roman.o  oledecod/oledecod.o -L/usr/lib -lz
@@ -106,11 +132,11 @@ person ported it to AmigaOS, check the homepage for a link to that insanity.
 And there was a few mails from someone who said he had it working under VMS,
 i don't have any patches for that one yet though.
 
-MSWordView for Windows
+libwv for Windows
 ======================
 
-Its trivial to compile mswordview with the cygwin32 package, available from 
-www.cygnus.com.  get that package and install it, then unpack mswordview and 
+Its trivial to compile libwv with the cygwin32 package, available from 
+www.cygnus.com.  get that package and install it, then unpack libwv and 
 run ./configure.  then just add -DWINDOWS to the compiler flags are you are off. 
 i.e. change
 CC = gcc
@@ -119,14 +145,14 @@ CC = gcc -DWINDOWS
 The only thing that extra define does is change the / to \, in the scanning of a 
 command line so as to find the name of the word doc without the prepended path.
 
-I haven't tried mswordview under windows since zlib or the wmblib library were
+I haven't tried libwv under windows since zlib or the wmblib library were
 needed to be installed for full functionality, but i imagine that compiling them
 under cygwin32 would go smoothly as well, let me know on that one.
 
-Running MSWordView from Netscape
+Running wvHtml from Netscape
 ================================
 theres some scripts in helper-scripts that were sent to me to
-get netscape to use mswordview as a helper application. I dont
+get netscape to use libwv as a helper application. I dont
 know anything about them, and they might not work, especially
 as the program changes while they dont, but they are a useful
 resource, i believe the nsopen nswordview are you're best bet
@@ -134,13 +160,13 @@ for this.
 
 Support Files
 =============
-mswordview currently uses gifs to replace the wingding and symbol fonts 
+libwv currently uses gifs to replace the wingding fonts 
 and a set of custom graphics for pattern backgrounds for tables, and some
 graphics for end of a page, footnotes etc, so do the make install to put
-them in the place that mswordview will reference them, or use the commandline
+them in the place that libwv will reference them, or use the commandline
 options to set their location.
 
-MSWordView Crashes
+libwv Crashes
 ==================
 I don't believe you. You question the worthiness of my Code? I should kill
 you where you stand!, but seriously, follow these steps to help me.
@@ -149,21 +175,21 @@ make clean first
 add -g -DDEBUG to the flags to the c compiler to generate
 a stack of debugging info if things go wrong for you.
 
-if you get a crash please recompile mswordview with 
+if you get a crash please recompile libwv with 
 CC options -g -DDEBUG, run and send the output to a temporary
 file, and generate a core dump
 for tcsh 
 limit core unlimited
 and run again
 then do
-gdb mswordview core
+gdb libwv core
 and type
 backtrace
 send the output of gdb to me with the bugreport and the output
-from the -DDEBUG mswordview and if possible send me the file that 
-mswordview crashed on as well. if the word file is particulary 
+from the -DDEBUG libwv and if possible send me the file that 
+libwv crashed on as well. if the word file is particulary 
 big compress it for me please. please mention your platform and
-mswordview version.
+libwv version.
 
 
 C.
