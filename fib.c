@@ -305,10 +305,8 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->nFibBack = read_16ubit(fd);
 	item->lKey = read_32ubit(fd);
 	item->envr = getc(fd);
-	wvError(("envr is %d\n",item->envr));
 	temp8 = getc(fd);
 	item->fMac = (temp8 & 0x01);
-	wvError(("fMac is %d\n",item->fMac));
 	item->fEmptySpecial = (temp8 & 0x02) >> 1;
 	item->fLoadOverridePage = (temp8 & 0x04) >> 2;
 	item->fFutureSavedUndo = (temp8 & 0x08) >> 3;

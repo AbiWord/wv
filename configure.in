@@ -618,7 +618,7 @@ dnl lib test begins
 				_SAVE_LDFLAGS=$LDFLAGS
 				mflags=`Magick-config --libs`
 				LDFLAGS="$mflags $LDFLAGS"
-				AC_CHECK_LIB(Magick, WriteJPEGImage, 
+				AC_CHECK_LIB(Magick, WritePNGImage, 
 				[result="yes" MAGICK_LIBS="$mflags $X_LIBS -lX11 $X_EXTRA_LIBS"],
 				[result="no" LDFLAGS=$_SAVE_LDFLAGS],
 				$X_LIBS -lX11 $X_EXTRA_LIBS
@@ -637,33 +637,38 @@ if test "x$result" != xyes; then
 	MAGICK="MAGICK"
 	MAGICKOBJS="\$(RMAGICKOBJS)"
 
-dnl if we have to use our own then we need libjpeg
-	AC_CHECKING(for JPEG support ...)
-    failed=0;
-    passed=0;
-    AC_CHECK_HEADER(jconfig.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`)
-    AC_CHECK_HEADER(jerror.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`)
-    AC_CHECK_HEADER(jmorecfg.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`)
-    AC_CHECK_HEADER(jpeglib.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`)
-    AC_CHECK_LIB(jpeg,jpeg_read_header,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
-    AC_MSG_CHECKING(if JPEG package is complete)
-    if test $passed -gt 0
-    then
-    if test $failed -gt 0
-    then
-    AC_MSG_RESULT(no -- some components failed test)
-        have_jpeg='no (failed tests)'
-    else
-    LIB_JPEG='-ljpeg'
-    LIBS="$LIB_JPEG $LIBS"
-    AC_DEFINE(HasJPEG)
-    AC_MSG_RESULT(yes)
-        have_jpeg='yes'
-    fi
-    else
-        AC_MSG_RESULT(no)
-    fi
-	
+dnl if we have to use our own then we need libpng
+#
+# Check for PNG
+#
+	have_png='no'
+	LIB_PNG=''
+	if test "$with_png" != 'no'
+	then
+		AC_CHECKING(for PNG support ...)
+		failed=0;
+		passed=0;
+		AC_CHECK_HEADER(png.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
+		AC_CHECK_HEADER(pngconf.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
+		AC_CHECK_LIB(png,png_info_init,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
+		AC_MSG_CHECKING(if PNG package is complete)
+		if test $passed -gt 0
+		then
+		if test $failed -gt 0
+		then
+		AC_MSG_RESULT(no -- some components failed test)
+		have_png='no (failed tests)'
+		else
+		LIB_PNG='-lpng'
+		LIBS="$LIB_PNG $LIBS"
+		AC_DEFINE(HasPNG)
+		AC_MSG_RESULT(yes)
+		have_png='yes'
+		fi
+		else
+		AC_MSG_RESULT(no)
+		fi
+	fi
 fi
 
 

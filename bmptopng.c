@@ -1,18 +1,18 @@
 #include <magick.h>
 #include <string.h>
-int bmptojpg(char *prefix);
-
+int bmptopng(char *prefix);
 #if 0
 int main (int argc, char **argv)
 	{
-	return(bmptojpg(argv[1]));
+	return(bmptopng(argv[1]));
 	}
 #endif
 
-int bmptojpg(char *prefix)
+int bmptopng(char *prefix)
 	{
 	Image *image;
 	ImageInfo image_info;
+
 	char buffer[4096];
 
 	GetImageInfo (&image_info);
@@ -21,9 +21,13 @@ int bmptojpg(char *prefix)
 	image = ReadBMPImage (&image_info);
 	if (image == (Image *) NULL)
 		return(1);
-	sprintf(buffer, "%s.jpg",prefix);
+	sprintf(buffer, "%s.png",prefix);
+
+	strcpy(image_info.filename,buffer);
+	SetImageInfo(&image_info,1);
 	strcpy (image->filename, buffer);
-	WriteJPEGImage (&image_info, image);
+	WritePNGImage (&image_info, image);
+
 	DestroyImage (image);
 	return(0);
 	}

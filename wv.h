@@ -2592,6 +2592,7 @@ typedef struct _wvParseStruct
 	U32 nooffspa;
 
 	int fieldstate;
+	int fieldmiddle;
 	char *filename;	
 	}wvParseStruct;
 
@@ -3080,6 +3081,7 @@ typedef struct _FBSE
    } FBSE; 
 
 U32 wvGetFBSE(FBSE *afbse,FILE *fd);
+void wvCopyFBSE(FBSE *dest,FBSE *src);
 
 
 typedef enum
@@ -3119,6 +3121,9 @@ typedef enum
 typedef enum
 	{
 	msofbtDggContainer = 0xF000,
+	msofbtBstoreContainer = 0xF001,
+	msofbtDgContainer = 0xF002,
+	msofbtSpgrContainer = 0xF003,
 	msofbtSpContainer =	0xF004,
 	msofbtDgg = 0xF006,
 	msofbtBSE = 0xF007,
@@ -3134,6 +3139,7 @@ typedef enum
 	msofbtClientData = 0xF011,
 	msofbtBlipFirst = 0xF018,
 	msofbtDeletedPspl = 0xF11D,
+	msofbtSplitMenuColors = 0xF11E,
 	msofbtOleObject = 0xF11F
 	} MSOFBT;
 
@@ -3202,10 +3208,12 @@ typedef struct _Blip
 		}blip;
 	}Blip;
 
-U32 wvGetBlip(Blip *blip,FILE *fd);
+U32 wvGetBlip(Blip *blip,FILE *fd,FILE *delay);
 
 U32 wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *fd);
+void wvCopyMetafile(MetaFileBlip *dest,MetaFileBlip *src);
 U32 wvGetBitmap(BitmapBlip *abm,MSOFBH *amsofbh,FILE *fd);
+void wvCopyBitmap(BitmapBlip *dest,BitmapBlip *src);
 
 typedef struct _FOPTE
 	{
@@ -3246,15 +3254,19 @@ typedef struct _FSPGR
 typedef RECT FAnchor,FChildAnchor,FClientAnchor;
 U32 wvGetFAnchor(FAnchor *fanchor,FILE *fd);
 
+typedef struct _ClientData
+	{
+	U8 *data;
+	}ClientData;
+
 typedef struct _FSPContainer
 	{
 	FSPGR fspgr;		/*may not exist */
 	FSP fsp;			/*always will exist */
 	FOPTE *fopte;		/*always */
 	FAnchor	fanchor;	/* one of these will be there */
-
+	ClientData clientdata;/*always */
 #if 0	
-	ClientData		/*always */
 	
 	ClientTextbox	/*maybe */
 	Textbox
@@ -3330,7 +3342,89 @@ int wvGetPICF(version ver,PICF *apicf,FILE *fd);
 void remove_suffix (char *name, const char *suffix);
 
 U32 wvEatOldGraphicHeader(FILE *fd);
-int bmptojpg(char *prefix);
+int bmptopng(char *prefix);
+
+int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps);
+
+typedef struct _SplitMenuColors
+	{
+	U32 noofcolors;
+	U32 *colors;
+	}SplitMenuColors;
+
+typedef struct _Dgg
+	{
+	FDGG fdgg;
+	FIDCL *fidcl;
+	}Dgg;
+
+typedef struct _BstoreContainer
+	{
+	U32 no_fbse;
+	Blip *blip;
+	}BstoreContainer;
+
+typedef struct _DggContainer
+	{
+	SplitMenuColors splitmenucolors;
+	Dgg dgg;
+	BstoreContainer bstorecontainer;
+	} DggContainer;
+
+
+U32 wvGetDggContainer(DggContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay);
+U32 wvGetBstoreContainer(BstoreContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay);
+
+
+U32 wvGetDgg(Dgg *dgg,MSOFBH *amsofbh,FILE *fd);
+
+U32 wvGetFDGG(FDGG *afdgg,FILE *fd);
+U32 wvGetFIDCL(FIDCL *afidcl,FILE *fd);
+
+	
+U32 wvGetSplitMenuColors(SplitMenuColors *splitmenucolors,MSOFBH *amsofbh,FILE *fd);
+U32 wvReleaseSplitMenuColors(SplitMenuColors *splitmenucolors);
+
+typedef struct _SpgrContainer
+	{
+	U32 no_spcontainer;
+	FSPContainer *spcontainer;
+	U32 no_spgrcontainer;
+	struct _SpgrContainer *spgrcontainer;
+	}SpgrContainer;
+
+typedef struct _DgContainer
+	{
+	FDG fdg;
+	U32 no_spgrcontainer;
+  	SpgrContainer *spgrcontainer;
+#if 0
+	SolverContainer solvercontainer;
+	ColorScheme  colorscheme;
+  	RegroupItems regroupitems;
+#endif
+	}DgContainer;
+
+U32 wvGetDgContainer(DgContainer *item,MSOFBH *msofbh,FILE *fd);
+U32 wvReleaseDgContainer(DgContainer *item);
+U32 wvGetFDG(FDG *afdg,FILE *fd);
+U32 wvGetSpgrContainer(SpgrContainer *item,MSOFBH *msofbh,FILE *fd);
+U32 wvGetFSPGR(FSPGR *item,FILE *fd);
+
+U32 wvGetClientData(ClientData *item,MSOFBH *msofbh,FILE *fd);
+void wvReleaseClientData(ClientData *item);
+FSPContainer *wvFindSPID(SpgrContainer *item,S32 spid);
+
+typedef struct _escherstruct
+	{
+	DggContainer dggcontainer;
+	DgContainer dgcontainer;
+	} escherstruct;
+
+void wvGetEscher(escherstruct *item,U32 offset, U32 len, FILE *fd,FILE *delay);
+
+void wvStrToUpper(char *str);
+
 
 /*current insertion position*/
 
@@ -3645,9 +3739,6 @@ typedef struct _fbse_list fbse_list;
 
 
 fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *escherstream,FILE *delaystream);
-void wvGetFDGG(FDGG *afdgg,FILE *fd);
-void wvGetFIDCL(FIDCL *afidcl,FILE *fd);
-void wvGetFDG(FDG *afdg,FILE *fd);
 int wvQueryDelayStream(FBSE *afbse);
 fbse_list *wvGetSPID(U32 spid,fsp_list *afsp_list,fbse_list *afbse_list);
 U32 twvGetFBSE(FBSE *item,FILE *fd);

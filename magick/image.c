@@ -1661,3 +1661,264 @@ Export void RGBTransformImage(Image *image,const ColorspaceType colorspace)
   FreeMemory((char *) x);
 }
 
+/*
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                                                             %
+%                                                                             %
+%                                                                             %
+%   S e t I m a g e I n f o                                                   %
+%                                                                             %
+%                                                                             %
+%                                                                             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  Method SetImageInfo initializes the `magick' field of the ImageInfo
+%  structure.  It is set to a type of image format based on the prefix or
+%  suffix of the filename.  For example, `ps:image' returns PS indicating
+%  a Postscript image.  JPEG is returned for this filename: `image.jpg'.
+%  The filename prefix has precendence over the suffix.  Use an optional index
+%  enclosed in brackets after a file name to specify a desired subimage of a
+%  multi-resolution image format like Photo CD (e.g. img0001.pcd[4]).
+%
+%  The format of the SetImageInfo method is:
+%
+%      void SetImageInfo(ImageInfo *image_info,const unsigned int rectify)
+%
+%  A description of each parameter follows:
+%
+%    o image_info: Specifies a pointer to an ImageInfo structure.
+%
+%    o rectify: an unsigned value other than zero rectifies the attribute for
+%      multi-frame support (user may want multi-frame but image format may not
+%      support it).
+%
+%
+*/
+Export void SetImageInfo(ImageInfo *image_info,const unsigned int rectify)
+{
+  char
+    magick[MaxTextExtent];
+
+  Image
+    *image;
+
+  register char
+    *p,
+    *q;
+
+  register MagickInfo
+    *r;
+
+  unsigned int
+    status;
+
+  /*
+    Look for 'image.format' in filename.
+  */
+  assert(image_info != (ImageInfo *) NULL);
+  *magick='\0';
+  p=image_info->filename+Extent(image_info->filename)-1;
+  if (*p == ']')
+    for (q=p-1; q > image_info->filename; q--)
+    {
+      char
+        *tile;
+
+      /*
+        Look for sub-image specification (e.g. img0001.pcd[4]).
+      */
+      if (*q != '[')
+        continue;
+      if (!IsGeometry(q+1))
+        break;
+      tile=(char *) AllocateMemory((p-q)*sizeof(char));
+      if (tile == (char *) NULL)
+        break;
+      (void) strncpy(tile,q+1,p-q-1);
+      tile[p-q-1]='\0';
+      *q='\0';
+      p=q;
+      (void) CloneString(&image_info->tile,tile);
+      FreeMemory((char *) tile);
+      if (!IsSubimage(image_info->tile,True))
+        break;
+      /*
+        Determine sub-image range.
+      */
+      image_info->subimage=atoi(image_info->tile);
+      image_info->subrange=atoi(image_info->tile);
+      (void) sscanf(image_info->tile,"%u-%u",&image_info->subimage,
+        &image_info->subrange);
+      if (image_info->subrange < image_info->subimage)
+        Swap(image_info->subimage,image_info->subrange);
+      else
+        {
+          FreeMemory(image_info->tile);
+          image_info->tile=(char *) NULL;
+        }
+      image_info->subrange-=image_info->subimage-1;
+      break;
+    }
+  while ((*p != '.') && (p > (image_info->filename+1)))
+    p--;
+  if ((strcmp(p,".gz") == 0) || (strcmp(p,".Z") == 0) ||
+      (strcmp(p,".bz2") == 0))
+    do
+    {
+      p--;
+    } while ((*p != '.') && (p > (image_info->filename+1)));
+  if ((*p == '.') && (Extent(p) < (int) sizeof(magick)))
+    {
+      /*
+        User specified image format.
+      */
+      (void) strcpy(magick,p+1);
+      for (q=magick; *q != '\0'; q++)
+        if (*q == '.')
+          {
+            *q='\0';
+            break;
+          }
+	
+      wvStrToUpper(magick);
+      /*
+        SGI and RGB are ambiguous;  TMP must be set explicitly.
+      */
+      if (((strncmp(image_info->magick,"SGI",3) != 0) ||
+          (strcmp(magick,"RGB") != 0)) &&
+          (strcmp(magick,"TMP") != 0))
+        (void) strcpy(image_info->magick,magick);
+    }
+  /*
+    Look for explicit 'format:image' in filename.
+  */
+  image_info->affirm=image_info->file != (FILE *) NULL;
+  p=image_info->filename;
+  while (isalnum((int) *p))
+    p++;
+#if defined(vms)
+  if (*(p+1) == '[')
+    p++;
+#endif
+  if ((*p == ':') && ((p-image_info->filename) < (int) sizeof(magick)))
+    {
+      /*
+        User specified image format.
+      */
+      (void) strncpy(magick,image_info->filename,p-image_info->filename);
+      magick[p-image_info->filename]='\0';
+      wvStrToUpper(magick);
+#if defined(macintosh) || defined(WIN32)
+      if (!ImageFormatConflict(magick))
+      if (!ImageFormatConflict(magick))
+#endif
+        {
+          /*
+            Strip off image format prefix.
+          */
+          p++;
+          (void) strcpy(image_info->filename,p);
+          if (strcmp(magick,"IMPLICIT") != 0)
+            {
+              (void) strcpy(image_info->magick,magick);
+              if (strcmp(magick,"TMP") != 0)
+                image_info->affirm=True;
+              else
+                image_info->temporary=True;
+            }
+        }
+    }
+  if (rectify)
+    {
+      char
+        filename[MaxTextExtent];
+
+      MagickInfo
+        *magick_info;
+
+      /*
+        Rectify multi-image file support.
+      */
+      FormatString(filename,image_info->filename,0);
+      if ((strcmp(filename,image_info->filename) != 0) &&
+          (strchr(filename,'%') == (char *) NULL))
+        image_info->adjoin=False;
+      magick_info=(MagickInfo *) GetMagickInfo(magick);
+      if (magick_info != (MagickInfo *) NULL)
+        image_info->adjoin&=magick_info->adjoin;
+      return;
+    }
+  if (image_info->affirm)
+    return;
+  /*
+    Allocate image structure.
+  */
+  image=AllocateImage(image_info);
+  if (image == (Image *) NULL)
+    return;
+  /*
+    Determine the image format from the first few bytes of the file.
+  */
+  (void) strcpy(image->filename,image_info->filename);
+  status=OpenBlob(image_info,image,ReadBinaryType);
+  if (status == False)
+    return;
+  if ((image->blob.data != (char *) NULL)  || !image->exempt)
+    (void) ReadBlob(image,MaxTextExtent,magick);
+  else
+    {
+      FILE
+        *file;
+
+      register int
+        c,
+        i;
+
+      /*
+        Copy standard input or pipe to temporary file.
+      */
+      image_info->file=(FILE *) NULL;
+      TemporaryFilename(image->filename);
+      image_info->temporary=True;
+      FormatString(image_info->filename,"%.1024s",image->filename);
+      file=fopen(image->filename,WriteBinaryType);
+      if (file == (FILE *) NULL)
+        {
+          MagickWarning(FileOpenWarning,"Unable to write file",image->filename);
+          return;
+        }
+      i=0;
+      for (c=fgetc(image->file); c != EOF; c=fgetc(image->file))
+      {
+        if (i < MaxTextExtent)
+          magick[i++]=c;
+        (void) putc(c,file);
+      }
+      (void) fclose(file);
+    }
+  DestroyImage(image);
+  magick[MaxTextExtent-1]='\0';
+  if (strncmp(magick,"BEGMF",3) == 0)
+    (void) strcpy(image_info->magick,"CGM");
+  if (strncmp(magick,"digraph",7) == 0)
+    (void) strcpy(image_info->magick,"DOT");
+  if (strncmp(magick,"#FIG",4) == 0)
+    (void) strcpy(image_info->magick,"FIG");
+  if (strncmp(magick,"#!/usr/local/bin/gnuplot",24) == 0)
+    (void) strcpy(image_info->magick,"GPLT");
+  if (strncmp(magick,"IN;",3) == 0)
+    (void) strcpy(image_info->magick,"HPGL");
+  if (strncmp(magick+8,"ILBM",2) == 0)
+    (void) strcpy(image_info->magick,"ILBM");
+  if ((magick[0] == 0x00) && (magick[1] == 0x00))
+    if ((magick[2] == 0x01) && ((unsigned char) magick[3] == 0xb3))
+      (void) strcpy(image_info->magick,"M2V");
+  if (strncmp(magick,"#?RADIANCE",10) == 0)
+    (void) strcpy(image_info->magick,"RAD");
+  if (strncmp(magick,"gimp xcf file",13) == 0)
+    (void) strcpy(image_info->magick,"XCF");
+  for (r=GetMagickInfo((char *) NULL); r != (MagickInfo *) NULL; r=r->next)
+    if (r->magick)
+      if (r->magick((unsigned char *) magick,MaxTextExtent))
+        (void) strcpy(image_info->magick,r->tag);
+}

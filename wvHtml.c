@@ -344,20 +344,24 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 	switch(eachchar)
 		{
 		case 19:
-			wvError(("field began\n"));
-			ps->fieldstate=1;
+			wvTrace(("field began\n"));
+			ps->fieldstate++;
+			ps->fieldmiddle=0;
 			return(0);
 			break;
 		case 20:
-			wvError(("field middle\n"));
+			wvTrace(("field middle\n"));
+			ps->fieldmiddle=1;
+			break;
 		case 21:
-			wvError(("field end\n"));
-			ps->fieldstate=0;
+			wvTrace(("field end\n"));
+			ps->fieldstate--;
+			ps->fieldmiddle=0;
 			return(0);
 			break;
 		}
 
-	if (ps->fieldstate) 
+	if ((ps->fieldstate) && (ps->fieldmiddle==0))
 		{
 		fieldCharProc(ps,eachchar,0);	/* temp */
 		return(0);
@@ -381,22 +385,38 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			f = (FILE *)picf.rgb;
 			if (wv0x01(&blip,f,picf.lcb-picf.cbHeader))
 				{
-				wvError(("Here\n"));
+				wvTrace(("Here\n"));
 				name = wvHtmlGraphic(ps,&blip);
-				printf("<img alt=\"placeholder\" src=\"%s\"><br>",name);
+				printf("<img alt=\"0x01 graphic\" src=\"%s\"><br>",name);
 				wvFree(name);
 				}
 			else
 				{
 				wvError(("Strange No Graphic Data in the 0x01 graphic\n"));
-				printf("<img alt=\"placeholder\" src=\"%s\"><br>","StrangeNoGraphicData");
+				printf("<img alt=\"0x01 graphic\" src=\"%s\"><br>","StrangeNoGraphicData");
 				}
 			fseek(ps->data,p,SEEK_SET);
 			return(0);
 			}
 		case 0x08:
+			{
+			Blip blip;
+			char *name;
 			fspa = wvGetFSPAFromCP(ps->currentcp,ps->fspa,ps->fspapos,ps->nooffspa);
 			data->props = fspa;
+			if (wv0x08(&blip,fspa->spid,ps))
+				{
+				wvTrace(("Here\n"));
+                name = wvHtmlGraphic(ps,&blip);
+                printf("<img alt=\"0x08 graphic\" src=\"%s\"><br>",name);
+                wvFree(name);
+				}
+			else
+				{
+				wvError(("Strange No Graphic Data in the 0x01 graphic\n"));
+                printf("<img alt=\"0x08 graphic\" src=\"%s\"><br>","StrangeNoGraphicData");
+				}
+#if 0
 			if ( (fspa) && (data->sd != NULL) && (data->sd->elements[TT_PICTURE].str) && (data->sd->elements[TT_PICTURE].str[0] != NULL) )
 				{
 				wvExpand(data,data->sd->elements[TT_PICTURE].str[0],
@@ -408,7 +428,9 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 					wvFree(data->retstring);
 					}
 				}
+#endif
 			return(0);
+			}
 		case 0x28:
 			{
 			U16 symbol[6] = {'S','y','m','b','o','l'};
@@ -467,15 +489,19 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 	switch(eachchar)
 		{
 		case 19:
-			wvError(("field began\n"));
-			ps->fieldstate=1;
+			wvTrace(("field began\n"));
+			ps->fieldstate++;
+			ps->fieldmiddle=0;
 			return(0);
 			break;
 		case 20:
-			wvError(("field middle\n"));
+			wvTrace(("field middle\n"));
+			ps->fieldmiddle=1;
+			break;
 		case 21:
-			wvError(("field began\n"));
-			ps->fieldstate=0;
+			wvTrace(("field began\n"));
+			ps->fieldmiddle=0;
+			ps->fieldstate--;
 			return(0);
 			break;
 		case 0x08:
@@ -483,7 +509,7 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 			break;
 		}
 
-	if (ps->fieldstate) 
+	if ((ps->fieldstate) && (ps->fieldmiddle==0))
 		{
 		fieldCharProc(ps,eachchar,chartype);
 		return(0);
@@ -492,7 +518,7 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 	wvTrace(("charset is %s, lid is %x, type is %d, char is %x\n",charset,lid,chartype,eachchar));
 
 	if ( (chartype) && (wvQuerySupported(&ps->fib,NULL) == WORD8) )
-		wvError(("lid is %x\n",lid));
+		wvTrace(("lid is %x\n",lid));
 	
 	if (charset != NULL)
 		wvOutputHtmlChar(eachchar,chartype,charset,lid);

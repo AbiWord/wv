@@ -348,7 +348,7 @@ padding: <mmPadTop/> <mmPadRight/> <mmPadBottom/> <mmPadLeft/>; &quot;&gt;
 
 <picture>
 <begin>
-&lt;img <htmlAlignGuess/> width=&quot;<pixPicWidth/>&quot; height=&quot;<pixPicHeight/>&quot; alt=&quot;placeholder&quot; src=&quot;placeholder.png&quot;&gt;<htmlNextLineGuess/>
+&lt;img <htmlAlignGuess/> width=&quot;<pixPicWidth/>&quot; height=&quot;<pixPicHeight/>&quot; alt=&quot;0x01 graphic&quot; src=&quot;placeholder.png&quot;&gt;<htmlNextLineGuess/>
 </begin>
 </picture>
 

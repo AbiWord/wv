@@ -453,7 +453,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			chp.fcPic field. It simultaneously sets chp.fSpec to 1.
 			*/
 			achp->fcPic_fcObj_lTagObj = bread_32ubit(pointer,pos);
-			wvError(("Len is %x\n",achp->fcPic_fcObj_lTagObj));
+			wvTrace(("Len is %x\n",achp->fcPic_fcObj_lTagObj));
 			achp->fSpec = 1;
 			break;
 		case sprmCIbstRMark:
@@ -1467,7 +1467,7 @@ void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos,FILE *data, STSH *sts
 #endif
         pointer2 = grpprl+i;
         if (i < len)
-            wvApplySprmFromBucket(0,sprm,apap,NULL,NULL,stsh,pointer2,&i,data);
+            wvApplySprmFromBucket(WORD8,sprm,apap,NULL,NULL,stsh,pointer2,&i,data);
         }
 	wvFree(grpprl);
 	}

@@ -19,22 +19,6 @@ char failsafe[1];
 
 U16 idlist[NOOFIDS] = {0,0x216,0x3D4,0x542,0x6E0,0x46A,0x7A8,0x800};
 
-void wvGetFDGG(FDGG *afdgg,FILE *infd)
-	{
-	afdgg->spidMax = read_32ubit(infd);
-	afdgg->cidcl = read_32ubit(infd);
-	afdgg->cspSaved = read_32ubit(infd);
-	afdgg->cdgSaved = read_32ubit(infd);
-	wvTrace(("spidMax %d cidcl %d cspSaved %d cdgSaved %d\n",afdgg->spidMax,afdgg->cidcl,afdgg->cspSaved, afdgg->cdgSaved ));
-	}
-
-void wvGetFIDCL(FIDCL *afidcl,FILE *infd)
-	{
-	afidcl->dgid = read_32ubit(infd);
-	afidcl->cspidCur = read_32ubit(infd);
-	wvTrace(("dgid %d cspidCur %d\n",afidcl->dgid,afidcl->cspidCur));
-	}
-
 int wvQueryDelayStream(FBSE *afbse)
 	{
 	if ((afbse->btWin32 ==  msoblipERROR) && (afbse->btMacOS == msoblipERROR))
@@ -237,14 +221,6 @@ U32 twvGetFOPTE(FOPTE *afopte,FILE *infd)
 #endif
 	wvTrace(("orig %x,pid is %x, val is %x\n",dtemp,afopte->pid,afopte->op));
 	return(ret);
-	}
-
-
-void wvGetFDG(FDG *afdg,FILE *infd)
-	{
-	afdg->csp = read_32ubit(infd);
-	afdg->spidCur = read_32ubit(infd);
-	wvTrace(("there are %d shapes here, the last is %x\n",afdg->csp,afdg->spidCur));
 	}
 
 fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *tablefd,FILE *mainfd)

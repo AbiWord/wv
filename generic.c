@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "wv.h"
 
 int wvGetEmpty_PLCF(U32 **cps,U32 *nocps,U32 offset,U32 len,FILE *fd)
@@ -75,7 +76,6 @@ int wvIncFC(U8 chartype)
 	return(2);
 	}
 
-
 int wvStrlen(const char *str)
 	{
 	if (str == NULL)
@@ -104,3 +104,11 @@ void wvAppendStr(char **orig,const char *add)
 	wvTrace(("3 test str of %s\n",*orig));
 	}
 
+void wvStrToUpper(char *str)
+	{
+	int i;
+	if (str == NULL)
+		return;
+	for(i=0;i<wvStrlen(str);i++)
+		str[i] = toupper(str[i]);
+	}

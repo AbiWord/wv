@@ -23,6 +23,7 @@ SHELL = /bin/sh
 .SUFFIXES: .C .$(OBJEXT)
 
 MAGICKOBJECTS =	\
+	magick.$(OBJEXT) \
 	image.$(OBJEXT) \
 	blob.$(OBJEXT) \
 	colors.$(OBJEXT) \
@@ -31,7 +32,7 @@ MAGICKOBJECTS =	\
 	compress.$(OBJEXT) \
 	memory.$(OBJEXT) \
 	utility.$(OBJEXT) \
-	jpeg.$(OBJEXT) \
+	png.$(OBJEXT) \
 	bmp.$(OBJEXT)
 
 

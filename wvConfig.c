@@ -7,8 +7,6 @@
 #include "xmlparse.h"
 
 #define HANDLE_B_PARA_ELE(a,b,c,d) \
-wvTrace(("flag is %d\n",((PAP*)(mydata->props))->b)); \
-wvTrace(("str is %s\n",mydata->sd->elements[a].str[0])); \
 if ( (((PAP*)(mydata->props))->b == d) && (c == 0) ) \
 	{ \
 	text = (char *)malloc(strlen(mydata->sd->elements[a].str[0])+1); \
@@ -24,8 +22,6 @@ if ( (((PAP*)(mydata->props))->b == d) && (c == 0) ) \
 	}
 
 #define HANDLE_B_CHAR_ELE(a,b,c,d) \
-wvTrace(("flag is %d\n",((CHP*)(mydata->props))->b)); \
-wvTrace(("str is %s\n",mydata->sd->elements[a].str[0])); \
 if ( (((CHP*)(mydata->props))->b == d) && (c == 0) ) \
 	{ \
 	text = (char *)malloc(strlen(mydata->sd->elements[a].str[0])+1); \
@@ -41,8 +37,6 @@ if ( (((CHP*)(mydata->props))->b == d) && (c == 0) ) \
 	}
 
 #define HANDLE_E_CHAR_ELE(a,b,c,d) \
-wvTrace(("flag is %d\n",((CHP*)(mydata->props))->b)); \
-wvTrace(("str is %s\n",mydata->sd->elements[a].str[0])); \
 /* \
 if ( (!((CHP*)(mydata->props))->b) && (c != 0) ) \
 */ \
@@ -61,8 +55,6 @@ if (c == d) \
 	}
 
 #define HANDLE_E_PARA_ELE(a,b,c,d) \
-wvTrace(("flag is %d\n",((PAP*)(mydata->props))->b)); \
-wvTrace(("str is %s\n",mydata->sd->elements[a].str[0])); \
 /* \
 if ( (!((PAP*)(mydata->props))->b) && (c != 0) ) \
 */ \
@@ -120,7 +112,6 @@ TokenTable s_Tokens[] =
 	{	"mmPadBottom",		TT_mmPadBottom	},
 	{	"mmPadLeft",		TT_mmPadLeft	},
 	{	"mmLineHeight",		TT_mmLineHeight},
-
     {   "document",      TT_DOCUMENT     	},
 	 {	 "picture",		  TT_PICTURE		},
 	  {	  "pixPicWidth",	TT_pixPicWidth	},
@@ -144,7 +135,6 @@ TokenTable s_Tokens[] =
 		{	"ParaLeft",	 	TT_ParaLeft		},
 		{	"ParaRight",	 TT_ParaRight		},
 		{	"ParaLeft1",	 TT_ParaLeft1		},
-		
        {   "block",       	 TT_BLOCK     	 	},
         {   "justification", TT_JUSTIFICATION	},
          {   "just",       	 TT_JUST     	 	},
@@ -449,7 +439,6 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	U32 k;
 	int i, j;
 
-
 	tokenIndex = s_mapNameToToken(name);
 	wvTrace(("name = %s tokenIndex = %d\n", name, tokenIndex));
 	switch (s_Tokens[tokenIndex].m_type)
@@ -470,12 +459,14 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_ROWSPAN:
-			wvTrace(("This Para is here cell %d %d %d\n",
+			wvTrace(("This Para is here cell %d %d\n",
 			mydata->whichrow,
-			mydata->whichcell,
-			(*mydata->vmerges)[mydata->whichrow][mydata->whichcell]));
+			mydata->whichcell));
 			if (*mydata->vmerges)
+				{
+				wvTrace(("%d\n",(*mydata->vmerges)[mydata->whichrow][mydata->whichcell]));
 				sprintf(buffer,"%d",(*mydata->vmerges)[mydata->whichrow][mydata->whichcell]);
+				}
 			else
 				sprintf(buffer,"1");
 			wvAppendStr(&mydata->retstring,buffer);
@@ -1412,7 +1403,6 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			
 			break;
 		case TT_FONTSTRE:
-			wvTrace(("flag is %d\n",((CHP*)(mydata->props))->ico)); 
 			wvTrace(("str is %s\n",mydata->sd->elements[TT_FONTSTR].str[0])); 
 			if (fontstr) 
 				{ 
@@ -1448,7 +1438,6 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			
 			break;
 		case TT_ANIMATIONE:
-			wvTrace(("flag is %d\n",((CHP*)(mydata->props))->sfxtText)); 
 			wvTrace(("str is %s\n",mydata->sd->elements[TT_ANIMATION].str[0])); 
 			if (animation) 
 				{ 

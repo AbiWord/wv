@@ -23,23 +23,23 @@ U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,FILE *fd)
 	{
 	U32 i,j,count=0;
 	U32 no = msofbh->cbLength/6;
-	wvError(("Max no od foptes is %d %x\n",no,msofbh->cbLength));
 	*fopte = (FOPTE *)malloc(sizeof(FOPTE) * no);
 	no=0;
 	while (count < msofbh->cbLength)
 		{
-		wvError(("count %x %x, pos %x\n",count,msofbh->cbLength,ftell(fd)));
+		wvTrace(("count %x %x, pos %x\n",count,msofbh->cbLength,ftell(fd)));
 		count += wvGetFOPTE(&(*fopte)[no],fd);
 		no++;
 		}
-	*fopte = (FOPTE *)realloc(*fopte,sizeof(FOPTE) * no);
+	*fopte = (FOPTE *)realloc(*fopte,sizeof(FOPTE) * (no+1));
 	for(i=0;i<no;i++)
 		{
 		if ( (*fopte)[i].fComplex )
 			for(j=0;j<(*fopte)[i].op;j++)
 			(*fopte)[i].entry[j] = getc(fd);	
 		}
-	wvError(("returning %x\n",count));
+	(*fopte)[i].pid=0;
+	wvTrace(("returning %x\n",count));
 	return(count);
 	}
 
@@ -53,9 +53,9 @@ U32 wvGetFOPTE(FOPTE *afopte,FILE *fd)
     {
 	U32 i;
     U16 dtemp;
-	wvError(("pos is %x\n",ftell(fd)));
+	wvTrace(("pos is %x\n",ftell(fd)));
     dtemp = read_16ubit(fd);
-	wvError(("dtemp is %x\n",dtemp));
+	wvTrace(("dtemp is %x\n",dtemp));
 #ifdef PURIFY
     afopte->pid = 0;
     afopte->fBid = 0;
@@ -66,10 +66,10 @@ U32 wvGetFOPTE(FOPTE *afopte,FILE *fd)
     afopte->fComplex = ((dtemp & 0x8000)>>15);
     afopte->op = read_32ubit(fd);
 
-    wvError(("orig %x,pid is %x %d, val is %x\n",dtemp,afopte->pid,afopte->pid,afopte->op));
+    wvTrace(("orig %x,pid is %x %d, val is %x\n",dtemp,afopte->pid,afopte->pid,afopte->op));
     if ( afopte->fComplex )
 		{
-        wvError(("1 complex len is %d (%x)\n",afopte->op,afopte->op));
+        wvTrace(("1 complex len is %d (%x)\n",afopte->op,afopte->op));
 		afopte->entry = (U8 *)malloc(afopte->op);
 		return(afopte->op+6);
         }

@@ -433,3 +433,22 @@ Export unsigned int CloneString(char **destination,const char *source)
   return(True);
 }
 
+Export char *AllocateString(const char *source)
+{
+  char
+    *destination;
+
+  if (source == (char *) NULL)
+    return((char *) NULL);
+  destination=(char *)
+    AllocateMemory(Max(Extent(source)+1,MaxTextExtent)*sizeof(char));
+  if (destination == (char *) NULL)
+    {
+      MagickWarning(ResourceLimitWarning,"Unable to allocate string",
+        "Memory allocation failed");
+      return((char *) NULL);
+    }
+  (void) strcpy(destination,source);
+  return(destination);
+ }
+

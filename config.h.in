@@ -74,5 +74,5 @@
 /* define if you have iconv but do not have windows codepage to unicode support */
 #undef MUST_USE_INTERNAL_ICONV_TABLE
 
-/* define if you have libjpeg */
-#undef HasJPEG
+/* define if you have libpng */
+#undef HasPNG

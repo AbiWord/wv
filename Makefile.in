@@ -31,6 +31,7 @@ ICONVOBJS =  @ICONVOBJS@
 
 MAGICK = @MAGICK@
 RMAGICKOBJS = \
+magick/magick.$(OBJEXT) \
 magick/image.$(OBJEXT) \
 magick/blob.$(OBJEXT) \
 magick/colors.$(OBJEXT) \
@@ -39,7 +40,7 @@ magick/transform.$(OBJEXT) \
 magick/compress.$(OBJEXT) \
 magick/memory.$(OBJEXT) \
 magick/utility.$(OBJEXT) \
-magick/jpeg.$(OBJEXT) \
+magick/png.$(OBJEXT) \
 magick/bmp.$(OBJEXT)
 MAGICKOBJS =  @MAGICKOBJS@
 
@@ -180,7 +181,7 @@ MYOBJECTS =	\
 	fopt.$(OBJEXT) \
 	fbse.$(OBJEXT) \
 	escher.$(OBJEXT) \
-	bmptojpg.$(OBJEXT) \
+	bmptopng.$(OBJEXT) \
 	basename.$(OBJEXT)
 
 #XML = -Lexpat/lib -lxmlparse -lxmltok

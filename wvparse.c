@@ -15,6 +15,7 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 	ps->cellbounds=NULL;
 	ps->nocellbounds=0;
 	ps->fieldstate=0;
+	ps->fieldmiddle=0;
 
 	wvInitError();
 	ps->password[0] = 0;

@@ -17,11 +17,19 @@ Changes to to 0.5.42
 	* supported 0x01 graphics ala broken/001-TETMEI.doc
 	0x01 graphics are making their way back in, and are looking
 	better than the old code already.
-
+	* fields can be embedded in each other, so the field
+	ignorer is now capable of realizing this.
+	* all 0x01 bitmap formats are looking good.
+	* some 0x08 bitmap formats are coming through correctly as well
+	* bug in Huge handling
 ALL TODO
-	* all 0x01 bitmap formats first, then 0x08 bitmap formats
-	then decompress wmf, and get libwmf back into action and 
-	get picts together as well.
+	* mem leaks, more testing, more graphic checks, more escher 
+	records etc etc.
+	* implement the dib to bmp header properly, implement bmp
+	ala mswordview.
+	* promote old graphics into escher format.
+	* decompress wmf etc.
+	* get libwmf back into action and get picts together as well.
 
 	* test with a bitmap, duplicate the headers for an escher
 	parsed bitmap so as to convert the strange thing that we
@@ -31,7 +39,6 @@ ALL TODO
 	* wvSetCharHandler(proc,NATIVE|UNICODE)
 	* attempt to remove completely empty para's with the IsEmpty code
 
-	
 	* Got to think of some way to keep the list stuff in sync with the margins 
 	of the enclosed paragraphs in html output.
 
