@@ -717,7 +717,7 @@ main (int argc, char *argv[])
     if (ret)
       {
 	  wvError (("startup error\n"));
-	  wvOLEFree ();
+	  wvOLEFree (&ps);
 	  return -1;
       }
 
@@ -729,7 +729,7 @@ main (int argc, char *argv[])
     wvText (&ps);
 
     /* free associated memory */
-    wvOLEFree ();
+    wvOLEFree (&ps);
 
     return 0;
 }

@@ -68,7 +68,7 @@ main (int argc, char *argv[])
     switch (ret & 0x7fff)
       {
       case WORD8:
-	  printf ("word8");
+	  printf ("word8 or higher");
 	  break;
       case WORD7:
 	  printf ("word7");
@@ -82,6 +82,9 @@ main (int argc, char *argv[])
       case WORD2:
 	  printf ("word2 (maybe)");
 	  break;
+      default:
+	printf ("unknown msword version");
+	break;
       }
 
     printf (", Encrypted: ");
@@ -90,6 +93,6 @@ main (int argc, char *argv[])
     else
 	printf ("No\n");
 
-    wvOLEFree ();
+    wvOLEFree (&ps);
     return 0;
 }

@@ -71,11 +71,10 @@ indentation.
 #endif
 
 extern pps_entry *stream_tree;
-extern MsOle *ole_file;
-wvStream_list *streams = NULL;
+static wvStream_list *streams = NULL;
 
 void
-wvOLEFree (void)
+wvOLEFree (wvParseStruct * ps)
 {
     wvStream_list *tempList;
     freeOLEtree (stream_tree);	/* Does internal checking, so it doesn't matter
@@ -88,9 +87,9 @@ wvOLEFree (void)
 	  wvFree (streams);
 	  streams = tempList;
       }
-    if (ole_file != NULL)
+    if (ps->ole_file != NULL)
       {
-	  ms_ole_destroy (&ole_file);
+	  ms_ole_destroy (&ps->ole_file);
       }
 }
 

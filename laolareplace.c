@@ -9,19 +9,21 @@
 #include "ms-ole.h"
 #include "oledecod.h"
 
-pps_entry *stream_tree;
-MsOle *ole_file;
+pps_entry *stream_tree = NULL;
 
 int
-wvOLEDecode (char *path, wvStream ** mainfd, wvStream ** tablefd0,
+wvOLEDecode (wvParseStruct * ps, char *path, wvStream ** mainfd, wvStream ** tablefd0,
 	     wvStream ** tablefd1, wvStream ** data, wvStream ** summary)
 {
+    MsOle *ole_file = NULL;
     int result;
 
     if (ms_ole_open (&ole_file, path) == MS_OLE_ERR_OK)
       {
 	  MsOleStream **temp_stream;
 	  temp_stream = (MsOleStream **) wvMalloc (sizeof (MsOleStream *));
+
+	  ps->ole_file = ole_file;
 
 	  wvTrace (("Opened VFS\n"));
 	  if (ms_ole_stream_open

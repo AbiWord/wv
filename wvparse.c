@@ -65,7 +65,7 @@ wvInitParser (wvParseStruct * ps, char *path)
     /* set up the token table tree for faster lookups */
     tokenTreeInit ();
 
-    ret = wvOLEDecode (path, &ps->mainfd, &ps->tablefd0, &ps->tablefd1,
+    ret = wvOLEDecode (ps, path, &ps->mainfd, &ps->tablefd0, &ps->tablefd1,
 		       &ps->data, &ps->summary);
 
     switch (ret)
@@ -90,7 +90,7 @@ wvInitParser (wvParseStruct * ps, char *path)
     if (ps->mainfd == NULL)
       {
 	  ret = 4;
-	  wvOLEFree ();
+	  wvOLEFree (ps);
 	  wvError (("Not a word document\n"));
 	  return (-1);
       }

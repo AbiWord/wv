@@ -134,7 +134,7 @@ main (int argc, char **argv)
     if (ret)
       {
 	  wvError (("startup error with file %s\n", argv[1]));
-	  wvOLEFree ();
+	  wvOLEFree (&ps);
 	  return (2);
       }
 
@@ -160,7 +160,7 @@ main (int argc, char **argv)
 	return (2);
     else if (ret != 0)
 	ret = -1;
-    wvOLEFree ();
+    wvOLEFree (&ps);
     return (ret);
 }
 

@@ -392,7 +392,7 @@ main (int argc, char **argv)
     if (ret)
       {
 	  wvError (("startup error #%d\n", ret));
-	  wvOLEFree ();
+	  wvOLEFree (&ps);
 	  return (-1);
       }
 
@@ -426,7 +426,7 @@ main (int argc, char **argv)
 	return (2);
     else if (ret != 0)
 	ret = -1;
-    wvOLEFree ();
+    wvOLEFree (&ps);
     return (ret);
 }
 

@@ -10,7 +10,7 @@ extern "C" {
 
     /* TODO: find a way to remove this */
 #include <libole2/ms-ole.h>
-    /* #include "config.h" */
+#include <libole2/ms-ole-summary.h>
 
 /* The structure below is used to refer to a wvStream.  Usually,
  * kind = LIBOLE_STREAM,
@@ -2670,6 +2670,7 @@ that indicates their length.
 	void *userData;
 
 	/*protected */
+        MsOle    *ole_file;
 	wvStream *mainfd;
 	wvStream *tablefd;
 	wvStream *data;
@@ -2941,7 +2942,7 @@ returns the same as wvOLEDecode with the addition that
     U32 wvGetPieceFromCP (U32 cp, CLX * clx);
     int wvGetIndexFCInFKP_PAPX (PAPX_FKP * fkp, U32 currentfc);
 
-    void wvOLEFree (void);
+    void wvOLEFree (wvParseStruct * ps);
 
 
 
@@ -4670,7 +4671,8 @@ has got
 2 if it isnt an ole file
 3 if its corrupt
 */
-    int wvOLEDecode (char *path, wvStream ** mafd, wvStream ** tablefd0,
+    int wvOLEDecode (wvParseStruct * ps,
+		     char *path, wvStream ** mafd, wvStream ** tablefd0,
 		     wvStream ** tablefd1, wvStream ** data,
 		     wvStream ** summary);
     int wvOLESummaryStream (char *filename, wvStream ** summary);
