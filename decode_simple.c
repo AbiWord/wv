@@ -593,6 +593,7 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 	  wvFree (ps->vmerges);
       }
     wvFree (ps->cellbounds);
+	wvOLEFree(ps);
     tokenTreeFreeAll ();
 }
 

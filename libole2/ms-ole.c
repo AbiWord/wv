@@ -1981,6 +1981,7 @@ ms_ole_destroy (MsOle **ptr)
 					attr->data = NULL;
 					g_free (attr);
 				}
+				g_ptr_array_free(f->bbattr,TRUE);
 				f->bbattr = NULL;
 			}
 

@@ -904,6 +904,7 @@ encoded into the first 22 bytes.
 	  wvFree (ps->vmerges);
       }
     wvFree (ps->cellbounds);
+	wvOLEFree(ps);
     tokenTreeFreeAll ();
 }
 
