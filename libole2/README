@@ -1,0 +1,11 @@
+This copy of LibOLE2 is taken directly from the 
+GNOME CVS repository.  It should be possible to simply 'drop in' any future
+updates to LibOLE2 here.
+
+You can browse their source at http://cvs.gnome.org/lxr/source/libole2/ or
+check it out from the GNOME CVS repository.  The module name is libole2, 
+and you can find GNOME CVS instructions at 
+http://cvs.gnome.org/lxr/source/libole2/.
+
+Jamie Montgomerie
+[jamie@montgomerie.net]
