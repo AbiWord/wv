@@ -671,18 +671,19 @@ wvAssembleSimpleCHP (wvVersion ver, CHP * achp, const PAP * apap, U32 fc, CHPX_F
     U16 tistd;
 
 	
-    /* initialize CHP to para's stylesheet character properties
-       * this should have resolved all the other stylesheet dependencies
+    /* initialize CHP to para's stylesheet character properties this
+       * should have resolved all the other stylesheet dependencies
        * for us, when the stsh's were initialized. */
 
-    /* before this function was called, achp->istd should have
-       * been set to the current paragraph properties' stylesheet */
-    tistd = apap->istd;
-	achp->istd = tistd;
-    wvInitCHPFromIstd (achp, achp->istd, stsh);
-	achp->istd = tistd;
-
-    /* get CHPX */
+	wvInitCHPFromIstd (achp, apap->istd, stsh);
+	/* having done this, we want to set the achp->istd to nil, since
+    any char istd value stored in the para style is not applicable
+    (its a para style */
+	achp->istd = istdNil;
+	tistd = istdNil;
+	
+ apply_chpx:
+	/* get CHPX */
 	if(fkp)
 	{
 		/* the PAPX version of the function only looks at rgfc's, which are
@@ -706,11 +707,17 @@ wvAssembleSimpleCHP (wvVersion ver, CHP * achp, const PAP * apap, U32 fc, CHPX_F
 				wvAddCHPXFromBucket6 (achp, &upxf, stsh);
 		}
 
+		if(achp->istd < stsh->Stshi.cstd)
+			strncpy(achp->stylename,stsh->std[achp->istd].xstzName, sizeof(achp->stylename));
+
 		if(achp->istd != tistd)
 		{
-			/* the chpx contained instruction to apply character style; we
-			   want to remember its name */
-			strncpy(achp->stylename,stsh->std[achp->istd].xstzName, sizeof(achp->stylename));
+			/* the chpx contained instruction to apply character
+			   style: we have to start all over again, since we init
+			   the chp from the wrong (paragraph) style */
+			tistd = achp->istd;
+			wvInitCHPFromIstd (achp, achp->istd, stsh);
+			goto apply_chpx;
 		}
 	}
 	

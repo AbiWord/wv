@@ -340,8 +340,17 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 
 	if (!apap->ilfo)
 		return ret;
+
+	/* This is really silly, but it would seem that if there are both
+	PAPX for the paragraph and the list, the paragraph ones take
+	priority (basically, when a list is applied to a custom indented
+	block, the block's indents become part of the list PAPX; if the
+	indents of the block are subsequently modified, the PAPX of the
+	list stays the same, and the PAPX of the block changes); this
+	means that we now have to apply the list PAPX over what we have
+	and then reapply the block PAPX (we had to apply the block's PAPX
+	in order to find out if we are in a list !!!)*/
 	
-	/* 	all lists have ilfo set */
 	wvTrace(("list: ilvl %d, ilfo %d\n",apap->ilvl,apap->ilfo));	/* ilvl is the list level */
 
 	/* first, get the LFO, and then find the lfovl for this paragraph */
@@ -366,7 +375,7 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 			i++;
 		}
 
-		if(ps->lfolvl[--j].ilvl != apap->ilvl)
+		if(i >= k)
 		{
 			wvTrace(("list: no LFOLVL found for this level (1)\n"));
 			myLFOLVL = NULL;
@@ -501,7 +510,7 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 	wvTrace(("list: number text len %d, papx len %d, chpx len%d\n",myNumberStr_count,mygPAPX_count,mygCHPX_count));
 	myPAPX.cb = mygPAPX_count;
 	myPAPX.grpprl = mygPAPX;
-	myPAPX.istd = 4095; /* no style */
+	myPAPX.istd = apap->istd;
 
 	/*
 	  IMPORTANT now we have the list formatting sutff retrieved; it is found in several
@@ -562,7 +571,7 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 	myCHPX.grpprl = mygCHPX;
 	myCHPX.istd = 4095; 
 
-	/* next we need to apply the PAPX to our PAP */
+	/* next we need to apply the list PAPX to our PAP */
     if (myPAPX.cb > 2)
 	{
 		ret = 1;
@@ -573,6 +582,20 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 			wvAddPAPXFromBucket (apap, &upxf, &ps->stsh, ps->data);
 		else
 			wvAddPAPXFromBucket6 (apap, &upxf, &ps->stsh);
+
+		/* now we have to reapply the original PAPX, see note at top
+		   of the list code */
+		if((papx) && (papx->cb > 2))
+		{
+			ret = 1;
+			upxf.cbUPX = papx->cb;
+			upxf.upx.papx.istd = papx->istd;
+			upxf.upx.papx.grpprl = papx->grpprl;
+			if (ver == WORD8)
+				wvAddPAPXFromBucket (apap, &upxf, &ps->stsh, ps->data);
+			else
+				wvAddPAPXFromBucket6 (apap, &upxf, &ps->stsh);
+		}
 	}
 
 	/* next see if the list number comes with
