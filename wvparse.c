@@ -43,6 +43,8 @@ wvInitParser (wvParseStruct * ps, char *path)
      */
 #endif
 
+    memset ( ps, 0, sizeof ( ps ) ) ;
+
     ps->userData = NULL;
     ps->lst = NULL;
     ps->intable = 0;
@@ -157,9 +159,8 @@ wvOpenPreOLE (char *path, wvStream ** mainfd, wvStream ** tablefd0,
 
     *tablefd0 = *mainfd;
     *tablefd1 = *mainfd;
-    *data = *mainfd;
-    *summary = *mainfd;
-
+    *data     = *mainfd;
+    *summary  = *mainfd;
 
     magic = read_16ubit (*mainfd);
     if (0xa5db == magic)
