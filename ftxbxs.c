@@ -26,7 +26,7 @@ wvGetFTXBXS (FTXBXS * item, wvStream * fd)
     item->reserved = (S32) read_32ubit (fd);
     item->lid = (S32) read_32ubit (fd);
     item->txidUndo = (S32) read_32ubit (fd);
-    wvListFTXBXS (item);
+    /* wvListFTXBXS (item); */
 }
 
 int
