@@ -4,3 +4,26 @@ but leave the pointer as it was when exited.
 
 the Apply calls internally use the FromBucket and dread calls,
 but in addition advance the count parameter accordingly.
+
+-----xml config thoughts-----
+
+This is the basic unit, end is optional.
+
+anything
+<begin>
+</begin>
+<end>
+</end>
+/anything
+
+indexable by <anything.begin/> <anything.end/>
+
+<list>
+anything * x, this has the same no of entries that the spec has
+</list>
+
+usage of <list.begin/> <list.end/> will automatically feed the val that
+appears in the fileformat in as an index into the list to get the appropiate
+<anything.begin/>
+
+(You can tell that im an xml guru eh (wish there was a ironic smily) !)
