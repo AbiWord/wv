@@ -240,7 +240,7 @@ wvDecrypt97 (wvParseStruct * ps)
       }
 
 #if 0
-    // causing us grief on windows
+    /* causing us grief on windows */
     if (ps->tablefd0)
 	wvStream_close (ps->tablefd0);
 #endif
