@@ -162,17 +162,17 @@ behaviour, which I find is necessary for html in netscape
 
 <cell>
 <begin>
-\multicolumn{<colspan/>}{c}{\parbox{<cellrelpagewidth/>\textpercent}{\raggedright\strut
+\multicolumn{<colspan/>}{c}{\parbox{<cellrelpagewidth/>\textpercent}{\raggedright
 </begin>
-<end>\strut}}&amp;
+<end>}}&amp;
 </end>
 </cell>
 
 <lastcell>
 <begin>
-\multicolumn{<colspan/>}{c}{\parbox{<cellrelpagewidth/>\textpercent}{\raggedright\strut
+\multicolumn{<colspan/>}{c}{\parbox{<cellrelpagewidth/>\textpercent}{\raggedright
 </begin>
-<end>\strut}}\\</end>
+<end>}}\\</end>
 </lastcell>
 
 <paragraph>
@@ -345,14 +345,8 @@ border-bottom: thin <borderbottomstyle/> <borderbottomcolor/>
 
 <text>	
 <begin>
-\vspace{<mmParaBefore/>}
-\setlength{\parindent}{<mmParaLeft1/>}
-\setlength{\leftskip}{<mmParaLeft/>}
-\setlength{\rightskip}{<mmParaRight/>}
-</begin>
-<end>
-\vspace{<mmParaAfter/>}
-</end>
+
+</begin><end></end>
 </text>
 
 <picture>

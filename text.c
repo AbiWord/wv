@@ -135,7 +135,7 @@ char *wvLIDToCodePageConverter(U16 lid)
 			return("CP1252");
 		case 0x041b:    /*Slovak*/                    return("CP1250");
 		case 0x041c:    /*Albanian*/                  return("CP1251");
-		case 0x041d:    /*Swedish*/                   return("CP1250");
+		case 0x041d:    /*Swedish*/	 	      return("CP1252");
 		case 0x041e:    /*Thai*/                      return("CP874");
 		case 0x041f:    /*Turkish*/                   return("CP1254");
 		case 0x0420:    /*Urdu*/                      return("CP1256");
@@ -555,6 +555,9 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 	switch(char16)
 		{
 		/* Fix up these as math characters: */
+		case 0xb1:
+			printf("$\\pm$");
+			return(1);
 		case 0xb2:
 			printf("$\\mathtwosuperior$");
 			return(1);

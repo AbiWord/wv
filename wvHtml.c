@@ -26,6 +26,8 @@ returns 1 for not an ole doc
 0 on success
 */
 
+char *config=NULL;
+
 int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty);
 int mydochandler(wvParseStruct *ps,wvTag tag);
 int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid);
@@ -174,7 +176,6 @@ int main(int argc,char **argv)
 	{
 	FILE *input;
 	char *password=NULL;
-	char *config=NULL;
 	char *dir=NULL;
 	int ret;
 	state_data myhandle;
@@ -484,6 +485,33 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
     return(0);
     }
 
+void wvStrangeNoGraphicData(char *config, int graphicstype)
+	{
+	wvError(("Strange No Graphic Data in the 0x01 graphic\n"));
+
+	if (strcmp(config, "wvLaTeX.xml") == 0)
+		printf("\n\\resizebox*{\\baselineskip}{!}{\\includegraphics{placeholder.eps}}\
+ 		  \n-- %#.2x graphic: StrangeNoGraphicData --", 
+			graphicstype);
+	else
+		printf("<img alt=\"%#.2x graphic\" src=\"%s\"><br>", graphicstype,
+			"StrangeNoGraphicData");
+	return;
+	}
+
+void wvPrintGraphics(char *config, int graphicstype, int width, int height,
+		char* source)
+	{
+	if (strcmp(config, "wvLaTeX.xml") == 0)
+		printf("\n\\resizebox{%dpt}{%dpt}\
+		  {\\includegraphics{placeholder.eps}}\
+		  \n-- %#.2x graphic %s -- \n",
+			width, height, graphicstype, source);
+	else
+		printf("<img width=\"%d\" height=\"%d\" alt=\"%#.2x graphic\" src=\"%s\"><br>",
+		width, height, graphicstype, source);
+	return;
+	}
 
 int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 	{
@@ -552,14 +580,14 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 				{
 				wvTrace(("Here\n"));
 				name = wvHtmlGraphic(ps,&blip);
-				printf("<img width=\"%d\" height=\"%d\" alt=\"0x01 graphic\" src=\"%s\"><br>",(int)wvTwipsToHPixels(picf.dxaGoal),(int)wvTwipsToVPixels(picf.dyaGoal),name);
+				wvPrintGraphics(config, 0x01, 
+				(int)wvTwipsToHPixels(picf.dxaGoal),
+				(int)wvTwipsToVPixels(picf.dyaGoal),
+				name);
 				wvFree(name);
 				}
 			else
-				{
-				wvError(("Strange No Graphic Data in the 0x01 graphic\n"));
-				printf("<img alt=\"0x08 graphic\" src=\"%s\"><br>","StrangeNoGraphicData");
-				}
+				wvStrangeNoGraphicData(config, 0x01);
 			wvStream_goto(ps->data,p);
 			return(0);
 			}
@@ -577,16 +605,14 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 						{
 						wvTrace(("Here\n"));
 						name = wvHtmlGraphic(ps,&blip);
-						printf("<img width=\"%d\" height=\"%d\" alt=\"0x08 graphic\" src=\"%s\"><br>",
-						(int)wvTwipsToHPixels(fspa->xaRight-fspa->xaLeft),(int)wvTwipsToVPixels(fspa->yaBottom-fspa->yaTop),
+						wvPrintGraphics(config, 0x08,
+						(int)wvTwipsToHPixels(fspa->xaRight-fspa->xaLeft),
+						(int)wvTwipsToVPixels(fspa->yaBottom-fspa->yaTop),
 						name);
 						wvFree(name);
 						}
 					else
-						{
-						wvError(("Strange No Graphic Data in the 0x01 graphic\n"));
-						printf("<img alt=\"0x08 graphic\" src=\"%s\"><br>","StrangeNoGraphicData");
-						}
+						wvStrangeNoGraphicData(config, 0x08);
 					}
 				else
 					{
