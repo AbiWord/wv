@@ -335,6 +335,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 			wvFree(ps->vmerges[i]);
 		wvFree(ps->vmerges);
 		}
+	wvFree(ps->cellbounds);
 	}
 
 

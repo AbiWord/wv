@@ -18,7 +18,7 @@ void wvAddCHPXFromBucket(CHP *achp,UPXF *upxf,STSH *stsh)
 	fprintf(stderr,"\n");
     while (i < upxf->cbUPX)
         {
-        fprintf(stderr,"%x (%d)\n",*(upxf->upx.chpx.grpprl+i),*(upxf->upx.chpx.grpprl+i));
+        fprintf(stderr,"%x (%d) ",*(upxf->upx.chpx.grpprl+i),*(upxf->upx.chpx.grpprl+i));
         i++;
         }
     fprintf(stderr,"\n");
@@ -42,7 +42,7 @@ void wvApplyCHPXFromBucket(CHP *achp,CHPX *chpx,STSH *stsh)
 	fprintf(stderr,"\n");
     while (i < chpx->cbGrpprl)
         {
-        fprintf(stderr,"%x (%d)\n",*(chpx->grpprl+i),*(chpx->grpprl+i));
+        fprintf(stderr,"%x (%d) ",*(chpx->grpprl+i),*(chpx->grpprl+i));
         i++;
         }
     fprintf(stderr,"\n");
@@ -66,22 +66,26 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
 	U16 sprm;
 	wvTrace(("cbUPX word 6 is %d\n",upxf->cbUPX));
 
-
-	while (i < upxf->cbUPX)
-		{
-		wvTrace(("%x (%d)\n",*(upxf->upx.chpx.grpprl+i),*(upxf->upx.chpx.grpprl+i)));
-		i++;
-		}
-
-   i=0;
-
+#ifdef SPRMTEST
+	fprintf(stderr,"\n");
+    while (i < upxf->cbUPX)
+        {
+        fprintf(stderr,"%x (%d) ",*(upxf->upx.chpx.grpprl+i),*(upxf->upx.chpx.grpprl+i));
+        i++;
+        }
+    fprintf(stderr,"\n");
+	i=0;
+#endif
 	while (i < upxf->cbUPX)
 		{
 		sprm8 = bgetc(upxf->upx.chpx.grpprl+i,&i);
-
-        wvTrace(("chp word 6 sprm is %x (%d)\n",sprm8,sprm8));
+#ifdef SPRMTEST
+        wvError(("chp word 6 sprm is %x (%d)\n",sprm8,sprm8));
+#endif
 		sprm = (U16)wvGetrgsprmWord6(sprm8);
-		wvTrace(("chp word 6 sprm is converted to %x\n",sprm));
+#ifdef SPRMTEST
+		wvError(("chp word 6 sprm is converted to %x\n",sprm));
+#endif
 		
 		pointer = upxf->upx.chpx.grpprl+i;
 		wvApplySprmFromBucket(1,sprm,NULL,achp,NULL,stsh,pointer,&i);

@@ -29,14 +29,11 @@ void usage( void )
 	exit(-1);
 	}
 
-static U16 charset=0xffff;
-
 int main(int argc,char **argv)
 	{
 	FILE *input;
 	int ret;
 	wvParseStruct ps;
-	int c,index=0;
 
 	wvInitError();
 
@@ -57,6 +54,8 @@ int main(int argc,char **argv)
 		fprintf(stderr,"%s couldn't be opened as any known word document\n",argv[1]);
 		return(-1);
 		}
+
+	ret = wvQuerySupported(&ps.fib,NULL);
 
 	printf("Version: ");
 	switch(ret&0x7fff)

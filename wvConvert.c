@@ -171,6 +171,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
     data->fib = &ps->fib;
 	data->intable = &ps->intable;
 	data->cellbounds = &ps->cellbounds;
+	data->nocellbounds = &ps->nocellbounds;
 	data->endcell = &ps->endcell;
 	data->vmerges = &ps->vmerges;
 	data->norows = &ps->norows;
@@ -222,6 +223,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
     data->fib = &ps->fib;
 	data->intable = &ps->intable;
 	data->cellbounds = &ps->cellbounds;
+	data->nocellbounds = &ps->nocellbounds;
 	data->endcell = &ps->endcell;
 	data->vmerges = &ps->vmerges;
 	data->norows = &ps->norows;

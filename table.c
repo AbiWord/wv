@@ -143,7 +143,18 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
 	Node *testn,*testp;
 	int i,j,k;
 
+	if (ps->vmerges) 
+		{
+		wvTrace(("vmerges is not NULL\n"));
+		for(i=0;i<ps->norows;i++)
+			wvFree(ps->vmerges[i]);
+		wvFree(ps->vmerges);
+		ps->vmerges=NULL;
+		}
+
 	InitBintree(&tree,cellCompLT,cellCompEQ);
+
+	wvTrace(("we still ok\n"));
 
 	for (i=0;i<no;i++)
 		{
@@ -153,9 +164,19 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
 			InsertNode(&tree,(void *) &(ptap[i].rgdxaCenter[j]) );
 			}
 		}
+	wvTrace(("end of in\n"));
 
 	testn = NextNode(&tree,NULL);
+
+	ps->nocellbounds = tree.no_in_tree;
+	wvFree(ps->cellbounds);
+	if (tree.no_in_tree)
+		ps->cellbounds=(S16 *)malloc(sizeof(S16) * tree.no_in_tree);
+	else
+		ps->cellbounds=NULL;
+
 	i=0;
+	wvTrace(("No in tree is %d\n",tree.no_in_tree));
     while (testn != NULL)
         {
 		ps->cellbounds[i++] = *((S16 *)testn->Data);
@@ -164,14 +185,10 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
         DeleteNode(&tree,testn);
         testn = testp;
         }
+	wvTrace(("No in tree according to i is %d\n",i));
 
+	wvTrace(("end of out\n"));
 
-	if (ps->vmerges) 
-		{
-		for(i=0;i<ps->norows;i++)
-			wvFree(ps->vmerges[i]);
-		wvFree(ps->vmerges);
-		}
 	ps->vmerges = (S16 **)malloc(sizeof(S16 *) * no);
 	wvTrace(("no of rows is %d",no));
 	for(i=0;i<no;i++)

@@ -2486,7 +2486,8 @@ typedef struct _expand_data
 	U16 *noofLST;
 	U8 *intable;
 	U8 *endcell;
-	S16 (*cellbounds)[itcMax+1];	/* always wanted to use one of these */
+	S16 **cellbounds;
+	int *nocellbounds;
 	S16 ***vmerges;
 	int whichcell;
 	int whichrow;
@@ -2601,7 +2602,8 @@ typedef struct _wvParseStruct
 	FILE *tablefd1;
 	U16 password[16];
 	U8 intable;
-	S16 cellbounds[itcMax+1];
+	S16 *cellbounds;
+	int nocellbounds;
 	S16 **vmerges;
 	U16 norows;
 	U8 endcell;
@@ -2758,6 +2760,7 @@ int wvConvert1252ToHtml(U16 char8);
 
 U16 wvConvertUnicodeToiso8859_15(U16 char16);
 U16 wvConvertUnicodeToKOI8_R(U16 char16);
+U16 wvConvertUnicodeToTIS620(U16 char16);
 
 U16 wvConvertSymbolToUnicode(U16 char16);
 

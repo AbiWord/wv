@@ -102,7 +102,7 @@ static struct unichar tis2uni[256] = {
 U16 wvConvertUnicodeToTIS620(U16 wc)
 	{
 	U16 ret;
-	if(wc & ~Wchar1) 
+	if(wc & (~Wchar1)) 
 		{
 		un.ulong = wc;
 		ret = un.ch[0];

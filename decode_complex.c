@@ -690,6 +690,7 @@ encoded into the first 22 bytes.
 			wvFree(ps->vmerges[i]);
 		wvFree(ps->vmerges);
 		}
+	wvFree(ps->cellbounds);
 	}
 
 /*

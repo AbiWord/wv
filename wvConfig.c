@@ -544,20 +544,14 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				wvTrace(("this cell is %d, pos %d ends %d\n",mydata->whichcell,((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell],((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]));
 				i=0;
 				while ( 
-				(i <= itcMax) && 
-#if 0
-				(i <= ((PAP*)(mydata->props))->ptap.itcMac+1) && 
-#endif
+				(i <= *mydata->nocellbounds) && 
 				(0 == cellCompEQ( &((*mydata->cellbounds)[i]), &(((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell])))
 				)
 					i++;
 
 				j=i;
 				while( 
-				(j <= itcMax) && 
-#if 0
-				(j <= ((PAP*)(mydata->props))->ptap.itcMac+1) && 
-#endif
+				(j <= *mydata->nocellbounds) && 
 				(0 == cellCompEQ( &((*mydata->cellbounds)[j]), &(((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]))) 
 				)
 					{

@@ -156,7 +156,7 @@ int wvAddSEPXFromBucket(SEP *asep,SEPX *item,STSH *stsh)
 	fprintf(stderr,"\n");
     while (i < item->cb)
         {
-        fprintf(stderr,"%x (%d)\n",*(item->grpprl+i),*(item->grpprl+i));
+        fprintf(stderr,"%x (%d) ",*(item->grpprl+i),*(item->grpprl+i));
         i++;
         }
     fprintf(stderr,"\n");
@@ -180,12 +180,26 @@ int wvAddSEPXFromBucket6(SEP *asep,SEPX *item,STSH *stsh)
     U8 sprm8;
     U16 sprm;
 	Sprm RetSprm;
+#ifdef SPRMTEST
+	fprintf(stderr,"\n");
+    while (i < item->cb)
+        {
+        fprintf(stderr,"%x (%d) ",*(item->grpprl+i),*(item->grpprl+i));
+        i++;
+        }
+    fprintf(stderr,"\n");
+	i=0;
+#endif
     while (i < item->cb)
         {
         sprm8 = bgetc(item->grpprl+i,&i);
-		wvTrace(("sep word 6 sprm is %x (%d)\n",sprm8,sprm8));
+#ifdef SPRMTEST
+		wvError(("sep word 6 sprm is %x (%d)\n",sprm8,sprm8));
+#endif
 		sprm = (U16)wvGetrgsprmWord6(sprm8);
+#ifdef SPRMTEST
 		wvTrace(("sep word 6 sprm is converted to %x\n",sprm));
+#endif
         pointer = item->grpprl+i;
         RetSprm = wvApplySprmFromBucket(1,sprm,NULL,NULL,asep,stsh,pointer,&i);
 		if (RetSprm.sgc == sgcSep)  ret = 1;

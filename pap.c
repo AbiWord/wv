@@ -19,7 +19,7 @@ void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh)
 	fprintf(stderr,"\n");
 	while (i < upxf->cbUPX-2)
 		{
-		fprintf(stderr,"%x (%d)\n",*(upxf->upx.papx.grpprl+i),*(upxf->upx.papx.grpprl+i));
+		fprintf(stderr,"%x (%d) ",*(upxf->upx.papx.grpprl+i),*(upxf->upx.papx.grpprl+i));
 		i++;
 		}
 	fprintf(stderr,"\n");
@@ -50,14 +50,28 @@ void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh)
 		return;
 	wvTrace(("no is %d\n",upxf->cbUPX));
 
+#ifdef SPRMTEST
+	fprintf(stderr,"\n");
+	while (i < upxf->cbUPX-2)
+		{
+		fprintf(stderr,"%x (%d) ",*(upxf->upx.papx.grpprl+i),*(upxf->upx.papx.grpprl+i));
+		i++;
+		}
+	fprintf(stderr,"\n");
 	i=0;
+#endif
+
 	while (i < upxf->cbUPX-3)	/* the end of the list is at -2, but there has to be a full sprm of
 								 len 1 as well*/
 		{
 		sprm8 = bgetc(upxf->upx.papx.grpprl+i,&i);
-		wvTrace(("pap word 6 sprm is %x (%d)\n",sprm8,sprm8));
+#ifdef SPRMTEST
+		wvError(("pap word 6 sprm is %x (%d)\n",sprm8,sprm8));
+#endif
 		sprm = (U16)wvGetrgsprmWord6(sprm8);
-		wvTrace(("pap word 6 sprm is converted to %x\n",sprm));
+#ifdef SPRMTEST
+		wvError(("pap word 6 sprm is converted to %x\n",sprm));
+#endif
 		pointer = upxf->upx.papx.grpprl+i;
 		/* hmm, maybe im wrong here, but there appears to be corrupt 
 		 * word 6 sprm lists being stored in the file
@@ -304,6 +318,9 @@ int wvAssembleSimplePAP(version ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 	int index;
 	UPXF upxf;
 	int ret=0;
+#ifdef SPRMTEST
+	int i;
+#endif
 	/*index is the i in the text above*/
 	index = wvGetIndexFCInFKP_PAPX(fkp,fc);
 	
