@@ -107,11 +107,9 @@ MYOBJECTS =	\
 	utf.$(OBJEXT) \
 	field.$(OBJEXT) \
 	references.$(OBJEXT) \
-	gpprl.$(OBJEXT) \
 	papchpsep.$(OBJEXT) \
 	hyperlink.$(OBJEXT) \
 	decompresswmf.$(OBJEXT) \
-	annotations.$(OBJEXT) \
 	dop.$(OBJEXT) \
 	roman.$(OBJEXT) \
 	fib.$(OBJEXT) \
@@ -133,7 +131,6 @@ MYOBJECTS =	\
 	lst.$(OBJEXT) \
 	lvl.$(OBJEXT) \
 	lfo.$(OBJEXT) \
-	nfc.$(OBJEXT) \
 	ordinal.$(OBJEXT) \
 	summary.$(OBJEXT) \
 	filetime.$(OBJEXT) \
@@ -324,9 +321,6 @@ lex.yy.c: parser.lex
 
 testparse$(EXEEXT):  testparse.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ testparse.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS)  $(LDFLAGS)
-
-error.$(OBJEXT): $(srcdir)/error.c Makefile
-	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
 laolareplace.$(OBJEXT): $(srcdir)/laolareplace.c 
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 

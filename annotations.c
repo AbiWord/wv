@@ -76,7 +76,6 @@ decode_annotation (textportions * portions)
 	fprintf (erroroutput, "oops silly programmer :-) lost an annotation\n");
 }
 
-#if 0
 Xst *
 extract_authors (wvStream * tablefd, U32 fcGrpXstAtnOwners,
 		 U32 lcbGrpXstAtnOwners)
@@ -143,8 +142,6 @@ extract_authors (wvStream * tablefd, U32 fcGrpXstAtnOwners,
       }
     return (authorlist);
 }
-#endif
-
 
 /*this finds the beginning of a annotation given a particular cp, adds
 the beginning tag and returns the next annotation cp*/
@@ -224,3 +221,4 @@ decode_e_annotation (bookmark_limits * l_bookmarks)
 
     return (0xffffffffL);
 }
+

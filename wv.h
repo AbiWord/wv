@@ -1066,7 +1066,9 @@ number to use for each list entry, Caolan
 			      U32 nooflvl);
 
 
+#if 0
     char *wvGenerateNFC (int value, int no_type);
+#endif
     char *wvOrdinal (U32 x);
     U16 *wvListString (int ilfo, int ilvl, LST * alst);
 
@@ -4539,7 +4541,7 @@ Property       PID            Type            Default        Description
     void decode_e_reference (textportions * portions);
     void get_next_f_ref (textportions * portions, signed long *nextfootnote);
     void get_next_e_ref (textportions * portions, signed long *nextendnote);
-    void decode_annotation (textportions * portions);
+  /* void decode_annotation (textportions * portions); */
 
     void decode_s_specials (pap * apap, chp * achp, list_info * a_list_info);
     int decode_s_table (pap * apap, chp * achp, list_info * a_list_info,
@@ -4589,8 +4591,10 @@ Property       PID            Type            Default        Description
 			  U32 * avalrgfc, U32 * thenextone, style * sheet,
 			  U16 istd);
 
+#if 0
     void decode_gpprls (pap * apap, chp * achp, sep * asep, U16 * gpprlindex,
 			int index, tSprm * sprmlists, style * sheet);
+#endif
 
     style *decode_stylesheet (wvStream * tablefd, U32 stsh, U32 stshlen,
 			      config_style * in_style);
@@ -4683,8 +4687,10 @@ has got
     U32 decode_b_bookmark (bookmark_limits * l_bookmarks, STTBF * bookmarks);
     U32 decode_e_bookmark (bookmark_limits * l_bookmarks);
 
+#if 0
     U32 decode_b_annotation (bookmark_limits * l_bookmarks);
     U32 decode_e_annotation (bookmark_limits * l_bookmarks);
+#endif
 
     U16 *decode_hyperlink (int letter, unsigned long int *swallowcp1,
 			   unsigned long int *swallowcp2, U16 ** deleteme);

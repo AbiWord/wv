@@ -5,13 +5,6 @@
 #endif
 #include "wv.h"
 
-extern FILE *erroroutput;
-extern wvStream *outputfile;
-extern long int cp;
-extern int insuper;
-extern int footnotehack;
-
-
 void
 decode_gpprls (pap * apap, chp * achp, sep * asep, U16 * gpprl, int index,
 	       tSprm * sprmlists, style * sheet)
@@ -25,7 +18,7 @@ decode_gpprls (pap * apap, chp * achp, sep * asep, U16 * gpprl, int index,
     U8 littlelist[2];
     int val;
 
-    error (erroroutput, "index were looking for is %d\n", index);
+    wvError (("index were looking for is %d\n", index));
     if (index < 0)
 	return;
 
@@ -34,12 +27,12 @@ decode_gpprls (pap * apap, chp * achp, sep * asep, U16 * gpprl, int index,
        varients 2, until we get to this one */
     if (0 == (gpprl[index] & 0x01))
       {
-	  error (erroroutput, "varient 1s, (%x)\n", gpprl[index]);
-	  error (erroroutput, "sprm varient 1, isprm is %x, val is %d\n",
-		 (gpprl[index] & 0x00fe) >> 1, (gpprl[index] & 0xff00) >> 8);
+	  wvError (("varient 1s, (%x)\n", gpprl[index]));
+	  wvError (("sprm varient 1, isprm is %x, val is %d\n",
+		    (gpprl[index] & 0x00fe) >> 1, (gpprl[index] & 0xff00) >> 8));
 	  sprm = (gpprl[index] & 0x00fe) >> 1;
 	  operand = (gpprl[index] & 0xff00) >> 8;
-	  error (erroroutput, "GPRL is (%x) operand is %d", sprm, operand);
+	  wvError (("GPPRL is (%x) operand is %d", sprm, operand));
 	  switch (sprm)
 	    {
 	    case 5:
@@ -47,7 +40,7 @@ decode_gpprls (pap * apap, chp * achp, sep * asep, U16 * gpprl, int index,
 		littlelist[0] = operand;
 		break;
 	    default:
-		error (erroroutput, "unsupported gpprl %d\n", sprm);
+		wvError (("unsupported gpprl %d\n", sprm));
 		return;
 		break;
 	    }
@@ -58,8 +51,8 @@ decode_gpprls (pap * apap, chp * achp, sep * asep, U16 * gpprl, int index,
       }
     else
       {
-	  error (erroroutput, "varient 2s, (%x) (%x) (%x)\n",
-		 (gpprl[index] & 0xFFFE) >> 1, gpprl[index] >> 1, gpprl[index]);
+	  wvError (("varient 2s, (%x) (%x) (%x)\n",
+		   (gpprl[index] & 0xFFFE) >> 1, gpprl[index] >> 1, gpprl[index]));
 	  /*
 	     for (i=0;i<index;i++)
 	     {
@@ -67,7 +60,7 @@ decode_gpprls (pap * apap, chp * achp, sep * asep, U16 * gpprl, int index,
 	     j++;
 	     }
 	   */
-	  error (erroroutput, "read index val is %d\n", j);
+	  wvError (("read index val is %d\n", j));
       }
     i = 0;
     val = (gpprl[index] & 0xFFFE) >> 1;
@@ -77,7 +70,7 @@ decode_gpprls (pap * apap, chp * achp, sep * asep, U16 * gpprl, int index,
 	  thesprmlist = thesprmlist->next;
 	  if (thesprmlist == NULL)
 	    {
-		error (erroroutput, "gpprl index is wrong at %d!\n", i);
+		wvError (("gpprl index is wrong at %d!\n", i));
 		return;
 	    }
 	  i++;
@@ -86,12 +79,12 @@ decode_gpprls (pap * apap, chp * achp, sep * asep, U16 * gpprl, int index,
 
 /*hum 261*/
     i = 0;
-    error (erroroutput, "sprm list len is %d\n", thesprmlist->len);
+    wvError (("sprm list len is %d\n", thesprmlist->len));
     while (i < thesprmlist->len)
       {
 	  sprm = sread_16ubit (thesprmlist->list + i);
 	  i += 2;
-	  error (erroroutput, "clist is %x, at len point %d\n", sprm, i);
+	  wvError (("clist is %x, at len point %d\n", sprm, i));
 
 	  pointer = thesprmlist->list + i;
 	  if (apap == NULL)
@@ -99,7 +92,7 @@ decode_gpprls (pap * apap, chp * achp, sep * asep, U16 * gpprl, int index,
 
 	  decode_sprm (NULL, sprm, apap, achp, asep, &i, &pointer, sheet,
 		       apap->istd);
-	  error (erroroutput, "after line\n");
+	  wvError ("after line\n"));
 	  /*change above to include sep */
       }
 }
