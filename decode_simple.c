@@ -21,7 +21,7 @@ void wvDecodeSimple(FIB *fib,state_data *myhandle,FILE *mainfd,FILE *tablefd,FIL
 	expand_data expandhandle;
 	PAPX_FKP fkp;
 	PAP apap;
-	U32 piececount=0,i,j;
+	U32 piececount=0,i,j=0;
 	U32 beginfc,endfc;
 	U32 begincp,endcp;
 	int chartype;
@@ -67,7 +67,7 @@ void wvDecodeSimple(FIB *fib,state_data *myhandle,FILE *mainfd,FILE *tablefd,FIL
 	beginning at fib.fcMin up to (but not including) fib.fcMac.
 	*/
 
-	if (fib->fcMac != wvNormFC(clx.pcd[clx.nopcd-1].fc,NULL)+clx.pos[clx.nopcd])
+	if (fib->fcMac != (S32)(wvNormFC(clx.pcd[clx.nopcd-1].fc,NULL)+clx.pos[clx.nopcd]))
 		wvError("fcMac is not the same as the piecetable %x %x!\n",fib->fcMac,wvNormFC(clx.pcd[clx.nopcd-1].fc,NULL)+clx.pos[clx.nopcd]);
 
 	expandhandle.charset = wvAutoCharset(&clx);
@@ -193,6 +193,3 @@ int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *rgfc, U32 
 		}
 	return(1);
 	}
-
-
-

@@ -11,7 +11,7 @@ followed by its corresponding LVL structure (if LFOLVL.fFormatting is set).
 
 int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl,U32 offset,U32 len,FILE *fd)
 	{
-	int i;
+	U32 i;
 	*nooflvl=0;
 	wvGetLFO_PLF(lfo,nolfo,offset,len,fd);
 
@@ -48,7 +48,7 @@ int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl
 
 int wvGetLFO_PLF(LFO **lfo,U32 *nolfo,U32 offset,U32 len,FILE *fd)
 	{
-	int i;
+	U32 i;
 	if (len == 0)
 		{
 		*lfo = NULL;
@@ -122,7 +122,7 @@ int wvInvalidLFOLVL(LFOLVL *item)
 
 int wvReleaseLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 nooflvl)
 	{
-	int i;
+	U32 i;
 	wvFree(*lfo);
 	wvFree(*lfolvl);
 	for(i=0;i<nooflvl;i++)

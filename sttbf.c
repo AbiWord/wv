@@ -32,7 +32,7 @@ void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,FILE *fd)
 	int i,j;
 	U16 slen;
 
-	anS->u8strings=NULL;
+	anS->s8strings=NULL;
 	anS->u16strings=NULL;
 	anS->extradata=NULL;
 
@@ -58,7 +58,7 @@ void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,FILE *fd)
 	if (anS->extendedflag == 0xFFFF)
 		anS->u16strings = (U16 **)malloc(sizeof(U16 *)*anS->nostrings);
 	else
-		anS->u8strings = (U8 **)malloc(sizeof(U8 *)*anS->nostrings);
+		anS->s8strings = (S8 **)malloc(sizeof(S8 *)*anS->nostrings);
 
 	if (anS->extradatalen)
 		{
@@ -92,13 +92,13 @@ void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,FILE *fd)
 			{
 			slen = getc(fd);
 			if (slen == 0)
-				anS->u8strings[i] = NULL;
+				anS->s8strings[i] = NULL;
 			else
 				{
-				anS->u8strings[i] = (U8 *)malloc(slen+1);
+				anS->s8strings[i] = (S8 *)malloc(slen+1);
 				for (j=0;j<slen;j++)
-					anS->u8strings[i][j] = getc(fd);
-				anS->u8strings[i][j]=0;
+					anS->s8strings[i][j] = getc(fd);
+				anS->s8strings[i][j]=0;
 				}
 			if (anS->extradatalen)
 				for (j=0;j<anS->extradatalen;j++)
@@ -111,11 +111,11 @@ void wvReleaseSTTBF(STTBF *item)
     {
     int i;
 
-    if (item->u8strings!= NULL)
+    if (item->s8strings!= NULL)
         {
         for(i=0;i<item->nostrings;i++)
-            free(item->u8strings[i]);
-        free(item->u8strings);
+            free(item->s8strings[i]);
+        free(item->s8strings);
         }
     if (item->u16strings!= NULL)
         {
@@ -137,10 +137,10 @@ void wvListSTTBF(STTBF *item)
     int i,j;
 	U16 *letter;
 
-    if (item->u8strings!= NULL)
+    if (item->s8strings!= NULL)
         {
         for(i=0;i<item->nostrings;i++)
-            fprintf(stderr,"string is %s\n",item->u8strings[i]);
+            fprintf(stderr,"string is %s\n",item->s8strings[i]);
         }
     else if (item->u16strings!= NULL)
         {
@@ -174,10 +174,10 @@ char *wvGetTitle(STTBF *item)
 			title = wvWideStrToMB(item->u16strings[ibstAssocTitle]);
         else
             {
-            if (item->u8strings[ibstAssocTitle] != NULL)
+            if (item->s8strings[ibstAssocTitle] != NULL)
 				{
-				title = (char *)malloc(strlen(item->u8strings[ibstAssocTitle])+1);
-                strcpy(title,(char *)item->u8strings[ibstAssocTitle]);
+				title = (char *)malloc(strlen(item->s8strings[ibstAssocTitle])+1);
+                strcpy(title,(char *)item->s8strings[ibstAssocTitle]);
 				}
             }
         }

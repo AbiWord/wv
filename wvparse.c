@@ -4,7 +4,7 @@
 
 int wvInitParser(wvParseStruct *ps,FILE *fp)
 	{
-	int ret;
+	int ret=0;
 	ret = wvOLEDecode(fp,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
 		&ps->data,&ps->summary);
 	if (ret) 
@@ -13,7 +13,6 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 		{
 		ret = 4;
 		wvOLEFree();
-		return ret;
 		}
-
+	return ret;
 	}

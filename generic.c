@@ -5,7 +5,7 @@
 
 int wvGetEmpty_PLCF(U32 **cps,U32 *nocps,U32 offset,U32 len,FILE *fd)
 	{
-	int i;
+	U32 i;
 	if (len == 0)
 		{
 		*cps = NULL;

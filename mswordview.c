@@ -456,8 +456,8 @@ int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
 			}
 		else
 			{
-			if (anSttbfAssoc.u8strings[ibstAssocTitle] != NULL)
-				strncpy(title,(char *)anSttbfAssoc.u8strings[ibstAssocTitle],1024);
+			if (anSttbfAssoc.s8strings[ibstAssocTitle] != NULL)
+				strncpy(title,(char *)anSttbfAssoc.s8strings[ibstAssocTitle],1024);
 			}
 		}
 #endif
@@ -1769,7 +1769,7 @@ void decode_simple(FILE *mainfd,FILE *tablefd,FILE *data,U32 fcclx,U32 fcmin,U32
 			}
 
 		while ( (realcp == nextannotation_b) && (doannos==1) )
-			nextannotation_b = decode_b_annotation(&(portions->a_bookmarks),&(portions->annotations));		
+			nextannotation_b = decode_b_annotation(&(portions->a_bookmarks));		
 
 		while (realcp == nextbookmark_b)
 			nextbookmark_b = decode_b_bookmark(&(portions->l_bookmarks),&(portions->bookmarks));
@@ -2116,7 +2116,7 @@ void decode_s_chp(chp *achp, FFN_STTBF *ffn_sttbf,style *sheet)
 	char *size1=NULL;
 	char *fontname1=NULL;
 	char *color1=NULL;
-	U8 *tempfont=NULL;
+	char *tempfont=NULL;
 	error(erroroutput,"in start chp\n");
 	if (chps)
 		return;
@@ -2391,7 +2391,7 @@ void decode_e_chp(chp *achp)
 	{
 	int colorflag=0;
 	U16 *letter16;
-	U8 *letter8;
+	char *letter8;
 	error(erroroutput,"in end chp\n");
 	if (chps)
 		return;
@@ -2551,7 +2551,7 @@ void decode_e_chp(chp *achp)
 				}
 			else
 				{
-				letter8 = revisions.u8strings[revisiontag];
+				letter8 = revisions.s8strings[revisiontag];
 
 				while (*letter8 != '\0')
 					fprintf(outputfile,"%c",*letter8++);
@@ -2575,7 +2575,7 @@ void decode_e_chp(chp *achp)
 			}
 		else
 			{
-			letter8 = revisions.u8strings[revisiontag];
+			letter8 = revisions.s8strings[revisiontag];
 			while (*letter8 != '\0')
 				fprintf(outputfile,"%c",*letter8++);
 			}
@@ -2597,7 +2597,7 @@ void decode_e_chp(chp *achp)
 			}
 		else
 			{
-			letter8 = revisions.u8strings[revisiontag];
+			letter8 = revisions.s8strings[revisiontag];
 			while (*letter8 != '\0')
 				fprintf(outputfile,"%c",*letter8++);
 			}
@@ -2629,7 +2629,7 @@ int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fi
 	static int tabstop;
 	static int silent=0;
 	float tabbing;
-	U8 *fontstr;
+	char *fontstr;
 	time_t timep;
 	struct tm *times;
 	char date[1024];
@@ -2643,7 +2643,7 @@ int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fi
 	U16 *array2;
 	U16 *deleteme=NULL;
 
-	U8 target[7];
+	char target[7];
 	int len;
 
 	chp tempchp;
@@ -2894,7 +2894,7 @@ int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fi
 				case 5:
 					error(erroroutput,"INSERT ANNOTATION\n");
 					if (doannos)
-						decode_annotation(portions,main);
+						decode_annotation(portions);
 					break;
 				case 6:
 					error(erroroutput,"line no\n");
@@ -4499,12 +4499,12 @@ void decode_clx(U32 startpiece,U32 begincp,U32 endcp,FILE *in,FILE *main,FILE *d
 						decode_s_table(apap,achp,a_list_info,0);
 						decode_s_specials(apap,achp,a_list_info);
 						decode_s_chp(achp,ffn_sttbf,sheet);
-						lastfc=-1;
+						lastfc=0xffffffffL;
 						}
 
 					if (lastchpfc) 
 						{
-						lastchpfc=-1;
+						lastchpfc=0xffffffffL;
 						decode_s_chp(achp,ffn_sttbf,sheet);
 						if ( ((letter != 12) && (letter != 13)) )
 							{
@@ -4559,7 +4559,7 @@ void decode_clx(U32 startpiece,U32 begincp,U32 endcp,FILE *in,FILE *main,FILE *d
 							}
 
 						while ( (realcp == nextannotation_b) && (doannos==1) )
-							nextannotation_b = decode_b_annotation(&(portions->a_bookmarks),&(portions->annotations));		
+							nextannotation_b = decode_b_annotation(&(portions->a_bookmarks));		
 
 						while (realcp == nextbookmark_b) 
 							nextbookmark_b = decode_b_bookmark(&(portions->l_bookmarks),&(portions->bookmarks));

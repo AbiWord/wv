@@ -36,7 +36,7 @@ mandir=@mandir@
 includedir = @includedir@
 PERL = @PERL@
 
-CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -Iexpat/xmlparse -Ioledecod -I. @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/mswordview/ttf\" -DCONFIGFILE=\"$(libdir)/mswordview/config-mswordview\" -DPATTERNDIR=\"file:$(libdir)/mswordview/patterns\" -DSYMBOLFONTDIR=\"file:$(libdir)/mswordview/symbolfont\" -DWINGDINGFONTDIR=\"file:$(libdir)/mswordview/wingdingfont\"
+CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -Iexpat/xmlparse -Ioledecod -I. @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DCONFIGFILE=\"$(libdir)/wv/config-mswordview\" -DPATTERNDIR=\"file:$(libdir)/wv/patterns\" -DSYMBOLFONTDIR=\"file:$(libdir)/wv/symbolfont\" -DWINGDINGFONTDIR=\"file:$(libdir)/wv/wingdingfont\"
 
 MKINSTALLDIRS = $(srcdir)/mkinstalldirs
 
@@ -226,11 +226,11 @@ installdirs:
 	$(mandir) \
 	$(mandir)/man1 \
 	$(libdir) \
-	$(libdir)/mswordview \
-	$(libdir)/mswordview/symbolfont \
-	$(libdir)/mswordview/wingdingfont \
-	$(libdir)/mswordview/patterns \
-	$(libdir)/mswordview/ttf
+	$(libdir)/wv\
+	$(libdir)/wv/symbolfont \
+	$(libdir)/wv/wingdingfont \
+	$(libdir)/wv/patterns \
+	$(libdir)/wv/ttf
 	
 
 install: installdirs $(srcdir)/mswordview$(EXEEXT)
@@ -244,17 +244,17 @@ install: installdirs $(srcdir)/mswordview$(EXEEXT)
 	$(INSTALL) $(srcdir)/wv-libconfig $(bindir)/wv-libconfig
 	$(INSTALL) $(srcdir)/wv-incconfig $(bindir)/wv-incconfig
 	$(INSTALL_DATA) $(srcdir)/mswordview.1 $(mandir)/man1/
-	$(INSTALL_DATA) $(srcdir)/config-mswordview $(libdir)/mswordview/config-mswordview
+	$(INSTALL_DATA) $(srcdir)/config-mswordview $(libdir)/wv/config-mswordview
 	for filename in symbolfont/*.gif; do \
-		$(INSTALL_DATA) $$filename $(libdir)/mswordview/symbolfont; \
+		$(INSTALL_DATA) $$filename $(libdir)/wv/symbolfont; \
 	done
 	for filename in wingdingfont/*.gif; do \
-		$(INSTALL_DATA) $$filename $(libdir)/mswordview/wingdingfont; \
+		$(INSTALL_DATA) $$filename $(libdir)/wv/wingdingfont; \
 	done
 	for filename in patterns/*.gif patterns/*.jpg; do \
-		$(INSTALL_DATA) $$filename $(libdir)/mswordview/patterns; \
+		$(INSTALL_DATA) $$filename $(libdir)/wv/patterns; \
 	done
-	$(INSTALL_DATA) mswordview.h $(includedir)/wv.h
+	$(INSTALL_DATA) wv.h $(includedir)/wv.h
 	$(INSTALL_DATA) $(srcdir)/libwv.a $(libdir)/libwv.a
 
 

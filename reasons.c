@@ -12,5 +12,5 @@ ReasonTable reasons[] =
 
 const char *wvReason(int reason)
 	{
-	return(reasons[0].m_name);
+	return(reasons[reason].m_name);
 	}

@@ -537,11 +537,11 @@ void output_tablebg(pap *apap)
 
 	if (apap->ourtap.cell_backs[colcount] != 0)
 		{
-		fprintf(outputfile," bgcolor=\"#%.2x",(colorlookupr[apap->ourtap.cell_backs[colcount]])*shademodifier/100);
-		fprintf(outputfile,"%.2x",(colorlookupg[apap->ourtap.cell_backs[colcount]])*shademodifier/100);
-		fprintf(outputfile,"%.2x",(colorlookupb[apap->ourtap.cell_backs[colcount]])*shademodifier/100);
+		fprintf(outputfile," bgcolor=\"#%.2x",(int)((colorlookupr[apap->ourtap.cell_backs[colcount]])*shademodifier/100));
+		fprintf(outputfile,"%.2x",(int)((colorlookupg[apap->ourtap.cell_backs[colcount]])*shademodifier/100));
+		fprintf(outputfile,"%.2x",(int)((colorlookupb[apap->ourtap.cell_backs[colcount]])*shademodifier/100));
 		fprintf(outputfile,"\"");
-		sprintf(backgroundcolor,"#%.2x%.2x%.2x",(colorlookupr[apap->ourtap.cell_backs[colcount]])*shademodifier/100,(colorlookupg[apap->ourtap.cell_backs[colcount]])*shademodifier/100,(colorlookupb[apap->ourtap.cell_backs[colcount]])*shademodifier/100);
+		sprintf(backgroundcolor,"#%.2x%.2x%.2x",(int)((colorlookupr[apap->ourtap.cell_backs[colcount]])*shademodifier/100),(int)((colorlookupg[apap->ourtap.cell_backs[colcount]])*shademodifier/100),(int)((colorlookupb[apap->ourtap.cell_backs[colcount]])*shademodifier/100));
 		}
 
 	fprintf(outputfile,">\n");

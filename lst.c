@@ -88,7 +88,7 @@ void wvGetLSTF(LSTF *item,FILE *fd)
 
 int wvGetLSTF_PLCF(LSTF **lstf,U32 **pos,U32 *nolstf,U32 offset,U32 len,FILE *fd)
 	{
-	int i;
+	U32 i;
 	if (len == 0)
 		{
 		*lstf = NULL;
@@ -113,7 +113,7 @@ int wvGetLSTF_PLCF(LSTF **lstf,U32 **pos,U32 *nolstf,U32 offset,U32 len,FILE *fd
             return(1);
             }
         fseek(fd,offset,SEEK_SET);
-        for(i=0;i<*nolstf+1;i++)
+        for(i=0;i<=*nolstf;i++)
             (*pos)[i]=read_32ubit(fd);
         for(i=0;i<*nolstf;i++)
             wvGetLSTF(&((*lstf)[i]),fd);

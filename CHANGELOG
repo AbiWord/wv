@@ -8,7 +8,11 @@ Changes to to 0.5.19
 	change gcc to g++ in Makefile
 	and make a libwv.a suitable for abiword, (yeah i know i know, but im working on it)
 	to get a simple -lwv
+	* whoppee, nearly working fine as an abiword filter..
 ALL TODO
+	* change over interface to use the parsestruct, propugate changes throughout
+	the system this is a plus so we can swap and change the ole streaming code.
+	
 	* modify configure script so its possible to link against a different expat
 	lib, or to disable it or something.
 	* compile with g++ and get rid of the problems that show up there, libwv will

@@ -91,7 +91,7 @@ char *remove_slashes(char *in)
 	int slash=0;
 	char *temp;
 	len = strlen(in);
-	temp = malloc(strlen(in)+1);
+	temp = (char *)malloc(strlen(in)+1);
 	for (i=0;i<len;i++)
 		{
 		if (in[i] != '\\')
@@ -118,12 +118,12 @@ char *remove_slashes(char *in)
 char *expand_element(char *in, char *fontface, char *color, char *size)
 	{
 	int optional=0;
-	unsigned char *test,*oldtest;
-	unsigned char *lb,*rb;
+	char *test,*oldtest;
+	char *lb,*rb;
 	char buffer[4096];
 	char *variable;
 	char *replacement=NULL;
-	unsigned char *begin=(unsigned char *)malloc(strlen(in)+1);
+	char *begin=(char *)malloc(strlen(in)+1);
 	strcpy(begin,in);
 
 	error(stderr,"incoming is %s\n",in);
@@ -283,11 +283,11 @@ char *expand_element(char *in, char *fontface, char *color, char *size)
 char *expand_variables(char *in, pap *apap)
 	{
 	int hack=0;
-	unsigned char *test,*oldtest;
+	char *test,*oldtest;
 	char buffer[4096];
 	char *variable;
 	char *replacement=NULL,*newpos;
-	unsigned char *begin=(unsigned char *)malloc(strlen(in)+1);
+	char *begin=(char *)malloc(strlen(in)+1);
 	strcpy(begin,in);
 
 	newpos = begin;
@@ -441,11 +441,14 @@ char *argument(void)
 
 int Parse (FILE * in,config_style **in_style,document_style **doc_style,element_style *ele_style)
 	{
-	config_style *current;
+	config_style *current=NULL;
 	config_style *temp;
 	config_style *start=NULL;
 	element_style *currente;
+	/*
 	enum tokens CurrentToken;
+	*/
+	int CurrentToken;
 	char *begin="test";
 	yyin = in;
 	do
@@ -653,6 +656,7 @@ int Parse (FILE * in,config_style **in_style,document_style **doc_style,element_
 		}
 	while (CurrentToken != ENDOFINPUT);
 	*in_style = start;
+	return(0);
 	}
 
 #ifdef yywrap

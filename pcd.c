@@ -34,12 +34,13 @@ int wvReleasePCD_PLCF(PCD *pcd,U32 *pos)
 	{
 	wvFree(pcd);
 	wvFree(pos);
+	return(0);
 	}
 
 
 int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,FILE *fd)
 	{
-	int i;
+	U32 i;
 	if (len == 0)
 		{
 		*pcd = NULL;
@@ -64,7 +65,7 @@ int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,FILE *fd)
             return(1);
             }
         fseek(fd,offset,SEEK_SET);
-        for(i=0;i<*nopcd+1;i++)
+        for(i=0;i<=*nopcd;i++)
             (*pos)[i]=read_32ubit(fd);
         for(i=0;i<*nopcd;i++)
             wvGetPCD(&((*pcd)[i]),fd);

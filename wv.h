@@ -31,7 +31,6 @@
 #define S8 char
 #endif
 
-#define UBit unsigned
 
 #define DEFAULTINDENT 1800
 #define TWIRPS_PER_BQ 1440
@@ -475,7 +474,7 @@ typedef struct _STTBF
 	U16 extendedflag;
 	U16 nostrings;
 	U16 extradatalen;
-	U8 **u8strings;
+	S8 **s8strings;
 	U16 **u16strings;
 	U8 **extradata;
 	} STTBF;
@@ -696,7 +695,7 @@ typedef struct _DOP
 	U16 cPgFtnEdn;
 	U32 cParasFtnEdn;
 	U32 cLinesFtnEdn;
-	U32 lKeyProtDoc;	/*password protection key (! ??)*/
+	U32 lKeyProtDoc;	/*password protection key (! ?)*/
 
 	U32 wvkSaved:3;
 	U32 wScaleSaved:9;
@@ -1154,7 +1153,7 @@ typedef struct _CHP
 	U32 fEmboss:1;
 	U32 fImprint:1;
 	U32 fDStrike:1;
-	S32 fUsePgsuSettings:1;		/*??*/
+	S32 fUsePgsuSettings:1;		/*?*/
 	U32 reserved1:12;
 	U32 reserved2;
 
@@ -2256,7 +2255,8 @@ int wvQuerySupported(FIB *fib,int *reason);
 
 const char *wvReason(int reason);
 
-void wvSetCharHandler(wvParseStruct *ps);
+void wvSetCharHandler(void (*proc)(wvParseStruct *,U16,U8));
+
 
 /*current addition position*/
 
@@ -2763,7 +2763,7 @@ struct tchp
 
 	U16 fontsize; /*half points*/
 	U8 supersubscript;
-	U16 fontcode;
+	S16 fontcode;
 	U16 fontspec;
 	char color[8];
 	U16 underline;
@@ -3089,7 +3089,7 @@ void decode_f_reference(textportions *portions);
 void decode_e_reference(textportions *portions);
 void get_next_f_ref(textportions *portions,signed long *nextfootnote);
 void get_next_e_ref(textportions *portions,signed long *nextendnote);
-void decode_annotation(textportions *portions, FILE *main);
+void decode_annotation(textportions *portions);
 
 void decode_s_specials(pap *apap,chp *achp,list_info *a_list_info);
 int decode_s_table(pap *apap,chp *achp,list_info *a_list_info,int silent);
@@ -3201,7 +3201,7 @@ void outputimgsrc(char *filename, int width,int height);
 U32 decode_b_bookmark(bookmark_limits *l_bookmarks, STTBF *bookmarks);
 U32 decode_e_bookmark(bookmark_limits *l_bookmarks);
 
-U32 decode_b_annotation(bookmark_limits *l_bookmarks, STTBF *bookmarks);
+U32 decode_b_annotation(bookmark_limits *l_bookmarks);
 U32 decode_e_annotation(bookmark_limits *l_bookmarks);
 
 U16 *decode_hyperlink(int letter, long int *swallowcp1, long int *swallowcp2, U16 **deleteme);

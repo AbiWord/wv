@@ -1573,7 +1573,7 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	S16 *rgdxaDel;
 	U8 itbdAddMax;
 	S16 *rgdxaAdd;
-	U8 *rgtbdAdd;
+	S8 *rgtbdAdd;
 
 	oldpos = *pos;
 	cch = dgetc(NULL,&pointer);
@@ -1683,7 +1683,7 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
  	U8 itbdAddMax;
  	S16 *rgdxaAdd;
  	U8 *rgtbdAdd;
-	U8 i,j,k;
+	U8 i,j,k=0;
 
 	/*
 	itbdDelMax and itbdAddMax are defined to be equal to 50. This means that the

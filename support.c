@@ -672,7 +672,7 @@ U32 decode_b_bookmark(bookmark_limits *l_bookmarks, STTBF *bookmarks)
 	{
 	int i=0;
 	U16 *letter16;
-	U8 *letter8;
+	S8 *letter8;
 	while (i<l_bookmarks->bookmark_b_no)
 		{
 		if (l_bookmarks->bookmark_b_cps[i] == realcp)
@@ -687,7 +687,7 @@ U32 decode_b_bookmark(bookmark_limits *l_bookmarks, STTBF *bookmarks)
 				}
 			else
 				{
-				letter8 = bookmarks->u8strings[i];
+				letter8 = bookmarks->s8strings[i];
 				while (*letter8 != '\0')
 					fprintf(outputfile,"%c",*letter8++);
 				}

@@ -71,10 +71,11 @@ Using the FC, search the FCs FKP for the largest FC less than the character's FC
 */
 U32 wvSearchNextLargestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc)
 	{
-	U32 i;
+	U32 i=0;
+	U8 until=fkp->crun+1;
 	U32 fcTest=0;
-	i=0;
-	while (i<fkp->crun+1)
+
+	while (i<until)
 		{
 		if ( (wvNormFC(fkp->rgfc[i],NULL) < currentfc) && (wvNormFC(fkp->rgfc[i],NULL) > fcTest) )
 			fcTest = wvNormFC(fkp->rgfc[i],NULL);
@@ -99,10 +100,11 @@ FC.
 */
 U32 wvSearchNextSmallestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc)
 	{
-	U32 i;
+	U32 i=0;
 	U32 fcTest=0xffffffffL;
-	i=0;
-	while (i<fkp->crun+1)
+	U8 until=fkp->crun+1;
+	
+	while (i<until)
 		{
 		if ( (wvNormFC(fkp->rgfc[i],NULL) > currentfc) && (wvNormFC(fkp->rgfc[i],NULL) < fcTest) )
 			fcTest = wvNormFC(fkp->rgfc[i],NULL);
@@ -131,9 +133,10 @@ void wvInitPAPX_FKP(PAPX_FKP *fkp)
 
 int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc)
 	{
-	U32 i;
-	i=0;
-	while (i<fkp->crun+1)
+	U32 i=0;
+	U8 until=fkp->crun+1;
+	
+	while (i<until)
 		{
 		wvTrace("current fc is %x, %x\n",currentfc,wvNormFC(fkp->rgfc[i],NULL));
 		if (wvNormFC(fkp->rgfc[i],NULL) == currentfc)

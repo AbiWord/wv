@@ -237,7 +237,9 @@ void endElement(void *userData, const char *name)
 
 void exendElement(void *userData, const char *name)
 	{
+	/*
 	expand_data *mydata = (expand_data *)userData;
+	*/
 	unsigned int tokenIndex;
 
 	tokenIndex = s_mapNameToToken(name);

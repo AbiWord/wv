@@ -47,7 +47,7 @@ void wvReleaseSummaryInfo(SummaryInfo *si)
 
 void wvGetSummaryInfo(SummaryInfo *si,FILE *file,U32 offset)
 	{
-	int i;
+	U32 i;
 
 	fseek(file,offset,SEEK_SET);
 
@@ -292,7 +292,7 @@ int wvSumInfoOpenStream(SummaryInfo *si,FILE *stream)
     {
     PropHeader header;
     FIDAndOffset fid;
-    int i;
+    U32 i;
    
     wvGetPropHeader(&header,stream);
     if (header.byteOrder != 0xFFFE)

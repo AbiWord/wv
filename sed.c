@@ -13,7 +13,7 @@ void wvGetSED(SED *item,FILE *fd)
 
 int wvGetSED_PLCF(SED **item,U32 **pos,U32 *noitem,U32 offset,U32 len,FILE *fd)
 	{
-	int i;
+	U32 i;
 	if (len == 0)
 		{
 		*item = NULL;
@@ -38,7 +38,7 @@ int wvGetSED_PLCF(SED **item,U32 **pos,U32 *noitem,U32 offset,U32 len,FILE *fd)
             return(1);
             }
         fseek(fd,offset,SEEK_SET);
-        for(i=0;i<*noitem+1;i++)
+        for(i=0;i<=*noitem;i++)
             (*pos)[i]=read_32ubit(fd);
         for(i=0;i<*noitem;i++)
             wvGetSED(&((*item)[i]),fd);

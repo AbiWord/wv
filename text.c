@@ -4,6 +4,8 @@
 
 extern TokenTable s_Tokens[];
 
+static void (*charhandler)(wvParseStruct *ps,U16 eachchar,U8 chartype)=NULL;
+
 CharsetTable c_Tokens[] =
 {
     { "utf-8",UTF8 },
@@ -24,10 +26,12 @@ const char *wvGetCharset(U16 charset)
 
 void wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state)
 	{
-	/*
 	if (charhandler)
-		(*charhandler)(U16 eachchar,U8 chartype);
-	*/
+		{
+		(*charhandler)(NULL,eachchar,chartype);
+		return;
+		}
+
 	switch(eachchar)
 		{
 		case 11:
@@ -230,8 +234,9 @@ void wvEndPara(expand_data *data)
 
 
 
-void wvSetCharHandler(wvParseStruct *ps)
+void wvSetCharHandler(void (*proc)(wvParseStruct *,U16,U8))
     {
+	charhandler = proc;
 	}
 
 /*

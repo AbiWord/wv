@@ -20,7 +20,7 @@ void wvInitBTE(BTE *bte)
 
 int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
 	{
-	int i;
+	U32 i;
 	if (len == 0)
 		{
 		*bte = NULL;
@@ -45,7 +45,7 @@ int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
             return(1);
             }
         fseek(fd,offset,SEEK_SET);
-        for(i=0;i<*nobte+1;i++)
+        for(i=0;i<=*nobte;i++)
             (*pos)[i]=read_32ubit(fd);
         for(i=0;i<*nobte;i++)
             wvGetBTE(&((*bte)[i]),fd);
