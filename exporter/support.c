@@ -64,13 +64,17 @@ write_32ubit (wvStream * in, U32 out)
 	      (int) in->stream.libole_stream->write (in->stream.libole_stream,
 						     (guint8 *) & cpy, 32);
       }
-    else
+    else if (in->kind == FILE_STREAM)
       {
-	  assert (in->kind == FILE_STREAM);
 	  nwr =
 	      (int) fwrite (&cpy, sizeof (guint32), 1, in->stream.file_stream);
       }
-
+    else{
+	    nwr = 4;
+	   	*((U32 *) (in->stream.memory_stream->mem + 
+			           in->stream.memory_stream->current)) = cpy;
+		   in->stream.memory_stream->current +=4;
+	    }
     return nwr;
 }
 
@@ -87,12 +91,17 @@ write_16ubit (wvStream * in, U16 out)
 	      (int) in->stream.libole_stream->write (in->stream.libole_stream,
 						     (guint8 *) & cpy, 16);
       }
-    else
+    else if (in->kind == FILE_STREAM)
       {
-	  assert (in->kind == FILE_STREAM);
 	  nwr =
 	      (int) fwrite (&cpy, sizeof (guint16), 1, in->stream.file_stream);
       }
+    else{
+	    nwr = 2;
+	    *((U16 *) (in->stream.memory_stream->mem + 
+		             in->stream.memory_stream->current))= cpy;
+	    in->stream.memory_stream->current+=2;
+	    }
 
     return nwr;
 }
@@ -110,12 +119,16 @@ write_8ubit (wvStream * in, U8 out)
 	      (int) in->stream.libole_stream->write (in->stream.libole_stream,
 						     (guint8 *) & cpy, 8);
       }
-    else
+    else if (in->kind == FILE_STREAM)
       {
-	  assert (in->kind == FILE_STREAM);
 	  nwr = (int) fwrite (&cpy, sizeof (guint8), 1, in->stream.file_stream);
       }
-
+    else{
+      nwr = 1;
+	    *((U8 *)(in->stream.memory_stream->mem + 
+		           in->stream.memory_stream->current)) = cpy;
+	    in->stream.memory_stream->current++;
+	  }
     return nwr;
 }
 
@@ -123,18 +136,21 @@ int
 wvStream_write (void *ptr, size_t size, size_t nmemb, wvStream * in)
 {
     int nwr = 0;
-
     if (in->kind == LIBOLE_STREAM)
       {
 	  nwr =
 	      (int) in->stream.libole_stream->write (in->stream.libole_stream,
 						     ptr, size * nmemb);
       }
-    else
+    else if (in->kind == FILE_STREAM)
       {
-	  assert (in->kind == FILE_STREAM);
 	  nwr = (int) fwrite (ptr, size, nmemb, in->stream.file_stream);
       }
-
+    else{
+      nwr = size * nmemb;
+    	memcpy(in->stream.memory_stream->mem + 
+                    in->stream.memory_stream->current,ptr, size * nmemb);
+	    in->stream.memory_stream->current+=size* nmemb;
+    }
     return nwr;
 }

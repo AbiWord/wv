@@ -101,6 +101,7 @@ SHELL = /bin/sh
 .SUFFIXES: .C .$(OBJEXT)
 
 MYOBJECTS =	\
+	winmmap.$(OBJEXT) \
 	support.$(OBJEXT) \
 	list.$(OBJEXT) \
 	stylesheet.$(OBJEXT) \

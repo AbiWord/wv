@@ -32,9 +32,16 @@
 #include <assert.h>
 #include <ctype.h>
 #include <string.h>
+
+ 
 #ifdef HAVE_MMAP
+/*lvm007@aha.ru fix*/
+#if defined WIN32
+#include "winmmap.h"
+#else
 #include <sys/mman.h>
 #endif
+#endif 
 
 #ifndef PROT_READ
 #define PROT_READ 0x1

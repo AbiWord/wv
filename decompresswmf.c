@@ -9,9 +9,15 @@
 
 #if defined(HAVE_ZLIB) && defined(HAVE_MMAP)
 #include <zlib.h>
+#if defined WIN32 /*lvm007@aha.ru fix for mmap realization in Win*/
+#include "winmmap.h"
+#include <io.h>
+#else
 #include <sys/mman.h>
 #endif
+#endif 
 
+/*lvm007@aha.ru fix */
 #ifndef WIN32
 #include <sys/types.h>
 #endif

@@ -27,6 +27,7 @@ INCLUDES= -I.
 include $(ABI_ROOT)/src/config/abi_defs.mk
 
 CSRCS= \
+	winmmap.c \
 	twips.c \
 	escher.c \
 	symbol.c \

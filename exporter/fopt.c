@@ -38,7 +38,8 @@ wvPutFOPTEArray (FOPTE ** fopte, MSOFBH * msofbh, wvStream * fd)
 
     while (count < msofbh->cbLength)
       {
-	  count += 4;
+    /*lvm007@aha.ru fix*/
+	  count += 6;
 	  wvPutFOPTE (&(*fopte)[no], fd);
 	  no++;
       }

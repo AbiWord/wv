@@ -485,19 +485,20 @@ wv0x01 (Blip * blip, wvStream * fd, U32 len)
     MSOFBH amsofbh;
     FSPContainer item;
     U32 count = 0;
-    char test[3];
+/*    char test[3];*/
     int ret = 0;
 
 
     if (fd == NULL)
 	return (0);
 
+  /*lvm007@aha.ru fix hack as outdated look picf*/
     /* 
        temp hack to test older included bmps in word 6 and 7,
        should be wrapped in a modern escher strucure before getting
        to here, and then handled as normal
      */
-    test[2] = '\0';
+    /*test[2] = '\0';
     test[0] = read_8ubit (fd);
     test[1] = read_8ubit (fd);
     wvStream_rewind (fd);
@@ -507,7 +508,7 @@ wv0x01 (Blip * blip, wvStream * fd, U32 len)
 	  blip->type = msoblipDIB;
 	  return (1);
       }
-
+	*/
     while (count < len)
       {
 	  wvTrace (("count is %x,len is %x\n", count, len));
