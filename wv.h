@@ -4764,7 +4764,7 @@ has got
     void wvSetEntityConverter (expand_data * data);
 
 /* & finally */
-    const char* wv_version;
+    extern const char* wv_version;
 
 #ifdef __cplusplus
 }
