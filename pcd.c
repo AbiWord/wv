@@ -73,7 +73,7 @@ int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,FILE *fd)
         for(i=0;i<*nopcd;i++)
 			{
             wvGetPCD(&((*pcd)[i]),fd);
-			wvError(("pcd fc is %x, complex is %d, index is %d\n",(*pcd)[i].fc,(*pcd)[i].prm.fComplex,(*pcd)[i].prm.para.var2.igrpprl));
+			wvTrace(("pcd fc is %x, complex is %d, index is %d\n",(*pcd)[i].fc,(*pcd)[i].prm.fComplex,(*pcd)[i].prm.para.var2.igrpprl));
 			}
         }
 	return(0);

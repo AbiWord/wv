@@ -2778,6 +2778,9 @@ U16 wvConvert1252ToUnicode(U16 char8);
 U16 wvConvert1252Toiso8859_15(U16 char8);
 int wvConvert1252ToHtml(U16 char8);
 
+U16 wvConvert1251ToUnicode(U16 char8);
+int wvConvert1251ToHtml(U16 char8);
+
 U16 wvConvertUnicodeToiso8859_15(U16 char16);
 U16 wvConvertUnicodeToKOI8_R(U16 char16);
 U16 wvConvertUnicodeToTIS620(U16 char16);

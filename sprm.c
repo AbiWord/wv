@@ -668,6 +668,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 								but exists in earlier versions so...
 								*/
 			achp->lid = bread_16ubit(pointer,pos);
+			wvError(("lid is %x\n",achp->lid));
 			break;
 		case sprmCFBoldBi:		/* ???? */
 		case sprmCFBiDi:		/* ???? */
