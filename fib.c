@@ -265,6 +265,8 @@ void wvGetFIB(FIB *item,FILE *fd)
 	{
 	U16 temp16;
 	U8 temp8;
+
+	fseek(fd,0,SEEK_SET);
 #ifdef PURIFY
 	wvInitFIB(item);
 #endif
@@ -548,14 +550,23 @@ FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
 			{
 			wvTrace("1Table\n");
 			ret = ps->tablefd1;
+			if (ret == NULL)
+				{
+				wvError("!!, the FIB lied to us, trying the other table stream, hold on to your seat\n");
+				ret = ps->tablefd0;
+				}
 			}
 		else
 			{
 			wvTrace("0Table\n");
 			ret = ps->tablefd0;
+			if (ret == NULL)
+				{
+				wvError("!!, the FIB lied to us, trying the other table stream, hold on to your seat\n");
+				ret = ps->tablefd1;
+				}
 			}
 		}
-
     return(ret);
     }
 

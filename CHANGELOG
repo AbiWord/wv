@@ -1,42 +1,4 @@
-Changes to to 0.5.20
-	* the checking for end of a piece was all wrong, i was looking
-	at the beginning of the next piece for that information which while
-	always correct failed horribly in the case of the last piece.
-	* fixed some more bugs
-	* fixed wvConvertCPToFC ala end of piece.
-	* fixed text *after* the final para in simple mode related to above.
-	* fixed oversight in len of UPX stuff in stylesheet
-	* fixed some style eating problems.
-	* cleanup up some bits and pieces with pointers and styles.
-	* added strcasecmp check and inclusion route.
-	* more bigfixes throughout chp and friends.
-	* added a simple fib6 reader that reads into a fib8 struct.
-	* word 6 doesnt appear to have a sep table stream so we'll have to
-	look closely at that sort of thing.
-	* modified STSHI handler to allow word6, modified STD to allow word6
-	* put in a word6 to word8 sprm converter, might even work. we won't
-	know for quite a while, implemented for pap and chp.
-	* reran purify, reworked the binary tree code section for that real
-	complex chp sprm.
-	* made the complex pap search start with the current piece, rather 
-	than the next one. Seems to be the right approach.
-	* fixed a small offset problem in word 6 sprm translations.
-	* clx now can load in a word 6 complex piecetable (in theory anyway)
-	* identify word 7 files.
-	* word 6 thing appears shafted.
-	* prm complex option was the wrong way around !
-	* fixed all bugs that cause crashes on doc collection.
-	* word 6 had to have a seperate BX and fkp and so on for itself, but
-	now i believe fullsaved word6 files are as supported as word97 files.
-	* can extract raw text of fastsaved word 6 files..
-	* and now we can get the para properties of word 6 fast saved files 
-	(i think)
-	* basically brought fastsaved up to fullsave quality, though im not 100
-	happy with them.
-	* some more purify found problems.
-	* implemented chpx in stylesheet for word 6.
-	* did some nasty hackery to munge word 6 chp sprms in word 8 ones, appears
-	to work.
+Changes to to 0.5.21
 ALL TODO
 	* add char properties
 	* give abiword folk new alpha filter code for themselves to play with.
@@ -54,9 +16,6 @@ ALL TODO
 
 	* i have Plcfbte's marked as generic empty structures in the old code, which 
 	is technically incorrect but works the way i've set up the code to handle it.
-	* now that the stylesheet is in position, we should look at the simple
-	text handling and get that right for text only.
-	* scan sprm carefully for problems with pointer offset and pos mistakes
 	* wvToggle is wrong im sure.
 	* i should create a lex headerfile to Init,Copy,Read from File, and Read
 	from Bucket, so as to retain my sanity.
@@ -125,6 +84,45 @@ ALL TODO
 	* hyperlink sequence fields ?
 	* doesnt compile under neXt & needs to use gcc for hpux 10.20 ?
 	* do an autoconf check for mman.h and dont do compression if not there.
+Changes to to 0.5.20
+	* the checking for end of a piece was all wrong, i was looking
+	at the beginning of the next piece for that information which while
+	always correct failed horribly in the case of the last piece.
+	* fixed some more bugs
+	* fixed wvConvertCPToFC ala end of piece.
+	* fixed text *after* the final para in simple mode related to above.
+	* fixed oversight in len of UPX stuff in stylesheet
+	* fixed some style eating problems.
+	* cleanup up some bits and pieces with pointers and styles.
+	* added strcasecmp check and inclusion route.
+	* more bigfixes throughout chp and friends.
+	* added a simple fib6 reader that reads into a fib8 struct.
+	* word 6 doesnt appear to have a sep table stream so we'll have to
+	look closely at that sort of thing.
+	* modified STSHI handler to allow word6, modified STD to allow word6
+	* put in a word6 to word8 sprm converter, might even work. we won't
+	know for quite a while, implemented for pap and chp.
+	* reran purify, reworked the binary tree code section for that real
+	complex chp sprm.
+	* made the complex pap search start with the current piece, rather 
+	than the next one. Seems to be the right approach.
+	* fixed a small offset problem in word 6 sprm translations.
+	* clx now can load in a word 6 complex piecetable (in theory anyway)
+	* identify word 7 files.
+	* word 6 thing appears shafted.
+	* prm complex option was the wrong way around !
+	* fixed all bugs that cause crashes on doc collection.
+	* word 6 had to have a seperate BX and fkp and so on for itself, but
+	now i believe fullsaved word6 files are as supported as word97 files.
+	* can extract raw text of fastsaved word 6 files..
+	* and now we can get the para properties of word 6 fast saved files 
+	(i think)
+	* basically brought fastsaved up to fullsave quality, though im not 100
+	happy with them.
+	* some more purify found problems.
+	* implemented chpx in stylesheet for word 6.
+	* did some nasty hackery to munge word 6 chp sprms in word 8 ones, appears
+	to work.
 Changes to to 0.5.19
 	* renamed libwv, and stuck in aviword cvs
 	* this version probably doesnt work, and almost certainly doesnt do

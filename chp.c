@@ -518,10 +518,6 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 
 	i=0;
 	pointer = src->upx.chpx.grpprl;
-	wvTrace("src->cbUPX len is %d\n",src->cbUPX);
-	for(i=0;i<src->cbUPX;i++)
-		wvTrace("%x\n",src->upx.chpx.grpprl[i]);
-	wvTrace("end\n");
 	i=0;
 	while(i<src->cbUPX)
 		{

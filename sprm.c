@@ -487,14 +487,15 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			achp->ico = bgetc(pointer,pos);
 			break;
 		case sprmCHps:
-			/*incorrect marked as being a byte in docs*/
+			/*incorrect marked as being a byte in docs ?*/
 			achp->hps = bread_16ubit(pointer,pos);
 			break;
 		case sprmCHpsInc:
 			wvApplysprmCHpsInc(achp,pointer,pos);
 			break;
 		case sprmCHpsPos:
-			achp->hpsPos = bgetc(pointer,pos);
+			/*incorrect marked as being a byte in docs ?*/
+			achp->hpsPos = bread_16ubit(pointer,pos);
 			break;
 		case sprmCHpsPosAdj:
 			wvApplysprmCHpsPosAdj(achp,pointer,pos); 

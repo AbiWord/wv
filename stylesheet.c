@@ -279,8 +279,8 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 		item->std=NULL;
 		return;
 		}
-	fseek(fd,offset,SEEK_SET);
 	wvTrace("stsh offset len is %x %d\n",offset,len);
+	fseek(fd,offset,SEEK_SET);
 	cbStshi = read_16ubit(fd);
 	wvGetSTSHI(&(item->Stshi),cbStshi,fd);
 	

@@ -9,14 +9,14 @@ Copyright (C) 1998,1999
 	Caolan McNamara
 
 Real Life: Caolan McNamara           *  Doing: MSc in HCI
-Work: Caolan.McNamara@ul.ie          *  Phone: +353-61-202699
+Work: Caolan.McNamara@ul.ie          *  Phone: +353-86-8790257
 URL: http://skynet.csn.ul.ie/~caolan *  Sig: an oblique strategy
 How would you have done it?
 */
 
 /*
 returns 1 for not an ole doc
-2 ole but not word doc
+2 ole but not supported word doc
 -1 for an error of some unknown kind
 0 on success
 */
@@ -50,7 +50,7 @@ int main(int argc,char **argv)
 		{
 		wvError("startup error with file %s\n",argv[1]);
 		wvOLEFree();
-		return(-1);
+		return(2);
 		}
 	
 	wvSetElementHandler(myelehandler);
