@@ -557,13 +557,13 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 			printf("\\%%");
 			return(1);
 		case 11:
-			printf("newline\n");
+			printf("\\\\\n");
 			return(1);
 		case 30:
 		case 31:
 		case 45:
 		case 0x2013:
-			printf("-");
+			printf("--"); /* en-dash */
 			return(1);
 		case 12:
 		case 13:
@@ -584,220 +584,81 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 			return(1);
 
         /* 
-	   german and scandinavian characters, MV 1.7.2000 
-	   See man iso_8859_1
+	german and scandinavian characters, MV 1.7.2000 
+	See man iso_8859_1
+
+ 	This requires the inputencoding latin1 package,
+ 	see latin1.def. Chars in range 159...255 are just
+	put through as these are legal iso-8859-1 symbols.
+	-- MV 4.7.2000
 	*/
-		case 0xc4:
-			printf("\\\"A");
-			return(1);
-		case 0xe4:
-			printf("\\\"a");
-			return(1);
-		case 0xdc:
-			printf("\\\"U");
-			return(1);
-		case 0xfc:
-			printf("\\\"u");
-			return(1);
-		case 0xd6:
-			printf("\\\"O"); 
-			return(1);
-		case 0xf6:
-			printf("\\\"o");
-			return(1);
-		case 0xdf:
-			printf("\\ss{}");  /* German ss */
-			return(1);
-		case 0xc5:
-			printf("\\AA{}");
-			return(1);
-		case 0xe5:
-			printf("\\aa{}");
-			return(1);
-		case 0xc6:
-			printf("\\AE{}");
-			return(1);
-		case 0xe6:
-			printf("\\ae{}");
-			return(1);
-		case 0xd8:
-			printf("\\O{}");   /* Danish O-slash */
-			return(1);
-		case 0xf8:
-			printf("\\o{}");
-			return(1);
 
-	/* Some more iso-8859-1, not properly tested */
-
-		case 0xb1:
-			printf("\\pm{}"); /* plusminus */
+		case 0x9f ... 0xff:
+			printf("%c", char16);
 			return(1);
-		case 0xab:
-			printf("\\flqq{}"); /* french quotes << */
-			return(1);
-		case 0xbb:
-			printf("\\frqq{}"); /* french quotes >> */
-			return(1);
-		case 0xa1:
-			printf("!`"); /* Spanish ! */
-			return(1);
-		case 0xbf:
-			printf("?`"); /* Spanish ? */
-			return(1);
-		case 0xc0:
-			printf("\\`A");
-			return(1);
-		case 0xc1:
-			printf("\\'A");
-			return(1);
-		case 0xc2:
-			printf("\\^A");
-			return(1);
-		case 0xc3:
-			printf("\\~A");
-			return(1);
-		case 0xc7:
-			printf("\\c C"); /* C cedilla */
-			return(1);
-		case 0xc8:
-			printf("\\`E");
-			return(1);
-		case 0xc9:
-			printf("\\'E");
-			return(1);
-		case 0xca:
-			printf("\\^E");
-			return(1);
-		case 0xcb:
-			printf("\\\"E");
-			return(1);
-		case 0xcc:
-			printf("\\`I");
-			return(1);
-		case 0xce:
-			printf("\\^I");
-			return(1);
-		case 0xcf:
-			printf("\\\"I");
-			return(1);
-		case 0xd1:
-			printf("\\~N");
-			return(1);
-		case 0xd2:
-			printf("\\`O");
-			return(1);
-		case 0xd3:
-			printf("\\'O");
-			return(1);
-		case 0xd4:
-			printf("\\^O");
-			return(1);
-		case 0xd5:
-			printf("\\~O");
-			return(1);
-		case 0xd9:
-			printf("\\`U");
-			return(1);
-		case 0xda:
-			printf("\\'U");
-			return(1);
-		case 0xdb:
-			printf("\\^U");
-			return(1);
-		case 0xdd:
-			printf("\\'Y");
-			return(1);
-
-		case 0xe0:
-			printf("\\`a");
-			return(1);
-		case 0xe1:
-			printf("\\'a");
-			return(1);
-		case 0xe2:
-			printf("\\^a");
-			return(1);
-		case 0xe3:
-			printf("\\~a");
-			return(1);
-		case 0xe7:
-			printf("\\c c");
-			return(1);
-		case 0xe8:
-			printf("\\`e");
-			return(1);
-		case 0xe9:
-			printf("\\'e");
-			return(1);
-		case 0xea:
-			printf("\\^e");
-			return(1);
-		case 0xeb:
-			printf("\\\"e");
-			return(1);
-		case 0xec:
-			printf("\\`i");
-			return(1);
-		case 0xed:
-			printf("\\'i");
-			return(1);
-		case 0xee:
-			printf("\\^i");
-			return(1);
-		case 0xef:
-			printf("\\\"i");
-			return(1);
-		case 0xf1:
-			printf("\\~n");
-			return(1);
-		case 0xf2:
-			printf("\\`o");
-			return(1);
-		case 0xf3:
-			printf("\\'o");
-			return(1);
-		case 0xf4:
-			printf("\\^o");
-			return(1);
-		case 0xf5:
-			printf("\\~o");
-			return(1);
-		case 0xf9:
-			printf("\\`u");
-			return(1);
-		case 0xfa:
-			printf("\\'u");
-			return(1);
-		case 0xfb:
-			printf("\\^u");
-			return(1);
-		case 0xfd:
-			printf("\\'y");
-			return(1);
-		case 0xff:
-			printf("\\\"y");
-			return(1);
-
-		case 0xf0:
-			printf("?"); /* Icelandic eth? */
-			return(1);
-
-
-	/* End iso-8859-1 */
 
 		case 0x2019:
-			printf("'");
+			printf("'");  /* Right single quote, Win */
 			return(1);
 		case 0x2215:
 			printf("/");
 			return(1);
-		case 0xF8E7:	/* without this, things should work in theory, but not for me */
+		case 0xF8E7:	
+		/* without this, things should work in theory, but not for me */
 			printf("_");
 			return(1);
 		case 0x2018:
-			printf("`");
+			printf("`");  /* left single quote, Win */
 			return(1);
+
+	/* Windows specials (MV 4.7.2000). More could be added. 
+	See http://www.hut.fi/u/jkorpela/www/windows-chars.html
+	*/
+
+		case 0x0160:
+			printf("\\v S"); /* S-caron */
+			return(1);
+		case 0x0161:
+			printf("\\v s"); /* s-caron */
+			return(1);
+		case 0x2014:
+			printf("---"); /* em-dash */
+			return(1);
+		case 0x201c:
+			printf("``");  /* inverted double quotation mark */
+			return(1);
+		case 0x201d:
+			printf("''");  /* double q.m. */
+			return(1);
+		case 0x2020:
+			printf("\\dagger");  
+			return(1);
+		case 0x2021:
+			printf("\\ddagger");  
+			return(1);
+		case 0x2022:
+			printf("\\bullet");  
+			return(1);
+		case 0x0152:
+			printf("\\OE{}");  /* OE ligature */
+			return(1);
+		case 0x0153:
+			printf("\\oe{}");  /* oe ligature */
+			return(1);
+		case 0x0178:
+			printf("\\\"Y;");
+			return(1);
+		case 0x2030:
+			printf("o/oo");
+			return(1);
+		case 0x20ac:
+			printf("\\euro");  /* No known implementation ;-) */
+			return(1);
+
+
 		}
+	/* Debugging aid: */
+	if (char16 >= 0x80) printf("[%x]", char16);
 	return(0);
 	}
 
@@ -812,7 +673,7 @@ int wvConvertUnicodeToHtml(U16 char16)
 		case 31:
 		case 45:
 		case 0x2013:
-			printf("-");
+			printf("--"); /* en-dash */
 			return(1);
 		case 12:
 		case 13:
@@ -831,31 +692,18 @@ int wvConvertUnicodeToHtml(U16 char16)
 		case 62:
 			printf("&gt;");
 			return(1);
-		/*
+	/*
         german characters, im assured that this is the right way to handle them
         by Markus Schulte <markus@dom.de>
-        */
-        case 0xc4:
-            printf("&Auml;");
-            return(1);
-        case 0xe4:
-            printf("&auml;");
-            return(1);
-        case 0xdc:
-            printf("&Uuml;");
-            return(1);
-        case 0xfc:
-            printf("&uuml;");
-            return(1);
-        case 0xd6:
-            printf("&Ouml;");
-            return(1);
-        case 0xf6:
-            printf("&ouml;");
-            return(1);
-        case 0xdf:
-            printf("&szlig;");
-            return(1);
+        
+	As the output encoding for HTML was chosen as UTF-8, 
+	we don't need &Auml; etc. etc. I removed all but sz 
+	-- MV 6.4.2000
+	*/
+
+        	case 0xdf:
+            		printf("&szlig;");
+            		return(1);
         /* end german characters */
 		case 0x2026:
 #if 0
@@ -863,7 +711,8 @@ int wvConvertUnicodeToHtml(U16 char16)
 this just looks awful in netscape 4.5, so im going to do a very foolish
 thing and just put ... instead of this
 */
-			printf("&#133;");	/*is there a proper html name for ... &ellipse; ?*/
+			printf("&#133;");	
+/*is there a proper html name for ... &ellipse;? Yes, &hellip; -- MV */
 #endif
 			printf("...");	
 			return(1);
@@ -879,6 +728,48 @@ thing and just put ... instead of this
 		case 0x2018:
 			printf("`");
 			return(1);
+
+		/* Windows specials (MV): */
+		case 0x0160:
+			printf("&Scaron;");
+			return(1);
+		case 0x0161:
+			printf("&scaron;");
+			return(1);
+		case 0x2014:
+			printf("&mdash;");
+			return(1);
+		case 0x201c:
+			printf("&ldquo;");  /* inverted double quotation mark */
+			return(1);
+		case 0x201d:
+			printf("&rdquo;");  /* double q.m. */
+			return(1);
+		case 0x2020:
+			printf("&dagger;");  
+			return(1);
+		case 0x2021:
+			printf("&Dagger;");  
+			return(1);
+		case 0x2022:
+			printf("&bull;");  
+			return(1);
+		case 0x0152:
+			printf("&OElig;"); 
+			return(1);
+		case 0x0153:
+			printf("&oelig;");
+			return(1);
+		case 0x0178:
+			printf("&Yuml;");
+			return(1);
+		case 0x2030:
+			printf("&permil;");
+			return(1);
+		case 0x20ac:
+			printf("&euro;");
+			return(1);
+
 		}
 	return(0);
 	}
