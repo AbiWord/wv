@@ -1,0 +1,133 @@
+The xml tags for the configuration file that wvHtml and friends can read in
+are reasonably complex. Here I attempt to document what they are and what
+they mean.
+
+TABLES
+======
+
+Each table is comprised of a number of rows each of which has a number
+of cells, cells may be merged vertically with ones below them, and 
+horzontially with ones to the right. If a cell is merged with cells to
+the right or below, then the other cells that it is merged with will
+not trigger a cell event of their own. This is sufficient for html, and
+hopefully for other conversions.
+
+In word tables are basically a set of unrelated rows one under the other,
+in wv these rows are magically combined together and all the figures 
+worked out so as to merge these rows into a single table which stands
+alone as an entity of its own that knows its number of cols and rows, and
+how they match up under eachother.
+
+table is defined as so...
+<table>
+<begin>TAGS</begin>
+<end>TAGS</end>
+</table>
+begin is output at the begin table event and
+end is output at the end table event.
+
+There are a number of tags which only exist with table, there are
+<tablerelwidth/>, 	this is the percentage width of the table in
+terms of the total page width, the number printed here will contain % at
+the end automatically
+<no_cols/>, this is the maximum number of columns that are in this
+table.
+<no_rows/>, this is the maximum number of rows that are in this
+table.
+
+Html example is
+<table>
+<begin>&lt;table width=&quot;<tablerelwidth/>&quot; border=&quot;1&quot; 
+cols=&quot;<no_cols/>&quot; rows=&quot;<no_rows/>&quot;&gt;</begin>
+<end>&lt;/table&gt;</end>
+</table>
+
+
+Rows
+----
+Each row is defined as so...
+<row>
+<begin>TAGS</begin>
+<end>TAGS</end>
+</row>
+
+No tags exist inside a row as yet.
+
+Html example is
+
+<row>
+<begin>&lt;tr&gt;</begin>
+<end>&lt;/tr&gt;</end>
+</row>
+
+Cells
+-----
+Cells are defined as
+<cell>
+<begin>TAGS</begin>
+<end>TAGS</end>
+</cell>
+
+Tags that may exist inside a cell are
+<rowspan/>, this is the number of rows that this cell spans
+<colspan/>, this is the number of columns that this cell spans,
+<cellrelwidth/>, this is the percentage width of the cell in
+terms on the total table width, the number printed here will contain %
+at the end automatically
+<cellbgcolor/>, this will print the color of the background of the cell
+(word can color each cell seperately), the color will be as speced
+in the color tags mentioned later
+
+Html example is
+
+<cell>
+<begin>&lt;td bgcolor=&quot;<cellbgcolor/>&quot; width=&quot;<cellwidth/>&quot;
+rowspan=&quot;<rowspan/>&quot; colspan=&quot;<colspan/>&quot;&gt;</begin>
+<end>&lt;/td&gt;</end>
+</cell>
+
+There exists another tag called lastcell which can be used to handle the last 
+cell in each row seperately, lastcell is speced exactly the same as cell,
+
+i.e.
+<lastcell>
+<begin>TAGS</begin>
+<end>TAGS</end>
+</lastcell>
+
+
+USING TABLE TAGS
+----------------
+
+Once you have speced out the table, row, cell and optionally the lastcell you
+have to place them inside a paragraph tag, this will be explained later on
+in this document, but for the moment take a look at this example of putting
+it all together.
+
+<paragraph>
+<begin>
+<table.end/>
+<table.begin/>
+<row.begin/>
+<cell.begin/>
+</begin>
+<end>
+<entry.end/>
+<cell.end/>
+<row.end/>
+</end>
+</paragraph>
+
+This all makes sense in that each end tag is before its containers end tag
+so all will work out ok from a html output point of view. There is one
+very odd thing here as you can see, the table.end is before the table.begin
+this is because as mentioned at the beginning of this section tables in
+word are not really tables. There is not a marker in word to show that a
+table has ended, so you do not know until the beginning of the next 
+paragrah after the table that the table has infact ended. So currently you
+test for the end of the previous table in the paragraph directly after it,
+the library may provide a workaround for this in the future to allow more 
+intuitive behaviour. wv guarantee that an empty dummy paragraph will be
+output if necessary to close off all these tags that rely on the following
+paragraph to fulfill their dependancies.
+

@@ -33,6 +33,14 @@ Changes to to 0.5.43
 	the "argument", or last outputted text from the field part.
 	this allow hyperlinked fields to do the right thing, and for
 	unrecognized fields to output their original default contents.
+	* changed pap defaults to include correct widow/orphan defaults
+	* fixed sprm handling of tab stops
+	* added <no_rows/> and <no_cols/> to xml config, handy for html
+	and necessary for latex im told.
+	* added a lastcell entry which can be used to handle the last cell
+	in each row seperately, put lastcell.begin *before* cell.begin
+	and put lastcell.end *before* cell.end to use it, it is defined
+	the same way as cell
 ALL TODO
 
 	* allow latex or html or raw text conversion options.

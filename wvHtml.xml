@@ -101,7 +101,7 @@ Document created with &lt;a href=&quot;http://www.wvWare.com&quot;&gt;wvWare/<ve
 </entry>
 
 <table>
-<begin>&lt;table width=&quot;<tablerelwidth/>&quot; border=&quot;1&quot;&gt;</begin>
+<begin>&lt;table width=&quot;<tablerelwidth/>&quot; border=&quot;1&quot; cols=&quot;<no_cols/>&quot; rows=&quot;<no_rows/>&quot;&gt;</begin>
 <end>&lt;/table&gt;</end>
 </table>
 
@@ -111,7 +111,7 @@ Document created with &lt;a href=&quot;http://www.wvWare.com&quot;&gt;wvWare/<ve
 </row>
 
 <cell>
-<begin>&lt;td bgcolor=&quot;<cellbgcolor/>&quot; width=&quot;<cellwidth/>&quot; rowspan=&quot;<rowspan/>&quot; colspan=&quot;<colspan/>&quot;&gt;</begin>
+<begin>&lt;td bgcolor=&quot;<cellbgcolor/>&quot; width=&quot;<cellrelwidth/>&quot; rowspan=&quot;<rowspan/>&quot; colspan=&quot;<colspan/>&quot;&gt;</begin>
 <end>&lt;/td&gt;</end>
 </cell>
 

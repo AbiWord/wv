@@ -88,12 +88,14 @@ static TokenTable s_Tokens[] =
     {   "filename",      TT_FILENAME      	},
     {   "htmlgraphic",   TT_htmlgraphic		},
     {   "colspan",       TT_COLSPAN      	},
-	{	"cellwidth",	 TT_CELLWIDTH		},
+	{	"cellrelwidth",	 TT_CELLRELWIDTH	},
     {   "rowspan",       TT_ROWSPAN      	},
     {   "cellbgcolor",   TT_CELLBGCOLOR     },
     {   "parabgcolor",   TT_PARABGCOLOR     },
     {   "parafgcolor",   TT_PARAFGCOLOR     },
     {   "tablerelwidth", TT_TABLERELWIDTH	},
+    {   "no_rows", 		 TT_no_rows			},
+    {   "no_cols", 		 TT_no_cols			},
 	{	"style",		 TT_STYLE			},
 	{	"comment",		 TT_COMMENT			},
 	{	"ibstanno",		 TT_IBSTANNO		},
@@ -133,6 +135,9 @@ static TokenTable s_Tokens[] =
 	   {  "cell",			TT_CELL		},
 	    {  "cell.begin",		TT_CELLB		},
 	    {  "cell.end",			TT_CELLE		},
+	   {  "lastcell",			TT_LASTCELL		},
+	    {  "lastcell.begin",	TT_LASTCELLB		},
+	    {  "lastcell.end",		TT_LASTCELLE		},
 	   {   "tableoverrides",	TT_TABLEOVERRIDES	},
 		{	"ParaBefore",	 TT_ParaBefore	},
 		{	"ParaAfter",	 TT_ParaAfter		},
@@ -540,7 +545,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	static int bold,italic,strike,outline,smallcaps,caps,vanish,
 	shadow,lowercase,emboss,imprint,dstrike,iss,kul,color,fontstr,proprmark,
 	animation,delete,added,FldRMark,ilfo,ilvl=-1,ulist,olist,fintable,fttp=1,
-	table,txt;
+	table,txt,lastcell;
 	char buffer[64];
 	static LVL lvl;
 	static U32 lastid=0;
@@ -577,6 +582,17 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				}
 			else
 				sprintf(buffer,"1");
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_no_rows:
+			sprintf(buffer,"%d",*mydata->norows);
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+			break;
+		case TT_no_cols:
+			sprintf(buffer,"%d",*(mydata->nocellbounds) - 1);
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
@@ -630,7 +646,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			wvFree(text); 
 			mydata->currentlen = strlen(mydata->retstring); 
 			break;
-		case TT_CELLWIDTH:
+		case TT_CELLRELWIDTH:
 			{
 			float pc;
 			long over;
@@ -1888,6 +1904,33 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				*(mydata->endcell)=0;
 				}
 			break;
+		case TT_LASTCELLB:
+			if ( (fintable != 1) && (((PAP*)(mydata->props))->fInTable == 1) && (mydata->whichcell == ((PAP*)(mydata->props))->ptap.itcMac-1) )
+				{
+				wvTrace(("the current cell is %d\n",mydata->whichcell));
+				wvTrace(("the end boundary is %d\n",  ((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1] ));
+				wvTrace(("the table look for this cell is %d\n",((PAP*)(mydata->props))->ptap.tlp.itl));
+				if (((PAP*)(mydata->props))->ptap.tlp.itl)
+					{
+					wvTrace(("table look is %d\n",((PAP*)(mydata->props))->ptap.tlp.itl));
+					}
+				HANDLE_B_PARA_ELE(TT_LASTCELL,fInTable,fintable,1)
+				lastcell=1;
+				}
+			break;
+		case TT_LASTCELLE:
+			if ( (*(mydata->endcell)) && (lastcell))
+				{
+				if (fintable == 1)
+					{
+					mydata->whichcell++;
+					wvTrace(("inc whichcell to %d\n",mydata->whichcell));
+					}
+				HANDLE_E_PARA_ELE(TT_LASTCELL,fInTable,fintable,1)
+				*(mydata->endcell)=0;
+				lastcell=0;
+				}
+			break;
 		case TT_ROWE:	
 			if ( (((PAP*)(mydata->props))->fTtp == 1) && (fttp == 0) ) 
 				{ 
@@ -2008,6 +2051,7 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_TABLE:
 		case TT_ROW:
 		case TT_CELL:
+		case TT_LASTCELL:
 			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*2);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=2;
 			for(i=0;i<2;i++)
@@ -2140,12 +2184,20 @@ void startElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(mydata->current,"<colspan/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_CELLWIDTH:
-			wvAppendStr(mydata->current,"<cellwidth/>");
+		case TT_CELLRELWIDTH:
+			wvAppendStr(mydata->current,"<cellrelwidth/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_TABLERELWIDTH:
 			wvAppendStr(mydata->current,"<tablerelwidth/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_no_rows:
+			wvAppendStr(mydata->current,"<no_rows/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_no_cols:
+			wvAppendStr(mydata->current,"<no_cols/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_CELLBGCOLOR:
@@ -2826,6 +2878,15 @@ void startElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(mydata->current,"<cell.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
+		case TT_LASTCELLB:
+			wvAppendStr(mydata->current,"<lastcell.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+			break;
+		case TT_LASTCELLE:
+			wvAppendStr(mydata->current,"<lastcell.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
 		
 		}
 	}
@@ -2890,12 +2951,14 @@ void endElement(void *userData, const char *name)
 		case TT_TITLE:
 		case TT_CHARSET:
 		case TT_COLSPAN:
-		case TT_CELLWIDTH:
+		case TT_CELLRELWIDTH:
 		case TT_ROWSPAN:
 		case TT_CELLBGCOLOR:
 		case TT_PARABGCOLOR:
 		case TT_PARAFGCOLOR:
 		case TT_TABLERELWIDTH:
+		case TT_no_cols:
+		case TT_no_rows:
 		case TT_VERSION:
 		case TT_FILENAME:
 		case TT_JUST:
@@ -3060,6 +3123,8 @@ void endElement(void *userData, const char *name)
 		case TT_ROWE:
 		case TT_CELLB:
 		case TT_CELLE:
+		case TT_LASTCELLB:
+		case TT_LASTCELLE:
 
 		case TT_STYLE:
 			break;
@@ -3089,7 +3154,9 @@ void exendElement(void *userData, const char *name)
 		case TT_PARABGCOLOR:
 		case TT_PARAFGCOLOR:
 		case TT_TABLERELWIDTH:
-		case TT_CELLWIDTH:
+		case TT_no_rows:
+		case TT_no_cols:
+		case TT_CELLRELWIDTH:
 		case TT_VERSION:
 		case TT_FILENAME:
 			break;

@@ -2395,12 +2395,15 @@ typedef enum _TT
 	TT_CELL,
 	TT_CELLB,
 	TT_CELLE,
+	TT_LASTCELL,
+	TT_LASTCELLB,
+	TT_LASTCELLE,
 	TT_COLSPAN,
 	TT_ROWSPAN,
 	TT_TEXT,
 	TT_TEXTB,
 	TT_TEXTE,
-	TT_CELLWIDTH,
+	TT_CELLRELWIDTH,
 	TT_CELLBGCOLOR,
 	TT_TABLERELWIDTH,
 	TT_STYLE,
@@ -2473,6 +2476,8 @@ typedef enum _TT
 	TT_ParaLeft1,
 	TT_FILENAME,
 	TT_htmlgraphic,
+	TT_no_rows,
+	TT_no_cols,
 	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 
