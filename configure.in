@@ -4,7 +4,7 @@ AC_CONFIG_HEADER(config.h)
 
 dnl I did this wrong, I think. I should have used AC_DEFINE(VERSION,"$VERSION") or similar
 dnl but what's done is done... (fjf)
-VERSION=0.7.5
+VERSION=0.7.6
 AC_SUBST(VERSION)
 
 # Tests for Windows
@@ -379,36 +379,6 @@ AC_SUBST(HAVE_GLIB)
 
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
-
-dnl gnomevfs support
-dnl ========================================================
-
-AC_PATH_PROG(GNOME_CONFIG, gnome-config, , [$PATH])
-if test -n "$GNOME_CONFIG"; then
-       	HAVE_GNOME_CONFIG=1
-else
- 	HAVE_GNOME_CONFIG=0
-fi
-
-AC_ARG_WITH(gnomevfs,[  --with-gnomevfs         build with gnomevfs support (default is no)],[
-	if test "x$withval" = "xno"; then
-		HAVE_GNOMEVFS=""
-	else
-		if test "x$GNOME_CONFIG" = "x"; then
-			echo "--with-gnomevfs cannot run without gnome-config"
-		else
-			gvfs_cflags=`$GNOME_CONFIG --cflags vfs`
-			gvfs_ldflags=`$GNOME_CONFIG --libs vfs`
-			CPPFLAGS="$CPPFLAGS $gvfs_cflags"
-			LDFLAGS="$LDFLAGS $gvfs_ldflags"
-			AC_DEFINE(HAVE_GNOMEVFS)
-			HAVE_GNOMEVFS="1"	
-		fi
-	fi
-],[	HAVE_GNOMEVFS=""
-])
-
-AC_SUBST(HAVE_GNOMEVFS)
 
 dnl system libwmf support
 dnl ========================================================

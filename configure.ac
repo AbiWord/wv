@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([wv],[0.7.5],[wvware-devel@sourceforge.net])
+AC_INIT([wv],[0.7.6],[wvware-devel@sourceforge.net])
 AC_CONFIG_SRCDIR([exporter/wvexporter.h])
 
 dnl This next section is courtesy gtk+
@@ -14,7 +14,7 @@ dnl
 #
 WV_MAJOR_VERSION=0
 WV_MINOR_VERSION=7
-WV_MICRO_VERSION=5
+WV_MICRO_VERSION=6
 WV_INTERFACE_AGE=0
 WV_BINARY_AGE=0
 WV_VERSION=$WV_MAJOR_VERSION.$WV_MINOR_VERSION.$WV_MICRO_VERSION
@@ -399,37 +399,6 @@ AC_SUBST(HAVE_GLIB)
 AM_CONDITIONAL(BUILD_GLIB,[ test "$HAVE_GLIB" = "0" ])
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
-
-dnl gnomevfs support
-dnl ========================================================
-
-AC_PATH_PROG(GNOME_CONFIG, gnome-config, , [$PATH])
-if test -n "$GNOME_CONFIG"; then
-       	HAVE_GNOME_CONFIG=1
-else
- 	HAVE_GNOME_CONFIG=0
-fi
-
-AC_ARG_WITH(gnomevfs,[  --with-gnomevfs         build with gnomevfs support (default is no)],[
-	if test "x$withval" = "xno"; then
-		HAVE_GNOMEVFS=""
-	else
-		if test "x$GNOME_CONFIG" = "x"; then
-			echo "--with-gnomevfs cannot run without gnome-config"
-		else
-			gvfs_cflags=`$GNOME_CONFIG --cflags vfs`
-			gvfs_ldflags=`$GNOME_CONFIG --libs vfs`
-			CPPFLAGS="$CPPFLAGS $gvfs_cflags"
-			LDFLAGS="$LDFLAGS $gvfs_ldflags"
-			AC_DEFINE(HAVE_GNOMEVFS,1,[Define if we want gnomevfs support])
-			HAVE_GNOMEVFS="1"	
-		fi
-	fi
-],[	HAVE_GNOMEVFS=""
-])
-
-AC_SUBST(HAVE_GNOMEVFS)
-AM_CONDITIONAL(WITH_GNOMEVFS,[ test "$HAVE_GNOMEVFS" = "1" ])
 
 dnl system libwmf support
 dnl ========================================================

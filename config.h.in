@@ -23,9 +23,6 @@
 /* Define if you have glib */
 #undef HAVE_GLIB
 
-/* Define if we want gnomevfs support */
-#undef HAVE_GNOMEVFS
-
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 

@@ -10,12 +10,6 @@ CPPFLAGS = @CPPFLAGS@ @GLIB_CFLAGS@ @ICONV_CFLAGS@ @ZLIB_CFLAGS@
 
 noinst_LTLIBRARIES = libole2.la
 
-if WITH_GNOMEVFS
-VFSSOURCES = ms-ole-gnomevfs.c
-else
-VFSSOURCES = 
-endif
-
 COMMONSOURCES = ms-ole.c ms-ole-summary.c
 
 libole2_la_SOURCES = $(COMMONSOURCES) $(VFSSOURCES)
