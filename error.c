@@ -3,9 +3,9 @@
 #include <stdarg.h>
 #include "wv.h"
 
-FILE *wverror=stderr;
-FILE *wvwarn=stderr;
-FILE *wvtrace=stderr;
+FILE *wverror=NULL;
+FILE *wvwarn=NULL;
+FILE *wvtrace=NULL;
 
 void wvRealError(char *file, int line,char *fmt, ...)
     {

@@ -6,6 +6,12 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 	{
 	int ret=0,reason=0;
 	ps->userData=NULL;
+
+	/* set FILE streams for error/debugging messages */
+	wvSetErrorStream(stderr);
+	wvSetWarnStream(stderr);
+	wvSetTraceStream(stderr);
+	   
 	ret = wvOLEDecode(fp,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
 		&ps->data,&ps->summary);
 	if (ret) 
