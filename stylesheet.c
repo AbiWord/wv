@@ -121,6 +121,7 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
     U16 count = 0;
     U32 allocName = 0;		/* length allocated for xstzName */
     iconv_t conv = NULL;
+	U32 b = 0;
 
     wvInitSTD (item);		/* zero any new fields that might not exist in the file */
 
@@ -191,11 +192,12 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
     wvTrace (("doing a std, str len is %d\n", len + 1));
     allocName = (len + 1) * sizeof (char);
     item->xstzName = (char *) wvMalloc (allocName);
+	*(item->xstzName) = 0;
+	b = 0;
 
     conv = iconv_open("utf-8", "UCS-2");
     for (i = 0; i < len + 1; i++)
       {
-	  U32 b = 0;
 	  if (count < 10)
 	    {
 		/* Hub: IMHO we should perform a conversion here */
@@ -205,7 +207,7 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 	  else
 	    {
 		char buf[16];
-		char  * tmp; 
+		char  * tmp;
 		const char * tmp2;
 		size_t insz, sz;
 		temp16 = read_16ubit (fd);
@@ -214,17 +216,17 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 		tmp = buf;
 		sz =  sizeof(buf);
 		iconv (conv, &tmp2, &insz, &tmp, &sz);
-		while (b + (sizeof(buf) - sz) >= allocName) {
-			allocName *=  2; 
+		while ((b + sizeof(buf) - sz + 1) >= allocName) {
+			allocName *=  2;
 			item->xstzName = (char *) realloc(item->xstzName, allocName);
 		}
 		if (sz) {
 			*tmp = 0;
 		}
-		strncat (item->xstzName, buf, allocName);
+		strncat (item->xstzName, buf, sizeof(buf) - sz);
 		b += (sizeof(buf) - sz);
 		pos += 2;
-		
+
 	    }
 
 	  wvTrace (("sample letter is %c\n", item->xstzName[i]));
