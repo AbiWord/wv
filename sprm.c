@@ -1659,7 +1659,8 @@ wvApplysprmCIstdPermute (CHP * achp, U8 * pointer, U16 * pos)
     (*pos) += 2;
     istdLast = dread_16ubit (NULL, &pointer);
     (*pos) += 2;
-    if ((cch - 6) / 2 != 0)
+
+    if (cch > 6)
       {
 	  rgistd = (U16 *) wvMalloc (sizeof (U16) * ((cch - 6) / 2));
 	  for (i = 0; i < (cch - 6) / 2; i++)
