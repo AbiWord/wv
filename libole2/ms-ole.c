@@ -1155,13 +1155,24 @@ pps_decode_tree (MsOle *f, PPS_IDX p, PPS *parent)
 	if (PPS_GET_NEXT(mem) != PPS_END_OF_CHAIN)
 		pps_decode_tree (f, PPS_GET_NEXT(mem), parent);
 	
+        /* the underlying caching might have reused the memory      */
+        /* when not using mmap                                      */
+        /* therefore we have to reload the right sector here again  */
+        mem           = get_pps_ptr (f, p, FALSE);
+
 	if (PPS_GET_PREV(mem) != PPS_END_OF_CHAIN)
 		pps_decode_tree (f, PPS_GET_PREV(mem), parent);
+
+        /* same as above */
+        mem           = get_pps_ptr (f, p, FALSE);
 	
 	if (PPS_GET_DIR (mem) != PPS_END_OF_CHAIN)
 		if (pps->type == MsOleStorageT ||
 		    pps->type == MsOleRootT)
 			pps_decode_tree (f, PPS_GET_DIR(mem), pps);
+
+        /* same as above */
+        mem           = get_pps_ptr (f, p, FALSE);
 
 	pps->start   = PPS_GET_STARTBLOCK (mem);
 
