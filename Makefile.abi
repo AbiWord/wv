@@ -113,7 +113,9 @@ CSRCS= \
 	decrypt97.c \
 	decrypt95.c \
 	table.c \
-	isbidi.c \
+	isbidi.c
+
+EXPORTERSOURCES = \
 	exporter/anld.c \
 	exporter/anlv.c \
 	exporter/asumy.c \
