@@ -1,5 +1,7 @@
 #ifndef WV_INTERNAL
 #define WV_INTERNAL
+unsigned int wvMapNameToTokenType (const char * name);
+
 void wvGetBRC_internal (BRC * abrc, wvStream * infd, U8 * pointer);
 void wvGetBRC10_internal (BRC10 * item, wvStream * infd, U8 * pointer);
 void wvGetDCS_internal (DCS * item, wvStream * fd, U8 * pointer);

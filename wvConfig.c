@@ -20,6 +20,8 @@
 #endif
 #endif
 
+extern int (*wvConvertUnicodeToEntity) (U16 char16);
+
 #define HANDLE_B_PARA_ELE(a,b,c,d) \
 if ( (((PAP*)(mydata->props))->b == d) && (c == 0) ) \
 	{ \
@@ -86,443 +88,6 @@ if (c == d) \
 	c=0; \
 	}
 
-
-Tokenptr tokenTreeRoot = NULL;
-
-static TokenTable s_Tokens[] = {
-    {"*", TT_OTHER},		/* must be FIRST */
-    {"begin", TT_BEGIN},
-    {"end", TT_END},
-    {"title", TT_TITLE},
-    {"charset", TT_CHARSET},
-    {"version", TT_VERSION},
-    {"filename", TT_FILENAME},
-    {"htmlgraphic", TT_htmlgraphic},
-    {"colspan", TT_COLSPAN},
-    {"cellrelwidth", TT_CELLRELWIDTH},
-    {"cellrelpagewidth", TT_CELLRELPAGEWIDTH},
-    {"rowspan", TT_ROWSPAN},
-    {"cellbgcolor", TT_CELLBGCOLOR},
-    {"parabgcolor", TT_PARABGCOLOR},
-    {"parafgcolor", TT_PARAFGCOLOR},
-    {"tablerelwidth", TT_TABLERELWIDTH},
-    {"no_rows", TT_no_rows},
-    {"no_cols", TT_no_cols},
-    {"style", TT_STYLE},
-    {"comment", TT_COMMENT},
-    {"ibstanno", TT_IBSTANNO},
-    {"xstUsrInitl", TT_xstUsrInitl},
-    {"mmParaBefore", TT_mmParaBefore},
-    {"mmParaAfter", TT_mmParaAfter},
-    {"mmParaLeft", TT_mmParaLeft},
-    {"mmParaRight", TT_mmParaRight},
-    {"mmParaLeft1", TT_mmParaLeft1},
-    /* >>---------- PATCH */
-    {"stylename", TT_stylename},
-    /* << ---------------- */
-    {"bordertopstyle", TT_BORDERTopSTYLE},
-    {"bordertopcolor", TT_BORDERTopCOLOR},
-    {"borderleftstyle", TT_BORDERLeftSTYLE},
-    {"borderleftcolor", TT_BORDERLeftCOLOR},
-    {"borderrightstyle", TT_BORDERRightSTYLE},
-    {"borderrightcolor", TT_BORDERRightCOLOR},
-    {"borderbottomstyle", TT_BORDERBottomSTYLE},
-    {"borderbottomcolor", TT_BORDERBottomCOLOR},
-    {"mmPadTop", TT_mmPadTop},
-    {"mmPadRight", TT_mmPadRight},
-    {"mmPadBottom", TT_mmPadBottom},
-    {"mmPadLeft", TT_mmPadLeft},
-    {"mmLineHeight", TT_mmLineHeight},
-    {"document", TT_DOCUMENT},
-    {"picture", TT_PICTURE},
-    {"charentity", TT_CHARENTITY},
-    {"pixPicWidth", TT_pixPicWidth},
-    {"pixPicHeight", TT_pixPicHeight},
-    {"htmlAlignGuess", TT_htmlAlignGuess},
-    {"htmlNextLineGuess", TT_htmlNextLineGuess},
-    {"section", TT_SECTION},
-    {"paragraph", TT_PARA},
-    {"table", TT_TABLE},
-    {"table.begin", TT_TABLEB},
-    {"table.end", TT_TABLEE},
-    {"row", TT_ROW},
-    {"row.begin", TT_ROWB},
-    {"row.end", TT_ROWE},
-    {"cell", TT_CELL},
-    {"cell.begin", TT_CELLB},
-    {"cell.end", TT_CELLE},
-    {"lastcell", TT_LASTCELL},
-    {"lastcell.begin", TT_LASTCELLB},
-    {"lastcell.end", TT_LASTCELLE},
-    {"tableoverrides", TT_TABLEOVERRIDES},
-    {"ParaBefore", TT_ParaBefore},
-    {"ParaAfter", TT_ParaAfter},
-    {"ParaLeft", TT_ParaLeft},
-    {"ParaRight", TT_ParaRight},
-    {"ParaLeft1", TT_ParaLeft1},
-    {"VertMergedCells", TT_VertMergedCells},
-    {"block", TT_BLOCK},
-    {"justification", TT_JUSTIFICATION},
-    {"just", TT_JUST},
-    {"left", TT_LEFT},
-    {"right", TT_RIGHT},
-    {"center", TT_CENTER},
-    {"asian", TT_ASIAN},
-    {"pmargin", TT_PMARGIN},
-    {"pborder", TT_PBORDER},
-    {"paramargin", TT_PARAMARGIN},
-    {"paraborder", TT_PARABORDER},
-    {"nfc", TT_nfc},
-    {"start", TT_START},
-    {"numbering", TT_numbering},
-    {"arabic", TT_Arabic},
-    {"upperroman", TT_UpperRoman},
-    {"lowerroman", TT_LowerRoman},
-    {"uppercasen", TT_UpperCaseN},
-    {"lowercasen", TT_LowerCaseN},
-    {"text", TT_TEXT,},
-    {"text.begin", TT_TEXTB,},
-    {"text.end", TT_TEXTE,},
-    {"olist", TT_OLIST,},
-    {"olist.begin", TT_OLISTB,},
-    {"olist.end", TT_OLISTE,},
-    {"ulist", TT_ULIST,},
-    {"ulist.begin", TT_ULISTB,},
-    {"ulist.end", TT_ULISTE,},
-    {"entry", TT_ENTRY,},
-    {"entry.begin", TT_ENTRYB,},
-    {"entry.end", TT_ENTRYE,},
-    {"character", TT_CHAR},
-    {"bold", TT_BOLD},
-    {"bold.begin", TT_BOLDB},
-    {"bold.end", TT_BOLDE},
-    {"italic", TT_ITALIC},
-    {"italic.begin", TT_ITALICB},
-    {"italic.end", TT_ITALICE,},
-    {"strike", TT_STRIKE},
-    {"strike.begin", TT_STRIKEB},
-    {"strike.end", TT_STRIKEE,},
-    {"rmarkdel", TT_RMarkDel,},
-    {"rmarkdel.begin", TT_RMarkDelB,},
-    {"rmarkdel.end", TT_RMarkDelE,},
-    {"outline", TT_OUTLINE,},
-    {"outline.begin", TT_OUTLINEB,},
-    {"outline.end", TT_OUTLINEE,},
-    {"smallcaps", TT_SMALLCAPS,},
-    {"smallcaps.begin", TT_SMALLCAPSB,},
-    {"smallcaps.end", TT_SMALLCAPSE,},
-    {"caps", TT_CAPS,},
-    {"caps.begin", TT_CAPSB,},
-    {"caps.end", TT_CAPSE,},
-    {"vanish", TT_VANISH,},
-    {"vanish.begin", TT_VANISHB,},
-    {"vanish.end", TT_VANISHE,},
-    {"rmark", TT_RMark,},
-    {"rmark.begin", TT_RMarkB,},
-    {"rmark.end", TT_RMarkE,},
-    {"shadow", TT_SHADOW,},
-    {"shadow.begin", TT_SHADOWB,},
-    {"shadow.end", TT_SHADOWE,},
-    {"lowercase", TT_LOWERCASE,},
-    {"lowercase.begin", TT_LOWERCASEB,},
-    {"lowercase.end", TT_LOWERCASEE,},
-    {"emboss", TT_EMBOSS,},
-    {"emboss.begin", TT_EMBOSSB,},
-    {"emboss.end", TT_EMBOSSE,},
-    {"imprint", TT_IMPRINT,},
-    {"imprint.begin", TT_IMPRINTB,},
-    {"imprint.end", TT_IMPRINTE,},
-    {"dstrike", TT_DSTRIKE,},
-    {"dstrike.begin", TT_DSTRIKEB,},
-    {"dstrike.end", TT_DSTRIKEE,},
-    {"super", TT_SUPER,},
-    {"super.begin", TT_SUPERB,},
-    {"super.end", TT_SUPERE,},
-    {"sub", TT_SUB,},
-    {"sub.begin", TT_SUBB,},
-    {"sub.end", TT_SUBE,},
-    {"singleu", TT_SINGLEU,},
-    {"singleu.begin", TT_SINGLEUB,},
-    {"singleu.end", TT_SINGLEUE,},
-    {"wordu", TT_WORDU,},
-    {"wordu.begin", TT_WORDUB,},
-    {"wordu.end", TT_WORDUE,},
-    {"doubleu", TT_DOUBLEU,},
-    {"doubleu.begin", TT_DOUBLEUB,},
-    {"doubleu.end", TT_DOUBLEUE,},
-    {"dottedu", TT_DOTTEDU,},
-    {"dottedu.begin", TT_DOTTEDUB,},
-    {"dottedu.end", TT_DOTTEDUE,},
-    {"hiddenu", TT_HIDDENU,},
-    {"hiddenu.begin", TT_HIDDENUB,},
-    {"hiddenu.end", TT_HIDDENUE,},
-    {"thicku", TT_THICKU,},
-    {"thicku.begin", TT_THICKUB,},
-    {"thicku.end", TT_THICKUE,},
-    {"dashu", TT_DASHU,},
-    {"dashu.begin", TT_DASHUB,},
-    {"dashu.end", TT_DASHUE,},
-    {"dotu", TT_DOTU,},
-    {"dotu.begin", TT_DOTUB,},
-    {"dotu.end", TT_DOTUE,},
-    {"dotdashu", TT_DOTDASHU,},
-    {"dotdashu.begin", TT_DOTDASHUB,},
-    {"dotdashu.end", TT_DOTDASHUE,},
-    {"dotdotdashu", TT_DOTDOTDASHU,},
-    {"dotdotdashu.begin", TT_DOTDOTDASHUB,},
-    {"dotdotdashu.end", TT_DOTDOTDASHUE,},
-    {"waveu", TT_WAVEU,},
-    {"waveu.begin", TT_WAVEUB,},
-    {"waveu.end", TT_WAVEUE,},
-    {"black", TT_BLACK,},
-    {"black.begin", TT_BLACKB,},
-    {"black.end", TT_BLACKE,},
-    {"blue", TT_BLUE,},
-    {"blue.begin", TT_BLUEB,},
-    {"blue.end", TT_BLUEE,},
-    {"cyan", TT_CYAN,},
-    {"cyan.begin", TT_CYANB,},
-    {"cyan.end", TT_CYANE,},
-    {"green", TT_GREEN,},
-    {"green.begin", TT_GREENB,},
-    {"green.end", TT_GREENE,},
-    {"magenta", TT_MAGENTA,},
-    {"magenta.begin", TT_MAGENTAB,},
-    {"magenta.end", TT_MAGENTAE,},
-    {"red", TT_RED,},
-    {"red.begin", TT_REDB,},
-    {"red.end", TT_REDE,},
-    {"yellow", TT_YELLOW,},
-    {"yellow.begin", TT_YELLOWB,},
-    {"yellow.end", TT_YELLOWE,},
-    {"white", TT_WHITE,},
-    {"white.begin", TT_WHITEB,},
-    {"white.end", TT_WHITEE,},
-    {"dkblue", TT_DKBLUE,},
-    {"dkblue.begin", TT_DKBLUEB,},
-    {"dkblue.end", TT_DKBLUEE,},
-    {"dkcyan", TT_DKCYAN,},
-    {"dkcyan.begin", TT_DKCYANB,},
-    {"dkcyan.end", TT_DKCYANE,},
-    {"dkgreen", TT_DKGREEN,},
-    {"dkgreen.begin", TT_DKGREENB,},
-    {"dkgreen.end", TT_DKGREENE,},
-    {"dkmagenta", TT_DKMAGENTA,},
-    {"dkmagenta.begin", TT_DKMAGENTAB,},
-    {"dkmagenta.end", TT_DKMAGENTAE,},
-    {"dkred", TT_DKRED,},
-    {"dkred.begin", TT_DKREDB,},
-    {"dkred.end", TT_DKREDE,},
-    {"dkyellow", TT_DKYELLOW,},
-    {"dkyellow.begin", TT_DKYELLOWB,},
-    {"dkyellow.end", TT_DKYELLOWE,},
-    {"dkgray", TT_DKGRAY,},
-    {"dkgray.begin", TT_DKGRAYB,},
-    {"dkgray.end", TT_DKGRAYE,},
-    {"ltgray", TT_LTGRAY,},
-    {"ltgray.begin", TT_LTGRAYB,},
-    {"ltgray.end", TT_LTGRAYE,},
-    {"fontstr", TT_FONTSTR,},
-    {"fontstr.begin", TT_FONTSTRB,},
-    {"fontstr.end", TT_FONTSTRE,},
-    {"color", TT_COLOR,},
-    {"color.begin", TT_COLORB,},
-    {"color.end", TT_COLORE,},
-    {"ibstrmark", TT_ibstRMark,},
-    {"ibstrmarkdel", TT_ibstRMarkDel,},
-    {"dttmRMark", TT_dttmRMark,},
-    {"dttmRMarkDel", TT_dttmRMarkDel,},
-    {"proprmark", TT_PropRMark,},
-    {"proprmark.begin", TT_PropRMarkB,},
-    {"proprmark.end", TT_PropRMarkE,},
-    {"ibstPropRMark", TT_ibstPropRMark,},
-    {"dttmPropRMark", TT_dttmPropRMark,},
-    {"LasVegas", TT_LasVegas,},
-    {"LasVegas.begin", TT_LasVegasB,},
-    {"LasVegas.end", TT_LasVegasE,},
-    {"BackgroundBlink", TT_BackgroundBlink,},
-    {"BackgroundBlink.begin", TT_BackgroundBlinkB,},
-    {"BackgroundBlink.end", TT_BackgroundBlinkE,},
-    {"SparkleText", TT_SparkleText,},
-    {"SparkleText.begin", TT_SparkleTextB,},
-    {"SparkleText.end", TT_SparkleTextE,},
-    {"MarchingAnts", TT_MarchingAnts,},
-    {"MarchingAnts.begin", TT_MarchingAntsB,},
-    {"MarchingAnts.end", TT_MarchingAntsE,},
-    {"MarchingRedAnts", TT_MarchingRedAnts,},
-    {"MarchingRedAnts.begin", TT_MarchingRedAntsB,},
-    {"MarchingRedAnts.end", TT_MarchingRedAntsE,},
-    {"Shimmer", TT_Shimmer,},
-    {"Shimmer.begin", TT_ShimmerB,},
-    {"Shimmer.end", TT_ShimmerE,},
-    {"ANIMATION", TT_ANIMATION,},
-    {"ANIMATION.begin", TT_ANIMATIONB,},
-    {"ANIMATION.end", TT_ANIMATIONE,},
-    {"DispFldRMark", TT_DispFldRMark,},
-    {"DispFldRMark.begin", TT_DispFldRMarkB,},
-    {"DispFldRMark.end", TT_DispFldRMarkE,},
-    {"ibstDispFldRMark", TT_ibstDispFldRMark,},
-    {"dttmDispFldRMark", TT_dttmDispFldRMark,},
-    {"xstDispFldRMark", TT_xstDispFldRMark,},
-    {"border", TT_BORDER,},
-    {"noned", TT_NONED,},
-    {"singled", TT_SINGLED,},
-    {"thickd", TT_THICKD,},
-    {"doubled", TT_DOUBLED,},
-    {"number4d", TT_NUMBER4D,},
-    {"hairlined", TT_HAIRLINED,},
-    {"dotd", TT_DOTD,},
-    {"dashlargegapd", TT_DASHLARGEGAPD,},
-    {"dotdashd", TT_DOTDASHD,},
-    {"dotdotdashd", TT_DOTDOTDASHD,},
-    {"tripled", TT_TRIPLED,},
-    {"thin-thicksmallgapd", TT_thin_thicksmallgapD,},
-    {"thick-thinsmallgapd", TT_thick_thinsmallgapD,},
-    {"thin-thick-thinsmallgapd", TT_thin_thick_thinsmallgapD,},
-    {"thin-thickmediumgapd", TT_thin_thickmediumgapD,},
-    {"thick-thinmediumgapd", TT_thick_thinmediumgapD,},
-    {"thin-thick-thinmediumgapd", TT_thin_thick_thinmediumgapD,},
-    {"thin-thicklargegapd", TT_thin_thicklargegapD,},
-    {"thick-thinlargegapd", TT_thick_thinlargegapD,},
-    {"thin-thick-thinlargegapd", TT_thin_thick_thinlargegapD,},
-    {"waved", TT_WAVED,},
-    {"doublewaved", TT_DOUBLEWAVED,},
-    {"dashsmallgapd", TT_DASHSMALLGAPD,},
-    {"dashdotstrokedd", TT_DASHDOTSTROKEDD,},
-    {"emboss3Dd", TT_EMBOSS3DD,},
-    {"engrave3Dd", TT_ENGRAVE3DD,},
-    {"direction", TT_DIRECTION,},
-    {"dir", TT_DIR,},
-    {"defaultd", TT_DEFAULTD,}
-};
-
-#define TOKEN_BUFSIZE 1000
-Tokenptr tokenbuf;
-int tokenbufn = 0, tokenfreen = 0;
-void *tokenfreearr[10000];
-
-void
-tokenTreeInsert (int token)
-{
-    int pos;
-    int d;
-    const char *s;
-    char ch;
-    Tokenptr pp, *p;
-    /* start at one - TT_OTHER is the zero element. */
-    p = &tokenTreeRoot;
-    s = s_Tokens[token].m_name;
-    pos = 0;
-    for (;;)
-      {
-	  ch = toupper (s[pos]);
-	  pp = *p;
-	  while (pp != NULL)
-	    {
-		d = ch - pp->splitchar;
-		if (d == 0)
-		  {
-		      if (s[pos] == 0)
-			  break;
-		      pos++;
-		      ch = toupper (s[pos]);
-		      p = &(pp->eqkid);
-		  }
-		else if (d < 0)
-		    p = &(pp->lokid);
-		else
-		    p = &(pp->hikid);
-		pp = *p;
-	    }
-	  if (tokenbufn == 0)
-	    {
-		tokenbuf = (Tokenptr) wvMalloc (TOKEN_BUFSIZE *
-						sizeof (Tokennode));
-		tokenfreearr[tokenfreen++] = (void *) tokenbuf;
-		tokenbufn = TOKEN_BUFSIZE;
-	    }
-	  tokenbufn--;
-	  *p = &(tokenbuf[tokenbufn]);
-	  pp = *p;
-	  pp->splitchar = ch;
-	  pp->lokid = pp->eqkid = pp->hikid = 0;
-	  pp->token = 0;
-	  if (s[pos] == 0)
-	    {
-		pp->token = token;
-		break;
-	    }
-	  pos++;
-	  p = &(pp->eqkid);
-      }
-}
-
-void tokenTreeRecursiveInsert (int min, int max);
-
-void
-tokenTreeInit (void)
-{
-    tokenTreeRecursiveInsert (1, TokenTableSize - 1);
-}
-
-/* this routine will insert the tokens in a balanced way
-as long as the token table is sorted. */
-void
-tokenTreeRecursiveInsert (int min, int max)
-{
-    int token;
-    if (min > max)
-	return;
-    token = (min + max) / 2;
-    tokenTreeInsert (token);
-    tokenTreeRecursiveInsert (token + 1, max);
-    tokenTreeRecursiveInsert (min, token - 1);
-}
-
-void
-tokenTreeFreeAll (void)
-{
-    int i;
-    for (i = 0; i < tokenfreen; i++)
-	wvFree (tokenfreearr[i]);
-    tokenfreen = 0;
-    tokenbufn = 0;
-    tokenbuf = NULL;
-    tokenTreeRoot = NULL;
-}
-
- /* this loop is called *a lot* so I've made it a binary search */
-static unsigned int
-s_mapNameToToken (const char *name)
-{
-    Tokenptr p;
-    int i = 0;
-    char ch;
-
-    p = tokenTreeRoot;
-
-    ch = toupper (name[i]);
-    while (p)
-      {
-	  if (ch < p->splitchar)
-	      p = p->lokid;
-	  else if (ch == p->splitchar)
-	    {
-		if (name[i] == 0)
-		    return p->token;
-		p = p->eqkid;
-		i++;
-		ch = toupper (name[i]);
-	    }
-	  else
-	      p = p->hikid;
-      }
-    /* this is one of several lines of code that rely
-       on TT_OTHER being first in the token table. */
-    return 0;
-}
-
-
 void
 wvInitStateData (state_data * data)
 {
@@ -574,7 +139,7 @@ wvReleaseStateData (state_data * data)
 static void
 exstartElement (void *userData, const char *name, const char **atts)
 {
-    unsigned int tokenIndex;
+    unsigned int token_type;
     expand_data *mydata = (expand_data *) userData;
     char *text, *str;
     static int bold, italic, strike, outline, smallcaps, caps, vanish,
@@ -595,8 +160,10 @@ exstartElement (void *userData, const char *name, const char **atts)
 
  /*   printf("exstart: %s \n",name);*/
 
-    tokenIndex = s_mapNameToToken ((const char *) name);
-    switch (s_Tokens[tokenIndex].m_type)
+/*  tokenIndex = s_mapNameToToken ((const char *) name);
+    token_type = s_Tokens[tokenIndex].m_type;
+ */ token_type = wvMapNameToTokenType ((const char *) name);
+    switch (token_type)
       {
       case TT_TITLE:
 	  if (mydata->retstring)
@@ -1868,13 +1435,13 @@ exstartElement (void *userData, const char *name, const char **atts)
 	  HANDLE_E_CHAR_ELE (TT_DSTRIKE, fDStrike, dstrike, 1) break;
       case TT_SUPERB:
       case TT_SUBB:
-	  HANDLE_B_CHAR_ELE (s_Tokens[tokenIndex].m_type - 1, iss, iss,
-			     (U32) (s_Tokens[tokenIndex].m_type - TT_SUPERB) / 3 +
+	  HANDLE_B_CHAR_ELE (token_type - 1, iss, iss,
+			     (U32) (token_type - TT_SUPERB) / 3 +
 			     1) break;
       case TT_SUPERE:
       case TT_SUBE:
-	  HANDLE_E_CHAR_ELE (s_Tokens[tokenIndex].m_type - 2, iss, iss,
-			     (s_Tokens[tokenIndex].m_type - TT_SUPERE) / 3 +
+	  HANDLE_E_CHAR_ELE (token_type - 2, iss, iss,
+			     (token_type - TT_SUPERE) / 3 +
 			     1) break;
 
       case TT_SINGLEUB:
@@ -1888,8 +1455,8 @@ exstartElement (void *userData, const char *name, const char **atts)
       case TT_DOTDASHUB:
       case TT_DOTDOTDASHUB:
       case TT_WAVEUB:
-	  HANDLE_B_CHAR_ELE (s_Tokens[tokenIndex].m_type - 1, kul, kul,
-			     (U32) (s_Tokens[tokenIndex].m_type - TT_SINGLEUB) / 3 +
+	  HANDLE_B_CHAR_ELE (token_type - 1, kul, kul,
+			     (U32) (token_type - TT_SINGLEUB) / 3 +
 			     1) break;
 
       case TT_BLACKB:
@@ -1908,8 +1475,8 @@ exstartElement (void *userData, const char *name, const char **atts)
       case TT_DKYELLOWB:
       case TT_DKGRAYB:
       case TT_LTGRAYB:
-	  HANDLE_B_CHAR_ELE (s_Tokens[tokenIndex].m_type - 1, ico, color,
-			     (U32) (s_Tokens[tokenIndex].m_type - TT_BLACKB) / 3 +
+	  HANDLE_B_CHAR_ELE (token_type - 1, ico, color,
+			     (U32) (token_type - TT_BLACKB) / 3 +
 			     1) break;
 
 
@@ -1924,8 +1491,8 @@ exstartElement (void *userData, const char *name, const char **atts)
       case TT_DOTDASHUE:
       case TT_DOTDOTDASHUE:
       case TT_WAVEUE:
-	  HANDLE_E_CHAR_ELE (s_Tokens[tokenIndex].m_type - 2, kul, kul,
-			     (s_Tokens[tokenIndex].m_type - TT_SINGLEUE) / 3 +
+	  HANDLE_E_CHAR_ELE (token_type - 2, kul, kul,
+			     (token_type - TT_SINGLEUE) / 3 +
 			     1) break;
 
       case TT_BLACKE:
@@ -1944,8 +1511,8 @@ exstartElement (void *userData, const char *name, const char **atts)
       case TT_DKYELLOWE:
       case TT_DKGRAYE:
       case TT_LTGRAYE:
-	  HANDLE_E_CHAR_ELE (s_Tokens[tokenIndex].m_type - 2, ico, color,
-			     (s_Tokens[tokenIndex].m_type - TT_BLACKE) / 3 +
+	  HANDLE_E_CHAR_ELE (token_type - 2, ico, color,
+			     (token_type - TT_BLACKE) / 3 +
 			     1) break;
 
       case TT_LasVegasB:
@@ -1954,9 +1521,9 @@ exstartElement (void *userData, const char *name, const char **atts)
       case TT_MarchingAntsB:
       case TT_MarchingRedAntsB:
       case TT_ShimmerB:
-	  HANDLE_B_CHAR_ELE (s_Tokens[tokenIndex].m_type - 1, sfxtText,
+	  HANDLE_B_CHAR_ELE (token_type - 1, sfxtText,
 			     animation,
-			     (s_Tokens[tokenIndex].m_type -
+			     (token_type -
 			      TT_LasVegasB) / 3 + 1) break;
 
       case TT_LasVegasE:
@@ -1965,9 +1532,9 @@ exstartElement (void *userData, const char *name, const char **atts)
       case TT_MarchingAntsE:
       case TT_MarchingRedAntsE:
       case TT_ShimmerE:
-	  HANDLE_E_CHAR_ELE (s_Tokens[tokenIndex].m_type - 2, sfxtText,
+	  HANDLE_E_CHAR_ELE (token_type - 2, sfxtText,
 			     animation,
-			     (s_Tokens[tokenIndex].m_type -
+			     (token_type -
 			      TT_LasVegasE) / 3 + 1) break;
 
       case TT_FONTSTRB:
@@ -2564,7 +2131,7 @@ startElement (void *userData, const XML_Char *name, const XML_Char **atts)
 {
     unsigned int nAtts = 0;
     const XML_Char **p;
-    unsigned int tokenIndex, i;
+    unsigned int token_type, i;
     state_data *mydata = (state_data *) userData;
     if (atts)
       {
@@ -2573,11 +2140,13 @@ startElement (void *userData, const XML_Char *name, const XML_Char **atts)
 	  ++p;
 	nAtts = (p - atts) >> 1;
       }
-    tokenIndex = s_mapNameToToken ((const char *) name);
+/*  tokenIndex = s_mapNameToToken ((const char *) name);
+    token_type = s_Tokens[tokenIndex].m_type;
+ */ token_type = wvMapNameToTokenType ((const char *) name);
 /*    printf("start: %s \n",name);*/
 
     wvTrace (("element %s started\n", name));
-    switch (s_Tokens[tokenIndex].m_type)
+    switch (token_type)
       {
       case TT_DOCUMENT:
       case TT_PARA:
@@ -2644,12 +2213,12 @@ startElement (void *userData, const XML_Char *name, const XML_Char **atts)
       case TT_ROW:
       case TT_CELL:
       case TT_LASTCELL:
-	  mydata->elements[s_Tokens[tokenIndex].m_type].str =
+	  mydata->elements[token_type].str =
 	      (char **) wvMalloc (sizeof (char *) * 2);
-	  mydata->elements[s_Tokens[tokenIndex].m_type].nostr = 2;
+	  mydata->elements[token_type].nostr = 2;
 	  for (i = 0; i < 2; i++)
-	      mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
-	  mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
+	      mydata->elements[token_type].str[i] = NULL;
+	  mydata->currentele = &(mydata->elements[token_type]);
 	  break;
       case TT_PICTURE:
       case TT_CHARENTITY:
@@ -2657,53 +2226,53 @@ startElement (void *userData, const XML_Char *name, const XML_Char **atts)
       case TT_PBORDER:
 
 
-	  mydata->elements[s_Tokens[tokenIndex].m_type].str =
+	  mydata->elements[token_type].str =
 	      (char **) wvMalloc (sizeof (char *) * 1);
-	  mydata->elements[s_Tokens[tokenIndex].m_type].nostr = 1;
-	  mydata->elements[s_Tokens[tokenIndex].m_type].str[0] = NULL;
-	  mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
+	  mydata->elements[token_type].nostr = 1;
+	  mydata->elements[token_type].str[0] = NULL;
+	  mydata->currentele = &(mydata->elements[token_type]);
 	  break;
       case TT_CHAR:
-	  mydata->elements[s_Tokens[tokenIndex].m_type].str =
+	  mydata->elements[token_type].str =
 	      (char **) wvMalloc (sizeof (char *) * 2);
-	  mydata->elements[s_Tokens[tokenIndex].m_type].nostr = 2;
+	  mydata->elements[token_type].nostr = 2;
 	  for (i = 0; i < 2; i++)
-	      mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
-	  mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
+	      mydata->elements[token_type].str[i] = NULL;
+	  mydata->currentele = &(mydata->elements[token_type]);
 	  break;
 	  break;
       case TT_JUSTIFICATION:
       case TT_numbering:
-	  mydata->elements[s_Tokens[tokenIndex].m_type].str =
+	  mydata->elements[token_type].str =
 	      (char **) wvMalloc (sizeof (char *) * 5);
-	  mydata->elements[s_Tokens[tokenIndex].m_type].nostr = 5;
+	  mydata->elements[token_type].nostr = 5;
 	  for (i = 0; i < 5; i++)
-	      mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
-	  mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
+	      mydata->elements[token_type].str[i] = NULL;
+	  mydata->currentele = &(mydata->elements[token_type]);
 	  break;
       case TT_TABLEOVERRIDES:
-	  mydata->elements[s_Tokens[tokenIndex].m_type].str =
+	  mydata->elements[token_type].str =
 	      (char **) wvMalloc (sizeof (char *) * 6);
-	  mydata->elements[s_Tokens[tokenIndex].m_type].nostr = 6;
+	  mydata->elements[token_type].nostr = 6;
 	  for (i = 0; i < 6; i++)
-	      mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
-	  mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
+	      mydata->elements[token_type].str[i] = NULL;
+	  mydata->currentele = &(mydata->elements[token_type]);
 	  break;
       case TT_COLOR:
-	  mydata->elements[s_Tokens[tokenIndex].m_type].str =
+	  mydata->elements[token_type].str =
 	      (char **) wvMalloc (sizeof (char *) * 16);
-	  mydata->elements[s_Tokens[tokenIndex].m_type].nostr = 16;
+	  mydata->elements[token_type].nostr = 16;
 	  for (i = 0; i < 16; i++)
-	      mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
-	  mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
+	      mydata->elements[token_type].str[i] = NULL;
+	  mydata->currentele = &(mydata->elements[token_type]);
 	  break;
       case TT_BORDER:
-	  mydata->elements[s_Tokens[tokenIndex].m_type].str =
+	  mydata->elements[token_type].str =
 	      (char **) wvMalloc (sizeof (char *) * 27);
-	  mydata->elements[s_Tokens[tokenIndex].m_type].nostr = 27;
+	  mydata->elements[token_type].nostr = 27;
 	  for (i = 0; i < 27; i++)
-	      mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
-	  mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
+	      mydata->elements[token_type].str[i] = NULL;
+	  mydata->currentele = &(mydata->elements[token_type]);
 	  break;
 
       case TT_STYLE:
@@ -2786,7 +2355,7 @@ startElement (void *userData, const XML_Char *name, const XML_Char **atts)
       case TT_DEFAULTD:
 	  mydata->current =
 	      &(mydata->currentele->str[5 +
-					(s_Tokens[tokenIndex].m_type -
+					(token_type -
 					 TT_HAIRLINED)]);
 	  wvAppendStr (mydata->current, "<begin>");
 	  mydata->currentlen = strlen (*(mydata->current));
@@ -3525,10 +3094,12 @@ static void
 endElement (void *userData, const XML_Char *name)
 {
     state_data *mydata = (state_data *) userData;
-    unsigned int tokenIndex;
+    unsigned int token_type;
 
-    tokenIndex = s_mapNameToToken ((const char *) name);
-    switch (s_Tokens[tokenIndex].m_type)
+/*  tokenIndex = s_mapNameToToken ((const char *) name);
+    token_type = s_Tokens[tokenIndex].m_type;
+ */ token_type = wvMapNameToTokenType ((const char *) name);
+    switch (token_type)
       {
       case TT_BEGIN:
       case TT_END:
@@ -3779,10 +3350,12 @@ exendElement (void *userData, const char *name)
     /*
        expand_data *mydata = (expand_data *)userData;
      */
-    unsigned int tokenIndex;
+    unsigned int token_type;
 
-    tokenIndex = s_mapNameToToken ((const char *) name);
-    switch (s_Tokens[tokenIndex].m_type)
+/*  tokenIndex = s_mapNameToToken ((const char *) name);
+    token_type = s_Tokens[tokenIndex].m_type;
+ */ token_type = wvMapNameToTokenType ((const char *) name);
+    switch (token_type)
       {
       case TT_TITLE:
       case TT_CHARSET:
@@ -4043,3 +3616,286 @@ wvExpand (expand_data * myhandle, char *buf, int len)
     return 0;
 }
 #endif
+
+void
+wvSetEntityConverter (expand_data * data)
+{
+    if ((data->sd) && (data->sd->elements[TT_CHARENTITY].str)
+	&& (data->sd->elements[TT_CHARENTITY].str[0]))
+      {
+	  wvExpand (data, data->sd->elements[TT_CHARENTITY].str[0],
+		    strlen (data->sd->elements[TT_CHARENTITY].str[0]));
+	  if (data->retstring)
+	    {
+		if (!(strcasecmp (data->retstring, "HTML")))
+		    wvConvertUnicodeToEntity = wvConvertUnicodeToHtml;
+		else if (!(strcasecmp (data->retstring, "LaTeX")))
+		    wvConvertUnicodeToEntity = wvConvertUnicodeToLaTeX;
+		wvTrace (
+			 ("Using %s entity conversion in conjunction with ordinary charset conversion\n",
+			  data->retstring));
+		wvFree (data->retstring);
+	    }
+      }
+}
+
+void
+wvBeginDocument (expand_data * data)
+{
+    if ((data->sd != NULL) && (data->sd->elements[TT_DOCUMENT].str[0] != NULL))
+      {
+	  wvTrace (("doc begin is %s", data->sd->elements[TT_DOCUMENT].str[0]));
+	  wvExpand (data, data->sd->elements[TT_DOCUMENT].str[0],
+		    strlen (data->sd->elements[TT_DOCUMENT].str[0]));
+	  if (data->retstring)
+	    {
+		wvTrace (("doc begin is now %s", data->retstring));
+		printf ("%s", data->retstring);
+		wvFree (data->retstring);
+	    }
+      }
+}
+
+void
+wvEndDocument (expand_data * data)
+{
+    PAP apap;
+    /*
+       just for html mode, as this is designed for, I always have an empty
+       para end just to close off any open lists
+     */
+    wvInitPAP (&apap);
+    data->props = (void *) &apap;
+    wvEndPara (data);
+
+    if ((data->sd != NULL) && (data->sd->elements[TT_DOCUMENT].str[1] != NULL))
+      {
+	  wvExpand (data, data->sd->elements[TT_DOCUMENT].str[1],
+		    strlen (data->sd->elements[TT_DOCUMENT].str[1]));
+	  if (data->retstring)
+	    {
+		wvTrace (("doc end is now %s", data->retstring));
+		printf ("%s", data->retstring);
+		wvFree (data->retstring);
+	    }
+      }
+}
+
+void
+wvBeginSection (expand_data * data)
+{
+    if (data != NULL)
+	data->asep = (SEP *) data->props;
+
+    if ((data != NULL) && (data->sd != NULL)
+	&& (data->sd->elements[TT_SECTION].str != NULL)
+	&& (data->sd->elements[TT_SECTION].str[0] != NULL))
+      {
+	  wvExpand (data, data->sd->elements[TT_SECTION].str[0],
+		    strlen (data->sd->elements[TT_SECTION].str[0]));
+	  if (data->retstring)
+	    {
+		wvTrace (("para begin is now %s", data->retstring));
+		printf ("%s", data->retstring);
+		wvFree (data->retstring);
+	    }
+      }
+}
+
+void
+wvEndSection (expand_data * data)
+{
+    if ((data != NULL) && (data->sd != NULL)
+	&& (data->sd->elements[TT_SECTION].str != NULL)
+	&& (data->sd->elements[TT_SECTION].str[1] != NULL))
+      {
+	  wvExpand (data, data->sd->elements[TT_SECTION].str[1],
+		    strlen (data->sd->elements[TT_SECTION].str[1]));
+	  if (data->retstring)
+	    {
+		wvTrace (("para end is now %s", data->retstring));
+		printf ("%s", data->retstring);
+		wvFree (data->retstring);
+	    }
+      }
+}
+
+void
+wvBeginComment (expand_data * data)
+{
+    if (data != NULL)
+      {
+	  wvTrace (("comment beginning\n"));
+	  if ((data->sd != NULL) && (data->sd->elements[TT_COMMENT].str)
+	      && (data->sd->elements[TT_COMMENT].str[0] != NULL))
+	    {
+		wvExpand (data, data->sd->elements[TT_COMMENT].str[0],
+			  strlen (data->sd->elements[TT_COMMENT].str[0]));
+		if (data->retstring)
+		  {
+		      printf ("%s", data->retstring);
+		      wvFree (data->retstring);
+		  }
+	    }
+      }
+}
+
+void
+wvEndComment (expand_data * data)
+{
+    if ((data->sd != NULL) && (data->sd->elements[TT_COMMENT].str)
+	&& (data->sd->elements[TT_COMMENT].str[1] != NULL))
+      {
+	  wvTrace (("comment ending\n"));
+	  wvExpand (data, data->sd->elements[TT_COMMENT].str[1],
+		    strlen (data->sd->elements[TT_COMMENT].str[1]));
+	  if (data->retstring)
+	    {
+		wvTrace (("comment end is now %s", data->retstring));
+		printf ("%s", data->retstring);
+		wvFree (data->retstring);
+	    }
+      }
+}
+
+void
+wvBeginPara (expand_data * data)
+{
+    if (wvIsEmptyPara ((PAP *) data->props, data, 1))
+	return;
+
+    if (data != NULL)
+      {
+	  wvTrace (
+		   ("para of style %d beginning\n",
+		    ((PAP *) (data->props))->istd));
+	  if ((data->sd != NULL) && (data->sd->elements[TT_PARA].str)
+	      && (data->sd->elements[TT_PARA].str[0] != NULL))
+	    {
+		wvExpand (data, data->sd->elements[TT_PARA].str[0],
+			  strlen (data->sd->elements[TT_PARA].str[0]));
+		if (data->retstring)
+		  {
+		      printf ("%s", data->retstring);
+		      wvFree (data->retstring);
+		  }
+	    }
+      }
+    wvTrace (
+	     ("This Para is out cell %d %d \n", data->whichrow,
+	      data->whichcell));
+}
+
+void
+wvEndPara (expand_data * data)
+{
+    if ((data->sd != NULL) && (data->sd->elements[TT_PARA].str)
+	&& (data->sd->elements[TT_PARA].str[1] != NULL))
+      {
+	  wvExpand (data, data->sd->elements[TT_PARA].str[1],
+		    strlen (data->sd->elements[TT_PARA].str[1]));
+	  if (data->retstring)
+	    {
+		wvTrace (("para end is now %s", data->retstring));
+		printf ("%s", data->retstring);
+		wvFree (data->retstring);
+	    }
+      }
+}
+
+int
+wvIsEmptyPara (PAP * apap, expand_data * data, int inc)
+{
+    /* 
+       if we are a end of table para then i consist of nothing that is of
+       any use for beginning of a para
+     */
+    if (apap == NULL)
+	return (0);
+
+    if (apap->fTtp == 1)
+	return (1);
+
+    /* 
+       if i consist of a vertically merged cell that is not the top one, then
+       also i am of no use
+     */
+    if (apap->fInTable == 1)
+      {
+#if 0
+	  wvTrace (
+		   ("This Para is in cell %d %d\n", data->whichrow,
+		    data->whichcell));
+	  if (*data->vmerges)
+	    {
+		/* only ignore a vertically merged cell if the setting in the config file have been set that way */
+		if (data
+		    && data->sd
+		    && data->sd->elements[TT_TABLEOVERRIDES].str
+		    && data->sd->elements[TT_TABLEOVERRIDES].str[5])
+		  {
+		      if ((*data->vmerges)[data->whichrow][data->whichcell] ==
+			  0)
+
+			{
+			    wvTrace (("Skipping the next paragraph\n"));
+			    if (inc)
+				data->whichcell++;
+			    return (1);
+			}
+		  }
+	    }
+#else
+	  return 0;
+#endif
+      }
+    return (0);
+}
+
+void
+wvBeginCharProp (expand_data * data, PAP * apap)
+{
+    CHP *achp;
+
+    if (wvIsEmptyPara (apap, data, 0))
+	return;
+
+    achp = (CHP *) data->props;
+    wvTrace (("beginning character run\n"));
+    if (achp->ico)
+      {
+	  wvTrace (("color is %d\n", achp->ico));
+      }
+
+    if ((data != NULL) && (data->sd != NULL)
+	&& (data->sd->elements[TT_CHAR].str)
+	&& (data->sd->elements[TT_CHAR].str[0] != NULL))
+      {
+	  wvExpand (data, data->sd->elements[TT_CHAR].str[0],
+		    strlen (data->sd->elements[TT_CHAR].str[0]));
+	  if (data->retstring)
+	    {
+		wvTrace (("char begin is now %s", data->retstring));
+		printf ("%s", data->retstring);
+		wvFree (data->retstring);
+	    }
+      }
+}
+
+void
+wvEndCharProp (expand_data * data)
+{
+    wvTrace (("ending character run\n"));
+    if ((data->sd != NULL) && (data->sd->elements[TT_CHAR].str)
+	&& (data->sd->elements[TT_CHAR].str[1] != NULL))
+      {
+	  wvExpand (data, data->sd->elements[TT_CHAR].str[1],
+		    strlen (data->sd->elements[TT_CHAR].str[1]));
+	  if (data->retstring)
+	    {
+		wvTrace (("char end is now %s", data->retstring));
+		printf ("%s", data->retstring);
+		wvFree (data->retstring);
+	    }
+      }
+}
