@@ -172,7 +172,7 @@ int wvGetListEntryInfo(U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LF
 		if there no overridden levels i assume that we 
 		search for the appropiate LST 
 		*/
-		wvTrace(("no overridden levels, searching using val %d %x\n",apap->ilfo-1,*lfo[apap->ilfo-1].lsid));
+		wvTrace(("no overridden levels, searching using val %d %x\n",apap->ilfo-1,(*lfo)[apap->ilfo-1].lsid));
 		alst = wvSearchLST((*lfo)[apap->ilfo-1].lsid,lst,noofLST);
 		wvCopyLVL(retlvl,&(alst->lvl[apap->ilvl]));
 		wvTrace(("string len is %d",retlvl->numbertext[0]));
