@@ -578,7 +578,7 @@ get_block_ptr (MsOle *f, BLP b, gboolean forwrite)
 		        else if (tmp->usage < min->usage)
 				min = tmp;
 		}
-		tmp->usage = (guint32)tmp->usage*0.707;
+		tmp->usage = (guint32)(tmp->usage*0.707);
 	}
 	if (blks < MAX_CACHED_BLOCKS)
 		min = 0;
@@ -789,7 +789,7 @@ dump_allocation (MsOle *f)
 	int lp;
 	char *blktype;
 
-	for (lp=0;lp<f->bb->len;lp++) {
+	for (lp=0;lp<(int)f->bb->len;lp++) {
 		characterise_block (f, lp, &blktype);
 		g_print ("Block %d -> block %d ( '%s' )\n", lp,
 			 g_array_index (f->bb, BLP, lp),
@@ -1532,7 +1532,7 @@ write_pps (MsOle *f)
 	BLP last = END_OF_CHAIN;
 
 	/* Build the root chain */
-	for (lp=0;lp<(f->num_pps+(BB_BLOCK_SIZE/PPS_BLOCK_SIZE)-1)/(BB_BLOCK_SIZE/PPS_BLOCK_SIZE);lp++) {
+	for (lp=0;lp<(int)(f->num_pps+(BB_BLOCK_SIZE/PPS_BLOCK_SIZE)-1)/(BB_BLOCK_SIZE/PPS_BLOCK_SIZE);lp++) {
 		last  = blk;
 		blk   = next_free_bb (f);
 		g_assert (g_array_index (f->bb, BLP, blk) == UNUSED_BLOCK);
@@ -2329,7 +2329,7 @@ ms_ole_lseek (MsOleStream *s, MsOleSPos bytes, MsOleSeek type)
 	else
 		newpos = s->size - bytes;
 
-	if (newpos > s->size || newpos < 0) {
+	if (newpos > (MsOleSPos) s->size || newpos < 0) {
 		g_warning ("Invalid seek");
 		return -1;
 	}
@@ -2352,22 +2352,22 @@ ms_ole_read_ptr_bb (MsOleStream *s, MsOlePos length)
 
 	g_return_val_if_fail (s, NULL);
 
-	if (!s->blocks || blockidx >= s->blocks->len) {
+	if (!s->blocks || blockidx >= (int) s->blocks->len) {
 		g_warning ("Reading from NULL file\n");
 		return NULL;
 	}
 
 	blklen = BB_BLOCK_SIZE - s->position%BB_BLOCK_SIZE;
 
-	if (len > blklen && !s->file->ole_mmap)
+	if (len > (guint32) blklen && !s->file->ole_mmap)
 		return NULL;
 
-	while (len > blklen) {
+	while (len > (guint32) blklen) {
 		len -= blklen;
 		blklen = BB_BLOCK_SIZE;
-		if (blockidx >= (s->blocks->len - 1)
+		if (blockidx >= (int) (s->blocks->len - 1)
 		    || (ms_array_index (s->blocks, BLP, blockidx)
-			!= blockidx + 1))
+			!= (BLP) (blockidx + 1) ))
 			return NULL;
 		blockidx++;
 	}
@@ -2398,22 +2398,22 @@ ms_ole_read_ptr_sb (MsOleStream *s, MsOlePos length)
 
 	g_return_val_if_fail (s, NULL);
 
-	if (!s->blocks || blockidx >= s->blocks->len) {
+	if (!s->blocks || blockidx >= (int) s->blocks->len) {
 		g_warning ("Reading from NULL file\n");
 		return NULL;
 	}
 
 	blklen = SB_BLOCK_SIZE - s->position%SB_BLOCK_SIZE;
 
-	if (len > blklen && !s->file->ole_mmap)
+	if (len > (guint32) blklen && !s->file->ole_mmap)
 		return NULL;
 
-	while (len > blklen) {
+	while (len > (guint32) blklen) {
 		len -= blklen;
 		blklen = SB_BLOCK_SIZE;
-		if (blockidx >= (s->blocks->len - 1)
+		if (blockidx >= (int) (s->blocks->len - 1)
 		    || (ms_array_index (s->blocks, BLP, blockidx)
-			!= blockidx + 1))
+			!= (BLP) (blockidx + 1) ))
 			return NULL;
 		blockidx++;
 	}
@@ -2454,18 +2454,18 @@ ms_ole_read_copy_bb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 	{
 		BLP block;
 		int cpylen = BB_BLOCK_SIZE - offset;
-		if (cpylen > length)
+		if (cpylen > (int) length)
 			cpylen = length;
 
 		if (s->position + cpylen > s->size
-		    || blkidx == s->blocks->len) {
+		    || blkidx == (int) s->blocks->len) {
 #if OLE_DEBUG > 0
 			g_print ("Trying 2 to read beyond end of stream %d+%d %d\n",
 				s->position, cpylen, s->size);
 #endif
 			return 0;
 		}
-		g_assert (blkidx < s->blocks->len);
+		g_assert (blkidx < (int) s->blocks->len);
 		block = ms_array_index (s->blocks, BLP, blkidx);
 		src = BB_R_PTR (s->file, block) + offset;
 		
@@ -2510,17 +2510,17 @@ ms_ole_read_copy_sb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 	{
 		int cpylen = SB_BLOCK_SIZE - offset;
 		BLP block;
-		if (cpylen>length)
+		if (cpylen>(int)length)
 			cpylen = length;
 		if (s->position + cpylen > s->size
-		    || blkidx == s->blocks->len) {
+		    || blkidx == (int) s->blocks->len) {
 #if OLE_DEBUG > 0
 			g_print ("Trying 3 to read beyond end of stream %d+%d %d\n",
 				s->position, cpylen, s->size);
 #endif
 			return 0;
 		}
-		g_assert (blkidx < s->blocks->len);
+		g_assert (blkidx < (int) s->blocks->len);
 		block = ms_array_index (s->blocks, BLP, blkidx);
 		src = GET_SB_R_PTR(s->file, block) + offset;
 				
@@ -2621,7 +2621,7 @@ ms_ole_write_bb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 	while (bytes > 0) {
 		BLP block;
 		int cpylen = BB_BLOCK_SIZE - offset;
-		if (cpylen > bytes)
+		if (cpylen > (int) bytes)
 			cpylen = bytes;
 		
 		if (!s->blocks || blkidx >= s->blocks->len)
@@ -2671,7 +2671,7 @@ ms_ole_write_sb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 		BLP block;
 		int cpylen = SB_BLOCK_SIZE - offset;
 
-		if (cpylen > bytes)
+		if (cpylen > (int) bytes)
 			cpylen = bytes;
 		
 		if (!s->blocks || blkidx >= s->blocks->len)
@@ -3092,7 +3092,7 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
 
 		s->blocks    = g_array_new (FALSE, FALSE, sizeof(BLP));
 		s->type   = MsOleLargeBlock;
-		for (lp = 0; !panic & (lp < (s->size + BB_BLOCK_SIZE - 1) / BB_BLOCK_SIZE); lp++) {
+		for (lp = 0; !panic & (lp < (int) (s->size + BB_BLOCK_SIZE - 1) / BB_BLOCK_SIZE); lp++) {
 			g_array_append_val (s->blocks, b);
 #if OLE_DEBUG > 1
 			g_print ("Block %d\n", b);
@@ -3144,7 +3144,7 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
 
 		s->type   = MsOleSmallBlock;
 
-		for (lp = 0; !panic & (lp < (s->size + SB_BLOCK_SIZE - 1) / SB_BLOCK_SIZE); lp++) {
+		for (lp = 0; !panic & (lp < (int) (s->size + SB_BLOCK_SIZE - 1) / SB_BLOCK_SIZE); lp++) {
 			g_array_append_val (s->blocks, b);
 #if OLE_DEBUG > 0
 			g_print ("Block %d\n", b);
@@ -3199,7 +3199,7 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
  * Return value: a #MsOleErr code.
  **/
 MsOleErr
-ms_ole_stream_duplicate (MsOleStream **s, const MsOleStream * const stream)
+ms_ole_stream_duplicate (MsOleStream ** const s, const MsOleStream * const stream)
 {
 	if (!s || !stream)
 		return MS_OLE_ERR_BADARG;
@@ -3226,7 +3226,7 @@ ms_ole_stream_duplicate (MsOleStream **s, const MsOleStream * const stream)
  * Return value: a #MsOleErr code.
  **/
 MsOleErr
-ms_ole_stream_close (MsOleStream **s)
+ms_ole_stream_close (MsOleStream ** const s)
 {
 	if (*s) {
 		if ((*s)->file && (*s)->file->mode == 'w')

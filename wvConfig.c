@@ -1853,7 +1853,7 @@ exstartElement (void *userData, const char *name, const char **atts)
       case TT_SUPERB:
       case TT_SUBB:
 	  HANDLE_B_CHAR_ELE (s_Tokens[tokenIndex].m_type - 1, iss, iss,
-			     (s_Tokens[tokenIndex].m_type - TT_SUPERB) / 3 +
+			     (U32) (s_Tokens[tokenIndex].m_type - TT_SUPERB) / 3 +
 			     1) break;
       case TT_SUPERE:
       case TT_SUBE:
@@ -1873,7 +1873,7 @@ exstartElement (void *userData, const char *name, const char **atts)
       case TT_DOTDOTDASHUB:
       case TT_WAVEUB:
 	  HANDLE_B_CHAR_ELE (s_Tokens[tokenIndex].m_type - 1, kul, kul,
-			     (s_Tokens[tokenIndex].m_type - TT_SINGLEUB) / 3 +
+			     (U32) (s_Tokens[tokenIndex].m_type - TT_SINGLEUB) / 3 +
 			     1) break;
 
       case TT_BLACKB:
@@ -1893,7 +1893,7 @@ exstartElement (void *userData, const char *name, const char **atts)
       case TT_DKGRAYB:
       case TT_LTGRAYB:
 	  HANDLE_B_CHAR_ELE (s_Tokens[tokenIndex].m_type - 1, ico, color,
-			     (s_Tokens[tokenIndex].m_type - TT_BLACKB) / 3 +
+			     (U32) (s_Tokens[tokenIndex].m_type - TT_BLACKB) / 3 +
 			     1) break;
 
 
@@ -2066,7 +2066,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 
 		      wvExpand (mydata, text, strlen (text));
 		      sprintf (buffer, "%.2fmm",
-			       (double) wvTwipsToMM (atoi (mydata->retstring)));
+			       (double) wvTwipsToMM ( (S16) atoi (mydata->retstring)));
 		      wvFree (mydata->retstring);
 
 		      mydata->retstring = str;
@@ -2077,7 +2077,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 		  }
 	    }
 	  sprintf (buffer, "%.2fmm",
-		   (double) wvTwipsToMM (((PAP *) (mydata->props))->dyaBefore));
+		   (double) wvTwipsToMM ( (S16) ((PAP *) (mydata->props))->dyaBefore));
 	  wvAppendStr (&mydata->retstring, buffer);
 	  mydata->currentlen = strlen (mydata->retstring);
 	  break;
@@ -2098,7 +2098,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 
 		      wvExpand (mydata, text, strlen (text));
 		      sprintf (buffer, "%.2fmm",
-			       (double) wvTwipsToMM (atoi (mydata->retstring)));
+			       (double) wvTwipsToMM ( (S16) atoi (mydata->retstring)));
 		      wvFree (mydata->retstring);
 
 		      mydata->retstring = str;
@@ -2109,7 +2109,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 		  }
 	    }
 	  sprintf (buffer, "%.2fmm",
-		   (double) wvTwipsToMM (((PAP *) (mydata->props))->dyaAfter));
+		   (double) wvTwipsToMM ( (S16) ((PAP *) (mydata->props))->dyaAfter));
 	  wvAppendStr (&mydata->retstring, buffer);
 	  mydata->currentlen = strlen (mydata->retstring);
 	  break;
@@ -2130,7 +2130,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 
 		      wvExpand (mydata, text, strlen (text));
 		      sprintf (buffer, "%.2fmm",
-			       (double) wvTwipsToMM (atoi (mydata->retstring)));
+			       (double) wvTwipsToMM ( (S16) atoi (mydata->retstring)));
 		      wvFree (mydata->retstring);
 
 		      mydata->retstring = str;
@@ -2141,7 +2141,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 		  }
 	    }
 	  sprintf (buffer, "%.2fmm",
-		   (double) wvTwipsToMM (((PAP *) (mydata->props))->dxaLeft));
+		   (double) wvTwipsToMM ( (S16) ((PAP *) (mydata->props))->dxaLeft));
 	  wvAppendStr (&mydata->retstring, buffer);
 	  mydata->currentlen = strlen (mydata->retstring);
 	  break;
@@ -2162,7 +2162,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 
 		      wvExpand (mydata, text, strlen (text));
 		      sprintf (buffer, "%.2fmm",
-			       (double) wvTwipsToMM (atoi (mydata->retstring)));
+			       (double) wvTwipsToMM ( (S16) atoi (mydata->retstring)));
 		      wvFree (mydata->retstring);
 
 		      mydata->retstring = str;
@@ -2173,7 +2173,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 		  }
 	    }
 	  sprintf (buffer, "%.2fmm",
-		   (double) wvTwipsToMM (((PAP *) (mydata->props))->dxaRight));
+		   (double) wvTwipsToMM ( (S16) ((PAP *) (mydata->props))->dxaRight));
 	  wvAppendStr (&mydata->retstring, buffer);
 	  mydata->currentlen = strlen (mydata->retstring);
 	  break;
@@ -2194,7 +2194,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 
 		      wvExpand (mydata, text, strlen (text));
 		      sprintf (buffer, "%.2fmm",
-			       (double) wvTwipsToMM (atoi (mydata->retstring)));
+			       (double) wvTwipsToMM ( (S16) atoi (mydata->retstring)));
 		      wvFree (mydata->retstring);
 
 		      mydata->retstring = str;
@@ -2205,7 +2205,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 		  }
 	    }
 	  sprintf (buffer, "%.2fmm",
-		   (double) wvTwipsToMM (((PAP *) (mydata->props))->dxaLeft1));
+		   (double) wvTwipsToMM ( (S16) ((PAP *) (mydata->props))->dxaLeft1));
 	  wvAppendStr (&mydata->retstring, buffer);
 	  mydata->currentlen = strlen (mydata->retstring);
 	  break;
@@ -2213,18 +2213,18 @@ exstartElement (void *userData, const char *name, const char **atts)
 	  if (isPAPConform (&mydata->lastpap, (PAP *) (mydata->props)))
 	      sprintf (buffer, "%.2fmm",
 		       (double)
-		       wvPointsToMM (((PAP *) (mydata->props))->
+		       wvPointsToMM ( (S16) ((PAP *) (mydata->props))->
 				     brcBetween.dptSpace));
 	  else
 	      sprintf (buffer, "%.2fmm",
-		       (double) wvPointsToMM (((PAP *) (mydata->props))->
+		       (double) wvPointsToMM ( (S16) ((PAP *) (mydata->props))->
 					      brcTop.dptSpace));
 	  wvAppendStr (&mydata->retstring, buffer);
 	  mydata->currentlen = strlen (mydata->retstring);
 	  break;
       case TT_mmPadRight:
 	  sprintf (buffer, "%.2fmm",
-		   (double) wvPointsToMM (((PAP *) (mydata->props))->brcRight.
+		   (double) wvPointsToMM ( (S16) ((PAP *) (mydata->props))->brcRight.
 					  dptSpace));
 	  wvAppendStr (&mydata->retstring, buffer);
 	  mydata->currentlen = strlen (mydata->retstring);
@@ -2233,18 +2233,18 @@ exstartElement (void *userData, const char *name, const char **atts)
 	  if (isPAPConform (mydata->nextpap, (PAP *) (mydata->props)))
 	      sprintf (buffer, "%.2fmm",
 		       (double)
-		       wvPointsToMM (((PAP *) (mydata->props))->
+		       wvPointsToMM ( (S16) ((PAP *) (mydata->props))->
 				     brcBetween.dptSpace));
 	  else
 	      sprintf (buffer, "%.2fmm",
-		       (double) wvPointsToMM (((PAP *) (mydata->props))->
+		       (double) wvPointsToMM ( (S16) ((PAP *) (mydata->props))->
 					      brcBottom.dptSpace));
 	  wvAppendStr (&mydata->retstring, buffer);
 	  mydata->currentlen = strlen (mydata->retstring);
 	  break;
       case TT_mmPadLeft:
 	  sprintf (buffer, "%.2fmm",
-		   (double) wvPointsToMM (((PAP *) (mydata->props))->brcLeft.
+		   (double) wvPointsToMM ( (S16) ((PAP *) (mydata->props))->brcLeft.
 					  dptSpace));
 	  wvAppendStr (&mydata->retstring, buffer);
 	  mydata->currentlen = strlen (mydata->retstring);
@@ -2264,7 +2264,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 	  {
 	      FSPA *fspa = (FSPA *) (mydata->props);
 	      sprintf (buffer, "%d",
-		       (int) (wvTwipsToHPixels (fspa->xaRight - fspa->xaLeft)
+		       (int) (wvTwipsToHPixels ( (S16) ( fspa->xaRight - fspa->xaLeft ) )
 			      + (float) 0.5));
 	      wvAppendStr (&mydata->retstring, buffer);
 	      mydata->currentlen = strlen (mydata->retstring);
@@ -2274,7 +2274,7 @@ exstartElement (void *userData, const char *name, const char **atts)
 	  {
 	      FSPA *fspa = (FSPA *) (mydata->props);
 	      sprintf (buffer, "%d",
-		       (int) (wvTwipsToVPixels (fspa->yaBottom - fspa->yaTop)
+		       (int) (wvTwipsToVPixels ( (S16) ( fspa->yaBottom - fspa->yaTop ) )
 			      + (float) 0.5));
 	      wvAppendStr (&mydata->retstring, buffer);
 	      mydata->currentlen = strlen (mydata->retstring);

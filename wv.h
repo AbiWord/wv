@@ -106,7 +106,7 @@ extern "C" {
 	S32 y;
     } POINT;
 #else
-#	include <wmfapi.h>
+#	include /**/ <wmfapi.h>
 #endif
 
 

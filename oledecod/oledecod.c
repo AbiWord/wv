@@ -472,7 +472,7 @@ reorder_pps_tree (pps_entry * node, U16 level)
   /* reorder subtrees, if there's any */
   if (node->dir != 0xffffffffUL)
   	{
-    reorder_pps_tree (&pps_list[node->dir], level+1);
+    reorder_pps_tree (&pps_list[node->dir], (U16) (level+1) );
 	}
 
   /* reorder next-link subtree, saving the most next link visited */

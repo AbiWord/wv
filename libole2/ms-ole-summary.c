@@ -56,7 +56,7 @@ read_items (MsOleSummary *si, MsOlePropertySetID ps_id)
 {
 	gint sect;
 	
-	for (sect = 0; sect < si->sections->len; sect++) {
+	for (sect = 0; sect < (gint) si->sections->len; sect++) {
 		MsOleSummarySection st;
 		guint8 data[8];
 		gint   i;
@@ -76,7 +76,7 @@ read_items (MsOleSummary *si, MsOlePropertySetID ps_id)
 		if (st.props == 0)
 			continue;
 		
-		for (i = 0; i < st.props; i++) {
+		for (i = 0; i < (gint) st.props; i++) {
 			item_t item;
 			if (!si->s->read_copy (si->s, data, 8))
 				return FALSE;
@@ -505,7 +505,7 @@ ms_ole_summary_get_properties (MsOleSummary *si)
 
 	ans = g_array_new (FALSE, FALSE, sizeof (MsOleSummaryPID));
 	g_array_set_size  (ans, si->items->len);
-	for (i = 0; i < si->items->len; i++)
+	for (i = 0; i < (gint) si->items->len; i++)
 		g_array_index (ans, MsOleSummaryPID, i) = 
 			g_array_index (si->items, item_t, i).id;
 
@@ -561,9 +561,9 @@ seek_to_record (MsOleSummary *si, MsOleSummaryPID id)
 	g_return_val_if_fail (si->items, FALSE);
 
 	/* These should / could be sorted for speed */
-	for (i = 0; i < si->items->len; i++) {
+	for (i = 0; i < (gint) si->items->len; i++) {
 		item_t item = g_array_index (si->items, item_t, i);
-		if (item.id == SUMMARY_ID(id)) {
+		if (item.id == (guint32) SUMMARY_ID(id)) {
 			gboolean is_summary, is_doc_summary;
 
 			is_summary     = ((si->ps_id == MS_OLE_PS_SUMMARY_INFO) && 

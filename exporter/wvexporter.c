@@ -680,7 +680,7 @@ exporter_create_word8 (const char *filename)
 static void
 exporter_close_word8 (wvExporter * exp)
 {
-    MsOleSummary *doc, *sum;
+    MsOleSummary *sum;
 
     wvExporter_flush (exp);
 

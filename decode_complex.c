@@ -925,7 +925,7 @@ wvGetComplexSEP (wvVersion ver, SEP * sep, U32 cpiece, STSH * stsh, CLX * clx)
 #endif
 	  RetSprm =
 	      wvApplySprmFromBucket (ver,
-				     wvGetrgsprmPrm (clx->pcd[cpiece].prm.
+				     (U16) wvGetrgsprmPrm ( (U16) clx->pcd[cpiece].prm.
 						     para.var1.isprm), NULL,
 				     NULL, sep, stsh, pointer, &pos, NULL);
 	  if (RetSprm.sgc == sgcSep)
@@ -952,7 +952,7 @@ wvGetComplexSEP (wvVersion ver, SEP * sep, U32 cpiece, STSH * stsh, CLX * clx)
 		else
 		  {
 		      sprm = bread_8ubit (clx->grpprl[index] + i, &i);
-		      sprm = (U8) wvGetrgsprmWord6 (sprm);
+		      sprm = (U8) wvGetrgsprmWord6 ( (U8) sprm);
 		  }
 		pointer = clx->grpprl[index] + i;
 		RetSprm =
@@ -1000,7 +1000,7 @@ wvAssembleComplexPAP (wvVersion ver, PAP * apap, U32 cpiece, STSH * stsh,
 #endif
 	  RetSprm =
 	      wvApplySprmFromBucket (ver,
-				     wvGetrgsprmPrm (clx->pcd[cpiece].prm.
+				     (U16) wvGetrgsprmPrm ( (U16) clx->pcd[cpiece].prm.
 						     para.var1.isprm), apap,
 				     NULL, NULL, stsh, pointer, &pos, data);
 	  if (RetSprm.sgc == sgcPara)
@@ -1060,7 +1060,7 @@ wvAssembleComplexCHP (wvVersion ver, CHP * achp, U32 cpiece, STSH * stsh,
 #endif
 	  RetSprm =
 	      wvApplySprmFromBucket (ver,
-				     wvGetrgsprmPrm (clx->pcd[cpiece].prm.
+				     (U16) wvGetrgsprmPrm ( (U16) clx->pcd[cpiece].prm.
 						     para.var1.isprm), NULL,
 				     achp, NULL, stsh, pointer, &pos, NULL);
 	  if (RetSprm.sgc == sgcChp)

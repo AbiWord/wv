@@ -27,7 +27,7 @@
 #include <glib.h>
 
 #ifdef HAVE_GNOMEVFS
-        #include <libgnomevfs/gnome-vfs.h>
+        #include /**/ <libgnomevfs/gnome-vfs.h>
         typedef GnomeVFSHandle * MsOleHandleType;
 #else
         typedef int MsOleHandleType;
