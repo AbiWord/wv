@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
     /* TODO: find a way to remove this */
-#include "ms-ole.h"
+#include <libole2/ms-ole.h>
     /* #include "config.h" */
 
 /* The structure below is used to refer to a wvStream.  Usually,
