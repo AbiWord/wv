@@ -16,7 +16,7 @@ the CHP property is set to the parameter value.
 When the parameter of the sprm is 128, then the CHP property is set to the
 value that is stored for the property in the style sheet. CHP When the
 parameter of the sprm is 129, the CHP property is set to the negation of the
-value that is stored for the property in the style sheet CHP. 
+value that is stored for the property in the style sheet CHP.
 sprmCFBold through sprmCFVanish are stored only in grpprls linked to piece table
 entries.
 
@@ -25,9 +25,9 @@ entries.
 
 /*
 an argument might be made that instead of in being returned or negated that
-it should be the looked up in the original chp through the istd that should 
-be used, in which case this should be a macro that does the right thing. 
-but im uncertain as to which is the correct one to do, ideas on a postcard 
+it should be the looked up in the original chp through the istd that should
+be used, in which case this should be a macro that does the right thing.
+but im uncertain as to which is the correct one to do, ideas on a postcard
 to... etc etc
 
 This argument which i left as a comment to the original function has been
@@ -76,7 +76,7 @@ int wvSprmLen(int spra)
 	{
 	switch(spra)
 		{
-		case 0:	
+		case 0:
 		case 1:
 			return(1);
 		case 2:
@@ -96,23 +96,23 @@ int wvSprmLen(int spra)
 	return(-2);
 	}
 
-void wvInitSprm(Sprm *Sprm)
+void wvInitSprm(Sprm *aSprm)
 	{
-	Sprm->ispmd = 0;
-	Sprm->fSpec = 0;
-	Sprm->sgc = 0;
-	Sprm->spra = 0;
+	aSprm->ispmd = 0;
+	aSprm->fSpec = 0;
+	aSprm->sgc = 0;
+	aSprm->spra = 0;
 	}
 
-void wvGetSprmFromU16(Sprm *Sprm,U16 sprm)
+void wvGetSprmFromU16(Sprm *aSprm,U16 sprm)
 	{
 #ifdef PURIFY
-	wvInitSprm(Sprm);
+	wvInitSprm(aSprm);
 #endif
-	Sprm->ispmd = sprm & 0x01ff;
-	Sprm->fSpec = (sprm & 0x0200)>>9;  
-	Sprm->sgc = (sprm & 0x1c00)>>10;
-	Sprm->spra = (sprm & 0xe000)>>13;
+	aSprm->ispmd = sprm & 0x01ff;
+	aSprm->fSpec = (sprm & 0x0200)>>9;
+	aSprm->sgc = (sprm & 0x1c00)>>10;
+	aSprm->spra = (sprm & 0xe000)>>13;
 	}
 
 U8 wvEatSprm(U16 sprm,U8 *pointer, U16 *pos)
@@ -308,7 +308,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			(*pos)+=2;
 			wvConvertBRC10ToBRC(&apap->brcBar,&tempBRC10);
 			break;
-		case sprmPDxaFromText10:	
+		case sprmPDxaFromText10:
 			apap->dxaFromText = (S16)bread_16ubit(pointer,pos);
 			break;
 		case sprmPWr:
@@ -449,7 +449,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 				pointer++;
 				}
 			/*
-			This sprm moves the 4-byte operand of the sprm into the 
+			This sprm moves the 4-byte operand of the sprm into the
 			chp.fcPic field. It simultaneously sets chp.fSpec to 1.
 			*/
 			achp->fcPic_fcObj_lTagObj = bread_32ubit(pointer,pos);
@@ -570,7 +570,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			achp->hpsPos = bread_16ubit(pointer,pos);
 			break;
 		case sprmCHpsPosAdj:
-			wvApplysprmCHpsPosAdj(achp,pointer,pos); 
+			wvApplysprmCHpsPosAdj(achp,pointer,pos);
 			break;
 		case sprmCMajority:
 			wvApplysprmCMajority(achp,stsh,pointer,pos);
@@ -668,7 +668,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		case sprmCCpg:			/* not fully mentioned in spec*/
 			achp->cpg = bread_16ubit(pointer,pos);
 			break;
-		case sprmCLid:			/* 
+		case sprmCLid:			/*
 								only used internally, never stored ( word 97 )
 								but exists in earlier versions so...
 								*/
@@ -824,7 +824,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		case sprmSBrcLeft:
 			(*pos)+=wvGetBRCFromBucket(ver,&asep->brcLeft,pointer);
 			break;
-		case sprmSBrcBottom:	
+		case sprmSBrcBottom:
 			(*pos)+=wvGetBRCFromBucket(ver,&asep->brcBottom,pointer);
 			break;
 		case sprmSBrcRight:
@@ -885,8 +885,8 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		case sprmTDefTableShd:
 		/*
 		wvApplysprmTDefTableShd follows the written spec, but
-		it isnt't working out for me, maybe its my own fault, 
-		anyhow Im trying wv2 out temporarily 
+		it isnt't working out for me, maybe its my own fault,
+		anyhow Im trying wv2 out temporarily
 		*/
 			wv2ApplysprmTDefTableShd(&apap->ptap,pointer,pos);
 			/*
@@ -934,8 +934,8 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		case sprmTFBiDi:	/* ????? */
 			bread_16ubit(pointer,pos);
 			break;
-		case sprmTUNKNOWN1:	
-		/* read wv.h and word 6 sprm 204 
+		case sprmTUNKNOWN1:
+		/* read wv.h and word 6 sprm 204
 		further down in this file to understand this
 		*/
 			bread_8ubit(pointer,pos);
@@ -944,7 +944,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		case sprmTVertAlign:
 			wvApplysprmTVertAlign(&apap->ptap,pointer,pos);
 			break;
-			
+
 		/* end of TAP */
 
 			/*
@@ -1008,8 +1008,8 @@ void wvApplysprmPIstdPermute(PAP *apap,U8 *pointer,U16 *pos)
 	else
 		rgistd = NULL;
 	/*
-	First check if pap.istd is greater than the istdFirst recorded in the sprm 
-	and less than or equal to the istdLast recorded in the sprm If not, the sprm 
+	First check if pap.istd is greater than the istdFirst recorded in the sprm
+	and less than or equal to the istdLast recorded in the sprm If not, the sprm
 	has no effect. If it is, pap.istd is set to rgistd[pap.istd - istdFirst]
 	*/
 
@@ -1046,7 +1046,7 @@ void wvApplysprmPIncLvl(PAP *apap,U8 *pointer,U16 *pos)
 	instructions
 
 	*/
-	
+
 	if ((apap->istd < 1) || (apap->istd > 9))
 		return;
 
@@ -1126,7 +1126,7 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	if (*pos-oldpos != cch+1)
 		wvTrace(("Offset Problem in wvApplysprmPChgTabsPapx\n"));
 #endif
-	
+
 	/*
 	When sprmPChgTabsPapx is interpreted, the rgdxaDel of the sprm is applied
 	first to the pap that is being transformed. This is done by deleting from
@@ -1174,7 +1174,7 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 			}
 		else if ((j<apap->itbdMac) && (temp_rgdxaTab[j] == rgdxaAdd[i]))
 			{
-			/* if we have one from the retained group that should be added 
+			/* if we have one from the retained group that should be added
 			which is the same as one from the new group */
 			apap->rgdxaTab[k] = rgdxaAdd[i];
 			wvCopyTBD(&apap->rgtbd[k++],&rgtbdAdd[i++]);
@@ -1194,7 +1194,7 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	for (i = 0; i < apap->itbdMac; i++) {
 	   wvTrace(("tab %d rgdxa %d %x\n", i, apap->rgdxaTab[i],apap->rgdxaTab[i]));
 	}
-	   
+
 	wvFree(rgtbdAdd);
 	wvFree(rgdxaAdd);
 	wvFree(rgdxaDel);
@@ -1355,7 +1355,7 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 	for (i = 0; i < apap->itbdMac; i++) {
 	   wvTrace(("tab %d rgdxa %d %x\n", i, apap->rgdxaTab[i],apap->rgdxaTab[i]));
 	}
-   	   
+
 	wvFree(rgdxaDel);
 	wvFree(rgtbdAdd);
 	wvFree(rgdxaAdd);
@@ -1374,7 +1374,7 @@ void wvApplysprmPPc(PAP *apap,U8 *pointer,U16 *pos)
 		U32 pcVert:2;
 		U32 pcHorz:2;
 		} temp;
-    
+
 
 	temp8 = bread_8ubit(pointer,pos);
 #ifdef PURIFY
@@ -1386,7 +1386,7 @@ void wvApplysprmPPc(PAP *apap,U8 *pointer,U16 *pos)
 
 	/*
 	sprmPPc is interpreted by moving pcVert to pap.pcVert if pcVert != 3 and by
-	moving pcHorz to pap.pcHorz if pcHorz != 3. 
+	moving pcHorz to pap.pcHorz if pcHorz != 3.
 	*/
 
 	if (temp.pcVert != 3)
@@ -1430,7 +1430,7 @@ void wvApplysprmPPropRMark(PAP *apap,U8 *pointer,U16 *pos)
 	wvGetDTTMFromBucket(&apap->dttmPropRMark,pointer);
 	(*pos)+=4;
 	}
-	
+
 void wvApplysprmPNumRM(PAP *apap,U8 *pointer, U16 *pos)
 	{
 	dread_8ubit(NULL,&pointer);
@@ -1479,7 +1479,7 @@ void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos,wvStream *data, STSH 
 		grpprl[i] = read_8ubit(data);
 
 	 i=0;
-	 while (i < len-2)   
+	 while (i < len-2)
         {
         sprm = bread_16ubit(grpprl+i,&i);
 #ifdef SPRMTEST
@@ -1500,7 +1500,7 @@ void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos)
 	*/
 	achp->fChsDiff = dread_8ubit(NULL,&pointer);
 	(*pos)++;
-	/*achp->chse ???? */ 
+	/*achp->chse ???? */
 	/* the doc says to set this, but it doesnt exist anywhere else in the docs */
 	dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
@@ -1544,7 +1544,7 @@ void wvApplysprmCSymbol(version ver,CHP *achp,U8 *pointer,U16 *pos)
 		}
 	achp->fSpec=1;
 	}
-	
+
 void wvApplysprmCIstdPermute(CHP *achp,U8 *pointer,U16 *pos)
 	{
 	U8 cch;
@@ -1628,7 +1628,7 @@ void wvApplysprmCPlain(CHP *achp,STSH *stsh)
 	{
 	U8 fSpec;
 	/*
-	the style sheet CHP is copied over the original CHP preserving the 
+	the style sheet CHP is copied over the original CHP preserving the
 	fSpec setting from the original CHP.
 	*/
 	fSpec = achp->fSpec;
@@ -1654,9 +1654,9 @@ U8 wvToggle(U8 in,U8 toggle)
 
 	/*
 	an argument might be made that instead of in being returned or negated that
-	it should be the looked up in the original chp through the istd that should 
-	be used, in which case this should be a macro that does the right thing. 
-	but im uncertain as to which is the correct one to do, ideas on a postcard 
+	it should be the looked up in the original chp through the istd that should
+	be used, in which case this should be a macro that does the right thing.
+	but im uncertain as to which is the correct one to do, ideas on a postcard
 	to... etc etc
 	*/
 	if (toggle == 128)
@@ -1686,23 +1686,23 @@ void wvApplysprmCSizePos(CHP *achp,U8 *pointer,U16 *pos)
 	temp.fAdjust = (temp8 & 0x80) >> 7;
 	temp.hpsPos= dread_8ubit(NULL,&pointer);
 	(*pos)++;
-	
+
 	/*
-	if hpsSize != 0 then chp.hps is set to hpsSize. 
+	if hpsSize != 0 then chp.hps is set to hpsSize.
 
 	If cInc is != 0, the cInc is interpreted as a 7 bit twos complement
 	number and the procedure described below for interpreting sprmCHpsInc is
 	followed to increase or decrease the chp.hps by the specified number of
-	levels. 
-	
-	If hpsPos is != 128, then chp.hpsPos is set equal to hpsPos. 
-	
+	levels.
+
+	If hpsPos is != 128, then chp.hpsPos is set equal to hpsPos.
+
 	If fAdjust is on , hpsPos != 128 and hpsPos != 0 and the previous value of
 	chp.hpsPos == 0, then chp.hps is reduced by one level following the method
-	described for sprmCHpsInc. 
-	
-	If fAdjust is on, hpsPos == 0 and the previous value of chp.hpsPos != 0, 
-	then the chp.hps value is increased by one level using the method described 
+	described for sprmCHpsInc.
+
+	If fAdjust is on, hpsPos == 0 and the previous value of chp.hpsPos != 0,
+	then the chp.hps value is increased by one level using the method described
 	below for sprmCHpsInc.
 	*/
 
@@ -1729,7 +1729,7 @@ void wvApplysprmCSizePos(CHP *achp,U8 *pointer,U16 *pos)
 	This depends on an implementation of sprmCHpsInc, read wvApplysprmCHpsInc for
 	some comments on the whole matter
 	*/
-	
+
 	wvError(("This document has an unsupported sprm (sprmCSizePos), please mail "));
 	wvError(("Caolan.McNamara@ul.ie with this document, as i haven't been able to "));
 	wvError(("get any examples of it so as to figure out how to handle it\n"));
@@ -1741,18 +1741,18 @@ void wvApplysprmCHpsInc(CHP *achp,U8 *pointer,U16 *pos)
 	U8 param;
 	/*
 	sprmCHpsInc(opcode 0x2A44) is a three-byte sprm consisting of the sprm
-	opcode and a one-byte parameter. 
-	
-	Word keeps an ordered array of the font sizes that are defined for the fonts 
-	recorded in the system file with each font size transformed into an hps. 
-	
-	The parameter is a one-byte twos complement number. Word uses this number 
-	to calculate an index in the font size array to determine the new hps for a 
-	run. When Word interprets this sprm and the parameter is positive, it searches 
-	the array of font sizes to find the index of the smallest entry in the font 
-	size table that is greater than the current chp.hps.It then adds the 
-	parameter minus 1 to the index and maxes this with the index of the last array 
-	entry. It uses the result as an index into the font size array and assigns that 
+	opcode and a one-byte parameter.
+
+	Word keeps an ordered array of the font sizes that are defined for the fonts
+	recorded in the system file with each font size transformed into an hps.
+
+	The parameter is a one-byte twos complement number. Word uses this number
+	to calculate an index in the font size array to determine the new hps for a
+	run. When Word interprets this sprm and the parameter is positive, it searches
+	the array of font sizes to find the index of the smallest entry in the font
+	size table that is greater than the current chp.hps.It then adds the
+	parameter minus 1 to the index and maxes this with the index of the last array
+	entry. It uses the result as an index into the font size array and assigns that
 	entry of the array to chp.hps.
 
 	When the parameter is negative, Word searches the array of font sizes to
@@ -1770,7 +1770,7 @@ void wvApplysprmCHpsInc(CHP *achp,U8 *pointer,U16 *pos)
 	param = dread_8ubit(NULL,&pointer);
 
 	/*
-	Now for christ sake !!, how on earth would i have an "ordered array of the 
+	Now for christ sake !!, how on earth would i have an "ordered array of the
 	font sizes that are defined for the fonts recorded in the system file", that
 	sounds to me that i would have to have access to the fonts on the actual
 	machine that word was last run on !, it sounds to me that this sprm might only
@@ -1786,24 +1786,24 @@ void wvApplysprmCHpsPosAdj(CHP *achp,U8 *pointer,U16 *pos)
 	/*
 	sprmCHpsPosAdj (opcode 0x2A46) causes the hps of a run to be reduced the
 	first time text is superscripted or subscripted and causes the hps of a run
-	to be increased when superscripting/subscripting is removed from a run. 
-	
-	The one byte parameter of this sprm is the new hpsPos value that is to be 
-	stored in chp.hpsPos. 
-	
+	to be increased when superscripting/subscripting is removed from a run.
+
+	The one byte parameter of this sprm is the new hpsPos value that is to be
+	stored in chp.hpsPos.
+
 	If the new hpsPos is not equal 0 (meaning that the text is to be super/
 	subscripted), Word first examines the current value of chp.hpsPos
-	to see if it is equal to 0. 
-	
-	If so, Word uses the algorithm described for sprmCHpsInc to decrease chp.hps 
-	by one level. 
-	
-	If the new hpsPos == 0 (meaning the text is not super/subscripted), 
-	Word examines the current chp.hpsPos to see if it is not equal to 0. If it is 
-	not (which means text is being restored to normal position), Word uses the 
-	sprmCHpsInc algorithm to increase chp.hps by one level.  
-	
-	After chp.hps is adjusted, the parameter value is stored in chp.hpsPos. 
+	to see if it is equal to 0.
+
+	If so, Word uses the algorithm described for sprmCHpsInc to decrease chp.hps
+	by one level.
+
+	If the new hpsPos == 0 (meaning the text is not super/subscripted),
+	Word examines the current chp.hpsPos to see if it is not equal to 0. If it is
+	not (which means text is being restored to normal position), Word uses the
+	sprmCHpsInc algorithm to increase chp.hps by one level.
+
+	After chp.hps is adjusted, the parameter value is stored in chp.hpsPos.
 	*/
 
 	wvError(("This document has an partially unsupported sprm (sprmCHpsPosAdj), please mail "));
@@ -1823,7 +1823,7 @@ void wvApplysprmCHpsPosAdj(CHP *achp,U8 *pointer,U16 *pos)
 	else if ( (param == 0) && (achp->hpsPos != 0) )
 		/*increase chp.hps*/;
 #endif
-	
+
 	achp->hpsPos = param;
 
 
@@ -1851,7 +1851,7 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	wvTrace(("This document has a sprm (sprmCMajority), that ive never seen in practice please mail "));
 	wvTrace(("Caolan.McNamara@ul.ie with this document, as i haven't been able to "));
 	wvTrace(("get any examples of it so as to figure out if its handled correctly\n"));
-	
+
 	wvInitCHP(&base);
 	base.ftc=4;
 
@@ -1868,7 +1868,7 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 		}
 
 	wvTrace(("achp istd is %d\n",achp->istd));
-	
+
 	wvAddCHPXFromBucket(&base,&upxf,stsh);
 
 	wvTrace(("achp istd is %d\n",achp->istd));
@@ -1900,14 +1900,14 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 		achp->hpsPos = orig.hpsPos;
 	if (achp->kul == base.kul)
 		achp->kul = orig.kul;
-	/* ???? 
+	/* ????
 	if (achp->qpsSpace == base.qpsSpace)
 		achp->qpsSpace = orig.qpsSpace;
 	*/
 	if (achp->ico == base.ico)
 		achp->ico = orig.ico;
 
-	/* 
+	/*
 	these ones are mentioned in a different part of the spec, that
 	doesnt have as much weight as the above, but i'm going to add them
 	anyway
@@ -1969,7 +1969,7 @@ void wvApplysprmCMajority50(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	wvTrace(("This document has a sprm (sprmCMajority50), that ive never seen in practice please mail "));
 	wvTrace(("Caolan.McNamara@ul.ie with this document, as i haven't been able to "));
 	wvTrace(("get any examples of it so as to figure out if its handled correctly\n"));
-	
+
 	wvInitCHP(&base);
 	base.ftc=4;
 
@@ -1984,7 +1984,7 @@ void wvApplysprmCMajority50(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 		upxf.upx.chpx.grpprl[i] = dread_8ubit(NULL,&pointer);
 		(*pos)++;
 		}
-	
+
 	wvAddCHPXFromBucket(&base,&upxf,stsh);
 
 	wvInitCHPFromIstd(&orig,achp->istd,stsh);
@@ -2021,7 +2021,7 @@ void wvApplysprmCPropRMark(CHP *achp,U8 *pointer,U16 *pos)
 	{
 	dread_8ubit(NULL,&pointer);	/*len*/
 	(*pos)++;
-	achp->fPropRMark = dread_8ubit(NULL,&pointer); 
+	achp->fPropRMark = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	achp->ibstPropRMark = (S16)dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
@@ -2034,7 +2034,7 @@ void wvApplysprmCDispFldRMark(CHP *achp,U8 *pointer,U16 *pos)
 	/*
 	is interpreted by moving the first
 	parameter byte to chp.fDispFldRMark, the next two bytes to
-	chp.ibstDispFldRMark, the next four bytes to chp.dttmDispFldRMark, 
+	chp.ibstDispFldRMark, the next four bytes to chp.dttmDispFldRMark,
 	and the remaining 32 bytes to chp.xstDispFldRMark.
 	*/
 
@@ -2094,14 +2094,14 @@ interprets this sprm by adding dxaNew - (rgdxaCenter[0] + tap.dxaGapHalf) to
 every entry of tap.rgdxaCenter whose index is less than tap.itcMac.
 sprmTDxaLeft is stored only in grpprls linked to piece table entries.
 */
-void wvApplysprmTDxaLeft(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTDxaLeft(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	S16 dxaNew = (S16)dread_16ubit(NULL,&pointer);
 	int i;
 	(*pos)+=2;
-	dxaNew = dxaNew - (tap->rgdxaCenter[0] + tap->dxaGapHalf);
-	for (i=0;i<tap->itcMac;i++)
-		tap->rgdxaCenter[i] += dxaNew;
+	dxaNew = dxaNew - (aTap->rgdxaCenter[0] + aTap->dxaGapHalf);
+	for (i=0;i<aTap->itcMac;i++)
+		aTap->rgdxaCenter[i] += dxaNew;
 	}
 
 /*
@@ -2117,19 +2117,19 @@ dxaGapHalfNew is moved to tap.dxaGapHalf. sprmTDxaGapHalf is stored in PAPXs
 and also in grpprls linked to piece table entries.
 
 */
-void wvApplysprmTDxaGapHalf(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTDxaGapHalf(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	S16 dxaGapHalfNew = (S16)dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
-	tap->rgdxaCenter[0] += tap->dxaGapHalf - dxaGapHalfNew;
-	tap->dxaGapHalf = dxaGapHalfNew;
+	aTap->rgdxaCenter[0] += aTap->dxaGapHalf - dxaGapHalfNew;
+	aTap->dxaGapHalf = dxaGapHalfNew;
 	}
 
 /*
 sprmTTableBorders (opcode 0xD605) sets the tap.rgbrcTable. The sprm is
 interpreted by moving the 24 bytes of the sprm's operand to tap.rgbrcTable.
 */
-void wvApplysprmTTableBorders(version ver,TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTTableBorders(version ver,TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	int i,d;
 	if (ver == WORD8)
@@ -2139,7 +2139,7 @@ void wvApplysprmTTableBorders(version ver,TAP *tap,U8 *pointer,U16 *pos)
 		}
 	for (i=0;i<6;i++)
 		{
-		d = wvGetBRCFromBucket(ver,&(tap->rgbrcTable[i]),pointer);
+		d = wvGetBRCFromBucket(ver,&(aTap->rgbrcTable[i]),pointer);
 		pointer+=d;
 		(*pos)+=d;
 		}
@@ -2158,7 +2158,7 @@ sorted in ascending order which will be moved to tap.rgdxaCenter. In bytes
 array of TC entries corresponding to the stored tap.rgdxaCenter. This array
 is moved to tap.rgtc. sprmTDefTable is only stored in PAPXs.
 */
-void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTDefTable(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U16 len;
 	int i,t,oldpos;
@@ -2166,28 +2166,28 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 	len = dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
 	wvTrace(("wvApplysprmTDefTable\n"));
-	tap->itcMac = dread_8ubit(NULL,&pointer);
+	aTap->itcMac = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	oldpos = (*pos)-2;
 	wvTrace(("oldpos is %x\n",oldpos));
-	wvTrace(("C: there are %d cells\n",tap->itcMac));
-	for (i=0;i<tap->itcMac + 1;i++)
+	wvTrace(("C: there are %d cells\n",aTap->itcMac));
+	for (i=0;i<aTap->itcMac + 1;i++)
 		{
-		tap->rgdxaCenter[i] = (S16)dread_16ubit(NULL,&pointer);
-		wvTrace(("C: cell boun is %d\n",tap->rgdxaCenter[i]));
+		aTap->rgdxaCenter[i] = (S16)dread_16ubit(NULL,&pointer);
+		wvTrace(("C: cell boun is %d\n",aTap->rgdxaCenter[i]));
 		(*pos)+=2;
 		}
 
 	wvTrace(("HERE-->pos is now %d, the len was %d, there is %d left\n",*pos,len,len-(*pos-oldpos)));
 
-	if ( (len-(*pos-oldpos)) < (cb6TC * tap->itcMac) )
+	if ( (len-(*pos-oldpos)) < (cb6TC * aTap->itcMac) )
 		{
 		pointer += len - (*pos - oldpos);
 		(*pos) += len - (*pos - oldpos);
 		return;
 		}
 
-	if ( (len-(*pos-oldpos)) < (cbTC * tap->itcMac) )
+	if ( (len-(*pos-oldpos)) < (cbTC * aTap->itcMac) )
 		type = WORD6;
 	else
 		type = WORD8;
@@ -2196,10 +2196,10 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 
 	wvTrace(("left over is %d\n",len-(*pos-oldpos)));
 
-	for (i=0;i<tap->itcMac;i++)
+	for (i=0;i<aTap->itcMac;i++)
 		{
-		t = wvGetTCFromBucket(type,&(tap->rgtc[i]),pointer);
-		wvTrace(("DefTable merge is %d\n",tap->rgtc[i].fVertMerge));
+		t = wvGetTCFromBucket(type,&(aTap->rgtc[i]),pointer);
+		wvTrace(("DefTable merge is %d\n",aTap->rgtc[i].fVertMerge));
 		/* for christ sake !!, word 8 stores word 6 sized TC's in this sprm ! */
 		(*pos)+=t;
 		pointer+=t;
@@ -2208,7 +2208,7 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 
 	wvTrace(("left over is %d\n",len-(*pos-oldpos)));
 
-	while (len-(*pos-oldpos)) 
+	while (len-(*pos-oldpos))
 		{
 		wvTrace(("Eating byte %x\n",dread_8ubit(NULL,&pointer)));
 		(*pos)++;
@@ -2222,28 +2222,28 @@ those in sprmTDefTable, except that the TC structures contain the obsolete
 structures BRC10s.
 */
 
-void wvApplysprmTDefTable10(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTDefTable10(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U16 len;
 	int i,t;
 	len = dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
-	tap->itcMac = dread_8ubit(NULL,&pointer);
+	aTap->itcMac = dread_8ubit(NULL,&pointer);
 	(*pos)++;
-	for (i=0;i<tap->itcMac + 1;i++)
+	for (i=0;i<aTap->itcMac + 1;i++)
 		{
-		tap->rgdxaCenter[i] = (S16)dread_16ubit(NULL,&pointer);
+		aTap->rgdxaCenter[i] = (S16)dread_16ubit(NULL,&pointer);
 		(*pos)+=2;
 		}
-	for (i=0;i<tap->itcMac;i++)
+	for (i=0;i<aTap->itcMac;i++)
 		{
-		t=wvGetTCFromBucket(WORD6,&(tap->rgtc[i]),pointer);
+		t=wvGetTCFromBucket(WORD6,&(aTap->rgtc[i]),pointer);
 		(*pos)+=t;
 		pointer+=t;
 		}
 	}
 
-void wv2ApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos)
+void wv2ApplysprmTDefTableShd(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 len;
 	U16 itcMac;
@@ -2256,12 +2256,12 @@ void wv2ApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos)
 
 	for (i=0;i<itcMac;i++)
 		{
-		wvGetSHDFromBucket(&(tap->rgshd[i]),pointer);
+		wvGetSHDFromBucket(&(aTap->rgshd[i]),pointer);
 		pointer+=cbSHD;
 		(*pos)+=cbSHD;
 		}
 	}
-	
+
 
 /*
 sprmTDefTableShd (opcode 0xD609) is similar to sprmTDefTable, and
@@ -2272,7 +2272,7 @@ are to be defined by the sprm, call it itcMac. itcMac cannot be larger than
 32. In bytes 5 through 5+2*(itcMac + 1) -1 , is stored an array of SHDs.
 This array is moved to tap.rgshd. sprmTDefTable is only stored in PAPXs.
 */
-void wvApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTDefTableShd(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U16 len;
 	U16 itcMac;
@@ -2295,23 +2295,23 @@ void wvApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos)
 		wvError(("Broken word doc, recovering from stupidity\n"));
 	else
 		{
-		if ( (len-(*pos-oldpos)) < (cbSHD * tap->itcMac) )
+		if ( (len-(*pos-oldpos)) < (cbSHD * aTap->itcMac) )
 			{
 			wvError(("Broken sprmDefTableShd, recovering from problem\n"));
 			pointer += len - (*pos - oldpos);
 			(*pos) += len - (*pos - oldpos);
 			return;
 			}
-		
+
 		for (i=0;i<itcMac;i++)
 			{
-			wvGetSHDFromBucket(&(tap->rgshd[i]),pointer);
+			wvGetSHDFromBucket(&(aTap->rgshd[i]),pointer);
 			pointer+=cbSHD;
 			(*pos)+=cbSHD;
 			}
 		}
 
-	while (len-(*pos-oldpos)) 
+	while (len-(*pos-oldpos))
 		{
 		wvTrace(("Eating byte %x\n",dread_8ubit(NULL,&pointer)));
 		(*pos)++;
@@ -2361,13 +2361,13 @@ to be set to new values. It has the following format:
 1    1    	itcFirst  byte
 2    2    	itcLim    byte
 3    3         int  :4 F0   reserved
-			fChangeRight int  :1   08   
-			fChangeBottom int  :1   04   
-			fChangeLeft int  :1   02   
-			fChangeTop int  :1   01   
+			fChangeRight int  :1   08
+			fChangeBottom int  :1   04
+			fChangeLeft int  :1   02
+			fChangeTop int  :1   01
 	4    4  brc  BRC
-*/																				  
-void wvApplysprmTSetBrc(version ver,TAP *tap,U8 *pointer,U16 *pos)
+*/
+void wvApplysprmTSetBrc(version ver,TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 itcFirst,itcLim,len,temp8;
 	BRC abrc;
@@ -2387,52 +2387,52 @@ void wvApplysprmTSetBrc(version ver,TAP *tap,U8 *pointer,U16 *pos)
 	for (i=itcFirst;i<itcLim;i++)
 		{
 		if (temp8 & 0x08)
-			wvCopyBRC(&tap->rgtc[i].brcRight, &abrc);
+			wvCopyBRC(&aTap->rgtc[i].brcRight, &abrc);
 		if (temp8 & 0x04)
-			wvCopyBRC(&tap->rgtc[i].brcBottom, &abrc);
+			wvCopyBRC(&aTap->rgtc[i].brcBottom, &abrc);
 		if (temp8 & 0x02)
-			wvCopyBRC(&tap->rgtc[i].brcLeft, &abrc);
+			wvCopyBRC(&aTap->rgtc[i].brcLeft, &abrc);
 		if (temp8 & 0x01)
-			wvCopyBRC(&tap->rgtc[i].brcTop, &abrc);
+			wvCopyBRC(&aTap->rgtc[i].brcTop, &abrc);
 		}
 	}
-	
+
 /*
 sprmTInsert (opcode 0x7621) inserts new cell definitions in an existing
-table's cell structure. 
+table's cell structure.
 
-Bytes 0 and 1 of the sprm contain the opcode. 
+Bytes 0 and 1 of the sprm contain the opcode.
 
 Byte 2 is the index within tap.rgdxaCenter and tap.rgtc at which the new dxaCenter
-and tc values will be inserted. Call this index itcInsert. 
+and tc values will be inserted. Call this index itcInsert.
 
-Byte 3 contains a count of the cell definitions to be added to the tap, call it ctc. 
+Byte 3 contains a count of the cell definitions to be added to the tap, call it ctc.
 
-Bytes 4 and 5 contain the width of the cells that will be added, call it dxaCol. 
+Bytes 4 and 5 contain the width of the cells that will be added, call it dxaCol.
 
 If there are already cells defined at the index where cells are to be inserted,
 tap.rgdxaCenter entries at or above this index must be moved to the entry
 ctc higher and must be adjusted by adding ctc*dxaCol to the value stored.
 
 The contents of tap.rgtc at or above the index must be moved 10*ctc bytes
-higher in tap.rgtc. 
+higher in tap.rgtc.
 
-If itcInsert is greater than the original tap.itcMac, itcInsert - tap.ctc columns 
-beginning with index tap.itcMac must be added of width dxaCol 
-(loop from itcMac to itcMac+itcInsert-tap.ctc adding dxaCol to the rgdxaCenter 
-value of the previous entry and storing sum as dxaCenter of new entry), 
-whose TC entries are cleared to zeros. 
+If itcInsert is greater than the original tap.itcMac, itcInsert - tap.ctc columns
+beginning with index tap.itcMac must be added of width dxaCol
+(loop from itcMac to itcMac+itcInsert-tap.ctc adding dxaCol to the rgdxaCenter
+value of the previous entry and storing sum as dxaCenter of new entry),
+whose TC entries are cleared to zeros.
 
-Beginning with index itcInsert, ctc columns of width dxaCol must be added by 
-constructing new tap.rgdxaCenter and tap.rgtc entries with the newly defined 
-rgtc entries cleared to zeros. 
+Beginning with index itcInsert, ctc columns of width dxaCol must be added by
+constructing new tap.rgdxaCenter and tap.rgtc entries with the newly defined
+rgtc entries cleared to zeros.
 
-Finally, the number of cells that were added to the tap is added to tap.itcMac. 
+Finally, the number of cells that were added to the tap is added to tap.itcMac.
 
 sprmTInsert is stored only in grpprls linked to piece table entries.
 */
 
-void wvApplysprmTInsert(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTInsert(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 itcInsert = dread_8ubit(NULL,&pointer);
 	U8 ctc = dread_8ubit(NULL,&pointer);
@@ -2440,31 +2440,31 @@ void wvApplysprmTInsert(TAP *tap,U8 *pointer,U16 *pos)
 	int i;
 	(*pos)+=4;
 
-	if (itcInsert <= tap->itcMac+1)
+	if (itcInsert <= aTap->itcMac+1)
 		{
-		for (i=tap->itcMac+1;i>=itcInsert;i--)
+		for (i=aTap->itcMac+1;i>=itcInsert;i--)
 			{
-			tap->rgdxaCenter[i+ctc] = tap->rgdxaCenter[i]+ctc*dxaCol;
-			tap->rgtc[i+ctc] = tap->rgtc[i];
+			aTap->rgdxaCenter[i+ctc] = aTap->rgdxaCenter[i]+ctc*dxaCol;
+			aTap->rgtc[i+ctc] = aTap->rgtc[i];
 			}
 		}
-		
-	if (itcInsert > tap->itcMac)
+
+	if (itcInsert > aTap->itcMac)
 		{
-		for (i=tap->itcMac;i<tap->itcMac+itcInsert-ctc;i++)
+		for (i=aTap->itcMac;i<aTap->itcMac+itcInsert-ctc;i++)
 			{
-			tap->rgdxaCenter[i] = tap->rgdxaCenter[i-1] + dxaCol;
-			wvInitTC(&(tap->rgtc[i]));
+			aTap->rgdxaCenter[i] = aTap->rgdxaCenter[i-1] + dxaCol;
+			wvInitTC(&(aTap->rgtc[i]));
 			}
 		}
 
 	for (i=itcInsert;i<ctc+itcInsert;i++)
 		{
-		tap->rgdxaCenter[i] = tap->rgdxaCenter[i-1] + dxaCol;
-		wvInitTC(&(tap->rgtc[i]));
+		aTap->rgdxaCenter[i] = aTap->rgdxaCenter[i-1] + dxaCol;
+		wvInitTC(&(aTap->rgtc[i]));
 		}
 
-	tap->itcMac+=ctc;
+	aTap->itcMac+=ctc;
 	}
 
 
@@ -2479,17 +2479,17 @@ itcLim - itcFirst lower, and causes tap.itcMac to be decreased by the number
 of cells deleted. sprmTDelete is stored only in grpprls linked to piece
 table entries.
 */
-void wvApplysprmTDelete(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTDelete(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 itcFirst = dread_8ubit(NULL,&pointer);
 	U8 itcLim = dread_8ubit(NULL,&pointer);
 	int i;
 	(*pos)+=2;
 
-	for (i=itcLim;i<tap->itcMac+1;i++)
+	for (i=itcLim;i<aTap->itcMac+1;i++)
 		{
-		tap->rgdxaCenter[i-(itcLim - itcFirst)] = tap->rgdxaCenter[i];
-		wvCopyTC( &(tap->rgtc[i-(itcLim - itcFirst)]),&(tap->rgtc[i]) );
+		aTap->rgdxaCenter[i-(itcLim - itcFirst)] = aTap->rgdxaCenter[i];
+		wvCopyTC( &(aTap->rgtc[i-(itcLim - itcFirst)]),&(aTap->rgtc[i]) );
 		}
 	}
 
@@ -2499,14 +2499,14 @@ a certain range to be a certain value. Bytes 0 and 1of the sprm contain the
 opcode. Byte 2 contains the index of the first cell whose width is to be
 changed, call it itcFirst. Byte 3 contains the index of the cell that
 follows the last cell whose width is to be changed, call it itcLim. Bytes 4
-and 5 contain the new width of the cell, call it dxaCol. 
+and 5 contain the new width of the cell, call it dxaCol.
 
-This sprm causes the itcLim - itcFirst entries of tap.rgdxaCenter to be 
-adjusted so that tap.rgdxaCenter[i+1] = tap.rgdxaCenter[i] + dxaCol. Any 
-tap.rgdxaCenter entries that exist beyond itcLim are adjusted to take into 
+This sprm causes the itcLim - itcFirst entries of tap.rgdxaCenter to be
+adjusted so that tap.rgdxaCenter[i+1] = tap.rgdxaCenter[i] + dxaCol. Any
+tap.rgdxaCenter entries that exist beyond itcLim are adjusted to take into
 account the amount added to or removed from the previous columns.
 */
-void wvApplysprmTDxaCol(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTDxaCol(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 itcFirst = dread_8ubit(NULL,&pointer);
 	U8 itcLim = dread_8ubit(NULL,&pointer);
@@ -2516,11 +2516,11 @@ void wvApplysprmTDxaCol(TAP *tap,U8 *pointer,U16 *pos)
 	(*pos)+=4;
 	for (i=itcFirst;i<itcLim;i++)
 		{
-		diff += tap->rgdxaCenter[i+1]-(tap->rgdxaCenter[i] + dxaCol);
-		tap->rgdxaCenter[i+1] = tap->rgdxaCenter[i] + dxaCol;
+		diff += aTap->rgdxaCenter[i+1]-(aTap->rgdxaCenter[i] + dxaCol);
+		aTap->rgdxaCenter[i+1] = aTap->rgdxaCenter[i] + dxaCol;
 		}
-	for (i=itcLim;i<tap->itcMac+1;i++);
-		tap->rgdxaCenter[i+1] +=diff;
+	for (i=itcLim;i<aTap->itcMac+1;i++);
+		aTap->rgdxaCenter[i+1] +=diff;
 	}
 
 /*
@@ -2528,7 +2528,7 @@ sprmTMerge (opcode 0x5624) merges the display areas of cells within a
 specified range. Bytes 0 and 1 of the sprm contain the opcode. Byte 2
 contains the index of the first cell that is to be merged, call it itcFirst.
 Byte 3 contains the index of the cell that follows the last cell to be
-merged, call it itcLim. 
+merged, call it itcLim.
 
 This sprm causes tap.rgtc[itcFirst].fFirstMerged to
 be set to 1. Cells in the range whose index is greater than itcFirst and
@@ -2536,16 +2536,16 @@ less than itcLim have tap.rgtc[].fMerged set to 1. sprmTMerge is stored only
 in grpprls linked to piece table entries.
 
 */
-void wvApplysprmTMerge(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTMerge(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 itcFirst = dread_8ubit(NULL,&pointer);
 	U8 itcLim = dread_8ubit(NULL,&pointer);
 	int i;
 	(*pos)+=2;
 
-	tap->rgtc[itcFirst].fFirstMerged = 1;
+	aTap->rgtc[itcFirst].fFirstMerged = 1;
 	for (i=itcFirst+1;i<itcLim;i++)
-		tap->rgtc[i].fMerged = 1;
+		aTap->rgtc[i].fMerged = 1;
 	}
 
 /*
@@ -2553,14 +2553,14 @@ sprmTSplit (opcode 0x5625) splits the display areas of merged cells into
 their originally assigned display areas. Bytes 0 and 1 of the sprm contain
 the opcode. Byte 2 contains the index of the first cell that is to be split,
 call it itcFirst. Byte 3 contains the index of the cell that follows the
-last cell to be split, call it itcLim. 
+last cell to be split, call it itcLim.
 
 This sprm clears
 tap.rgtc[].fFirstMerged and tap.rgtc[].fMerged for all rgtc entries >=
 itcFirst and < itcLim. sprmTSplit is stored only in grpprls linked to piece
 table entries.
 */
-void wvApplysprmTSplit(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTSplit(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 itcFirst = dread_8ubit(NULL,&pointer);
 	U8 itcLim = dread_8ubit(NULL,&pointer);
@@ -2569,15 +2569,15 @@ void wvApplysprmTSplit(TAP *tap,U8 *pointer,U16 *pos)
 
 	for (i=itcFirst;i<itcLim;i++)
 		{
-		tap->rgtc[i].fMerged = 0;
-		tap->rgtc[itcFirst].fFirstMerged = 0;
+		aTap->rgtc[i].fMerged = 0;
+		aTap->rgtc[itcFirst].fFirstMerged = 0;
 		}
 	}
 
 /*
 This is guess based upon SetBrc
 */
-void wvApplysprmTSetBrc10(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTSetBrc10(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 itcFirst,itcLim,len,temp8;
 	BRC10 abrc;
@@ -2592,13 +2592,13 @@ void wvApplysprmTSetBrc10(TAP *tap,U8 *pointer,U16 *pos)
 	for (i=itcFirst;i<itcLim;i++)
 		{
 		if (temp8 & 0x08)
-			wvConvertBRC10ToBRC(&tap->rgtc[i].brcRight,&abrc);
+			wvConvertBRC10ToBRC(&aTap->rgtc[i].brcRight,&abrc);
 		if (temp8 & 0x04)
-			wvConvertBRC10ToBRC(&tap->rgtc[i].brcBottom,&abrc);
+			wvConvertBRC10ToBRC(&aTap->rgtc[i].brcBottom,&abrc);
 		if (temp8 & 0x02)
-			wvConvertBRC10ToBRC(&tap->rgtc[i].brcLeft,&abrc);
+			wvConvertBRC10ToBRC(&aTap->rgtc[i].brcLeft,&abrc);
 		if (temp8 & 0x01)
-			wvConvertBRC10ToBRC(&tap->rgtc[i].brcTop,&abrc);
+			wvConvertBRC10ToBRC(&aTap->rgtc[i].brcTop,&abrc);
 		}
 	}
 
@@ -2612,19 +2612,19 @@ contain the SHD structure, call it shd. This sprm causes the itcLim -
 itcFirst entries of tap.rgshd to be set to shd. sprmTSetShd is stored only
 in grpprls linked to piece table entries.
 */
-void wvApplysprmTSetShd(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTSetShd(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 itcFirst = dread_8ubit(NULL,&pointer);
 	U8 itcLim = dread_8ubit(NULL,&pointer);
 	int i;
 	SHD shd;
 	(*pos)+=2;
-	
+
 	wvGetSHDFromBucket(&shd,pointer);
 	(*pos)+=cbSHD;
 
 	for(i=itcFirst;i<itcLim;i++)
-		wvCopySHD(&tap->rgshd[i],&shd);
+		wvCopySHD(&aTap->rgshd[i],&shd);
 	}
 
 /*
@@ -2632,37 +2632,37 @@ sprmTSetShdOdd (opcode 0x7628) is identical to sprmTSetShd, but it only
 changes the rgshd for odd indices between itcFirst and. sprmTSetShdOdd is
 stored only in grpprls linked to piece table entries.
 */
-void wvApplysprmTSetShdOdd(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTSetShdOdd(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 itcFirst = dread_8ubit(NULL,&pointer);
 	U8 itcLim = dread_8ubit(NULL,&pointer);
 	int i;
 	SHD shd;
 	(*pos)+=2;
-	
+
 	wvGetSHDFromBucket(&shd,pointer);
 	(*pos)+=cbSHD;
 
 	for(i=itcFirst;i<itcLim;i++)
 		{
 		if ( (i/2) != (i+1)/2 )
-			wvCopySHD(&tap->rgshd[i],&shd);
+			wvCopySHD(&aTap->rgshd[i],&shd);
 		}
 	}
 
 /* guess */
-void wvApplysprmTTextFlow(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTTextFlow(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 val = dread_8ubit(NULL,&pointer);
 	int i;
 	(*pos)++;
 
-	for (i=0;i<tap->itcMac;i++)
+	for (i=0;i<aTap->itcMac;i++)
 		{
 		/* just a complete guess who knows*/
-		tap->rgtc[i].fVertical = val&0x0001;
-		tap->rgtc[i].fBackward = (val&0x0002)>>1;
-		tap->rgtc[i].fRotateFont = (val&0x0004)>>2;
+		aTap->rgtc[i].fVertical = val&0x0001;
+		aTap->rgtc[i].fBackward = (val&0x0002)>>1;
+		aTap->rgtc[i].fRotateFont = (val&0x0004)>>2;
 		}
 	}
 
@@ -2675,7 +2675,7 @@ the cell, a 0 clears both fVertMerge and fVertRestart, a 1 sets fVertMerge
 and clears fVertRestart, and a 3 sets both flags. sprmTVertMerge is stored
 only in grpprls linked to piece table entries.
 */
-void wvApplysprmTVertMerge(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTVertMerge(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 index,props,count;
 	wvTrace(("doing Vertical merge\n"));
@@ -2689,16 +2689,16 @@ void wvApplysprmTVertMerge(TAP *tap,U8 *pointer,U16 *pos)
 	switch(props)
 		{
 		case 0:
-			tap->rgtc[index].fVertMerge = 0;
-			tap->rgtc[index].fVertRestart = 0;
+			aTap->rgtc[index].fVertMerge = 0;
+			aTap->rgtc[index].fVertRestart = 0;
 			break;
 		case 1:
-			tap->rgtc[index].fVertMerge = 1;
-			tap->rgtc[index].fVertRestart = 0;
+			aTap->rgtc[index].fVertMerge = 1;
+			aTap->rgtc[index].fVertRestart = 0;
 			break;
 		case 3:
-			tap->rgtc[index].fVertMerge = 1;
-			tap->rgtc[index].fVertRestart = 1;
+			aTap->rgtc[index].fVertMerge = 1;
+			aTap->rgtc[index].fVertRestart = 1;
 			break;
 		}
 	}
@@ -2713,7 +2713,7 @@ vertAlign properties of the itcLim - itcFirst entries of tap.rgtc[] to be
 set to the new vertical alignment property contained in Byte 4.
 sprmTVertAlign is stored only in grpprls linked to piece table entries.
 */
-void wvApplysprmTVertAlign(TAP *tap,U8 *pointer,U16 *pos)
+void wvApplysprmTVertAlign(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 itcFirst = dread_8ubit(NULL,&pointer);
 	U8 itcLim = dread_8ubit(NULL,&pointer);
@@ -2722,10 +2722,10 @@ void wvApplysprmTVertAlign(TAP *tap,U8 *pointer,U16 *pos)
 	(*pos)+=3;
 
 	for (i=itcFirst;i<itcLim;i++)
-		tap->rgtc[i].vertAlign = props;
+		aTap->rgtc[i].vertAlign = props;
 	}
 
-SprmName rgsprmPrm[0x80] = 
+SprmName rgsprmPrm[0x80] =
 {sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmPIncLvl, sprmPJc,
 sprmPFSideBySide, sprmPFKeep, sprmPFKeepFollow, sprmPFPageBreakBefore,
 sprmPBrcl, sprmPBrcp, sprmPIlvl, sprmNoop, sprmPFNoLineNumb, sprmNoop,
@@ -2760,7 +2760,7 @@ SprmName wvGetrgsprmPrm(U16 in)
 	}
 
 
-SprmName rgsprmWord6[256] = 
+SprmName rgsprmWord6[256] =
 	{
 	sprmNoop/*          0*/,
 	sprmNoop/*		    1*/,
@@ -2966,8 +2966,8 @@ SprmName rgsprmWord6[256] =
 	sprmNoop/*          201*/,
 	sprmNoop/*          202*/,
 	sprmNoop/*          203*/,
-	
-	sprmTUNKNOWN1/*    204*/,	
+
+	sprmTUNKNOWN1/*    204*/,
 	/*guess I know that this should be either
 	 * a) 3 bytes long,
 	 * b) complex with a len of 2,
