@@ -3990,33 +3990,12 @@ wvExpand (expand_data * myhandle, char *buf, int len)
 	xmlSAXHandler hdl;
 	xmlParserCtxtPtr ctxt;
 
-	hdl.internalSubset = NULL;
-	hdl.isStandalone = NULL;
-	hdl.hasInternalSubset = NULL;
-	hdl.hasExternalSubset = NULL;
-	hdl.resolveEntity = NULL;
+	memset(&hdl, 0, sizeof(hdl));
+
 	hdl.getEntity = _getEntity;
-	hdl.entityDecl = NULL;
-	hdl.notationDecl = NULL;
-	hdl.attributeDecl = NULL;
-	hdl.elementDecl = NULL;
-	hdl.unparsedEntityDecl = NULL;
-	hdl.setDocumentLocator = NULL;
-	hdl.startDocument = NULL;
-	hdl.endDocument = NULL;
 	hdl.startElement = exstartElement;
 	hdl.endElement = exendElement;
-	hdl.reference = NULL;
 	hdl.characters = excharData;
-	hdl.ignorableWhitespace = NULL;
-	hdl.processingInstruction = NULL;
-	hdl.comment = NULL;
-	hdl.warning = NULL;
-	hdl.error = NULL;
-	hdl.fatalError = NULL;
-	hdl.getParameterEntity = NULL;
-	hdl.cdataBlock = NULL;
-	hdl.externalSubset = NULL;
 
 	ctxt = xmlCreateMemoryParserCtxt ((const char *) buf, len);
 	if (ctxt == NULL)
