@@ -82,6 +82,9 @@
 /* define if you have iconv */
 #undef USE_ICONV
 
+/* define if you have malloc.h */
+#undef HAVE_MALLOC_H
+
 /* define if you have iconv but do not have windows codepage to unicode support */
 #undef MUST_USE_INTERNAL_ICONV_TABLE
 

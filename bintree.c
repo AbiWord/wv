@@ -12,6 +12,9 @@ Released under the GPL, see COPYING
 #endif
 #include "bintree.h"
 
+extern void * wvMalloc (unsigned int);
+extern void   wvFree (void *);
+
 void InitBintree(BintreeInfo *tree,int (*func1)(void *,void *),int (*func2)(void *,void *))
 	{
 	tree->Root = NULL;               /* root of binary tree */

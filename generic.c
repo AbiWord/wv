@@ -2,10 +2,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include <malloc.h>
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+
 #include "wv.h"
 
 #define SOME_ARBITRARY_LIMIT 1

@@ -2,11 +2,14 @@
 #define DEBUG 1
 
 #include <stdlib.h>
-#include <malloc.h>
 #include <string.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
+
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
 #endif
 
 #include "wvexporter-priv.h"

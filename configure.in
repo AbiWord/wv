@@ -160,7 +160,6 @@ AC_CHECK_HEADER(zlib.h,
                 ZLIB_LIBS="-lz"
             fi])))
 
-
 AC_CHECK_HEADER(libxml/parser.h,
        AC_CHECK_LIB(xml, xmlParseDocument,[
                AC_DEFINE(HAVE_LIBXML2)
@@ -205,7 +204,7 @@ AC_ARG_WITH(png,
 
 AC_CHECK_HEADER(png.h,
     AC_CHECK_HEADER(pngconf.h,
-        AC_CHECK_LIB(png, png_info_init,[
+        AC_CHECK_LIB(png, png_free,[
             AC_DEFINE(HasPNG)
             if test "x$PNG_DIR" != "x"; then
                 PNG_CFLAGS="-I$PNG_DIR/include"
@@ -213,7 +212,7 @@ AC_CHECK_HEADER(png.h,
             else
                 PNG_LIBS="-lpng"
             fi],[
-            AC_CHECK_LIB(png, png_info_destroy,[
+            AC_CHECK_LIB(png, png_free,[
                 AC_DEFINE(HasPNG)
                 if test "x$PNG_DIR" != "x"; then
                     PNG_CFLAGS="-I$PNG_DIR/include"
@@ -261,6 +260,11 @@ if test "x$no_sys_xpm" = "xyes"; then
 			XPMINCLUDE="<xpm.h>"
 			], no_sys_xpm=no)
 fi
+
+AC_CHECK_HEADER(malloc.h, [
+	AC_DEFINE(HAVE_MALLOC_H)
+	HAVE_MALLOC_H=1
+	], no_malloc_h=yes)
 
 dnl I dumbly assume that if they have the header, they have the lib
 if test "x$no_sys_xpm" != "xyes"; then

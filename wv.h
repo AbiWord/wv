@@ -821,7 +821,7 @@ typedef struct _DOP
 	U16 cPg;
 	U32 cParas;
 
-	U16 rgwSpareDocSum[2]; /* W2 */
+	U16 rgwSpareDocSum[3]; /* W2 */
 
 	U32 rncEdn:2;		/*how endnotes are restarted*/
 	U32 nEdn:14;		/*beginning endnote no*/
