@@ -1,4 +1,4 @@
-typedef unsigned short Rune;		/* 16 bits */
+typedef unsigned short Rune;	/* 16 bits */
 #define		Runeerror	0x80	/* decoding error in UTF */
 #define		Runeself	0x80	/* rune and UTF sequences are the same (<) */
 #define		UTFmax		6	/* maximum bytes per rune */
