@@ -12,9 +12,7 @@ void wvInitTBD(TBD *item)
 
 void wvCopyTBD(TBD *dest,TBD *src)
 	{
-	dest->jc = src->jc;
-	dest->tlc = src->tlc;
-	dest->reserved = src->reserved;
+	memcpy(dest,src,sizeof(TBD));
 	}
 
 void wvGetTBD(TBD *item,FILE *fd)

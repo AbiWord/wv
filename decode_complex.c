@@ -396,6 +396,7 @@ encoded into the first 22 bytes.
 
 	 /*Extract Graphic Information*/
 	wvGetFSPA_PLCF(&ps->fspa,&ps->fspapos,&ps->nooffspa,ps->fib.fcPlcspaMom,ps->fib.lcbPlcspaMom,ps->tablefd);
+	wvGetFDOA_PLCF(&ps->fdoa,&ps->fdoapos,&ps->nooffdoa,ps->fib.fcPlcdoaMom,ps->fib.lcbPlcdoaMom,ps->tablefd);
 
 	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->fib.fExtChar,ps->tablefd);
 
@@ -666,6 +667,8 @@ encoded into the first 22 bytes.
 
 	wvFree(ps->fspa);
 	wvFree(ps->fspapos);
+	wvFree(ps->fdoa);
+	wvFree(ps->fdoapos);
 
 	wvFree(posBKL);
 	wvFree(bkl);
@@ -707,6 +710,7 @@ encoded into the first 22 bytes.
 		wvFree(ps->vmerges);
 		}
 	wvFree(ps->cellbounds);
+	tokenTreeFreeAll();
 	}
 
 /*

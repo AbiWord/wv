@@ -106,8 +106,7 @@ int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
 
 void wvCopyBTE(BTE *dest,BTE *src)
 	{
-	dest->pn = src->pn;
-	dest->unused = src->unused;
+	memcpy(dest,src,sizeof(BTE));
 	}
 
 int wvGetBTE_FromFC(BTE *bte, U32 currentfc, BTE *list,U32 *fcs, int nobte)

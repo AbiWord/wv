@@ -532,3 +532,35 @@ Export int FlushBlob(const Image *image)
   return(0);
 }
 
+Export unsigned long MSBFirstWriteLong(Image *image,const unsigned long value)
+{
+  unsigned char
+    buffer[4];
+
+  assert(image != (Image *) NULL);
+  buffer[0]=(unsigned char) ((value) >> 24);
+  buffer[1]=(unsigned char) ((value) >> 16);
+  buffer[2]=(unsigned char) ((value) >> 8);
+  buffer[3]=(unsigned char) (value);
+  return(WriteBlob(image,4,(char *) buffer));
+}
+
+Export unsigned long MSBFirstReadLong(Image *image)
+{
+  unsigned char
+    buffer[4];
+
+  unsigned long
+    value;
+
+  assert(image != (Image *) NULL);
+  value=ReadBlob(image,4,(char *) buffer);
+  if (value == 0)
+    return((unsigned long) ~0);
+  value=(unsigned int) (buffer[0] << 24);
+  value|=(unsigned int) (buffer[1] << 16);
+  value|=(unsigned int) (buffer[2] << 8);
+  value|=(unsigned int) (buffer[3]);
+  return(value);
+}
+

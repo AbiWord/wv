@@ -715,7 +715,9 @@ fi
 
 dnl check for getopt
 AC_CHECK_FUNC(getopt_long, , [LIBOBJS="$LIBOBJS getopt1.o getopt.o"])
+dnl check for strerror
 AC_CHECK_FUNC(strerror, , [LIBOBJS="$LIBOBJS strerror.o"])
+dnl check for strcasecmp
 AC_CHECK_FUNC(strcasecmp, , [LIBOBJS="$LIBOBJS strcasecmp.o"])
 dnl AC_CHECK_FUNCS(waitpid)
 AC_SUBST(LIBOBJS)

@@ -106,38 +106,7 @@ void wvGetANLD_FromBucket(version ver,ANLD *item,U8 *pointer8)
 
 void wvCopyANLD(ANLD *dest, ANLD *src)
 	{
-	int i;
-    dest->nfc = src->nfc;
-    dest->cxchTextBefore = src->cxchTextBefore;
-    dest->cxchTextAfter = src->cxchTextAfter;
-    dest->jc = src->jc;
-    dest->fPrev = src->fPrev;
-    dest->fHang = src->fHang;
-    dest->fSetBold = src->fSetBold;
-    dest->fSetItalic = src->fSetItalic;
-    dest->fSetSmallCaps = src->fSetSmallCaps;
-    dest->fSetCaps = src->fSetCaps;
-    dest->fSetStrike = src->fSetStrike;
-    dest->fSetKul = src->fSetKul;
-    dest->fPrevSpace = src->fPrevSpace;
-    dest->fBold = src->fBold;
-    dest->fItalic = src->fItalic;
-    dest->fSmallCaps = src->fSmallCaps;
-    dest->fCaps = src->fCaps;
-    dest->fStrike = src->fStrike;
-    dest->kul = src->kul;
-    dest->ico = src->ico;
-    dest->ftc = src->ftc;
-    dest->hps = src->hps;
-    dest->iStartAt = src->iStartAt;
-    dest->dxaIndent = src->dxaIndent;
-    dest->dxaSpace = src->dxaSpace;
-    dest->fNumber1 = src->fNumber1;
-    dest->fNumberAcross = src->fNumberAcross;
-    dest->fRestartHdn = src->fRestartHdn;
-    dest->fSpareX = src->fSpareX;
-	for (i=0;i<32;i++)
-    	dest->rgxch[i] = src->rgxch[i]; 
+	memcpy(dest,src,sizeof(ANLD));
 	}
 
 void wvInitANLD(ANLD *item)

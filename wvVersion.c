@@ -69,6 +69,9 @@ int main(int argc,char **argv)
 		case WORD6:
 			printf("word6");
 			break;
+		case WORD5:
+			printf("word5");
+			break;
 		case WORD2:
 			printf("word2 (maybe)");
 			break;

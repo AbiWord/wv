@@ -75,14 +75,18 @@ if (c == d) \
 
 extern char *wv_version;
 
+Tokenptr tokenTreeRoot=NULL;
+
 TokenTable s_Tokens[] =
 {
+	{   "*",       		 TT_OTHER           }, /* must be FIRST */
     {   "begin",         TT_BEGIN        	},
     {   "end",           TT_END          	},
     {   "title",         TT_TITLE        	},
     {   "charset",       TT_CHARSET      	},
     {   "version",       TT_VERSION      	},
     {   "filename",      TT_FILENAME      	},
+    {   "htmlgraphic",   TT_htmlgraphic		},
     {   "colspan",       TT_COLSPAN      	},
 	{	"cellwidth",	 TT_CELLWIDTH		},
     {   "rowspan",       TT_ROWSPAN      	},
@@ -365,9 +369,126 @@ TokenTable s_Tokens[] =
 		{	"dashdotstrokedd",			TT_DASHDOTSTROKEDD,			},
 		{	"emboss3Dd",			TT_EMBOSS3DD,			},
 		{	"engrave3Dd",			TT_ENGRAVE3DD,			},
-		{	"defaultd",			TT_DEFAULTD,			},
-    {   "*",             TT_OTHER        	} /* must be last */
+		{	"defaultd",			TT_DEFAULTD,			}
 };
+
+#define TOKEN_BUFSIZE 1000
+Tokenptr tokenbuf;
+int tokenbufn=0, tokenfreen=0;
+void * tokenfreearr[10000];
+
+void tokenTreeInsert(int token) 
+	{
+	int pos;
+	int d;
+	const char *s;
+	char ch;
+	const char *instr = s;
+	Tokenptr pp, *p;
+	/* start at one - TT_OTHER is the zero element.*/
+	p = &tokenTreeRoot;
+	s = s_Tokens[token].m_name;
+	pos=0;
+	for (;;) 
+		{
+		ch=toupper(s[pos]);
+		pp = *p;
+		while (pp != NULL) 
+			{
+			d = ch - pp->splitchar;
+			if (d == 0) 
+				{
+				if (s[pos] == 0)
+				break;
+				pos++;
+				ch=toupper(s[pos]);
+				p = &(pp->eqkid);
+				} 
+			else if (d < 0) 
+				p = &(pp->lokid);
+			else 
+				p = &(pp->hikid);
+			pp = *p;
+			}
+		if (tokenbufn == 0) 
+			{
+			tokenbuf = (Tokenptr) malloc(TOKEN_BUFSIZE *
+			sizeof(Tokennode));
+			tokenfreearr[tokenfreen++] = (void *) tokenbuf;
+			tokenbufn = TOKEN_BUFSIZE;
+			}
+		tokenbufn--;
+		*p = &(tokenbuf[tokenbufn]);
+		pp = *p;
+		pp->splitchar = ch;
+		pp->lokid = pp->eqkid = pp->hikid = 0;
+		pp->token = 0;
+		if (s[pos] == 0) 
+			{
+			pp->token=token;
+			break;
+			}
+		pos++;
+		p = &(pp->eqkid);
+		}
+	}
+
+void tokenTreeRecursiveInsert(int min, int max);
+
+void tokenTreeInit(void) 
+	{
+	tokenTreeRecursiveInsert(1,TokenTableSize-1);
+	}
+
+/* this routine will insert the tokens in a balanced way
+as long as the token table is sorted. */
+void tokenTreeRecursiveInsert(int min, int max) 
+	{
+	int token;
+	if (min>max) return;
+	token=(min+max)/2;
+	tokenTreeInsert(token);
+	tokenTreeRecursiveInsert(token+1,max);
+	tokenTreeRecursiveInsert(min,token-1);
+	}
+
+void tokenTreeFreeAll(void)
+	{
+	int i;
+	for (i = 0; i < tokenfreen; i++)
+		free(tokenfreearr[i]);
+	}
+
+ /* this loop is called *a lot* so I've made it a binary search*/
+unsigned int s_mapNameToToken(const char* name)
+	{
+	Tokenptr p;
+	int i=0;
+	char ch;
+
+	p=tokenTreeRoot;
+
+	ch=toupper(name[i]);
+	while (p) 
+		{
+		if (ch < p->splitchar)
+			p = p->lokid;
+		else if (ch == p->splitchar)  
+			{
+			if (name[i] == 0) 
+				return p->token;
+			p = p->eqkid;
+			i++;
+			ch=toupper(name[i]);
+			} 
+		else
+			p = p->hikid;
+		}
+	/* this is one of several lines of code that rely
+	on TT_OTHER being first in the token table. */
+	return 0;
+	}
+
 
 void wvInitStateData(state_data *data)
 	{
@@ -409,18 +530,6 @@ void wvReleaseStateData(state_data *data)
 		}
 	}
 
-unsigned int s_mapNameToToken(const char* name)
-	{
-	unsigned int k;
-    for (k=0; k<TokenTableSize; k++)
-		{
-        if (s_Tokens[k].m_name[0] == '*')
-            return k;
-        else if (!(strcasecmp(s_Tokens[k].m_name,name)))
-            return k;
-		}
-    return 0;
-	}
 
 void exstartElement(void *userData, const char *name, const char **atts)
 	{
@@ -440,7 +549,6 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	int i, j;
 
 	tokenIndex = s_mapNameToToken(name);
-	wvTrace(("name = %s tokenIndex = %d\n", name, tokenIndex));
 	switch (s_Tokens[tokenIndex].m_type)
 		{
 		case TT_TITLE:
@@ -1068,6 +1176,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
                            (*mydata->listnfcs)[(((PAP*)(mydata->props))->ilfo-1)*9+i] = lvl2.lvlf.nfc;
                            wvTrace(("Level %d united,nfc set to %d\n",i,lvl2.lvlf.nfc));
                            wvCopyLVL(&((*mydata->finallvl)[(((PAP*)(mydata->props))->ilfo-1)*9+i]),&lvl2);
+                           wvTrace(("here\n"));
                            wvReleaseLVL(&lvl2);
                            }
 					((PAP*)(mydata->props))->ilvl = ((PAP*)(mydata->props))->ilvl;

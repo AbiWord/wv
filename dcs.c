@@ -23,9 +23,7 @@ void wvGetDCSFromBucket(DCS *item,U8 *pointer)
 
 void wvCopyDCS(DCS *dest,DCS *src)
 	{
-	dest->fdct = src->fdct;
-	dest->count = src->count;
-	dest->reserved = src->reserved;
+	memcpy(dest,src,sizeof(DCS));
 	}
 
 void wvInitDCS(DCS *item)

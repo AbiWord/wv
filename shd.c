@@ -33,7 +33,5 @@ void wvInitSHD(SHD *item)
 
 void wvCopySHD(SHD *dest,SHD *src)
 	{
-	dest->icoFore = src->icoFore;
-	dest->icoBack = src->icoBack;
-	dest->ipat = src->ipat;
+	memcpy(dest,src,sizeof(SHD));
 	}

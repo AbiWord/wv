@@ -111,93 +111,7 @@ void wvInitPAPFromIstd(PAP *apap,U16 istdBase,STSH *stsh)
 
 void wvCopyPAP(PAP *dest,PAP *src)
 	{
-	int i;
-	dest->istd = src->istd ;		
-	dest->jc  = src->jc ;		
-	dest->fKeep  = src->fKeep ;	
-	dest->fKeepFollow  = src->fKeepFollow ;
-	dest->fPageBreakBefore = src->fPageBreakBefore ;
-	dest->fBrLnAbove = src->fBrLnAbove;
-	dest->fBrLnBelow = src->fBrLnBelow ;
-	dest->fUnused = src->fUnused ;	
-	dest->pcVert = src->pcVert ;
-	dest->pcHorz =src->pcHorz ;
-	dest->brcp = src->brcp ;
-	dest->brcl = src->brcl ;
-	dest->reserved1 = src->reserved1 ;				
-	dest->ilvl = src->ilvl ;				
-	dest->fNoLnn = src->fNoLnn ;			
-	dest->ilfo = src->ilfo ;		
-	dest->nLvlAnm = src->nLvlAnm ;
-	dest->reserved2 = src->reserved2 ;			
-	dest->fSideBySide = src->fSideBySide ;	
-	dest->reserved3 = src->reserved3 ;	
-	dest->fNoAutoHyph = src->fNoAutoHyph ;				
-	dest->fWidowControl = src->fWidowControl ;			
-	dest->dxaRight = src->dxaRight ;			
-	dest->dxaLeft = src->dxaLeft ;		
-	dest->dxaLeft1 = src->dxaLeft1 ;	
-
-	wvCopyLSPD(&dest->lspd,&src->lspd);
-
-	dest->dyaBefore = src->dyaBefore ;				
-	dest->dyaAfter = src->dyaAfter ;			
-
-	wvCopyPHE(&dest->phe,&src->phe,src->fTtp);
-
-	dest->fCrLf = src->fCrLf ;		
-	dest->fUsePgsuSettings = src->fUsePgsuSettings ;			
-	dest->fAdjustRight = src->fAdjustRight ;			
-	dest->reserved4 = src->reserved4 ;			
-	dest->fKinsoku = src->fKinsoku ;		
-	dest->fWordWrap = src->fWordWrap ;	
-	dest->fOverflowPunct = src->fOverflowPunct ;			
-	dest->fTopLinePunct = src->fTopLinePunct ;		
-	dest->fAutoSpaceDE = src->fAutoSpaceDE ;	
-	dest->fAtuoSpaceDN = src->fAtuoSpaceDN ;
-	dest->wAlignFont = src->wAlignFont ;				
-	dest->fVertical = src->fVertical ;			
-	dest->fBackward = src->fBackward ;		
-	dest->fRotateFont = src->fRotateFont ;		
-	dest->reserved5 = src->reserved5;		
-	dest->reserved6 = src->reserved6 ;		
-	dest->fInTable = src->fInTable ;	
-	dest->fTtp = src->fTtp ;	
-	dest->wr = src->wr ;	
-	dest->fLocked = src->fLocked ;		
-
-	wvCopyTAP(&dest->ptap,&src->ptap) ;
-
-	dest->dxaAbs = src->dxaAbs ;
-	dest->dyaAbs = src->dyaAbs ;			
-	dest->dxaWidth = src->dxaWidth ;			
-
-	wvCopyBRC(&dest->brcTop,&src->brcTop);
-	wvCopyBRC(&dest->brcLeft,&src->brcLeft);
-	wvCopyBRC(&dest->brcBottom,&src->brcBottom);
-	wvCopyBRC(&dest->brcRight,&src->brcRight);
-	wvCopyBRC(&dest->brcBetween,&src->brcBetween);
-	wvCopyBRC(&dest->brcBar,&src->brcBetween);
-
-	dest->dxaFromText = src->dxaFromText;
-	dest->dyaFromText = src->dyaFromText;
-	dest->dyaHeight = src->dyaHeight;
-	dest->fMinHeight = src->fMinHeight;
-
-	wvCopySHD(&dest->shd,&src->shd);
-	wvCopyDCS(&dest->dcs,&src->dcs);
-	dest->lvl = src->lvl;
-	dest->fNumRMIns = src->fNumRMIns;
-	wvCopyANLD(&dest->anld,&src->anld);
-	dest->fPropRMark  = src->fPropRMark ;
-	dest->ibstPropRMark  = src->ibstPropRMark ;				
-	wvCopyDTTM(&dest->dttmPropRMark,&src->dttmPropRMark);
-	wvCopyNUMRM(&dest->numrm,&src->numrm);	
-	dest->itbdMac = src->itbdMac;
-	for (i=0;i<itbdMax;i++)
-		dest->rgdxaTab[i] = src->rgdxaTab[i];
-	for (i=0;i<itbdMax;i++)
-		wvCopyTBD(&dest->rgtbd[i],&src->rgtbd[i]);
+	memcpy(dest,src,sizeof(PAP));
 	}
 
 
@@ -377,32 +291,27 @@ void wvInitPAPX(PAPX *item)
 	item->grpprl=NULL;
 	}
 
-void wvGetPAPX(version ver,PAPX *item,U32 offset,FILE *fd)
+void wvGetPAPX(version ver,PAPX *item,U8 *page,U16 *pos)
 	{
 	U16 cw,i;
-	fseek(fd,offset,SEEK_SET);
-	wvTrace(("offset is %x\n",offset));
-	cw = getc(fd);
+	cw = bgetc(&(page[*pos]),pos);
 	if ( (cw == 0) && (ver == WORD8) )	/* only do this for word 97 */
 		{
 		wvTrace(("cw was pad %d\n",cw));
-		cw = getc(fd);
+		cw = bgetc(&(page[*pos]),pos);
 		wvTrace(("cw was %d\n",cw));
 		}
 	item->cb=cw*2;
+	item->istd = bread_16ubit(&(page[*pos]),pos);
+	wvTrace(("papx istd is %x\n",item->istd));
 	wvTrace(("no of bytes is %d\n",item->cb));
 	if (item->cb > 2)
+		{
 		item->grpprl = (U8 *)malloc(item->cb-2);
+		memcpy(item->grpprl,&(page[*pos]),(item->cb)-2);
+		}
 	else
 		item->grpprl = NULL;
-		
-	item->istd = read_16ubit(fd);
-	wvTrace(("papx istd is %x\n",item->istd));
-	for (i=2;i<item->cb;i++)
-		{
-		item->grpprl[i-2] = getc(fd);
-		wvTrace(("papx byte is %x\n",item->grpprl[i-2]));
-		}
 	}
 
 

@@ -49,20 +49,7 @@ void wvGetNUMRMFromBucket(NUMRM *item,U8 *pointer)
 
 void wvCopyNUMRM(NUMRM *dest,NUMRM *src)
 	{
-	int i;
-	dest->fNumRM = src->fNumRM;
-	dest->Spare1 = src->Spare1;
-	dest->ibstNumRM = src->ibstNumRM;
-	wvCopyDTTM(&dest->dttmNumRM,&src->dttmNumRM);
-	for (i=0;i<9;i++)
-		dest->rgbxchNums[i] = src->rgbxchNums[i];
-	for (i=0;i<9;i++)
-		dest->rgnfc[i] = src->rgnfc[i];
-	dest->Spare2 = src->Spare2;
-	for (i=0;i<9;i++)
-		dest->PNBR[i] = src->PNBR[i];
-	for (i=0;i<32;i++)
-		dest->xst[i] = src->xst[i];
+	memcpy(dest,src,sizeof(NUMRM));
 	}
 
 void wvInitNUMRM(NUMRM *item)

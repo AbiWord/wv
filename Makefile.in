@@ -41,7 +41,8 @@ magick/compress.$(OBJEXT) \
 magick/memory.$(OBJEXT) \
 magick/utility.$(OBJEXT) \
 magick/png.$(OBJEXT) \
-magick/bmp.$(OBJEXT)
+magick/bmp.$(OBJEXT) \
+magick/signature.$(OBJEXT)
 MAGICKOBJS =  @MAGICKOBJS@
 
 #abi's picky warning checks
@@ -117,6 +118,7 @@ MYOBJECTS =	\
 	sttbf.$(OBJEXT) \
 	xst.$(OBJEXT) \
 	fspa.$(OBJEXT) \
+	fdoa.$(OBJEXT) \
 	lst.$(OBJEXT) \
 	lvl.$(OBJEXT) \
 	lfo.$(OBJEXT) \
@@ -305,7 +307,7 @@ install: installdirs all
 	$(INSTALL) $(srcdir)/wvSimpleCLX$(EXEEXT) $(bindir)/wvSimpleCLX$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvVersion$(EXEEXT) $(bindir)/wvVersion$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvConvert$(EXEEXT) $(bindir)/wvConvert$(EXEEXT)
-	$(RM) $(bindir)/wvText$(EXEEXT)
+	$(RM) -f $(bindir)/wvText$(EXEEXT)
 	$(LN) -s $(bindir)/wvConvert$(EXEEXT) $(bindir)/wvText$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvHtml$(EXEEXT) $(bindir)/wvHtml$(EXEEXT)
 	$(INSTALL) $(srcdir)/wv-libconfig $(bindir)/wv-libconfig

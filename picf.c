@@ -15,9 +15,9 @@ int wvGetPICF(version ver,PICF *apicf,FILE *fd)
 
 	apicf->lcb = read_32ubit(fd);
 	apicf->cbHeader = read_16ubit(fd);
-	wvError(("size of pic is %x (%d)\n",apicf->cbHeader,apicf->cbHeader));
+	wvTrace(("size of pic is %x (%d)\n",apicf->cbHeader,apicf->cbHeader));
 	apicf->mfp_mm = (S16)read_16ubit(fd);
-	wvError(("mm type is %d\n",apicf->mfp_mm));
+	wvTrace(("mm type is %d\n",apicf->mfp_mm));
 	apicf->mfp_xExt = (S16)read_16ubit(fd);
 	apicf->mfp_yExt = (S16)read_16ubit(fd);
 	apicf->mfp_hMF = (S16)read_16ubit(fd);
@@ -38,7 +38,7 @@ int wvGetPICF(version ver,PICF *apicf,FILE *fd)
 	apicf->brcl = temp & 0x0F;
 	apicf->fFrameEmpty = (temp & 0x10)>>4;
 	apicf->fBitmap = (temp&0x20)>>5;
-	wvError(("bitmap is %d\n",apicf->fBitmap));
+	wvTrace(("bitmap is %d\n",apicf->fBitmap));
 	apicf->fDrawHatch = (temp&0x40)>>6;
 	apicf->fError = (temp&0x80)>>7;
 
@@ -56,24 +56,31 @@ int wvGetPICF(version ver,PICF *apicf,FILE *fd)
 	pos = ftell(fd)-pos;
 	for(i=pos;i<apicf->cbHeader;i++)
 		getc(fd);
-	wvError(("pos is finally %x\n",ftell(fd)));
-	wvError(("len of data is %d\n",apicf->lcb-apicf->cbHeader));
-	/*
+	wvTrace(("pos is finally %x\n",ftell(fd)));
+	wvTrace(("len of data is %d\n",apicf->lcb-apicf->cbHeader));
+	wvTrace(("ends at %x\n",ftell(fd)+apicf->lcb-apicf->cbHeader));
 	f = tmpfile();
-	*/
+	/*
 	sprintf(buffer,"/tmp/newtest-%d",s++);
 	f = fopen(buffer,"w+b");
+	*/
 	i=0;
 
 	if (apicf->mfp_mm < 90)
 		{
 		U32 len;
-		wvError(("test\n"));
+		wvTrace(("test\n"));
 		ret=1;
 		len = apicf->lcb-apicf->cbHeader;
 
-		i = wvEatOldGraphicHeader(fd);
-		wvError(("len is %d, header len guess is %d\n",len,i));
+		i = wvEatOldGraphicHeader(fd,len);
+		wvTrace(("len is %d, header len guess is %d\n",len,i));
+		if (i+1 >= len)
+			{
+			wvTrace(("all read ok methinks\n"));
+			apicf->rgb = NULL;
+			return(ret);
+			}
 		len -= i;
 #if 0
 		/*
@@ -87,7 +94,7 @@ int wvGetPICF(version ver,PICF *apicf,FILE *fd)
 		*/
 #else
 		len += 14;
-		wvError(("len is now %d\n",len));
+		wvTrace(("len is now %d\n",len));
 		fputc(0x42,f);
 		fputc(0x4D,f);
 
@@ -115,7 +122,7 @@ int wvGetPICF(version ver,PICF *apicf,FILE *fd)
 	return(ret);
 	}
 
-U32 wvEatOldGraphicHeader(FILE *fd)
+U32 wvEatOldGraphicHeader(FILE *fd,U32 len)
 	{
 	U32 X,entry,count=0,test;
 	U16 pad;
@@ -142,72 +149,72 @@ U32 wvEatOldGraphicHeader(FILE *fd)
 		wvError(("Old Graphic\n"));
 	count+=2;
 
-	entry = read_32ubit(fd);
-	count+=4;
+	/*
 	while ( entry != X)
+	*/
+	do
 		{
-		wvError(("Entry is %x\n",entry));
-		switch(entry)
-			{
-			case 0x00000005L:
-				read_16ubit(fd);
-				count+=2;
-				read_16ubit(fd);
-				count+=2;
-				read_16ubit(fd);
-				count+=2;
-				break;
-			case 0x00000004L:
-				read_16ubit(fd);
-				count+=2;
-				read_16ubit(fd);
-				count+=2;
-				break;
-			default:
-				break;
-			}
 		entry = read_32ubit(fd);
 		count+=4;
-		}
-	wvError(("Entry is %x\n",entry));
-	test = read_16ubit(fd);	/*0x0f43 or 0x0b41*/
-	if ( (test != 0x0f43) && (test != 0x0b41) )
-		wvError(("Old Graphic\n"));
-	pad = test;
-	if (pad == 0x0f43)
-		wvError(("pad\n"));
-	count+=2;
-	
-	test = read_32ubit(fd);	/*0x00cc0020*/
-	if (test != 0x00cc0020)
-		wvError(("Old Graphic\n"));
-	count+=4;
+		wvTrace(("Entry is %x, %x, count is %d\n",entry,ftell(fd),count));
+		switch(entry)
+			{
+			case 3:
+				read_16ubit(fd);
+				count+=2;
+				wvTrace(("suspect that we are finished, count %d, len %d\n",count,len));
+				break;
+			default:
+				{
+				U32 len = entry-2,i;
+				wvTrace(("len is %d, predict end of %x\n",len,ftell(fd)+(entry-2)*2));
+				for(i=0;i<len;i++)
+					{
+					test = read_16ubit(fd);
+					if ((i==0) && ((test ==  0x0f43) || (test == 0x0b41)))
+						{
+						wvTrace(("Found a Bitmap, Will strip header and return with bitmap data\n"));
+						count+=2;
+						pad = test;
+						test = read_32ubit(fd);	/*0x00cc0020*/
+						if (test != 0x00cc0020)
+							wvError(("Old Graphic\n"));
+						count+=4;
 
-	if (pad == 0x0f43)
-		{
-		test = read_16ubit(fd); /*0x0000*/
-		if (test != 0x0000)
-			wvError(("Old Graphic\n"));
-		count+=2;
+						if (pad == 0x0f43)
+							{
+							test = read_16ubit(fd); /*0x0000*/
+							if (test != 0x0000)
+								wvError(("Old Graphic\n"));
+							count+=2;
+							}
+						
+						read_16ubit(fd);	/*width*/
+						count+=2;
+						read_16ubit(fd);	/*height*/
+						count+=2;
+						test = read_32ubit(fd);	/*0x00000000L*/
+						if (test != 0x00000000L)
+							wvError(("Old Graphic\n"));
+						count+=4;
+						read_16ubit(fd);	/*width*/
+						count+=2;
+						read_16ubit(fd);	/*height*/
+						count+=2;
+						test = read_32ubit(fd);	/*0x00000000L*/
+						if (test != 0x00000000L)
+							wvError(("Old Graphic\n"));
+						count+=4;
+						return(count);
+						}
+					count+=2;
+					}
+				}
+				break;
+			}
 		}
-	
-	read_16ubit(fd);	/*width*/
-	count+=2;
-	read_16ubit(fd);	/*height*/
-	count+=2;
-	test = read_32ubit(fd);	/*0x00000000L*/
-	if (test != 0x00000000L)
-		wvError(("Old Graphic\n"));
-	count+=4;
-	read_16ubit(fd);	/*width*/
-	count+=2;
-	read_16ubit(fd);	/*height*/
-	count+=2;
-	test = read_32ubit(fd);	/*0x00000000L*/
-	if (test != 0x00000000L)
-		wvError(("Old Graphic\n"));
-	count+=4;
-	wvError(("count is %d\n",count));
+	while ( count+1 < len);
+	wvTrace(("Entry is %x %x, %d\n",entry,ftell(fd),count));
 	return(count);
 	}
 

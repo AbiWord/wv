@@ -81,6 +81,87 @@ const InterlaceType
   DefaultInterlace = NoInterlace;
 
 
+
+Export ColorPacket InterpolateColor(Image *image,const double x_offset,
+  const double y_offset)
+{
+  ColorPacket
+    interpolated_pixel;
+
+  double
+    alpha,
+    beta,
+    x,
+    y;
+
+  register RunlengthPacket
+    *p,
+    *q,
+    *r,
+    *s;
+
+  RunlengthPacket
+    background_pixel;
+
+  assert(image != (Image *) NULL);
+  if (image->packets != (image->columns*image->rows))
+    if (!UncondenseImage(image))
+      return(image->background_color);
+  if ((x_offset < -1) || (x_offset >= image->columns) ||
+      (y_offset < -1) || (y_offset >= image->rows))
+    return(image->background_color);
+  background_pixel.red=image->background_color.red;
+  background_pixel.green=image->background_color.green;
+  background_pixel.blue=image->background_color.blue;
+  background_pixel.index=image->background_color.index;
+  x=x_offset;
+  y=y_offset;
+  if ((x >= 0) && (y >= 0))
+    {
+      p=image->pixels+((int) y)*image->columns+(int) x;
+      q=p+1;
+      if ((x+1) >= image->columns)
+        q=(&background_pixel);
+      r=p+image->columns;
+      if ((y+1) >= image->rows)
+        r=(&background_pixel);
+      s=p+image->columns+1;
+      if (((x+1) >= image->columns) || ((y+1) >= image->rows))
+        s=(&background_pixel);
+    }
+  else
+    {
+      p=(&background_pixel);
+      q=(&background_pixel);
+      r=image->pixels+(int) x;
+      s=r+1;
+      if ((x >= -1) && (x < 0))
+        {
+          q=image->pixels+(int) y*image->columns;
+          r=(&background_pixel);
+          s=q+(int) image->columns;
+          if ((y >= -1) && (y < 0))
+            {
+              q=(&background_pixel);
+              s=image->pixels;
+            }
+        }
+    }
+  x-=floor(x);
+  y-=floor(y);
+  alpha=1.0-x;
+  beta=1.0-y;
+  interpolated_pixel.red=(Quantum)
+    (beta*(alpha*p->red+x*q->red)+y*(alpha*r->red+x*s->red));
+  interpolated_pixel.green=(Quantum)
+    (beta*(alpha*p->green+x*q->green)+y*(alpha*r->green+x*s->green));
+  interpolated_pixel.blue=(Quantum)
+    (beta*(alpha*p->blue+x*q->blue)+y*(alpha*r->blue+x*s->blue));
+  interpolated_pixel.index=(unsigned short)
+    (beta*(alpha*p->index+x*q->index)+y*(alpha*r->index+x*s->index));
+  return(interpolated_pixel);
+}
+
 /*
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                             %
@@ -1921,4 +2002,543 @@ Export void SetImageInfo(ImageInfo *image_info,const unsigned int rectify)
     if (r->magick)
       if (r->magick((unsigned char *) magick,MaxTextExtent))
         (void) strcpy(image_info->magick,r->tag);
+}
+
+Export void CompositeImage(Image *image,const CompositeOperator compose,
+  Image *composite_image,const int x_offset,const int y_offset)
+{
+  int
+    y;
+
+  long
+    blue,
+    green,
+    index,
+    red;
+
+  Quantum
+    shade;
+
+  register int
+    i,
+    runlength,
+    x;
+
+  register RunlengthPacket
+    *p,
+    *q;
+
+  /*
+    Check composite geometry.
+  */
+  assert(image != (Image *) NULL);
+  assert(composite_image != (Image *) NULL);
+  if (((x_offset+(int) image->columns) < 0) ||
+      ((y_offset+(int) image->rows) < 0) ||
+      (x_offset > (int) image->columns) || (y_offset > (int) image->rows))
+    {
+      MagickWarning(ResourceLimitWarning,"Unable to composite image",
+        "geometry does not contain image");
+      return;
+    }
+  /*
+    Image must be uncompressed.
+  */
+  if (!UncondenseImage(image))
+    return;
+  if (!UncondenseImage(composite_image))
+    return;
+  switch (compose)
+  {
+    case XorCompositeOp:
+    case PlusCompositeOp:
+    case MinusCompositeOp:
+    case AddCompositeOp:
+    case SubtractCompositeOp:
+    case DifferenceCompositeOp:
+    case BumpmapCompositeOp:
+    case BlendCompositeOp:
+    case ReplaceRedCompositeOp:
+    case ReplaceGreenCompositeOp:
+    case ReplaceBlueCompositeOp:
+    {
+      image->class=DirectClass;
+      break;
+    }
+    case ReplaceMatteCompositeOp:
+    {
+      image->class=DirectClass;
+      image->matte=True;
+      break;
+    }
+    case DisplaceCompositeOp:
+    {
+      ColorPacket
+        interpolated_color;
+
+      double
+        x_displace,
+        y_displace;
+
+      double
+        horizontal_scale,
+        vertical_scale;
+
+      Image
+        *displaced_image;
+
+      register RunlengthPacket
+        *r;
+
+      /*
+        Allocate the displaced image.
+      */
+      composite_image->orphan=True;
+      displaced_image=CloneImage(composite_image,composite_image->columns,
+        composite_image->rows,False);
+      composite_image->orphan=False;
+      if (displaced_image == (Image *) NULL)
+        {
+          MagickWarning(ResourceLimitWarning,"Unable to display image",
+            "Memory allocation failed");
+          return;
+        }
+      horizontal_scale=20.0;
+      vertical_scale=20.0;
+      if (composite_image->geometry != (char *) NULL)
+        {
+          int
+            count;
+
+          /*
+            Determine the horizontal and vertical displacement scale.
+          */
+          count=sscanf(composite_image->geometry,"%lfx%lf\n",
+            &horizontal_scale,&vertical_scale);
+          if (count == 1)
+            vertical_scale=horizontal_scale;
+        }
+      /*
+        Shift image pixels as defined by a displacement map.
+      */
+      p=composite_image->pixels;
+      runlength=p->length+1;
+      r=displaced_image->pixels;
+      for (y=0; y < (int) composite_image->rows; y++)
+      {
+        if (((y_offset+y) < 0) || ((y_offset+y) >= (int) image->rows))
+          {
+            p+=composite_image->columns;
+            continue;
+          }
+        q=image->pixels+(y_offset+y)*image->columns+x_offset;
+        for (x=0; x < (int) composite_image->columns; x++)
+        {
+          if (runlength != 0)
+            runlength--;
+          else
+            {
+              p++;
+              runlength=p->length;
+            }
+          if (((x_offset+x) < 0) || ((x_offset+x) >= (int) image->columns))
+            {
+              q++;
+              continue;
+            }
+          x_displace=(horizontal_scale*((double) Intensity(*p)-
+            ((MaxRGB+1) >> 1)))/((MaxRGB+1) >> 1);
+          y_displace=x_displace;
+          if (composite_image->matte)
+            y_displace=(vertical_scale*((double) p->index-
+              ((MaxRGB+1) >> 1)))/((MaxRGB+1) >> 1);
+          interpolated_color=
+            InterpolateColor(image,x_offset+x+x_displace,y_offset+y+y_displace);
+          r->red=interpolated_color.red;
+          r->green=interpolated_color.green;
+          r->blue=interpolated_color.blue;
+          r->index=interpolated_color.index;
+          r->length=0;
+          q++;
+          r++;
+        }
+      }
+      composite_image=displaced_image;
+      break;
+    }
+    case ReplaceCompositeOp:
+    {
+      /*
+        Promote image to DirectClass if colormaps differ.
+      */
+      if (image->class == PseudoClass)
+        {
+          if ((composite_image->class == DirectClass) ||
+              (composite_image->colors != image->colors))
+            image->class=DirectClass;
+          else
+            {
+              int
+                status;
+
+              status=memcmp((char *) composite_image->colormap,
+                (char *) image->colormap,composite_image->colors*
+                sizeof(ColorPacket));
+              if (status != 0)
+                image->class=DirectClass;
+            }
+        }
+      if (image->matte && !composite_image->matte)
+        MatteImage(composite_image);
+      break;
+    }
+    default:
+    {
+      /*
+        Initialize image matte data.
+      */
+      if (!image->matte)
+        {
+          image->class=DirectClass;
+          if (compose != AnnotateCompositeOp)
+            MatteImage(image);
+        }
+      if (!composite_image->matte)
+        {
+          p=composite_image->pixels;
+          red=p->red;
+          green=p->green;
+          blue=p->blue;
+          if (IsMonochromeImage(composite_image))
+            {
+              red=composite_image->background_color.red;
+              green=composite_image->background_color.green;
+              blue=composite_image->background_color.blue;
+            }
+          for (i=0; i < (int) composite_image->packets; i++)
+          {
+            p->index=Opaque;
+            if ((p->red == red) && (p->green == green) &&
+                (p->blue == blue))
+              p->index=Transparent;
+            p++;
+          }
+          composite_image->class=DirectClass;
+          composite_image->matte=True;
+        }
+      break;
+    }
+  }
+  /*
+    Initialize composited image.
+  */
+  composite_image->tainted=True;
+  p=composite_image->pixels;
+  runlength=p->length+1;
+  for (y=0; y < (int) composite_image->rows; y++)
+  {
+    if (((y_offset+y) < 0) || ((y_offset+y) >= (int) image->rows))
+      {
+        p+=composite_image->columns;
+        continue;
+      }
+    q=image->pixels+(y_offset+y)*image->columns+x_offset;
+    for (x=0; x < (int) composite_image->columns; x++)
+    {
+      if (runlength != 0)
+        runlength--;
+      else
+        {
+          p++;
+          runlength=p->length;
+        }
+      if (((x_offset+x) < 0) || ((x_offset+x) >= (int) image->columns))
+        {
+          q++;
+          continue;
+        }
+      switch (compose)
+      {
+        case AnnotateCompositeOp:
+        case OverCompositeOp:
+        default:
+        {
+          if (p->index == Transparent)
+            {
+              red=q->red;
+              green=q->green;
+              blue=q->blue;
+              index=q->index;
+            }
+          else
+            if (p->index == Opaque)
+              {
+                red=p->red;
+                green=p->green;
+                blue=p->blue;
+                index=p->index;
+              }
+            else
+              {
+                red=(long) ((unsigned long)
+                  (p->red*p->index+q->red*(Opaque-p->index))/Opaque);
+                green=(long) ((unsigned long)
+                  (p->green*p->index+q->green*(Opaque-p->index))/Opaque);
+                blue=(long) ((unsigned long)
+                  (p->blue*p->index+q->blue*(Opaque-p->index))/Opaque);
+                index=(long) ((unsigned long)
+                  (p->index*p->index+q->index*(Opaque-p->index))/Opaque);
+              }
+          break;
+        }
+        case InCompositeOp:
+        {
+          red=((unsigned long) (p->red*q->index)/Opaque);
+          green=((unsigned long) (p->green*q->index)/Opaque);
+          blue=((unsigned long) (p->blue*q->index)/Opaque);
+          index=((unsigned long) (p->index*q->index)/Opaque);
+          break;
+        }
+        case OutCompositeOp:
+        {
+          red=((unsigned long) (p->red*(Opaque-q->index))/Opaque);
+          green=((unsigned long) (p->green*(Opaque-q->index))/Opaque);
+          blue=((unsigned long) (p->blue*(Opaque-q->index))/Opaque);
+          index=((unsigned long) (p->index*(Opaque-q->index))/Opaque);
+          break;
+        }
+        case AtopCompositeOp:
+        {
+          red=((unsigned long)
+            (p->red*q->index+q->red*(Opaque-p->index))/Opaque);
+          green=((unsigned long)
+            (p->green*q->index+q->green*(Opaque-p->index))/Opaque);
+          blue=((unsigned long)
+            (p->blue*q->index+q->blue*(Opaque-p->index))/Opaque);
+          index=((unsigned long)
+            (p->index*q->index+q->index*(Opaque-p->index))/Opaque);
+          break;
+        }
+        case XorCompositeOp:
+        {
+          red=((unsigned long)
+            (p->red*(Opaque-q->index)+q->red*(Opaque-p->index))/Opaque);
+          green=((unsigned long)
+            (p->green*(Opaque-q->index)+q->green*(Opaque-p->index))/Opaque);
+          blue=((unsigned long)
+            (p->blue*(Opaque-q->index)+q->blue*(Opaque-p->index))/Opaque);
+          index=((unsigned long)
+            (p->index*(Opaque-q->index)+q->index*(Opaque-p->index))/Opaque);
+          break;
+        }
+        case PlusCompositeOp:
+        {
+          red=p->red+q->red;
+          green=p->green+q->green;
+          blue=p->blue+q->blue;
+          index=p->index+q->index;
+          break;
+        }
+        case MinusCompositeOp:
+        {
+          red=p->red-(int) q->red;
+          green=p->green-(int) q->green;
+          blue=p->blue-(int) q->blue;
+          index=Opaque;
+          break;
+        }
+        case AddCompositeOp:
+        {
+          red=p->red+q->red;
+          if (red > MaxRGB)
+            red-=(MaxRGB+1);
+          green=p->green+q->green;
+          if (green > MaxRGB)
+            green-=(MaxRGB+1);
+          blue=p->blue+q->blue;
+          if (blue > MaxRGB)
+            blue-=(MaxRGB+1);
+          index=p->index+q->index;
+          if (index > Opaque)
+            index-=(Opaque+1);
+          break;
+        }
+        case SubtractCompositeOp:
+        {
+          red=p->red-(int) q->red;
+          if (red < 0)
+            red+=(MaxRGB+1);
+          green=p->green-(int) q->green;
+          if (green < 0)
+            green+=(MaxRGB+1);
+          blue=p->blue-(int) q->blue;
+          if (blue < 0)
+            blue+=(MaxRGB+1);
+          index=p->index-(int) q->index;
+          if (index < 0)
+            index+=(MaxRGB+1);
+          break;
+        }
+        case DifferenceCompositeOp:
+        {
+          red=AbsoluteValue(p->red-(int) q->red);
+          green=AbsoluteValue(p->green-(int) q->green);
+          blue=AbsoluteValue(p->blue-(int) q->blue);
+          index=AbsoluteValue(p->index-(int) q->index);
+          break;
+        }
+        case BumpmapCompositeOp:
+        {
+          shade=Intensity(*p);
+          red=((unsigned long) (q->red*shade)/Opaque);
+          green=((unsigned long) (q->green*shade)/Opaque);
+          blue=((unsigned long) (q->blue*shade)/Opaque);
+          index=((unsigned long) (q->index*shade)/Opaque);
+          break;
+        }
+        case ReplaceCompositeOp:
+        {
+          red=p->red;
+          green=p->green;
+          blue=p->blue;
+          index=p->index;
+          break;
+        }
+        case ReplaceRedCompositeOp:
+        {
+          red=DownScale(Intensity(*p));
+          green=q->green;
+          blue=q->blue;
+          index=q->index;
+          break;
+        }
+        case ReplaceGreenCompositeOp:
+        {
+          red=q->red;
+          green=DownScale(Intensity(*p));
+          blue=q->blue;
+          index=q->index;
+          break;
+        }
+        case ReplaceBlueCompositeOp:
+        {
+          red=q->red;
+          green=q->green;
+          blue=DownScale(Intensity(*p));
+          index=q->index;
+          break;
+        }
+        case ReplaceMatteCompositeOp:
+        {
+          red=q->red;
+          green=q->green;
+          blue=q->blue;
+          index=DownScale(Intensity(*p));
+          break;
+        }
+        case BlendCompositeOp:
+        {
+          red=((unsigned long)
+            (p->red*p->index+q->red*q->index)/Opaque);
+          green=((unsigned long)
+            (p->green*p->index+q->green*q->index)/Opaque);
+          blue=((unsigned long)
+            (p->blue*p->index+q->blue*q->index)/Opaque);
+          index=Opaque;
+          break;
+        }
+        case DisplaceCompositeOp:
+        {
+          red=p->red;
+          green=p->green;
+          blue=p->blue;
+          index=p->index;
+          break;
+        }
+      }
+      q->red=(Quantum) ((red < 0) ? 0 : (red > MaxRGB) ? MaxRGB : red);
+      q->green=(Quantum) ((green < 0) ? 0 : (green > MaxRGB) ? MaxRGB : green);
+      q->blue=(Quantum) ((blue < 0) ? 0 : (blue > MaxRGB) ? MaxRGB : blue);
+      q->index=(unsigned short) ((index < Transparent) ? Transparent :
+        (index > Opaque) ? Opaque : index);
+      q->length=0;
+      q++;
+    }
+  }
+  if (compose == BlendCompositeOp)
+    image->matte=False;
+  if (compose == DisplaceCompositeOp)
+    {
+      image->matte=False;
+      DestroyImage(composite_image);
+    }
+}
+
+
+Export unsigned int UncondenseImage(Image *image)
+{
+  int
+    length;
+
+  register int
+    i,
+    j;
+
+  register RunlengthPacket
+    *p,
+    *q;
+
+  RunlengthPacket
+    *uncompressed_pixels;
+
+  assert(image != (Image *) NULL);
+  if (image->packets == (image->columns*image->rows))
+    return(True);
+  /*
+    Uncompress runlength-encoded packets.
+  */
+  uncompressed_pixels=(RunlengthPacket *) ReallocateMemory((char *)
+    image->pixels,image->columns*image->rows*sizeof(RunlengthPacket));
+  if (uncompressed_pixels == (RunlengthPacket *) NULL)
+    {
+      MagickWarning(ResourceLimitWarning,"Unable to uncompress image",
+        "Memory allocation failed");
+      return(False);
+    }
+  p=uncompressed_pixels+(image->packets-1);
+  q=uncompressed_pixels+(image->columns*image->rows-1);
+  for (i=0; i < (int) image->packets; i++)
+  {
+    length=p->length;
+    for (j=0; j <= length; j++)
+    {
+      *q=(*p);
+      q->length=0;
+      q--;
+    }
+    p--;
+  }
+  image->packets=image->columns*image->rows;
+  image->pixels=uncompressed_pixels;
+  return(True);
+}
+
+
+Export void MatteImage(Image *image)
+{
+  register int
+    i;
+
+  register RunlengthPacket
+    *p;
+
+  assert(image != (Image *) NULL);
+  image->class=DirectClass;
+  image->matte=True;
+  p=image->pixels;
+  for (i=0; i < (int) image->packets; i++)
+  {
+    p->index=Opaque;
+    p++;
+  }
 }

@@ -2,6 +2,20 @@
 #include <stdio.h>
 #include "wv.h"
 
+void internal_wvReleasePAPX_FKP(PAPX_FKP *fkp)
+	{
+	int i;
+	wvFree(fkp->rgfc);
+	fkp->rgfc=NULL;
+	wvFree(fkp->rgbx);
+	fkp->rgbx=NULL;
+	for (i=0;i<fkp->crun;i++)
+		wvReleasePAPX(&(fkp->grppapx[i]));
+	fkp->crun=0;
+	wvFree(fkp->grppapx);
+	fkp->grppapx=NULL;
+	}
+
 /*
 At offset
 511 is a 1-byte count named crun, which is a count of paragraphs in PAPX 
@@ -31,29 +45,43 @@ are recorded in the FKP, unused space is reduced by 17 if CHPX/PAPX
 is already recorded and is reduced by 17+sizeof(PAPX) if property is not
 already recorded.
 */
+PAPX_FKP wvPAPX_FKP_previous;
+U32 wvPAPX_pn_previous=0;
 void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,FILE *fd)
 	{
 	int i;
+	U8 page[WV_PAGESIZE];
+	U16 pos=0;
+	ssize_t bytes_read;
+
+	/* brian.ewins@bt.com */
+	/* there seem to be a lot of repeat calls... */
+	/* pn=0 is safe because thats the index block, not a PAPX_FKP */
+	if (pn!=0 && pn==wvPAPX_pn_previous) 
+		{
+		memcpy(fkp,&wvPAPX_FKP_previous,sizeof(PAPX_FKP));
+		return;
+		}
+
 	wvTrace(("seeking to %x to get crun\n",pn*WV_PAGESIZE+(WV_PAGESIZE-1)));
-	fseek(fd,pn*WV_PAGESIZE+(WV_PAGESIZE-1),SEEK_SET);
-	fkp->crun = getc(fd);
+	fseek(fd,pn*WV_PAGESIZE,SEEK_SET);
+	bytes_read=fread(page,WV_PAGESIZE,1,fd);
+	fkp->crun = (U8)page[WV_PAGESIZE-1];
 	fkp->rgfc = (U32 *)malloc(sizeof(U32) * (fkp->crun+1));
 	fkp->rgbx = (BX *)malloc(sizeof(BX) * (fkp->crun));
 	fkp->grppapx = (PAPX *)malloc(sizeof(PAPX) * (fkp->crun));
-	wvTrace(("seeking to %x to get fkp\n",pn*WV_PAGESIZE));
-	fseek(fd,pn*WV_PAGESIZE,SEEK_SET);
 	for (i=0;i<fkp->crun+1;i++)
 		{
-		fkp->rgfc[i] = read_32ubit(fd);
+		fkp->rgfc[i] = bread_32ubit(&(page[pos]),&pos);
 		wvTrace(("rgfc is %x\n",fkp->rgfc[i]));
 		}
 
 	for (i=0;i<fkp->crun;i++)
 		{
 		if (ver == WORD8)
-			wvGetBX(&fkp->rgbx[i],fd);
+			wvGetBX(&fkp->rgbx[i],page,&pos);
 		else 
-			wvGetBX6(&fkp->rgbx[i],fd);
+			wvGetBX6(&fkp->rgbx[i],page,&pos);
 		}
 
 	for (i=0;i<fkp->crun;i++)
@@ -66,9 +94,14 @@ void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,FILE *fd)
 		else
 			{
 			wvTrace(("papx index i is %d, offset is %x\n",i,pn*WV_PAGESIZE+fkp->rgbx[i].offset*2));
-			wvGetPAPX(ver,&(fkp->grppapx[i]),pn*WV_PAGESIZE+fkp->rgbx[i].offset*2,fd);
+			pos=fkp->rgbx[i].offset*2;
+			wvGetPAPX(ver,&(fkp->grppapx[i]),page,&pos);
 			}
 		}
+	if (wvPAPX_pn_previous!=0)
+		internal_wvReleasePAPX_FKP(&wvPAPX_FKP_previous);
+	memcpy(&wvPAPX_FKP_previous,fkp,sizeof(PAPX_FKP));
+	wvPAPX_pn_previous=pn;
 	}
 
 /*
@@ -146,19 +179,11 @@ U32 wvSearchNextSmallestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc)
 	return(fcTest);
 	}
 
-void wvReleasePAPX_FKP(PAPX_FKP *fkp)
+void wvReleasePAPX_FKP(PAPX_FKP *fkp) 
 	{
-	int i;
-	wvFree(fkp->rgfc);
-	fkp->rgfc=NULL;
-	wvFree(fkp->rgbx);
-	fkp->rgbx=NULL;
-	for (i=0;i<fkp->crun;i++)
-		wvReleasePAPX(&(fkp->grppapx[i]));
-	fkp->crun=0;
-	wvFree(fkp->grppapx);
-	fkp->grppapx=NULL;
+	return;
 	}
+
 
 void wvInitPAPX_FKP(PAPX_FKP *fkp)
 	{
@@ -191,55 +216,7 @@ int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc)
 	return(1);
 	}
 
-
-/* Character properties 
- * -basically just like PAPX FKPs above
- * however, rather than an array of BX structs in rgbx,
- * there is an array of bytes (giving the word offset to the CHPX) in rgb
- * -JB
- */
-
-void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, FILE *fd)
-	{
-	int i;
-	wvTrace(("chpx fkp gone to %x\n",pn*WV_PAGESIZE+(WV_PAGESIZE-1)));
-	fseek(fd, pn*WV_PAGESIZE+(WV_PAGESIZE-1), SEEK_SET);
-	fkp->crun = getc(fd);
-	wvTrace(("crun is %d\n",fkp->crun));
-	fkp->rgfc = (U32 *)malloc(sizeof(U32) * (fkp->crun+1));
-	fkp->rgb = (U8 *)malloc(sizeof(U8) * (fkp->crun));
-	fkp->grpchpx = (CHPX *)malloc(sizeof(CHPX) * (fkp->crun));
-	fseek(fd, pn*WV_PAGESIZE, SEEK_SET);
-	wvTrace(("offset is %x\n",pn*WV_PAGESIZE));
-	for (i=0;i<fkp->crun+1;i++)
-		{
-		fkp->rgfc[i] = read_32ubit(fd);
-		wvTrace(("rgfc is %x\n",fkp->rgfc[i]));
-		}
-
-	for (i=0;i<fkp->crun;i++)
-		{
-		fkp->rgb[i] = getc(fd);
-		}
-
-	for (i=0;i<fkp->crun;i++)
-		{
-		if (fkp->rgb[i] == 0)
-		     {
-			wvTrace(("i is %d, using clear chpx\n",i));
-			wvInitCHPX(&(fkp->grpchpx[i]));
-		     }
-		else
-		     {
-			wvTrace(("chpx index i is %d, offset is %x\n", i,
-				(pn * WV_PAGESIZE) + (fkp->rgb[i] * 2)));
-			wvGetCHPX(ver, &(fkp->grpchpx[i]), 
-				  (pn*WV_PAGESIZE) + (fkp->rgb[i] * 2), fd);
-			}
-		}
-	}
-
-void wvReleaseCHPX_FKP(CHPX_FKP *fkp)
+void internal_wvReleaseCHPX_FKP(CHPX_FKP *fkp)
 	{
 	int i;
 	wvTrace(("chpx fkp b freeed\n"));
@@ -254,6 +231,75 @@ void wvReleaseCHPX_FKP(CHPX_FKP *fkp)
 	fkp->grpchpx=NULL;
 	wvTrace(("chpx fkp e freeed\n"));
 	}
+
+
+/* Character properties 
+ * -basically just like PAPX FKPs above
+ * however, rather than an array of BX structs in rgbx,
+ * there is an array of bytes (giving the word offset to the CHPX) in rgb
+ * -JB
+ */
+CHPX_FKP wvCHPX_FKP_previous;
+U32 wvCHPX_pn_previous=0;
+void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, FILE *fd)
+	{
+	int i;
+	U8 page[WV_PAGESIZE];
+	U16 pos=0;
+	ssize_t bytes_read;
+
+	/* brian.ewins@bt.com */
+	/* there seem to be a lot of repeat calls... */
+	/* pn=0 is safe because thats the index block, not a CHPX_FKP */
+	if (pn!=0 && pn==wvCHPX_pn_previous) 
+		{
+		memcpy(fkp,&wvCHPX_FKP_previous,sizeof(CHPX_FKP));
+		return;
+		}
+	fseek(fd,pn*WV_PAGESIZE,SEEK_SET);
+	bytes_read=fread(page,WV_PAGESIZE,1,fd);
+	fkp->crun = (U8)page[WV_PAGESIZE-1];
+	wvTrace(("chpx fkp gone to %x\n",pn*WV_PAGESIZE+(WV_PAGESIZE-1)));
+	wvTrace(("crun is %d\n",fkp->crun));
+	fkp->rgfc = (U32 *)malloc(sizeof(U32) * (fkp->crun+1));
+	fkp->rgb = (U8 *)malloc(sizeof(U8) * (fkp->crun));
+	fkp->grpchpx = (CHPX *)malloc(sizeof(CHPX) * (fkp->crun));
+	fseek(fd, pn*WV_PAGESIZE, SEEK_SET);
+	wvTrace(("offset is %x\n",pn*WV_PAGESIZE));
+	for (i=0;i<fkp->crun+1;i++)
+		{
+		fkp->rgfc[i] = bread_32ubit(&(page[pos]),&pos);
+		wvTrace(("rgfc is %x\n",fkp->rgfc[i]));
+		}
+
+	for (i=0;i<fkp->crun;i++)
+		fkp->rgb[i] = bgetc(&(page[pos]),&pos);
+
+	for (i=0;i<fkp->crun;i++)
+		{
+		if (fkp->rgb[i] == 0)
+			{
+			wvTrace(("i is %d, using clear chpx\n",i));
+			wvInitCHPX(&(fkp->grpchpx[i]));
+		    }
+		else
+		    {
+			wvTrace(("chpx index i is %d, offset is %x\n", i, (pn * WV_PAGESIZE) + (fkp->rgb[i] * 2)));
+			pos=fkp->rgb[i]*2;
+			wvGetCHPX(ver, &(fkp->grpchpx[i]), page,&pos);
+			}
+		}
+	if (wvCHPX_pn_previous!=0) 
+		internal_wvReleaseCHPX_FKP(&wvCHPX_FKP_previous);
+	memcpy(&wvCHPX_FKP_previous,fkp,sizeof(CHPX_FKP));
+	wvCHPX_pn_previous=pn;
+	}
+
+void wvReleaseCHPX_FKP(CHPX_FKP *fkp) 
+	{
+	return;
+	}
+
 
 void wvInitCHPX_FKP(CHPX_FKP *fkp)
 	{

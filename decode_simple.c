@@ -96,7 +96,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 		}
 	/*Extract Graphic Information*/
 	wvGetFSPA_PLCF(&ps->fspa,&ps->fspapos,&ps->nooffspa,ps->fib.fcPlcspaMom,ps->fib.lcbPlcspaMom,ps->tablefd);
-
+	wvGetFDOA_PLCF(&ps->fdoa,&ps->fdoapos,&ps->nooffdoa,ps->fib.fcPlcdoaMom,ps->fib.lcbPlcdoaMom,ps->tablefd);
 
 
 	/* 
@@ -156,6 +156,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 		{
 		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&ps->clx,piececount);
 		fseek(ps->mainfd,beginfc,SEEK_SET);
+		wvTrace(("SEEK %x\n",beginfc));
 		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
 
 		/*
@@ -163,7 +164,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 		the rest of the exception run, so force a stop and restart of these properties.
 		*/
 		char_fcLim = beginfc;
-		
+		wvTrace(("%d %d %d\n",begincp,endcp,ps->fib.ccpText));	
 		for (i=begincp,j=beginfc;(i<endcp && i<ps->fib.ccpText);i++,j += wvIncFC(chartype))
 			{
 			/* character properties */
@@ -309,6 +310,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 				ps->endcell=1;
 
 			ps->currentcp = i;
+			wvTrace(("char pos is %x\n",j));
 			wvOutputTextChar(eachchar, chartype, &state, ps,&achp);
 			}
 
@@ -355,6 +357,8 @@ void wvDecodeSimple(wvParseStruct *ps)
 
 	wvFree(ps->fspa);
 	wvFree(ps->fspapos);
+	wvFree(ps->fdoa);
+	wvFree(ps->fdoapos);
 
 	wvFree(posBKL);
 	wvFree(bkl);
@@ -402,6 +406,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 		wvFree(ps->vmerges);
 		}
 	wvFree(ps->cellbounds);
+	tokenTreeFreeAll();
 	}
 
 

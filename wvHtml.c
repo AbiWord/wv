@@ -32,7 +32,7 @@ FILE *wvOpenConfig(char *config);
 
 void usage( void )
 	{
-	printf("Usage: wvHtml [--config config.xml] [--charset charset] [--password password] filename.doc\n");
+	printf("Usage: wvHtml [--config config.xml] [--charset charset] [--password password] [--dir dir] filename.doc\n");
 	exit(-1);
 	}
 
@@ -43,6 +43,7 @@ int main(int argc,char **argv)
 	FILE *input;
 	char *password=NULL;
 	char *config=NULL;
+	char *dir=NULL;
 	int ret;
 	state_data myhandle;
 	expand_data expandhandle;
@@ -53,6 +54,7 @@ int main(int argc,char **argv)
         {"charset",1,0,'c'},
         {"config",1,0,'x'},
         {"password",1,0,'p'},
+        {"dir",1,0,'d'},
         {0,0,0,0}
         };
 
@@ -63,7 +65,7 @@ int main(int argc,char **argv)
 
 	 while (1)
         { 
-        c = getopt_long (argc, argv, "c:x:p:", long_options, &index);
+        c = getopt_long (argc, argv, "c:x:p:d:", long_options, &index);
         if (c == -1)
             break;
 		switch(c)
@@ -86,6 +88,12 @@ int main(int argc,char **argv)
 				else
 					wvError(("No password given to password option"));
 				break;
+			case 'd':
+				if (optarg)
+					dir = optarg;
+				else
+					wvError(("No directory given to dir option"));
+				break;
 			default:
                 usage();
                 break;
@@ -95,12 +103,13 @@ int main(int argc,char **argv)
 	input = fopen(argv[optind],"rb");
 	if (!input)
 		{
-		fprintf(stderr,"Failed to open %s: %s\n",argv[1],strerror(errno));
+		fprintf(stderr,"Failed to open %s: %s\n",argv[optind],strerror(errno));
 		return(-1);
 		}
 
 	ret = wvInitParser(&ps,input);
 	ps.filename = argv[optind];
+	ps.dir = dir;
 
 	if (ret & 0x8000)
 		{
@@ -402,20 +411,35 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			{
 			Blip blip;
 			char *name;
-			fspa = wvGetFSPAFromCP(ps->currentcp,ps->fspa,ps->fspapos,ps->nooffspa);
-			data->props = fspa;
-			if (wv0x08(&blip,fspa->spid,ps))
+			if (wvQuerySupported(&ps->fib,NULL) == WORD8)
 				{
-				wvTrace(("Here\n"));
-                name = wvHtmlGraphic(ps,&blip);
-                printf("<img alt=\"0x08 graphic\" src=\"%s\"><br>",name);
-                wvFree(name);
+				fspa = wvGetFSPAFromCP(ps->currentcp,ps->fspa,ps->fspapos,ps->nooffspa);
+				data->props = fspa;
+				if (wv0x08(&blip,fspa->spid,ps))
+					{
+					wvTrace(("Here\n"));
+					name = wvHtmlGraphic(ps,&blip);
+					printf("<img alt=\"0x08 graphic\" src=\"%s\"><br>",name);
+					wvFree(name);
+					}
+				else
+					{
+					wvError(("Strange No Graphic Data in the 0x01 graphic\n"));
+					printf("<img alt=\"0x08 graphic\" src=\"%s\"><br>","StrangeNoGraphicData");
+					}
 				}
 			else
 				{
-				wvError(("Strange No Graphic Data in the 0x01 graphic\n"));
-                printf("<img alt=\"0x08 graphic\" src=\"%s\"><br>","StrangeNoGraphicData");
+				FDOA *fdoa;
+				wvError(("pre word8 0x08 graphic, unsupported at the moment\n"));
+				fdoa = wvGetFDOAFromCP(ps->currentcp,ps->fdoa,ps->fdoapos,ps->nooffdoa);
+				data->props = fdoa;
 				}
+
+
+
+
+
 #if 0
 			if ( (fspa) && (data->sd != NULL) && (data->sd->elements[TT_PICTURE].str) && (data->sd->elements[TT_PICTURE].str[0] != NULL) )
 				{
@@ -446,9 +470,6 @@ option to support correct symbol font conversion to a viewable format.\n");
 					}
 				wvTrace(("symbol char %d %x %c, using font %d %s\n",achp->xchSym,achp->xchSym,achp->xchSym,achp->ftcSym,wvWideStrToMB(ps->fonts.ffn[achp->ftcSym].xszFfn) ));
 				wvTrace(("symbol char ends up as a unicode %x\n",wvConvertSymbolToUnicode(achp->xchSym-61440)));
-				/*
-				return(myCharProc(ps,wvConvertSymbolToUnicode(achp->xchSym-61440),UTF8,0x400));
-				*/
 				wvOutputFromUnicode(wvConvertSymbolToUnicode(achp->xchSym-61440),charset);
 				return(0);
 				}

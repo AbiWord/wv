@@ -1136,8 +1136,8 @@ typedef union _PHE
 
 void wvCopyPHE(PHE *dest,PHE *src,int which);
 void wvInitPHE(PHE *item,int which);
-void wvGetPHE(PHE *dest,int which,FILE *fd);
-void wvGetPHE6(PHE *dest,FILE *fd);
+void wvGetPHE6(PHE *dest,U8 *page,U16 *pos);
+void wvGetPHE6(PHE *dest,U8 *page,U16 *pos);
 
 typedef struct _NUMRM
     {
@@ -1534,7 +1534,7 @@ typedef struct _CHPX
 void wvInitCHPX(CHPX *item);
 void wvCopyCHPX(CHPX *dest, CHPX *src);
 void wvReleaseCHPX(CHPX *item);
-void wvGetCHPX(version ver, CHPX *item, U32 offset, FILE *fd);
+void wvGetCHPX(version ver, CHPX *item, U8 *page, U16 *pos);
 
 	       
 typedef struct _CHPX_FKP
@@ -2456,6 +2456,7 @@ typedef enum _TT
 	TT_ParaRight,
 	TT_ParaLeft1,
 	TT_FILENAME,
+	TT_htmlgraphic,
 	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 
@@ -2466,6 +2467,19 @@ typedef struct _TokenTable
     const char *    m_name;
     int             m_type;
 	} TokenTable,CharsetTable,ReasonTable;
+
+/* support for ternary tree lookup of tokens */
+typedef struct tokennode *Tokenptr;
+typedef struct tokennode 
+	{
+	char splitchar;
+	Tokenptr lokid, eqkid, hikid;
+	int token; /* indexes into the token table */
+	} Tokennode;
+
+void tokenTreeInit(void);
+void tokenTreeFreeAll(void);
+
 
 typedef struct _wvEle
 	{
@@ -2546,6 +2560,15 @@ void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,FILE *fd);
 void wvReleaseCLX(CLX *clx);
 void wvBuildCLXForSimple6(CLX *clx,FIB *fib);
 
+typedef struct _FDOA
+	{
+	S32 fc;
+	S16 ctxbx;
+	}FDOA;
+
+void wvGetFDOA(FDOA *item,FILE *fd);
+int wvGetFDOA_PLCF(FDOA **fdoa,U32 **pos,U32 *nofdoa,U32 offset,U32 len,FILE *fd);
+FDOA *wvGetFDOAFromCP(U32 currentcp,FDOA *fdoa,U32 *pos,U32 nofdoa);
 
 typedef struct _wvParseStruct
 	{
@@ -2591,9 +2614,14 @@ typedef struct _wvParseStruct
 	U32 *fspapos;
 	U32 nooffspa;
 
+	FDOA *fdoa;
+	U32 *fdoapos;
+	U32 nooffdoa;
+
 	int fieldstate;
 	int fieldmiddle;
 	char *filename;	
+	char *dir;
 	}wvParseStruct;
 
 void wvSetPassword(char *password,wvParseStruct *ps);
@@ -2699,11 +2727,9 @@ typedef enum
 	cbTLP = 4,
 	cbTAP = 1728, 
 	cbWKB = 12,
-	cbLSTF = 28
-	} cbStruct;
+	cbLSTF = 28,
+	cbFDOA = 6,
 
-typedef enum
-	{
 	cb6BTE = 2,
 	cb6FIB = 682,
 	cb6PHE = 6,
@@ -2713,7 +2739,7 @@ typedef enum
 	cb6PGD = 6,
 	cb6TC = 10,
 	cb6CHP = 42
-	} cb6Struct;
+	} cbStruct;
 
 U32 wvNormFC(U32 fc,int *flag);
 int wvGetPieceBoundsFC(U32 *begin,U32 *end,CLX *clx,U32 piececount);
@@ -2737,14 +2763,16 @@ void wvListBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte);
 
 #define WV_PAGESIZE 512
 
+
 typedef struct _BX
 	{
 	U8 offset;
 	PHE phe;
 	} BX;
 
-void wvGetBX(BX *item, FILE *fd);
-void wvGetBX6(BX *item, FILE *fd);
+void wvGetBX(BX *item, U8 *page, U16 *pos);
+void wvGetBX6(BX *item, U8 *page, U16 *pos);
+
 
 typedef struct _PAPX
 	{
@@ -2753,7 +2781,7 @@ typedef struct _PAPX
  	U8 *grpprl;
 	} PAPX;
 
-void wvGetPAPX(version ver,PAPX *item,U32 offset,FILE *fd);
+void wvGetPAPX(version ver,PAPX *item,U8 *page,U16 *pos);
 void wvReleasePAPX(PAPX *item);
 void wvInitPAPX(PAPX *item);
 
@@ -3340,8 +3368,9 @@ typedef struct _PICF
 int wvGetPICF(version ver,PICF *apicf,FILE *fd);
 
 void remove_suffix (char *name, const char *suffix);
+char *base_name (char const *name);
 
-U32 wvEatOldGraphicHeader(FILE *fd);
+U32 wvEatOldGraphicHeader(FILE *fd,U32 len);
 int bmptopng(char *prefix);
 
 int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps);
@@ -4281,7 +4310,6 @@ typedef struct ttextportions textportions;
 #define IGNORENUM 0
 #define DONTIGNORENUM 1
 #define IGNOREALL 2
-
 
 U16 read_16ubit(FILE *);
 U32 read_32ubit(FILE *);

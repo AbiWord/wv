@@ -17,8 +17,18 @@ char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
 	name = strdup(ps->filename);
 	wvError(("name is %s\n",name));
 	remove_suffix (name, ".doc");
-	wvAppendStr(&name,buffer);
+	if (ps->dir != NULL)
+		{
+		char *tempa,*tempb;
+		tempb = strdup(ps->dir);
+		tempa = base_name(name);
+		wvAppendStr(&tempb,"/");
+		wvAppendStr(&tempb,tempa);
+		wvFree(name);
+		name = tempb;
+		}
 
+	wvAppendStr(&name,buffer);
 	/* 
 	temp hack to test older included bmps in word 6 and 7,
 	should be wrapped in a modern escher strucure before getting
@@ -87,7 +97,7 @@ int HandleBitmap(char *name,BitmapBlip *bitmap)
 	fd = fopen(name,"wb");
 	if (fd == NULL)
 		{
-		wvError(("%s\n",strerror(errno)));
+		wvError(("Cannot open %s for writing:%s\n",name,strerror(errno)));
 		return(-1);
 		}
 	while (EOF != (c = getc((FILE *)(bitmap->m_pvBits))))
@@ -103,6 +113,7 @@ void wvGetEscher(escherstruct *item,U32 offset,U32 len,FILE *fd,FILE *delay)
 	MSOFBH amsofbh;
 	long pos;
 	fseek(fd,offset,SEEK_SET);
+	wvError(("offset %x, len %d\n",offset,len));
 	while (count < len)
 		{
 		count += wvGetMSOFBH(&amsofbh,fd);
@@ -122,7 +133,7 @@ void wvGetEscher(escherstruct *item,U32 offset,U32 len,FILE *fd,FILE *delay)
 				break;
 			}
 		}
-	wvTrace(("offset %x, len %d\n",offset,len));
+	wvError(("offset %x, len %d (pos %x)\n",offset,len,ftell(fd)));
 	}
 
 U32 wvGetDggContainer(DggContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay)
@@ -370,6 +381,7 @@ int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps)
 	U32 i;
 	escherstruct item;
 	FSPContainer *answer;
+	wvError(("spid is %x\n",spid));
 	wvGetEscher(&item,ps->fib.fcDggInfo,ps->fib.lcbDggInfo,ps->tablefd,ps->mainfd);
 
 	for(i=0;i<item.dgcontainer.no_spgrcontainer;i++)
@@ -411,14 +423,18 @@ int wv0x01(Blip *blip,FILE *fd,U32 len)
 	MSOFBH amsofbh;
 	FSPContainer item;
 	U32 count=0;
+	char test[3];
 	int ret=0;
+
+
+	if (fd == NULL)
+		return(0);
 
 	/* 
 	temp hack to test older included bmps in word 6 and 7,
 	should be wrapped in a modern escher strucure before getting
 	to here, and then handled as normal
 	*/
-	char test[3];
 	test[2] = '\0';
 	test[0] = getc(fd);
 	test[1] = getc(fd);

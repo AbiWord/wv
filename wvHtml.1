@@ -4,7 +4,7 @@
 wvHtml \- convert msword documents to html
 .SH SYNOPSIS
 .ll +8
-.B wvHtml [-c charset] [--charset charset] [-p password] [--password password] [-x config.xml] [--config config.xml] filename
+.B wvHtml [-c charset] [--charset charset] [-p password] [--password password] [-x config.xml] [--config config.xml] [-d dir] [--dir dir] filename
 .ll -8
 .br
 .SH DESCRIPTION
@@ -36,6 +36,10 @@ tis-620
 .I "\-c password, \-\-password password"
 Due to heroic work done by a great team or workers, the wv library can decrypt password protected
 word 97 and older versions of word documents given the correct password.
+.TP
+.I "\-d dir, \-\-dir dir"
+If dir is used then any created graphics will be placed in this directory. The default is the directory
+in which the word document is.
 .TP
 .I "\-c config.xml, \-\-config config.xml"
 Use this to give the location of the config file, if not used the config file is searched for

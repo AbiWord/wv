@@ -1,9 +1,22 @@
 <main>
 
 <document>
-<begin>\documentclass{book}
+<begin>\documentclass[10pt]{article}
 \usepackage[dvips]{color}
+\usepackage[dvips]{graphics}
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\newcommand\suppress[1]{}
+\newcommand\revised[1]{\underline{#1}}
+\newlength\textpercent
+\setlength\textpercent{0.009\textwidth}
+
+\newbox\strikebox
+\def\strike#1{\setbox\strikebox \hbox{&lt;#1&gt;}\hbox{\raise0.5ex\hbox to 0pt{\vrule height 0.4pt width \wd\strikebox\hss}\copy\strikebox}}
+
+\setlength\parindent{0pt}
 \begin{document}
+\sloppy
 </begin>
 <end>
 \end{document}
@@ -18,10 +31,10 @@
 </section>
 
 <justification>
-<left>left</left>
-<right>right</right>
-<center>center</center>
-<block>justify</block>
+<left>\raggedright</left>
+<right>\raggedleft</right>
+<center>\centering</center>
+<block></block>
 <asian>&lt;!--Could Someone who sees this tag tell me what was is this type of justification, asian languages only i thing--&gt;</asian>
 </justification>
 
@@ -64,35 +77,45 @@
 </border>
 
 <olist>
-<begin>&lt;ol <nfc/> start=&quot;<start/>&quot;&gt;
+<begin>\begin{enumerate}
 </begin>
-<end>&lt;/ol&gt;</end>
+<end>\end{enumerate}</end>
 </olist>
 
 <ulist>
-<begin>&lt;ul&gt;
+<begin>\begin{itemize}
 </begin>
-<end>&lt;/ul&gt;</end>
+<end>\end{itemize}</end>
 </ulist>
 
 <entry>
-<begin>&lt;li&gt;</begin>
+<begin>\item</begin>
 <end></end>
 </entry>
 
 <table>
-<begin>&lt;table width=&quot;<tablerelwidth/>&quot; border=&quot;1&quot;&gt;</begin>
-<end>&lt;/table&gt;</end>
+<begin>\begin{tabular}{@{}llllllll}
+\hline\hline
+</begin>
+<end>\hline\\
+\end{tabular}</end>
 </table>
 
 <row>
-<begin>&lt;tr&gt;</begin>
-<end>&lt;/tr&gt;</end>
+<begin>\\
+</begin>
+<end>
+\\
+\\
+\hline
+</end>
 </row>
 
 <cell>
-<begin>&lt;td bgcolor=&quot;<cellbgcolor/>&quot; width=&quot;<cellwidth/>&quot; rowspan=&quot;<rowspan/>&quot; colspan=&quot;<colspan/>&quot;&gt;</begin>
-<end>&lt;/td&gt;</end>
+<begin>
+\parbox{<cellwidth/>\textpercent}{\raggedright</begin>
+<end>}&amp;
+</end>
 </cell>
 
 <paragraph>
@@ -110,7 +133,7 @@ revision marked text is to be displayed
 
 use either this line...
 --> 
-<RMarkDel><begin>&lt;s&gt;</begin><end>&lt;/s&gt;&lt;a href=&quot;#author<ibstRMarkDel/>&quot;&gt;[Author ID<ibstRMarkDel/>: at <dttmRMarkDel/> ]&lt;/a&gt;</end></RMarkDel>
+<RMarkDel><begin>\suppress{</begin><end>[Del-author=<ibstRMarkDel/> Author ID=<ibstRMarkDel/> at <dttmRMarkDel/>]}</end></RMarkDel>
 
 <!--
 or uncomment below to make deleted text dissappear (well, become commented out)
@@ -121,8 +144,8 @@ or uncomment below to make deleted text dissappear (well, become commented out)
 
 <!-- I don't even know what outline means -->
 <outline><begin></begin><end></end></outline>
-<smallcaps><begin></begin><end></end></smallcaps>
-<caps><begin></begin><end></end></caps>
+<smallcaps><begin>\textsc{</begin><end>}</end></smallcaps>
+<caps><begin>\MakeUppercase{</begin><end>}</end></caps>
 <vanish><begin></begin><end></end></vanish>
 
 <!--If you uncomment this then the annotation text links will become commented out by html tags-->
@@ -131,12 +154,13 @@ or uncomment below to make deleted text dissappear (well, become commented out)
 -->
 
 <!--
-text that has been newly typed since the last time revision marks have been accepted
-and will be displayed with underline when revision marked text is to be displayed
+Text that has been newly typed since the last time revision marks have been 
+accepted and will be displayed with underline when revision marked text is to 
+be displayed
 
 use either this line...
 -->
-<RMark><begin>&lt;u&gt;</begin><end>&lt;/u&gt;&lt;a href=&quot;#author<ibstRMark/>&quot;&gt;[Author ID<ibstRMark/>: at <dttmRMark/>]&lt;/a&gt;</end></RMark>
+<RMark><begin>\suppress{[author=<ibstRMark/> Author ID=<ibstRMark/> at <dttmRMark/>]}\revised{</begin><end>}</end></RMark>
 
 <!--
 or uncomment below to make the underline dissappear
@@ -145,14 +169,13 @@ or uncomment below to make the underline dissappear
 <RMark><begin></begin><end></end></RMark>
 -->
 
-
-<strike><begin>&lt;s&gt;</begin><end>&lt;/s&gt;</end></strike>
+<strike><begin>\strike{</begin><end>}</end></strike>
 <shadow><begin></begin><end></end></shadow>
 <lowercase><begin></begin><end></end></lowercase>
 <emboss><begin></begin><end></end></emboss>
 <imprint><begin></begin><end></end></imprint>
 <!--double strike-->
-<dstrike><begin>&lt;s&gt;</begin><end>&lt;/s&gt;</end></dstrike>
+<dstrike><begin>\strike{</begin><end>}</end></dstrike>
 
 <!--
 ftc's
@@ -162,8 +185,8 @@ hps
 keep them for font face and do that later.
 -->
 
-<super><begin>&lt;sup&gt;</begin><end>&lt;/sup&gt;</end></super>
-<sub><begin>&lt;sub&gt;</begin><end>&lt;/sub&gt;</end></sub>
+<super><begin>$^{</begin><end>}$</end></super>
+<sub><begin>$_{</begin><end>}$</end></sub>
 
 <singleu><begin>\underline{</begin><end>}</end></singleu>
 <wordu><begin>\underline{</begin><end>}</end></wordu>
@@ -178,12 +201,12 @@ keep them for font face and do that later.
 <waveu><begin>\underline{</begin><end>}</end></waveu>
 
 <!--
-text whose properties have been changed since the last time revision marks have been accepted
-and will be displayed with a note showing the change points.
+text whose properties have been changed since the last time revision marks 
+have been accepted and will be displayed with a note showing the change points.
 
 use either this line (which admit it a bit scary looking, but harmless)...
 --> 
-<PropRMark><begin>&lt;a href=&quot;#author<ibstPropRMark/>&quot;&gt;-&#45;&amp;gt;&lt;/a&gt;</begin><end>&lt;a href=&quot;#author<ibstPropRMark/>&quot;&gt;[Author ID<ibstPropRMark/>: at <dttmPropRMark/>]&lt;/a&gt;</end></PropRMark>
+<PropRMark><begin>\suppress{[Prop-author=<ibstPropRMark/> Author ID=<ibstPropRMark/> at <dttmPropRMark/>]}\revised{</begin><end>}</end></PropRMark>
 
 <!--
 or uncomment below to make the notes dissappear
@@ -230,10 +253,11 @@ or uncomment below to make the notes dissappear
 
 <!--
 I dont understand what this one is, and ive never come across it
-
 use this sample line (which admit it a bit scary looking, but harmless)...
+
+MV I suppose this is "Display Field Revision Mark".
 -->
-<DispFldRMark><begin>&lt;a href=&quot;#author<ibstDispFldRMark/>&quot;&gt;--&amp;gt;&lt;/a&gt;</begin><end>&lt;a href=&quot;#author<ibstDispFldRMark/>&quot;&gt;[Author ID<ibstDispFldRMark/>: at <dttmDispFldRMark/> (<xstDispFldRMark/>)]&lt;/a&gt;</end></DispFldRMark>
+<DispFldRMark><begin>\suppress{[DispFld-author=<ibstDispFldRMark/> Author ID=<ibstDispFldRMark/> at <dttmDispFldRMark/> (<xstDispFldRMark/>)]}\revised{</begin><end>}</end></DispFldRMark>
 
 <!--
 or uncomment below to ignore it, the previous might even crash wv ?
@@ -253,11 +277,7 @@ or uncomment below to ignore it, the previous might even crash wv ?
 </fontstr>
 
 <comment>
-<begin>
-&lt;a href=&quot;#comment<ibstAnno/> &quot;&gt;-&#45;&amp;gt;&lt;/a&gt;
-</begin>
-<end>&lt;a href=&quot;#comment<ibstAnno/> &quot;&gt;[Author:<xstUsrInitl/>]&lt;/a&gt;
-</end>
+<begin>{\suppress{[comment:<ibstAnno/></begin><end>comment:<ibstAnno/> Author=<xstUsrInitl/>]}</end>
 </comment>
 
 <style name="Normal">
@@ -276,7 +296,6 @@ border-bottom: thin <borderbottomstyle/> <borderbottomcolor/>
 <!-- 
 this tableoverride option can be used to turn off handling of
 these tags in tables, which I find is necessary for at least netscape
--->
 <tableoverrides>
 <ParaBefore>0</ParaBefore>
 <ParaRight>0</ParaRight>
@@ -284,6 +303,7 @@ these tags in tables, which I find is necessary for at least netscape
 <ParaLeft>0</ParaLeft>
 <ParaLeft1>0</ParaLeft1>
 </tableoverrides>
+-->
 
 <margin>
 <begin>margin: <mmParaBefore/> <mmParaRight/> <mmParaAfter/> <mmParaLeft/>;</begin>
@@ -291,17 +311,16 @@ these tags in tables, which I find is necessary for at least netscape
 
 <text>	
 <begin>
+\vspace{<mmParaBefore/>}
 </begin>
 <end>
+\vspace{<mmParaAfter/>}
 </end>
 </text>
 
 <picture>
-<begin>
-&lt;img <htmlAlignGuess/> width=&quot;<pixPicWidth/>&quot; height=&quot;<pixPicHeight/>&quot; alt=&quot;placeholder&quot; src=&quot;placeholder.png&quot;&gt;<htmlNextLineGuess/>
-</begin>
+<begin>\includegraphics{placeholder.png}</begin>
 </picture>
 
 </style>
-
 </main>

@@ -19,6 +19,8 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 
 	wvInitError();
 	ps->password[0] = 0;
+	/* set up the token table tree for faster lookups */
+	tokenTreeInit();
 
 	ret = wvOLEDecode(fp,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
 		&ps->data,&ps->summary);
@@ -30,7 +32,8 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 		case 2:
 			ret = wvOpenPreOLE(&fp,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
 					&ps->data,&ps->summary);
-			return(ret);
+			if (ret)
+				return(ret);
 			break;
 		case 3:
 			wvError(("Bad Ole\n"));
@@ -115,7 +118,7 @@ int wvOpenPreOLE(FILE **input, FILE **mainfd, FILE **tablefd0, FILE **tablefd1,F
 		{
 		wvError(("Theres a good change that this is a word 5 doc of nFib %d\n",read_16ubit(*input)));
 		rewind(*input);
-		return(-1);
+		return(0);
 		}
 	return(ret);
 	}

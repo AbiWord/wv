@@ -42,13 +42,7 @@ void wvInitDTTM(DTTM *dttm)
 
 void wvCopyDTTM(DTTM *dest,DTTM *src)
     {
-    dest->mint = src->mint;
-    dest->hr = src->hr;
-    dest->dom = src->dom;
-
-    dest->mon = src->mon;
-    dest->yr = src->yr;
-    dest->wdy = src->wdy;
+	memcpy(dest,src,sizeof(DTTM));
     }
 
 void wvListDTTM(DTTM *src)

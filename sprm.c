@@ -445,7 +445,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		case sprmCPicLocation:
 			if (ver != WORD8)
 				{
-				wvError(("byte is %x\n",bgetc(pointer,pos)));
+				wvTrace(("byte is %x\n",bgetc(pointer,pos)));
 				pointer++;
 				}
 			/*

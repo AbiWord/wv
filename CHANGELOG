@@ -1,32 +1,21 @@
-Changes to to 0.5.42
-	* temporary bmp for older word6/7 document and legacy 
-	structures appears to be working.
-	* sprmCPicLocation was one too short for word6/7, strange.
-	* picf modified to use older word6/7 version as well.
-	* some modifications so that it can handle documents with 
-	incomplete bte tables. This is only in fullsave, because I
-	doubt the logic behind what ever program is creating them!
-	Its bloody insane, but im going to support it coz word can
-	do it.
-	* only put in the paraborders if we need them, makes the
-	html output smaller, and more importantly works around
-	a netscape bug where is para indent to the right is x, and
-	the first line indent to the left is x, and there is a border
-	(even if of type none!) then the para is indented too far to
-	the left. This is bug 1524.43 Rules.doc
-	* supported 0x01 graphics ala broken/001-TETMEI.doc
-	0x01 graphics are making their way back in, and are looking
-	better than the old code already.
-	* fields can be embedded in each other, so the field
-	ignorer is now capable of realizing this.
-	* all 0x01 bitmap formats are looking good.
-	* some 0x08 bitmap formats are coming through correctly as well
-	* bug in Huge handling
+Changes to to 0.5.43
+	* an improved wvLaTeX.xml by mv@liisa.pp.fi
+	* added some of the older 0x08 word 6 stuff to it.
+	* marvellous set of patches from brian.ewins@bt.com to do
+	a load of speedups. Including some chpx and papx page caching,
+	some replacement of unneeded byte by byte reads, and some
+	element by element copies. Plus a very spiffy token table lookup
+	scheme which speeds things up a lot.
+	* some fixes to parse the old word graphic file format, I cannot
+	use very much of it, but at least I don't crash on it anymore.
+	* added --dir option to wvHtml so that pictures can be placed in
+	a seperate directory
+	* removed some more unnecessary element by element copies
 ALL TODO
+	* allow latex or html or raw text conversion options.
+
 	* mem leaks, more testing, more graphic checks, more escher 
 	records etc etc.
-	* implement the dib to bmp header properly, implement bmp
-	ala mswordview.
 	* promote old graphics into escher format.
 	* decompress wmf etc.
 	* get libwmf back into action and get picts together as well.
@@ -115,6 +104,30 @@ ALL TODO
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.42
+	* temporary bmp for older word6/7 document and legacy 
+	structures appears to be working.
+	* sprmCPicLocation was one too short for word6/7, strange.
+	* picf modified to use older word6/7 version as well.
+	* some modifications so that it can handle documents with 
+	incomplete bte tables. This is only in fullsave, because I
+	doubt the logic behind what ever program is creating them!
+	Its bloody insane, but im going to support it coz word can
+	do it.
+	* only put in the paraborders if we need them, makes the
+	html output smaller, and more importantly works around
+	a netscape bug where is para indent to the right is x, and
+	the first line indent to the left is x, and there is a border
+	(even if of type none!) then the para is indented too far to
+	the left. This is bug 1524.43 Rules.doc
+	* supported 0x01 graphics ala broken/001-TETMEI.doc
+	0x01 graphics are making their way back in, and are looking
+	better than the old code already.
+	* fields can be embedded in each other, so the field
+	ignorer is now capable of realizing this.
+	* all 0x01 bitmap formats are looking good.
+	* some 0x08 bitmap formats are coming through correctly as well
+	* bug in Huge handling
 Changes to to 0.5.41
 	* attempting to support 8 bit russian cp1251 docs as well.
 	* there is an extra argument to the character handler, this

@@ -647,21 +647,20 @@ int wvAssembleSimpleCHP(version ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh
 	}
 
 
-void wvGetCHPX(version ver, CHPX *item, U32 offset, FILE *fd)
+void wvGetCHPX(version ver, CHPX *item, U8 *page, U16 *pos)
 	{
 	U8 i;
-	fseek(fd, offset, SEEK_SET);
-	item->cbGrpprl = getc(fd);
+	item->cbGrpprl = bgetc(&(page[*pos]),pos);
 	if (item->cbGrpprl > 0)
+		{
 		item->grpprl = (U8 *)malloc(item->cbGrpprl);
+		memcpy(item->grpprl,&(page[*pos]),item->cbGrpprl);
+		}
 	else
 		item->grpprl = NULL;
    
 	item->istd = 0; /* I have no idea what to set this to... */
    
 	for (i=0;i<item->cbGrpprl;i++)
-		{
-		item->grpprl[i] = getc(fd);
 		wvTrace(("chpx byte is %x\n",item->grpprl[i]));
-		}
 }

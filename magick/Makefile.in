@@ -33,7 +33,8 @@ MAGICKOBJECTS =	\
 	memory.$(OBJEXT) \
 	utility.$(OBJEXT) \
 	png.$(OBJEXT) \
-	bmp.$(OBJEXT)
+	bmp.$(OBJEXT) \
+	signature.$(OBJEXT)
 
 
 all: $(MAGICKOBJECTS)

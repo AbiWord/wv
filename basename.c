@@ -37,3 +37,37 @@ void remove_suffix (char *name, const char *suffix)
   if (np > name)
     *np = '\0';
 }
+
+#ifndef FILESYSTEM_PREFIX_LEN
+# define FILESYSTEM_PREFIX_LEN(Filename) 0
+#endif
+
+#ifndef ISSLASH
+# define ISSLASH(C) ((C) == '/')
+#endif
+
+/* In general, we can't use the builtin `basename' function if available,
+   since it has different meanings in different environments.
+   In some environments the builtin `basename' modifies its argument.
+   If NAME is all slashes, be sure to return `/'.  */
+
+char *base_name (char const *name)
+{
+  char const *base = name += FILESYSTEM_PREFIX_LEN (name);
+  int all_slashes = 1;
+  char const *p;
+
+  for (p = name; *p; p++)
+    {
+      if (ISSLASH (*p))
+        base = p + 1;
+      else
+        all_slashes = 0;
+    }
+
+  /* If NAME is all slashes, arrange to return `/'.  */
+  if (*base == '\0' && ISSLASH (*name) && all_slashes)
+    --base;
+
+  return (char *) base;
+}

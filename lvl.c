@@ -22,8 +22,7 @@ void wvCopyLVL(LVL *dest,LVL *src)
 	if (src->lvlf.cbGrpprlPapx > 0)
 		{
 		dest->grpprlPapx = (U8 *)malloc(src->lvlf.cbGrpprlPapx);
-		for(i=0;i<src->lvlf.cbGrpprlPapx;i++)
-			dest->grpprlPapx[i] = src->grpprlPapx[i];
+		memcpy(dest->grpprlPapx,src->grpprlPapx,src->lvlf.cbGrpprlPapx);
 		}		
 	else
 		dest->grpprlPapx = NULL;
@@ -31,8 +30,7 @@ void wvCopyLVL(LVL *dest,LVL *src)
 	if (src->lvlf.cbGrpprlChpx > 0)
 		{
 		dest->grpprlChpx = (U8 *)malloc(src->lvlf.cbGrpprlChpx);
-		for(i=0;i<src->lvlf.cbGrpprlChpx;i++)
-			dest->grpprlChpx[i] = src->grpprlChpx[i];
+		memcpy(dest->grpprlChpx,src->grpprlChpx,src->lvlf.cbGrpprlChpx);
 		}	
 	else
 		dest->grpprlChpx = NULL;
@@ -43,10 +41,7 @@ void wvCopyLVL(LVL *dest,LVL *src)
 		{
 		len = src->numbertext[0];
 		dest->numbertext = (U16 *)malloc(sizeof(U16)*(len +2));
-		dest->numbertext[0] = len;
-		for(i=1;i<len+1;i++)
-			dest->numbertext[i] = src->numbertext[i];
-		dest->numbertext[i] = 0;
+		memcpy(dest->numbertext,src->numbertext,len+2);
 		}
 	}
 
@@ -57,16 +52,14 @@ void wvGetLVL(LVL *lvl,FILE *fd)
 	if (lvl->lvlf.cbGrpprlPapx > 0)
 		{
 		lvl->grpprlPapx = (U8 *)malloc(lvl->lvlf.cbGrpprlPapx);
-		for(i=0;i<lvl->lvlf.cbGrpprlPapx;i++)
-			lvl->grpprlPapx[i] = getc(fd);
+		fread(lvl->grpprlPapx,sizeof(U8),lvl->lvlf.cbGrpprlPapx,fd);
 		}		
 	else
 		lvl->grpprlPapx = NULL;
 	if (lvl->lvlf.cbGrpprlChpx > 0)
 		{
 		lvl->grpprlChpx = (U8 *)malloc(lvl->lvlf.cbGrpprlChpx);
-		for(i=0;i<lvl->lvlf.cbGrpprlChpx;i++)
-			lvl->grpprlChpx[i] = getc(fd);
+		fread(lvl->grpprlChpx,sizeof(U8),lvl->lvlf.cbGrpprlChpx,fd);
 		}	
 	else
 		lvl->grpprlChpx = NULL;
@@ -75,12 +68,12 @@ void wvGetLVL(LVL *lvl,FILE *fd)
 		{
 		lvl->numbertext = (U16 *)malloc(sizeof(U16)*(len +2));
 		lvl->numbertext[0] = len;
-		for(i=1;i<len+1;i++)
-			lvl->numbertext[i] = read_16ubit(fd);
-		lvl->numbertext[i] = 0;
+		fread(&(lvl->numbertext[1]),sizeof(U16),len,fd);
+		lvl->numbertext[len-1] = 0;
 		}
 	else
 		lvl->numbertext = NULL;
+	wvTrace(("len is %d\n",len));
 	}
 
 void wvReleaseLVL(LVL *lvl)
@@ -94,24 +87,7 @@ void wvReleaseLVL(LVL *lvl)
 
 void wvCopyLVLF(LVLF *dest,LVLF *src)
 	{
-	int i;
-	dest->iStartAt = src->iStartAt;
-    dest->nfc = src->nfc;
-    dest->jc = src->jc;
-   	dest->fLegal = src->fLegal;
-    dest->fNoRestart = src->fNoRestart;
-    dest->fPrev = src->fPrev;
-    dest->fPrevSpace = src->fPrevSpace;
-    dest->fWord6 = src->fWord6;
-    dest->reserved1 = src->reserved1;
-	for (i=0;i<9;i++)
-    	dest->rgbxchNums[i] = src->rgbxchNums[i];
-    dest->ixchFollow = src->ixchFollow;
-    dest->dxaSpace = src->dxaSpace;
-    dest->dxaIndent = src->dxaIndent;
-    dest->cbGrpprlChpx = src->cbGrpprlChpx;
-    dest->cbGrpprlPapx = src->cbGrpprlPapx;
-    dest->reserved2 = src->reserved2;
+	memcpy(dest,src,sizeof(LVLF));
 	}
 
 void wvGetLVLF(LVLF *item,FILE *fd)

@@ -51,6 +51,7 @@
 /*
   Include declarations.
 */
+#include "config.h"
 #include "magick.h"
 #include "defines.h"
 
@@ -58,6 +59,11 @@
 #include "png.h"
 #include "zlib.h"
 #include "mng.h"
+
+#undef MNG_OBJECT_BUFFERS
+
+#define MagickVersion "@(#)ImageMagick 4.2.9 99/09/01 cristy@mystic.es.dupont.com"
+
 /*
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                             %
@@ -652,7 +658,7 @@ Export Image *ReadPNGImage(const ImageInfo *image_info)
   if (image_info->verbose)
 #endif
     printf("Reading %s\n",image_info->filename);
-  if (Latin1Compare(image_info->magick,"MNG") == 0)
+  if (strcmp(image_info->magick,"MNG") == 0)
     {
       char
         magic_number[MaxTextExtent];
@@ -747,7 +753,7 @@ Export Image *ReadPNGImage(const ImageInfo *image_info)
       mng_background_color.green, mng_background_color.blue);
   do
   {
-    if (Latin1Compare(image_info->magick,"MNG") == 0)
+    if (strcmp(image_info->magick,"MNG") == 0)
       {
         char
           type[MaxTextExtent];
@@ -1728,8 +1734,6 @@ Export Image *ReadPNGImage(const ImageInfo *image_info)
                 return((Image *) NULL);
               }
             image=image->next;
-            ProgressMonitor(LoadImagesText,(unsigned int) TellBlob(image),
-              (unsigned int) image->filesize);
           }
         if (term_chunk_found)
           {
@@ -1808,7 +1812,7 @@ Export Image *ReadPNGImage(const ImageInfo *image_info)
       Prepare PNG for reading.
     */
     image_found++;
-    if (Latin1Compare(image_info->magick,"MNG") == 0)
+    if (strcmp(image_info->magick,"MNG") == 0)
       {
         png_set_sig_bytes(ping,8);
 #ifdef PNG_READ_EMPTY_PLTE_SUPPORTED
@@ -2243,9 +2247,6 @@ Export Image *ReadPNGImage(const ImageInfo *image_info)
                 q->length=0;
               }
           }
-          if (image->previous == (Image *) NULL)
-            if (QuantumTick(y,image->rows))
-              ProgressMonitor(LoadImageText,y,image->rows);
         }
         SetRunlengthPackets(image,packets);
       }
@@ -2367,9 +2368,6 @@ Export Image *ReadPNGImage(const ImageInfo *image_info)
                 q->length=0;
               }
           }
-          if (image->previous == (Image *) NULL)
-            if (QuantumTick(y,image->rows))
-              ProgressMonitor(LoadImageText,y,image->rows);
         }
         FreeMemory((char *) quantum_scanline);
         SetRunlengthPackets(image,packets);
@@ -2408,9 +2406,9 @@ Export Image *ReadPNGImage(const ImageInfo *image_info)
     if (ping_info->num_text > 0)
       for (i=0; i < ping_info->num_text; i++)
         {
-          if (Latin1Compare(ping_info->text[i].key,"Comment") == 0)
+          if (strcmp(ping_info->text[i].key,"Comment") == 0)
             ReadTextChunk(ping_info,i,&image->comments);
-          if (Latin1Compare(ping_info->text[i].key,"Delay") == 0)
+          if (strcmp(ping_info->text[i].key,"Delay") == 0)
             if (image_info->delay == (char *) NULL)
               {
                 char
@@ -2421,20 +2419,20 @@ Export Image *ReadPNGImage(const ImageInfo *image_info)
                 image->delay=atoi(delay);
                 FreeMemory(delay);
               }
-          if (Latin1Compare(ping_info->text[i].key,"Description") == 0)
+          if (strcmp(ping_info->text[i].key,"Description") == 0)
             ReadTextChunk(ping_info,i,&image->comments);
-          if (Latin1Compare(ping_info->text[i].key,"Directory") == 0)
+          if (strcmp(ping_info->text[i].key,"Directory") == 0)
             ReadTextChunk(ping_info,i,&image->directory);
-          if (Latin1Compare(ping_info->text[i].key,"Label") == 0)
+          if (strcmp(ping_info->text[i].key,"Label") == 0)
             ReadTextChunk(ping_info,i,&image->label);
-          if (Latin1Compare(ping_info->text[i].key,"Montage") == 0)
+          if (strcmp(ping_info->text[i].key,"Montage") == 0)
             ReadTextChunk(ping_info,i,&image->montage);
-          if (Latin1Compare(ping_info->text[i].key,"Page") == 0)
+          if (strcmp(ping_info->text[i].key,"Page") == 0)
             {
               if (image_info->page == (char *) NULL)
                 ReadTextChunk(ping_info,i,&image->page);
             }
-          if (Latin1Compare(ping_info->text[i].key,"Scene") == 0)
+          if (strcmp(ping_info->text[i].key,"Scene") == 0)
             {
               char
                 *scene;
@@ -2444,9 +2442,9 @@ Export Image *ReadPNGImage(const ImageInfo *image_info)
               image->scene=atoi(scene);
               FreeMemory(scene);
             }
-          if (Latin1Compare(ping_info->text[i].key,"Signature") == 0)
+          if (strcmp(ping_info->text[i].key,"Signature") == 0)
             ReadTextChunk(ping_info,i,&image->signature);
-          if (Latin1Compare(ping_info->text[i].key,"Title") == 0)
+          if (strcmp(ping_info->text[i].key,"Title") == 0)
             ReadTextChunk(ping_info,i,&image->label);
         }
 #ifdef MNG_OBJECT_BUFFERS
@@ -2686,7 +2684,7 @@ Export Image *ReadPNGImage(const ImageInfo *image_info)
             MNGCoalesce(image);
           }
       }
-  } while (Latin1Compare(image_info->magick,"MNG") == 0);
+  } while (strcmp(image_info->magick,"MNG") == 0);
 #ifndef MNG_ALWAYS_VERBOSE
   if (image_info->verbose)
 #endif
@@ -3966,9 +3964,6 @@ Export unsigned int WritePNGImage(const ImageInfo *image_info,Image *image)
             x++;
             if (x == (int) image->columns)
               {
-                if (image->previous == (Image *) NULL)
-                  if (QuantumTick(y,image->rows))
-                    ProgressMonitor(SaveImageText,y,image->rows);
                 x=0;
                 y++;
                 q=scanlines[y];
@@ -3994,9 +3989,6 @@ Export unsigned int WritePNGImage(const ImageInfo *image_info,Image *image)
               x++;
               if (x == (int) image->columns)
                 {
-                  if (image->previous == (Image *) NULL)
-                    if (QuantumTick(y,image->rows))
-                      ProgressMonitor(SaveImageText,y,image->rows);
                   x=0;
                   y++;
                   q=scanlines[y];
@@ -4030,9 +4022,6 @@ Export unsigned int WritePNGImage(const ImageInfo *image_info,Image *image)
                 x++;
                 if (x == (int) image->columns)
                   {
-                    if (image->previous == (Image *) NULL)
-                      if (QuantumTick(y,image->rows))
-                        ProgressMonitor(SaveImageText,y,image->rows);
                     x=0;
                     y++;
                     if (y < (int) image->rows)
@@ -4053,9 +4042,6 @@ Export unsigned int WritePNGImage(const ImageInfo *image_info,Image *image)
               x++;
               if (x == (int) image->columns)
                 {
-                  if (image->previous == (Image *) NULL)
-                    if (QuantumTick(y,image->rows))
-                      ProgressMonitor(SaveImageText,y,image->rows);
                   x=0;
                   y++;
                   if (y < (int) image->rows)
@@ -4156,7 +4142,6 @@ Export unsigned int WritePNGImage(const ImageInfo *image_info,Image *image)
       break;
     image->next->file=image->file;
     image=image->next;
-    ProgressMonitor(SaveImagesText,scene++,GetNumberScenes(image));
   } while (image_info->adjoin);
   if (image_info->adjoin)
     while (image->previous != (Image *) NULL)

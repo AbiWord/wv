@@ -1,25 +1,27 @@
 Andrew Scriven <andy.scriven@research.natpower.co.uk>, originator of ole code
 Arturo Tena <arturo@directmail.org> <filters@centauri.lci.ulsa.mx>, ole changes
-Peter Brandstrom <peter.brandstrom@ericsson.com>, original wmf decompression
-Martin Schwartz, <schwartz@cs.tu-berlin.de>, original laola for ole decodation
-	without which this would never have existed.
-Richard Bradbury <rjb@oregan.net>, for telling me what was wrong with 64bit
-	platforms.
-Martin Kalms <kalms@lysator.liu.se>, configure fix for sunos 4.1
-Harry Shamansky (shamansky@adinc.com), irix makefile patch
-OKUNISHI Fujikazu <fuji0924@mbox.kyoto-inet.or.jp>, configure additions for .exe 
-	extension to mswordview under windows/dos/os2
-Pavel.Roskin@ecsoft.co.uk, hpux makefile patch
-Peter Silva <Peter.Silva@ec.gc.ca>, defensive patch
-Pavel Machek <pavel@Elf.ucw.cz>, some buglet patches
+Brian.Ewins <brian.ewins@bt.com>, much needed speed ups 
+Claude Marinier <claude.marinier@dreo.dnd.ca>, small Makefile patch
 diakka <diakka@staff.sinanet.com>, a make patch
-Zachariah Baum <zack@studioarchetype.com>, little laola finding patch
-Martin Vorlaender <martin@radiogaga.harz.de>, found a few piddling bugs that i 
-	would never have found, while he was compiling it under (wait for it) VMS.
+Harry Shamansky (shamansky@adinc.com), irix makefile patch
 Justin Bradford <justin@ukans.edu>, did quite a bit of work to help getting wv
 	functioning as a library for abiword. Character properties as one example
 Jeff Hostetler <jeff@abisource.com>, for some mods to help it compile under
 	windows
+Martin Kalms <kalms@lysator.liu.se>, configure fix for sunos 4.1
+Martin Schwartz, <schwartz@cs.tu-berlin.de>, original laola for ole decodation
+	without which this would never have existed.
+Martin Vorlaender <martin@radiogaga.harz.de>, found a few piddling bugs that i 
+	would never have found, while he was compiling it under (wait for it) VMS.
 Mitch Davis <mjd@aus.hp.com>, for some mods to help it compile under hpux
+OKUNISHI Fujikazu <fuji0924@mbox.kyoto-inet.or.jp>, configure additions for .exe 
+	extension to mswordview under windows/dos/os2
+Pavel.Roskin@ecsoft.co.uk, hpux makefile patch
+Peter Brandstrom <peter.brandstrom@ericsson.com>, original wmf decompression
+Peter Silva <Peter.Silva@ec.gc.ca>, defensive patch
+Pavel Machek <pavel@Elf.ucw.cz>, some buglet patches
+Richard Bradbury <rjb@oregan.net>, for telling me what was wrong with 64bit
+	platforms.
+Zachariah Baum <zack@studioarchetype.com>, little laola finding patch
 
 if ive forgotten anyone mail me.
