@@ -26,13 +26,6 @@
 
 #include <glib.h>
 
-#ifdef HAVE_GNOMEVFS
-        #include /**/ <libgnomevfs/gnome-vfs.h>
-        typedef GnomeVFSHandle * MsOleHandleType;
-#else
-        typedef int MsOleHandleType;
-#endif
-
 typedef enum {
 	MS_OLE_ERR_OK,
 	MS_OLE_ERR_EXIST,
@@ -59,21 +52,14 @@ typedef enum  {
 
 typedef guint32 MsOlePos;
 typedef gint32  MsOleSPos;
-/*
-#ifdef G_HAVE_GINT64
-	typedef guint64 MsOlePos;
-	typedef gint64  MsOleSPos;
-#else
-	typedef guint32 MsOlePos;
-	typedef gint32  MsOleSPos;
-#endif
-*/
-
 
 typedef struct _MsOle             MsOle;
 typedef struct _MsOleStat         MsOleStat;
 typedef struct _MsOleStream       MsOleStream;
 typedef struct _MsOleSysWrappers  MsOleSysWrappers;
+typedef gpointer MsOleHandleType;
+
+#define BAD_MSOLE_HANDLE NULL
 
 struct _MsOleSysWrappers {
 	MsOleHandleType     (*open2)	(const char *pathname, int flags);
@@ -96,7 +82,8 @@ struct _MsOleStat {
 	MsOlePos  size;
 };
 
-extern void             ms_ole_init             (void);
+void                    ms_ole_init             (MsOleSysWrappers *wrappers);
+extern MsOleSysWrappers *ms_ole_get_default_fs  (void);
 #define                 ms_ole_open(fs,path)     ms_ole_open_vfs ((fs), (path), TRUE, NULL)
 extern MsOleErr		ms_ole_open_vfs		(MsOle **fs,
 						 const char *path,

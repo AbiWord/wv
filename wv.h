@@ -2782,6 +2782,7 @@ returns the same as wvOLEDecode with the addition that
 4 means that it isnt a word document
 */
     int wvInitParser (wvParseStruct * ps, char *path);
+    void wvInit (void);
 
     int wvOpenPreOLE (char *path, wvStream ** mafd, wvStream ** tablefd0,
 		      wvStream ** tablefd1, wvStream ** data,

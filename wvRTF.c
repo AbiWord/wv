@@ -660,6 +660,7 @@ main (int argc, char *argv[])
       }
     fclose (input);
 
+    wvInit ();
     ret = wvInitParser (&ps, fname);
     ps.filename = fname;
     ps.dir = dir;

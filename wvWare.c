@@ -335,6 +335,7 @@ main (int argc, char **argv)
     getcwd (wv_cwd,4096);
     wv_cwd[4096] = 0;
 
+    wvInit ();
     ret = wvInitParser (&ps, argv[optind]);
     ps.filename = argv[optind];
     ps.dir = dir;

@@ -88,6 +88,7 @@ main (int argc, char **argv)
 	    }
       }
 
+    wvInit ();
     ret = wvInitParser (&ps, argv[optind]);
     ps.filename = argv[optind];
 

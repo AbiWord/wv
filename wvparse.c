@@ -6,6 +6,20 @@
 #include "wv.h"
 #include "utf.h"
 
+#ifdef HAVE_GNOMEVFS
+#include "ms-ole-gnomevfs.h"
+#endif
+
+void
+wvInit (void)
+{
+#ifdef HAVE_GNOMEVFS
+  ms_ole_init (ms_ole_get_gnomevfs_fs());
+#else
+  ms_ole_init (NULL);
+#endif
+}
+
 int
 wvInitParser (wvParseStruct * ps, char *path)
 {

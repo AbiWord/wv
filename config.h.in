@@ -50,6 +50,9 @@
 /* Define if libwmf(2) has support for reading 'foreign' image formats */
 #undef HAVE_LIBWMF_FOREIGN_H
 
+/* Define if we want gnomevfs support */
+#undef HAVE_GNOMEVFS
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif

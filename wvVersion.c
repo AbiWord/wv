@@ -51,6 +51,7 @@ main (int argc, char *argv[])
       }
     fclose (input);
 
+    wvInit ();
     ret = wvInitParser (&ps, argv[1]);
 
     if (ret == -1)

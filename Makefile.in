@@ -14,6 +14,7 @@ ICONV =
 INCLUDED_EXPAT = @INCLUDED_EXPAT@
 HAVE_LIBXML2 = @HAVE_LIBXML2@
 HAVE_GLIB = @HAVE_GLIB@
+HAVE_GNOMEVFS= @HAVE_GNOMEVFS@
 RICONVOBJS = \
 iconv/codepage-874.$(OBJEXT)    \
 iconv/codepage-1250.$(OBJEXT)   \
@@ -258,6 +259,11 @@ OLE= \
 	libole2/ms-ole.$(OBJEXT) \
 	libole2/ms-ole-summary.$(OBJEXT) \
 	oledecod/oledecod.$(OBJEXT)
+
+ifeq ($(HAVE_GNOMEVFS),1)
+	OLE += libole2/ms-ole-gnomevfs.o
+endif
+
 ifneq ($(HAVE_GLIB),1)
 OLE += \
 	glib-wv/garray.$(OBJEXT) \
