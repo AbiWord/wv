@@ -5,7 +5,7 @@
 #endif
 #include <string.h>
 #include "wv.h"
-#include "iconv_internal.h"
+#include "iconv.h"
 
 /*modify this to handle cbSTSHI < the current size*/
 void
@@ -119,7 +119,8 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
     int pos;
     int ret = 0;
     U16 count = 0;
-	U32 allocName = 0;		/* length allocated for xstzName */
+    U32 allocName = 0;		/* length allocated for xstzName */
+    iconv_t conv = NULL;
 
     wvInitSTD (item);		/* zero any new fields that might not exist in the file */
 
@@ -188,9 +189,10 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 
 
     wvTrace (("doing a std, str len is %d\n", len + 1));
-	allocName = (len + 1) * sizeof (char);
+    allocName = (len + 1) * sizeof (char);
     item->xstzName = (char *) wvMalloc (allocName);
 
+    conv = iconv_open("utf-8", "UCS-2");
     for (i = 0; i < len + 1; i++)
       {
 	  U32 b = 0;
@@ -211,7 +213,7 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 		insz = sizeof(temp16);
 		tmp = buf;
 		sz =  sizeof(buf);
-		wvConvertUnicodeToUTF_8 (&tmp2, &insz, &tmp, &sz);
+		iconv (conv, &tmp2, &insz, &tmp, &sz);
 		while (b + (sizeof(buf) - sz) >= allocName) {
 			allocName *=  2; 
 			item->xstzName = (char *) realloc(item->xstzName, allocName);
@@ -227,6 +229,7 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 
 	  wvTrace (("sample letter is %c\n", item->xstzName[i]));
       }
+    iconv_close(conv);
     wvTrace (("string ended\n"));
 
 
