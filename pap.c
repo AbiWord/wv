@@ -119,7 +119,7 @@ wvInitPAPFromIstd (PAP * apap, U16 istdBase, STSH * stsh)
 		else
 		  {
 		    wvCopyPAP (apap, &(stsh->std[istdBase].grupe[0].apap));
-		    strcpy(apap->stylename,stsh->std[istdBase].xstzName);
+		    strncpy(apap->stylename,stsh->std[istdBase].xstzName, sizeof(apap->stylename));
 		  }
 	    }
       }
@@ -297,7 +297,8 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp,
     if (papx)
 	apap->istd = papx->istd;
 
-    wvCopyPHE (&apap->phe, &(fkp->rgbx[index - 1].phe), apap->fTtp);
+    if (fkp->rgbx != NULL)
+      wvCopyPHE (&apap->phe, &(fkp->rgbx[index - 1].phe), apap->fTtp);
     return (ret);
 }
 
