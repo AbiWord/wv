@@ -233,6 +233,9 @@ AC_ARG_WITH(expat,[  --with-expat[=DIR]      use system expat (default is no)],[
 	if test "x$withval" = "xyes"; then
 		wv_xml="expat"
 		XML_DIR=""
+	elif test "x$withval" = "xpeer"; then
+		wv_xml="peer"
+		XML_DIR=""
 	elif test "x$withval" != "xno"; then
 		wv_xml="expat"
 		XML_DIR=$withval
@@ -307,10 +310,10 @@ elif test "x$wv_xml" = "xlibxml2"; then
 	],[	AC_MSG_ERROR([* * * Unable to find header file "libxml/parser.h" * * *])
 	])
 elif test "x$wv_xml" = "xpeer"; then
-	AC_MSG_ERROR([* * * Glitch! Unsupported value. * * *])
+	AC_DEFINE(HAVE_EXPAT,1,[Define if you have expat])
 	INCLUDED_EXPAT=0
 	HAVE_LIBXML2=0
-	XML_CFLAGS=""
+	XML_CFLAGS="-I../expat/lib"
 	XML_LIBS=""
 else
 	AC_MSG_ERROR([* * * Glitch! Unexpected value. * * *])
