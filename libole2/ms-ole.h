@@ -11,6 +11,10 @@
 #ifndef MS_OLE_H
 #define MS_OLE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* This should be done in glib */
 #if !defined(_WIN32) || defined(__CYGWIN__)
 #if defined(__QNXNTO__)
@@ -188,6 +192,8 @@ extern void		ms_ole_unref		(MsOle *fs);
 extern void		ms_ole_debug		(MsOle *fs,
 						 int magic);
 
-
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* MS_OLE_H */
