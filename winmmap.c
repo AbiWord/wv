@@ -108,11 +108,11 @@ int munmap(void *map,size_t length)
 }
 #else
 
-int wv_munmap_fakefn (void *map, size_t length)
+int wv_munmap_fakefn (int map)
 {
   /* some compilers dislike empty source files
    */
-  return map ? (length ? 1 : 0) : -1;
+  return map - 1;
 }
 
 #endif
