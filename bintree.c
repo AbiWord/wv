@@ -75,7 +75,7 @@ InsertNode (BintreeInfo * tree, void *Data)
 
 
 void
-DeleteNode (BintreeInfo * tree, Node * Z)
+wvDeleteNode (BintreeInfo * tree, Node * Z)
 {
     Node *X, *Y;
 

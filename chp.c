@@ -560,7 +560,7 @@ wvMergeCHPXFromBucket (CHPX * dest, UPXF * src)
 	      *dpointer++ = *pointer++;
 
 	  testp = NextNode (&tree, testn);
-	  DeleteNode (&tree, testn);
+	  wvDeleteNode (&tree, testn);
 	  testn = testp;
       }
     wvFree (dest->grpprl);

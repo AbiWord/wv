@@ -205,7 +205,7 @@ wvSetTableInfo (wvParseStruct * ps, TAP * ptap, int no)
 	  ps->cellbounds[i++] = *((S16 *) testn->Data);
 	  wvTrace (("cellbound are %d\n", ps->cellbounds[i - 1]));
 	  testp = NextNode (&tree, testn);
-	  DeleteNode (&tree, testn);
+	  wvDeleteNode (&tree, testn);
 	  testn = testp;
       }
     wvTrace (("No in tree according to i is %d\n", i));

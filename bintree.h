@@ -24,7 +24,7 @@ typedef struct BintreeInfo_ {
 void InitBintree (BintreeInfo *, int (*)(void *, void *),
 		  int (*)(void *, void *));
 Node *InsertNode (BintreeInfo *, void *);
-void DeleteNode (BintreeInfo *, Node *);
+void wvDeleteNode (BintreeInfo *, Node *);
 Node *FindNode (BintreeInfo *, void *);
 Node *NextNode (BintreeInfo *, Node *);
 #endif

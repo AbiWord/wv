@@ -222,7 +222,10 @@ fill_rtfUserData (rtfUserData * ud, CHP * chp, wvParseStruct * ps)
 	  fname = wvGetFontnameFromCode (&ps->fonts, chp->ftcFE);
       }
 
-    ud->cCol = ((chp->ico) ? (chp->ico - 1) : 0);
+    ud->cCol = 0;
+    if (chp->ico)
+      ud->cCol = chp->ico - 1;    
+
     ud->cFont = mapFont (fname);
     ud->cFontSize = chp->hps;
     ud->bIsBold = (chp->fBold);
