@@ -9,7 +9,7 @@
 #include "wv.h"
 #include "getopt.h"
 
-#define VERSION "0.6.4"
+#define VERSION "0.6.5"
 
 /* strdup isn't declared in <string.h> for `gcc -ansi'; declare it here */
 extern char* strdup (const char*);

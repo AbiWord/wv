@@ -46,7 +46,7 @@ Document created with &lt;a href=&quot;http://wvware.sourceforge.net/&quot;&gt;w
 <left>left</left>
 <right>right</right>
 <center>center</center>
-<block>justify</block>
+<block>left</block>
 <asian>&lt;!--Could Someone who sees this tag tell me what was is this type of justification, asian languages only i thing--&gt;</asian>
 </justification>
 
@@ -88,8 +88,9 @@ Document created with &lt;a href=&quot;http://wvware.sourceforge.net/&quot;&gt;w
 <defaultd>ridge</defaultd>
 </border>
 
+<!-- <begin>&lt;ol <nfc/> start=&quot;<start/>&quot;&gt; -->
 <olist>
-<begin>&lt;ol <nfc/> start=&quot;<start/>&quot;&gt;
+<begin>&lt;ol <nfc/>&gt;
 </begin>
 <end>&lt;/ol&gt;</end>
 </olist>
@@ -100,8 +101,9 @@ Document created with &lt;a href=&quot;http://wvware.sourceforge.net/&quot;&gt;w
 <end>&lt;/ul&gt;</end>
 </ulist>
 
+<!-- <begin>&lt;li&gt;</begin> -->
 <entry>
-<begin>&lt;li&gt;</begin>
+<begin>&lt;li value=&quot;<start/>&quot;&gt;</begin>
 <end>&lt;/li&gt;</end>
 </entry>
 

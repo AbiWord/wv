@@ -1469,6 +1469,7 @@ void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos,wvStream *data, STSH 
 	if (0 != wvStream_goto(data, offset))
 		{
 		wvError(("Couldn't seek data stream!!\n"));
+		apap->fTtp++;
 		return;
 		}
 	len = read_16ubit(data);

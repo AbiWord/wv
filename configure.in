@@ -160,11 +160,11 @@ AC_CHECK_HEADER(zlib.h,
                 ZLIB_LIBS="-lz"
             fi])))
 
-AC_CHECK_HEADER(libxml/parser.h,
-       AC_CHECK_LIB(xml, xmlParseDocument,[
-               AC_DEFINE(HAVE_LIBXML2)
-               HAVE_LIBXML2=1
-               LIBXML2_LIBS="-lxml" ]))
+#AC_CHECK_HEADER(libxml/parser.h,
+#       AC_CHECK_LIB(xml, xmlParseDocument,[
+#               AC_DEFINE(HAVE_LIBXML2)
+#               HAVE_LIBXML2=1
+#               LIBXML2_LIBS="-lxml" ]))
 
 AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$PATH])
 if test -n "$GLIB_CONFIG"; then
@@ -629,6 +629,7 @@ expat/Makefile
 expat/xmltok/Makefile 
 expat/xmlparse/Makefile
 exporter/Makefile
+iconv/Makefile
 magick/Makefile
 )
 

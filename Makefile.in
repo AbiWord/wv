@@ -85,7 +85,7 @@ VPATH = @srcdir@
 CFLAGS = @CPPFLAGS@ @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ @GLIB_CFLAGS@ -ansi -pedantic -I. -I./ -I$(srcdir)/ -I$(srcdir)/magick/ -I$(srcdir)/expat/xmlparse/  -DTTFDIR=\"$(datadir)/wv/ttf\" -DXMLCONFIG=\"$(libdir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(datadir)/wv/wvHtml.xml\" -I$(srcdir)/libole2/ -I$(srcdir)/oledecod/ @WMF_CFLAGS@ @TTF_CFLAGS@ @ICONV_CFLAGS@
 
 ifneq ($(HAVE_GLIB),1)
-CFLAGS += -I$(srcdir)/glib-wv/
+CFLAGS = "$(CFLAGS) -I$(srcdir)/glib-wv/"
 endif
 
 # not supported by lots of compilers
@@ -330,8 +330,9 @@ error.$(OBJEXT): $(srcdir)/error.c Makefile
 laolareplace.$(OBJEXT): $(srcdir)/laolareplace.c 
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
-libwv.a:	$(MYOBJECTS) $(EXPORTER) XMLPARSER $(MAGICK) OLEDECODE LIBOLE2
-	$(AR) rc $@ $(MYOBJECTS) $(EXPORTER_OBJECTS) $(MAGICKOBJS) $(XML) $(OLE)
+libwv.a:$(MYOBJECTS) $(EXPORTER) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE LIBOLE2
+	$(AR) rc $@ $(MYOBJECTS) $(EXPORTER_OBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE)
+
 	$(RANLIB) $@
 
 EXPORTER:
@@ -381,8 +382,8 @@ cleansub:
 	@(cd oledecod && $(MAKE) clean) || exit 1
 	@echo cleaning expat in expat
 	@(cd expat && $(MAKE) clean) || exit 1
-#	@echo cleaning iconv in iconv 
-#	@(cd iconv && $(MAKE) clean) || exit 1
+	@echo cleaning iconv in iconv 
+	@(cd iconv && $(MAKE) clean) || exit 1
 	@echo cleaning magick in magick
 	@(cd magick && $(MAKE) clean) || exit 1
 	@echo cleaning libole2 in libole2
@@ -406,8 +407,8 @@ realcleansub:
 	@echo real cleaning expat in expat
 	@(cd expat && $(MAKE) realclean) || exit 1
 	@echo real cleaning iconv in iconv 
-#	@(cd iconv && $(MAKE) realclean) || exit 1
-#	@echo real cleaning magick in magick
+	@(cd iconv && $(MAKE) realclean) || exit 1
+	@echo real cleaning magick in magick
 	@(cd magick && $(MAKE) realclean) || exit 1
 	@echo real cleaning libole2 in libole2
 	@(cd libole2 && $(MAKE) realclean) || exit 1

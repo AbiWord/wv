@@ -29,7 +29,7 @@ if [ ${USING_LYNX} -ne "0" ]; then
     fi
 
     # intermediate file
-    TMP_FILE="/tmp/wv${1}.html"
+    TMP_FILE="/tmp/wv$$.html"
 
     wvHtml "${1}" "${TMP_FILE}" >/dev/null 2>&1
     if [ ${?} -ne "0" ]; then

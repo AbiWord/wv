@@ -326,7 +326,7 @@ or uncomment below to ignore it, the previous might even crash wv ?
 </fontstr>
 
 <comment>
-<begin>{\suppress{[comment:<ibstAnno/></begin><end>comment:<ibstAnno/> Author=<xstUsrInitl/>]}</end>
+<begin>{\suppress{[comment:<ibstAnno/></begin><end>comment:<ibstAnno/> Author=<xstUsrInitl/>]}}</end>
 </comment>
 
 <style name="Normal">
