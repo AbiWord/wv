@@ -76,7 +76,7 @@ int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStr
 			return(0);
 		case 0x92:
 			printf("'");
-			return;
+			return(0);
 		}
 
 	if (*state)	
@@ -270,6 +270,27 @@ void wvBeginSection(expand_data *data)
 
 void wvBeginPara(expand_data *data)
 	{
+	/* 
+	if we are a end of table para then i consist of nothing that is of
+	any use for beginning of a para
+	*/
+	if (((PAP*)(data->props))->fTtp == 1) return;
+
+	/* 
+	if i consist of a vertically merged cell that is not the top one, then
+	also i am of no use
+	*/
+	if ( ((PAP*)(data->props))->fInTable == 1) 
+		{
+		wvTrace(("This Para is in cell %d %d %d\n",data->whichrow,data->whichcell,(*data->vmerges)[data->whichrow][data->whichcell]));
+		if ((*data->vmerges)[data->whichrow][data->whichcell] == 0)
+			{
+			wvTrace(("Skipping the next paragraph\n"));
+			data->whichcell++;
+			return;
+			}
+		}
+
 	if (data != NULL)
 		{
 		if ( (data->sd != NULL) && (data->sd->elements[TT_PARA].str[0]!= NULL) )
@@ -281,18 +302,8 @@ void wvBeginPara(expand_data *data)
 				wvFree(data->retstring);
 				}
 			}
-
-		if (((PAP *)data->props)->ilfo)
-			{
-			wvTrace(("This paragraph is a list entry\n"));
-			/*
-			find all the list information and print out the text of the list
-
-			we can be sure at this stage that all char props are ended, so we
-			can create what we need to contain the number text right here
-			*/
-			}
 		}
+	wvTrace(("This Para is out cell %d %d \n",data->whichrow,data->whichcell));
 	}
 
 void wvEndPara(expand_data *data)

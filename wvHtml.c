@@ -171,6 +171,12 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
 	data->liststartnos = &ps->liststartnos;
 	data->finallvl = &ps->finallvl;
 	data->fib = &ps->fib;
+	data->intable = &ps->intable;
+	data->cellbounds = &ps->cellbounds;
+	data->endcell = &ps->endcell;
+	data->vmerges = &ps->vmerges;
+
+
 
 	if (charset == 0xffff)
     	data->charset = wvAutoCharset(&ps->clx);
@@ -205,6 +211,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
 
 int mydochandler(wvParseStruct *ps,wvTag tag)
     {
+	static int i;
     expand_data *data = (expand_data *)ps->userData;
     data->anSttbfAssoc = &ps->anSttbfAssoc;
 	data->lfo = &ps->lfo;
@@ -218,6 +225,16 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 	data->liststartnos = &ps->liststartnos;
 	data->finallvl = &ps->finallvl;
 	data->fib = &ps->fib;
+	data->intable = &ps->intable;
+	data->cellbounds = &ps->cellbounds;
+	data->endcell = &ps->endcell;
+	data->vmerges = &ps->vmerges;
+	if (i==0)
+		{
+		data->whichcell=0;
+		data->whichrow=0;
+		i++;
+		}
 
 	if (charset == 0xffff)
 	    data->charset = wvAutoCharset(&ps->clx);

@@ -1,12 +1,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "wv.h"
+#include "utf.h"
 
 int wvInitParser(wvParseStruct *ps,FILE *fp)
 	{
 	int ret=0,reason=0;
 	ps->userData=NULL;
 	ps->lst = NULL;
+	ps->intable=0;
+	ps->endcell=0;
+	ps->vmerges=NULL;
 
 	wvInitError();
 	ps->password[0] = 0;

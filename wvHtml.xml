@@ -61,9 +61,27 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 <end></end>
 </entry>
 
+<table>
+<begin>&lt;table width=&quot;100%&quot; border=&quot;1&quot;&gt;</begin>
+<end>&lt;/table&gt;</end>
+</table>
+
+<row>
+<begin>&lt;tr&gt;</begin>
+<end>&lt;/tr&gt;</end>
+</row>
+
+<cell>
+<begin>&lt;td rowspan=&quot;<rowspan/>&quot; colspan=&quot;<colspan/>&quot;&gt;</begin>
+<end>&lt;/td&gt;</end>
+</cell>
+
 <paragraph>
 <begin>
-<olist.end/><olist.begin/><ulist.end/><ulist.begin/><entry.begin/>
+<table.end/>
+<table.begin/>
+<row.begin/>
+<cell.begin/><olist.end/><olist.begin/><ulist.end/><ulist.begin/><entry.begin/>
 &lt;div align=&quot;<just/>&quot;&gt;
 &lt;p&gt;
 </begin>
@@ -73,6 +91,8 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 <entry.end/>
 <olist.end/>
 <ulist.end/>
+<cell.end/>
+<row.end/>
 </end>
 </paragraph>
 

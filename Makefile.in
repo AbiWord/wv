@@ -140,8 +140,9 @@ MYOBJECTS =	\
 	crc32.o \
 	md5.o \
 	rc4.o \
-	decrypt.o \
-	decrypt95.o
+	decrypt97.o \
+	decrypt95.o \
+	table.o
 
 #XML = -Lexpat/lib -lxmlparse -lxmltok
 XML = 	expat/xmlparse/xmlparse.o \

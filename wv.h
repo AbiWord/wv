@@ -1041,7 +1041,7 @@ typedef struct _BRC10
 	U32 fSpare:1;
 	} BRC10;
 
-void wvGetBRC10FromBucket(BRC10 *item,U8 *pointer);
+int wvGetBRC10FromBucket(BRC10 *item,U8 *pointer);
 void wvInitBRC10(BRC10 *item);
 void wvConvertBRC10ToBRC(BRC *item,BRC10 *in);
 
@@ -1275,7 +1275,6 @@ void wvCopyCHP(CHP *dest,CHP *src);
 
 typedef struct _TC
     {
-    S32 rgf:16;
     U32 fFirstMerged:1;
     U32 fMerged:1;
     U32 fVertical:1;
@@ -1293,6 +1292,7 @@ typedef struct _TC
     } TC;
 
 void wvCopyTC(TC *dest,TC *src);
+int wvGetTCFromBucket(int version,TC *abrc,U8 *pointer);
 void wvInitTC(TC *item);
 
 typedef struct _TLP
@@ -1312,7 +1312,8 @@ typedef struct _TLP
 
 void wvCopyTLP(TLP *dest,TLP *src);
 void wvInitTLP(TLP *item);
-
+void wvGetTLP(TLP *item,FILE *infd);
+void wvGetTLPFromBucket(TLP *item,U8 *pointer);
 
 typedef struct _TAP
     {
@@ -2088,6 +2089,24 @@ void wvApplysprmCDispFldRMark(CHP *achp,U8 *pointer,U16 *pos);
 void wvApplysprmSOlstAnm(int version,SEP *asep,U8 *pointer,U16 *pos);
 void wvApplysprmSPropRMark(SEP *asep,U8 *pointer,U16 *pos);
 
+void wvApplysprmTDxaLeft(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTDxaGapHalf(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTTableBorders(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTDefTable10(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTSetBrc(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTInsert(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTDelete(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTDxaCol(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTMerge(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTSplit(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTSetBrc10(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTSetShd(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTSetShdOdd(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTTextFlow(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTVertMerge(TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTVertAlign(TAP *tap,U8 *pointer,U16 *pos);
 
 
 U8 wvToggle(U8 in,U8 toggle);
@@ -2311,6 +2330,17 @@ typedef enum _TT
 	TT_LowerCaseN,
 	TT_nfc,
 	TT_START,
+	TT_TABLE,
+	TT_TABLEB,
+	TT_TABLEE,
+	TT_ROW,
+	TT_ROWB,
+	TT_ROWE,
+	TT_CELL,
+	TT_CELLB,
+	TT_CELLE,
+	TT_COLSPAN,
+	TT_ROWSPAN,
 	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 
@@ -2353,6 +2383,12 @@ typedef struct _expand_data
 	U32 *nooflvl;
 	LST *lst;
 	U16 *noofLST;
+	U8 *intable;
+	U8 *endcell;
+	S16 (*cellbounds)[itcMax+1];	/* always wanted to use one of these */
+	S16 ***vmerges;
+	int whichcell;
+	int whichrow;
 
 	U32 **liststartnos;
 	LVL **finallvl;
@@ -2457,9 +2493,15 @@ typedef struct _wvParseStruct
 	FILE *tablefd0;
 	FILE *tablefd1;
 	U16 password[16];
+	U8 intable;
+	S16 cellbounds[itcMax+1];
+	S16 **vmerges;
+	U8 endcell;
 	}wvParseStruct;
 
 void wvSetPassword(char *password,wvParseStruct *ps);
+void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no);
+int wvDecrypt95(wvParseStruct *ps);
 int wvDecrypt97(wvParseStruct *ps);
 
 FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps);
@@ -2586,7 +2628,7 @@ void wvInitPAPX_FKP(PAPX_FKP *fkp);
 int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *pos, U32 nopos);
 int wvIncFC(int chartype);
 
-int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte, FILE *fd);
+int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,/*CLX *clx,*/ BTE *bte, U32 *pos,int nobte, FILE *fd);
 
 int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStruct *ps);
 void wvOutputFromCP1252(U16 eachchar,U8 outputtype);
@@ -3174,12 +3216,13 @@ int wvGetProperty(PropValue *Prop, SummaryInfo *si, U32 pid);
 void wvReleaseProperty(PropValue *Prop);
 
 int wvSumInfoGetString(char *lpStr, U16 cbStr, U32 pid, SummaryInfo *si);
-
 int wvSumInfoGetLong(U32 *lpLong,U32 pid, SummaryInfo *si);
-
 int wvSumInfoGetTime(U16 *yr, U16 *mon, U16 *day, U16 *hr, U16 *min, U16 *sec, U32 pid, SummaryInfo *si);
-
 int wvSumInfoGetPreview(char *lpStr, U16 cbStr, U32 pid, SummaryInfo *si);
+
+void wvGetRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32 *posPapx);
+void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx);
+
 
 /*end of clean interface*/
 

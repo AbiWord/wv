@@ -27,7 +27,7 @@ int wvDecrypt95(wvParseStruct *ps)
 	for (i=0;i<16;i++)
 		pw[i] = ps->password[i];
 
-	len = strlen(pw);
+	len = strlen((char *)pw);
 	i = len;
 	z = 0xbb;
     for(;i<16;i++)

@@ -4,6 +4,23 @@
 #include "wvinternal.h"
 #include "xmlparse.h"
 
+#define HANDLE_B_PARA_ELE(a,b,c,d) \
+wvTrace(("flag is %d\n",((PAP*)(mydata->props))->b)); \
+wvTrace(("str is %s\n",mydata->sd->elements[a].str[0])); \
+if ( (((PAP*)(mydata->props))->b == d) && (c == 0) ) \
+	{ \
+	text = (char *)malloc(strlen(mydata->sd->elements[a].str[0])+1); \
+	strcpy(text,mydata->sd->elements[a].str[0]); \
+	str = mydata->retstring; \
+	wvExpand(mydata,text,strlen(text)); \
+	wvAppendStr(&str,mydata->retstring); \
+	wvFree(mydata->retstring); \
+	mydata->retstring = str; \
+	wvFree(text); \
+	mydata->currentlen = strlen(mydata->retstring); \
+	c=d; \
+	}
+
 #define HANDLE_B_CHAR_ELE(a,b,c,d) \
 wvTrace(("flag is %d\n",((CHP*)(mydata->props))->b)); \
 wvTrace(("str is %s\n",mydata->sd->elements[a].str[0])); \
@@ -41,6 +58,26 @@ if (c == d) \
 	c=0; \
 	}
 
+#define HANDLE_E_PARA_ELE(a,b,c,d) \
+wvTrace(("flag is %d\n",((PAP*)(mydata->props))->b)); \
+wvTrace(("str is %s\n",mydata->sd->elements[a].str[0])); \
+/* \
+if ( (!((PAP*)(mydata->props))->b) && (c != 0) ) \
+*/ \
+if (c == d) \
+	{ \
+	text = (char *)malloc(strlen(mydata->sd->elements[a].str[1])+1); \
+	strcpy(text,mydata->sd->elements[a].str[1]); \
+	str = mydata->retstring; \
+	wvExpand(mydata,text,strlen(text)); \
+	wvAppendStr(&str,mydata->retstring); \
+	wvFree(mydata->retstring); \
+	mydata->retstring = str; \
+	wvFree(text); \
+	mydata->currentlen = strlen(mydata->retstring); \
+	c=0; \
+	}
+
 
 extern char *wv_version;
 
@@ -51,10 +88,21 @@ TokenTable s_Tokens[] =
     {   "title",         TT_TITLE        	},
     {   "charset",       TT_CHARSET      	},
     {   "version",       TT_VERSION      	},
+    {   "colspan",       TT_COLSPAN      	},
+    {   "rowspan",       TT_ROWSPAN      	},
 
     {   "document",      TT_DOCUMENT     	},
 	 {   "section",       TT_SECTION     	},
       {   "paragraph",     TT_PARA         	},
+	   {  "table",			TT_TABLE		},
+	    {  "table.begin",		TT_TABLEB		},
+	    {  "table.end",			TT_TABLEE		},
+	   {  "row",			TT_ROW		},
+	    {  "row.begin",		TT_ROWB		},
+	    {  "row.end",			TT_ROWE		},
+	   {  "cell",			TT_CELL		},
+	    {  "cell.begin",		TT_CELLB		},
+	    {  "cell.end",			TT_CELLE		},
        {   "block",       	 TT_BLOCK     	 	},
         {   "justification", TT_JUSTIFICATION	},
          {   "just",       	 TT_JUST     	 	},
@@ -329,12 +377,13 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	const char *ctext;
 	static int bold,italic,strike,outline,smallcaps,caps,vanish,
 	shadow,lowercase,emboss,imprint,dstrike,iss,kul,color,fontstr,proprmark,
-	animation,delete,added,FldRMark,ilfo,ilvl=-1,ulist,olist;
+	animation,delete,added,FldRMark,ilfo,ilvl=-1,ulist,olist,fintable,fttp=1,
+	table;
 	char buffer[64];
-	static int lvlp;
 	static LVL lvl;
 	static U32 lastid=0;
 	static LFO *retlfo;
+	int i,j;
 
 
 	tokenIndex = s_mapNameToToken(name);
@@ -352,6 +401,35 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			ctext = wvGetCharset(mydata->charset);
 			wvAppendStr(&mydata->retstring,ctext);
 			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_ROWSPAN:
+			wvTrace(("This Para is here cell %d %d %d\n",mydata->whichrow,mydata->whichcell,(*mydata->vmerges)[mydata->whichrow][mydata->whichcell]));
+			sprintf(buffer,"%d",(*mydata->vmerges)[mydata->whichrow][mydata->whichcell]);
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_COLSPAN:
+			if (((PAP*)(mydata->props))->fInTable)
+				{
+				i=0;
+				wvTrace(("begin end %d %d\n",((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell],((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]));
+				wvTrace(("begin end %d %d %d\n",(*mydata->cellbounds)[0],(*mydata->cellbounds)[1],(*mydata->cellbounds)[2]));
+				
+				wvTrace(("whichcell is %d, entry is %d %d\n",mydata->whichcell,((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell],(*mydata->cellbounds)[i]));
+				while ( (*mydata->cellbounds)[i] != ((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell])
+					i++;
+
+				wvTrace(("found begin point at %d\n",i));
+				j=i;
+				while(  (*mydata->cellbounds)[j] != ((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1] )
+					j++;
+
+				wvTrace(("found end point at %d\n",j));
+				wvTrace(("going from %d to %d\n",((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell],((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]  ));
+				sprintf(buffer,"%d",j-i);
+				wvAppendStr(&mydata->retstring,buffer);
+				mydata->currentlen = strlen(mydata->retstring);
+				}
 			break;
 		case TT_VERSION:
 			wvTrace(("the version is %s\n",wv_version));
@@ -988,6 +1066,90 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(&mydata->retstring,wvDTTMtoUnix(&(((CHP*)(mydata->props))->dttmPropRMark)));
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
+
+		case TT_TABLEB:
+			if ( (((PAP*)(mydata->props))->fInTable) && (table == 0) ) 
+				{ 
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLE].str[0])+1); 
+				strcpy(text,mydata->sd->elements[TT_TABLE].str[0]); 
+				str = mydata->retstring; 
+				wvExpand(mydata,text,strlen(text)); 
+				wvAppendStr(&str,mydata->retstring); 
+				wvFree(mydata->retstring); 
+				mydata->retstring = str; 
+				wvFree(text); 
+				mydata->currentlen = strlen(mydata->retstring);
+				table=1;
+				}
+			break;
+		case TT_ROWB:
+			if ( (((PAP*)(mydata->props))->fInTable) && (((PAP*)(mydata->props))->fTtp == 0) && (fttp == 1) ) 
+				{ 
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_ROW].str[0])+1); 
+				strcpy(text,mydata->sd->elements[TT_ROW].str[0]); 
+				str = mydata->retstring; 
+				wvExpand(mydata,text,strlen(text)); 
+				wvAppendStr(&str,mydata->retstring); 
+				wvFree(mydata->retstring); 
+				mydata->retstring = str; 
+				wvFree(text); 
+				mydata->currentlen = strlen(mydata->retstring);
+				fttp=0;
+				}
+			break;
+		case TT_CELLB:
+			if ( (fintable != 1) && (((PAP*)(mydata->props))->fInTable == 1) )
+				{
+				wvTrace(("the current cell is %d\n",mydata->whichcell));
+				wvTrace(("the end boundary is %d\n",  ((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1] ));
+				HANDLE_B_PARA_ELE(TT_CELL,fInTable,fintable,1)
+				}
+			break;
+		case TT_CELLE:
+			if (*(mydata->endcell))
+				{
+				if (fintable == 1)
+					mydata->whichcell++;
+				HANDLE_E_PARA_ELE(TT_CELL,fInTable,fintable,1)
+				*(mydata->endcell)=0;
+				}
+			break;
+		case TT_ROWE:	
+			if ( (((PAP*)(mydata->props))->fTtp == 1) && (fttp == 0) ) 
+				{ 
+				mydata->whichrow++;
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_ROW].str[1])+1); 
+				strcpy(text,mydata->sd->elements[TT_ROW].str[1]); 
+				str = mydata->retstring; 
+				wvExpand(mydata,text,strlen(text)); 
+				wvAppendStr(&str,mydata->retstring); 
+				wvFree(mydata->retstring); 
+				mydata->retstring = str; 
+				wvFree(text); 
+				mydata->currentlen = strlen(mydata->retstring);
+				mydata->whichcell=0;
+				fttp=1;
+				}
+			break;
+
+		case TT_TABLEE:
+			if ( (((PAP*)(mydata->props))->fInTable == 0) && (table == 1) ) 
+				{ 
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLE].str[1])+1); 
+				strcpy(text,mydata->sd->elements[TT_TABLE].str[1]); 
+				str = mydata->retstring; 
+				wvExpand(mydata,text,strlen(text)); 
+				wvAppendStr(&str,mydata->retstring); 
+				wvFree(mydata->retstring); 
+				mydata->retstring = str; 
+				wvFree(text); 
+				mydata->currentlen = strlen(mydata->retstring);
+				table=0;
+				mydata->whichrow=0;
+				*(mydata->intable)=0;
+				}
+			break;
+	
 		}
 
 	}
@@ -1063,6 +1225,9 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_OLIST:
 		case TT_ULIST:
 		case TT_ENTRY:
+		case TT_TABLE:
+		case TT_ROW:
+		case TT_CELL:
 			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*2);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=2;
 			for(i=0;i<2;i++)
@@ -1122,6 +1287,14 @@ void startElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_CHARSET:
 			wvAppendStr(mydata->current,"<charset/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_COLSPAN:
+			wvAppendStr(mydata->current,"<colspan/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_ROWSPAN:
+			wvAppendStr(mydata->current,"<rowspan/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_VERSION:
@@ -1640,6 +1813,33 @@ void startElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(mydata->current,"<entry.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
+		case TT_TABLEB:
+			wvAppendStr(mydata->current,"<table.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+			break;
+		case TT_TABLEE:
+			wvAppendStr(mydata->current,"<table.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_ROWB:
+			wvAppendStr(mydata->current,"<row.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+			break;
+		case TT_ROWE:
+			wvAppendStr(mydata->current,"<row.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_CELLB:
+			wvAppendStr(mydata->current,"<cell.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+			break;
+		case TT_CELLE:
+			wvAppendStr(mydata->current,"<cell.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
 		
 		}
 	}
@@ -1671,6 +1871,8 @@ void endElement(void *userData, const char *name)
 			break;
 		case TT_TITLE:
 		case TT_CHARSET:
+		case TT_COLSPAN:
+		case TT_ROWSPAN:
 		case TT_VERSION:
 		case TT_JUST:
 		case TT_nfc:
@@ -1798,6 +2000,12 @@ void endElement(void *userData, const char *name)
 		case TT_ULISTE:
 		case TT_ENTRYB:
 		case TT_ENTRYE:
+		case TT_TABLEB:
+		case TT_TABLEE:
+		case TT_ROWB:
+		case TT_ROWE:
+		case TT_CELLB:
+		case TT_CELLE:
 			break;
 		default:
 			mydata->currentlen=0;
@@ -1819,6 +2027,8 @@ void exendElement(void *userData, const char *name)
 		{
 		case TT_TITLE:
 		case TT_CHARSET:
+		case TT_COLSPAN:
+		case TT_ROWSPAN:
 		case TT_VERSION:
 			break;
 		default:
@@ -1884,7 +2094,6 @@ void excharData(void* userData, const XML_Char *s, int len)
 
 	for(i=0;i<len;i++)
 		{
-		wvTrace(("exchar->%c ",s[i]));
 		if (mydata->retstring!= NULL)
 			mydata->retstring[i+mydata->currentlen] = s[i];
 		}

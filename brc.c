@@ -84,9 +84,10 @@ void wvGetBRC10_internal(BRC10 *item,FILE *infd,U8 *pointer)
 	item->fSpare = (temp16 & 0x8000)>>15;
     }
 
-void wvGetBRC10FromBucket(BRC10 *abrc10,U8 *pointer)
+int wvGetBRC10FromBucket(BRC10 *abrc10,U8 *pointer)
     {
 	wvGetBRC10_internal(abrc10,NULL,pointer);
+	return(cbBRC10);
     }
 
 void wvInitBRC(BRC *abrc)

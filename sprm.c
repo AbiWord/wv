@@ -819,32 +819,86 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			break;
 		/* End of SEP */
 
-		/* Place Holders for TAP, need to be implemented */
+		/* Begin of TAP */
+		case sprmTJc:
+			apap->ptap.jc = (S16)bread_16ubit(pointer,pos);
+			break;
+		case sprmTFCantSplit:
+			apap->ptap.fCantSplit = bgetc(pointer,pos);
+			break;
+		case sprmTTableHeader:
+			apap->ptap.fTableHeader = bgetc(pointer,pos);
+			break;
+		case sprmTDyaRowHeight:	/* check len */
+			asep->dyaLinePitch = (S16)bread_16ubit(pointer,pos);
+			break;
+		case sprmTFBiDi:	/* ????? */
+		case sprmTDiagLine:	/* ????? */
+			wvError(("huh, show me this document\n"));
+			break;
+		case sprmTHTMLProps:	/* ???? */
+			apap->ptap.lwHTMLProps = (S32)bread_32ubit(pointer,pos);
+			break;
+		case sprmTDxaLeft:
+			wvApplysprmTDxaLeft(&apap->ptap,pointer,pos);
+			break;
+		case sprmTDxaGapHalf:
+			wvApplysprmTDxaGapHalf(&apap->ptap,pointer,pos);
+			break;
 		case sprmTTableBorders:
-			for (temp8=0;temp8<12;temp8++)
-				{
-				if (version == 0)
-					bread_16ubit(pointer,pos);
-				else
-					bgetc(pointer,pos);
-				}
+			wvApplysprmTTableBorders(&apap->ptap,pointer,pos);
+			break;
+		case sprmTDefTable10:
+			wvApplysprmTDefTable10(&apap->ptap,pointer,pos);
+			break;
+		case sprmTDefTable:
+			wvApplysprmTDefTable(&apap->ptap,pointer,pos);
+			break;
+		case sprmTDefTableShd:
+			wvApplysprmTDefTableShd(&apap->ptap,pointer,pos);
+			break;
+		case sprmTTlp:
+			wvGetTLPFromBucket(&(apap->ptap.tlp),pointer);
+			(*pos)+=cbTLP;
 			break;
 		case sprmTSetBrc:
-			if (version == 0)
-				{
-				int len;
-				len = bgetc(pointer,pos);
-				for (temp8=0;temp8<len;temp8++)
-					bgetc(pointer,pos);
-				}
-			else
-				{
-				bgetc(pointer,pos);
-				bgetc(pointer,pos);
-				bgetc(pointer,pos);
-				(*pos)+=wvGetBRCFromBucket(version,&achp->brc,pointer);
-				}
+			wvApplysprmTSetBrc(&apap->ptap,pointer,pos);
 			break;
+		case sprmTInsert:
+			wvApplysprmTInsert(&apap->ptap,pointer,pos);
+			break;
+		case sprmTDelete:
+			wvApplysprmTDelete(&apap->ptap,pointer,pos);
+			break;
+		case sprmTDxaCol:
+			wvApplysprmTDxaCol(&apap->ptap,pointer,pos);
+			break;
+		case sprmTMerge:
+			wvApplysprmTMerge(&apap->ptap,pointer,pos);
+			break;
+		case sprmTSplit:
+			wvApplysprmTSplit(&apap->ptap,pointer,pos);
+			break;
+		case sprmTSetBrc10:
+			wvApplysprmTSetBrc10(&apap->ptap,pointer,pos);
+			break;
+		case sprmTSetShd:
+			wvApplysprmTSetShd(&apap->ptap,pointer,pos);
+			break;
+		case sprmTSetShdOdd:
+			wvApplysprmTSetShdOdd(&apap->ptap,pointer,pos);
+			break;
+		case sprmTTextFlow:
+			wvError(("huh, show me this document\n"));
+			wvApplysprmTTextFlow(&apap->ptap,pointer,pos);
+			break;
+		case sprmTVertMerge:
+			wvApplysprmTVertMerge(&apap->ptap,pointer,pos);
+			break;
+		case sprmTVertAlign:
+			wvApplysprmTVertAlign(&apap->ptap,pointer,pos);
+			break;
+			
 		/* end of TAP */
 
 			/*
@@ -1884,6 +1938,7 @@ void wvApplysprmSOlstAnm(int version,SEP *asep,U8 *pointer,U16 *pos)
 void wvApplysprmSPropRMark(SEP *asep,U8 *pointer,U16 *pos)
 	{
 	dgetc(NULL,&pointer);
+	(*pos)++;
 	/*
 	sprmPPropRMark is interpreted by moving the first parameter
 	byte to pap.fPropRMark, the next two bytes to pap.ibstPropRMark, and the
@@ -1897,6 +1952,538 @@ void wvApplysprmSPropRMark(SEP *asep,U8 *pointer,U16 *pos)
 	(*pos)+=4;
 	}
 
+
+/*
+sprmTDxaLeft (opcode 0x9601) is called to adjust the x position within a
+column which marks the left boundary of text within the first cell of a
+table row. This sprm causes a whole table row to be shifted left or right
+within its column leaving the horizontal width and vertical height of cells
+in the row unchanged. Bytes 0-1 of the sprm contains the opcode, and the new
+dxa position, call it dxaNew, is stored as an integer in bytes 2 and 3. Word
+interprets this sprm by adding dxaNew - (rgdxaCenter[0] + tap.dxaGapHalf) to
+every entry of tap.rgdxaCenter whose index is less than tap.itcMac.
+sprmTDxaLeft is stored only in grpprls linked to piece table entries.
+*/
+void wvApplysprmTDxaLeft(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	S16 dxaNew = (S16)dread_16ubit(NULL,&pointer);
+	int i;
+	(*pos)+=2;
+	dxaNew = dxaNew - (tap->rgdxaCenter[0] + tap->dxaGapHalf);
+	for (i=0;i<tap->itcMac;i++)
+		tap->rgdxaCenter[i] += dxaNew;
+	}
+
+/*
+sprmTDxaGapHalf (opcode 0x9602) adjusts the white space that is maintained
+between columns by changing tap.dxaGapHalf. Because we want the left
+boundary of text within the leftmost cell to be at the same location after
+the sprm is applied, Word also adjusts tap.rgdxCenter[0] by the amount that
+tap.dxaGapHalf changes. Bytes 0-1 of the sprm contains the opcode, and the
+new dxaGapHalf, call it dxaGapHalfNew, is stored in bytes 2 and 3. When the
+sprm is interpreted, the change between the old and new dxaGapHalf values,
+tap.dxaGapHalf - dxaGapHalfNew, is added to tap.rgdxaCenter[0] and then
+dxaGapHalfNew is moved to tap.dxaGapHalf. sprmTDxaGapHalf is stored in PAPXs
+and also in grpprls linked to piece table entries.
+
+*/
+void wvApplysprmTDxaGapHalf(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	S16 dxaGapHalfNew = (S16)dread_16ubit(NULL,&pointer);
+	(*pos)+=2;
+	tap->rgdxaCenter[0] += tap->dxaGapHalf - dxaGapHalfNew;
+	tap->dxaGapHalf = dxaGapHalfNew;
+	}
+
+/*
+sprmTTableBorders (opcode 0xD605) sets the tap.rgbrcTable. The sprm is
+interpreted by moving the 24 bytes of the sprm's operand to tap.rgbrcTable.
+*/
+void wvApplysprmTTableBorders(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	int i;
+	dgetc(NULL,&pointer);
+	(*pos)++;
+	for (i=0;i<6;i++)
+		{
+		wvGetBRCFromBucket(0,&(tap->rgbrcTable[i]),pointer);
+		pointer+=cbBRC;
+		}
+	(*pos)+=6*cbBRC;
+	}
+
+/*
+sprmTDefTable (opcode 0xD608) defines the boundaries of table cells
+(tap.rgdxaCenter) and the properties of each cell in a table (tap.rgtc).
+Bytes 0 and 1 of the sprm contain its opcode. Bytes 2 and 3 store a two-byte
+length of the following parameter. Byte 4 contains the number of cells that
+are to be defined by the sprm, call it itcMac. When the sprm is interpreted,
+itcMac is moved to tap.itcMac. itcMac cannot be larger than 32. In bytes 5
+through 5+2*(itcMac + 1) -1 , is stored an array of integer dxa values
+sorted in ascending order which will be moved to tap.rgdxaCenter. In bytes
+5+ 2*(itcMac + 1) through byte 5+2*(itcMac + 1) + 10*itcMac - 1 is stored an
+array of TC entries corresponding to the stored tap.rgdxaCenter. This array
+is moved to tap.rgtc. sprmTDefTable is only stored in PAPXs.
+*/
+void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U16 len;
+	int i,t;
+	len = dread_16ubit(NULL,&pointer);
+	(*pos)+=2;
+	tap->itcMac = dgetc(NULL,&pointer);
+	wvTrace(("C: there are %d cells\n",tap->itcMac));
+	(*pos)++;
+	for (i=0;i<tap->itcMac + 1;i++)
+		{
+		tap->rgdxaCenter[i] = (S16)dread_16ubit(NULL,&pointer);
+		wvTrace(("C: cell boun is %d\n",tap->rgdxaCenter[i]));
+		(*pos)+=2;
+		}
+	for (i=0;i<tap->itcMac;i++)
+		{
+		t = wvGetTCFromBucket(1,&(tap->rgtc[i]),pointer);
+		/* for christ sake !!, word 8 stores word 6 sized TC's in this sprm ! */
+		(*pos)+=t;
+		pointer+=t;
+		}
+	}
+/*
+sprmTDefTable10 (opcode0xD606) is an obsolete version of sprmTDefTable
+(opcode 0xD608) that was used in WinWord 1.x. Its contents are identical to
+those in sprmTDefTable, except that the TC structures contain the obsolete
+structures BRC10s.
+*/
+
+void wvApplysprmTDefTable10(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U16 len;
+	int i,t;
+	len = dread_16ubit(NULL,&pointer);
+	(*pos)+=2;
+	tap->itcMac = dgetc(NULL,&pointer);
+	(*pos)++;
+	for (i=0;i<tap->itcMac + 1;i++)
+		{
+		tap->rgdxaCenter[i] = (S16)dread_16ubit(NULL,&pointer);
+		(*pos)+=2;
+		}
+	for (i=0;i<tap->itcMac;i++)
+		{
+		t=wvGetTCFromBucket(1,&(tap->rgtc[i]),pointer);
+		(*pos)+=t;
+		pointer+=t;
+		}
+	}
+
+/*
+sprmTDefTableShd (opcode 0xD609) is similar to sprmTDefTable, and
+compliments it by defining the shading of each cell in a table (tap.rgshd).
+Bytes 0 and 1 of the sprm contain its opcode. Bytes 2 and 3 store a two-byte
+length of the following parameter. Byte 4 contains the number of cells that
+are to be defined by the sprm, call it itcMac. itcMac cannot be larger than
+32. In bytes 5 through 5+2*(itcMac + 1) -1 , is stored an array of SHDs.
+This array is moved to tap.rgshd. sprmTDefTable is only stored in PAPXs.
+*/
+void wvApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U16 len;
+	U16 itcMac;
+	int i;
+	len = dread_16ubit(NULL,&pointer);
+	itcMac = dgetc(NULL,&pointer);
+	(*pos)++;
+
+	for (i=0;i<itcMac;i++)
+		{
+		wvGetSHDFromBucket(&(tap->rgshd[i]),pointer);
+		pointer+=cbSHD;
+		(*pos)+=cbSHD;
+		}
+	}
+/*
+sprmTSetBrc (opcode 0xD620) allows the border definitions(BRCs) within TCs
+to be set to new values. It has the following format:
+
+ b10 b16 field          type  size bitfield comments
+
+ 0   0   sprm           short               opcode 0xD620
+
+ 2   2   count          byte                number of bytes for operand
+
+ 3   3   itcFirst       byte                the index of the first cell
+                                            that is to have its borders
+                                            changed.
+
+ 4   4   itcLim         byte                index of the cell that follows
+                                            the last cell to have its
+                                            borders changed
+
+ 5   5                  short :4   F0       reserved
+
+         fChangeRight   short :1   08       =1 when tap.rgtc[].brcRight is
+                                            to be changed
+
+         fChangeBottom  short :1   04       =1 when tap.rgtc[].brcBottom
+                                            is to be changed
+
+         fChangeLeft    short :1   02       =1 when tap.rgtc[].brcLeft is
+                                            to be changed
+
+         fChangeTop     short :1   01       =1 when tap.rgtc[].brcTop is
+                                            to be changed
+
+ 6   6   brc            BRC                 new BRC value to be stored in
+                                            TCs.
+
+*/
+void wvApplysprmTSetBrc(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U8 itcFirst,itcLim,len,temp8;
+	BRC abrc;
+	int i;
+	len = dgetc(NULL,&pointer);
+	itcFirst = dgetc(NULL,&pointer);
+	itcLim = dgetc(NULL,&pointer);
+	temp8 = dgetc(NULL,&pointer);
+	(*pos)+=3;
+	(*pos) += wvGetBRCFromBucket(0,&abrc,pointer);
+
+	for (i=itcFirst;i<itcLim;i++)
+		{
+		if (temp8 & 0x08)
+			wvCopyBRC(&tap->rgtc[i].brcRight, &abrc);
+		if (temp8 & 0x04)
+			wvCopyBRC(&tap->rgtc[i].brcBottom, &abrc);
+		if (temp8 & 0x02)
+			wvCopyBRC(&tap->rgtc[i].brcLeft, &abrc);
+		if (temp8 & 0x01)
+			wvCopyBRC(&tap->rgtc[i].brcTop, &abrc);
+		}
+	}
+	
+/*
+sprmTInsert (opcode 0x7621) inserts new cell definitions in an existing
+table's cell structure. 
+
+Bytes 0 and 1 of the sprm contain the opcode. 
+
+Byte 2 is the index within tap.rgdxaCenter and tap.rgtc at which the new dxaCenter
+and tc values will be inserted. Call this index itcInsert. 
+
+Byte 3 contains a count of the cell definitions to be added to the tap, call it ctc. 
+
+Bytes 4 and 5 contain the width of the cells that will be added, call it dxaCol. 
+
+If there are already cells defined at the index where cells are to be inserted,
+tap.rgdxaCenter entries at or above this index must be moved to the entry
+ctc higher and must be adjusted by adding ctc*dxaCol to the value stored.
+
+The contents of tap.rgtc at or above the index must be moved 10*ctc bytes
+higher in tap.rgtc. 
+
+If itcInsert is greater than the original tap.itcMac, itcInsert - tap.ctc columns 
+beginning with index tap.itcMac must be added of width dxaCol 
+(loop from itcMac to itcMac+itcInsert-tap.ctc adding dxaCol to the rgdxaCenter 
+value of the previous entry and storing sum as dxaCenter of new entry), 
+whose TC entries are cleared to zeros. 
+
+Beginning with index itcInsert, ctc columns of width dxaCol must be added by 
+constructing new tap.rgdxaCenter and tap.rgtc entries with the newly defined 
+rgtc entries cleared to zeros. 
+
+Finally, the number of cells that were added to the tap is added to tap.itcMac. 
+
+sprmTInsert is stored only in grpprls linked to piece table entries.
+*/
+
+void wvApplysprmTInsert(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U8 itcInsert = dgetc(NULL,&pointer);
+	U8 ctc = dgetc(NULL,&pointer);
+	S16 dxaCol = (S16)dread_16ubit(NULL,&pointer);
+	int i;
+	(*pos)+=4;
+
+	if (itcInsert <= tap->itcMac+1)
+		{
+		for (i=tap->itcMac+1;i>=itcInsert;i--)
+			{
+			tap->rgdxaCenter[i+ctc] = tap->rgdxaCenter[i]+ctc*dxaCol;
+			tap->rgtc[i+ctc] = tap->rgtc[i];
+			}
+		}
+		
+	if (itcInsert > tap->itcMac)
+		{
+		for (i=tap->itcMac;i<tap->itcMac+itcInsert-ctc;i++)
+			{
+			tap->rgdxaCenter[i] = tap->rgdxaCenter[i-1] + dxaCol;
+			wvInitTC(&(tap->rgtc[i]));
+			}
+		}
+
+	for (i=itcInsert;i<ctc+itcInsert;i++)
+		{
+		tap->rgdxaCenter[i] = tap->rgdxaCenter[i-1] + dxaCol;
+		wvInitTC(&(tap->rgtc[i]));
+		}
+
+	tap->itcMac+=ctc;
+	}
+
+
+/*
+sprmTDelete (opcode 0x5622) deletes cell definitions from an existing
+table's cell structure. Bytes 0 and 1of the sprm contain the opcode. Byte 2
+contains the index of the first cell to delete, call it itcFirst. Byte 3
+contains the index of the cell that follows the last cell to be deleted,
+call it itcLim. sprmTDelete causes any rgdxaCenter and rgtc entries whose
+index is greater than or equal to itcLim to be moved to the entry that is
+itcLim - itcFirst lower, and causes tap.itcMac to be decreased by the number
+of cells deleted. sprmTDelete is stored only in grpprls linked to piece
+table entries.
+*/
+void wvApplysprmTDelete(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U8 itcFirst = dgetc(NULL,&pointer);
+	U8 itcLim = dgetc(NULL,&pointer);
+	int i;
+	(*pos)+=2;
+
+	for (i=itcLim;i<=tap->itcMac+1;i++)
+		{
+		tap->rgdxaCenter[i-(itcLim - itcFirst)] = tap->rgdxaCenter[i];
+		wvCopyTC( &(tap->rgtc[i-(itcLim - itcFirst)]),&(tap->rgtc[i]) );
+		}
+	}
+
+/*
+sprmTDxaCol (opcode 0x7623) changes the width of cells whose index is within
+a certain range to be a certain value. Bytes 0 and 1of the sprm contain the
+opcode. Byte 2 contains the index of the first cell whose width is to be
+changed, call it itcFirst. Byte 3 contains the index of the cell that
+follows the last cell whose width is to be changed, call it itcLim. Bytes 4
+and 5 contain the new width of the cell, call it dxaCol. 
+
+This sprm causes the itcLim - itcFirst entries of tap.rgdxaCenter to be 
+adjusted so that tap.rgdxaCenter[i+1] = tap.rgdxaCenter[i] + dxaCol. Any 
+tap.rgdxaCenter entries that exist beyond itcLim are adjusted to take into 
+account the amount added to or removed from the previous columns.
+*/
+void wvApplysprmTDxaCol(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U8 itcFirst = dgetc(NULL,&pointer);
+	U8 itcLim = dgetc(NULL,&pointer);
+	S16 dxaCol = (S16)dread_16ubit(NULL,&pointer);
+	S16 diff=0;
+	int i;
+	(*pos)+=4;
+	for (i=itcFirst;i<itcLim;i++);
+		{
+		diff += tap->rgdxaCenter[i+1]-(tap->rgdxaCenter[i] + dxaCol);
+		tap->rgdxaCenter[i+1] = tap->rgdxaCenter[i] + dxaCol;
+		}
+	for (i=itcLim;i<tap->itcMac+1;i++);
+		tap->rgdxaCenter[i+1] +=diff;
+	}
+
+/*
+sprmTMerge (opcode 0x5624) merges the display areas of cells within a
+specified range. Bytes 0 and 1 of the sprm contain the opcode. Byte 2
+contains the index of the first cell that is to be merged, call it itcFirst.
+Byte 3 contains the index of the cell that follows the last cell to be
+merged, call it itcLim. 
+
+This sprm causes tap.rgtc[itcFirst].fFirstMerged to
+be set to 1. Cells in the range whose index is greater than itcFirst and
+less than itcLim have tap.rgtc[].fMerged set to 1. sprmTMerge is stored only
+in grpprls linked to piece table entries.
+
+*/
+void wvApplysprmTMerge(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U8 itcFirst = dgetc(NULL,&pointer);
+	U8 itcLim = dgetc(NULL,&pointer);
+	int i;
+	(*pos)+=2;
+
+	tap->rgtc[itcFirst].fFirstMerged = 1;
+	for (i=itcFirst+1;i<itcLim;i++)
+		tap->rgtc[i].fMerged = 1;
+	}
+
+/*
+sprmTSplit (opcode 0x5625) splits the display areas of merged cells into
+their originally assigned display areas. Bytes 0 and 1 of the sprm contain
+the opcode. Byte 2 contains the index of the first cell that is to be split,
+call it itcFirst. Byte 3 contains the index of the cell that follows the
+last cell to be split, call it itcLim. 
+
+This sprm clears
+tap.rgtc[].fFirstMerged and tap.rgtc[].fMerged for all rgtc entries >=
+itcFirst and < itcLim. sprmTSplit is stored only in grpprls linked to piece
+table entries.
+*/
+void wvApplysprmTSplit(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U8 itcFirst = dgetc(NULL,&pointer);
+	U8 itcLim = dgetc(NULL,&pointer);
+	int i;
+	(*pos)+=2;
+
+	for (i=itcFirst;i<itcLim;i++)
+		{
+		tap->rgtc[i].fMerged = 0;
+		tap->rgtc[itcFirst].fFirstMerged = 0;
+		}
+	}
+
+/*
+This is guess based upon SetBrc
+*/
+void wvApplysprmTSetBrc10(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U8 itcFirst,itcLim,len,temp8;
+	BRC10 abrc;
+	int i;
+	len = dgetc(NULL,&pointer);
+	itcFirst = dgetc(NULL,&pointer);
+	itcLim = dgetc(NULL,&pointer);
+	temp8 = dgetc(NULL,&pointer);
+	(*pos)+=3;
+	(*pos) += wvGetBRC10FromBucket(&abrc,pointer);
+
+	for (i=itcFirst;i<itcLim;i++)
+		{
+		if (temp8 & 0x08)
+			wvConvertBRC10ToBRC(&tap->rgtc[i].brcRight,&abrc);
+		if (temp8 & 0x04)
+			wvConvertBRC10ToBRC(&tap->rgtc[i].brcBottom,&abrc);
+		if (temp8 & 0x02)
+			wvConvertBRC10ToBRC(&tap->rgtc[i].brcLeft,&abrc);
+		if (temp8 & 0x01)
+			wvConvertBRC10ToBRC(&tap->rgtc[i].brcTop,&abrc);
+		}
+	}
+
+/*
+sprmTSetShd (opcode 0x7627) allows the shading definitions(SHDs) within a
+tap to be set to new values. Bytes 0 and 1 of the sprm contain the opcode.
+Byte 2 contains the index of the first cell whose shading is to be changed,
+call it itcFirst. Byte 3 contains the index of the cell that follows the
+last cell whose shading is to be changed, call it itcLim. Bytes 4 and 5
+contain the SHD structure, call it shd. This sprm causes the itcLim -
+itcFirst entries of tap.rgshd to be set to shd. sprmTSetShd is stored only
+in grpprls linked to piece table entries.
+*/
+void wvApplysprmTSetShd(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U8 itcFirst = dgetc(NULL,&pointer);
+	U8 itcLim = dgetc(NULL,&pointer);
+	int i;
+	SHD shd;
+	(*pos)+=2;
+	
+	wvGetSHDFromBucket(&shd,pointer);
+	(*pos)+=cbSHD;
+
+	for(i=itcFirst;i<itcLim;i++)
+		wvCopySHD(&tap->rgshd[i],&shd);
+	}
+
+/*
+sprmTSetShdOdd (opcode 0x7628) is identical to sprmTSetShd, but it only
+changes the rgshd for odd indices between itcFirst and. sprmTSetShdOdd is
+stored only in grpprls linked to piece table entries.
+*/
+void wvApplysprmTSetShdOdd(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U8 itcFirst = dgetc(NULL,&pointer);
+	U8 itcLim = dgetc(NULL,&pointer);
+	int i;
+	SHD shd;
+	(*pos)+=2;
+	
+	wvGetSHDFromBucket(&shd,pointer);
+	(*pos)+=cbSHD;
+
+	for(i=itcFirst;i<itcLim;i++)
+		{
+		if ( (i/2) != (i+1)/2 )
+			wvCopySHD(&tap->rgshd[i],&shd);
+		}
+	}
+
+/* guess */
+void wvApplysprmTTextFlow(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U8 val = dgetc(NULL,&pointer);
+	int i;
+	(*pos)++;
+
+	for (i=0;i<tap->itcMac;i++)
+		{
+		/* just a complete guess who knows*/
+		tap->rgtc[i].fVertical = val&0x0001;
+		tap->rgtc[i].fBackward = (val&0x0002)>>1;
+		tap->rgtc[i].fRotateFont = (val&0x0004)>>2;
+		}
+	}
+
+/*
+sprmTVertMerge (opcode 0xD62B) changes the vertical cell merge properties
+for a cell in the tap.rgtc[]. Bytes 0 and 1 of the sprm contain the opcode.
+Byte 2 contains the index of the cell whose vertical cell merge properties
+are to be changed. Byte 3 codes the new vertical cell merge properties for
+the cell, a 0 clears both fVertMerge and fVertRestart, a 1 sets fVertMerge
+and clears fVertRestart, and a 3 sets both flags. sprmTVertMerge is stored
+only in grpprls linked to piece table entries.
+*/
+void wvApplysprmTVertMerge(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U8 index = dgetc(NULL,&pointer);
+	U8 props = dgetc(NULL,&pointer);
+	(*pos)+=2;
+
+	switch(props)
+		{
+		case 0:
+			tap->rgtc[index].fVertMerge = 0;
+			tap->rgtc[index].fVertRestart = 0;
+			break;
+		case 1:
+			tap->rgtc[index].fVertMerge = 1;
+			tap->rgtc[index].fVertRestart = 0;
+			break;
+		case 3:
+			tap->rgtc[index].fVertMerge = 1;
+			tap->rgtc[index].fVertRestart = 1;
+			break;
+		}
+	}
+
+/*
+sprmTVertAlign (opcode 0xD62C) changes the vertical alignment property in
+the tap.rgtc[]. Bytes 0 and 1 of the sprm contain the opcode. Byte 2
+contains the index of the first cell whose shading is to be changed, call it
+itcFirst. Byte 3 contains the index of the cell that follows the last cell
+whose shading is to be changed, call it itcLim. This sprm causes the
+vertAlign properties of the itcLim - itcFirst entries of tap.rgtc[] to be
+set to the new vertical alignment property contained in Byte 4.
+sprmTVertAlign is stored only in grpprls linked to piece table entries.
+*/
+void wvApplysprmTVertAlign(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U8 itcFirst = dgetc(NULL,&pointer);
+	U8 itcLim = dgetc(NULL,&pointer);
+	U8 props = dgetc(NULL,&pointer);
+	int i;
+	(*pos)+=3;
+
+	for (i=itcFirst;i<itcLim;i++)
+		tap->rgtc[i].vertAlign = props;
+	}
 
 SprmName rgsprmPrm[0x80] = 
 {sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmPIncLvl, sprmPJc,
