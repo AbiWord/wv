@@ -11,6 +11,10 @@
  **/
 
 /* #include <libole2-config.h> */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <libole2/ms-ole.h>
 
 /* BSDs require unistd.h before including stat.h */
