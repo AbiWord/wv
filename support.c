@@ -84,9 +84,15 @@ wvStream_libole2_create (wvStream ** in, MsOleStream * inner)
 }
 
 void
-wvStream_memory_create (wvStream ** in, MemoryStream * inner)
+wvStream_memory_create (wvStream ** in, char *buf, size_t size)
 {
     wvInternalStream str;
+    MemoryStream *inner = (MemoryStream *)wvMalloc(sizeof(MemoryStream));
+
+    inner->mem = buf;
+    inner->size = size;
+    inner->current = 0;
+
     str.memory_stream = inner;
     wvStream_create (in, MEMORY_STREAM, str);
 }
@@ -128,8 +134,9 @@ read_32ubit (wvStream * in)
       }
     else
       {
-	return  *((U32 *) (in->stream.memory_stream->mem + 
+	ret =  *((U32 *) (in->stream.memory_stream->mem + 
 		 in->stream.memory_stream->current));
+	in->stream.memory_stream->current +=4;
       }
 #endif
     return (ret);
@@ -158,8 +165,9 @@ read_16ubit (wvStream * in)
       }
     else
       {
-	return  *((U16 *) (in->stream.memory_stream->mem + 
+	ret =  *((U16 *) (in->stream.memory_stream->mem + 
 		 in->stream.memory_stream->current));
+	in->stream.memory_stream->current+=2;
       }
 
 
@@ -183,8 +191,11 @@ read_8ubit (wvStream * in)
       }
     else
       {
-	return  *((U8 *)(in->stream.memory_stream->mem + 
+	  U8 ret;
+	  ret =  *((U8 *)(in->stream.memory_stream->mem + 
 		 in->stream.memory_stream->current));
+	  in->stream.memory_stream->current++;
+	  return ret;
       }
 }
 
@@ -204,6 +215,7 @@ wvStream_read (void *ptr, size_t size, size_t nmemb, wvStream * in)
       {
 	memcpy(ptr, in->stream.memory_stream->mem + 
                     in->stream.memory_stream->current,size * nmemb);
+	in->stream.memory_stream->current+=size* nmemb;
 	return size * nmemb;
       }
 }
@@ -260,6 +272,7 @@ wvStream_offset (wvStream * in, long offset)
     else
       {
 	in->stream.memory_stream->current += offset;
+	return  in->stream.memory_stream->current;
       }
 }
 
@@ -279,7 +292,7 @@ wvStream_offset_from_end (wvStream * in, long offset)
       {
 	in->stream.memory_stream->current = 
 	in->stream.memory_stream->size + offset;
-        return 0;
+        return in->stream.memory_stream->current;
       }
 }
 
@@ -338,6 +351,7 @@ wvStream_close (wvStream * in)
     if (in->kind == MEMORY_STREAM)
       {
 	  free (in->stream.memory_stream->mem);
+	  free (in->stream.memory_stream);
 	  wvFree (in);
 	  return 0;
       }

@@ -11,9 +11,11 @@
 int
 wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 {
-    FILE *f;
     U8 temp;
     U32 i;
+    U8 *buf,*p;
+    size_t size;
+
     long pos = wvStream_tell (fd);
 
     apicf->lcb = read_32ubit (fd);
@@ -64,17 +66,7 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
     wvTrace (
 	     ("ends at %x\n",
 	      wvStream_tell (fd) + apicf->lcb - apicf->cbHeader));
-    f = tmpfile ();
-    if (f == NULL)
-      {
-	  wvError (("Couldnt create tmpfile: %s\n", strerror (errno)));
-	  apicf->rgb = NULL;
-	  return 0;
-      }
-    /*
-       sprintf(buffer,"/tmp/newtest-%d",s++);
-       f = fopen(buffer,"w+b");
-     */
+
     i = 0;
 
     if (apicf->mfp_mm < 90)
@@ -131,40 +123,47 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 
 	  header_len = 14 + 40 + 4 * colors_used;
 
-	  fputc (0x42, f); /* B */
-	  fputc (0x4D, f); /* M */
+	  size = apicf->lcb - apicf->cbHeader;
+	  p = buf = malloc(apicf->lcb - apicf->cbHeader);
 
-	  fputc (len & 0x000000FF, f);
-	  fputc ((len & 0x0000FF00) >> 8, f);
-	  fputc ((len & 0x00FF0000) >> 16, f);
-	  fputc ((len & 0xFF000000) >> 24, f);
+	  *p++ = 0x42; /* B */
+	  *p++ = 0x4D; /* M */
 
-	  fputc (0x00, f);
-	  fputc (0x00, f);
-	  fputc (0x00, f);
-	  fputc (0x00, f);
+	  *p++ = len & 0x000000FF;
+	  *p++ = (len & 0x0000FF00) >> 8;
+	  *p++ = (len & 0x00FF0000) >> 16;
+	  *p++ = (len & 0xFF000000) >> 24;
 
-	  fputc (header_len & 0x000000FF, f);
-	  fputc ((header_len & 0x0000FF00) >> 8, f);
-	  fputc ((header_len & 0x00FF0000) >> 16, f);
-	  fputc ((header_len & 0xFF000000) >> 24, f);
+	  *p++ = 0x00;
+	  *p++ = 0x00;
+	  *p++ = 0x00;
+	  *p++ = 0x00;
+
+	  *p++ = header_len & 0x000000FF;
+	  *p++ = (header_len & 0x0000FF00) >> 8;
+	  *p++ = (header_len & 0x00FF0000) >> 16;
+	  *p++ = (header_len & 0xFF000000) >> 24;
 
 
 	  for(j=0;j< sizeof(bmp_header);j++)
-	    fputc(bmp_header[j],f);
+	    *p++=bmp_header[j];
 	  
 	  for (; i < apicf->lcb - apicf->cbHeader-sizeof(bmp_header); i++)
-	    fputc (read_8ubit (fd), f);
+	    *p++= read_8ubit (fd);
 
       }
     else
       {
+	size = apicf->lcb - apicf->cbHeader;
+	p = buf = malloc(size);
 	for (; i < apicf->lcb - apicf->cbHeader; i++)
-	  fputc (read_8ubit (fd), f);
+	  *p++ = read_8ubit (fd);
       }
 
-    rewind (f);
-    wvStream_FILE_create (&apicf->rgb, f);
+    /*    rewind (f);
+	  wvStream_FILE_create (&apicf->rgb, f); */
+
+    wvStream_memory_create(&apicf->rgb, buf, size); 
     return 1;
 }
 
