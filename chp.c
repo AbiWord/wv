@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "wv.h"
 #include "bintree.h"
 
@@ -13,23 +14,98 @@ void wvAddCHPXFromBucket(CHP *achp,UPXF *upxf,STSH *stsh)
 	U8 *pointer;
 	U16 i=0;
 	U16 sprm;
-	while (i < upxf->cbUPX)
+
+#ifdef SPRMTEST
+	fprintf(stderr,"\n");
+    while (i < upxf->cbUPX)
+        {
+        fprintf(stderr,"%x (%d) ",*(upxf->upx.chpx.grpprl+i),*(upxf->upx.chpx.grpprl+i));
+        i++;
+        }
+    fprintf(stderr,"\n");
+	i=0;
+#endif
+	while (i < upxf->cbUPX-2)
 		{
 		sprm = bread_16ubit(upxf->upx.chpx.grpprl+i,&i);
+#ifdef SPRMTEST
+		wvError(("sprm is %x, i is %d\n",sprm,i));
+#endif
 		pointer = upxf->upx.chpx.grpprl+i;
-		wvApplySprmFromBucket(sprm,NULL,achp,NULL,stsh,pointer,&i);
+		wvApplySprmFromBucket(WORD8,sprm,NULL,achp,NULL,stsh,pointer,&i,NULL);
 		}
 	}
 
+void wvApplyCHPXFromBucket(CHP *achp,CHPX *chpx,STSH *stsh)
+	{
+	U8 *pointer;
+	U16 i=0;
+	U16 sprm;
+#ifdef SPRMTEST
+	fprintf(stderr,"\n");
+    while (i < chpx->cbGrpprl)
+        {
+        fprintf(stderr,"%x (%d) ",*(chpx->grpprl+i),*(chpx->grpprl+i));
+        i++;
+        }
+    fprintf(stderr,"\n");
+	i=0;
+#endif
+	while (i < chpx->cbGrpprl)
+		{
+		sprm = bread_16ubit(chpx->grpprl+i,&i);
+		wvTrace(("the sprm is %d\n",sprm));
+		pointer = chpx->grpprl+i;
+		wvApplySprmFromBucket(WORD8,sprm,NULL,achp,NULL,stsh,pointer,&i,NULL);
+		}
+	achp->istd = chpx->istd;
+	}
+
+void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
+	{
+	U8 *pointer;
+	U16 i=0;
+	U8 sprm8;
+	U16 sprm;
+	wvTrace(("cbUPX word 6 is %d\n",upxf->cbUPX));
+
+#ifdef SPRMTEST
+	fprintf(stderr,"\n");
+    while (i < upxf->cbUPX)
+        {
+        fprintf(stderr,"%x (%d) ",*(upxf->upx.chpx.grpprl+i),*(upxf->upx.chpx.grpprl+i));
+        i++;
+        }
+    fprintf(stderr,"\n");
+	i=0;
+#endif
+	while (i < upxf->cbUPX)
+		{
+		sprm8 = bread_8ubit(upxf->upx.chpx.grpprl+i,&i);
+#ifdef SPRMTEST
+        wvError(("chp word 6 sprm is %x (%d)\n",sprm8,sprm8));
+#endif
+		sprm = (U16)wvGetrgsprmWord6(sprm8);
+#ifdef SPRMTEST
+		wvError(("chp word 6 sprm is converted to %x\n",sprm));
+#endif
+		
+		pointer = upxf->upx.chpx.grpprl+i;
+		wvApplySprmFromBucket(WORD6,sprm,NULL,achp,NULL,stsh,pointer,&i,NULL);
+		}
+	}
+
+
 void wvInitCHPFromIstd(CHP *achp,U16 istdBase,STSH *stsh)
 	{
+	wvTrace(("initing from %d\n",istdBase));
 	if (istdBase == istdNil)
         wvInitCHP(achp);
     else
         {
         if (istdBase >= stsh->Stshi.cstd)
             {
-            wvError("ISTD out of bounds, requested %d of %d\n",istdBase,stsh->Stshi.cstd);
+            wvError(("ISTD out of bounds, requested %d of %d\n",istdBase,stsh->Stshi.cstd));
             wvInitCHP(achp);    /*it can't hurt to try and start with a blank istd*/
             return;
             }
@@ -37,11 +113,23 @@ void wvInitCHPFromIstd(CHP *achp,U16 istdBase,STSH *stsh)
 			{
 			if (stsh->std[istdBase].cupx==0)	/*empty slot in the array, i don't think this should happen*/
 				{
-				wvTrace("Empty style slot used (chp)\n");
+				wvTrace(("Empty style slot used (chp)\n"));
 				wvInitCHP(achp);
 				}
 			else
-            	wvCopyCHP(achp,&(stsh->std[istdBase].grupe[1].achp));
+				{
+				wvTrace(("type is %d\n",stsh->std[istdBase].sgc));
+				switch (stsh->std[istdBase].sgc)
+					{
+					case sgcPara:
+						wvCopyCHP(achp,&(stsh->std[istdBase].grupe[1].achp));
+						break;
+					case sgcChp:
+						wvInitCHP(achp);
+						wvApplyCHPXFromBucket(achp,&(stsh->std[istdBase].grupe[0].chpx),stsh);
+						break;
+					}
+				}
 			}
         }
 
@@ -256,115 +344,6 @@ void wvCopyCHP(CHP *dest,CHP *src)
 	wvCopyBRC(&dest->brc,&src->brc);
 	}
 
-
-void twvCopyCHP(chp *dest,chp *src)
-	{
-    dest->istd=src->istd;
-
-    dest->fBold=src->fBold;
-    dest->fItalic=src->fItalic;
-	dest->fRMarkDel=src->fRMarkDel;
-	dest->fOutline=src->fOutline;
-	dest->fFldVanish=src->fFldVanish;
-    dest->fSmallCaps=src->fSmallCaps;
-    dest->fCaps=src->fCaps;
-	dest->fVanish=src->fVanish;
-
-    dest->fRMark=src->fRMark;
-    dest->fSpec=src->fSpec;
-	dest->fStrike=src->fStrike;
-    dest->fObj=src->fObj;
-	dest->fShadow=src->fShadow;
-	dest->fLowerCase=src->fLowerCase;
-	dest->fData=src->fData;
-    dest->fOle2=src->fOle2;
-
-
-	dest->fEmboss=src->fEmboss;
-	dest->fImprint=src->fImprint;
-	dest->fDStrike=src->fDStrike;
-	dest->fUsePgsuSettings=src->fUsePgsuSettings;
-	dest->Reserved1=src->Reserved1;
-
-
-	dest->Reserved2=src->Reserved2;
-
-
-	dest->ftc=src->ftc;
-    dest->ftcAscii=src->ftcAscii;
-    dest->ftcFE=src->ftcFE;
-    dest->ftcOther=src->ftcOther;
-
-
-    dest->fontsize=src->fontsize;
-    dest->supersubscript=src->supersubscript;
-    dest->fontcode=src->fontcode;
-    dest->fontspec=src->fontspec;
-    strcpy(dest->color,src->color);
-    dest->underline=src->underline;
-    dest->idctHint=src->idctHint;
-	dest->fcPic=src->fcPic;
-
-
-	dest->ibstRMark=src->ibstRMark;
-	dest->ibstRMarkDel=src->ibstRMarkDel;
-
-
-	dest->dttmRMark.mint=src->dttmRMark.mint;
-	dest->dttmRMark.hr=src->dttmRMark.hr;
-	dest->dttmRMark.dom=src->dttmRMark.dom;
-	dest->dttmRMark.mon=src->dttmRMark.mon;
-	dest->dttmRMark.yr=src->dttmRMark.yr;
-	dest->dttmRMark.wdy=src->dttmRMark.wdy;
-
-
-	dest->dttmRMarkDel.mint=src->dttmRMarkDel.mint;
-	dest->dttmRMarkDel.hr=src->dttmRMarkDel.hr;
-	dest->dttmRMarkDel.dom=src->dttmRMarkDel.dom;
-	dest->dttmRMarkDel.mon=src->dttmRMarkDel.mon;
-	dest->dttmRMarkDel.yr=src->dttmRMarkDel.yr;
-	dest->dttmRMarkDel.wdy=src->dttmRMarkDel.wdy;
-
-
-	dest->fPropRMark=src->fPropRMark;
-	dest->ibstPropRMark=src->ibstPropRMark;
-	dest->dttmPropRMark.mint=src->dttmPropRMark.mint;
-	dest->dttmPropRMark.hr=src->dttmPropRMark.hr;
-	dest->dttmPropRMark.dom=src->dttmPropRMark.dom;
-	dest->dttmPropRMark.mon=src->dttmPropRMark.mon;
-	dest->dttmPropRMark.yr=src->dttmPropRMark.yr;
-	dest->dttmPropRMark.wdy=src->dttmPropRMark.wdy;
-	dest->sfxtText=src->sfxtText;
-	}
-
-void wvAddCHP_FromBucket(chp *achp,U8 *pointer8,U16 len,style *sheet)
-    {
-    U8 *pointer;
-    U16 sprm;
-    U16 i=0;
-
-
-    if (achp == NULL)
-        {
-        wvError("NULL pap in wvAddPAP_FromBucket\n");
-        return;
-        }
-
-    if (pointer8 == NULL)
-        return;
-
-    while (i<len)
-        {
-        sprm = sread_16ubit(pointer8+i);
-        i+=2;
-
-        pointer = pointer8+i;
-
-        decode_sprm(NULL,sprm,NULL,achp,NULL,&i,&pointer,sheet,achp->istd);
-        }
-    }
-
-
 /*the chpx for the null style has an istd of zero, a cbGrpprl of zero (and an empty grpprl).*/
 /*this only exists in the UPD/UPE*/
 void wvInitCHPX(CHPX *item)
@@ -386,7 +365,7 @@ void wvInitCHPXFromIstd(CHPX *chpx,U16 istdBase,STSH *stsh)
         {
         if (istdBase >= stsh->Stshi.cstd)
             {
-            wvError("ISTD out of bounds, requested %d of %d\n",istdBase,stsh->Stshi.cstd);
+            wvError(("ISTD out of bounds, requested %d of %d\n",istdBase,stsh->Stshi.cstd));
             wvInitCHPX(chpx);    /*it can't hurt to try and start with a blank istd*/
             return;
             }
@@ -417,12 +396,24 @@ void wvReleaseCHPX(CHPX *item)
 
 int wvCompLT(void *a,void *b)
     {
-    return( *((U16 *)a) < *((U16 *)b) );
+	U8 *a2,*b2;
+	U16 sprm1,sprm2;
+	a2 = (U8 *)a;
+	b2 = (U8 *)b;
+	sprm1 = sread_16ubit(a2);
+	sprm2 = sread_16ubit(b2);
+    return( sprm1 < sprm2);
     }
 
 int wvCompEQ(void *a,void *b)
     {
-    return( *((U16 *)a) == *((U16 *)b) );
+	U8 *a2,*b2;
+	U16 sprm1,sprm2;
+	a2 = (U8 *)a;
+	b2 = (U8 *)b;
+	sprm1 = sread_16ubit(a2);
+	sprm2 = sread_16ubit(b2);
+	return(sprm1 == sprm2);
     }
 
 
@@ -449,9 +440,9 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
     Node *testn,*testp;
 	U16 i=0,j;
 	U16 sprm;
-	U16 len=0;
-	int temp;
-	Node *test;
+	U8 len=0;
+	U8 temp;
+	Node *test=NULL;
 
 	U8 *pointer,*dpointer;
 	U8 *grpprl=NULL;
@@ -466,48 +457,54 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 
 	while(i<dest->cbGrpprl)
 		{
-		fprintf(stderr,"gotcha the sprm is %x\n",*((U16 *)pointer));
+		wvTrace(("gotcha the sprm is %x\n",*((U16 *)pointer)));
 		test = InsertNode(&tree,(void *)pointer);
 		sprm = dread_16ubit(NULL,&pointer);
-		fprintf(stderr,"the sprm is %x\n",sprm);
+		wvTrace(("the sprm is %x\n",sprm));
 		temp = wvEatSprm(sprm,pointer,&i);
 		pointer += temp;
 		i+=2;
-		if (test);
+		if (test)
 			len += temp+2;
 		}
 
 	i=0;
 	pointer = src->upx.chpx.grpprl;
+	i=0;
 	while(i<src->cbUPX)
 		{
-		fprintf(stderr,"gotcha 2 the sprm is %x\n",*((U16 *)pointer));
+		/*wvTrace(("gotcha 2 the sprm is %x\n",*((U16 *)pointer)));*/
 		test = InsertNode(&tree,(void *)pointer);
 		sprm = dread_16ubit(NULL,&pointer);
-		fprintf(stderr,"the sprm is %x\n",sprm);
-		temp = wvEatSprm(sprm,pointer,&i);
-		pointer += temp;
 		i+=2;
-		if (test);
+		wvTrace(("the sprm is %x\n",sprm));
+		temp = wvEatSprm(sprm,pointer,&i);
+		wvTrace(("len of op is %d\n",temp));
+		pointer += temp;
+		wvTrace(("p dis is %d\n",pointer-src->upx.chpx.grpprl));
+		if (test)
 			len += temp+2;
 		}
 
-	if (len != 0) grpprl = (U8 *)malloc(len);
+	if (len != 0) 
+		grpprl = (U8 *)malloc(len);
+	else
+		return;
+	
 
 	dpointer = grpprl;
 	
 	testn = NextNode(&tree,NULL);
 	while (testn != NULL)
 		{
-		fprintf(stderr,"methinks the sprm is %x\n",*((U16 *)testn->Data));
-
-		sprm = *((U16 *)testn->Data);
 		pointer = (U8 *)testn->Data;
+		sprm = sread_16ubit(pointer);
+		wvTrace(("methinks the sprm is %x\n",sprm));
 		pointer+=2;
 
 		i=0;
 		wvEatSprm(sprm,pointer,&i);
-		fprintf(stderr,"i is now %d\n",i);
+		wvTrace(("i is now %d\n",i));
 
 		pointer = (U8 *)testn->Data;
 		for(j=0;j<i+2;j++)
@@ -526,14 +523,145 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 	pointer = dest->grpprl;
 	while(i<dest->cbGrpprl)
 		{
-		fprintf(stderr,"final test the sprm is %x\n",*((U16 *)pointer));
 		sprm = dread_16ubit(NULL,&pointer);
-		fprintf(stderr,"the sprm is %x\n",sprm);
+		wvTrace(("final test the sprm is %x\n",sprm));
 		temp = wvEatSprm(sprm,pointer,&i);
 		pointer += temp;
 		i+=2;
-		if (test);
+		if (test)
 			len += temp+2;
 		}
 	}
 
+
+void wvUpdateCHPXBucket(UPXF *src)
+	{
+	U16 i=0,j;
+	U16 sprm;
+	U8 sprm8;
+	U16 len=0;
+	int temp;
+
+	U8 *pointer,*dpointer;
+	U8 *grpprl=NULL;
+
+	i=0;
+	if (src->cbUPX == 0) return;
+	pointer = src->upx.chpx.grpprl;
+	wvTrace(("Msrc->cbUPX len is %d\n",src->cbUPX));
+	for(i=0;i<src->cbUPX;i++)
+		wvTrace(("%x\n",src->upx.chpx.grpprl[i]));
+	wvTrace(("Mend\n"));
+	i=0;
+	len=0;
+	while(i<src->cbUPX)
+		{
+		sprm8 = dread_8ubit(NULL,&pointer);
+		wvTrace(("Mpre the sprm is %x\n",sprm8));
+		sprm = (U16)wvGetrgsprmWord6(sprm8);
+		wvTrace(("Mpost the sprm is %x\n",sprm));
+		i++;
+		len+=2;
+		temp = wvEatSprm(sprm,pointer,&i);
+		wvTrace(("Mlen of op is %d\n",temp));
+		pointer += temp;
+		wvTrace(("Mp dis is %d\n",pointer-src->upx.chpx.grpprl));
+		len += temp;
+		}
+	wvTrace(("Mlen ends up as %d\n",len));
+
+	if (len == 0) 
+		return;
+
+	grpprl = (U8 *)malloc(len);
+
+	dpointer = grpprl;
+
+	i=0;
+	pointer = src->upx.chpx.grpprl;
+	while(i<src->cbUPX)
+		{
+		sprm8 = dread_8ubit(NULL,&pointer);
+		sprm = (U16)wvGetrgsprmWord6(sprm8);
+		i++;
+		*dpointer++ = (sprm&0x00FF);
+		*dpointer++ = (sprm&0xff00)>>8;
+		temp = wvEatSprm(sprm,pointer,&i);
+		for (j=0;j<temp;j++)
+			*dpointer++ = *pointer++;
+		wvTrace(("Mlen of op is %d\n",temp));
+		}
+	wvFree(src->upx.chpx.grpprl);
+	src->upx.chpx.grpprl = grpprl;
+	src->cbUPX = len;
+	for (i=0;i<src->cbUPX;i++)
+		wvTrace(("%x\n",src->upx.chpx.grpprl[i]));
+	}
+
+/*
+ * taken from wvAssembleSimplePAP in pap.c and modified
+ * to handle CHP's
+ * -JB
+ */
+
+int wvAssembleSimpleCHP(version ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
+	{
+	CHPX *chpx;
+	int index,i;
+	UPXF upxf;
+	int ret=0;
+	U16 tistd;
+	
+	/* initialize CHP to para's stylesheet character properties
+		* this should have resolved all the other stylesheet dependencies
+		* for us, when the stsh's were initialized. */
+
+	/* before this function was called, achp->istd should have
+		* been set to the current paragraph properties' stylesheet */
+	tistd=achp->istd;		
+	wvInitCHPFromIstd(achp, achp->istd, stsh);
+	achp->istd = tistd;
+
+	/*index is the i in the text above*/
+	/* the PAPX version of the function only looks at rgfc's, which are
+		* the same for CHPX and PAPX FKPs, so we'll reuse the function */
+	index = wvGetIndexFCInFKP_PAPX((PAPX_FKP*)fkp,fc);
+	
+	wvTrace(("index is %d, using %d\n", index, index-1));
+
+	/* get CHPX */
+	chpx = &(fkp->grpchpx[index-1]);
+
+	/* apply CHPX from FKP */
+	if ((chpx) && (chpx->cbGrpprl > 0)) 
+		{
+		ret=1;
+		for (i=0;i<chpx->cbGrpprl;i++)
+			upxf.cbUPX = chpx->cbGrpprl;
+		upxf.upx.chpx.grpprl = chpx->grpprl;
+		if (ver == WORD8)
+			wvAddCHPXFromBucket(achp, &upxf, stsh);
+		else
+			wvAddCHPXFromBucket6(achp, &upxf, stsh);
+		}
+	return(ret);
+	}
+
+
+void wvGetCHPX(version ver, CHPX *item, U8 *page, U16 *pos)
+	{
+	U8 i;
+	item->cbGrpprl = bread_8ubit(&(page[*pos]),pos);
+	if (item->cbGrpprl > 0)
+		{
+		item->grpprl = (U8 *)malloc(item->cbGrpprl);
+		memcpy(item->grpprl,&(page[*pos]),item->cbGrpprl);
+		}
+	else
+		item->grpprl = NULL;
+   
+	item->istd = 0; /* I have no idea what to set this to... */
+   
+	for (i=0;i<item->cbGrpprl;i++)
+		wvTrace(("chpx byte is %x\n",item->grpprl[i]));
+}

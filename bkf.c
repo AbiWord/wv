@@ -2,9 +2,12 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetBKF(BKF *item,FILE *fd)
+void wvGetBKF(BKF *item,wvStream *fd)
 	{
 	U16 temp16;
+#ifdef PURIFY
+	wvInitBKF(item);
+#endif
 	item->ibkl = (S16)read_16ubit(fd);
 	temp16 = read_16ubit(fd);
 	item->itcFirst = temp16 & 0x007F;
@@ -13,10 +16,18 @@ void wvGetBKF(BKF *item,FILE *fd)
     item->fCol = (temp16 & 0x8000) >> 15;
 	}
 
-
-int wvGetBKF_PLCF(BKF **bkf,U32 **pos,U32 *nobkf,U32 offset,U32 len,FILE *fd)
+void wvInitBKF(BKF *item)
 	{
-	int i;
+	item->ibkl = 0;
+	item->itcFirst = 0;
+    item->fPub = 0;
+    item->itcLim = 0;
+    item->fCol = 0;
+	}
+
+int wvGetBKF_PLCF(BKF **bkf,U32 **pos,U32 *nobkf,U32 offset,U32 len,wvStream *fd)
+	{
+	U32 i;
 	if (len == 0)
 		{
 		*bkf = NULL;
@@ -29,22 +40,23 @@ int wvGetBKF_PLCF(BKF **bkf,U32 **pos,U32 *nobkf,U32 offset,U32 len,FILE *fd)
         *pos = (U32 *) malloc( (*nobkf+1) * sizeof(U32));
         if (*pos == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",(*nobkf+1) * sizeof(U32));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nobkf+1) * sizeof(U32)));
             return(1);
             }
 
-        *bkf= (BKF *) malloc(*nobkf* sizeof(BKF));
+        *bkf= (BKF *) malloc(*nobkf * sizeof(BKF));
         if (*bkf== NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",*nobkf* sizeof(BKF));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",*nobkf* sizeof(BKF)));
 			free(pos);
             return(1);
             }
-        fseek(fd,offset,SEEK_SET);
-        for(i=0;i<*nobkf+1;i++)
+        wvStream_goto(fd,offset);
+        for(i=0;i<=*nobkf;i++)
             (*pos)[i]=read_32ubit(fd);
         for(i=0;i<*nobkf;i++)
             wvGetBKF(&((*bkf)[i]),fd);
         }
 	return(0);
 	}
+

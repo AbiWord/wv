@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetASUMYI(ASUMYI *asu,FILE *fd)
+void wvGetASUMYI(ASUMYI *asu,wvStream *fd)
 	{
 	U16 temp16 = read_16ubit(fd);
 
@@ -17,3 +17,15 @@ void wvGetASUMYI(ASUMYI *asu,FILE *fd)
 	asu->lCurrentLevel = read_32ubit(fd);
 	}
 
+
+void wvInitASUMYI(ASUMYI *asu)
+	{
+	asu->fValid = 0;
+	asu->fView = 0;
+	asu->iViewBy = 0;
+	asu->fUpdateProps = 0;
+	asu->reserved = 0;
+	asu->wDlgLevel = 0;
+	asu->lHighestLevel = 0;
+	asu->lCurrentLevel = 0;
+	}

@@ -3,19 +3,34 @@
 #include <stdarg.h>
 #include "wv.h"
 
-FILE *wverror=stderr;
-FILE *wvwarn=stderr;
-FILE *wvtrace=stderr;
+FILE *wverror=NULL;
+FILE *wvwarn=NULL;
+FILE *wvtrace=NULL;
 
-void wvRealError(char *file, int line,char *fmt, ...)
-    {
+void wvInitError(void)
+	{
+	wverror=stderr;
+	wvwarn=stderr;
+	wvtrace=stderr;
+	}
+
+char * wvFmtMsg(char *fmt, ...)
+	{
+	static char mybuf[1024];
+	
     va_list argp;
+    va_start(argp, fmt);
+    vsprintf(mybuf, fmt, argp);
+    va_end(argp);
+
+	return mybuf;
+}
+
+void wvRealError(char *file, int line, char * msg)
+    {
 	if (wverror == NULL)
 		return;
-    fprintf(wverror, "wvError: (%s:%d) ",file,line);
-    va_start(argp, fmt);
-    vfprintf(wverror, fmt, argp);
-    va_end(argp);
+    fprintf(wverror, "wvError: (%s:%d) %s ",file,line, msg);
     fflush(wverror);
     }
 
@@ -31,18 +46,12 @@ void wvWarning(char *fmt, ...)
     fflush(wvwarn);
     }
 
-void wvRealTrace(char *file, int line,char *fmt, ...)
+void wvRealTrace(char *file, int line, char * msg)
     {
-#ifdef DEBUG
-    va_list argp;
-    if (wvtrace == NULL)
-        return;
-    fprintf(wvtrace , "wvTrace: (%s:%d) ",file,line);
-    va_start(argp, fmt);
-    vfprintf(wvtrace, fmt, argp);
-    va_end(argp);
+      if (wvtrace == NULL)
+	return;
+    fprintf(wvtrace , "wvTrace: (%s:%d) %s ",file,line, msg);
     fflush(wvtrace);
-#endif
     }
 
 
