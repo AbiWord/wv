@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
 void wvGetBX(BX *item,U8 *page,U16 *pos)

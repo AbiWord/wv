@@ -3,6 +3,9 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 #include "wvinternal.h"
 #ifdef HAVE_LIBXML2

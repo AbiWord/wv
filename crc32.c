@@ -18,6 +18,9 @@
    Status:
       Public Domain
 */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "crc32.h"
 
 /*****************************************************************/

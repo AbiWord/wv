@@ -26,6 +26,7 @@ typedef MsOle wvDocument;
     wvStream     *table0Stream;
     wvStream     *dataStream;
     MsOleSummary *summaryStream;
+    MsOleSummary *docSummaryStream;
 
     /* more accounting structures to come later */
 

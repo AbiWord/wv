@@ -27,8 +27,11 @@
 #include <glib.h>
 #include <string.h>
 
-#include "ms-ole.h"
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
+
+#include "ms-ole.h"
 
 #ifdef HAVE_MMAP
 #include <sys/mman.h>

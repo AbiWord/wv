@@ -5,6 +5,9 @@
 #include <time.h>
 #include <math.h>
 #include <assert.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "config.h"
 #include "wv.h"
 #include "oledecod.h"

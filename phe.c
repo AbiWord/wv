@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
 void wvGetPHE6(PHE *dest,U8 *page,U16 *pos)

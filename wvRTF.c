@@ -5,8 +5,11 @@
 #include <unistd.h>
 #include <malloc.h>
 #include <time.h>
-#include "getopt.h"
+
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
+#include "getopt.h"
 #include "wv.h"
 
 /* By Dom Lachowicz (cinamod@hotmail.com) */

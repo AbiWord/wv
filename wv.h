@@ -21,9 +21,9 @@ int strcasecmp(const char *s1, const char *s2);
 #include <time.h>
 #include <stdio.h>
 
-  /* find a way to remove this */
+  /* TODO: find a way to remove this */
 #include "ms-ole.h"
-#include "config.h"
+  /* #include "config.h" */
 
 /* The structure below is used to refer to a wvStream.  Usually,
  * kind = LIBOLE_STREAM,
@@ -3194,7 +3194,6 @@ int cellCompLT(void *a,void *b);
 typedef size_t (*wvConvertToUnicode)(const char **, size_t *, char **, size_t *);
 
 char *wvLIDToCodePageConverter(U16 lid);
-U16 wvnLocaleToLIDConverter(U8 nLocale);
 
 typedef struct _MSOFBH
 	{

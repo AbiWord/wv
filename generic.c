@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
 int wvGetEmpty_PLCF(U32 **cps,U32 *nocps,U32 offset,U32 len,wvStream *fd)

@@ -1,4 +1,7 @@
 /*rc4.c */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "rc4.h"
 static void swap_byte(unsigned char *a, unsigned char *b);
 void prepare_key(unsigned char *key_data_ptr, int key_data_len,

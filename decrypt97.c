@@ -9,6 +9,9 @@
 #include <sys/types.h>
 #endif
 #include <string.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 #undef S32
 #include "rc4.h"

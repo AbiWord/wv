@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
-/* already done in wv.h
- #include "config.h"
-*/
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 /*
 Released under GPL, written by Caolan.McNamara@ul.ie.
@@ -27,11 +27,11 @@ returns 1 for not an ole doc
 
 void usage( void )
 	{
-	printf("Usage: wvVersion filename.doc\n");
+	fprintf(stderr, "Usage: wvVersion filename.doc\n");
 	exit(-1);
 	}
 
-int main(int argc,char **argv)
+int main(int argc, char *argv[])
 	{
 	FILE *input;
 	int ret;
@@ -50,15 +50,15 @@ int main(int argc,char **argv)
 		}
 	fclose(input);
 
-	ret = wvInitParser(&ps,argv[1]);
+	ret = wvInitParser(&ps, argv[1]);
 
 	if (ret == -1)
 		{
-		fprintf(stderr,"%s couldn't be opened as any known word document\n",argv[1]);
-		return(-1);
+		fprintf(stderr,"%s couldn't be opened as any known word document\n", argv[1]);
+		return -1;
 		}
 
-	ret = wvQuerySupported(&ps.fib,NULL);
+	ret = wvQuerySupported(&ps.fib, NULL);
 
 	printf("Version: ");
 	switch(ret&0x7fff)
@@ -80,20 +80,12 @@ int main(int argc,char **argv)
 			break;
 		}
 
-	printf(",Encrypted: ");
+	printf(", Encrypted: ");
 	if (ret & 0x8000)
 		printf("Yes\n");
 	else
 		printf("No\n");
 
-	if (ret)
-		{
-		/*
-		wvError(("startup error\n"));
-		*/
-		wvOLEFree();
-		return(-1);
-		}
 	wvOLEFree();
-	return(ret);
+	return 0;
 	}

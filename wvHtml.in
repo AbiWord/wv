@@ -2,7 +2,7 @@
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
-libdir=@libdir@
+datadir=@datadir@
 
 # argument checking
 if [ ${#} -ne "2" ]; then
@@ -16,4 +16,4 @@ if [ ${?} -ne "0" ]; then
     exit 1
 fi
 
-wvWare -x ${libdir}/wv/wvHtml.xml "${1}" > "${2}"
+wvWare -x ${datadir}/wv/wvHtml.xml "${1}" > "${2}"

@@ -7,7 +7,9 @@ Released under the GPL, see COPYING
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "bintree.h"
 
 void InitBintree(BintreeInfo *tree,int (*func1)(void *,void *),int (*func2)(void *,void *))

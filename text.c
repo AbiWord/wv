@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "iconv.h"
 #include "wv.h"
 
@@ -394,7 +397,8 @@ void wvOutputFromUnicode(U16 eachchar,char *outputtype)
 
     if(wv_iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen) == (size_t)-1)
       {
-        wvError(("iconv failed errno: %d",errno));
+        wvError(("iconv failed errno: %d, to:%s from:%s\n",errno, t_code, f_code));
+	/* I'm torn here - do i just announce the failure, continue, or copy over to the other buffer? */
       }
 
         len = len-obuflen;
@@ -816,7 +820,12 @@ int wvConvertUnicodeToLaTeX(U16 char16)
                 case 0x0103:
                         printf("\\u{a}");  /* a with breve */
                         return(1);
-
+		case 0x0104:
+		        printf("\\k{A}");  /* A with ogonek */
+			return(1);
+		case 0x0105:
+                        printf("\\k{a}");  /* a with ogonek */
+			return(1);
                 case 0x0106:
                         printf("\\'C");  /* C with acute */
                         return(1);
@@ -871,7 +880,12 @@ int wvConvertUnicodeToLaTeX(U16 char16)
                 case 0x0117:
                         printf("\\.e");  /* e with dot above */
                         return(1);
-
+		case 0x0118:
+                        printf("\\k{E}");  /* E with ogonek */
+			return(1);
+		case 0x0119:
+                        printf("\\k{e}");  /* e with ogonek */
+			return(1);
                 case 0x011A:
                         printf("\\v{E}");  /* E with caron */
                         return(1);

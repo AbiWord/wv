@@ -7,7 +7,9 @@
  * Copyright 2000 Helix Code, Inc.
  **/
 
-#include <config.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include <stdio.h>
 
 #include <libole2/ms-ole-vba.h>

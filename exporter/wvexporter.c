@@ -1,6 +1,9 @@
 /* just for now, testing purposes */
 #define DEBUG 1
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wvexporter.h"
 #include <stdlib.h>
 #include <malloc.h>
@@ -18,7 +21,11 @@
 #define ASSERT_STREAM(s) \
 if(!s) { \
   wvError(("Error creating %s stream\n", #s));\
+  return NULL;\
 }
+
+#define WVSTREAM_CLOSE(s) \
+  ms_ole_stream_close(&((s)->stream.libole_stream))
 
 /**
  * Returns >= 1 if we can export to version # @v
@@ -83,21 +90,24 @@ wvExporter_create_version(const char *filename, version v)
   exp->ole = (wvDocument *)ole;
   
   /* now to initialize the streams */
-  
-  exp->documentStream = wvStream_new(ole, DOCUMENT_STREAM);
+
+  exp->documentStream = wvStream_new(ole, DOCUMENT_STREAM); 
   ASSERT_STREAM(exp->documentStream);
-  
-  exp->table1Stream   = wvStream_new(ole, TABLE1_STREAM);
+
+  exp->table1Stream = wvStream_new(ole, TABLE1_STREAM);
   ASSERT_STREAM(exp->table1Stream);
-  
-  exp->table0Stream   = wvStream_new(ole, TABLE0_STREAM);
+
+  exp->table0Stream = wvStream_new(ole, TABLE0_STREAM);
   ASSERT_STREAM(exp->table0Stream);
-  
+
   exp->dataStream = wvStream_new(ole, DATA_STREAM);
   ASSERT_STREAM(exp->dataStream);
 
   exp->summaryStream  = ms_ole_summary_create(ole);
   ASSERT_STREAM(exp->summaryStream);
+
+  exp->docSummaryStream = ms_ole_docsummary_create (ole);
+  ASSERT_STREAM(exp->docSummaryStream);
 
   wvTrace(("Created all relevant OLE streams\n"));
   
@@ -130,8 +140,9 @@ wvExporter_create(const char *filename)
 }
 
 /**
- * Closes and saves the MSWord97 document
+ * Closes and saves the MSWord document
  *
+ * @exp - an exporter created by wvExporter_create()
  */
 void
 wvExporter_close(wvExporter *exp)
@@ -151,15 +162,28 @@ wvExporter_close(wvExporter *exp)
   wvPutFIB(&(exp->fib), exp->documentStream);
   wvTrace(("Re-inserted FIB into document\n"));
 
-  /* close the summary stream since we're using libole2's
-   * mechanism 
+  /*
+   * Close all of the streams
+   * TODO: make this a function instead of a macro
+   */
+  WVSTREAM_CLOSE((exp->documentStream));
+  WVSTREAM_CLOSE((exp->table1Stream));
+  WVSTREAM_CLOSE((exp->table0Stream));
+  WVSTREAM_CLOSE((exp->dataStream));
+  wvTrace(("Closed all of the main streams\n"));
+
+  /*
+   * Close the summary streams
    */
   ms_ole_summary_close(exp->summaryStream);
-  wvTrace(("Closed summary stream\n"));
+  ms_ole_summary_close(exp->docSummaryStream);
+  wvTrace(("Closed summary streams\n"));
 
+#if 0
   /* i hate wvOLEFree... */
   /* close all of the streams */
   wvOLEFree();
+#endif
 
   /* close the document */
   ms_ole_destroy(&(exp->ole));
@@ -168,7 +192,7 @@ wvExporter_close(wvExporter *exp)
   free(exp);
   exp = NULL;
 
-  wvTrace(("Word97 Document Written!\n"));
+  wvTrace(("Word Document Written!\n"));
 }
 
 /*********************************************************************/
@@ -210,11 +234,12 @@ wvExporter_summaryPutString(wvExporter *exp, U32 field, const char *str)
       case PID_REVNUMBER:  p = MS_OLE_SUMMARY_REVNUMBER;  break;
       case PID_APPNAME:    p = MS_OLE_SUMMARY_APPNAME;    break;
     default:
+      wvError(("Unhandled type: %d\n", field));
       return;
     }
 
   ms_ole_summary_set_string(exp->summaryStream, p, (const gchar *)str);
-  wvTrace(("Summary set String %d: %s\n", p, str));
+  wvTrace(("Summary set string %d: %s\n", p, str));
 }
 
 /**
@@ -247,6 +272,7 @@ wvExporter_summaryPutLong(wvExporter *exp, U32 field, U32 l)
     case PID_THUMBNAIL: p = MS_OLE_SUMMARY_THUMBNAIL; break;
 
     default:
+      wvError(("Unhandled type: %d\n", field));
       return;
     }
 
@@ -280,11 +306,12 @@ wvExporter_summaryPutTime(wvExporter *exp, U32 field, time_t *t)
     case PID_CREATED:        p = MS_OLE_SUMMARY_CREATED;         break;
     case PID_LASTSAVED:      p = MS_OLE_SUMMARY_LASTSAVED;       break;
     default:
+      wvError(("Unhandled type: %d\n", field));
       return;
     }
 
   /* noop now until i can convert to GTimeVals */
-  wvTrace(("Summary set Time not implemented yet: %s\n", asctime(gmtime(t))));
+  wvTrace(("Summary set time not implemented yet: %s\n", asctime(gmtime(t))));
   return;
 }
 

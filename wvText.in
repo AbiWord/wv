@@ -2,7 +2,7 @@
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
-libdir=@libdir@
+datadir=@datadir@
 
 # argument checking
 if [ ${#} -ne "2" ]; then
@@ -51,5 +51,5 @@ else
     # fall back onto our cruddy output
     # this is, admittedly, better than running
     # 'strings' on the word document though :)
-    wvWare -x ${libdir}/wv/wvText.xml "${1}" > "${2}"
+    wvWare -x ${datadir}/wv/wvText.xml "${1}" > "${2}"
 fi

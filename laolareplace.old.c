@@ -29,6 +29,9 @@ The interface to OLEdecode now has
 #include <sys/types.h>
 #include <assert.h>
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
 #define THEMIN(a,b) ((a)<(b) ? (a) : (b))

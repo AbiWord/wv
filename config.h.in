@@ -42,7 +42,7 @@
 #undef HAVE_UNISTD_H
 
 /* Define if you want zlib to uncompress wmf files */
-#undef SYSTEM_ZLIB
+#undef HAVE_ZLIB
 
 /* Define if you have libwmf and want it to convert wmf to gif files */
 #undef HAVE_WMF

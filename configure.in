@@ -231,7 +231,7 @@ AC_CHECK_HEADER(X11/xpm.h, [
 	XPMINCLUDE="<X11/xpm.h>"
 	], no_sys_xpm=yes)
 
-if test "x$no_sys_xpm" != "xno"; then
+if test "x$no_sys_xpm" = "xyes"; then
 	AC_CHECK_HEADER(xpm.h, [
 			AC_DEFINE(HAVE_XPM)
 			HAVE_XPM=1
@@ -239,11 +239,11 @@ if test "x$no_sys_xpm" != "xno"; then
 		            XPM_CFLAGS="-I$XPM_DIR/include"
 			fi
 			XPMINCLUDE="<xpm.h>"
-			], no_sys_xpm=yes)
+			], no_sys_xpm=no)
 fi
 
 dnl I dumbly assume that if they have the header, they have the lib
-if test "x$no_sys_xpm" = "xno"; then
+if test "x$no_sys_xpm" != "xyes"; then
 	if test "x$XPM_DIR" != "x"; then
             XPM_LIBS="-L$XPM_DIR/lib -lXpm"
         else
@@ -317,7 +317,8 @@ AC_CHECK_HEADER(gdwmfapi.h,
         HAVE_WMF=1
         WMF_CFLAGS="-I$WMF_DIR/include"
         WMF_LIBS="-L$WMF_DIR/lib -lgdwmf"], ,
-        [-lwmf -lxgd -ldib $XPM_LIBS -lX11 $TTF_LIBS $PNG_LIBS $ZLIB_LIBS -lm]))
+        [-lwmf -lxgd -ldib $X_LIBS $XPM_LIBS $X_PRE_LIBS -lX11 $X_EXTRA_LIBS
+         $TTF_LIBS $PNG_LIBS $ZLIB_LIBS -lm]))
 
 CPPFLAGS=${_cppflags}
 LDFLAGS=${_ldflags}
@@ -388,7 +389,7 @@ fi
 
 AC_CHECK_FUNC(iconv, [
 	AC_DEFINE(USE_ICONV)
-	ICONV_LIBS="-liconv"
+	ICONV_LIBS=""
 	have_iconv=yes], [
 		ICONVOBJS="\$(RICONVOBJS)"
 		ICONV="ICONV"

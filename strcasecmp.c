@@ -1,6 +1,9 @@
 #if !defined(__GLIBC__) || (__GLIBC__ < 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2)
 #include <ctype.h>
 #include <string.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 int strcasecmp(const char *s1, const char *s2)
 	{

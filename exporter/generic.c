@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wvexporter.h"
 
 void wvPutChar(wvStream *fd,U8 chartype, U16 ch)

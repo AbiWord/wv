@@ -172,11 +172,13 @@ CSRCS= \
 	exporter/wkb.c \
 	exporter/wvexporter.c
 
-CFLAGS+=		-I. -I./exporter/ -I./iconv -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
+#CFLAGS+=		-I. -I./exporter/ -I./iconv -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
+
 
 #if Abi ever supports WMF files embedded inside of Word Docs, append
 #-DSYSTEM_ZLIB=1 to the CFLAGS
-
+CFLAGS+= -DHAVE_CONFIG_H -I. -I./exporter/ -I./iconv -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
+ 
 CSRCS+= \
 	oledecod/oledecod.c \
 	laolareplace.c \

@@ -8,8 +8,9 @@ SHELL=/bin/sh
 @SET_MAKE@
 
 srcdir=@srcdir@
+datadir=@datadir@
 
-CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/..  @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/mswordview/ttf\" -I$(srcdir)/../libole2 -I$(srcdir)/../glib-wv
+CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/.. -DTTFDIR=\"$(datadir)/wv/ttf\" -I$(srcdir)/../libole2 -I$(srcdir)/../glib-wv @WMF_CFLAGS@ 
 
 SHELL = /bin/sh
 

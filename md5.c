@@ -32,6 +32,9 @@
  */
 
 /* -- include the following line if the md5.h header file is separate -- */
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "md5.h"
 
 /* forward declaration */

@@ -9,5 +9,7 @@ Work: Caolan.McNamara@ul.ie          *  Phone: +353-86-8790257
 URL: http://skynet.csn.ul.ie/~caolan *  Sig: an oblique strategy
 How would you have done it?
 */
-
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 char *wv_version="wv ver 0.6.3";

@@ -22,8 +22,6 @@ USA.  */
 #ifndef _GETOPT_H
 #define _GETOPT_H 1
 
-#include "config.h"
-
 #ifdef	__cplusplus
 extern "C" {
 #endif

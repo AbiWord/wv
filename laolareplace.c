@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-/* already done in wv.h
- #include "config.h"
-*/
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 #include "ms-ole.h"
 #include "oledecod.h"

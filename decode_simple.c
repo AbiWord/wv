@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
 extern void (*charhandler) ();
@@ -71,7 +74,8 @@ void wvDecodeSimple(wvParseStruct *ps,subdocument whichdoc)
 	/* for word 6 and just in case */
 	if (ps->clx.nopcd == 0) wvBuildCLXForSimple6(&ps->clx,&ps->fib);
 
-	para_fcFirst = char_fcFirst = section_fcFirst = wvGetBeginFC(ps,whichdoc);
+	para_fcFirst = wvGetBeginFC(ps,whichdoc);
+	para_fcFirst = char_fcFirst = section_fcFirst;
 
 	/*we will need the stylesheet to do anything useful with layout and look*/
 	wvGetSTSH(&ps->stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);

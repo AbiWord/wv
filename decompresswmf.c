@@ -2,16 +2,19 @@
  #include "config.h"
 */
 
-#if defined(SYSTEM_ZLIB) && defined(HAVE_MMAP)
-#include <zlib.h>
-#include <sys/mman.h>
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
+
+#if defined(HAVE_ZLIB) && defined(HAVE_MMAP)
+#include <zlib.h>
+#include <sys/mman.h>
+#endif
 
 #ifndef WIN32
 #include <sys/types.h>
@@ -29,16 +32,17 @@ theres some notes in the notes dir on compression
 
 int setdecom(void)
     {
-#ifdef SYSTEM_ZLIB
+#ifdef HAVE_ZLIB
 	return(1);
-#endif
+#else
 	wvError(("libwv was not compiled against zlib, so wmf files cannot be decompress\n"));
 	return(0);
+#endif
 	}
 
 int decompress(FILE *inputfile,FILE *outputfile,U32 inlen,U32 outlen)
 	{
-#if defined(SYSTEM_ZLIB) && defined(HAVE_MMAP)
+#if defined(HAVE_ZLIB) && defined(HAVE_MMAP)
 	unsigned char *compr;
 	unsigned char *uncompr;
 	int err;

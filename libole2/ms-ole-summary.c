@@ -15,8 +15,10 @@
 #include <string.h>
 #include "ms-ole.h"
 #include "ms-ole-summary.h"
-#include "config.h"
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #define SUMMARY_ID(x) ((x) & 0xff)
 
