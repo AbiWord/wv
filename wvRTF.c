@@ -241,7 +241,8 @@ handleImage (Blip * b, long width, long height)
 {
 
     /* TODO: image support */
-    FILE *fd = NULL;
+    wvStream * pwv = NULL;
+    size_t size = 0;
     int data = 0;
     int cnt = 0;
     int tag = time (NULL);
@@ -268,12 +269,14 @@ handleImage (Blip * b, long width, long height)
 
     rtf_output ("\bliptag%d{\\*\\blipuid%032x}", tag, tag);
 
-    fd = (FILE *) (b->blip.bitmap.m_pvBits)->stream.file_stream;
-    while (EOF != (data = getc (fd)))
+    pwv = b->blip.bitmap.m_pvBits;
+    size = wvStream_size (pwv);
+    wvStream_rewind(pwv);
+    while (cnt < size)
       {
 	  if (cnt++ % 64 == 0)
 	      rtf_output_char ('\n');
-	  rtf_output ("%02x", data);
+	  rtf_output ("%02x", read_8ubit(pwv));
       }
 
     rtf_output_char ('}');
