@@ -53,29 +53,21 @@ void wvDecodeSimple(wvParseStruct *ps)
 	if (ps->clx.nopcd == 0) wvBuildCLXForSimple6(&ps->clx,&ps->fib);	/* for word 6 and just in case */
 	
 	/*
-	we will need the paragraph bounds table to make decisions as to where a para
-	begins and ends
+	we will need the paragraph and character bounds table to make decisions as 
+	to where a para/char run begins and ends
 	*/
 	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3))
 		{
     	wvGetBTE_PLCF6(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
     	wvListBTE_PLCF(&btePapx,&posPapx,&para_intervals);
-		}
-	else	/* word 97 */
-    	wvGetBTE_PLCF(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
-
-	/*
-	 * get bounds of character runs so we can get character formatting properties
-	*/
-	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3))
-		{
     	wvGetBTE_PLCF6(&bteChpx,&posChpx,&char_intervals,ps->fib.fcPlcfbteChpx,ps->fib.lcbPlcfbteChpx,ps->tablefd);
     	wvListBTE_PLCF(&bteChpx,&posChpx,&char_intervals);
 		}
 	else	/* word 97 */
+	     {
+	wvGetBTE_PLCF(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
     	wvGetBTE_PLCF(&bteChpx,&posChpx,&char_intervals,ps->fib.fcPlcfbteChpx,ps->fib.lcbPlcfbteChpx,ps->tablefd);
-
-
+	     }
 
 	/*
 	The text of the file starts at fib.fcMin, but we will use the piecetable 

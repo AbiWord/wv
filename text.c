@@ -252,7 +252,12 @@ void wvEndPara(expand_data *data)
 
 void wvBeginCharProp(expand_data *data)
 {
+   CHP *achp = (CHP*)data->props;
    wvTrace("beginning character run\n");
+   /* some test examples */
+   if (achp->fBold) { wvTrace("a BOLD character run\n"); }
+   if (achp->fItalic) { wvTrace("an ITALIC character run\n"); }
+   if (achp->kul) { wvTrace("some kind of UNDERLINED character run\n"); }
 }
 
 void wvEndCharProp(expand_data *data)

@@ -664,12 +664,7 @@ void wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
    /* before this function was called, achp->istd should have
     * been set to the current paragraph properties' stylesheet */
    wvTrace("istd index is %d\n", achp->istd);
-   
-   /* make sure we have a semi-valid istd, though */
-   if (achp->istd < 0)
-     wvInitCHPFromIstd(achp, istdNil, stsh);
-   else 
-     wvInitCHPFromIstd(achp, achp->istd, stsh);
+   wvInitCHPFromIstd(achp, achp->istd, stsh);
 
    /*index is the i in the text above*/
    /* the PAPX version of the function only looks at rgfc's, which are
