@@ -6,7 +6,7 @@
 To apply a UPX.papx to a UPE.pap, set UPE.pap.istd equal to UPX.papx.istd, and 
 then apply the UPX.papx.grpprl to UPE.pap.
 */
-void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh)
+void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh,FILE *data)
 	{
 	U8 *pointer;
 	U16 i=0;
@@ -32,10 +32,12 @@ void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh)
 								 len 2 as well*/
 		{
 		sprm = bread_16ubit(upxf->upx.papx.grpprl+i,&i);
-		wvTrace(("sprm is %x\n",sprm));
+#ifdef SPRMTEST
+		wvError(("sprm is %x\n",sprm));
+#endif
 		pointer = upxf->upx.papx.grpprl+i;
 		if (i < upxf->cbUPX-2)
-			wvApplySprmFromBucket(0,sprm,apap,NULL,NULL,stsh,pointer,&i);
+			wvApplySprmFromBucket(0,sprm,apap,NULL,NULL,stsh,pointer,&i,data);
 		}
 	}
 
@@ -77,7 +79,7 @@ void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh)
 		 * word 6 sprm lists being stored in the file
 		 */
 		if (i < upxf->cbUPX-2)
-			wvApplySprmFromBucket(1,sprm,apap,NULL,NULL,stsh,pointer,&i);
+			wvApplySprmFromBucket(1,sprm,apap,NULL,NULL,stsh,pointer,&i,NULL);
 		}
 	}
 
@@ -312,7 +314,7 @@ fkp.rgbx[i - 1] to find the PAPX for the paragraph.
 of the paragraph were at the last full save.
 */
 
-int wvAssembleSimplePAP(version ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
+int wvAssembleSimplePAP(version ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh,FILE *data)
 	{
 	PAPX *papx;
 	int index;
@@ -348,7 +350,7 @@ int wvAssembleSimplePAP(version ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 		upxf.upx.papx.istd = papx->istd;
 		upxf.upx.papx.grpprl = papx->grpprl;
 		if (ver == WORD8)
-			wvAddPAPXFromBucket(apap,&upxf,stsh);
+			wvAddPAPXFromBucket(apap,&upxf,stsh,data);
 		else
 			wvAddPAPXFromBucket6(apap,&upxf,stsh);
 		}

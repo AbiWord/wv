@@ -46,15 +46,16 @@ void wvGetRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32
 	wvInitPAPX_FKP(&para_fkp);
 
 	i=ftell(ps->mainfd);
+	wvTrace(("RowTab begin\n"));
 	do
 		{
 		wvReleasePAPX_FKP(&para_fkp);		
 		wvGetSimpleParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i, btePapx, posPapx, para_intervals, ps->mainfd);
-		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
-		wvTrace(("para from %x to %x\n",para_fcFirst,para_fcLim));
+		wvTrace(("2: para from %x to %x\n",para_fcFirst,para_fcLim));
+		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh,ps->data);
 		i=para_fcLim;
 		}
-	while(apap.fTtp == 0);
+	while (apap.fTtp == 0);
 
 	wvTrace(("fTtp is %d\n",apap.fTtp));
 
@@ -83,7 +84,7 @@ void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *p
 		{
 		wvReleasePAPX_FKP(&para_fkp);		
 		wvGetSimpleParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i, btePapx, posPapx, para_intervals, ps->mainfd);
-		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
+		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh,ps->data);
 		wvTrace(("para from %x to %x\n",para_fcFirst,para_fcLim));
 		i=para_fcLim;
 
@@ -152,9 +153,16 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
 		ps->vmerges=NULL;
 		}
 
+	if (no == 0)
+		{
+		wvWarning("Broken tables, continuing and hoping for the best\n");
+		ps->nocellbounds = 0;
+		return;
+		}
+
 	InitBintree(&tree,cellCompLT,cellCompEQ);
 
-	wvTrace(("we still ok\n"));
+	wvTrace(("we still ok, no is %d\n",no));
 
 	for (i=0;i<no;i++)
 		{
@@ -620,6 +628,11 @@ int wvCellBgColor(int whichrow,int whichcell,int nocells,int norows,TLP *tlp)
 		}
 
 	wvTrace(("the cell index and bgcolor is %d %d %d,%d (last cell and row are %d %d)\n",tlp->itl,whichrow,whichcell,cellbgcolors[tlp->itl][whichrow][whichcell],nocells,norows));
+	if (tlp->itl >= 40)
+		{
+		wvWarning("Table Look %d requested, but theres only %d in the list\n",tlp->itl+1,40);
+		return(8);
+		}
 	return(cellbgcolors[tlp->itl][whichrow][whichcell]);
 	}
 
@@ -674,8 +687,8 @@ void TheTest(wvParseStruct *ps,U32 piece,BTE *btePapx,U32 *posPapx,U32 para_inte
                 } 
 			 if (j == para_fcFirst)
                 {
-                wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&ps->stsh);
-                wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&ps->stsh,&ps->clx);
+                wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&ps->stsh,ps->data);
+                wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&ps->stsh,&ps->clx,ps->data);
 				wvTrace(("table ttp are %d %d\n",apap.fInTable,apap.fTtp));
 				}
 			}
@@ -716,9 +729,9 @@ void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx
 
 
 		if (piece == -1) break;
-		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
+		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh,ps->data);
 		wvTrace(("para from %x to %x\n",para_fcFirst,para_fcLim));
-		wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,piece,&ps->stsh,&ps->clx);
+		wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,piece,&ps->stsh,&ps->clx,ps->data);
 		
 		wvTrace(("para from %x to %x\n",para_fcFirst,para_fcLim));
 		i=para_fcLim;
@@ -770,8 +783,8 @@ void wvGetComplexRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *bteP
 		wvTrace(("3: cp and fc are %x(%d) %x\n",i,i,wvConvertCPToFC(i, &ps->clx)));
 		piece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i,&ps->clx, btePapx, posPapx, para_intervals,piece,ps->mainfd);
 		if (piece == -1) break;
-		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
-        wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,piece,&ps->stsh,&ps->clx);
+		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh,ps->data);
+        wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,piece,&ps->stsh,&ps->clx,ps->data);
 		wvTrace(("para from %x to %x, table is %d\n",para_fcFirst,para_fcLim,apap.fInTable));
 		i=para_fcLim;
 		}

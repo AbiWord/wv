@@ -415,10 +415,10 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
     /* not a OLE file! */
   if(isprint(c)) 
   		{
-		wvError(("File looks like a plain text file.\n"));
+		wvTrace(("File looks like a plain text file.\n"));
 		return 2;
 		} 
-    wvError(("7 ===========> Input file is not an OLE file\n"));
+    wvTrace(("7 ===========> Input file is not an OLE file\n"));
     return 2;
   }
 }

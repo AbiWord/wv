@@ -57,7 +57,16 @@ Changes to to 0.5.38
 	* some mods to the old list conversion to new list format, removes at 
 	least one crash and might solve others, possibly not a full solution.
 	* added html names for umlautte characters.
+	* found a sprm 0x6646 which appears to be 0x6645 HugePAPX where the papx
+	is stored in the data stream, it only occurs for PAP's and only for FKP
+	papx's. Nonetheless it has requireed the addition of a data file stream
+	argument to many sprm related functions, nearly always NULL except for
+	fkp PAP papx's.
+	* sprmPHugePapx implemented, another nasty bug fixed because of this
+	impementation. 
 ALL TODO
+	* fix the para bounds problem in table.c at the exit-100 line
+
 	* Got to think of some way to keep the list stuff in sync with the margins 
 	of the enclosed paragraphs in html output.
 

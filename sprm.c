@@ -139,7 +139,7 @@ U8 wvEatSprm(U16 sprm,U8 *pointer, U16 *pos)
 	return(len);
 	}
 
-Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos)
+Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos,FILE *data)
 	{
 	BRC10 tempBRC10;
 	U16 temp16;
@@ -211,6 +211,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			break;
 		case sprmPIlfo:
 			apap->ilfo = (S16)bread_16ubit(pointer,pos);
+			wvTrace(("ilfo is %d\n",apap->ilfo));
 			break;
 		case sprmPFNoLineNumb:
 			apap->fNoLnn = bgetc(pointer,pos);
@@ -409,8 +410,9 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		case sprmPNumRM:
 			wvApplysprmPNumRM(apap,pointer,pos);
 			break;
+		case sprmPHugePapx2:
 		case sprmPHugePapx:
-			wvApplysprmPHugePapx(apap,pointer,pos);
+			wvApplysprmPHugePapx(apap,pointer,pos,data,stsh);
 			break;
 		case sprmPFUsePgsuSettings:
 			apap->fUsePgsuSettings = bgetc(pointer,pos);
@@ -1396,8 +1398,11 @@ void wvApplysprmPNumRM(PAP *apap,U8 *pointer, U16 *pos)
 	(*pos)+=cbNUMRM;
 	}
 
-void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos)
+void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos,FILE *data, STSH *stsh)
 	{
+	U32 offset;
+	U16 len,i,sprm;
+	U8 *grpprl,*pointer2;
 	/*
 	sprmPHugePapx is stored in PAPX FKPs in place of the grpprl of a PAPX which
 	would otherwise be too big to fit in an FKP (as of this writing, 488 bytes
@@ -1407,10 +1412,43 @@ void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos)
 	itself). A sprmPHugePapx should therefore only be found in a PAPX FKP and
 	should be the only sprm in that PAPX's grpprl.
 	*/
-	wvError(("This document has an unsupported sprm (sprmPHugePapx), please mail "));
-	wvError(("Caolan.McNamara@ul.ie with this document, as i haven't been able to "));
-	wvError(("get any examples of it so as to figure out how to handle it\n"));
+	offset = dread_32ubit(NULL,&pointer);
 	(*pos)+=4;
+	wvTrace(("Offset is %x in data stream\n",offset));
+	if (!(data))
+		{
+		wvError(("No data stream!!\n"));
+		return;
+		}
+	if (0 != fseek(data, offset, SEEK_SET))
+		{
+		wvError(("Couldn't seek data stream!!\n"));
+		return;
+		}
+	len = read_16ubit(data);
+	if (!len)
+		{
+		wvWarning("sprmPHugePapx len is 0, seems unlikely\n");
+		return;
+		}
+
+	grpprl = (U8*)malloc(len);
+
+	for (i=0;i<len;i++)
+		grpprl[i] = getc(data);
+
+	 i=0;
+	 while (i < len-2)   
+        {
+        sprm = bread_16ubit(grpprl+i,&i);
+#ifdef SPRMTEST
+        wvError(("sprm is %x\n",sprm));
+#endif
+        pointer2 = grpprl+i;
+        if (i < len)
+            wvApplySprmFromBucket(0,sprm,apap,NULL,NULL,stsh,pointer2,&i,data);
+        }
+	wvFree(grpprl);
 	}
 
 void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos)
@@ -1429,6 +1467,7 @@ void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos)
 
 void wvApplysprmCSymbol(version ver,CHP *achp,U8 *pointer,U16 *pos)
 	{
+	wvTrace(("ver is %d\n",ver));
 	if (ver == WORD8)
 		{
 	/*
@@ -1442,6 +1481,7 @@ void wvApplysprmCSymbol(version ver,CHP *achp,U8 *pointer,U16 *pos)
 		(*pos)+=2;
 		achp->xchSym = dread_16ubit(NULL,&pointer);
 		(*pos)+=2;
+		wvTrace(("%d %d\n",achp->ftcSym,achp->xchSym));
 		}
 	else
 		{

@@ -12,8 +12,11 @@ followed by its corresponding LVL structure (if LFOLVL.fFormatting is set).
 int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl,U32 offset,U32 len,FILE *fd)
 	{
 	U32 i;
+	long end;
 	*nooflvl=0;
 	wvTrace(("lfo begins at %x len %d\n",offset,len));
+	fseek(fd, 0, SEEK_END);
+	end = ftell(fd);
 	wvGetLFO_PLF(lfo,nolfo,offset,len,fd);
 
 	for (i=0;i<*nolfo;i++)
@@ -35,7 +38,13 @@ int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl
 	while (i<*nooflvl)
 		{
 		wvInitLVL(&((*lvl)[i]));
-		wvTrace(("pos now %x %d\n",ftell(fd),*nooflvl));
+		wvTrace(("%d pos now %x %d\n",i,ftell(fd),*nooflvl));
+		if (ftell(fd) == end)
+			{
+			wvWarning("LFOLVL off the end of the file, continuing anyway\n");
+			i++;
+			continue;
+			}
 		wvGetLFOLVL(&((*lfolvl)[i]),fd);
 #if 0
 		if (wvInvalidLFOLVL(&((*lfolvl)[i])) )

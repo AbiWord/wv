@@ -63,6 +63,11 @@ int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,LVL *retlvl,LFO **re
 	U32 fakeid;
 
 	wvTrace(("given ilfo of %d\n",apap->ilfo));
+	if (apap->ilfo < 0)
+		{
+		apap->ilfo = abs(apap->ilfo);
+		wvWarning("Insane negative ilfo value, normalizing to %d and hoping for the best\n",apap->ilfo);
+		}
 
 	if ( (apap->ilfo == 2047) || (ver != WORD8) )
 		{
@@ -271,7 +276,7 @@ int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,LVL *retlvl,LFO **re
      	pertains to both formatting and start-at value, use the LVL record 
 		from the correct LFOLVL in the LFO, and skip to step 5.
 		*/
-		wvTrace(("some overridden levels\n"));
+		wvTrace(("some overridden levels, ilfo %d\n",apap->ilfo));
 
 		/* 
 		there are some levels overridden, find out if the level being overridden
@@ -322,7 +327,14 @@ int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,LVL *retlvl,LFO **re
 		alst = wvSearchLST((*lfo)[apap->ilfo-1].lsid,*lst,*noofLST);
 		if (alst != NULL)
 			{
-			wvCopyLVL(retlvl,&(alst->lvl[apap->ilvl]));
+			wvTrace(("ilvl is %d\n",apap->ilvl));
+			if ( (alst->lstf.fSimpleList) && (apap->ilvl) )
+				{
+				wvWarning("Level %d requested from list with 1 level\n",apap->ilvl+1);
+				wvCopyLVL(retlvl,&(alst->lvl[0]));
+				}
+			else
+				wvCopyLVL(retlvl,&(alst->lvl[apap->ilvl]));
 			wvTrace(("string len is %d",retlvl->numbertext[0]));
 			wvTrace(("offset is %d\n",retlvl->lvlf.rgbxchNums[0]));
 			}

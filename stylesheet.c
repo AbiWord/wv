@@ -345,7 +345,9 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 					if (word6)
 						wvAddPAPXFromBucket6(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item);
 					else
-						wvAddPAPXFromBucket(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item);
+						wvAddPAPXFromBucket(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item,NULL);
+						/* data is NULL because HugePAPX cannot occur in this circumstance, according to the
+						docs */
 
 					wvInitCHPFromIstd(&(item->std[i].grupe[1].achp),(U16)item->std[i].istdBase,item);
 

@@ -512,8 +512,8 @@ encoded into the first 22 bytes.
 
 			if (j == para_fcFirst)
 				{
-				para_dirty = wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&ps->stsh);
-				para_dirty = (wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&ps->stsh,&ps->clx) ? 1 : para_dirty);
+				para_dirty = wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&ps->stsh,ps->data);
+				para_dirty = (wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&ps->stsh,&ps->clx,ps->data) ? 1 : para_dirty);
 
 				/* test section */
 				wvReleasePAPX_FKP(&para_fkp);
@@ -522,8 +522,8 @@ encoded into the first 22 bytes.
 				wvTrace(("para begin and end is %x %x\n",para_fcFirst,para_fcLim));
 				if (npiece > -1)
 					{
-					wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&ps->nextpap,nextpara_fcLim,&para_fkp,&ps->stsh);
-					wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&ps->nextpap,npiece,&ps->stsh,&ps->clx);
+					wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&ps->nextpap,nextpara_fcLim,&para_fkp,&ps->stsh,ps->data);
+					wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&ps->nextpap,npiece,&ps->stsh,&ps->clx,ps->data);
 					}
 				else
 					wvInitPAP(&ps->nextpap);
@@ -566,7 +566,22 @@ encoded into the first 22 bytes.
 				wvGetComplexCharBounds(wvQuerySupported(&ps->fib,NULL),&char_fkp,&char_fcFirst,&char_fcLim,wvConvertCPToFC(i, &ps->clx),&ps->clx, bteChpx, posChpx, char_intervals,piececount,ps->mainfd);
 				if (char_fcLim == char_fcFirst)
 					wvError(("I believe that this is an error, and you might see incorrect character properties\n"));
+				 if (0 == char_pendingclose)
+                    {
+                    /*
+                    if there's no character run open, but there should be then I believe that the fcFirst search
+                    has failed me, so I set it to now. I need to investigate this further.
+                    */
+                    if (j != char_fcFirst)
+                        {
+                        wvWarning(("There is no character run due to open but one should be, plugging the gap.\n"));
+                        char_fcFirst = j;
+                        }
+
+                    }
+				/*
 				char_fcFirst = j;	
+				*/
 				}
 
 			if (j == char_fcFirst)
@@ -723,7 +738,7 @@ int wvGetComplexSEP(version ver,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx)
 		wvError(("singleton\n",clx->pcd[cpiece].prm.para.var1.isprm));
 #endif
 		RetSprm = wvApplySprmFromBucket(ver,wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
-		NULL,NULL, sep,stsh,pointer,&pos);
+		NULL,NULL, sep,stsh,pointer,&pos,NULL);
 		if (RetSprm.sgc == sgcSep)	ret = 1;
 		}
 	else
@@ -749,7 +764,7 @@ int wvGetComplexSEP(version ver,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx)
 				sprm = wvGetrgsprmWord6(sprm);
 				}
 			pointer = clx->grpprl[index]+i;
-			RetSprm = wvApplySprmFromBucket(ver,sprm,NULL,NULL,sep,stsh,pointer,&i);
+			RetSprm = wvApplySprmFromBucket(ver,sprm,NULL,NULL,sep,stsh,pointer,&i,NULL);
 			if (RetSprm.sgc == sgcSep)	ret = 1;
 			}
 		}
@@ -769,7 +784,7 @@ applied to the local PAP if it is a paragraph sprm.
 CLX.  If that grpprl contains any paragraph sprms, they should be applied to 
 the local PAP.
 */
-int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
+int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx, FILE *data)
 	{
 	int ret=0;
 	U16 sprm,pos=0,i=0;
@@ -787,13 +802,14 @@ int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 		wvError(("singleton\n",clx->pcd[cpiece].prm.para.var1.isprm));
 #endif
 		RetSprm = wvApplySprmFromBucket(ver,wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
-		apap,NULL, NULL,stsh,pointer,&pos);
+		apap,NULL, NULL,stsh,pointer,&pos,data);
 		if (RetSprm.sgc == sgcPara)	ret = 1;
 		}
 	else
 		{
 		index = clx->pcd[cpiece].prm.para.var2.igrpprl;
 #ifdef SPRMTEST
+		wvError(("HERE-->\n"));
 		fprintf(stderr,"\n");
 		for (i=0;i<clx->cbGrpprl[index];i++)
 			fprintf(stderr,"%x ",*(clx->grpprl[index]+i));
@@ -811,7 +827,7 @@ int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 				wvTrace(("sprm is %x\n",sprm));
 				}
 			pointer = clx->grpprl[index]+i;
-			RetSprm = wvApplySprmFromBucket(ver,sprm,apap,NULL,NULL,stsh,pointer,&i);
+			RetSprm = wvApplySprmFromBucket(ver,sprm,apap,NULL,NULL,stsh,pointer,&i,data);
 			if (RetSprm.sgc == sgcPara)	ret = 1;
 			}
 		}
@@ -837,7 +853,7 @@ int wvAssembleComplexCHP(version ver,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 		wvError(("singleton\n",clx->pcd[cpiece].prm.para.var1.isprm));
 #endif
 		RetSprm = wvApplySprmFromBucket(ver,wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
-		NULL, achp, NULL,stsh,pointer,&pos);
+		NULL, achp, NULL,stsh,pointer,&pos,NULL);
 		if (RetSprm.sgc == sgcChp)  ret = 1;
 		}
 	else
@@ -860,7 +876,8 @@ int wvAssembleComplexCHP(version ver,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 				sprm = (U16)wvGetrgsprmWord6(sprm8);
 				}
 			pointer = clx->grpprl[index]+i;
-			RetSprm = wvApplySprmFromBucket(ver,sprm,NULL,achp,NULL,stsh,pointer,&i);
+			RetSprm = wvApplySprmFromBucket(ver,sprm,NULL,achp,NULL,stsh,
+				pointer,&i,NULL);
 			if (RetSprm.sgc == sgcChp)  ret = 1;
 			}
 		}

@@ -55,6 +55,7 @@ void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,FILE *fd)
 	U16 cb;
 	U32 lcb,i,j=0;
 
+	wvTrace(("offset %x len %d\n",offset,len));
 	fseek(fd,offset,SEEK_SET);
 
 	wvInitCLX(clx);

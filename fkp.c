@@ -210,6 +210,7 @@ void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, FILE *fd)
 	fkp->rgb = (U8 *)malloc(sizeof(U8) * (fkp->crun));
 	fkp->grpchpx = (CHPX *)malloc(sizeof(CHPX) * (fkp->crun));
 	fseek(fd, pn*PAGESIZE, SEEK_SET);
+	wvTrace(("offset is %x\n",pn*PAGESIZE));
 	for (i=0;i<fkp->crun+1;i++)
 		{
 		fkp->rgfc[i] = read_32ubit(fd);

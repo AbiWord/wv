@@ -166,7 +166,7 @@ int wvAddSEPXFromBucket(SEP *asep,SEPX *item,STSH *stsh)
         {
         sprm = bread_16ubit(item->grpprl+i,&i);
         pointer = item->grpprl+i;
-        RetSprm = wvApplySprmFromBucket(0,sprm,NULL,NULL,asep,stsh,pointer,&i);
+        RetSprm = wvApplySprmFromBucket(0,sprm,NULL,NULL,asep,stsh,pointer,&i,NULL);
 		if (RetSprm.sgc == sgcSep)  ret = 1;
         }
 	return(ret);
@@ -201,7 +201,7 @@ int wvAddSEPXFromBucket6(SEP *asep,SEPX *item,STSH *stsh)
 		wvTrace(("sep word 6 sprm is converted to %x\n",sprm));
 #endif
         pointer = item->grpprl+i;
-        RetSprm = wvApplySprmFromBucket(1,sprm,NULL,NULL,asep,stsh,pointer,&i);
+        RetSprm = wvApplySprmFromBucket(1,sprm,NULL,NULL,asep,stsh,pointer,&i,NULL);
 		if (RetSprm.sgc == sgcSep)  ret = 1;
         }
 	return(ret);

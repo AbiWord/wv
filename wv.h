@@ -1650,7 +1650,7 @@ void wvReleaseSTSH(STSH *item);
 
 
 void wvInitPAPFromIstd(PAP *apap,U16 istdBase,STSH *stsh);
-void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh);
+void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh,FILE *data);
 void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh);
 
 void wvInitCHPFromIstd(CHP *achp,U16 istdBase,STSH *stsh);
@@ -1808,7 +1808,7 @@ typedef struct _Sprm
 
 
 
-Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos);
+Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos, FILE *data);
 
 int wvSprmLen(int spra);
 void wvGetSprmFromU16(Sprm *Sprm,U16 sprm);
@@ -1919,6 +1919,9 @@ typedef enum _SprmName
 	sprmPCrLf             = 0x2444 ,
 	sprmPNumRM            = 0xC645 ,
 	sprmPHugePapx         = 0x6645 ,
+	sprmPHugePapx2        = 0x6646 ,	/* this is the one I have found in
+										the wild, maybe the doc is incorrect
+										in numbering it 6645 C. */
 	sprmPFUsePgsuSettings = 0x2447 ,
 	sprmPFAdjustRight     = 0x2448 ,
 
@@ -2098,7 +2101,7 @@ void wvApplysprmPFrameTextFlow(PAP *apap,U8 *pointer,U16 *pos);
 void wvApplysprmPAnld(version ver,PAP *apap,U8 *pointer, U16 *pos);
 void wvApplysprmPPropRMark(PAP *apap,U8 *pointer,U16 *pos);
 void wvApplysprmPNumRM(PAP *apap,U8 *pointer, U16 *pos);
-void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos);		/*unfinished*/
+void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos, FILE *data, STSH *stsh);
 
 void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
 void wvApplysprmCSymbol(version ver,CHP *achp,U8 *pointer,U16 *pos);
@@ -2796,7 +2799,7 @@ void wvRealTrace(char *file, int line, char *msg);
 #define wvTrace( args )
 #endif
 
-int wvAssembleSimplePAP(version ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh);
+int wvAssembleSimplePAP(version ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh,FILE *data);
 int wvAssembleComplexCHP(version ver,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx);
 
 void wvAppendStr(char **orig,const char *add);
@@ -2858,7 +2861,7 @@ int wvHandleDocument(wvParseStruct *ps,wvTag tag);
 void wvSetDocumentHandler(int (*proc)(wvParseStruct *,wvTag));
 
 SprmName wvGetrgsprmPrm(U16 in);
-int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx);
+int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx,FILE *data);
 U32 wvGetEndFCPiece(U32 piece,CLX *clx);
 void wvInitSprm(Sprm *Sprm);
 

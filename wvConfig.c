@@ -468,7 +468,10 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->whichrow,
 			mydata->whichcell,
 			(*mydata->vmerges)[mydata->whichrow][mydata->whichcell]));
-			sprintf(buffer,"%d",(*mydata->vmerges)[mydata->whichrow][mydata->whichcell]);
+			if (*mydata->vmerges)
+				sprintf(buffer,"%d",(*mydata->vmerges)[mydata->whichrow][mydata->whichcell]);
+			else
+				sprintf(buffer,"1");
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
@@ -482,7 +485,9 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			}
 			break;
 		case TT_CELLBGCOLOR:
+			wvTrace(("%d %d %d %d\n",mydata->whichrow,mydata->whichcell,((PAP *)(mydata->props))->ptap.itcMac,*(mydata->norows)));
 			k = wvCellBgColor(mydata->whichrow,mydata->whichcell,((PAP *)(mydata->props))->ptap.itcMac,*(mydata->norows),&(((PAP *)(mydata->props))->ptap.tlp)); 
+			wvTrace(("k is %d\n",k));
 			if (k==0) k = 8;
 			text = (char *)malloc(strlen(mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0])+1); 
 			strcpy(text,mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0]); 
@@ -544,14 +549,14 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				wvTrace(("this cell is %d, pos %d ends %d\n",mydata->whichcell,((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell],((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]));
 				i=0;
 				while ( 
-				(i <= *mydata->nocellbounds) && 
+				(i < *mydata->nocellbounds) && 
 				(0 == cellCompEQ( &((*mydata->cellbounds)[i]), &(((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell])))
 				)
 					i++;
 
 				j=i;
 				while( 
-				(j <= *mydata->nocellbounds) && 
+				(j < *mydata->nocellbounds) && 
 				(0 == cellCompEQ( &((*mydata->cellbounds)[j]), &(((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]))) 
 				)
 					{

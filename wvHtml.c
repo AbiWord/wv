@@ -355,7 +355,7 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			{
 			U16 symbol[6] = {'S','y','m','b','o','l'};
 			U16 wingdings[9] = {'W','i','n','g','d','i','n','g','s'};
-			wvTrace(("index is %d\n",achp->ftcSym));
+			wvTrace(("no of strings %d %d\n",ps->fonts.nostrings,achp->ftcSym));
 			if (0 == memcmp(symbol,ps->fonts.ffn[achp->ftcSym].xszFfn,12))
 				{
 				if ( (!message) && (UTF8 != charset) )

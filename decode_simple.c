@@ -200,16 +200,17 @@ void wvDecodeSimple(wvParseStruct *ps)
 				{
 				wvReleasePAPX_FKP(&para_fkp);
 				wvGetSimpleParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,wvConvertCPToFC(i,&ps->clx), btePapx, posPapx, para_intervals, ps->mainfd);
+				wvTrace(("Para from %x to %x\n",para_fcFirst,para_fcLim));
 				}
 
 			if (j == para_fcFirst)
 				{
-				para_dirty = wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
+				para_dirty = wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh,ps->data);
 			
 				/* test section */
 				wvReleasePAPX_FKP(&para_fkp);
 				wvGetSimpleParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&dummy,&nextpara_fcLim,para_fcLim, btePapx, posPapx, para_intervals, ps->mainfd);
-				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&ps->nextpap, nextpara_fcLim, &para_fkp, &ps->stsh);
+				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&ps->nextpap, nextpara_fcLim, &para_fkp, &ps->stsh,ps->data);
 				/* end test section */
 
 				if ( (apap.fInTable) && (!apap.fTtp) )
@@ -245,6 +246,19 @@ void wvDecodeSimple(wvParseStruct *ps)
 				wvReleaseCHPX_FKP(&char_fkp);
 				wvGetSimpleCharBounds(wvQuerySupported(&ps->fib, NULL), &char_fkp, &char_fcFirst, &char_fcLim, i, &ps->clx, bteChpx, posChpx, char_intervals, ps->mainfd);
 				wvTrace(("char begins at %x ends %x\n", char_fcFirst, char_fcLim));
+				if (0 == char_pendingclose)
+					{
+					/*
+                    if there's no character run open, but there should be then I believe that the fcFirst search
+                    has failed me, so I set it to now. I need to investigate this further. 
+                    */
+                    if (j != char_fcFirst)
+                        {
+                        wvWarning(("There is no character run due to open but one should be, plugging the gap.\n"));
+                        char_fcFirst = j;
+                        }
+
+					}
 				}
 
 			if (j == char_fcFirst)
@@ -255,6 +269,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 				char_dirty = wvAssembleSimpleCHP(wvQuerySupported(&ps->fib, NULL),&achp,char_fcLim, &char_fkp, &ps->stsh);
 				wvTrace(("CHP assembled.\n"));
 				wvTrace(("font is %d\n",achp.ftcAscii));
+				wvTrace(("char spec is %d\n",achp.ftcSym));
 				wvHandleElement(ps, CHARPROPBEGIN, (void*)&achp,char_dirty);
 				char_pendingclose = 1;
 				}
@@ -403,6 +418,7 @@ int wvGetSimpleCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, 
 		return(1);
 		}
 
+	wvTrace(("char fc is %x\n",currentfc));
 
 	if (0 != wvGetBTE_FromFC(&entry, currentfc, bte, pos, nobte))
 		{

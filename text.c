@@ -344,12 +344,13 @@ int wvIsEmptyPara(PAP *apap,expand_data *data,int inc)
 		{
 		wvTrace(("This Para is in cell %d %d\n",data->whichrow,data->whichcell));
 		wvTrace(("%d\n",(*data->vmerges)[data->whichrow][data->whichcell]));
-		if ((*data->vmerges)[data->whichrow][data->whichcell] == 0)
-			{
-			wvTrace(("Skipping the next paragraph\n"));
-			if (inc) data->whichcell++;
-			return(1);
-			}
+		if (*data->vmerges)
+			if ((*data->vmerges)[data->whichrow][data->whichcell] == 0)
+				{
+				wvTrace(("Skipping the next paragraph\n"));
+				if (inc) data->whichcell++;
+				return(1);
+				}
 		}
 	return(0);
 	}
