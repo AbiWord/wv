@@ -2,183 +2,144 @@
 #include <stdio.h>
 #include "wv.h"
 
+#include "glib.h"
+#include "ms-ole.h"
+#include "ms-ole-summary.h"
+
 /*
-This is a simple example that take an ole file and prints the
-title and the last modified time of the document according to
-the summaryinformation stream
+ * This is a simple example that take an ole file and prints some
+ * information from the summaryinformation stream
+ */
 
-Caolan.McNamara@ul.ie
-*/
-
-int main(int argc,char **argv)
+int main(int argc, char *argv[])
 	{
-	char szTemp[256];
-	SummaryInfo si;
-	int ret;
-	U16 yr, mon, day, hr, min, sec;
-	U32 along;
-	wvStream *s;
+	char *str = NULL;
+	gboolean ret = FALSE;
+	short s = 0;
+	long l = 0;
 
-	wvInitError();
+	MsOle *ole = NULL;
+	MsOleSummary *summary = NULL;
 
 	if (argc < 2)
 		{
-		printf("Usage: wvSummary oledocument\n");
+		fprintf(stderr, "Usage: wvSummary oledocument\n");
 		return(1);
 		}
-	
-	ret = wvOLESummaryStream(argv[1],&s);
-	if (ret)
+
+	ms_ole_open(&ole, argv[1]);
+	if (!ole)
 		{
 		fprintf(stderr,"sorry problem with getting ole streams from %s\n",argv[1]);
-		return(ret);
+		return 1;
 		}
 
-	if (s == NULL)
+	summary = ms_ole_summary_open(ole);
+	if (!summary)
 		{
-		printf("no summary stream\n");
-		return(0);
+		fprintf(stderr, "Could not open summary stream\n");
+		return 1;
 		}
 
-	ret = wvSumInfoOpenStream(&si,s);
+	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_TITLE, &ret);
+
+	if (ret && str)
+	  printf("The title is %s\n", str);
+	else
+	  printf("no title found\n");
+	
+	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_SUBJECT, &ret);
+
+	if (ret && str)
+	  printf("The subject is %s\n", str);
+	else
+	  printf("no subject found\n");
+	
+	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_AUTHOR, &ret);
+
+	if (ret && str)
+	  printf("The author is %s\n", str);
+	else
+	  printf("no author found\n");
+	
+	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_KEYWORDS, &ret);
+	
+	if (ret && str)
+	  printf("The keywords are %s\n", str);
+	else
+	  printf("no keywords found\n");
+	
+	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_COMMENTS, &ret);
+	
+	if (ret && str)
+	  printf("The comments are %s\n", str);
+	else
+	  printf("no comments found\n");
+	
+	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_TEMPLATE, &ret);
+	
+	if (ret && str)
+	  printf("The template was %s\n", str);
+	else
+	  printf("no template found\n");
+	
+	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_LASTAUTHOR, &ret);
+	
+	if (ret && str)
+	  printf("The last author was %s\n", str);
+	else
+	  printf("no last author found\n");
+	
+	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_REVNUMBER, &ret);
+	
+	if (ret && str)
+	  printf("The rev # was %s\n", str);
+	else
+	  printf("no rev no found\n");
+	
+	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_APPNAME, &ret);
+
+	if (ret && str)
+	  printf("The app name was %s\n", str);
+	else
+	  printf("no app name found\n");
+	
+	l = ms_ole_summary_get_long(summary, MS_OLE_SUMMARY_PAGECOUNT, &ret);
+	
+	if (ret)
+	  printf("PageCount is %d\n", l);
+	else
+	  printf("no pagecount\n");
+	
+	l = ms_ole_summary_get_long(summary, MS_OLE_SUMMARY_WORDCOUNT, &ret);
 
 	if (ret)
-		{
-		fprintf(stderr,"open stream failed\n");
-		return(ret);
-		}
-
-
-	ret = wvSumInfoGetString(szTemp, 256, PID_TITLE, &si);
-
-	if (!ret)
-		printf("The title is %s\n",szTemp);
+	  printf("WordCount is %d\n", l);
 	else
-		printf("no title found\n");
-
-	ret = wvSumInfoGetString(szTemp, 256, PID_SUBJECT, &si);
-
-	if (!ret)
-		printf("The subject is %s\n",szTemp);
+	  printf("no wordcount\n");
+		
+	l = ms_ole_summary_get_long(summary, MS_OLE_SUMMARY_CHARCOUNT, &ret);
+	
+	if (ret)
+	  printf("CharCount is %d\n", l);
 	else
-		printf("no subject found\n");
-
-	ret = wvSumInfoGetString(szTemp, 256, PID_AUTHOR, &si);
-
-	if (!ret)
-		printf("The author is %s\n",szTemp);
+	  printf("no charcount\n");
+	
+	l = ms_ole_summary_get_long(summary, MS_OLE_SUMMARY_SECURITY, &ret);
+	
+	if (ret)
+	  printf("Security is %d\n", l);
 	else
-		printf("no author found\n");
-
-	ret = wvSumInfoGetString(szTemp, 256, PID_KEYWORDS, &si);
-
-	if (!ret)
-		printf("The keywords are %s\n",szTemp);
+	  printf("no security\n");
+		
+	s = ms_ole_summary_get_short(summary, MS_OLE_SUMMARY_CODEPAGE, &ret);
+	if(ret)
+	  printf("Codepage is 0x%x (%d)\n", s, s);
 	else
-		printf("no keywords found\n");
+	  printf("no codepage\n");
 
-	ret = wvSumInfoGetString(szTemp, 256, PID_COMMENTS, &si);
+	ms_ole_summary_close(summary);
+	ms_ole_destroy(&ole);
 
-	if (!ret)
-		printf("The comments are %s\n",szTemp);
-	else
-		printf("no comments found\n");
-
-	ret = wvSumInfoGetString(szTemp, 256, PID_TEMPLATE, &si);
-
-	if (!ret)
-		printf("The template was %s\n",szTemp);
-	else
-		printf("no template found\n");
-
-	ret = wvSumInfoGetString(szTemp, 256, PID_LASTAUTHOR, &si);
-
-	if (!ret)
-		printf("The last author was %s\n",szTemp);
-	else
-		printf("no last author found\n");
-
-	ret = wvSumInfoGetString(szTemp, 256, PID_REVNUMBER, &si);
-
-	if (!ret)
-		printf("The rev no was %s\n",szTemp);
-	else
-		printf("no rev no found\n");
-
-	ret = wvSumInfoGetString(szTemp, 256, PID_APPNAME, &si);
-
-	if (!ret)
-		printf("The app name was %s\n",szTemp);
-	else
-		printf("no app name found\n");
-
-	ret = wvSumInfoGetTime(&yr, &mon, &day, &hr, &min, &sec,PID_TOTAL_EDITTIME,&si);
-
-	if (!ret)
-	    printf("Total edit time was %d/%d/%d %d:%d:%d\n",day,mon,yr,hr,min,sec);
-	else
-		printf("no total edit time found\n");
-
-
-	ret = wvSumInfoGetTime(&yr, &mon, &day, &hr, &min, &sec,PID_LASTPRINTED,&si);
-
-	if (!ret)
-	    printf("Last printed on %d/%d/%d %d:%d:%d\n",day,mon,yr,hr,min,sec);
-	else
-		printf("no last printed time found\n");
-
-	ret = wvSumInfoGetTime(&yr, &mon, &day, &hr, &min, &sec,PID_CREATED,&si);
-
-	if (!ret)
-	    printf("Created on %d/%d/%d %d:%d:%d\n",day,mon,yr,hr,min,sec);
-	else
-		printf("no creation time found\n");
-
-	ret = wvSumInfoGetTime(&yr, &mon, &day, &hr, &min, &sec,PID_LASTSAVED,&si);
-
-	if (!ret)
-	    printf("Last Saved on %d/%d/%d %d:%d:%d\n",day,mon,yr,hr,min,sec);
-	else
-		printf("no lastsaved date found\n");
-
-	ret = wvSumInfoGetLong(&along,PID_PAGECOUNT, &si);
-
-	if (!ret)
-	    printf("PageCount is %d\n",along);
-	else
-		printf("no pagecount\n");
-
-	ret = wvSumInfoGetLong(&along,PID_WORDCOUNT, &si);
-
-	if (!ret)
-	    printf("WordCount is %d\n",along);
-	else
-		printf("no wordcount\n");
-
-
-	ret = wvSumInfoGetLong(&along,PID_CHARCOUNT, &si);
-
-	if (!ret)
-	    printf("CharCount is %d\n",along);
-	else
-		printf("no charcount\n");
-
-	ret = wvSumInfoGetLong(&along,PID_SECURITY, &si);
-
-	if (!ret)
-	    printf("Security is %d\n",along);
-	else
-		printf("no security\n");
-
-	ret = wvSumInfoGetPreview(szTemp, 256, PID_THUMBNAIL, &si);
-
-	if (!ret)
-	    printf("preview is %s\n",szTemp);
-	else
-		printf("no preview found\n");
-
-	wvReleaseSummaryInfo(&si);
-
-	wvStream_close(s);
-	return(ret);
+	return 0;
 	}
