@@ -24,12 +24,13 @@
  * GLib at ftp://ftp.gtk.org/pub/gtk/. 
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <string.h>
 #include "glib.h"
 
 #define MEM_PROFILE_TABLE_SIZE 8192

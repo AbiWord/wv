@@ -21,8 +21,8 @@ void wvBuildCLXForSimple6(CLX *clx,FIB *fib)
 	wvInitCLX(clx);
     clx->nopcd=1;;
 
-	clx->pcd = (PCD *) malloc(clx->nopcd * sizeof(PCD));
-	clx->pos = (U32 *) malloc( (clx->nopcd+1) * sizeof(U32));
+	clx->pcd = (PCD *) wvMalloc(clx->nopcd * sizeof(PCD));
+	clx->pos = (U32 *) wvMalloc( (clx->nopcd+1) * sizeof(U32));
 	
     clx->pos[0] = 0;
     clx->pos[1] = fib->ccpText;
@@ -81,7 +81,7 @@ void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,wvStream *fd)
 			clx->cbGrpprl = (U16 *)realloc(clx->cbGrpprl,sizeof(U16)*clx->grpprl_count);
 			clx->cbGrpprl[clx->grpprl_count-1] = cb;
 			clx->grpprl = (U8 **)realloc(clx->grpprl,sizeof(U8 *)*(clx->grpprl_count));
-			clx->grpprl[clx->grpprl_count-1] = (U8 *)malloc(cb);
+			clx->grpprl[clx->grpprl_count-1] = (U8 *)wvMalloc(cb);
 			for(i=0;i<cb;i++)
 				clx->grpprl[clx->grpprl_count-1][i] = read_8ubit(fd);
 			j+=i;
@@ -328,7 +328,7 @@ int wvGuess16bit(PCD *pcd,U32 *pos,U32 nopcd)
 	struct test *fcs;
 	U32 i;
 	int ret=1;
-	fcs = (struct test *)malloc(sizeof(struct test) * nopcd);
+	fcs = (struct test *)wvMalloc(sizeof(struct test) * nopcd);
 	for(i=0;i<nopcd;i++)
 		{
 		fcs[i].fc = pcd[i].fc;

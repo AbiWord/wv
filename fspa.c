@@ -59,18 +59,22 @@ int wvGetFSPA_PLCF(FSPA **fspa,U32 **pos,U32 *nofspa,U32 offset,U32 len,wvStream
 	else
         {
         *nofspa=(len-4)/30;
-        *pos = (U32 *) malloc( (*nofspa+1) * sizeof(U32));
+        *pos = (U32 *) wvMalloc( (*nofspa+1) * sizeof(U32));
         if (*pos == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nofspa+1) * sizeof(U32)));
             return(1);
             }
 
-        *fspa= (FSPA *) malloc(*nofspa* sizeof(FSPA));
+        *fspa= (FSPA *) wvMalloc(*nofspa* sizeof(FSPA));
         if (*fspa== NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nofspa* sizeof(FSPA)));
-			free(pos);
+
+                       /* I believe it is not always right to free this. Sometimes len == 4 and
+                        * although *nofspa == 0, the data structure is needed.
+                        * (Wild guesswork by MV 20.12.2000 -- correct me if I'm wrong)        */
+                       /*                      free(pos); */
             return(1);
             }
         wvStream_goto(fd,offset);

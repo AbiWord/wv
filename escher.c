@@ -284,7 +284,7 @@ U32 wvGetSplitMenuColors(SplitMenuColors *splitmenucolors,MSOFBH *amsofbh,wvStre
 	splitmenucolors->noofcolors = amsofbh->cbLength/4;
 	if (splitmenucolors->noofcolors)
 		{
-		splitmenucolors->colors = (U32 *)malloc(sizeof(U32)*splitmenucolors->noofcolors);
+		splitmenucolors->colors = (U32 *)wvMalloc(sizeof(U32)*splitmenucolors->noofcolors);
 		for(i=0;i<splitmenucolors->noofcolors;i++)
 			splitmenucolors->colors[i] = read_32ubit(fd);
 		}
@@ -317,7 +317,7 @@ U32 wvGetDgg(Dgg *dgg,MSOFBH *amsofbh,wvStream *fd)
 			}
 		if (no)
 			{
-			dgg->fidcl = (FIDCL *)malloc(sizeof(FIDCL) * no);
+			dgg->fidcl = (FIDCL *)wvMalloc(sizeof(FIDCL) * no);
 			for(i=0;i<no;i++)
 				count+=wvGetFIDCL(&(dgg->fidcl[i]),fd);
 			}
@@ -550,7 +550,7 @@ U32 wvGetClientData(ClientData *item,MSOFBH *msofbh,wvStream *fd)
 	U32 i;
 	if (msofbh->cbLength)
 		{
-		item->data=(U8 *)malloc(msofbh->cbLength);
+		item->data=(U8 *)wvMalloc(msofbh->cbLength);
 		for(i=0;i<msofbh->cbLength;i++)
 			item->data[i]=read_8ubit(fd);
 		}
@@ -597,7 +597,7 @@ void wvReleaseClientTextbox(ClientTextbox *item)
 
 U32 wvGetClientTextbox(ClientTextbox *item,MSOFBH *amsofbh,wvStream *fd)
    {
-   item->textid = (U32 *)malloc(amsofbh->cbLength);
+   item->textid = (U32 *)wvMalloc(amsofbh->cbLength);
    *item->textid = read_32ubit(fd);
    return(amsofbh->cbLength);
    }

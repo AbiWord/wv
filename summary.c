@@ -3,8 +3,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "wv.h"
 #include <string.h>
+#include "wv.h"
 
 /*
 This file is a port of the Somar Software freeware DLL functions to get 
@@ -63,7 +63,7 @@ void wvGetSummaryInfo(SummaryInfo *si,wvStream *file,U32 offset)
 	if (si->cProps == 0)
 		return;
 
-	si->aProps = (aPro *)malloc(sizeof(aPro)* si->cProps);
+	si->aProps = (aPro *)wvMalloc(sizeof(aPro)* si->cProps);
 	for(i=0;i<si->cProps;i++)
 		{
 		si->aProps[i].propID = read_32ubit(file);
@@ -72,7 +72,7 @@ void wvGetSummaryInfo(SummaryInfo *si,wvStream *file,U32 offset)
 		}
 	if (si->cBytes - 8*si->cProps > 0)
 		{
-		si->data = (U8 *)malloc(si->cBytes - 8*si->cProps);
+		si->data = (U8 *)wvMalloc(si->cBytes - 8*si->cProps);
 		for (i=0;i<si->cBytes - 8*si->cProps;i++)
 			si->data[i] = read_8ubit(file);
 		}
@@ -314,7 +314,7 @@ int wvGetProperty(PropValue *Prop, SummaryInfo *si, U32 pid)
 						Prop->vtValue.vtBSTR.ch=NULL;
 						break;
 						}
-					Prop->vtValue.vtBSTR.ch = (char *)malloc(Prop->vtValue.vtBSTR.cBytes);
+					Prop->vtValue.vtBSTR.ch = (char *)wvMalloc(Prop->vtValue.vtBSTR.cBytes);
 					for (j=0;j<Prop->vtValue.vtBSTR.cBytes;j++)
 						Prop->vtValue.vtBSTR.ch[j] = *t++;
 					break;

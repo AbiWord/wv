@@ -3,8 +3,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "wv.h"
 #include <string.h>
+#include "wv.h"
 
 /*modify this to handle cbSTSHI < the current size*/
 void wvGetSTSHI(STSHI *item,U16 cbSTSHI,wvStream *fd)
@@ -177,7 +177,7 @@ int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,wvStream *fd)
 
 
 	wvTrace(("doing a std, str len is %d\n",len+1));
-	item->xstzName = (U16 *)malloc((len+1) * sizeof(XCHAR));
+	item->xstzName = (U16 *)wvMalloc((len+1) * sizeof(XCHAR));
 
 	for(i=0;i<len+1;i++)
 		{
@@ -205,14 +205,14 @@ int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,wvStream *fd)
 		return(0);
 		}
 
-	item->grupxf = (UPXF *)malloc(sizeof(UPXF) * item->cupx);
+	item->grupxf = (UPXF *)wvMalloc(sizeof(UPXF) * item->cupx);
 	if (item->grupxf == NULL)
 		{
 		wvError(("Couuldn't alloc %d bytes for UPXF\n",sizeof(UPXF) * item->cupx));
 		return(0);
 		}
 
-	item->grupe = (UPE *)malloc(sizeof(UPE) * item->cupx);
+	item->grupe = (UPE *)wvMalloc(sizeof(UPE) * item->cupx);
 	if (item->grupe == NULL)
 		{
 		wvError(("Couuldn't alloc %d bytes for UPE\n",sizeof(UPE) * item->cupx));
@@ -237,7 +237,7 @@ int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,wvStream *fd)
 
 		if ((item->cupx == 1) || ((item->cupx == 2) && (i==1)))
 			{
-			item->grupxf[i].upx.chpx.grpprl = (U8 *)malloc(item->grupxf[i].cbUPX);
+			item->grupxf[i].upx.chpx.grpprl = (U8 *)wvMalloc(item->grupxf[i].cbUPX);
 			for(j=0;j<item->grupxf[i].cbUPX;j++)
 				{
 				item->grupxf[i].upx.chpx.grpprl[j] = read_8ubit(fd);
@@ -249,7 +249,7 @@ int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,wvStream *fd)
 			item->grupxf[i].upx.papx.istd = read_16ubit(fd);
 			pos+=2;
 			if (item->grupxf[i].cbUPX-2)
-				item->grupxf[i].upx.papx.grpprl = (U8 *)malloc(item->grupxf[i].cbUPX-2);
+				item->grupxf[i].upx.papx.grpprl = (U8 *)wvMalloc(item->grupxf[i].cbUPX-2);
 			else
 				item->grupxf[i].upx.papx.grpprl = NULL;
 			for(j=0;j<item->grupxf[i].cbUPX-2;j++)
@@ -306,10 +306,10 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,wvStream *fd)
 		item->std=NULL;
 		return;
 		}
-	chains1 = (U16 *)malloc(sizeof(U16) * item->Stshi.cstd);
-	chains2 = (U16 *)malloc(sizeof(U16) * item->Stshi.cstd);
+	chains1 = (U16 *)wvMalloc(sizeof(U16) * item->Stshi.cstd);
+	chains2 = (U16 *)wvMalloc(sizeof(U16) * item->Stshi.cstd);
 
-	item->std = (STD *)malloc(sizeof(STD) * item->Stshi.cstd);
+	item->std = (STD *)wvMalloc(sizeof(STD) * item->Stshi.cstd);
 	if (item->std == NULL)
 		{
 		wvError(("No mem for STD list, of size %d\n",sizeof(STD) * item->Stshi.cstd));

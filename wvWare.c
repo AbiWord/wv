@@ -51,7 +51,7 @@ char *strdup(const char *text)
     size_t len;
 
     len = strlen(text);
-    buf = (char *) malloc(len);
+    buf = (char *) wvMalloc(len);
     memcpy(buf, text, len);
 
     return buf;
@@ -559,6 +559,7 @@ void wvPrintGraphics(char *config, int graphicstype, int width, int height,
 	  || (strstr(config, "wvCleanLaTeX.xml") != NULL) )
 	      {
 		remove_suffix (source, ".wmf");
+		remove_suffix (source, ".pict");
 		remove_suffix (source, ".png");
 		remove_suffix (source, ".jpg");
 		/* 

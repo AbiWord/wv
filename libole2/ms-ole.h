@@ -9,7 +9,7 @@
 #ifndef MS_OLE_H
 #define MS_OLE_H
 
-/* THIS SHOULD BE NICER */
+/* This should be done in glib */
 #ifndef _WIN32
 #include <fcntl.h>	/* for mode_t */
 #else
@@ -71,6 +71,11 @@ struct _MsOleSysWrappers {
 	off_t   (*lseek)	(int fd, off_t offset, int whence);
 	int     (*isregfile)	(int fd);
 	int     (*getfilesize)	(int fd, guint32 *size);
+
+	/* Optionaly implementable */
+	void   *(*mmap)         (void *start, size_t length, int prot,
+				 int flags, int fd, off_t offset);
+	int     (*munmap)       (void *start, size_t length);
 };
 
 struct _MsOleStat {

@@ -14,7 +14,7 @@ void wvCopyBlip(Blip *dest,Blip *src)
 
 	if (src->name)
 		{
-		dest->name = (U16 *)malloc(src->fbse.cbName*sizeof(U16));
+		dest->name = (U16 *)wvMalloc(src->fbse.cbName*sizeof(U16));
 		for(i=0;i<src->fbse.cbName;i++)
 			dest->name[i] = src->name[i];
 		}
@@ -50,7 +50,7 @@ U32 wvGetBlip(Blip *blip,wvStream *fd,wvStream *delay)
 	if (blip->fbse.cbName == 0)
 		blip->name=NULL;
 	else
-		blip->name=(U16 *)malloc(sizeof(U16) * blip->fbse.cbName);
+		blip->name=(U16 *)wvMalloc(sizeof(U16) * blip->fbse.cbName);
 	for(i=0;i<blip->fbse.cbName;i++)
 		blip->name[i] = read_16ubit(fd);
 	count+=blip->fbse.cbName*2;

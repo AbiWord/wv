@@ -61,15 +61,15 @@ void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,wvStream *fd)
 	anS->extradatalen = read_16ubit(fd);
 
 	if (anS->extendedflag == 0xFFFF)
-		anS->u16strings = (U16 **)malloc(sizeof(U16 *)*anS->nostrings);
+		anS->u16strings = (U16 **)wvMalloc(sizeof(U16 *)*anS->nostrings);
 	else
-		anS->s8strings = (S8 **)malloc(sizeof(S8 *)*anS->nostrings);
+		anS->s8strings = (S8 **)wvMalloc(sizeof(S8 *)*anS->nostrings);
 
 	if (anS->extradatalen)
 		{
-		anS->extradata = (U8 **)malloc(sizeof(U8 *)*anS->nostrings);
+		anS->extradata = (U8 **)wvMalloc(sizeof(U8 *)*anS->nostrings);
 		for (i=0;i<anS->nostrings;i++)
-			anS->extradata[i] = (U8 *)malloc(anS->extradatalen);
+			anS->extradata[i] = (U8 *)wvMalloc(anS->extradatalen);
 		}
 
 	if (anS->extendedflag == 0xFFFF)
@@ -81,7 +81,7 @@ void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,wvStream *fd)
 				anS->u16strings[i] = NULL;
 			else
 				{
-				anS->u16strings[i] = (U16 *)malloc(sizeof(U16)*(slen+1));
+				anS->u16strings[i] = (U16 *)wvMalloc(sizeof(U16)*(slen+1));
 				for (j=0;j<slen;j++)
 					anS->u16strings[i][j] = read_16ubit(fd);
 				anS->u16strings[i][j]=0;
@@ -100,7 +100,7 @@ void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,wvStream *fd)
 				anS->s8strings[i] = NULL;
 			else
 				{
-				anS->s8strings[i] = (S8 *)malloc(slen+1);
+				anS->s8strings[i] = (S8 *)wvMalloc(slen+1);
 				for (j=0;j<slen;j++)
 					anS->s8strings[i][j] = read_8ubit(fd);
 				anS->s8strings[i][j]=0;
@@ -222,7 +222,7 @@ void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,wvStream *fd)
 	anS->nostrings = ibstAssocMaxWord6;
 	anS->extendedflag = ibstAssocMaxWord6;	/*just for the sake of it*/
 	anS->extradatalen = 0;
-	anS->s8strings = (S8 **)malloc(sizeof(S8 *)*anS->nostrings);
+	anS->s8strings = (S8 **)wvMalloc(sizeof(S8 *)*anS->nostrings);
 #ifdef DEBUG
 	if (len != (U32)read_8ubit(fd))
 		wvTrace(("word 6 sttbf len does not match up correctly, strange\n"));
@@ -234,7 +234,7 @@ void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,wvStream *fd)
 			anS->s8strings[i] = NULL;
 		else
 			{
-			anS->s8strings[i] = (S8 *)malloc(slen+1);
+			anS->s8strings[i] = (S8 *)wvMalloc(slen+1);
 			for (j=0;j<slen;j++)
 				anS->s8strings[i][j] = read_8ubit(fd);
 			anS->s8strings[i][j]=0;
@@ -273,7 +273,7 @@ void wvGetGrpXst(STTBF *anS,U32 offset,U32 len,wvStream *fd)
 		pos+=2;
 		anS->nostrings++;
 		anS->u16strings = (U16 **)realloc(anS->u16strings,sizeof(U16 *)*anS->nostrings);
-		anS->u16strings[anS->nostrings-1] = (U16 *)malloc(sizeof(U16)*(slen+1));
+		anS->u16strings[anS->nostrings-1] = (U16 *)wvMalloc(sizeof(U16)*(slen+1));
 		for (i=0;i<slen;i++)
 			anS->u16strings[anS->nostrings-1][i] = read_16ubit(fd);
 		anS->u16strings[anS->nostrings-1][i] = 0;

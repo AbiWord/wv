@@ -24,16 +24,17 @@
  * GLib at ftp://ftp.gtk.org/pub/gtk/. 
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
 #include <ctype.h>		/* For tolower() */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "glib.h"
 /* do not include <unistd.h> in this place since it
  * inteferes with g_strsignal() on some OSes

@@ -180,7 +180,7 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
 	ps->nocellbounds = tree.no_in_tree;
 	wvFree(ps->cellbounds);
 	if (tree.no_in_tree)
-		ps->cellbounds=(S16 *)malloc(sizeof(S16) * tree.no_in_tree);
+		ps->cellbounds=(S16 *)wvMalloc(sizeof(S16) * tree.no_in_tree);
 	else
 		ps->cellbounds=NULL;
 
@@ -198,11 +198,11 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
 
 	wvTrace(("end of out\n"));
 
-	ps->vmerges = (S16 **)malloc(sizeof(S16 *) * no);
+	ps->vmerges = (S16 **)wvMalloc(sizeof(S16 *) * no);
 	wvTrace(("no of rows is %d",no));
 	for(i=0;i<no;i++)
 		{
-		ps->vmerges[i] = (S16 *)malloc(sizeof(S16) * ptap[i].itcMac);
+		ps->vmerges[i] = (S16 *)wvMalloc(sizeof(S16) * ptap[i].itcMac);
 		wvTrace(("no of cells is %d",ptap[i].itcMac));
 		for (j=0;j<ptap[i].itcMac;j++)
 			ps->vmerges[i][j]=1;

@@ -75,7 +75,7 @@ void wvGetFFN(FFN *item,wvStream *fd)
 	len = item->cbFfnM1-39;
 	len = len/2;
 	/*
-	item->xszFfn = (U16) malloc(sizeof(U16) * len));
+	item->xszFfn = (U16) wvMalloc(sizeof(U16) * len));
 	*/
 	if (len>65) len=65;
 	for (i=0;i<len;i++)
@@ -101,7 +101,7 @@ void wvGetFFN_STTBF(FFN_STTBF *item,U32 offset,U32 len,wvStream *fd)
 		else
 			item->nostrings=item->extendedflag;
 		item->extradatalen=read_16ubit(fd);
-		item->ffn = (FFN *)malloc(item->nostrings*sizeof(FFN));
+		item->ffn = (FFN *)wvMalloc(item->nostrings*sizeof(FFN));
 		for (i=0;i<item->nostrings;i++)
 		     {
 #ifdef DEBUG
@@ -136,7 +136,7 @@ void wvGetFFN_STTBF6(FFN_STTBF *item,U32 offset,U32 len,wvStream *fd)
 	item->extendedflag=0;
 	item->nostrings=5;	/* lets just set a val to start off with */
 	item->extradatalen=0;
-	item->ffn = (FFN *)malloc(item->nostrings*sizeof(FFN));
+	item->ffn = (FFN *)wvMalloc(item->nostrings*sizeof(FFN));
 	if (len != read_16ubit(fd))
 		wvError(("FFN STTBF lens differ\n"));
 	count+=2;
@@ -202,14 +202,14 @@ int wvGetFRD_PLCF(FRD **frd,U32 **pos,int *nofrd,U32 offset,U32 len,wvStream *fd
 	else
         {
         *nofrd=(len-4)/6;
-        *pos = (U32 *) malloc( (*nofrd+1) * sizeof(U32));
+        *pos = (U32 *) wvMalloc( (*nofrd+1) * sizeof(U32));
         if (*pos == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nofrd+1) * sizeof(U32)));
             return(1);
             }
 
-        *frd = (FRD *) malloc(*nofrd * sizeof(FRD));
+        *frd = (FRD *) wvMalloc(*nofrd * sizeof(FRD));
         if (*frd == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nofrd * sizeof(FRD)));

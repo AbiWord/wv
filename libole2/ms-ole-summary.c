@@ -10,9 +10,9 @@
  *    Somar Software's CPPSUM (http://www.somar.com)
  **/
 
-#include <glib.h>
 #include <stdio.h>
 #include <string.h>
+#include <glib.h>
 #include "ms-ole.h"
 #include "ms-ole-summary.h"
 
@@ -1159,7 +1159,7 @@ ms_ole_summary_set_time (MsOleSummary *si, MsOleSummaryPID id,
  **/
 void
 ms_ole_summary_set_boolean (MsOleSummary *si, MsOleSummaryPID id,
-			    gboolean b)
+			    gboolean value)
 {
 	write_item_t *w;
 
@@ -1172,7 +1172,7 @@ ms_ole_summary_set_boolean (MsOleSummary *si, MsOleSummaryPID id,
 	w->len  = 6;
 
 	MS_OLE_SET_GUINT32 (w->data + 0, TYPE_BOOLEAN);
-	MS_OLE_SET_GUINT16 (w->data + 4, b);
+	MS_OLE_SET_GUINT16 (w->data + 4, value);
 }
 
 

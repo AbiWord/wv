@@ -9,7 +9,7 @@
 char *wvGenerateNFC(int value,int no_type)
     {
     char *roman;
-	roman = (char *)malloc(81);
+	roman = (char *)wvMalloc(81);
 	if (roman == NULL)
 		return(NULL);
     switch(no_type)

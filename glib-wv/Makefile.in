@@ -7,7 +7,12 @@ SHELL=/bin/sh
 
 srcdir=@srcdir@
 
-CFLAGS = @CPPFLAGS@ @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/..
+HAVE_GLIB = @HAVE_GLIB@
+
+CFLAGS = -I$(srcdir)/ -I$(srcdir)/.. @CPPFLAGS@ @CFLAGS@ @DEFS@ @GLIB_CFLAGS@
+ifneq ($(HAVE_GLIB), 1)
+CFLAGS += -I$(srcdir)/../glib-wv/
+endif
 
 SHELL = /bin/sh
 

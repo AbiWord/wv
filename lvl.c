@@ -25,7 +25,7 @@ void wvCopyLVL(LVL *dest,LVL *src)
 
 	if (src->lvlf.cbGrpprlPapx > 0)
 		{
-		dest->grpprlPapx = (U8 *)malloc(src->lvlf.cbGrpprlPapx);
+		dest->grpprlPapx = (U8 *)wvMalloc(src->lvlf.cbGrpprlPapx);
 		memcpy(dest->grpprlPapx,src->grpprlPapx,src->lvlf.cbGrpprlPapx);
 		}		
 	else
@@ -33,7 +33,7 @@ void wvCopyLVL(LVL *dest,LVL *src)
 
 	if (src->lvlf.cbGrpprlChpx > 0)
 		{
-		dest->grpprlChpx = (U8 *)malloc(src->lvlf.cbGrpprlChpx);
+		dest->grpprlChpx = (U8 *)wvMalloc(src->lvlf.cbGrpprlChpx);
 		memcpy(dest->grpprlChpx,src->grpprlChpx,src->lvlf.cbGrpprlChpx);
 		}	
 	else
@@ -44,7 +44,7 @@ void wvCopyLVL(LVL *dest,LVL *src)
 	else
 		{
 		len = src->numbertext[0];
-		dest->numbertext = (U16 *)malloc(sizeof(U16)*(len +2));
+		dest->numbertext = (U16 *)wvMalloc(sizeof(U16)*(len +2));
 		memcpy(dest->numbertext,src->numbertext,len+2);
 		}
 	}
@@ -55,14 +55,14 @@ void wvGetLVL(LVL *lvl,wvStream *fd)
 	wvGetLVLF(&(lvl->lvlf),fd);
 	if (lvl->lvlf.cbGrpprlPapx > 0)
 		{
-		lvl->grpprlPapx = (U8 *)malloc(lvl->lvlf.cbGrpprlPapx);
+		lvl->grpprlPapx = (U8 *)wvMalloc(lvl->lvlf.cbGrpprlPapx);
 		wvStream_read(lvl->grpprlPapx,sizeof(U8),lvl->lvlf.cbGrpprlPapx,fd);
 		}		
 	else
 		lvl->grpprlPapx = NULL;
 	if (lvl->lvlf.cbGrpprlChpx > 0)
 		{
-		lvl->grpprlChpx = (U8 *)malloc(lvl->lvlf.cbGrpprlChpx);
+		lvl->grpprlChpx = (U8 *)wvMalloc(lvl->lvlf.cbGrpprlChpx);
 		wvStream_read(lvl->grpprlChpx,sizeof(U8),lvl->lvlf.cbGrpprlChpx,fd);
 		}	
 	else
@@ -70,7 +70,7 @@ void wvGetLVL(LVL *lvl,wvStream *fd)
 	len = read_16ubit(fd);
 	if (len > 0)
 		{
-		lvl->numbertext = (U16 *)malloc(sizeof(U16)*(len +2));
+		lvl->numbertext = (U16 *)wvMalloc(sizeof(U16)*(len +2));
 		lvl->numbertext[0] = len;
 		wvStream_read(&(lvl->numbertext[1]),sizeof(U16),len,fd);
 		lvl->numbertext[len-1] = 0;

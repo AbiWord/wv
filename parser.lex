@@ -91,7 +91,7 @@ char *remove_slashes(char *in)
 	int slash=0;
 	char *temp;
 	len = strlen(in);
-	temp = (char *)malloc(strlen(in)+1);
+	temp = (char *)wvMalloc(strlen(in)+1);
 	for (i=0;i<len;i++)
 		{
 		if (in[i] != '\\')
@@ -123,7 +123,7 @@ char *expand_element(char *in, char *fontface, char *color, char *size)
 	char buffer[4096];
 	char *variable;
 	char *replacement=NULL;
-	char *begin=(char *)malloc(strlen(in)+1);
+	char *begin=(char *)wvMalloc(strlen(in)+1);
 	strcpy(begin,in);
 
 	error(stderr,"incoming is %s\n",in);
@@ -151,12 +151,12 @@ char *expand_element(char *in, char *fontface, char *color, char *size)
 			{
 			if (fontface != NULL)
 				{
-				replacement = (char *)malloc(
+				replacement = (char *)wvMalloc(
 					strlen(begin)+1-strlen(buffer)+strlen(fontface));
 				}
 			else
 				{
-				replacement = (char *)malloc(
+				replacement = (char *)wvMalloc(
 					strlen(begin)+1-strlen(buffer));
 				}
 			if (optional)
@@ -188,12 +188,12 @@ char *expand_element(char *in, char *fontface, char *color, char *size)
 			{
 			if (color != NULL)
 				{
-				replacement = (char *)malloc(
+				replacement = (char *)wvMalloc(
 					strlen(begin)+1-strlen(buffer)+strlen(color));
 				}
 			else
 				{
-				replacement = (char *)malloc(
+				replacement = (char *)wvMalloc(
 					strlen(begin)+1-strlen(buffer));
 				}
 			if (optional)
@@ -225,12 +225,12 @@ char *expand_element(char *in, char *fontface, char *color, char *size)
 			{
 			if (size != NULL)
 				{
-				replacement = (char *)malloc(
+				replacement = (char *)wvMalloc(
 					strlen(begin)+1-strlen(buffer)+strlen(size));
 				}
 			else
 				{
-				replacement = (char *)malloc(
+				replacement = (char *)wvMalloc(
 					strlen(begin)+1-strlen(buffer));
 				}
 			if (optional)
@@ -287,7 +287,7 @@ char *expand_variables(char *in, pap *apap)
 	char buffer[4096];
 	char *variable;
 	char *replacement=NULL,*newpos;
-	char *begin=(char *)malloc(strlen(in)+1);
+	char *begin=(char *)wvMalloc(strlen(in)+1);
 	strcpy(begin,in);
 
 	newpos = begin;
@@ -306,7 +306,7 @@ char *expand_variables(char *in, pap *apap)
 
 		if (!(strcmp(buffer,"patterndir")))
 			{
-			replacement = (char *)malloc(
+			replacement = (char *)wvMalloc(
 				strlen(begin)+1-strlen(buffer)+strlen(patterndir()));
 			strncpy(replacement,begin,oldtest-begin);
 			strcpy(replacement+(oldtest-begin),patterndir());
@@ -320,13 +320,13 @@ char *expand_variables(char *in, pap *apap)
 			if (!apap)
 				{
 				fprintf(stderr,"invalid pap for variable request pixelsafter\n");
-				apap = (pap *)malloc(sizeof(pap));
+				apap = (pap *)wvMalloc(sizeof(pap));
 				apap->dyaAfter = 0;
 				apap->dyaBefore = 0;
 				hack=1;
 				}
 				
-			replacement = (char *)malloc(
+			replacement = (char *)wvMalloc(
 				strlen(begin)+1-strlen(buffer)+lennum(apap->dyaAfter/TWIRPS_PER_V_PIXEL));
 			strncpy(replacement,begin,oldtest-begin);
 			
@@ -348,12 +348,12 @@ char *expand_variables(char *in, pap *apap)
 			if (!apap)
 				{
 				fprintf(stderr,"invalid pap for variable request pixelsbefore\n");
-				apap = (pap *)malloc(sizeof(pap));
+				apap = (pap *)wvMalloc(sizeof(pap));
 				apap->dyaAfter = 0;
 				hack=1;
 				}
 				
-			replacement = (char *)malloc(
+			replacement = (char *)wvMalloc(
 				strlen(begin)+1-strlen(buffer)+lennum(apap->dyaBefore/TWIRPS_PER_V_PIXEL));
 			strncpy(replacement,begin,oldtest-begin);
 			
@@ -371,7 +371,7 @@ char *expand_variables(char *in, pap *apap)
 			}
 		else if (!(strcmp(buffer,"charset")))
 			{
-			replacement = (char *)malloc(
+			replacement = (char *)wvMalloc(
 				strlen(begin)+1-strlen(buffer)+strlen(charset));
 			strncpy(replacement,begin,oldtest-begin);
 
@@ -384,7 +384,7 @@ char *expand_variables(char *in, pap *apap)
 			}
 		else if (!(strcmp(buffer,"title")))
 			{
-			replacement = (char *)malloc(
+			replacement = (char *)wvMalloc(
 				strlen(begin)+1-strlen(buffer)+strlen(title));
 			strncpy(replacement,begin,oldtest-begin);
 
@@ -397,7 +397,7 @@ char *expand_variables(char *in, pap *apap)
 			}
 		else if (!(strcmp(buffer,"version")))
 			{
-			replacement = (char *)malloc(
+			replacement = (char *)wvMalloc(
 				strlen(begin)+1-strlen(buffer)+strlen(wv_version));
 			strncpy(replacement,begin,oldtest-begin);
 
@@ -458,7 +458,7 @@ int Parse (FILE * in,config_style **in_style,document_style **doc_style,element_
 			{
 			case DOCUMENTtoken:
 				error(stderr,"document begin\n");
-				*doc_style = (document_style*)malloc(sizeof(document_style));
+				*doc_style = (document_style*)wvMalloc(sizeof(document_style));
 				(*doc_style)->begin = NULL;
 				(*doc_style)->vtwips = 0;
 				(*doc_style)->htwips = 0;
@@ -474,7 +474,7 @@ int Parse (FILE * in,config_style **in_style,document_style **doc_style,element_
 						case STARTtoken:
 							CurrentToken = yylex ();
 							begin = argument();
-							(*doc_style)->begin = (char *)malloc(strlen(begin)+1);
+							(*doc_style)->begin = (char *)wvMalloc(strlen(begin)+1);
 							strcpy((*doc_style)->begin,begin);
 							error(stderr,"start string is %s\n",(*doc_style)->begin);
 							break;
@@ -493,7 +493,7 @@ int Parse (FILE * in,config_style **in_style,document_style **doc_style,element_
 						case ENDtoken:
 							CurrentToken = yylex ();
 							begin = argument();
-							(*doc_style)->end = (char *)malloc(strlen(begin)+1);
+							(*doc_style)->end = (char *)wvMalloc(strlen(begin)+1);
 							strcpy((*doc_style)->end,begin);
 							error(stderr,"end string is %s\n",(*doc_style)->end);
 							break;
@@ -509,7 +509,7 @@ int Parse (FILE * in,config_style **in_style,document_style **doc_style,element_
 				noconfig_styles++;
 				CurrentToken = yylex ();
 				begin = argument();
-				temp = (config_style *)malloc(sizeof(config_style));
+				temp = (config_style *)wvMalloc(sizeof(config_style));
 				if (start == NULL)
 					{
 					start = temp;
@@ -531,7 +531,7 @@ int Parse (FILE * in,config_style **in_style,document_style **doc_style,element_
 				current->bold=NULL;
 				current->font=NULL;
 				current->italic=NULL;
-				current->name = (char *)malloc(strlen(begin)+1);
+				current->name = (char *)wvMalloc(strlen(begin)+1);
 				strcpy(current->name,begin);
 				error(stderr,"%s\n",current->name);
 				CurrentToken = yylex ();
@@ -545,56 +545,56 @@ int Parse (FILE * in,config_style **in_style,document_style **doc_style,element_
 						case STARTtoken:
 							CurrentToken = yylex ();
 							begin = argument();
-							current->begin = (char *)malloc(strlen(begin)+1);
+							current->begin = (char *)wvMalloc(strlen(begin)+1);
 							strcpy(current->begin,begin);
 							error(stderr,"start string is %s\n",current->begin);
 							break;
 						case ENDtoken:
 							CurrentToken = yylex ();
 							begin = argument();
-							current->end = (char *)malloc(strlen(begin)+1);
+							current->end = (char *)wvMalloc(strlen(begin)+1);
 							strcpy(current->end,begin);
 							error(stderr,"end string is %s\n",current->end);
 							break;
 						case BOLDtoken:
 							CurrentToken = yylex ();
 							begin = argument();
-							current->bold = (char *)malloc(strlen(begin)+1);
+							current->bold = (char *)wvMalloc(strlen(begin)+1);
 							strcpy(current->bold,begin);
 							error(stderr,"bold string is %s\n",current->bold);
 							break;
 						case ITALICtoken:
 							CurrentToken = yylex ();
 							begin = argument();
-							current->italic = (char *)malloc(strlen(begin)+1);
+							current->italic = (char *)wvMalloc(strlen(begin)+1);
 							strcpy(current->italic,begin);
 							error(stderr,"italic string is %s\n",current->italic);
 							break;
 						case FONTtoken:
 							CurrentToken = yylex ();
 							begin = argument();
-							current->font = (char *)malloc(strlen(begin)+1);
+							current->font = (char *)wvMalloc(strlen(begin)+1);
 							strcpy(current->font,begin);
 							error(stderr,"font string is %s\n",current->font);
 							break;
 						case DEFAULTtoken:
 							CurrentToken = yylex ();
 							begin = argument();
-							current->Default = (char *)malloc(strlen(begin)+1);
+							current->Default = (char *)wvMalloc(strlen(begin)+1);
 							strcpy(current->Default,begin);
 							error(stderr,"default string is %s\n",current->Default);
 							break;
 						case PRESPACEtoken:
 							CurrentToken = yylex ();
 							begin = argument();
-							current->prespace = (char *)malloc(strlen(begin)+1);
+							current->prespace = (char *)wvMalloc(strlen(begin)+1);
 							strcpy(current->prespace,begin);
 							error(stderr,"prespace string is %s\n",current->prespace);
 							break;
 						case POSTSPACEtoken:
 							CurrentToken = yylex ();
 							begin = argument();
-							current->postspace = (char *)malloc(strlen(begin)+1);
+							current->postspace = (char *)wvMalloc(strlen(begin)+1);
 							strcpy(current->postspace,begin);
 							error(stderr,"portspace string is %s\n",current->postspace);
 							break;
@@ -633,14 +633,14 @@ int Parse (FILE * in,config_style **in_style,document_style **doc_style,element_
 						case STARTtoken:
 							CurrentToken = yylex ();
 							begin = argument();
-							currente->begin = (char *)malloc(strlen(begin)+1);
+							currente->begin = (char *)wvMalloc(strlen(begin)+1);
 							strcpy(currente->begin,begin);
 							error(stderr,"start string is %s\n",currente->begin);
 							break;
 						case ENDtoken:
 							CurrentToken = yylex ();
 							begin = argument();
-							currente->end = (char *)malloc(strlen(begin)+1);
+							currente->end = (char *)wvMalloc(strlen(begin)+1);
 							strcpy(currente->end,begin);
 							error(stderr,"end string is %s\n",currente->end);
 							break;

@@ -9,7 +9,12 @@ LIBS =  @MAGICK_LIBS@ @LIB_PNG@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LI
 
 srcdir=@srcdir@
 
-CFLAGS = @CPPFLAGS@ @CFLAGS@ @DEFS@ -Wall -I$(srcdir)/ -I$(srcdir)/.. -I$(srcdir)/../glib-wv/ -I$(srcdir)/../libole2/ -I$(srcdir)/../oledecod/
+HAVE_GLIB = @HAVE_GLIB@
+
+CFLAGS = -I$(srcdir)/ -I$(srcdir)/.. @CPPFLAGS@ @CFLAGS@ @DEFS@ @GLIB_CFLAGS@
+ifneq ($(HAVE_GLIB), 1)
+CFLAGS += -I$(srcdir)/../glib-wv/
+endif
 
 SHELL = /bin/sh
 

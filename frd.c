@@ -22,14 +22,14 @@ int wvGetFRD_PLCF(FRD **frd,U32 **pos,U32 *nofrd,U32 offset,U32 len,wvStream *fd
 	else
         {
         *nofrd=(len-4)/6;
-        *pos = (U32 *) malloc( (*nofrd+1) * sizeof(U32));
+        *pos = (U32 *) wvMalloc( (*nofrd+1) * sizeof(U32));
         if (*pos == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nofrd+1) * sizeof(U32)));
             return(1);
             }
 
-        *frd = (FRD *) malloc(*nofrd * sizeof(FRD));
+        *frd = (FRD *) wvMalloc(*nofrd * sizeof(FRD));
         if (*frd == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nofrd * sizeof(FRD)));

@@ -14,7 +14,14 @@ extern "C" {
 /*
   Memory declarations.
 */
+  /*
 extern Export void
+  *AllocateMemory(const size_t),
+  FreeMemory(void *),
+  *ReallocateMemory(void *,const size_t);
+  */
+
+extern void
   *AllocateMemory(const size_t),
   FreeMemory(void *),
   *ReallocateMemory(void *,const size_t);

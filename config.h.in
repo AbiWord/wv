@@ -97,4 +97,6 @@
 
 #undef HAVE_MMAP
 
+#undef HAVE_LIBXML2
+
 #endif /* CONFIG_H_CALLED */

@@ -24,14 +24,16 @@
  * GLib at ftp://ftp.gtk.org/pub/gtk/. 
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include "glib.h"
 
 #ifdef _WIN32_

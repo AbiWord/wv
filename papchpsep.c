@@ -104,7 +104,7 @@ chp *get_chp(U32 pageindex,wvStream *in, FILE *data, U32 charindex, U32 *nextfc,
 	*nextfc = find_next_smallest_fc(charindex,pageindex,in,&i,NULL);
 	error(erroroutput,"next char lim is %d (%x)\n",*nextfc,*nextfc);
 
-	retchp = (chp *) malloc(sizeof(chp));
+	retchp = (chp *) wvMalloc(sizeof(chp));
 	if (retchp == NULL)
 		{
 		fprintf(erroroutput,"no mem available\n");
@@ -212,7 +212,7 @@ sep *get_sep(U32 offset,wvStream *in)
 	U16 cb,l;
 	long pos=ftell(in);
 
-	asep = (sep *) malloc(sizeof(sep));
+	asep = (sep *) wvMalloc(sizeof(sep));
 	if (asep == NULL)
 		{
 		error(erroroutput,"arse\n");
@@ -271,7 +271,7 @@ pap *get_pap(U32 pageindex,wvStream *in, U32 charindex, U32 *nextfc, style *shee
 
 	*nextfc = find_next_smallest_fc(charindex,pageindex,in,&i,NULL);
 
-	retpap = (pap *) malloc(sizeof(pap));
+	retpap = (pap *) wvMalloc(sizeof(pap));
 	if (retpap == NULL)
 		{
 		fprintf(erroroutput,"no mem available\n");
@@ -413,7 +413,7 @@ U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, wvStream *in, U16 
 			{
 			crun = getc(in);
 			wvTrace(("there are %d paragraphs/char runs in this zone at %x, pageindex %d",crun,(512*pageindex),pageindex));
-			rgfc = (U32 *) malloc(sizeof(U32)*(crun+1));
+			rgfc = (U32 *) wvMalloc(sizeof(U32)*(crun+1));
 			if (rgfc== NULL)
 				{
 				wvError(("no memory argh\n"));
@@ -465,7 +465,7 @@ U32 find_next_biggest_fc(U32 charindex,U32 pageindex, wvStream *in, U16 *locatio
 			{
 			crun = getc(in);
 			wvTrace(("there are %d paragraphs/char runs in this zone at %x, pageindex %d",crun,(512*pageindex),pageindex));
-			rgfc = (U32 *) malloc(sizeof(U32)*(crun+1));
+			rgfc = (U32 *) wvMalloc(sizeof(U32)*(crun+1));
 			if (rgfc== NULL)
 				{
 				wvError(("no memory argh\n"));
@@ -519,7 +519,7 @@ U32 find_next_smallest_fc(U32 charindex,U32 pageindex, wvStream *in, S16 *locati
 			{
 			crun = getc(in);
 			wvTrace(("there are %d paragraphs/char runs in this zone at %x, pageindex %d",crun,(512*pageindex),pageindex));
-			rgfc = (U32 *) malloc(sizeof(U32)*(crun+1));
+			rgfc = (U32 *) wvMalloc(sizeof(U32)*(crun+1));
 			if (rgfc== NULL)
 				{
 				wvError(("no memory argh\n"));

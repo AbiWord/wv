@@ -43,14 +43,14 @@ int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,wvStream *f
 		wvTrace(("offset is %x, len is %d\n",offset,len));
         *nobte=(len-4)/(cb6BTE+4);
 		wvTrace(("no of bte is %d at %x\n",*nobte,offset));
-        *pos = (U32 *) malloc( (*nobte+1) * sizeof(U32));
+        *pos = (U32 *) wvMalloc( (*nobte+1) * sizeof(U32));
         if (*pos == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nobte+1) * sizeof(U32)));
             return(1);
             }
 
-        *bte = (BTE *) malloc(*nobte * sizeof(BTE));
+        *bte = (BTE *) wvMalloc(*nobte * sizeof(BTE));
         if (*bte == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nobte * sizeof(BTE)));
@@ -85,14 +85,14 @@ int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,wvStream *fd
         {
         *nobte=(len-4)/(cbBTE+4);
 		wvTrace(("no of bte is %d at %x\n",*nobte,offset));
-        *pos = (U32 *) malloc( (*nobte+1) * sizeof(U32));
+        *pos = (U32 *) wvMalloc( (*nobte+1) * sizeof(U32));
         if (*pos == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nobte+1) * sizeof(U32)));
             return(1);
             }
 
-        *bte = (BTE *) malloc(*nobte * sizeof(BTE));
+        *bte = (BTE *) wvMalloc(*nobte * sizeof(BTE));
         if (*bte == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nobte * sizeof(BTE)));

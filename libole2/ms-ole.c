@@ -4,6 +4,8 @@
  * Authors:
  *    Michael Meeks (michael@imaginator.com)
  *    Arturo Tena   (arturo@directmail.org)
+ *
+ * Copyright 1998-2000 Helix Code, Inc., Arturo Tena
  **/
 
 #include <stdio.h>
@@ -16,11 +18,6 @@
 /* #include <sys/types.h> */
 #include <sys/stat.h>	/* for struct stat */
 #include <fcntl.h>
-
-/* malloc.h is deprecated */
-/*
-#include <malloc.h>
-*/
 
 #include <assert.h>
 #include <ctype.h>
@@ -38,7 +35,7 @@
 #endif
 
 #ifdef HAVE_UNISTD_H 
-#include <unistd.h>
+#	include <unistd.h>
 #else
 
 #if 0
@@ -54,15 +51,20 @@
 #define O_NONBLOCK 0x4000 
 #endif
 
+#ifndef PROT_READ
+#define PROT_READ 0x1
+#endif
+
+#ifndef PROT_WRITE
+#define PROT_WRITE 0x2
+#endif
 
 #ifndef MAP_FAILED
 /* Someone needs their head examining - BSD ? */
 #	define MAP_FAILED ((void *)-1)
 #endif
 
-
 /* Implementational detail - not for global header */
-
 #define OLE_DEBUG 0
 
 /* FIXME tenix add ADD_BBD_LIST_BLOCK where it should be used) */
@@ -98,8 +100,7 @@
 /**
  * Structure describing an OLE file
  **/
-struct _MsOle
-{
+struct _MsOle {
 	int               ref_count;
 	gboolean          ole_mmap;
 	guint8           *mem;
@@ -179,7 +180,7 @@ isregfile_wrap (int fd)
 	if (fstat (fd, &st))
 		return 0;
 
-	return S_ISREG(st.st_mode);
+	return S_ISREG (st.st_mode);
 }
 
 static int
@@ -193,7 +194,23 @@ getfilesize_wrap (int fd, guint32 *size)
 	*size = st.st_size;
 	return 0;
 }
-static MsOleSysWrappers default_wrappers = {
+
+#ifdef HAVE_MMAP
+static void *
+mmap_wrap (void *start, size_t length, int prot,
+	   int flags, int fd, off_t offset)
+{
+	return mmap (start, length, prot, flags, fd, offset);
+}
+
+static int
+munmap_wrap (void *start, size_t length)
+{
+	return munmap (start, length);
+}
+#endif
+
+static MsOleSysWrappers ms_ole_default_wrappers = {
 	open2_wrap,
 	open3_wrap,
 	read_wrap,
@@ -201,19 +218,29 @@ static MsOleSysWrappers default_wrappers = {
 	write_wrap,
 	lseek_wrap,
 	isregfile_wrap,	
-	getfilesize_wrap
+	getfilesize_wrap,
+
+#ifdef HAVE_MMAP
+	mmap_wrap,
+	munmap_wrap
+#else
+	NULL,
+	NULL
+#endif
 };
 
 static void
-take_wrapper_functions (MsOle *f, MsOleSysWrappers *wrappers) {
+take_wrapper_functions (MsOle *f, MsOleSysWrappers *wrappers)
+{
 	if (wrappers == NULL)
-		f->syswrap = &default_wrappers;
+		f->syswrap = &ms_ole_default_wrappers;
 	else
 		f->syswrap = wrappers;
 }
 
 
-/* A global variable to enable calles to check_stream,
+/* 
+ * A global variable to enable calles to check_stream,
  * applications should optionally enable due to the performance penalty.
  * of 30-50 % of load time.
  */
@@ -307,10 +334,10 @@ write_cache_block (MsOle *f, BBBlkAttr *attr)
 	offset = (attr->blk+1)*BB_BLOCK_SIZE;
 	if (f->syswrap->lseek (f->file_des, offset, SEEK_SET)==(off_t)-1 ||
 	    f->syswrap->write (f->file_des, attr->data, BB_BLOCK_SIZE) == -1)
-		printf ("Fatal error writing block %d at %d\n", attr->blk, offset);
+		g_error ("Fatal error writing block %d at %d\n", attr->blk, offset);
 #if OLE_DEBUG > 0
-	printf ("Writing cache block %d to offset %d\n",
-		attr->blk, offset);
+	g_print ("Writing cache block %d to offset %d\n",
+		 attr->blk, offset);
 #endif	
 	attr->dirty = FALSE;
 }
@@ -358,7 +385,7 @@ get_block_ptr (MsOle *f, BLP b, gboolean forwrite)
 	if (min) {
 		g_assert (min->data);
 #if OLE_DEBUG > 0
-		printf ("Replacing cache block %d with %d\n", min->blk, b);
+		g_print ("Replacing cache block %d with %d\n", min->blk, b);
 #endif
 		if (min->dirty)
 			write_cache_block (f, min);
@@ -390,46 +417,46 @@ get_block_ptr (MsOle *f, BLP b, gboolean forwrite)
    additional list have at the end a END_OF_CHAIN.
    Each additional list can address 128*512/4*512 blocks ~= 8MBytes */
 /* The number of Big Block Descriptor (fat) Blocks */
-#define GET_NUM_BBD_BLOCKS(f)   (MS_OLE_GET_GUINT32((f)->mem + 0x2c))
-#define SET_NUM_BBD_BLOCKS(f,n) (MS_OLE_SET_GUINT32((f)->mem + 0x2c, (n)))
+#define GET_NUM_BBD_BLOCKS(f)   (MS_OLE_GET_GUINT32 ((f)->mem + 0x2c))
+#define SET_NUM_BBD_BLOCKS(f,n) (MS_OLE_SET_GUINT32 ((f)->mem + 0x2c, (n)))
 /* The block locations of the Big Block Descriptor Blocks */
 #define MAX_SIZE_BBD_LIST           109
 /* FIXME tenix next is broken with big files */
-#define GET_BBD_LIST(f,i)           (MS_OLE_GET_GUINT32((f)->mem + 0x4c + (i)*4))
+#define GET_BBD_LIST(f,i)           (MS_OLE_GET_GUINT32 ((f)->mem + 0x4c + (i)*4))
 /* FIXME tenix next is broken with big files */
-#define SET_BBD_LIST(f,i,n)         (MS_OLE_SET_GUINT32((f)->mem + 0x4c + (i)*4, (n)))
+#define SET_BBD_LIST(f,i,n)         (MS_OLE_SET_GUINT32 ((f)->mem + 0x4c + (i)*4, (n)))
 #define NEXT_BB(f,n)                (g_array_index ((f)->bb, BLP, n))
 #define NEXT_SB(f,n)                (g_array_index ((f)->sb, BLP, n))
 /* Additional Big Block Descriptor (fat) Blocks */
 #define MAX_SIZE_ADD_BBD_LIST       127
-#define GET_NUM_ADD_BBD_LISTS(f)   (MS_OLE_GET_GUINT32((f)->mem + 0x48))
-#define GET_FIRST_ADD_BBD_LIST(f)  (MS_OLE_GET_GUINT32((f)->mem + 0x44))
+#define GET_NUM_ADD_BBD_LISTS(f)   (MS_OLE_GET_GUINT32 ((f)->mem + 0x48))
+#define GET_FIRST_ADD_BBD_LIST(f)  (MS_OLE_GET_GUINT32 ((f)->mem + 0x44))
 
 /* Get the start block of the root directory ( PPS ) chain */
-#define GET_ROOT_STARTBLOCK(f)   (MS_OLE_GET_GUINT32((f)->mem + 0x30))
-#define SET_ROOT_STARTBLOCK(f,i) (MS_OLE_SET_GUINT32((f)->mem + 0x30, i))
+#define GET_ROOT_STARTBLOCK(f)   (MS_OLE_GET_GUINT32 ((f)->mem + 0x30))
+#define SET_ROOT_STARTBLOCK(f,i) (MS_OLE_SET_GUINT32 ((f)->mem + 0x30, i))
 /* Get the start block of the SBD chain */
-#define GET_SBD_STARTBLOCK(f)    (MS_OLE_GET_GUINT32((f)->mem + 0x3c))
-#define SET_SBD_STARTBLOCK(f,i)  (MS_OLE_SET_GUINT32((f)->mem + 0x3c, i))
+#define GET_SBD_STARTBLOCK(f)    (MS_OLE_GET_GUINT32 ((f)->mem + 0x3c))
+#define SET_SBD_STARTBLOCK(f,i)  (MS_OLE_SET_GUINT32 ((f)->mem + 0x3c, i))
 
 
 /* NB it is misleading to assume that Microsofts linked lists link correctly.
    It is not the case that pps_next(f, pps_prev(f, n)) = n ! For the final list
    item there are no valid links. Cretins. */
-#define PPS_GET_NAME_LEN(p)   (MS_OLE_GET_GUINT16(p + 0x40))
-#define PPS_SET_NAME_LEN(p,i) (MS_OLE_SET_GUINT16(p + 0x40, (i)))
-#define PPS_GET_PREV(p)   ((PPS_IDX) MS_OLE_GET_GUINT32(p + 0x44))
-#define PPS_GET_NEXT(p)   ((PPS_IDX) MS_OLE_GET_GUINT32(p + 0x48))
-#define PPS_GET_DIR(p)    ((PPS_IDX) MS_OLE_GET_GUINT32(p + 0x4c))
-#define PPS_SET_PREV(p,i) ((PPS_IDX) MS_OLE_SET_GUINT32(p + 0x44, i))
-#define PPS_SET_NEXT(p,i) ((PPS_IDX) MS_OLE_SET_GUINT32(p + 0x48, i))
-#define PPS_SET_DIR(p,i)  ((PPS_IDX) MS_OLE_SET_GUINT32(p + 0x4c, i))
+#define PPS_GET_NAME_LEN(p)   (MS_OLE_GET_GUINT16 (p + 0x40))
+#define PPS_SET_NAME_LEN(p,i) (MS_OLE_SET_GUINT16 (p + 0x40, (i)))
+#define PPS_GET_PREV(p)   ((PPS_IDX) MS_OLE_GET_GUINT32 (p + 0x44))
+#define PPS_GET_NEXT(p)   ((PPS_IDX) MS_OLE_GET_GUINT32 (p + 0x48))
+#define PPS_GET_DIR(p)    ((PPS_IDX) MS_OLE_GET_GUINT32 (p + 0x4c))
+#define PPS_SET_PREV(p,i) ((PPS_IDX) MS_OLE_SET_GUINT32 (p + 0x44, i))
+#define PPS_SET_NEXT(p,i) ((PPS_IDX) MS_OLE_SET_GUINT32 (p + 0x48, i))
+#define PPS_SET_DIR(p,i)  ((PPS_IDX) MS_OLE_SET_GUINT32 (p + 0x4c, i))
 /* These get other interesting stuff from the PPS record */
-#define PPS_GET_STARTBLOCK(p)      ( MS_OLE_GET_GUINT32(p + 0x74))
-#define PPS_GET_SIZE(p)            ( MS_OLE_GET_GUINT32(p + 0x78))
-#define PPS_GET_TYPE(p) ((MsOleType)( MS_OLE_GET_GUINT8(p + 0x42)))
-#define PPS_SET_STARTBLOCK(p,i)    ( MS_OLE_SET_GUINT32(p + 0x74, i))
-#define PPS_SET_SIZE(p,i)          ( MS_OLE_SET_GUINT32(p + 0x78, i))
+#define PPS_GET_STARTBLOCK(p)      ( MS_OLE_GET_GUINT32 (p + 0x74))
+#define PPS_GET_SIZE(p)            ( MS_OLE_GET_GUINT32 (p + 0x78))
+#define PPS_GET_TYPE(p) ((MsOleType)( MS_OLE_GET_GUINT8 (p + 0x42)))
+#define PPS_SET_STARTBLOCK(p,i)    ( MS_OLE_SET_GUINT32 (p + 0x74, i))
+#define PPS_SET_SIZE(p,i)          ( MS_OLE_SET_GUINT32 (p + 0x78, i))
 #define PPS_SET_TYPE(p,i)          ( MS_OLE_SET_GUINT8 (p + 0x42, i))
 
 /* Try to mark the Big Block "b" as as unused if it is marked as "c", in the
@@ -456,7 +483,7 @@ pps_get_text (guint8 *ptr, int length)
 	if (length <= 0 ||
 	    length > (PPS_BLOCK_SIZE/4)) {
 #if OLE_DEBUG > 0
-		printf ("Nulled name of length %d\n", length);
+		g_print ("Nulled name of length %d\n", length);
 #endif
 		return 0;
 	}
@@ -477,13 +504,13 @@ pps_get_text (guint8 *ptr, int length)
 static void
 dump_header (MsOle *f)
 {
-	printf ("--------------------------MsOle HEADER-------------------------\n");
-	printf ("Num BBD Blocks : %d Root %%d, SB blocks %d\n",
+	g_print ("--------------------------MsOle HEADER-------------------------\n");
+	g_print ("Num BBD Blocks : %d Root %%d, SB blocks %d\n",
 		f->bb?f->bb->len:-1,
 /*		f->pps?f->pps->len:-1, */
 /* FIXME tenix, here is not f->num_pps? */
 		f->sb?f->sb->len:-1);
-	printf ("-------------------------------------------------------------\n");
+	g_print ("-------------------------------------------------------------\n");
 }
 
 static void
@@ -544,12 +571,12 @@ dump_tree (GList *list, int indent)
 	while (list) {
 		p = list->data;
 		if (p) {
-			printf ("%s '%s' - %d\n",
-				indentstr, p->name, p->size);
+			g_print ("%s '%s' - %d\n",
+				 indentstr, p->name, p->size);
 			if (p->children)
 				dump_tree (p->children, indent+1);
 		} else
-			printf ("%s NULL!\n", indentstr);
+			g_print ("%s NULL!\n", indentstr);
 		list = g_list_next (list);
 	}
 }
@@ -562,21 +589,21 @@ dump_allocation (MsOle *f)
 
 	for (lp=0;lp<f->bb->len;lp++) {
 		characterise_block (f, lp, &blktype);
-		printf ("Block %d -> block %d ( '%s' )\n", lp,
-			g_array_index (f->bb, BLP, lp),
-			blktype);
+		g_print ("Block %d -> block %d ( '%s' )\n", lp,
+			 g_array_index (f->bb, BLP, lp),
+			 blktype);
 	}
 	
 	if (f->pps) {
-		printf ("Root blocks : %d\n", f->num_pps); 
+		g_print ("Root blocks : %d\n", f->num_pps); 
 		dump_tree (f->pps, 0);
 	} else
-		printf ("No root yet\n");
+		g_print ("No root yet\n");
 /*	
 	printf ("sbd blocks : %d\n", h->sbd_list->len);
 	for (lp=0;lp<h->sbd_list->len;lp++)
 	printf ("sbd_list[%d] = %d\n", lp, (int)ms_array_index (h->sbd_list, SBPtr, lp));*/
-	printf ("-------------------------------------------------------------\n");
+	g_print ("-------------------------------------------------------------\n");
 }
 
 /*
@@ -592,7 +619,7 @@ ms_ole_debug (MsOle *fs, int magic)
 		if (fs->pps)
 			dump_tree (fs->pps, 0);
 		else
-			printf ("There are no tree (no pps)\n");
+			g_print ("There are no tree (no pps)\n");
 		break;
 	default:
 		dump_header (fs);
@@ -601,19 +628,26 @@ ms_ole_debug (MsOle *fs, int magic)
 	}
 }
 
+/*
+ * get_next_block:
+ * @f:   the file handle
+ * @blk: an index into the big block fat
+ * 
+ * Return value: the block index of the BBD block.
+ */
 static BLP
 get_next_block (MsOle *f, BLP blk, gboolean *err)
 {
-  BLP bbd = GET_BBD_LIST (f, blk / (BB_BLOCK_SIZE / 4));
-  
-  if (bbd > (f->length / BB_BLOCK_SIZE)) {
-    *err = TRUE;
-    return 0;
-  } else
-    *err = FALSE;
-  
-  return MS_OLE_GET_GUINT32 (BB_R_PTR (f, bbd) +
-			     4 * (blk % (BB_BLOCK_SIZE / 4)));
+	BLP bbd = GET_BBD_LIST (f, blk / (BB_BLOCK_SIZE / 4));
+
+	if (bbd > (f->length / BB_BLOCK_SIZE)) {
+		*err = TRUE;
+		return 0;
+	} else
+		*err = FALSE;
+	
+	return MS_OLE_GET_GUINT32 (BB_R_PTR (f, bbd) +
+				   4 * (blk % (BB_BLOCK_SIZE / 4)));
 }
 
 /* Builds the FAT */
@@ -650,13 +684,13 @@ read_bb (MsOle *f)
 	/* Add BBD's that live in the BBD list */
 	for (lp = 0; (lp < (f->length / BB_BLOCK_SIZE) - 1) &&
 		     (lp < MAX_SIZE_BBD_LIST * BB_BLOCK_SIZE / 4); lp++) {
-	             gboolean err;
-	  
-		     tmp = get_next_block (f, lp, &err);
-		     if (err)
-		       return 0;
+		gboolean err;
+ 
+		tmp = get_next_block (f, lp, &err);
+		if (err)
+			return 0;
 
-		     g_array_append_val (f->bb, tmp);
+		g_array_append_val (f->bb, tmp);
 	}
 
 	/* Add BBD's that live in the additional BBD lists */
@@ -672,7 +706,7 @@ read_bb (MsOle *f)
 			if ((lp!=0) && !(lp%(MAX_SIZE_ADD_BBD_LIST*
 					     (BB_BLOCK_SIZE/4)))) {
 				/* This lp lives in the next add bbd list */
-				visited_add_bbd_list = MS_OLE_GET_GUINT32(
+				visited_add_bbd_list = MS_OLE_GET_GUINT32 (
 						BB_R_PTR(f,visited_add_bbd_list)
 						+4*MAX_SIZE_ADD_BBD_LIST);
 				if (visited_add_bbd_list == END_OF_CHAIN) {
@@ -706,7 +740,7 @@ read_bb (MsOle *f)
 		for (lp = 0; lp < missing_bbds; lp++) {
 			if ((lp!=0) && !(lp % (MAX_SIZE_ADD_BBD_LIST))) {
 				/* This lp lives in the next add bbd list */
-				visited_add_bbd_list = MS_OLE_GET_GUINT32(
+				visited_add_bbd_list = MS_OLE_GET_GUINT32 (
 						BB_R_PTR(f,visited_add_bbd_list)
 						+ 4*MAX_SIZE_ADD_BBD_LIST);
 				if (visited_add_bbd_list == END_OF_CHAIN) {
@@ -746,76 +780,85 @@ read_bb (MsOle *f)
 	return 1;
 }
 
+
+static void
+remap_file (MsOle *f, guint blocks)
+{
+	int file;
+	guint8 *newptr, zero = 0;
+	guint32 filesize;
+	guint32 oldlen;
+	guint32 icount;
+	gchar zeroblock [BB_BLOCK_SIZE];
+
+	memset (zeroblock, zero, BB_BLOCK_SIZE);
+	g_assert (f);
+	file = f->file_des;
+		
+	g_assert (f->syswrap->munmap (f->mem, f->length) != -1);
+
+	/* Extend that file by blocks */
+	if (f->syswrap->getfilesize (file, &filesize)) {
+		g_error ("Serious error extending file\n");
+		f->mem = 0;
+		return;
+	}
+
+	if (f->syswrap->lseek (file, 0, SEEK_END) == (off_t)-1) {
+		g_error ("Serious error extending file\n");
+		f->mem = 0;
+		return;
+	}
+
+	for (icount = 0; icount < blocks; icount++) {
+		if (f->syswrap->write (file, zeroblock, BB_BLOCK_SIZE -
+				       ((icount == blocks - 1) ? 1 : 0))
+		    == -1) {
+			g_error ("Serious error extending file\n");
+			f->mem = 0;
+			return;
+		}
+	}
+	if (f->syswrap->write (file, &zero, 1) == -1) {
+		g_error ("Serious error extending file\n");
+		f->mem = 0;
+		return;
+	}
+
+	oldlen = filesize;
+
+	if (f->syswrap->getfilesize (file, &(f->length)))
+		g_warning ("couldn't get the size of the file\n");
+
+	g_assert (f->length == BB_BLOCK_SIZE*blocks + oldlen);
+
+	if (f->length % BB_BLOCK_SIZE)
+		g_warning ("file %d non-integer number of blocks\n", f->length);
+
+	newptr = f->syswrap->mmap (f->mem, f->length, PROT_READ|PROT_WRITE,
+				   MAP_SHARED, file, 0);
+#if OLE_DEBUG > 0
+	if (newptr != f->mem)
+		g_print ("Memory map moved from %p to %p\n",
+			 f->mem, newptr);
+		
+#endif /* OLE_DEBUG */
+
+	if (newptr == MAP_FAILED) {
+		g_warning ("panic: re-map failed!");
+		f->mem = NULL;
+	} else
+		f->mem = newptr;
+}
+
 static void
 extend_file (MsOle *f, guint blocks)
 {
-#ifdef HAVE_MMAP
-	if (f->ole_mmap) {
-		int file;
-		guint8 *newptr, zero = 0;
-		guint32 filesize;
-		guint32 oldlen;
-		guint32 icount;
-		gchar zeroblock [BB_BLOCK_SIZE];
+	if (f->ole_mmap && f->syswrap->mmap &&
+	    f->syswrap->munmap) {
+		remap_file (f, blocks);
 
-		memset (zeroblock, zero, BB_BLOCK_SIZE);
-		g_assert (f);
-		file = f->file_des;
-		
-		g_assert (munmap(f->mem, f->length) != -1);
-
-		/* Extend that file by blocks */
-
-		if (f->syswrap->getfilesize (file, &filesize)) {
-			printf ("Serious error extending file\n");
-			f->mem = 0;
-			return;
-		}
-		if (f->syswrap->lseek (file, 0, SEEK_END) == (off_t)-1) {
-			printf ("Serious error extending file\n");
-			f->mem = 0;
-			return;
-		}
-		for (icount = 0; icount < blocks; icount++) {
-			if (f->syswrap->write (file, zeroblock, BB_BLOCK_SIZE -
-					       ((icount == blocks - 1) ? 1 : 0))
-			    == -1) {
-				printf ("Serious error extending file\n");
-				f->mem = 0;
-				return;
-			}
-		}
-		if (f->syswrap->write (file, &zero, 1) == -1) {
-			printf ("Serious error extending file\n");
-			f->mem = 0;
-			return;
-		}
-
-		oldlen = filesize;
-
-		if (f->syswrap->getfilesize (file, &(f->length))) {
-			printf ("Warning couldn't get the size of the file\n");
-		}
-		g_assert (f->length == BB_BLOCK_SIZE*blocks + oldlen);
-		if (f->length%BB_BLOCK_SIZE)
-			printf ("Warning file %d non-integer number of blocks\n", f->length);
-		/* NOTE tenix here we don't check if try_mmap is true, because
-		   if it reach here it means f->ole_mmap is true and try_mmap is
-		   true too. This is related with system wrappers. */
-		newptr = mmap (f->mem, f->length, PROT_READ|PROT_WRITE, MAP_SHARED, file, 0);
-#if OLE_DEBUG > 0
-		if (newptr != f->mem)
-			printf ("Memory map moved from %p to %p\n",
-				f->mem, newptr);
-		
-		if (newptr == MAP_FAILED) {
-			f->mem = 0;
-			g_warning ("panic: re-map failed!");
-		}
-#endif /* OLE_DEBUG */
-		f->mem = newptr;
-	} else /* !f->ole_mmap */ {
-#endif /* HAVE_MMAP */
+	} else {
 		BBBlkAttr *s;
 		guint32 blkidx, i;
 		
@@ -825,13 +868,11 @@ extend_file (MsOle *f, guint blocks)
 		} else
 			blkidx = 0;
 		
-		for (i=0;i<blocks;i++) {
+		for (i = 0; i < blocks; i++) {
 			g_ptr_array_add (f->bbattr, bb_blk_attr_new (blkidx++));
-			f->length+= BB_BLOCK_SIZE;
+			f->length += BB_BLOCK_SIZE;
 		}
-#ifdef HAVE_MMAP
 	}
-#endif /* HAVE_MMAP */
 }
 
 static BLP
@@ -916,7 +957,8 @@ next_free_sb (MsOle *f)
 	g_assert ((g_array_index (f->sb, BLP, blk) == UNUSED_BLOCK));
 	g_assert (blk < f->sb->len);
 
-	if ((f->sb->len + (BB_BLOCK_SIZE/SB_BLOCK_SIZE) - 1) / (BB_BLOCK_SIZE/SB_BLOCK_SIZE) >= f->sbf->len) {
+	if ((f->sb->len + (BB_BLOCK_SIZE/SB_BLOCK_SIZE) - 1) / 
+	    (BB_BLOCK_SIZE/SB_BLOCK_SIZE) >= f->sbf->len) {
 	/* Create an extra big block on the small block stream */
 		BLP new_sbf = next_free_bb(f);
 		if (f->sbf->len > 0)
@@ -926,7 +968,8 @@ next_free_sb (MsOle *f)
 		g_array_index (f->bb, BLP, new_sbf) = END_OF_CHAIN;
 	}
 
-	g_assert ((f->sb->len + (BB_BLOCK_SIZE/SB_BLOCK_SIZE) - 1) / (BB_BLOCK_SIZE/SB_BLOCK_SIZE) <= f->sbf->len);
+	g_assert ((f->sb->len + (BB_BLOCK_SIZE/SB_BLOCK_SIZE) - 1) / 
+		  (BB_BLOCK_SIZE/SB_BLOCK_SIZE) <= f->sbf->len);
 
 	return blk;
 }
@@ -941,16 +984,20 @@ get_pps_ptr (MsOle *f, PPS_IDX i, gboolean forwrite)
 	while (lp && blk != END_OF_CHAIN) {
 		if (blk == SPECIAL_BLOCK ||
 		    blk == UNUSED_BLOCK) {
-			printf ("Duff block in root chain\n");
+			g_warning ("Duff block in root chain\n");
 			return 0;
 		}
 		lp--;
 		blk = NEXT_BB (f, blk);
 	}
 	if (blk == END_OF_CHAIN) {
-		printf ("Serious error finding pps %d\n", i);
+		g_error ("Serious error finding pps %d\n", i);
 		return 0;
 	}
+
+#if OLE_DEBUG > 0
+	g_print ("get_pps_ptr: blk = %d\n", blk);
+#endif
 
 	if (forwrite)
 		return BB_W_PTR(f, blk) + (i%(BB_BLOCK_SIZE/PPS_BLOCK_SIZE))*PPS_BLOCK_SIZE;
@@ -982,10 +1029,13 @@ pps_decode_tree (MsOle *f, PPS_IDX p, PPS *parent)
 	pps->sig      = PPS_SIG;
 	mem           = get_pps_ptr (f, p, FALSE);
 	if (!mem) {
-		printf ("Serious directory error %d\n", p);
+		g_error ("Serious directory error %d\n", p);
 		f->pps = NULL;
 		return;
 	}
+#if OLE_DEBUG > 0
+	g_print ("pps_decode_tree: mem (offset)= %#8.8x\n", mem - f->mem);
+#endif
 	pps->name     = pps_get_text  (mem, PPS_GET_NAME_LEN(mem));
 	pps->type     = PPS_GET_TYPE  (mem);
 	pps->size     = PPS_GET_SIZE  (mem);
@@ -993,7 +1043,7 @@ pps_decode_tree (MsOle *f, PPS_IDX p, PPS *parent)
 	pps->parent   = parent;
 	pps->idx      = 0;
 	if (!pps->name) { /* Make safe */
-		printf ("how odd: blank named file in directory\n");
+		g_print ("how odd: blank named file in directory\n");
 		g_free (pps);
 		return;
 	}
@@ -1002,14 +1052,14 @@ pps_decode_tree (MsOle *f, PPS_IDX p, PPS *parent)
 	
 	if (parent) {
 #if OLE_DEBUG > 0
-		printf ("Inserting '%s' into '%s'\n", pps->name, parent->name);
+		g_print ("Inserting '%s' into '%s'\n", pps->name, parent->name);
 #endif
 		parent->children = g_list_insert_sorted (parent->children, pps,
 							 (GCompareFunc)pps_compare_func);
 	}
 	else {
 #if OLE_DEBUG > 0
-		printf ("Setting root to '%s'\n", pps->name);
+		g_print ("Setting root to '%s'\n", pps->name);
 #endif
 		f->pps = g_list_append (0, pps);
 	}
@@ -1026,7 +1076,7 @@ pps_decode_tree (MsOle *f, PPS_IDX p, PPS *parent)
 	pps->start   = PPS_GET_STARTBLOCK (mem);
 	
 #if OLE_DEBUG > 1
-	printf ("PPS decode : '%s'\n", pps->name?pps->name:"Null");
+        g_print ("PPS decode : '%s'\n", pps->name?pps->name:"Null");
 	ms_ole_dump (mem, PPS_BLOCK_SIZE);
 #endif
 	return;
@@ -1043,10 +1093,10 @@ read_pps (MsOle *f)
 
 	if (!f->pps || g_list_length (f->pps) < 1 ||
 	    g_list_length (f->pps) > 1) {
-		printf ("Invalid root chain\n");
+		g_error ("Invalid root chain\n");
 		return 0;
 	} else if (!f->pps->data) {
-		printf ("No root entry\n");
+		g_error ("No root entry\n");
 		return 0;
 	}
 
@@ -1068,7 +1118,7 @@ read_pps (MsOle *f)
 	}
 	
 	if (!f->pps) {
-		printf ("Root directory too small\n");
+		g_error ("Root directory too small\n");
 		return 0;
 	}
 	return 1;
@@ -1092,25 +1142,27 @@ pps_encode_tree_initial (MsOle *f, GList *list, PPS_IDX *p)
 	(*p)++;
 
 #if OLE_DEBUG > 0
-	printf ("encoding '%s' as %d\n", pps->name, pps->idx);
+	g_print ("encoding '%s' as %d\n", pps->name, pps->idx);
 #endif
 
 	mem = get_pps_ptr (f, pps->idx, TRUE);
 
 	/* Blank stuff I don't understand */
-	for (lp=0;lp<PPS_BLOCK_SIZE;lp++)
-		MS_OLE_SET_GUINT8(mem+lp, 0);
+	for (lp = 0; lp < PPS_BLOCK_SIZE; lp++)
+		MS_OLE_SET_GUINT8 (mem + lp, 0);
+
 	if (pps->name) {
 		max = strlen (pps->name);
-		if (max >= (PPS_BLOCK_SIZE/4))
-			max = (PPS_BLOCK_SIZE/4);
-		for (lp=0;lp<max;lp++)
-			MS_OLE_SET_GUINT16(mem + lp*2, pps->name[lp]);
+		if (max >= (PPS_BLOCK_SIZE / 4))
+			max = (PPS_BLOCK_SIZE / 4);
+
+		for (lp = 0; lp < max; lp++)
+			MS_OLE_SET_GUINT16 (mem + lp * 2, pps->name [lp]);
 	} else {
-		printf ("No name %d\n", *p);
+	        g_print ("No name %d\n", *p);
 		max = -1;
 	}
-	PPS_SET_NAME_LEN(mem, (max+1)*2);
+	PPS_SET_NAME_LEN (mem, (max + 1)*2);
 	
 	/* Magic numbers */
 	if (pps->idx == PPS_ROOT_INDEX) { /* Only Root */
@@ -1135,7 +1187,7 @@ pps_encode_tree_initial (MsOle *f, GList *list, PPS_IDX *p)
 	PPS_SET_DIR  (mem, PPS_END_OF_CHAIN);
 
 #if OLE_DEBUG > 1
-	printf ("Encode '%s' as \n", pps->name);
+	g_print ("Encode '%s' as \n", pps->name);
 	ms_ole_dump (mem, PPS_BLOCK_SIZE);
 #endif
 
@@ -1180,10 +1232,10 @@ pps_encode_tree_chain (MsOle *f, GList *list)
 		PPS_SET_DIR (mem_parent, ((PPS *)(lchildren->data))->idx);
 
 #if OLE_DEBUG > 1
-		printf ("tenix3 Final encode '%s' as \n",
+		g_print ("Final encode '%s' as \n",
 			((PPS *)(parent))->name);
 		ms_ole_dump (mem_parent, PPS_BLOCK_SIZE);
-		printf ("tenix3 Final encode '%s' as \n",
+		g_print ("Final encode '%s' as \n",
 			((PPS *)(lchildren->data))->name);
 		ms_ole_dump (get_pps_ptr (f, ((PPS *)(lchildren->data))->idx, FALSE),
 		      PPS_BLOCK_SIZE);
@@ -1194,7 +1246,7 @@ pps_encode_tree_chain (MsOle *f, GList *list)
 
 #if OLE_DEBUG > 1
 	if (len == 0)
-		printf ("Empty directory '%s'\n", ((PPS *)(children))->name);
+		g_print ("Empty directory '%s'\n", ((PPS *)(children))->name);
 #endif
 
 	i = 0;
@@ -1231,7 +1283,7 @@ pps_encode_tree_chain (MsOle *f, GList *list)
 		}
 
 #if OLE_DEBUG > 1
-			printf ("tenix1 Final encode '%s' as \n",
+			g_print ("Final encode '%s' as \n",
 				((PPS *)(children))->name);
 			ms_ole_dump (mem, PPS_BLOCK_SIZE);
 #endif
@@ -1240,7 +1292,7 @@ pps_encode_tree_chain (MsOle *f, GList *list)
 	}
 
 #if OLE_DEBUG > 1
-	printf ("tenix2 Final encode '%s' as \n", ((PPS *)(parent))->name);
+	g_print ("Final encode '%s' as \n", ((PPS *)(parent))->name);
 	ms_ole_dump (mem_parent, PPS_BLOCK_SIZE);
 #endif
 }
@@ -1263,7 +1315,7 @@ write_pps (MsOle *f)
 			g_array_index (f->bb, BLP, last) = blk;
 		else {
 #if OLE_DEBUG > 0
-			printf ("Set root block to %d\n", blk);
+			g_print ("Set root block to %d\n", blk);
 #endif
 			SET_ROOT_STARTBLOCK (f, blk);
 		}
@@ -1300,13 +1352,13 @@ read_sb (MsOle *f)
 	/* List of big blocks in SB file */
 	ptr = root->start;
 #if OLE_DEBUG > 0
-	printf ("Starting Small block file at %d\n", root->start);
+	g_print ("Starting Small block file at %d\n", root->start);
 #endif
 	while (ptr != END_OF_CHAIN) {
 		if (ptr == UNUSED_BLOCK ||
 		    ptr == SPECIAL_BLOCK) {
-			printf ("Corrupt small block file: serious error, "
-				"invalid block in chain\n");
+			g_error ("Corrupt small block file: serious error, "
+				 "invalid block in chain\n");
 			g_array_free (f->sbf, TRUE);
 			f->sbf = 0;
 			return 0;
@@ -1321,7 +1373,7 @@ read_sb (MsOle *f)
 	ptr = GET_SBD_STARTBLOCK (f);
 
 	if (f->sbf->len == 0 && ptr != END_OF_CHAIN) {
-		printf ("No small block file, but small block depot start block exists!: "
+		g_warning ("No small block file, but small block depot start block exists!: "
 			"ignore depot, since there's no small block files after all.\n");
 		ptr = END_OF_CHAIN;
 	}
@@ -1330,8 +1382,8 @@ read_sb (MsOle *f)
 		guint32 lp;
 		if (ptr == UNUSED_BLOCK ||
 		    ptr == SPECIAL_BLOCK) {
-			printf ("Corrupt file descriptor: serious error, "
-				"invalid block in chain\n");
+			g_error ("Corrupt file descriptor: serious error, "
+				 "invalid block in chain\n");
 			g_array_free (f->sb, TRUE);
 			f->sb = 0;
 			return 0;
@@ -1350,8 +1402,8 @@ read_sb (MsOle *f)
 		g_array_set_size (f->sb, lastidx+1);
 	
 	if (f->sbf->len * BB_BLOCK_SIZE < f->sb->len*SB_BLOCK_SIZE) {
-		printf ("Not enough small block file for descriptors\n"
-			"sbf->len == %d, sb->len == %d\n", f->sbf->len,
+		g_error ("Not enough small block file for descriptors\n"
+			 "sbf->len == %d, sb->len == %d\n", f->sbf->len,
 			f->sb->len);
 		return 0;
 	}
@@ -1373,8 +1425,8 @@ write_sb (MsOle *f)
 	root = f->pps->data;
 
 	if (f->sbf->len * BB_BLOCK_SIZE < f->sb->len*SB_BLOCK_SIZE) {
-		printf ("Not enough descriptor / blocks being written %d %d\n",
-			f->sbf->len, f->sb->len);
+		g_warning ("Not enough descriptor / blocks being written %d %d\n",
+			   f->sbf->len, f->sb->len);
 	}
 	if (f->sbf->len>0)
 		sbf_start = g_array_index (f->sbf, BLP, 0);
@@ -1392,7 +1444,7 @@ write_sb (MsOle *f)
 		BLP blk = END_OF_CHAIN, last;
 
 #if OLE_DEBUG > 0
-		printf ("Num SB descriptor blocks : %d\n", num_sbdf);
+		g_print ("Num SB descriptor blocks : %d\n", num_sbdf);
 #endif
 
 		for (lp=0;lp<num_sbdf*(BB_BLOCK_SIZE/4);lp++) {
@@ -1415,7 +1467,7 @@ write_sb (MsOle *f)
 		}
 	} else {
 #if OLE_DEBUG > 0
-		printf ("Blank SB allocation\n");
+		g_print ("Blank SB allocation\n");
 #endif
 		sbf_start = END_OF_CHAIN;
 	}
@@ -1443,7 +1495,7 @@ ms_ole_setup (MsOle *f)
 	    read_pps (f) &&
 	    read_sb  (f)) {
 #if OLE_DEBUG > 1
-		printf ("Just read header of\n");
+		g_print ("Just read header of\n");
 		dump_header (f);
 #endif		
 		return 1;
@@ -1457,7 +1509,7 @@ ms_ole_cleanup (MsOle *f)
 	if (f->mode != 'w') /* Nothing to write */
 		return 1;
 #if OLE_DEBUG > 1
-	printf ("About to write header of: \n");
+        g_print ("About to write header of: \n");
 	dump_header (f);
 #endif
 	if (write_sb  (f) &&
@@ -1468,7 +1520,7 @@ ms_ole_cleanup (MsOle *f)
 }
 
 static MsOle *
-new_null_msole ()
+ms_ole_new ()
 {
 	MsOle *f = g_new0 (MsOle, 1);
 
@@ -1527,112 +1579,125 @@ ms_ole_unref (MsOle *fs)
  * Return value: a #MsOleErr code.
  **/
 MsOleErr
-ms_ole_open_vfs (MsOle **f, const char *name, gboolean try_mmap,
+ms_ole_open_vfs (MsOle **fs, const char *name, 
+		 gboolean try_mmap,
 		 MsOleSysWrappers *wrappers)
 {
 #ifdef HAVE_MMAP   
 	int prot = PROT_READ | PROT_WRITE;
 #endif /* HAVE_MMAP */
+	MsOle *f;
 	int file;
 
-	if (!f)
+	if (!fs)
 		return MS_OLE_ERR_BADARG;
 
 #if OLE_DEBUG > 0
-	printf ("New OLE file '%s'\n", name);
+	g_print ("New OLE file '%s'\n", name);
 #endif
 
-	*f = new_null_msole();
-	take_wrapper_functions (*f, wrappers);
-	(*f)->file_des = file = (*f)->syswrap->open2 (name, O_RDWR);
-	(*f)->ref_count = 0;
-	(*f)->mode = 'w';
+	f = *fs = ms_ole_new ();
+	take_wrapper_functions (f, wrappers);
+
+	f->file_des = file = f->syswrap->open2 (name, O_RDWR);
+	f->ref_count = 0;
+	f->mode = 'w';
+
 	if (file == -1) {
-		(*f)->file_des = file = (*f)->syswrap->open2 (name, O_RDONLY);
-		(*f)->mode = 'r';
+		f->file_des = file = f->syswrap->open2 (name, O_RDONLY);
+		f->mode = 'r';
 #ifdef HAVE_MMAP
 		prot &= ~PROT_WRITE;
 #endif /* HAVE_MMAP */
 	}
-	if ((file == -1) || !((*f)->syswrap->isregfile (file))) {
-		/* FIXME tenix is not a memory leak not to close file? */
-		printf ("No such file '%s'\n", name);
-		g_free (*f) ;
+
+	if ((file == -1) || !(f->syswrap->isregfile (file))) {
+		g_warning ("No such file '%s'\n", name);
+		g_free (f) ;
+		*fs = NULL;
 		return MS_OLE_ERR_EXIST;
 	}
-	if ((*f)->syswrap->getfilesize( file, &((*f)->length) )) {
-		printf ("Couldn't get the size of file '%s'\n", name);
-		(*f)->syswrap->close (file) ;
-		g_free (*f) ;
+
+	if (f->syswrap->getfilesize (file, &(f->length) )) {
+		g_warning ("Couldn't get the size of file '%s'\n", name);
+		f->syswrap->close (file) ;
+		g_free (f);
+		*fs = NULL;
 		return MS_OLE_ERR_EXIST;
 	}
-	if ((*f)->length <= 0x4c) { /* Bad show */
+
+	if (f->length <= 0x4c) { /* Bad show */
 #if OLE_DEBUG > 0
-		printf ("File '%s' too short\n", name);
+		g_warning ("File '%s' too short\n", name);
 #endif
-		(*f)->syswrap->close (file) ;
-		g_free (*f) ;
+		f->syswrap->close (file) ;
+		g_free (f) ;
+		*fs = NULL;
 		return MS_OLE_ERR_FORMAT;
 	}
 
 	if (try_mmap) {
-#ifdef HAVE_MMAP
-		(*f)->ole_mmap = TRUE;
-		(*f)->mem = mmap (0, (*f)->length, prot, MAP_SHARED, file, 0);
 
-		if (!(*f)->mem || (caddr_t)(*f)->mem == (caddr_t)MAP_FAILED) {
-#endif
-			/*g_warning ("I can't mmap that file, falling back to slower method");*/
-			(*f)->ole_mmap = FALSE;
-			(*f)->mem = g_new (guint8, BB_BLOCK_SIZE);
+		if (f->syswrap->mmap)
+			f->mem = f->syswrap->mmap (
+				0, f->length, prot, MAP_SHARED, file, 0);
+		else
+			f->mem = NULL;
 
-			if (!(*f)->mem
-			    || ((*f)->syswrap->read (file, (*f)->mem, BB_BLOCK_SIZE)
-				== -1)) {
-				printf ("Error reading header\n");
-				g_free (*f);
+		if (!f->mem || (caddr_t)f->mem == (caddr_t)MAP_FAILED) {
+
+			g_warning ("I can't mmap that file, falling back to slower method");
+			f->ole_mmap = FALSE;
+			f->mem = g_new (guint8, BB_BLOCK_SIZE);
+
+			if (!f->mem ||
+			    (f->syswrap->read (file, f->mem, BB_BLOCK_SIZE) == -1)) {
+				g_error ("Error reading header\n");
+				g_free (f);
+				*fs = NULL;
 				return MS_OLE_ERR_EXIST;
 			}
-#ifdef HAVE_MMAP
-		}
-#endif
+		} else
+			f->ole_mmap = TRUE;
+		
 	} else /* !try_mmap */ {
-		/*g_warning ("I won't mmap that file, using a slower method\n");*/
-		(*f)->ole_mmap = FALSE;
-		(*f)->mem = g_new (guint8, BB_BLOCK_SIZE);
+		g_warning ("I won't mmap that file, using a slower method\n");
+		f->ole_mmap = FALSE;
+		f->mem = g_new (guint8, BB_BLOCK_SIZE);
 
-		if (!(*f)->mem
-		    || ((*f)->syswrap->read (file, (*f)->mem, BB_BLOCK_SIZE)
+		if (!f->mem
+		    || (f->syswrap->read (file, f->mem, BB_BLOCK_SIZE)
 			== -1)) {
-			printf ("Error reading header\n");
-			g_free (*f);
+			g_error ("Error reading header\n");
+			g_free (f);
+			*fs = NULL;
 			return MS_OLE_ERR_EXIST;
 		}
 	} /* try_mmap */
 	
-	if (MS_OLE_GET_GUINT32((*f)->mem    ) != 0xe011cfd0 ||
-	    MS_OLE_GET_GUINT32((*f)->mem + 4) != 0xe11ab1a1) {
+	if (MS_OLE_GET_GUINT32 (f->mem    ) != 0xe011cfd0 ||
+	    MS_OLE_GET_GUINT32 (f->mem + 4) != 0xe11ab1a1) {
 #if OLE_DEBUG > 0
-		printf ("Failed OLE2 magic number %x %x\n",
-			MS_OLE_GET_GUINT32((*f)->mem), MS_OLE_GET_GUINT32((*f)->mem+4));
+		g_print ("Failed OLE2 magic number %x %x\n",
+			 MS_OLE_GET_GUINT32(f->mem), MS_OLE_GET_GUINT32(f->mem+4));
 #endif
-		ms_ole_destroy (f);
+		ms_ole_destroy (fs);
 		return MS_OLE_ERR_FORMAT;
 	}
-	if ((*f)->length % BB_BLOCK_SIZE)
-		printf ("Warning file '%s':%d non-integer number of blocks\n",
-			name, (*f)->length);
+	if (f->length % BB_BLOCK_SIZE)
+		g_warning ("Warning file '%s':%d non-integer number of blocks\n",
+			   name, f->length);
 
-	if (!ms_ole_setup (*f)) {
-		printf ("'%s' : duff file !\n", name);
-		ms_ole_destroy (f);
+	if (!ms_ole_setup (f)) {
+		g_error ("'%s' : duff file !\n", name);
+		ms_ole_destroy (fs);
 		return MS_OLE_ERR_FORMAT;
 	}
 
-	g_assert ((*f)->bb->len < (*f)->length/BB_BLOCK_SIZE);
+	g_assert (f->bb->len < f->length / BB_BLOCK_SIZE);
 
 #if OLE_DEBUG > 0
-	printf ("New OLE file '%s'\n", name);
+	g_print ("New OLE file '%s'\n", name);
 #endif
 	/* If writing then when destroy commit it */
 	return MS_OLE_ERR_OK;
@@ -1652,93 +1717,96 @@ ms_ole_open_vfs (MsOle **f, const char *name, gboolean try_mmap,
  * Return value: a #MsOleErr code.
  **/
 MsOleErr
-ms_ole_create_vfs (MsOle **f, const char *name, gboolean try_mmap,
+ms_ole_create_vfs (MsOle **fs, const char *name, gboolean try_mmap,
 		   MsOleSysWrappers *wrappers)
 {
+	MsOle *f;
 	int file, zero=0;
 	int init_blocks = 1, lp;
 
-	if (!f)
+	if (!fs)
 		return MS_OLE_ERR_BADARG;
 
-	*f = new_null_msole ();
-	take_wrapper_functions (*f, wrappers);
-	if ((file = (*f)->syswrap->open3 (name,
-					  O_RDWR|O_CREAT|O_TRUNC /*|O_NONBLOCK*/,
-					  S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP))
+	f = *fs = ms_ole_new ();
+	take_wrapper_functions (f, wrappers);
+	if ((file = f->syswrap->open3 (name,
+				       O_RDWR|O_CREAT|O_TRUNC/*|O_NONBLOCK*/,
+				       S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP))
 	    == -1) {
-		printf ("Can't create file '%s'\n", name);
-		g_free (*f);
-		*f = NULL;
+		g_error ("Can't create file '%s'\n", name);
+		g_free (f);
+		*fs = NULL;
 		return MS_OLE_ERR_PERM;
 	}
 
-	if (((*f)->syswrap->lseek (file, BB_BLOCK_SIZE * init_blocks - 1,
+	if ((f->syswrap->lseek (file, BB_BLOCK_SIZE * init_blocks - 1,
 		    SEEK_SET) == (off_t)-1) ||
-	    ((*f)->syswrap->write (file, &zero, 1) == -1)) {
-		printf ("Serious error extending file to %d bytes\n",
-			BB_BLOCK_SIZE*init_blocks);
-		g_free (*f);
-		*f = NULL;
+	    (f->syswrap->write (file, &zero, 1) == -1)) {
+		g_error ("Serious error extending file to %d bytes\n",
+			 BB_BLOCK_SIZE*init_blocks);
+		g_free (f);
+		*fs = NULL;
 		return MS_OLE_ERR_SPACE;
 	}
 
-	(*f)->ref_count = 0;
-	(*f)->file_des  = file;
-	(*f)->mode      = 'w';
-	if ((*f)->syswrap->getfilesize (file, &((*f)->length))) {
-		printf ("Warning couldn't get the size of the file '%s'\n",
-			name);
+	f->ref_count = 0;
+	f->file_des  = file;
+	f->mode      = 'w';
+	if (f->syswrap->getfilesize (file, &(f->length))) {
+		g_warning ("Warning couldn't get the size of the file '%s'\n",
+			   name);
 	}
-	if ((*f)->length % BB_BLOCK_SIZE)
-		printf ("Warning file %d non-integer number of blocks\n",
-			(*f)->length);
+	if (f->length % BB_BLOCK_SIZE)
+		g_warning ("Warning file %d non-integer number of blocks\n",
+			   f->length);
 
 	if (try_mmap) {
-#ifdef HAVE_MMAP
-		(*f)->ole_mmap = TRUE;
-		(*f)->mem = mmap (0, (*f)->length, PROT_READ|PROT_WRITE,
-				  MAP_SHARED, file, 0);
-		if (!(*f)->mem || (caddr_t)(*f)->mem == (caddr_t)MAP_FAILED) {
-#endif
+		if (f->syswrap->mmap)
+			f->mem = f->syswrap->mmap (
+				0, f->length, PROT_READ | PROT_WRITE,
+				MAP_SHARED, file, 0);
+		else
+			f->mem = NULL;
+
+		if (!f->mem || (caddr_t)f->mem == (caddr_t)MAP_FAILED) {
 			g_warning ("I can't mmap that file, falling back to slower method");
-			(*f)->ole_mmap = FALSE;
-			(*f)->mem  = g_new (guint8, BB_BLOCK_SIZE);
-#ifdef HAVE_MMAP
-		}
-#endif
+			f->mem  = g_new (guint8, BB_BLOCK_SIZE);
+			f->ole_mmap = FALSE;
+		} else
+			f->ole_mmap = TRUE;
+
 	} else /* !try_mmap */ {
-		g_warning ("I won't mmap that file, using a slower method\n");
-		(*f)->ole_mmap = FALSE;
-		(*f)->mem  = g_new (guint8, BB_BLOCK_SIZE);
-	} /* try_mmap */
+		g_warning ("I won't mmap that file, using a slower method");
+		f->ole_mmap = FALSE;
+		f->mem  = g_new (guint8, BB_BLOCK_SIZE);
+	}
 
 	/* The header block */
 	for (lp = 0; lp < BB_BLOCK_SIZE / 4; lp++)
-		MS_OLE_SET_GUINT32((*f)->mem + lp * 4,
+		MS_OLE_SET_GUINT32(f->mem + lp * 4,
 				   (lp < (0x52 / 4)) ? 0: UNUSED_BLOCK);
 
-	MS_OLE_SET_GUINT32((*f)->mem,     0xe011cfd0); /* Magic number */
-	MS_OLE_SET_GUINT32((*f)->mem + 4, 0xe11ab1a1);
+	MS_OLE_SET_GUINT32 (f->mem,     0xe011cfd0); /* Magic number */
+	MS_OLE_SET_GUINT32 (f->mem + 4, 0xe11ab1a1);
 
 	/* More magic numbers */
-	MS_OLE_SET_GUINT32((*f)->mem + 0x18, 0x0003003e);
-	MS_OLE_SET_GUINT32((*f)->mem + 0x1c, 0x0009fffe);
-	MS_OLE_SET_GUINT32((*f)->mem + 0x20, 0x6); 
-	MS_OLE_SET_GUINT32((*f)->mem + 0x38, 0x00001000); 
-/*	MS_OLE_SET_GUINT32((*f)->mem + 0x40, 0x1);  */
-	MS_OLE_SET_GUINT32((*f)->mem + 0x44, 0xfffffffe); 
+	MS_OLE_SET_GUINT32 (f->mem + 0x18, 0x0003003e);
+	MS_OLE_SET_GUINT32 (f->mem + 0x1c, 0x0009fffe);
+	MS_OLE_SET_GUINT32 (f->mem + 0x20, 0x6); 
+	MS_OLE_SET_GUINT32 (f->mem + 0x38, 0x00001000); 
+/*	MS_OLE_SET_GUINT32 (f->mem + 0x40, 0x1);  */
+	MS_OLE_SET_GUINT32 (f->mem + 0x44, 0xfffffffe); 
 
-	SET_NUM_BBD_BLOCKS  (*f, 0);
-	SET_ROOT_STARTBLOCK (*f, END_OF_CHAIN);
-	SET_SBD_STARTBLOCK  (*f, END_OF_CHAIN);
+	SET_NUM_BBD_BLOCKS  (f, 0);
+	SET_ROOT_STARTBLOCK (f, END_OF_CHAIN);
+	SET_SBD_STARTBLOCK  (f, END_OF_CHAIN);
 
 	{
 		PPS *p;
 
-		(*f)->bb  = g_array_new (FALSE, FALSE, sizeof(BLP));
-		(*f)->sb  = g_array_new (FALSE, FALSE, sizeof(BLP));
-		(*f)->sbf = g_array_new (FALSE, FALSE, sizeof(BLP));
+		f->bb  = g_array_new (FALSE, FALSE, sizeof(BLP));
+		f->sb  = g_array_new (FALSE, FALSE, sizeof(BLP));
+		f->sbf = g_array_new (FALSE, FALSE, sizeof(BLP));
 		p           = g_new(PPS, 1);
 		p->sig      = PPS_SIG;
 		p->name     = g_strdup ("Root Entry");
@@ -1747,15 +1815,15 @@ ms_ole_create_vfs (MsOle **f, const char *name, gboolean try_mmap,
 		p->size     = 0;
 		p->children = NULL;
 		p->parent   = NULL;
-		(*f)->pps = g_list_append (0, p);
-		(*f)->num_pps = 1;
+		f->pps      = g_list_append (0, p);
+		f->num_pps  = 1;
 
-		if ((*f)->ole_mmap)
-			(*f)->bbattr = NULL;
+		if (f->ole_mmap)
+			f->bbattr = NULL;
 		else
-			(*f)->bbattr   = g_ptr_array_new ();
+			f->bbattr   = g_ptr_array_new ();
 	}
-	g_assert ((*f)->bb->len < (*f)->length/BB_BLOCK_SIZE);
+	g_assert (f->bb->len < f->length / BB_BLOCK_SIZE);
 
 	return MS_OLE_ERR_OK;
 }
@@ -1766,12 +1834,19 @@ destroy_pps (GList *l)
 {
 	GList *tmp;
 
+	if (!l)
+	  return;
+
 	for (tmp = l; tmp; tmp = g_list_next (tmp)) {
 		PPS *pps = tmp->data;
-		if (pps->name)
+		if (pps->name) {
 			g_free (pps->name);
+			pps->name = 0;
+		}
 		destroy_pps (pps->children);
+		pps->children = 0;
 		g_free (pps);
+		pps = 0;
 	}
 	g_list_free (l);
 }
@@ -1789,7 +1864,7 @@ ms_ole_destroy (MsOle **ptr)
 	MsOle *f = *ptr;
 
 #if OLE_DEBUG > 0
-	printf ("FIXME: should truncate to remove unused blocks\n");
+	g_print ("FIXME: should truncate to remove unused blocks\n");
 #endif
 	if (f) {
 		if (f->ref_count != 0)
@@ -1808,12 +1883,15 @@ ms_ole_destroy (MsOle **ptr)
 #endif
 		} else {
 			guint32 i;
-			for (i = 0; (f->bbattr) && (i < f->bbattr->len); i++) {
+			if (f->bbattr) {
+			  for (i = 0; (f->bbattr) && (i < f->bbattr->len); i++) {
 				BBBlkAttr *attr = g_ptr_array_index (f->bbattr, i);
 				if (f->dirty && attr->dirty)
 					write_cache_block (f, attr);
 				g_free (attr->data);
 				attr->data = 0;
+			  }
+			  f->bbattr = 0;
 			}
 			if (f->dirty) {
 				f->syswrap->lseek (f->file_des, 0, SEEK_SET);
@@ -1825,12 +1903,13 @@ ms_ole_destroy (MsOle **ptr)
 		}
 
 		destroy_pps (f->pps);
+		f->pps = 0;
 
 		f->syswrap->close (f->file_des);
 		g_free (f);
 
 #if OLE_DEBUG > 0
-		printf ("Closing OLE file\n");
+		g_print ("Closing OLE file\n");
 #endif
 	}
 	*ptr = NULL;
@@ -1852,17 +1931,17 @@ ms_ole_dump (guint8 const *ptr, guint32 len)
 
 	for (lp = 0;lp<(len+15)/16;lp++)
 	{
-		printf ("%8x | ", lp*16);
+		g_print ("%8x | ", lp*16);
 		for (lp2=0;lp2<16;lp2++) {
 			off = lp2 + (lp<<4);
-			off<len?printf("%2x ", ptr[off]):printf("XX ");
+			off<len?g_print("%2x ", ptr[off]):g_print("XX ");
 		}
 		printf ("| ");
 		for (lp2=0;lp2<16;lp2++) {
 			off = lp2 + (lp<<4);
-			printf ("%c", off<len?(ptr[off]>'!'&&ptr[off]<127?ptr[off]:'.'):'*');
+			g_print ("%c", off<len?(ptr[off]>'!'&&ptr[off]<127?ptr[off]:'.'):'*');
 		}
-		printf ("\n");
+		g_print ("\n");
 	}
 }
 
@@ -1929,23 +2008,23 @@ free_allocation (MsOle *f, guint32 startblock, gboolean is_big_block_stream)
 	g_return_if_fail (f);
 
 #if OLE_DEBUG > 0
-	printf ("Free allocation %d : (%d)\n", startblock,
-		is_big_block_stream);
+        g_print ("Free allocation %d : (%d)\n", startblock,
+		 is_big_block_stream);
 #endif
        
 	if (is_big_block_stream)
 	{
 		BLP p = startblock;
-		printf ("FIXME: this should also free up blocks\n");
+	        g_print ("FIXME: this should also free up blocks\n");
 		while (p != END_OF_CHAIN) {
 			BLP next = NEXT_BB (f,p);
 			if (next == p) {
-				printf ("Serious bug: cyclic ring in BB allocation\n");
+				g_error ("Serious bug: cyclic ring in BB allocation\n");
 				return;
 			} else if (p == SPECIAL_BLOCK ||
 				   p == UNUSED_BLOCK) {
-				printf ("Serious bug: Special / Unused block "
-					"in BB allocation\n");
+				g_error ("Serious bug: Special / Unused block "
+					 "in BB allocation\n");
 				return;
 			}
 			g_array_index (f->bb, BLP, p) = UNUSED_BLOCK;
@@ -1958,12 +2037,12 @@ free_allocation (MsOle *f, guint32 startblock, gboolean is_big_block_stream)
 		while (p != END_OF_CHAIN) {
 			BLP next = NEXT_SB (f,p);
 			if (next == p) {
-				printf ("Serious bug: cyclic ring in SB allocation\n");
+				g_error ("Serious bug: cyclic ring in SB allocation\n");
 				return;
 			} else if (p == SPECIAL_BLOCK ||
 				   p == UNUSED_BLOCK) {
-				printf ("Serious bug: Special / Unused block "
-					"in SB allocation\n");
+				g_error ("Serious bug: Special / Unused block "
+					 "in SB allocation\n");
 				return;
 			}
 			g_array_index (f->sb, BLP, p) = UNUSED_BLOCK;
@@ -2053,7 +2132,7 @@ ms_ole_read_ptr_bb (MsOleStream *s, MsOlePos length)
 	g_return_val_if_fail (s, NULL);
 
 	if (!s->blocks || blockidx >= s->blocks->len) {
-		printf ("Reading from NULL file\n");
+		g_error ("Reading from NULL file\n");
 		return NULL;
 	}
 
@@ -2099,7 +2178,7 @@ ms_ole_read_ptr_sb (MsOleStream *s, MsOlePos length)
 	g_return_val_if_fail (s, NULL);
 
 	if (!s->blocks || blockidx >= s->blocks->len) {
-		printf ("Reading from NULL file\n");
+		g_error ("Reading from NULL file\n");
 		return NULL;
 	}
 
@@ -2146,7 +2225,7 @@ ms_ole_read_copy_bb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 	g_return_val_if_fail (ptr, 0);
 
 	if (!s->blocks) {
-		printf ("Reading from NULL file\n");
+		g_error ("Reading from NULL file\n");
 		return 0;
 	}
 
@@ -2160,7 +2239,7 @@ ms_ole_read_copy_bb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 		if (s->position + cpylen > s->size
 		    || blkidx == s->blocks->len) {
 #if OLE_DEBUG > 0
-			printf ("Trying 2 to read beyond end of stream %d+%d %d\n",
+			g_print ("Trying 2 to read beyond end of stream %d+%d %d\n",
 				s->position, cpylen, s->size);
 #endif
 			return 0;
@@ -2202,7 +2281,7 @@ ms_ole_read_copy_sb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 	g_return_val_if_fail (ptr, 0);
 
 	if (!s->blocks) {
-		printf ("Reading from NULL file\n");
+		g_error ("Reading from NULL file\n");
 		return 0;
 	}
 
@@ -2215,7 +2294,7 @@ ms_ole_read_copy_sb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 		if (s->position + cpylen > s->size
 		    || blkidx == s->blocks->len) {
 #if OLE_DEBUG > 0
-			printf ("Trying 3 to read beyond end of stream %d+%d %d\n",
+			g_print ("Trying 3 to read beyond end of stream %d+%d %d\n",
 				s->position, cpylen, s->size);
 #endif
 			return 0;
@@ -2261,12 +2340,12 @@ ms_ole_append_block (MsOleStream *s)
 		if (lastblk != END_OF_CHAIN) { /* Link onwards */
 			g_array_index (s->file->sb, BLP, lastblk) = block;
 #if OLE_DEBUG > 1
-			printf ("Chained Small block %d to previous block %d\n", block, lastblk);
+			g_print ("Chained Small block %d to previous block %d\n", block, lastblk);
 #endif
 		} else { /* First block in a file */
 			PPS *p = s->pps;
 #if OLE_DEBUG > 0
-			printf ("Set first Small block to %d\n", block);
+			g_print ("Set first Small block to %d\n", block);
 #endif
 			p->start = block;
 		}
@@ -2292,12 +2371,12 @@ ms_ole_append_block (MsOleStream *s)
 		if (lastblk != END_OF_CHAIN) { /* Link onwards */
 			g_array_index (s->file->bb, BLP, lastblk) = block;
 #if OLE_DEBUG > 1
-			printf ("Chained Big block %d to block %d\n", block, lastblk);
+		        g_print ("Chained Big block %d to block %d\n", block, lastblk);
 #endif
 		} else { /* First block in a file */
 			PPS *p = s->pps;
 #if OLE_DEBUG > 0
-			printf ("Set first Big block to %d\n", block);
+			g_print ("Set first Big block to %d\n", block);
 #endif
 			p->start = block;
 		}
@@ -2333,7 +2412,7 @@ ms_ole_write_bb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 		dest = BB_W_PTR(s->file, block) + offset;
 
 #if OLE_DEBUG > 1
-		printf ("Copy %d bytes to block %d\n", cpylen, block);
+		g_print ("Copy %d bytes to block %d\n", cpylen, block);
 #endif
 		memcpy (dest, ptr, cpylen);
 		ptr   += cpylen;
@@ -2408,7 +2487,7 @@ ms_ole_write_sb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 			free_allocation (s->file, p->start, 0);
 			p->start    = END_OF_CHAIN;
 #if OLE_DEBUG > 1
-			printf ("\n\n--- Converting ---\n\n\n");
+			g_print ("\n\n--- Converting ---\n\n\n");
 #endif
 			s->read_copy = ms_ole_read_copy_bb;
 			s->read_ptr  = ms_ole_read_ptr_bb;
@@ -2431,7 +2510,7 @@ ms_ole_write_sb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 			ms_ole_write_bb (s, ptr, bytes);
 			bytes = 0;
 #if OLE_DEBUG > 1
-			printf ("\n\n--- Done ---\n\n\n");
+			g_print ("\n\n--- Done ---\n\n\n");
 #endif
 			g_free (buffer);
 			return length;
@@ -2762,8 +2841,8 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
 		return MS_OLE_ERR_BADARG;
 
 	if (mode == 'w' && f->mode != 'w') {
-		printf ("Opening stream '%c' when file is '%c' only\n",
-			mode, f->mode);
+		g_print ("Opening stream '%c' when file is '%c' only\n",
+			 mode, f->mode);
 		return MS_OLE_ERR_PERM;
 	}
 
@@ -2779,7 +2858,7 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
 	s->blocks   = NULL;
 
 #if OLE_DEBUG > 0
-	printf ("Parsing blocks\n");
+	g_print ("Parsing blocks\n");
 #endif
 	if (s->size >= BB_THRESHOLD) {
 		BLP b = p->start;
@@ -2795,30 +2874,30 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
 		for (lp = 0; !panic & (lp < (s->size + BB_BLOCK_SIZE - 1) / BB_BLOCK_SIZE); lp++) {
 			g_array_append_val (s->blocks, b);
 #if OLE_DEBUG > 1
-			printf ("Block %d\n", b);
+			g_print ("Block %d\n", b);
 #endif
 			if (b == END_OF_CHAIN ||
 			    b == SPECIAL_BLOCK ||
 			    b == UNUSED_BLOCK) {
 
-				printf ("Panic: broken stream, truncating to block %d\n", lp);
+				g_error ("Panic: broken stream, truncating to block %d\n", lp);
 				s->size = (lp-1)*BB_BLOCK_SIZE;
 				panic   = 1;
 
 #if OLE_DEBUG > 0
 				if (b == END_OF_CHAIN)
-					printf ("Warning: bad file length in '%s'\n", p->name);
+					g_warning ("Warning: bad file length in '%s'\n", p->name);
 				else if (b == SPECIAL_BLOCK)
-					printf ("Warning: special block in '%s'\n", p->name);
+					g_warning ("Warning: special block in '%s'\n", p->name);
 				else if (b == UNUSED_BLOCK)
-					printf ("Warning: unused block in '%s'\n", p->name);
+					g_warning ("Warning: unused block in '%s'\n", p->name);
 #endif
 			} else
 				b = NEXT_BB (f, b);
 		}
 		if (b != END_OF_CHAIN) {
 			BLP next;
-			printf ("Panic: extra unused blocks on end of '%s', wiping it\n",
+			g_error ("Panic: extra unused blocks on end of '%s', wiping it\n",
 				p->name);
 			while (b != END_OF_CHAIN &&
 			       b != UNUSED_BLOCK &&
@@ -2847,29 +2926,29 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
 		for (lp = 0; !panic & (lp < (s->size + SB_BLOCK_SIZE - 1) / SB_BLOCK_SIZE); lp++) {
 			g_array_append_val (s->blocks, b);
 #if OLE_DEBUG > 0
-			printf ("Block %d\n", b);
+			g_print ("Block %d\n", b);
 #endif
 			if (b == END_OF_CHAIN ||
 			    b == SPECIAL_BLOCK ||
 			    b == UNUSED_BLOCK) {
 
-				printf ("Panic: broken stream, truncating to block %d\n", lp);
+				g_error ("Panic: broken stream, truncating to block %d\n", lp);
 				s->size = (lp-1)*SB_BLOCK_SIZE;
 				panic   = 1;
 #if OLE_DEBUG > 0
 				if (b == END_OF_CHAIN)
-					printf ("Warning: bad file length in '%s'\n", p->name);
+					g_warning ("Warning: bad file length in '%s'\n", p->name);
 				else if (b == SPECIAL_BLOCK)
-					printf ("Warning: special block in '%s'\n", p->name);
+					g_warning ("Warning: special block in '%s'\n", p->name);
 				else if (b == UNUSED_BLOCK)
-					printf ("Warning: unused block in '%s'\n", p->name);
+					g_warning ("Warning: unused block in '%s'\n", p->name);
 #endif
 			} else
 				b = NEXT_SB (f, b);
 		}
 		if (b != END_OF_CHAIN) {
 			BLP next;
-			printf ("Panic: extra unused blocks on end of '%s', wiping it\n",
+			g_error ("Panic: extra unused blocks on end of '%s', wiping it\n",
 				p->name);
 			while (b != END_OF_CHAIN &&
 			       b != UNUSED_BLOCK &&
@@ -2879,7 +2958,7 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
 				b = next;
 			}
 			if (b != END_OF_CHAIN)
-				printf ("Panic: even more serious block error\n");
+				g_error ("Panic: even more serious block error\n");
 		}
 	}
 	*stream = s;

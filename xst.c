@@ -35,7 +35,7 @@ void wvGetXst(Xst **xst,U32 offset,U32 len,wvStream *fd)
         }
 
     wvStream_goto(fd,offset);
-    *xst = (Xst*) malloc(sizeof(Xst));
+    *xst = (Xst*) wvMalloc(sizeof(Xst));
     authorlist = *xst;
 
     if (authorlist == NULL)
@@ -53,7 +53,7 @@ void wvGetXst(Xst **xst,U32 offset,U32 len,wvStream *fd)
         {
         clen = read_16ubit(fd);
         count+=2;
-        current->u16string = (U16 *)malloc((clen+1) * sizeof(U16));
+        current->u16string = (U16 *)wvMalloc((clen+1) * sizeof(U16));
         authorlist->noofstrings++;
         if (current->u16string == NULL)
             {
@@ -69,7 +69,7 @@ void wvGetXst(Xst **xst,U32 offset,U32 len,wvStream *fd)
 
         if (count < len)
             {
-            current->next= (Xst*) malloc(sizeof(Xst));
+            current->next= (Xst*) wvMalloc(sizeof(Xst));
             if (current->next == NULL)
                 {
                 wvError(("not enough mem for annotation group\n"));

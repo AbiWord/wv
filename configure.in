@@ -160,9 +160,29 @@ AC_CHECK_HEADER(zlib.h,
                 ZLIB_LIBS="-lz"
             fi])))
 
+
+AC_CHECK_HEADER(libxml/parser.h,
+       AC_CHECK_LIB(xml, xmlParseDocument,[
+               AC_DEFINE(HAVE_LIBXML2)
+               HAVE_LIBXML2=1
+               LIBXML2_LIBS="-lxml" ]))
+
+AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$PATH])
+if test -n "$GLIB_CONFIG"; then
+       AC_DEFINE(HAVE_GLIB)
+       HAVE_GLIB=1
+       GLIB_CFLAGS=`$GLIB_CONFIG --cflags`
+       GLIB_LIBS=`$GLIB_CONFIG --libs`
+fi
+
 CPPFLAGS=$_cppflags
 LDFLAGS=$_ldflags
 
+AC_SUBST(LIBXML2_LIBS)
+AC_SUBST(HAVE_LIBXML2)
+AC_SUBST(GLIB_LIBS)
+AC_SUBST(GLIB_CFLAGS)
+AC_SUBST(HAVE_GLIB)
 AC_SUBST(ZLIB_CFLAGS)
 AC_SUBST(ZLIB_LIBS)
 
@@ -273,29 +293,34 @@ AC_ARG_WITH(ttf,
     fi
 ])
 
-# FreeType 1.3.1 has include file in <freetype/freetype.h>
-AC_CHECK_HEADERS(freetype.h freetype/freetype.h,[
-    AC_CHECK_HEADER(freetype.h, TTFINCLUDE="<freetype.h>")
-    AC_CHECK_HEADER(freetype/freetype.h,
-TTFINCLUDE="<freetype/freetype.h>")
+dnl Currently wv requires freetype only if it is being linked against libwmf
+dnl so only need to check for library here
 
-    AC_CHECK_LIB(ttf, TT_Init_FreeType,
+AC_CHECK_LIB(ttf,TT_Init_FreeType,[
+    AC_DEFINE(HAVE_TTF)
+    HAVE_TTF=1
+    if test "x$TTF_DIR" != "x"; then
+        TTF_CFLAGS="-I$TTF_DIR/include"
+        TTF_LIBS="-L$TTF_DIR/lib -lttf"
+    else
+        TTF_LIBS="-lttf"
+    fi],[
+    AC_CHECK_LIB(ttf,TT_Done_FreeType,[
         AC_DEFINE(HAVE_TTF)
         HAVE_TTF=1
-        TTF_CFLAGS="-I${TTF_DIR}/include" TTF_LIBS="-L${TTF_DIR}/lib -lttf",
-        AC_CHECK_LIB(ttf, TT_Done_FreeType,
-            AC_DEFINE(HAVE_TTF)
-            HAVE_TTF=1
-            TTF_CFLAGS="-I${TTF_DIR}/include"
-            TTF_LIBS="-L${TTF_DIR}/lib -lttf", , -lnsl))
-    break])
+        if test "x$TTF_DIR" != "x"; then
+            TTF_CFLAGS="-I$TTF_DIR/include"
+            TTF_LIBS="-L$TTF_DIR/lib -lttf -lnsl"
+        else
+            TTF_LIBS="-lttf -lnsl"
+        fi], ,-lnsl)
+    ])
 
 CPPFLAGS=${_cppflags}
 LDFLAGS=${_ldflags}
 
 AC_SUBST(TTF_LIBS)
 AC_SUBST(TTF_CFLAGS)
-AC_SUBST(TTFINCLUDE)
 
 dnl system libwmf support
 dnl ========================================================
@@ -315,10 +340,14 @@ AC_CHECK_HEADER(gdwmfapi.h,
     AC_CHECK_LIB(gdwmf, gd_draw_rectangle,[
         AC_DEFINE(HAVE_WMF)
         HAVE_WMF=1
-        WMF_CFLAGS="-I$WMF_DIR/include"
-        WMF_LIBS="-L$WMF_DIR/lib -lgdwmf"], ,
+        if test "x$WMF_DIR" != "x"; then
+            WMF_CFLAGS="-I$WMF_DIR/include"
+            WMF_LIBS="-L$WMF_DIR/lib -lgdwmf -lwmf -lxgd -ldib"
+        else
+            WMF_LIBS="-lgdwmf -lwmf -lxgd -ldib"
+        fi], ,
         [-lwmf -lxgd -ldib $X_LIBS $XPM_LIBS $X_PRE_LIBS -lX11 $X_EXTRA_LIBS
-         $TTF_LIBS $PNG_LIBS $ZLIB_LIBS -lm]))
+         $TTF_LIBS $PNG_LIBS $ZLIB_LIBS $LIBXML2_LIBS -lm]))
 
 CPPFLAGS=${_cppflags}
 LDFLAGS=${_ldflags}
@@ -328,6 +357,46 @@ AC_SUBST(WMF_CFLAGS)
 
 dnl test for iconv
 dnl ========================================================
+
+_cppflags=${CPPFLAGS}
+_ldflags=${LDFLAGS}
+
+AC_ARG_WITH(libiconv,
+[  --with-libiconv[=DIR]   use libiconv [in DIR]],[
+    if test "$withval" = "yes"; then
+        check_for_libiconv=yes
+    elif test "$withval" = "no"; then
+        check_for_libiconv=no
+    else
+        check_for_libiconv=yes
+        LIBICONV_DIR=$withval
+        CPPFLAGS="${CPPFLAGS} -I$withval/include"
+        LDFLAGS="${LDFLAGS} -L$withval/lib"
+    fi
+],check_for_libiconv="no")
+
+have_iconv=no
+
+if test "$check_for_libiconv" = "yes"; then
+    AC_CHECK_LIB(iconv,iconv_open,[
+        if test "x$LIBICONV_DIR" != "x"; then
+            ICONV_CFLAGS="-I$LIBICONV_DIR/include"
+            ICONV_LIBS="-L$LIBICONV_DIR/lib -liconv"
+        else
+            ICONV_LIBS="-liconv"
+        fi
+        AC_DEFINE(USE_ICONV)
+        have_iconv=yes])
+fi
+
+if test "$have_iconv" = "no"; then
+    AC_CHECK_FUNC(iconv,[
+        AC_DEFINE(USE_ICONV)
+        have_iconv=yes],[
+        ICONVOBJS="\$(RICONVOBJS)"
+        ICONV="ICONV"
+        AC_MSG_WARN(*** Get Iconv ***)])
+fi
 
 AC_DEFUN(AC_SYS_ICONV_WIN_CP_SUPPORT,
 [
@@ -387,15 +456,6 @@ ICONV="ICONV"
 fi
 ])
 
-AC_CHECK_FUNC(iconv, [
-	AC_DEFINE(USE_ICONV)
-	ICONV_LIBS=""
-	have_iconv=yes], [
-		ICONVOBJS="\$(RICONVOBJS)"
-		ICONV="ICONV"
-		have_iconv=no]
-		AC_MSG_WARN(*** Get Iconv ***))
-
 if [ test "$have_iconv" = yes ]; then
 	AC_SYS_ICONV_WIN_CP_SUPPORT(CP874,UCS-2)
 dnl	AC_SYS_ICONV_WIN_CP_SUPPORT(CP936,UCS-2)
@@ -417,6 +477,15 @@ dnl	AC_SYS_ICONV_WIN_CP_SUPPORT(CP950,UCS-2)
 	AC_SYS_ICONV_WIN_CP_SUPPORT(UCS-2,tis-620)
 	AC_SYS_ICONV_WIN_CP_SUPPORT(UCS-2,iso-8859-15)
 fi
+
+AC_SUBST(ICONV_CFLAGS)
+AC_SUBST(ICONV_LIBS)
+
+AC_SUBST(ICONV)
+AC_SUBST(ICONVOBJS)
+
+CPPFLAGS=$_cppflags
+LDFLAGS=$_ldflags
 
 dnl end of iconv
 dnl ========================================================
@@ -537,9 +606,6 @@ dnl check for mmap
 AC_FUNC_MMAP
 
 AC_SUBST(LIBOBJS)
-AC_SUBST(ICONV)
-AC_SUBST(ICONVOBJS)
-AC_SUBST(ICONV_LIBS)
 
 AC_OUTPUT(
 Makefile 

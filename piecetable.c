@@ -21,9 +21,9 @@ int get_piecetable(wvStream *in,U32 **rgfc,U32 **avalrgfc,U16 **sprm,U32 *clxcou
 	nopieces = (lcb-4)/12;
 	error(erroroutput,"lcb is %ld, theres %d pieces\n",lcb,nopieces);
 	
-	*rgfc = (U32 *) malloc((nopieces +1) * sizeof(U32));
-	*avalrgfc = (U32 *) malloc((nopieces) * sizeof(U32));
-	*sprm = (U16 *)  malloc((nopieces) * sizeof(U16));
+	*rgfc = (U32 *) wvMalloc((nopieces +1) * sizeof(U32));
+	*avalrgfc = (U32 *) wvMalloc((nopieces) * sizeof(U32));
+	*sprm = (U16 *)  wvMalloc((nopieces) * sizeof(U16));
 
 	if ( ((*rgfc) == NULL) || ((*avalrgfc) == NULL) || ((*sprm) == NULL) )
 		{

@@ -99,7 +99,7 @@ int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,U8 **nfcs,LVL *retlv
 		/* wrong: begin of numbertext twiddling */
 		wvTrace(("before len %d\n",apap->anld.cxchTextBefore));
 		wvTrace(("after len %d\n",apap->anld.cxchTextAfter));
-		retlvl->numbertext = (XCHAR *)malloc(sizeof(XCHAR) * 64);
+		retlvl->numbertext = (XCHAR *)wvMalloc(sizeof(XCHAR) * 64);
 		i=0;
 		for (;i<apap->anld.cxchTextBefore;i++)
 			retlvl->numbertext[i] = apap->anld.rgxch[i];

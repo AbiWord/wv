@@ -19,7 +19,7 @@ int wvOLEDecode(char *path, wvStream **mainfd, wvStream **tablefd0, wvStream **t
 	if(ms_ole_open(&ole_file, path) == MS_OLE_ERR_OK)
 		{
 		MsOleStream** temp_stream;
-		temp_stream=(MsOleStream**)malloc(sizeof(MsOleStream*));
+		temp_stream=(MsOleStream**)wvMalloc(sizeof(MsOleStream*));
 		
 		wvTrace(("Opened VFS\n"));
 		if(ms_ole_stream_open(temp_stream, ole_file, "/", "WordDocument", 'r')!=MS_OLE_ERR_OK) 

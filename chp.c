@@ -383,7 +383,7 @@ void wvCopyCHPX(CHPX *dest,CHPX *src)
 	dest->istd = src->istd;
 	dest->cbGrpprl = src->cbGrpprl;
 	if (dest->cbGrpprl)
-		dest->grpprl = (U8 *) malloc(dest->cbGrpprl);
+		dest->grpprl = (U8 *) wvMalloc(dest->cbGrpprl);
 	else
 		dest->grpprl = NULL;
 	if (dest->grpprl == NULL)
@@ -490,7 +490,7 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 		}
 
 	if (len != 0) 
-		grpprl = (U8 *)malloc(len);
+		grpprl = (U8 *)wvMalloc(len);
 	else
 		return;
 	
@@ -576,7 +576,7 @@ void wvUpdateCHPXBucket(UPXF *src)
 	if (len == 0) 
 		return;
 
-	grpprl = (U8 *)malloc(len);
+	grpprl = (U8 *)wvMalloc(len);
 
 	dpointer = grpprl;
 
@@ -657,7 +657,7 @@ void wvGetCHPX(version ver, CHPX *item, U8 *page, U16 *pos)
 	item->cbGrpprl = bread_8ubit(&(page[*pos]),pos);
 	if (item->cbGrpprl > 0)
 		{
-		item->grpprl = (U8 *)malloc(item->cbGrpprl);
+		item->grpprl = (U8 *)wvMalloc(item->cbGrpprl);
 		memcpy(item->grpprl,&(page[*pos]),item->cbGrpprl);
 		}
 	else

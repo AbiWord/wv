@@ -1,4 +1,5 @@
 #if !defined(__GLIBC__) || (__GLIBC__ < 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2)
+#include <sys/types.h>
 #include <ctype.h>
 #include <string.h>
 #ifdef HAVE_CONFIG_H

@@ -2,10 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <malloc.h>
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 #include "wv.h"
+
+#define SOME_ARBITRARY_LIMIT 1
 
 int wvGetEmpty_PLCF(U32 **cps,U32 *nocps,U32 offset,U32 len,wvStream *fd)
 	{
@@ -37,6 +40,33 @@ void wvFree(void *ptr)
 		free(ptr);
 	ptr = NULL;
 	}
+
+/**
+ * Very simple malloc wrapper
+ */
+void * wvMalloc (U32 size)
+{
+  void * p = NULL;
+  int ntries = 0;
+
+  if (size == 0)
+    return NULL;
+
+  do {
+    p = (void *) malloc (size);
+    if (p)
+      break;
+    ntries++;
+  } while (ntries < SOME_ARBITRARY_LIMIT);
+
+  if (!p)
+    {
+      wvError (("Could not allocate %d bytes\n", size));
+      exit (-1);
+    }
+
+  return p;
+}
 
 /*
 If the

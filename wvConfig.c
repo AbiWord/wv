@@ -18,7 +18,7 @@
 #define HANDLE_B_PARA_ELE(a,b,c,d) \
 if ( (((PAP*)(mydata->props))->b == d) && (c == 0) ) \
 	{ \
-	text = (char *)malloc(strlen(mydata->sd->elements[a].str[0])+1); \
+	text = (char *)wvMalloc(strlen(mydata->sd->elements[a].str[0])+1); \
 	strcpy(text,mydata->sd->elements[a].str[0]); \
 	str = mydata->retstring; \
 	wvExpand(mydata,text,strlen(text)); \
@@ -33,7 +33,7 @@ if ( (((PAP*)(mydata->props))->b == d) && (c == 0) ) \
 #define HANDLE_B_CHAR_ELE(a,b,c,d) \
 if ( (((CHP*)(mydata->props))->b == d) && (c == 0) ) \
 	{ \
-	text = (char *)malloc(strlen(mydata->sd->elements[a].str[0])+1); \
+	text = (char *)wvMalloc(strlen(mydata->sd->elements[a].str[0])+1); \
 	strcpy(text,mydata->sd->elements[a].str[0]); \
 	str = mydata->retstring; \
 	wvExpand(mydata,text,strlen(text)); \
@@ -51,7 +51,7 @@ if ( (!((CHP*)(mydata->props))->b) && (c != 0) ) \
 */ \
 if (c == d) \
 	{ \
-	text = (char *)malloc(strlen(mydata->sd->elements[a].str[1])+1); \
+	text = (char *)wvMalloc(strlen(mydata->sd->elements[a].str[1])+1); \
 	strcpy(text,mydata->sd->elements[a].str[1]); \
 	str = mydata->retstring; \
 	wvExpand(mydata,text,strlen(text)); \
@@ -69,7 +69,7 @@ if ( (!((PAP*)(mydata->props))->b) && (c != 0) ) \
 */ \
 if (c == d) \
 	{ \
-	text = (char *)malloc(strlen(mydata->sd->elements[a].str[1])+1); \
+	text = (char *)wvMalloc(strlen(mydata->sd->elements[a].str[1])+1); \
 	strcpy(text,mydata->sd->elements[a].str[1]); \
 	str = mydata->retstring; \
 	wvExpand(mydata,text,strlen(text)); \
@@ -82,7 +82,7 @@ if (c == d) \
 	}
 
 
-extern const char wv_version[];
+extern const char wv_version[]; 
 
 Tokenptr tokenTreeRoot=NULL;
 
@@ -428,7 +428,7 @@ void tokenTreeInsert(int token)
 			}
 		if (tokenbufn == 0) 
 			{
-			tokenbuf = (Tokenptr) malloc(TOKEN_BUFSIZE *
+			tokenbuf = (Tokenptr) wvMalloc(TOKEN_BUFSIZE *
 			sizeof(Tokennode));
 			tokenfreearr[tokenfreen++] = (void *) tokenbuf;
 			tokenbufn = TOKEN_BUFSIZE;
@@ -624,7 +624,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			k = wvCellBgColor(mydata->whichrow,mydata->whichcell,((PAP *)(mydata->props))->ptap.itcMac,*(mydata->norows),&(((PAP *)(mydata->props))->ptap.tlp)); 
 			wvTrace(("k is %d\n",k));
 			if (k==0) k = 8;
-			text = (char *)malloc(strlen(mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0])+1); 
+			text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0])+1); 
 			strcpy(text,mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0]); 
 			str = mydata->retstring; 
 			wvExpand(mydata,text,strlen(text)); 
@@ -637,7 +637,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 		case TT_PARABGCOLOR:
 			k = ((PAP *)(mydata->props))->shd.icoBack;
 			if (k==0) k = 8;
-			text = (char *)malloc(strlen(mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0])+1); 
+			text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0])+1); 
 			strcpy(text,mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0]); 
 			str = mydata->retstring; 
 			wvExpand(mydata,text,strlen(text)); 
@@ -650,7 +650,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 		case TT_PARAFGCOLOR:
 			k = ((PAP *)(mydata->props))->shd.icoFore;
 			if (k==0) k = 1;
-			text = (char *)malloc(strlen(mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0])+1); 
+			text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0])+1); 
 			strcpy(text,mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0]); 
 			str = mydata->retstring; 
 			wvExpand(mydata,text,strlen(text)); 
@@ -723,7 +723,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_COLORB:
 			wvTrace(("str is %s\n",mydata->sd->elements[TT_COLOR].str[0]));
-			text = (char *)malloc(strlen(mydata->sd->elements[TT_COLOR].str[((CHP*)(mydata->props))->ico])+1);
+			text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_COLOR].str[((CHP*)(mydata->props))->ico])+1);
 			wvTrace(("the just is %d\n",((CHP*)(mydata->props))->ico));
 			strcpy(text,mydata->sd->elements[TT_COLOR].str[((CHP*)(mydata->props))->ico]);
 			str = mydata->retstring;
@@ -769,7 +769,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			((PAP*)(mydata->props))->dxaRight
 				)
 				{
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_PMARGIN].str[0])+1);
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_PMARGIN].str[0])+1);
 				strcpy(text,mydata->sd->elements[TT_PMARGIN].str[0]);
 				str = mydata->retstring;
 				wvExpand(mydata,text,strlen(text));
@@ -789,7 +789,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			((PAP*)(mydata->props))->brcTop.brcType 
 				)
 				{
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_PBORDER].str[0])+1);
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_PBORDER].str[0])+1);
 				strcpy(text,mydata->sd->elements[TT_PBORDER].str[0]);
 				str = mydata->retstring;
 				wvExpand(mydata,text,strlen(text));
@@ -803,7 +803,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 		case TT_JUST:
 		    wvTrace(("just is %d\n",((PAP*)(mydata->props))->jc));
 			wvTrace(("str is %s\n",mydata->sd->elements[TT_JUSTIFICATION].str[0]));
-			text = (char *)malloc(strlen(mydata->sd->elements[TT_JUSTIFICATION].str[((PAP*)(mydata->props))->jc])+1);
+			text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_JUSTIFICATION].str[((PAP*)(mydata->props))->jc])+1);
 			wvTrace(("the just is %d\n",((PAP*)(mydata->props))->jc));
 			strcpy(text,mydata->sd->elements[TT_JUSTIFICATION].str[((PAP*)(mydata->props))->jc]);
 			str = mydata->retstring;
@@ -817,12 +817,12 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 		case TT_BORDERTopSTYLE:
 			if (isPAPConform(&mydata->lastpap,(PAP*)(mydata->props)))
 				{
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBetween.brcType])+1);
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBetween.brcType])+1);
 				strcpy(text,mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBetween.brcType]);
 				}
 			else
 				{
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcTop.brcType])+1);
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcTop.brcType])+1);
 				strcpy(text,mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcTop.brcType]);
 				}
 			str = mydata->retstring;
@@ -834,7 +834,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_BORDERLeftSTYLE:
-			text = (char *)malloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcLeft.brcType])+1);
+			text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcLeft.brcType])+1);
 			strcpy(text,mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcLeft.brcType]);
 			str = mydata->retstring;
 			wvExpand(mydata,text,strlen(text));
@@ -845,7 +845,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_BORDERRightSTYLE:
-			text = (char *)malloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcRight.brcType])+1);
+			text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcRight.brcType])+1);
 			strcpy(text,mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcRight.brcType]);
 			str = mydata->retstring;
 			wvExpand(mydata,text,strlen(text));
@@ -858,12 +858,12 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 		case TT_BORDERBottomSTYLE:
 			if (isPAPConform(mydata->nextpap,(PAP*)(mydata->props)))
 				{
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBetween.brcType])+1);
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBetween.brcType])+1);
 				strcpy(text,mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBetween.brcType]);
 				}
 			else
 				{
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBottom.brcType])+1);
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBottom.brcType])+1);
 				strcpy(text,mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBottom.brcType]);
 				}
 			str = mydata->retstring;
@@ -882,7 +882,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					/* temp fix this in a while */
 					((PAP*)(mydata->props))->brcBetween.ico++;
 					}
-				text = (char *)malloc(strlen(
+				text = (char *)wvMalloc(strlen(
 				mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcBetween.ico-1)*3)].str[0]
 				)+1);
 				strcpy(text,mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcBetween.ico-1)*3)].str[0]);
@@ -894,7 +894,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					/* temp fix this in a while */
 					((PAP*)(mydata->props))->brcTop.ico++;
 					}
-				text = (char *)malloc(strlen(
+				text = (char *)wvMalloc(strlen(
 				mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcTop.ico-1)*3)].str[0]
 				)+1);
 				strcpy(text,mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcTop.ico-1)*3)].str[0]);
@@ -914,7 +914,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 				/* temp fix this in a while */
 				((PAP*)(mydata->props))->brcLeft.ico++;
 				}
-			text = (char *)malloc(strlen(
+			text = (char *)wvMalloc(strlen(
 			mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcLeft.ico-1)*3)].str[0]
 			)+1);
 			strcpy(text,mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcLeft.ico-1)*3)].str[0]);
@@ -932,7 +932,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 				/* temp fix this in a while */
 				((PAP*)(mydata->props))->brcRight.ico++;
 				}
-			text = (char *)malloc(strlen(
+			text = (char *)wvMalloc(strlen(
 			mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcRight.ico-1)*3)].str[0]
 			)+1);
 			strcpy(text,mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcRight.ico-1)*3)].str[0]);
@@ -952,7 +952,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					/* temp fix this in a while */
 					((PAP*)(mydata->props))->brcBetween.ico++;
 					}
-				text = (char *)malloc(strlen(
+				text = (char *)wvMalloc(strlen(
 				mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcBetween.ico-1)*3)].str[0]
 				)+1);
 				strcpy(text,mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcBetween.ico-1)*3)].str[0]);
@@ -964,7 +964,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					/* temp fix this in a while */
 					((PAP*)(mydata->props))->brcBottom.ico++;
 					}
-				text = (char *)malloc(strlen(
+				text = (char *)wvMalloc(strlen(
 				mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcBottom.ico-1)*3)].str[0]
 				)+1);
 				strcpy(text,mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcBottom.ico-1)*3)].str[0]);
@@ -991,7 +991,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			if ( (*mydata->listnfcs)[(ilfo-1)*9+ilvl] < 5)
 				{
 				wvTrace(("str is %s\n",mydata->sd->elements[TT_numbering].str[(*mydata->listnfcs)[(ilfo-1)*9+ilvl]]));
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_numbering].str[(*mydata->listnfcs)[(ilfo-1)*9+ilvl]])+1);
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_numbering].str[(*mydata->listnfcs)[(ilfo-1)*9+ilvl]])+1);
 				strcpy(text,mydata->sd->elements[TT_numbering].str[(*mydata->listnfcs)[(ilfo-1)*9+ilvl]]);
 				str = mydata->retstring;
 				wvExpand(mydata,text,strlen(text));
@@ -1005,7 +1005,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			if (lvl.lvlf.nfc < 5)
 				{
 				wvTrace(("str is %s\n",mydata->sd->elements[TT_numbering].str[lvl.lvlf.nfc]));
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_numbering].str[lvl.lvlf.nfc])+1);
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_numbering].str[lvl.lvlf.nfc])+1);
 				strcpy(text,mydata->sd->elements[TT_numbering].str[lvl.lvlf.nfc]);
 				str = mydata->retstring;
 				wvExpand(mydata,text,strlen(text));
@@ -1025,7 +1025,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					while (ilvl >= 0)
 						{
 						wvTrace(("str is %s\n",mydata->sd->elements[TT_ULIST].str[1]));
-						text = (char *)malloc(strlen(mydata->sd->elements[TT_ULIST].str[1])+1);
+						text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_ULIST].str[1])+1);
 						strcpy(text,mydata->sd->elements[TT_ULIST].str[1]);
 						str = mydata->retstring;
 						wvExpand(mydata,text,strlen(text));
@@ -1080,7 +1080,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					while (ilvl < ((PAP*)(mydata->props))->ilvl)
 						{
 						wvTrace(("str is %s\n",mydata->sd->elements[TT_ULIST].str[0]));
-						text = (char *)malloc(strlen(mydata->sd->elements[TT_ULIST].str[0])+1);
+						text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_ULIST].str[0])+1);
 						strcpy(text,mydata->sd->elements[TT_ULIST].str[0]);
 						str = mydata->retstring;
 						wvExpand(mydata,text,strlen(text));
@@ -1095,7 +1095,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					while (ilvl > ((PAP*)(mydata->props))->ilvl)
 						{
 						wvTrace(("str is %s\n",mydata->sd->elements[TT_ULIST].str[1]));
-						text = (char *)malloc(strlen(mydata->sd->elements[TT_ULIST].str[1])+1);
+						text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_ULIST].str[1])+1);
 						strcpy(text,mydata->sd->elements[TT_ULIST].str[1]);
 						str = mydata->retstring;
 						wvExpand(mydata,text,strlen(text));
@@ -1130,7 +1130,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					while (ilvl >= 0)
 						{
 						wvTrace(("str is %s\n",mydata->sd->elements[TT_OLIST].str[1]));
-						text = (char *)malloc(strlen(mydata->sd->elements[TT_OLIST].str[1])+1);
+						text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_OLIST].str[1])+1);
 						strcpy(text,mydata->sd->elements[TT_OLIST].str[1]);
 						str = mydata->retstring;
 						wvExpand(mydata,text,strlen(text));
@@ -1150,7 +1150,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 				}
 			break;
 		case TT_TEXTB:
-			text = (char *)malloc(strlen(mydata->sd->elements[TT_TEXT].str[0])+1);
+			text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_TEXT].str[0])+1);
 			strcpy(text,mydata->sd->elements[TT_TEXT].str[0]);
 			str = mydata->retstring;
 			wvExpand(mydata,text,strlen(text));
@@ -1164,7 +1164,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 		case TT_TEXTE:
 			if (txt)
 				{
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_TEXT].str[1])+1);
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_TEXT].str[1])+1);
 				strcpy(text,mydata->sd->elements[TT_TEXT].str[1]);
 				str = mydata->retstring;
 				wvExpand(mydata,text,strlen(text));
@@ -1246,7 +1246,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					if (ulist)
 						{
 						wvTrace(("str is %s\n",mydata->sd->elements[TT_ULIST].str[1]));
-						text = (char *)malloc(strlen(mydata->sd->elements[TT_ULIST].str[1])+1);
+						text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_ULIST].str[1])+1);
 						strcpy(text,mydata->sd->elements[TT_ULIST].str[1]);
 						str = mydata->retstring;
 						wvExpand(mydata,text,strlen(text));
@@ -1259,7 +1259,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					else if (olist)
 						{
 						wvTrace(("str is %s\n",mydata->sd->elements[TT_OLIST].str[1]));
-						text = (char *)malloc(strlen(mydata->sd->elements[TT_OLIST].str[1])+1);
+						text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_OLIST].str[1])+1);
 						strcpy(text,mydata->sd->elements[TT_OLIST].str[1]);
 						str = mydata->retstring;
 						wvExpand(mydata,text,strlen(text));
@@ -1281,7 +1281,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 						wvTrace(("3: HANDLING INDEX %d nfc is %d\n",(ilfo-1)*9+ilvl,(*mydata->listnfcs)[(ilfo-1)*9+ilvl]));
 
 						wvTrace(("str is %s\n",mydata->sd->elements[TT_OLIST].str[0]));
-						text = (char *)malloc(strlen(mydata->sd->elements[TT_OLIST].str[0])+1);
+						text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_OLIST].str[0])+1);
 						strcpy(text,mydata->sd->elements[TT_OLIST].str[0]);
 						str = mydata->retstring;
 						wvExpand(mydata,text,strlen(text));
@@ -1296,7 +1296,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 						{
 						ilvl--;
 						wvTrace(("str is %s\n",mydata->sd->elements[TT_OLIST].str[1]));
-						text = (char *)malloc(strlen(mydata->sd->elements[TT_OLIST].str[1])+1);
+						text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_OLIST].str[1])+1);
 						strcpy(text,mydata->sd->elements[TT_OLIST].str[1]);
 						str = mydata->retstring;
 						wvExpand(mydata,text,strlen(text));
@@ -1318,7 +1318,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			if ( ilfo )
 				{
 				wvTrace(("str is %s\n",mydata->sd->elements[TT_ENTRY].str[0]));
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_ENTRY].str[0])+1);
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_ENTRY].str[0])+1);
 				strcpy(text,mydata->sd->elements[TT_ENTRY].str[0]);
 				str = mydata->retstring;
 				wvExpand(mydata,text,strlen(text));
@@ -1334,7 +1334,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			if ( ilfo )
 				{
 				wvTrace(("str is %s\n",mydata->sd->elements[TT_ENTRY].str[1]));
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_ENTRY].str[1])+1);
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_ENTRY].str[1])+1);
 				strcpy(text,mydata->sd->elements[TT_ENTRY].str[1]);
 				str = mydata->retstring;
 				wvExpand(mydata,text,strlen(text));
@@ -1536,7 +1536,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			wvTrace(("str is %s\n",mydata->sd->elements[TT_FONTSTR].str[0])); 
 			if ( (((CHP*)(mydata->props))->ico) && (fontstr == 0) ) 
 				{ 
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_FONTSTR].str[0])+1); 
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_FONTSTR].str[0])+1); 
 				strcpy(text,mydata->sd->elements[TT_FONTSTR].str[0]); 
 				str = mydata->retstring; 
 				wvExpand(mydata,text,strlen(text)); 
@@ -1553,7 +1553,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			wvTrace(("str is %s\n",mydata->sd->elements[TT_FONTSTR].str[0])); 
 			if (fontstr) 
 				{ 
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_FONTSTR].str[1])+1); 
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_FONTSTR].str[1])+1); 
 				strcpy(text,mydata->sd->elements[TT_FONTSTR].str[1]); 
 				str = mydata->retstring; 
 				wvExpand(mydata,text,strlen(text)); 
@@ -1571,7 +1571,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			wvTrace(("str is %s\n",mydata->sd->elements[TT_ANIMATION].str[0])); 
 			if ( (((CHP*)(mydata->props))->sfxtText) && (animation == 0) ) 
 				{ 
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_ANIMATION].str[0])+1); 
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_ANIMATION].str[0])+1); 
 				strcpy(text,mydata->sd->elements[TT_ANIMATION].str[0]); 
 				str = mydata->retstring; 
 				wvExpand(mydata,text,strlen(text)); 
@@ -1588,7 +1588,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			wvTrace(("str is %s\n",mydata->sd->elements[TT_ANIMATION].str[0])); 
 			if (animation) 
 				{ 
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_ANIMATION].str[1])+1); 
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_ANIMATION].str[1])+1); 
 				strcpy(text,mydata->sd->elements[TT_ANIMATION].str[1]); 
 				str = mydata->retstring; 
 				wvExpand(mydata,text,strlen(text)); 
@@ -1619,7 +1619,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 				{
 				if ((mydata->sd->elements[TT_TABLEOVERRIDES].str) && (mydata->sd->elements[TT_TABLEOVERRIDES].str[0]))
 					{
-					text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[0])+1); 
+					text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[0])+1); 
 					strcpy(text,mydata->sd->elements[TT_TABLEOVERRIDES].str[0]); 
 					str = mydata->retstring; 
 
@@ -1643,7 +1643,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 				{
 				if ((mydata->sd->elements[TT_TABLEOVERRIDES].str) && (mydata->sd->elements[TT_TABLEOVERRIDES].str[2]))
 					{
-					text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[2])+1); 
+					text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[2])+1); 
 					strcpy(text,mydata->sd->elements[TT_TABLEOVERRIDES].str[2]); 
 					str = mydata->retstring; 
 
@@ -1667,7 +1667,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 				{
 				if ((mydata->sd->elements[TT_TABLEOVERRIDES].str) && (mydata->sd->elements[TT_TABLEOVERRIDES].str[3]))
 					{
-					text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[3])+1); 
+					text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[3])+1); 
 					strcpy(text,mydata->sd->elements[TT_TABLEOVERRIDES].str[3]); 
 					str = mydata->retstring; 
 
@@ -1691,7 +1691,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 				{
 				if ((mydata->sd->elements[TT_TABLEOVERRIDES].str) && (mydata->sd->elements[TT_TABLEOVERRIDES].str[1]))
 					{
-					text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[1])+1); 
+					text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[1])+1); 
 					strcpy(text,mydata->sd->elements[TT_TABLEOVERRIDES].str[1]); 
 					str = mydata->retstring; 
 
@@ -1715,7 +1715,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 				{
 				if ((mydata->sd->elements[TT_TABLEOVERRIDES].str) && (mydata->sd->elements[TT_TABLEOVERRIDES].str[4]))
 					{
-					text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[4])+1); 
+					text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_TABLEOVERRIDES].str[4])+1); 
 					strcpy(text,mydata->sd->elements[TT_TABLEOVERRIDES].str[4]); 
 					str = mydata->retstring; 
 
@@ -1874,7 +1874,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 		case TT_TABLEB:
 			if ( (((PAP*)(mydata->props))->fInTable) && (table == 0) ) 
 				{ 
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLE].str[0])+1); 
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_TABLE].str[0])+1); 
 				strcpy(text,mydata->sd->elements[TT_TABLE].str[0]); 
 				str = mydata->retstring; 
 				wvExpand(mydata,text,strlen(text)); 
@@ -1889,7 +1889,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 		case TT_ROWB:
 			if ( (((PAP*)(mydata->props))->fInTable) && (((PAP*)(mydata->props))->fTtp == 0) && (fttp == 1) ) 
 				{ 
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_ROW].str[0])+1); 
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_ROW].str[0])+1); 
 				strcpy(text,mydata->sd->elements[TT_ROW].str[0]); 
 				str = mydata->retstring; 
 				wvExpand(mydata,text,strlen(text)); 
@@ -1957,7 +1957,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			if ( (((PAP*)(mydata->props))->fTtp == 1) && (fttp == 0) ) 
 				{ 
 				mydata->whichrow++;
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_ROW].str[1])+1); 
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_ROW].str[1])+1); 
 				strcpy(text,mydata->sd->elements[TT_ROW].str[1]); 
 				str = mydata->retstring; 
 				wvExpand(mydata,text,strlen(text)); 
@@ -1974,7 +1974,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 		case TT_TABLEE:
 			if ( (((PAP*)(mydata->props))->fInTable == 0) && (table == 1) ) 
 				{ 
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_TABLE].str[1])+1); 
+				text = (char *)wvMalloc(strlen(mydata->sd->elements[TT_TABLE].str[1])+1); 
 				strcpy(text,mydata->sd->elements[TT_TABLE].str[1]); 
 				str = mydata->retstring; 
 				wvExpand(mydata,text,strlen(text)); 
@@ -2078,7 +2078,7 @@ static void startElement(void *userData, const char *name, const char **atts)
 		case TT_ROW:
 		case TT_CELL:
 		case TT_LASTCELL:
-			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*2);
+			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)wvMalloc(sizeof(char *)*2);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=2;
 			for(i=0;i<2;i++)
 				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
@@ -2088,13 +2088,13 @@ static void startElement(void *userData, const char *name, const char **atts)
 		case TT_CHARENTITY:
 		case TT_PMARGIN:
 		case TT_PBORDER:
-			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*1);
+			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)wvMalloc(sizeof(char *)*1);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=1;
 			mydata->elements[s_Tokens[tokenIndex].m_type].str[0] = NULL;
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
 		case TT_CHAR:
-			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*2);
+			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)wvMalloc(sizeof(char *)*2);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=2;
 			for(i=0;i<2;i++)
 				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
@@ -2103,28 +2103,28 @@ static void startElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_JUSTIFICATION:
 		case TT_numbering:
-			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*5);
+			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)wvMalloc(sizeof(char *)*5);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=5;
 			for(i=0;i<5;i++)
 				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
 		case TT_TABLEOVERRIDES:
-			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*6);
+			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)wvMalloc(sizeof(char *)*6);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=6;
 			for(i=0;i<6;i++)
 				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
 		case TT_COLOR:
-			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*16);
+			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)wvMalloc(sizeof(char *)*16);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=16;
 			for(i=0;i<16;i++)
 				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
 		case TT_BORDER:
-			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*27);
+			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)wvMalloc(sizeof(char *)*27);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=27;
 			for(i=0;i<27;i++)
 				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;

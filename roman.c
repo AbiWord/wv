@@ -56,7 +56,7 @@ main (int argc, char **argv)
    long decimal = 0;
    if (argc < 2)
    {
-      char *buf = malloc (81);
+      char *buf = wvMalloc (81);
       if (!buf)
       {
          wvError(("Not enough memory\n"));

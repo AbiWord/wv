@@ -3,7 +3,6 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
-#include <malloc.h>
 #include <time.h>
 
 #ifdef HAVE_CONFIG_H
@@ -424,8 +423,6 @@ specCharProc(wvParseStruct *ps, U16 eachchar, CHP * achp)
 	{
 	  wvError(("pre Word8 0x08 graphic -- unsupported at the moment"));
 	  fdoa = wvGetFDOAFromCP(ps->currentcp, NULL, ps->fdoapos, ps->nooffdoa);
-	  
-	  // TODO: do something with the data in this fdoa someday...             
 	}
       
     }

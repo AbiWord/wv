@@ -38,7 +38,7 @@ U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,wvStream *fd)
 	{
 	U32 i,j,count=0;
 	U32 no = msofbh->cbLength/6;
-	*fopte = (FOPTE *)malloc(sizeof(FOPTE) * no);
+	*fopte = (FOPTE *)wvMalloc(sizeof(FOPTE) * no);
 	no=0;
 	while (count < msofbh->cbLength)
 		{
@@ -84,7 +84,7 @@ U32 wvGetFOPTE(FOPTE *afopte,wvStream *fd)
     if ( afopte->fComplex )
 		{
         wvTrace(("1 complex len is %d (%x)\n",afopte->op,afopte->op));
-		afopte->entry = (U8 *)malloc(afopte->op);
+		afopte->entry = (U8 *)wvMalloc(afopte->op);
 		return(afopte->op+6);
         }
 

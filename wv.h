@@ -2874,7 +2874,7 @@ U32 wvNormFC(U32 fc,int *flag);
 int wvGetPieceBoundsFC(U32 *begin,U32 *end,CLX *clx,U32 piececount);
 int wvGetPieceBoundsCP(U32 *begin,U32 *end,CLX *clx,U32 piececount);
 U16 wvGetChar(wvStream *fd,U8 chartype);
-
+void * wvMalloc (U32 size);
 
 typedef struct _BTE
     {

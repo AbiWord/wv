@@ -3,8 +3,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "wv.h"
 #include <string.h>
+#include "wv.h"
 
 /*
 http://216.46.233.38/code/functions/convert_numbers_to_words/index.htm
@@ -86,7 +86,7 @@ char *convert100(U32 x)
 	U16 t;
 	char *cvt100;
 	
-	cvt100=(char *)malloc(4096);
+	cvt100=(char *)wvMalloc(4096);
 	if (cvt100 == NULL)
 		return(NULL);
 	
@@ -125,7 +125,7 @@ char *wvOrdinal(U32 x)
 	char *Cvt;
 	char *temp;
 	
-	Cvt=(char *)malloc(4096);
+	Cvt=(char *)wvMalloc(4096);
 	if (Cvt == NULL)
 		return(NULL);
 	cvtInit();

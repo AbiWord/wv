@@ -388,9 +388,9 @@ encoded into the first 22 bytes.
     /* init the starting list number table */
     if (ps->nolfo)
         {
-        ps->liststartnos = (U32 *)malloc(9 * ps->nolfo * sizeof(U32));
-        ps->listnfcs = (U8 *)malloc(9 * ps->nolfo);
-        ps->finallvl = (LVL *)malloc(9 * ps->nolfo * sizeof(LVL));
+        ps->liststartnos = (U32 *)wvMalloc(9 * ps->nolfo * sizeof(U32));
+        ps->listnfcs = (U8 *)wvMalloc(9 * ps->nolfo);
+        ps->finallvl = (LVL *)wvMalloc(9 * ps->nolfo * sizeof(LVL));
         for (i=0;i<9 * ps->nolfo;i++) 
 			{
 			ps->liststartnos[i] = 0xffffffffL;

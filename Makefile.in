@@ -6,11 +6,13 @@ LDFLAGS = @LDFLAGS@
 #old version of it hanging around in the X dirs, you can add -L/usr/lib to the begging of there 
 #options to fix it.
 #LIBS = -L/usr/lib @MAGICK_LIBS@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ -lm
-LIBS =  @MAGICK_LIBS@ @PNG_LIBS@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ @ICONV_LIBS@ -lm
+LIBS =  @MAGICK_LIBS@ @PNG_LIBS@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ @ICONV_LIBS@ @LIBXML2_LIBS@ @GLIB_LIBS@ -lm
 
 GETOPT = @LIBOBJS@
 EXPORTER=@EXPORTER@
 ICONV = @ICONV@
+HAVE_LIBXML2 = @HAVE_LIBXML2@
+HAVE_GLIB = @HAVE_GLIB@
 RICONVOBJS = \
 iconv/codepage-874.$(OBJEXT)    \
 iconv/codepage-1250.$(OBJEXT)   \
@@ -80,7 +82,11 @@ src_mandir=$(srcdir)/help/man
 
 VPATH = @srcdir@
 
-CFLAGS = @CPPFLAGS@ @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I. -I./ -I$(srcdir)/ -I$(srcdir)/magick/ -I$(srcdir)/expat/xmlparse/  -DTTFDIR=\"$(datadir)/wv/ttf\" -DXMLCONFIG=\"$(libdir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(datadir)/wv/wvHtml.xml\" -I$(srcdir)/libole2/ -I$(srcdir)/glib-wv/ -I$(srcdir)/oledecod/ @WMF_CFLAGS@ @TTF_CFLAGS@
+CFLAGS = @CPPFLAGS@ @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ @GLIB_CFLAGS@ -ansi -pedantic -I. -I./ -I$(srcdir)/ -I$(srcdir)/magick/ -I$(srcdir)/expat/xmlparse/  -DTTFDIR=\"$(datadir)/wv/ttf\" -DXMLCONFIG=\"$(libdir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(datadir)/wv/wvHtml.xml\" -I$(srcdir)/libole2/ -I$(srcdir)/oledecod/ @WMF_CFLAGS@ @TTF_CFLAGS@ @ICONV_CFLAGS@
+
+ifneq ($(HAVE_GLIB),1)
+CFLAGS += -I$(srcdir)/glib-wv/
+endif
 
 # not supported by lots of compilers
 #	-Wall
@@ -252,31 +258,31 @@ else
 	EXPORTER_OBJECTS=
 endif
 
-# prepare to have glib as an external dependency
-#ifdef GLIB_CONFIG
-#OLE= \
-#	libole2/ms-ole.$(OBJEXT) \
-#	libole2/ms-ole-summary.$(OBJEXT) \
-#	oledecod/oledecod.$(OBJEXT)
-#else
-OLE = \
+OLE= \
 	libole2/ms-ole.$(OBJEXT) \
 	libole2/ms-ole-summary.$(OBJEXT) \
+	oledecod/oledecod.$(OBJEXT)
+ifneq ($(HAVE_GLIB),1)
+OLE += \
 	glib-wv/garray.$(OBJEXT) \
 	glib-wv/gmem.$(OBJEXT) \
 	glib-wv/gslist.$(OBJEXT) \
 	glib-wv/gtree.$(OBJEXT) \
 	glib-wv/glist.$(OBJEXT) \
 	glib-wv/gmessages.$(OBJEXT) \
-	glib-wv/gstrfuncs.$(OBJEXT) \
-	oledecod/oledecod.$(OBJEXT)
-#endif
+	glib-wv/gstrfuncs.$(OBJEXT)
+endif
 
 #XML = -Lexpat/lib -lxmlparse -lxmltok
-XML = 	expat/xmlparse/xmlparse.$(OBJEXT) \
-	expat/xmlparse/hashtable.$(OBJEXT) \
-	expat/xmltok/xmltok.$(OBJEXT) \
-	expat/xmltok/xmlrole.$(OBJEXT)
+
+ifneq ($(HAVE_LIBXML2),1)
+       XML =   expat/xmlparse/xmlparse.$(OBJEXT) \
+                       expat/xmlparse/hashtable.$(OBJEXT) \
+                       expat/xmltok/xmltok.$(OBJEXT) \
+                       expat/xmltok/xmlrole.$(OBJEXT)
+else
+       XML = 
+endif
 
 
 all: wvSummary$(EXEEXT) wvWare$(EXEEXT) wvRTF${EXEEXT} wvConvert$(EXEEXT) wvSimpleCLX$(EXEEXT) wvVersion$(EXEEXT) wv-libconfig wv-incconfig
@@ -345,18 +351,27 @@ OLEDECODE:
 	@echo making oledecod in oledecod
 	@(cd oledecod && $(MAKE)) || exit 1
 
-
+ifneq ($(HAVE_LIBXML2),1)
 XMLPARSER:
 	@echo making expat in expat
 	@(cd expat && $(MAKE)) || exit 1
+else
+XMLPARSER:
+       @echo using system libxml... will not compile expat
+endif
 
 LIBOLE2:	GLIB-WV
 	@echo making libole2 in libole2
 	@(cd libole2 && $(MAKE)) || exit 1
 
+ifneq ($(HAVE_GLIB),1)
 GLIB-WV:
 	@echo making glib-wv in glib-wv
 	@(cd glib-wv && $(MAKE)) || exit 1
+else
+GLIB-WV:
+	@echo not making glib-wv... using system glib instead
+endif
 
 %.$(OBJEXT): $(srcdir)/%.c 
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
@@ -378,7 +393,7 @@ cleansub:
 	@(cd exporter && $(MAKE) clean) || exit 1
 
 clean: cleansub
-	$(RM) -rf *.$(OBJEXT) $(GETOPT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvRTF.$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) core a.$(OBJEXT)ut *.a 
+	$(RM) -rf *.$(OBJEXT) $(GETOPT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvRTF$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) core a.$(OBJEXT)ut *.a 
 
 distclean: realcleansub
 	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.$(OBJEXT) wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvSimpleCLX$(EXEEXT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvHtml wvAbw wvLatex wvText wvWml wvCleanLatex wvGraphicConvert$(EXEEXT) core out* analyze/* .pure lex.yy.c libtool

@@ -996,7 +996,7 @@ void wvApplysprmPIstdPermute(PAP *apap,U8 *pointer,U16 *pos)
 	(*pos)+=2;
 	if ((cch-6)/2 != 0)
 		{
-		rgistd = (U16 *)malloc(sizeof(U16) * ((cch-6)/2));
+		rgistd = (U16 *)wvMalloc(sizeof(U16) * ((cch-6)/2));
 		if (rgistd == NULL)
 			{
 			wvError(("Could not allocate %d\n",sizeof(U16) * ((cch-6)/2)));
@@ -1091,7 +1091,7 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	(*pos)++;
 	if (itbdDelMax != 0)
 		{
-		rgdxaDel = (S16 *)malloc(sizeof(U16) * itbdDelMax);
+		rgdxaDel = (S16 *)wvMalloc(sizeof(U16) * itbdDelMax);
 		for(i=0;i<itbdDelMax;i++)
 			{
 			rgdxaDel[i] = (S16)dread_16ubit(NULL,&pointer);
@@ -1105,14 +1105,14 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	(*pos)++;
 	if (itbdAddMax != 0)
 		{
-		rgdxaAdd = (S16 *)malloc(sizeof(U16) * itbdAddMax);
+		rgdxaAdd = (S16 *)wvMalloc(sizeof(U16) * itbdAddMax);
 		for(i=0;i<itbdAddMax;i++)
 			{
 			rgdxaAdd[i] = (S16)dread_16ubit(NULL,&pointer);
 			wvTrace(("stops are %d\n",rgdxaAdd[i]));
 			(*pos)+=2;
 			}
-		rgtbdAdd = (TBD *)malloc(itbdAddMax*sizeof(TBD));
+		rgtbdAdd = (TBD *)wvMalloc(itbdAddMax*sizeof(TBD));
 		for(i=0;i<itbdAddMax;i++)
 			{
 			wvGetTBDFromBucket(&rgtbdAdd[i],pointer);
@@ -1237,8 +1237,8 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 	wvTrace(("itbdDelMax is %d\n",itbdDelMax));
 	if (itbdDelMax != 0)
 		{
-		rgdxaDel = (S16*)malloc(sizeof(S16) * itbdDelMax);
-		rgdxaClose = (S16*)malloc(sizeof(S16) * itbdDelMax);
+		rgdxaDel = (S16*)wvMalloc(sizeof(S16) * itbdDelMax);
+		rgdxaClose = (S16*)wvMalloc(sizeof(S16) * itbdDelMax);
 		for (i=0;i<itbdDelMax;i++)
 			{
 			rgdxaDel[i] = (S16)dread_16ubit(NULL,&pointer);
@@ -1260,8 +1260,8 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 	(*pos)++;
 	if (itbdAddMax != 0)
 		{
-		rgdxaAdd = (S16*)malloc(sizeof(S16) * itbdAddMax);
-		rgtbdAdd = (TBD*)malloc(itbdAddMax*sizeof(TBD));
+		rgdxaAdd = (S16*)wvMalloc(sizeof(S16) * itbdAddMax);
+		rgtbdAdd = (TBD*)wvMalloc(itbdAddMax*sizeof(TBD));
 		for (i=0;i<itbdAddMax;i++)
 			{
 			rgdxaAdd[i] = (S16)dread_16ubit(NULL,&pointer);
@@ -1478,7 +1478,7 @@ void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos,wvStream *data, STSH 
 		return;
 		}
 
-	grpprl = (U8*)malloc(len);
+	grpprl = (U8*)wvMalloc(len);
 
 	for (i=0;i<len;i++)
 		grpprl[i] = read_8ubit(data);
@@ -1572,7 +1572,7 @@ void wvApplysprmCIstdPermute(CHP *achp,U8 *pointer,U16 *pos)
 	(*pos)+=2;
 	if ((cch-6)/2 != 0)
 		{
-		rgistd = (U16 *)malloc(sizeof(U16) * ((cch-6)/2));
+		rgistd = (U16 *)wvMalloc(sizeof(U16) * ((cch-6)/2));
 		for(i=0;i<(cch-6)/2;i++)
 			{
 			rgistd[i] = dread_16ubit(NULL,&pointer);
@@ -1864,7 +1864,7 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 
 	upxf.cbUPX = dread_8ubit(NULL,&pointer);
 	(*pos)++;
-	upxf.upx.chpx.grpprl = (U8 *)malloc(upxf.cbUPX);
+	upxf.upx.chpx.grpprl = (U8 *)wvMalloc(upxf.cbUPX);
 
 	for (i=0;i<upxf.cbUPX;i++)
 		{
@@ -1982,7 +1982,7 @@ void wvApplysprmCMajority50(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 
 	upxf.cbUPX = dread_8ubit(NULL,&pointer);
 	(*pos)++;
-	upxf.upx.chpx.grpprl = (U8 *)malloc(upxf.cbUPX);
+	upxf.upx.chpx.grpprl = (U8 *)wvMalloc(upxf.cbUPX);
 
 	for (i=0;i<upxf.cbUPX;i++)
 		{

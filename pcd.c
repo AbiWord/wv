@@ -53,14 +53,14 @@ int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,wvStream *fd
 	else
         {
         *nopcd=(len-4)/(cbPCD+4);
-        *pos = (U32 *) malloc( (*nopcd+1) * sizeof(U32));
+        *pos = (U32 *) wvMalloc( (*nopcd+1) * sizeof(U32));
         if (*pos == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nopcd+1) * sizeof(U32)));
             return(1);
             }
 
-        *pcd = (PCD *) malloc(*nopcd * sizeof(PCD));
+        *pcd = (PCD *) wvMalloc(*nopcd * sizeof(PCD));
         if (*pcd == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nopcd * sizeof(PCD)));

@@ -22,14 +22,14 @@ int wvGetBKL_PLCF(BKL **bkl,U32 **pos,U32 *nobkl,U32 offset,U32 len,wvStream *fd
     else
         {
         *nobkl=(len-4)/(cbBKL+4);
-        *pos = (U32 *) malloc( (*nobkl+1) * sizeof(U32));
+        *pos = (U32 *) wvMalloc( (*nobkl+1) * sizeof(U32));
         if (*pos == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nobkl+1) * sizeof(U32)));
             return(1);
             }
 
-        *bkl= (BKL *) malloc(*nobkl* sizeof(BKL));
+        *bkl= (BKL *) wvMalloc(*nobkl* sizeof(BKL));
         if (*bkl== NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nobkl* sizeof(BKL)));

@@ -178,7 +178,7 @@ void			ms_ole_summary_set_string	(MsOleSummary *si,
 							 const gchar *str);
 void			ms_ole_summary_set_boolean	(MsOleSummary *si,
 							 MsOleSummaryPID id,
-							 gboolean b);
+							 gboolean value);
 void			ms_ole_summary_set_short	(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 guint16 i);

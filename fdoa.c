@@ -24,14 +24,14 @@ int wvGetFDOA_PLCF(FDOA **fdoa,U32 **pos,U32 *nofdoa,U32 offset,  U32 len,wvStre
 	else
 		{
 		*nofdoa=(len-4)/(cbFDOA+4);
-        *pos = (U32 *) malloc( (*nofdoa+1) * sizeof(U32));
+        *pos = (U32 *) wvMalloc( (*nofdoa+1) * sizeof(U32));
         if (*pos == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nofdoa+1) * sizeof(U32)));
             return(1);
             }
 
-        *fdoa= (FDOA *) malloc(*nofdoa* sizeof(FDOA));
+        *fdoa= (FDOA *) wvMalloc(*nofdoa* sizeof(FDOA));
         if (*fdoa== NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nofdoa* sizeof(FDOA)));

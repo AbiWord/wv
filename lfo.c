@@ -34,8 +34,8 @@ int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl
 		return(0);
 		}
 
-	*lfolvl = (LFOLVL *)malloc(sizeof(LFOLVL) * *nooflvl);
-	*lvl = (LVL *)malloc(sizeof(LVL) * *nooflvl);
+	*lfolvl = (LFOLVL *)wvMalloc(sizeof(LFOLVL) * *nooflvl);
+	*lvl = (LVL *)wvMalloc(sizeof(LVL) * *nooflvl);
 	
 	i=0;
 	while (i<*nooflvl)
@@ -77,7 +77,7 @@ int wvGetLFO_PLF(LFO **lfo,U32 *nolfo,U32 offset,U32 len,wvStream *fd)
         *nolfo=read_32ubit(fd);
 		wvTrace(("%d\n",*nolfo));
 
-        *lfo= (LFO *) malloc(*nolfo* sizeof(LFO));
+        *lfo= (LFO *) wvMalloc(*nolfo* sizeof(LFO));
         if (*lfo== NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nolfo* sizeof(LFO)));

@@ -46,7 +46,7 @@ char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,wvStream *infd)
 	for (i=0;i<16;i++)
 		abm->m_rgbUid[i] = getc(infd);
 
-	buffer = (char *)malloc(4096);
+	buffer = (char *)wvMalloc(4096);
 	count+=i;
 	abm->m_rgbUidPrimary[0] = 0;
 
@@ -110,7 +110,7 @@ char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,wvStream *infd)
 	amf->m_rgbUidPrimary[0] = 0;
 
 	aimage = get_image_prefix();
-	buffer = (char *)malloc(4096);
+	buffer = (char *)wvMalloc(4096);
 	switch (amsofbh->fbt-msofbtBlipFirst)
 		{
 		case msoblipEMF:
@@ -287,7 +287,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,wvStre
 			{
 			case msofbtDgg:
 				wvGetFDGG(&afdgg,out);
-				afidcl = (FIDCL *)malloc(sizeof(FIDCL) * afdgg.cdgSaved);
+				afidcl = (FIDCL *)wvMalloc(sizeof(FIDCL) * afdgg.cdgSaved);
 				wvTrace(("no of FIDCL is %d\n",afdgg.cdgSaved));
 				j=16;
 				for(i=0;i<afdgg.cdgSaved;i++)
@@ -303,12 +303,12 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,wvStre
 				finish = ftell(out)+amsofbh.cbLength;
 				if (afbse_list == NULL)
 					{
-					afbse_list = (fbse_list *)malloc(sizeof(fbse_list));
+					afbse_list = (fbse_list *)wvMalloc(sizeof(fbse_list));
 					pfbse_list = afbse_list;
 					}
 				else
 					{
-					pfbse_list->next = (fbse_list *)malloc(sizeof(fbse_list));
+					pfbse_list->next = (fbse_list *)wvMalloc(sizeof(fbse_list));
 					pfbse_list = pfbse_list->next;
 					}
 				pfbse_list->next = NULL;
@@ -401,13 +401,13 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,wvStre
 			case msofbtSp:
 				if (afsp_list == NULL)
 					{
-					afsp_list = (fsp_list *)malloc(sizeof(fsp_list));
+					afsp_list = (fsp_list *)wvMalloc(sizeof(fsp_list));
 					pfsp_list = afsp_list;
 					pfsp_list->next = NULL;
 					}
 				else
 					{
-					pfsp_list->next = (fsp_list *)malloc(sizeof(fsp_list));
+					pfsp_list->next = (fsp_list *)wvMalloc(sizeof(fsp_list));
 					pfsp_list = pfsp_list->next;
 					pfsp_list->next = NULL;
 					}
@@ -432,14 +432,14 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,wvStre
 						if (pfsp_list == NULL)
 							{
 							wvTrace(("must be a top level property list\n"));
-							pfsp_list = (fsp_list *)malloc(sizeof(fsp_list));
+							pfsp_list = (fsp_list *)wvMalloc(sizeof(fsp_list));
 							}
-						pfsp_list->afopte_list = (fopte_list *)malloc(sizeof(fopte_list));
+						pfsp_list->afopte_list = (fopte_list *)wvMalloc(sizeof(fopte_list));
 						pfopte_list = pfsp_list->afopte_list;
 						}
 					else
 						{
-						pfopte_list->next =(fopte_list *) malloc(sizeof(fopte_list));
+						pfopte_list->next =(fopte_list *) wvMalloc(sizeof(fopte_list));
 						pfopte_list = pfopte_list->next;
 						}
 					pfopte_list->next = NULL;

@@ -78,7 +78,7 @@ int main(int argc,char **argv)
         wvError(("rats\n"));
     else
         {
-        apicf.rgb = (S8 *)malloc(strlen(pic_list->filename)+1);
+        apicf.rgb = (S8 *)wvMalloc(strlen(pic_list->filename)+1);
         strcpy(apicf.rgb,pic_list->filename);
         }
 

@@ -52,7 +52,7 @@ U16 *decode_hyperlink(int letter, unsigned long int *swallowcp1, unsigned long i
 		{
 		from = *swallowcp1;
 		to = *swallowcp2;
-		array = (U16 *) malloc (sizeof(U16) * ((to+1)-from));
+		array = (U16 *) wvMalloc (sizeof(U16) * ((to+1)-from));
 		if (array==NULL)
 			{
 			error(erroroutput,"no mem for hyperlink\n");
@@ -162,8 +162,8 @@ U16 *decode_crosslink(int letter,unsigned long int *swallowcp1, unsigned long in
 		{
 		from = *swallowcp1;
 		to = *swallowcp2;
-		error(erroroutput,"a mallocing %d\n",(to+1)-from);
-		array = (U16 *) malloc (sizeof(U16) * ((to+1)-from));
+		error(erroroutput,"a wvMallocing %d\n",(to+1)-from);
+		array = (U16 *) wvMalloc (sizeof(U16) * ((to+1)-from));
 		if (array==NULL)
 			{
 			error(erroroutput,"no mem for hyperlink\n");

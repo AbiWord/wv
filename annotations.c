@@ -82,7 +82,7 @@ Xst *extract_authors(wvStream *tablefd,U32 fcGrpXstAtnOwners,U32 lcbGrpXstAtnOwn
 		{
 		fprintf(stderr,"offset is %x\n",fcGrpXstAtnOwners);
 		fseek(tablefd,fcGrpXstAtnOwners,SEEK_SET);
-		authorlist = (Xst*) malloc(sizeof(Xst));
+		authorlist = (Xst*) wvMalloc(sizeof(Xst));
 
 		if (authorlist == NULL)
 			{
@@ -100,7 +100,7 @@ Xst *extract_authors(wvStream *tablefd,U32 fcGrpXstAtnOwners,U32 lcbGrpXstAtnOwn
 			len = read_16ubit(tablefd);
 			fprintf(stderr,"len is %d\n",len);
 			count+=2;
-			current->u16string = malloc((len+1) * sizeof(U16));
+			current->u16string = wvMalloc((len+1) * sizeof(U16));
 			authorlist->noofstrings++;
 			if (current->u16string == NULL)
 				{
@@ -117,7 +117,7 @@ Xst *extract_authors(wvStream *tablefd,U32 fcGrpXstAtnOwners,U32 lcbGrpXstAtnOwn
 
 			if (count < lcbGrpXstAtnOwners)
 				{
-				current->next= (Xst*) malloc(sizeof(Xst));
+				current->next= (Xst*) wvMalloc(sizeof(Xst));
 				if (current->next == NULL)
 					{
 					fprintf(erroroutput,"not enough mem for annotation group\n");

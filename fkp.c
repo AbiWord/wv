@@ -71,9 +71,9 @@ void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,wvStream *fd)
 	wvStream_goto(fd,pn*WV_PAGESIZE);
 	/*bytes_read=*/wvStream_read(page,WV_PAGESIZE,1,fd);
 	fkp->crun = (U8)page[WV_PAGESIZE-1];
-	fkp->rgfc = (U32 *)malloc(sizeof(U32) * (fkp->crun+1));
-	fkp->rgbx = (BX *)malloc(sizeof(BX) * (fkp->crun));
-	fkp->grppapx = (PAPX *)malloc(sizeof(PAPX) * (fkp->crun));
+	fkp->rgfc = (U32 *)wvMalloc(sizeof(U32) * (fkp->crun+1));
+	fkp->rgbx = (BX *)wvMalloc(sizeof(BX) * (fkp->crun));
+	fkp->grppapx = (PAPX *)wvMalloc(sizeof(PAPX) * (fkp->crun));
 	for (i=0;i<fkp->crun+1;i++)
 		{
 		fkp->rgfc[i] = bread_32ubit(&(page[pos]),&pos);
@@ -265,9 +265,9 @@ void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, wvStream *fd)
 	fkp->crun = (U8)page[WV_PAGESIZE-1];
 	wvTrace(("chpx fkp gone to %x\n",pn*WV_PAGESIZE+(WV_PAGESIZE-1)));
 	wvTrace(("crun is %d\n",fkp->crun));
-	fkp->rgfc = (U32 *)malloc(sizeof(U32) * (fkp->crun+1));
-	fkp->rgb = (U8 *)malloc(sizeof(U8) * (fkp->crun));
-	fkp->grpchpx = (CHPX *)malloc(sizeof(CHPX) * (fkp->crun));
+	fkp->rgfc = (U32 *)wvMalloc(sizeof(U32) * (fkp->crun+1));
+	fkp->rgb = (U8 *)wvMalloc(sizeof(U8) * (fkp->crun));
+	fkp->grpchpx = (CHPX *)wvMalloc(sizeof(CHPX) * (fkp->crun));
 	wvStream_goto(fd, pn*WV_PAGESIZE);
 	wvTrace(("offset is %x\n",pn*WV_PAGESIZE));
 	for (i=0;i<fkp->crun+1;i++)
