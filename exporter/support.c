@@ -13,19 +13,19 @@
 
 #if defined(WORDS_BIGENDIAN) || !defined(MATCHED_TYPE)
 
-	/* TODO: convert from little to big endian */
+        /* TODO: convert from big to little endian */
 
-	#define LE_TO_BE_32(i) (i)
-	#define LE_TO_BE_16(i) (i)
-	#define LE_TO_BE_8(i)  (i)
+	#define TO_LE_32(i) (i)
+	#define TO_LE_16(i) (i)
+	#define TO_LE_8(i)  (i)
 
 #else
 
 	/* noop macros for little-endian machines */
 
-	#define LE_TO_BE_32(i) (i)
-	#define LE_TO_BE_16(i) (i)
-	#define LE_TO_BE_8(i)  (i)
+	#define TO_LE_32(i) (i)
+	#define TO_LE_16(i) (i)
+	#define TO_LE_8(i)  (i)
 
 #endif
 
@@ -59,7 +59,7 @@ wvStream* wvStream_new(wvDocument* ole_file, const char* name)
 int write_32ubit(wvStream *in, U32 out)
 {
 
-	guint32 cpy = (guint32)LE_TO_BE_32(out);
+	guint32 cpy = (guint32)TO_LE_32(out);
 	int nwr = 0;
 
 	if (in->kind == LIBOLE_STREAM)
@@ -78,7 +78,7 @@ int write_32ubit(wvStream *in, U32 out)
 int write_16ubit(wvStream *in, U16 out)
 {
 
-	guint16 cpy = (guint16)LE_TO_BE_16(out);
+	guint16 cpy = (guint16)TO_LE_16(out);
 	int nwr = 0;
 
 	if (in->kind == LIBOLE_STREAM)
@@ -96,7 +96,7 @@ int write_16ubit(wvStream *in, U16 out)
 
 int write_8ubit(wvStream *in, U8 out)
 {
-	guint8 cpy = (guint8)LE_TO_BE_8(out);
+	guint8 cpy = (guint8)TO_LE_8(out);
 	int nwr = 0;
     wvTrace(("About to write 16-bit value"));
 

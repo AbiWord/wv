@@ -2,7 +2,7 @@ void wvPutSEPX(version ver,SEPX *item,wvStream *fd)
          {
          U16 i = (U16)0;
 
-		 write_16ubit(fd. item->cb);
+		 write_16ubit(fd, item->cb);
 
          if (!item->cb)
          	return;

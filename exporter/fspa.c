@@ -1,6 +1,6 @@
 /* no PCLF version */
 
-void wvGetFSPA(FSPA *item,wvStream *fd)
+void wvPutFSPA(FSPA *item,wvStream *fd)
          {
          U16 temp16 = (U16)0;
 

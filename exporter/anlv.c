@@ -1,5 +1,3 @@
-/* TODO: do we need write to bucket routines? */
-
 void wvPutANLV(ANLV *item,wvStream *fd)
 {
           U8 temp8 = (U8)0;

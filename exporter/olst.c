@@ -1,0 +1,25 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "wvexport.h"
+
+void wvPutOLST(OLST *item, wvStream *fd)
+{
+  U8 i;
+  for(i=0;i<9;i++)
+    wvPutANLV(fd, item->rganlv[i]);
+  
+  write_8ubit(fd, item->fRestartHdr);
+  write_8ubit(fd, item->fSpareOlst2);
+  write_8ubit(fd, item->fSpareOlst3);
+  write_8ubit(fd, item->fSpareOlst4);
+
+  /* assuming WORD8 */
+  for(i=0;i<32;i++)
+    write_16ubit(fd, item->rgxch[i]);
+
+  /* non-word8 */
+  /*
+    for(i=0;i<64;i++)
+       write_8ubit(fd, item->rgxch[i]);
+   */
+}

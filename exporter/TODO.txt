@@ -1,31 +1,60 @@
-File				Issues/Concerns
+File				Status/Issues/Concerns
 ---------------------------------------------------------------------------
-anld.c				Does it need a toBucket() method?
-anlv.c				Does is need a toBucket() method?
+anld.c				Done
+anlv.c				Done
 asumy.c				Done
 asumyi.c			Done
-atrd.c				Does it need a PCLF method?
-bkd.c				Does it need a PCLF method?
-bkf.c				Does it need a PCLF method?
-bkl.c				Does it need a PCLF method?
+atrd.c				Done
+bkd.c				Done
+bkf.c				Done
+bkl.c				Done
 blip.c				**TODO**
-brc.c				**TODO**
-bte.c				Does it need a PCLF method?
-chp.c				**Does it need a toBucket() method?**
+brc.c				Done
+bte.c				Done
+bx.c				**TODO**
+chp.c				**TODO**
 clx.c				**TODO**
-dcs.c				Does it need a PCLF method?
+dcs.c				Done
 dogrid.c			Done
-dop.c				**putCOPTS() is done, putDOP() is not**
+dop.c				**TODO: putCOPTS() is done, putDOP() is not**
 doptypography.c			Done
 dttm.c				Done
 escher.c			**TODO**
-fbse.c				**TODO**
-fdoa.c				Does it need a PCLF method?
-ffn.c				**TODO**
-fib.c				**putFib():HUGE CHECK ME!!, code putFib6() **
+fbse.c				**TODO: needs more work**
+fdoa.c				Done
+ffn.c				Done
+fib.c				**TODO: code wvPutFib6()**
 filetime.c			Done
-fld.c				Does it need a PCLF method?
+fkp.c				**TODO**
+fld.c				Done
 font.c				Done
-fopt.c				In progress...
-
-lvl.c               Does it need a wvGetLVL method?
+fopt.c				**TODO: CHECK ME**
+frd.c				Done
+fspa.c				Done
+ftxbxs.c			Done
+generic.c			Done
+lfo.c				Done
+lspd.c				Done
+lst.c				**TODO: Done??**
+lvl.c                           Done
+numrm.c				Done
+olst.c				Done
+pcd.c				Done
+pgd.c				Done
+phe.c				**TODO: Done??**
+picf.c				**TODO: need for embedded graphics**
+prm.c				Done
+rr.c				Done
+rs.c				Done
+sed.c				Done
+sep.c				Done
+shd.c				Done
+sprm.c				**TODO: do we need to code this?**
+sttbf.c				**TODO**
+stylesheet.c			**TODO**
+table.c				**TODO: BIG!!**
+tbd.c				Done
+tc.c				Done
+tlp.c				Done
+wkb.c				Done
+xst.c				**TODO**

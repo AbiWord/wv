@@ -1,5 +1,3 @@
-/* TODO: do I need to code wvPutANLD_ToBucket()?? */
-
 void wvPutANLD(version ver,ANLD *item,wvStream *fd)
 {
     	U8 temp8 = (U8)0;
