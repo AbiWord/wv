@@ -1,29 +1,31 @@
-The document test.doc is encrypted with the password 
+WORD97 DECRYPTION
+=================
+The document test97.doc is encrypted with the password 
 password1.
 
-To compile this download version 0.5.28 of wv 
+To compile this download version 0.5.31 of wv 
 (later version should have this code integrated into 
 wv itself) from
-http://www.csn.ul.ie/~caolan/publink/mswordview/development/wv-0.5.28.tar.gz
+http://www.csn.ul.ie/~caolan/publink/mswordview/development/wv-0.5.31.tar.gz
 ./configure 
 make &
 make install that first.
 
-now run make in this wvDecryptTest dir
+now run make in this wvDecrypt dir
 
-./wvDecryptTest password1 test.doc
+./wvDecrypt97Test password1 test97.doc
 
 will verify that password1 is the correct password for
-test.doc and will start decrypting the file.
+test97.doc and will start decrypting the file.
 
 Some quick background on word files.
-Each word files consists of a bundle of streams,
+Each word 97 file consists of a bundle of streams,
 the Table stream, the WordDocument stream, and others
 such as the SummaryInformation stream, the 
 DocumentSummaryStream and sometimes a Data stream.
 
-en.01 is the extracted table stream from test.doc
-en.02 is the extracted WordDocument stream from test.doc
+en.01 is the extracted table stream from test97.doc
+en.02 is the extracted WordDocument stream from test97.doc
 
 tablefd (when wvDecrypt is run) is the decrypted tablefd
 mainfd (when wvDecrypt is run) is the decrypt mainfd, where
@@ -31,7 +33,7 @@ the main text is.
 
 The table stream contains the salt that is used by
 the decryption process, and is itself encrypted.
-So the wvDecryptTest program validates the password
+So the wvDecrypt97Test program validates the password
 and outputs the decrypted table stream to the file 
 named "tablefd". The main document stream is decrypted
 to the file "mainfd"
@@ -52,6 +54,55 @@ its a little shocking that its been so long since
 word97 was released and a publically available
 compatible decryption engine, but that gap has
 been filled now.
+
+The one small thing missing is to use cole to put
+the streams back together into a decrypted word
+document, rather than the seperated streams, as it
+stands it does exactly what I want for the wv
+library, but i'll get around to that unless someone
+else wants to do it, its pretty trivial to wrap
+it back into a word doc, only you will just have to
+set the fEncrypted bit in the fib to 0, to show that
+the doc is decrypted.
+
+WORD95 DECRYPTION
+=================
+The document test95.doc is encrypted with the password 
+password1.
+
+To compile this download version 0.5.31 of wv 
+(later version should have this code integrated into 
+wv itself) from
+http://www.csn.ul.ie/~caolan/publink/mswordview/development/wv-0.5.31.tar.gz
+./configure 
+make &
+make install that first.
+
+now run make in this wvDecrypt dir
+
+./wvDecrypt95Test password1 test95.doc
+
+will verify that password1 is the correct password for
+test95.doc and will start decrypting the file.
+
+Some quick background on word files.
+Each word 95 files consists  of a number of streams
+but unlike word97 only one is of importance, i.e. 
+the WordDocument stream.
+
+encrypt95.01 is the extracted WordDocument stream from test95.doc
+
+mainfd (when wvDecrypt is run) is the decrypt mainfd
+
+The word95 code was written by me and is also released under the
+BSD licence unlike the rest of wv, coz I want to see the
+password stuff as widely distributed as possible.
+
+The word95 decryption is simpler than the word97 one, but might
+not be 100% complete as it is freshly added in here. It also
+might be the exact same as word 6 encryption, though someone
+has to test that for me.
+
 
 The one small thing missing is to use cole to put
 the streams back together into a decrypted word
