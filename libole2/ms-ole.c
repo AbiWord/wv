@@ -585,13 +585,18 @@ ms_ole_debug (MsOle *fs, int magic)
 }
 
 static BLP
-get_next_block (MsOle *f, BLP blk)
+get_next_block (MsOle *f, BLP blk, gboolean *err)
 {
-	/* blk is an index of the complete fat, and
-	   an index of the complete fat is the number of a BBD block */
-	BLP bbd     = GET_BBD_LIST (f, blk/(BB_BLOCK_SIZE/4));
-	return        MS_OLE_GET_GUINT32 (BB_R_PTR(f,bbd)
-					  + 4*(blk%(BB_BLOCK_SIZE/4)));
+  BLP bbd = GET_BBD_LIST (f, blk / (BB_BLOCK_SIZE / 4));
+  
+  if (bbd > (f->length / BB_BLOCK_SIZE)) {
+    *err = TRUE;
+    return 0;
+  } else
+    *err = FALSE;
+  
+  return MS_OLE_GET_GUINT32 (BB_R_PTR (f, bbd) +
+			     4 * (blk % (BB_BLOCK_SIZE / 4)));
 }
 
 /* Builds the FAT */
@@ -628,8 +633,13 @@ read_bb (MsOle *f)
 	/* Add BBD's that live in the BBD list */
 	for (lp = 0; (lp < (f->length / BB_BLOCK_SIZE) - 1) &&
 		     (lp < MAX_SIZE_BBD_LIST * BB_BLOCK_SIZE / 4); lp++) {
-		tmp = get_next_block (f, lp);
-		g_array_append_val (f->bb, tmp);
+	             gboolean err;
+	  
+		     tmp = get_next_block (f, lp, &err);
+		     if (err)
+		       return 0;
+
+		     g_array_append_val (f->bb, tmp);
 	}
 
 	/* Add BBD's that live in the additional BBD lists */
