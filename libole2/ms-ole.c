@@ -37,6 +37,17 @@
 #include <ctype.h>
 #include <string.h>
 
+#ifdef __MINGW32__ /* incomplete defines on mingw */
+
+#define _S_IXGRP        _S_IEXEC
+#define _S_IWGRP        _S_IWRITE
+#define _S_IRGRP        _S_IREAD
+
+#define S_IXGRP         _S_IXGRP
+#define S_IWGRP         _S_IWGRP
+#define S_IRGRP         _S_IRGRP
+
+#endif
  
 #ifdef HAVE_MMAP
 /*lvm007@aha.ru fix*/
