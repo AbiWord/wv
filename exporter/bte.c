@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "wvexporter.h"
+#include "wvexporter-priv.h"
 
 void wvPutBTE(BTE *bte,wvStream *fd)
 {

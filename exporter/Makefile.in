@@ -80,7 +80,7 @@ MYOBJECTS = \
 all: $(MYOBJECTS)
 
 exptest$(EXEEXT): exptest.$(OBJEXT) ../libwv.a
-	$(CC) $(CFLAGS) -o $@ exptest.$(OBJEXT) -L. -L.. -lwv $(LIB) $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ exptest.$(OBJEXT) -L. -L.. -lglib -lwv $(LIB) $(LDFLAGS)
 
 clean:	
 	rm -rf $(MYOBJECTS) core exptest

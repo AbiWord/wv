@@ -31,7 +31,7 @@ int wvGetFDOA_PLCF(FDOA **fdoa,U32 **pos,U32 *nofdoa,U32 offset,  U32 len,wvStre
             return(1);
             }
 
-        *fdoa= (FDOA *) wvMalloc(*nofdoa* sizeof(FDOA));
+        *fdoa= (FDOA *) wvMalloc((*nofdoa+1)* sizeof(FDOA));
         if (*fdoa== NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nofdoa* sizeof(FDOA)));

@@ -12,7 +12,7 @@
 #include "wv.h"
 #include "oledecod.h"
 
-#include "wvexporter.h"
+#include "wvexporter-priv.h"
 
 #if defined(WORDS_BIGENDIAN) || !defined(MATCHED_TYPE)
 

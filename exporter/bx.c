@@ -3,7 +3,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "wvexporter.h"
+#include "wvexporter-priv.h"
 
 void wvPutBX(BX *item, U8 *page, U16 *pos)
 {

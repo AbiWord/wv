@@ -5,7 +5,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "wvexporter.h"
+#include "wvexporter-priv.h"
 
 void wvPutANLD(wvVersion ver,ANLD *item,wvStream *fd)
 {

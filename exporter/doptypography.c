@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "wvexporter.h"
+#include "wvexporter-priv.h"
 
 void wvPutDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt,wvStream *fd)
 {

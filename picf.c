@@ -262,7 +262,7 @@ void oldwvGetPICF(PICF *apicf,wvStream *fd,U32 offset)
 	apicf->dyaCropTop = (S16)read_16ubit(fd);
 	apicf->dxaCropRight = (S16)read_16ubit(fd);
 	apicf->dyaCropBottom = (S16)read_16ubit(fd);
-	temp = getc(fd);
+	temp = fgetc(fd);
 
 #ifdef PURIFY
 	apicf->brcl = 0;
@@ -278,7 +278,7 @@ void oldwvGetPICF(PICF *apicf,wvStream *fd,U32 offset)
 	apicf->fDrawHatch = (temp&0x40)>>6;
 	apicf->fError = (temp&0x80)>>7;
 
-	apicf->bpp = getc(fd);
+	apicf->bpp = fgetc(fd);
 	wvGetBRC(0,&(apicf->brcTop),fd);
 	wvGetBRC(0,&(apicf->brcLeft),fd);
 	wvGetBRC(0,&(apicf->brcBottom),fd);
@@ -295,7 +295,7 @@ void oldwvGetPICF(PICF *apicf,wvStream *fd,U32 offset)
 	*/
 	out = tmpfile();
 	for (;count<apicf->lcb;count++)
-		fputc(getc(fd),out);
+		fputc(fgetc(fd),out);
 	rewind(out);
 
 	external_knowledge_0x01 = 1;	/*no delay streams in use*/

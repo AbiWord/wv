@@ -470,7 +470,7 @@ install: installdirs all
 	$(INSTALL_DATA) $(src_mandir)/wvSummary.1 $(mandir)/man1/
 	$(INSTALL_DATA) wv.h $(includedir)/wv.h
 	$(INSTALL_DATA) exporter/wvexporter.h $(includedir)/wvexporter.h
-	$(INSTALL_DATA) $(srcdir)/libwv.a $(datadir)/libwv.a
+	$(INSTALL_DATA) $(srcdir)/libwv.a $(libdir)/libwv.a
 	$(INSTALL_DATA) $(src_xmldir)/wvText.xml $(datadir)/wv/wvText.xml
 	$(INSTALL_DATA) $(src_xmldir)/wvHtml.xml $(datadir)/wv/wvHtml.xml
 	$(INSTALL_DATA) $(src_xmldir)/wvLaTeX.xml $(datadir)/wv/wvLaTeX.xml
