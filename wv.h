@@ -3321,7 +3321,7 @@ returns the same as wvOLEDecode with the addition that
 	U32 m_cbSave;		/* Cache of saved size (size of m_pvBits) */
 	U8 m_fCompression;	/* MSOBLIPCOMPRESSION */
 	U8 m_fFilter;		/* always msofilterNone */
-	void *m_pvBits;		/* Compressed bits of metafile. */
+	wvStream *m_pvBits;		/* Compressed bits of metafile. */
     } MetaFileBlip;
 
     typedef struct _BitmapBlip {
@@ -3333,7 +3333,7 @@ returns the same as wvOLEDecode with the addition that
 	   blip_signature is one of the values defined in MSOBI */
 	U8 m_rgbUidPrimary[16];	/* optional based on the above check */
 	U8 m_bTag;
-	void *m_pvBits;		/* raster bits of the blip */
+	wvStream *m_pvBits;		/* raster bits of the blip */
     } BitmapBlip;
 
 

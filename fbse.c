@@ -133,6 +133,7 @@ wvGetBitmap (BitmapBlip * abm, MSOFBH * amsofbh, wvStream * fd)
     U32 i, count;
     char extra = 0;
     FILE *tmp;
+    wvStream * stm = 0;
     wvTrace (("starting bitmap at %x\n", wvStream_tell (fd)));
     for (i = 0; i < 16; i++)
 	abm->m_rgbUid[i] = read_8ubit (fd);
@@ -179,7 +180,10 @@ wvGetBitmap (BitmapBlip * abm, MSOFBH * amsofbh, wvStream * fd)
 	fputc (read_8ubit (fd), tmp);
     fflush (tmp);
     rewind (tmp);
-    abm->m_pvBits = (void *) tmp;
+
+    wvStream_FILE_create (&stm, tmp);
+
+    abm->m_pvBits = stm;
 
     count += i;
     return count;
@@ -206,6 +210,7 @@ wvGetMetafile (MetaFileBlip * amf, MSOFBH * amsofbh, wvStream * fd)
     char extra = 0;
     U32 i, count;
     FILE *tmp;
+    wvStream * stm = 0;
     U8 decompressf = 0;
 
     for (i = 0; i < 16; i++)
@@ -285,38 +290,33 @@ wvGetMetafile (MetaFileBlip * amf, MSOFBH * amsofbh, wvStream * fd)
 	  tmp = final;
 	  rewind (tmp);
       }
-#if 0
+    
+    rewind (tmp);
 
-    if (((decompressf) && (amf->m_fCompression == msocompressionDeflate))
-	|| (amf->m_fCompression == msocompressionNone))
-	if (amsofbh->fbt - msofbtBlipFirst == msoblipWMF)	/*wmf only for now */
-	  {
-	      wvTrace (
-		       ("converting wmf, final length should be %d, name %s\n",
-			amf - convertwmf (buffer);
-			wvTrace (("converted wmf\n"));}
+    wvStream_FILE_create (&stm, tmp);
 
-#endif
-			rewind (tmp);
-			amf->m_pvBits = (void *) tmp; return (count);}
+    amf->m_pvBits = stm; 
+
+    return (count);
+}
 
 
-			void wvCopyMetafile (MetaFileBlip * dest,
-					     MetaFileBlip * src)
-			{
-			U8 i; for (i = 0; i < 16; i++)
-			{
-			dest->m_rgbUid[i] = src->m_rgbUid[i];
-			dest->m_rgbUidPrimary[i] = src->m_rgbUidPrimary[i];}
-			dest->m_cb = src->m_cb;
-			dest->m_rcBounds.bottom = src->m_rcBounds.bottom;
-			dest->m_rcBounds.top = src->m_rcBounds.top;
-			dest->m_rcBounds.right = src->m_rcBounds.right;
-			dest->m_rcBounds.left = src->m_rcBounds.left;
-			dest->m_ptSize.y = src->m_ptSize.y;
-			dest->m_ptSize.x = src->m_ptSize.x;
-			dest->m_cbSave = src->m_cbSave;
-			dest->m_fCompression = src->m_fCompression;
-			dest->m_fFilter = src->m_fFilter;
-			dest->m_pvBits = src->m_pvBits;
+void wvCopyMetafile (MetaFileBlip * dest,
+		     MetaFileBlip * src)
+{
+  U8 i; for (i = 0; i < 16; i++)
+    {
+      dest->m_rgbUid[i] = src->m_rgbUid[i];
+      dest->m_rgbUidPrimary[i] = src->m_rgbUidPrimary[i];}
+  dest->m_cb = src->m_cb;
+  dest->m_rcBounds.bottom = src->m_rcBounds.bottom;
+  dest->m_rcBounds.top = src->m_rcBounds.top;
+  dest->m_rcBounds.right = src->m_rcBounds.right;
+  dest->m_rcBounds.left = src->m_rcBounds.left;
+  dest->m_ptSize.y = src->m_ptSize.y;
+  dest->m_ptSize.x = src->m_ptSize.x;
+  dest->m_cbSave = src->m_cbSave;
+  dest->m_fCompression = src->m_fCompression;
+  dest->m_fFilter = src->m_fFilter;
+  dest->m_pvBits = src->m_pvBits;
 }

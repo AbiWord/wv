@@ -88,7 +88,7 @@ wvHtmlGraphic (wvParseStruct * ps, Blip * blip)
       case msoblipJPEG:
       case msoblipDIB:
       case msoblipPNG:
-	  fd = (FILE *) (blip->blip.bitmap.m_pvBits);
+	  fd = (FILE *) (blip->blip.bitmap.m_pvBits)->stream.file_stream;
 	  test[2] = '\0';
 	  test[0] = getc (fd);
 #if 1

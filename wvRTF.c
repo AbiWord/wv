@@ -268,7 +268,7 @@ handleImage (Blip * b, long width, long height)
 
     rtf_output ("\bliptag%d{\\*\\blipuid%032x}", tag, tag);
 
-    fd = (FILE *) (b->blip.bitmap.m_pvBits);
+    fd = (FILE *) (b->blip.bitmap.m_pvBits)->stream.file_stream;
     while (EOF != (data = getc (fd)))
       {
 	  if (cnt++ % 64 == 0)
