@@ -28,6 +28,9 @@ GPL. If you do not delete the provisions above, a recipient may use
 your version of this file under either the MPL or the GPL.
 */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "xmldef.h"
 #include "xmlrole.h"
 
