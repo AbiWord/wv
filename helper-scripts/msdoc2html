@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+#	Small script to convert the word document to HTML and display 
+# 	the output in a browser window
+
+OUTPUT_FILE=/tmp/worddoc.html ;
+
+# Check the input parameter
+if [ -z $1 ]; then
+	echo "<html><body><H2>Error : No input parameter</H2></body></html>" > $OUTPUT_FILE ;
+else
+	mswordview -n -w 2 -o $OUTPUT_FILE $1 ;
+fi
+
+netscape -remote 'openFile(/tmp/worddoc.html)' ;

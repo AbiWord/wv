@@ -1,0 +1,28 @@
+CC = @CC@
+
+LEX = @LEX@
+
+SHELL=/bin/sh
+
+@SET_MAKE@
+
+CFLAGS = @CFLAGS@ @DEFS@ -I. -I.. @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/mswordview/ttf\"
+
+SHELL = /bin/sh
+
+.SUFFIXES: .C .o
+
+MYOBJECTS =  oledecod.o
+
+all: oledecod.o
+
+%.o: %.c 
+	$(CC) $(CFLAGS) -c $*.c 
+
+clean:	
+	rm -rf $(MYOBJECTS) core 
+
+realclean:  
+	rm -rf config.cache config.status config.log Makefile *.o core demo
+
+#  DO  NOT  DELETE THIS LINE -- make depend depends on it.

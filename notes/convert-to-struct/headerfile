@@ -1,0 +1,8 @@
+/*error, dup offset of above line*/ uns istduns jcuns fKeepuns fKeepFollowuns fPageBreakBeforeS16 fBrLnAbove:1Bitfield 0001 short fBrLnBelow:1 ;			/* Bitfield 0002 */
+S16 fUnused:2 ;			/* Bitfield 0006 */
+S16 pcVert:2 ;			/* Bitfield 0030 */
+S16 pcHorz:2 ;			/* Bitfield 00C0 */
+uns brcpuns brcl reserveduns fSideBySide reserveduns fNoAutoHyphuns fWidowControlS32 dxaRightlong dxaLeftlong dxaLeft1LSPD lspduns dyaBeforeuns dyaAfterPHE pheuns fCrLfuns fUsePgsuSettingsuns fAdjustRight reserveduns fKinsokuuns fWordWrapuns fOverflowPunctuns fTopLinePunctuns fAutoSpaceDEuns fAtuoSpaceDNuns wAlignFontS16 fVertical:1Bitfield 0001 short fBackward:1 ;			/* Bitfield 0002 */
+S16 fRotateFont:1 ;			/* Bitfield 0004 */
+ reservedS8 fInTablechar fTtpbyte wrbyte fLocked*TAP* ptapS32 dxaAbslong dyaAbslong dxaWidthBRC brcTopBRC brcLeftBRC brcBottomBRC brcRightBRC brcBetweenBRC brcBarlong dxaFromTextlong dyaFromTextS16 dyaHeight:15Bitfield 7FFF short fMinHeight:1 ;			/* Bitfield 8000 */
+SHD shdDCS dcsS8 lvlchar fNumRMInsANLD anldS16 fPropRMarkNUMRM numrmshort itbdMacshort rgdxaTab[itbdMax]char rgtbd[itbdMax]

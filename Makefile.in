@@ -1,0 +1,256 @@
+EXEEXT = @EXEEXT@
+
+LDFLAGS = @LDFLAGS@
+
+#Some Users might have problems with linking against -lz, this is because there is probably an
+#old version of it hanging around in the X dirs, you can add -L/usr/lib to the begging of there 
+#options to fix it.
+#LIBS = -L/usr/lib  @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ -lX11 @X_EXTRA_LIBS@ -lm
+LIBS =  @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ -lX11 @X_EXTRA_LIBS@ -lm
+
+GETOPT = @LIBOBJS@
+
+CC = @CC@
+
+LEX = @LEX@
+
+SHELL=/bin/sh
+
+RANLIB = @RANLIB@
+
+AR = ar
+
+LN = ln
+
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+
+@SET_MAKE@
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+srcdir = @srcdir@
+bindir = @bindir@
+libdir = @libdir@
+mandir = @mandir@
+includedir = @includedir@
+PERL = @PERL@
+
+CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -Iexpat/xmlparse -Ioledecod -I. @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/mswordview/ttf\" -DCONFIGFILE=\"$(libdir)/mswordview/config-mswordview\" -DPATTERNDIR=\"file:$(libdir)/mswordview/patterns\" -DSYMBOLFONTDIR=\"file:$(libdir)/mswordview/symbolfont\" -DWINGDINGFONTDIR=\"file:$(libdir)/mswordview/wingdingfont\"
+
+MKINSTALLDIRS = $(srcdir)/mkinstalldirs
+
+SHELL = /bin/sh
+
+.SUFFIXES: .C .o
+
+MYOBJECTS =	\
+	mswordview.o \
+	laolareplace.old.o \
+	support.o \
+	list.o \
+	piecetable.o \
+	stylesheet.o \
+	sprm.o \
+	blip.o \
+	utf.o \
+	init_chp.o \
+	field.o \
+	formatting.o \
+	references.o \
+	gpprl.o \
+	papchpsep.o \
+	hyperlink.o \
+	decompresswmf.o \
+	table.o \
+	annotations.o \
+	dop.o \
+	roman.o \
+	doc_limits.o \
+	fib.o \
+	frd.o \
+	atrd.o \
+	sed.o \
+	font.o \
+	ffn.o \
+	fld.o \
+	bkf.o \
+	dttm.o \
+	generic.o \
+	error.o \
+	unicode.o \
+	sttbf.o \
+	xst.o \
+	fspa.o \
+	lst.o \
+	lvl.o \
+	lfo.o \
+	nfc.o \
+	ordinal.o \
+	summary.o \
+	filetime.o \
+	chp.o \
+	brc.o \
+	anld.o \
+	shd.o \
+	dcs.o \
+	numrm.o \
+	asumyi.o \
+	version.o \
+	lex.yy.o \
+	lspd.o \
+	phe.o \
+	tlp.o \
+	tc.o \
+	tap.o \
+	pap.o \
+	bintree.o \
+	decode_simple.o \
+	pcd.o \
+	prm.o \
+	clx.o \
+	bte.o \
+	bx.o \
+	fkp.o \
+	codepage-1252.o \
+	iso-5589-15.o \
+	text.o \
+	decode_complex.o \
+	wvTextEngine.o \
+	wvHtmlEngine.o \
+	wvConfig.o \
+	wvparse.o \
+	reasons.o
+
+
+XML = -Lexpat/lib -lxmlparse -lxmltok
+
+OLE = oledecod/oledecod.o
+
+CRYPT = crypt/rc4.o crypt/md5.o
+
+all: mswordview$(EXEEXT) wvSummary$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSimpleCLX$(EXEEXT) wv-libconfig wv-incconfig
+
+mswordview$(EXEEXT):  main.o $(GETOPT) OLEDECODE XMLPARSER libwv.a
+	 $(CC)  -o $@ main.o $(GETOPT) -L. -lwv $(OLE) $(LIBS) $(XML) $(LDFLAGS)
+
+wvSummary$(EXEEXT): wvSummary.o $(GETOPT) OLEDECODE XMLPARSER libwv.a
+	 $(CC)  -o $@ wvSummary.o $(GETOPT) -L. -lwv $(OLE) $(LIBS) $(XML) $(LDFLAGS)
+
+wvSimpleCLX$(EXEEXT): wvSimpleCLX.o $(GETOPT) OLEDECODE XMLPARSER libwv.a
+	 $(CC)  -o $@ wvSimpleCLX.o $(GETOPT) -L. -lwv $(OLE) $(LIBS) $(XML) $(LDFLAGS)
+
+wvConvert$(EXEEXT): wvConvert.o $(GETOPT) OLEDECODE XMLPARSER libwv.a
+	 $(CC)  -o $@ wvConvert.o $(GETOPT) -L. -lwv $(OLE) $(LIBS) $(XML) $(LDFLAGS)
+
+wvText$(EXEEXT): wvConvert$(EXEEXT)
+	 $(LN) -s wvConvert$(EXEEXT) wvText$(EXEEXT)
+
+wvHtml$(EXEEXT): wvHtml.o $(GETOPT) OLEDECODE XMLPARSER libwv.a
+	 $(CC)  -o $@ wvHtml.o $(GETOPT) -L. -lwv $(OLE) $(LIBS) $(XML) $(LDFLAGS)
+
+wv-libconfig: Makefile
+	rm -f wv-libconfig
+	echo \#\!/bin/sh > wv-libconfig
+	echo echo -L $(libdir) -lwv $(LIBS) $(LDFLAGS) >> wv-libconfig
+
+wv-incconfig: Makefile
+	rm -f wv-incconfig
+	echo \#\!/bin/sh > wv-incconfig
+	echo echo @ZLIB_CFLAGS@ -I$(includedir) @WMF_CFLAGS@ >> wv-incconfig
+
+lex.yy.c: parser.lex
+	$(LEX) parser.lex
+
+testparse$(EXEEXT):  testparse.o $(GETOPT) OLEDECODE libwv.a
+	 $(CC)  -o $@ testparse.o $(GETOPT) -L. -lwv $(OLE) $(LIBS)  $(LDFLAGS)
+
+error.o: error.c Makefile
+	$(CC) $(CFLAGS) -c $*.c 
+
+laolareplace.o: laolareplace.c 
+	$(CC) $(CFLAGS) -c $*.c 
+
+libwv.a:	$(MYOBJECTS)
+	$(AR) rc $@ $(MYOBJECTS) 
+	$(RANLIB) $@
+
+OLEDECODE:
+	@echo making oledecod in oledecod
+	@(cd oledecod && $(MAKE)) || exit 1
+
+XMLPARSER:
+	@echo making expat in expat
+	@(cd expat && $(MAKE)) || exit 1
+
+CRYPTCODE:
+	@echo making rc4 in crypt
+	@(cd crypt && $(MAKE)) || exit 1
+
+
+%.o: %.c 
+	$(CC) $(CFLAGS) -c $*.c -o $*.o
+
+cleansub:
+	@echo cleaning oledecod in oledecod
+	@(cd oledecod && $(MAKE) clean) || exit 1
+	@echo cleaning expat in expat
+	@(cd expat && $(MAKE) clean) || exit 1
+	@echo cleaning crypt in crypt
+	@(cd crypt && $(MAKE) clean) || exit 1
+
+clean: cleansub
+	rm -rf *.o $(GETOPT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) mswordview$(EXEEXT) wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) core a.out *.a
+
+distclean: realcleansub
+	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.o wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) mswordview$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) core out* analyze/* .pure
+
+realclean: distclean
+	rm -rf lex.yy.c
+
+realcleansub:
+	@echo real cleaning oledecod in oledecod
+	@(cd oledecod && $(MAKE) realclean) || exit 1
+	@echo real cleaning expat in expat
+	@(cd expat && $(MAKE) realclean) || exit 1
+	@echo real cleaning crypt in crypt
+	@(cd crypt && $(MAKE) realclean) || exit 1
+
+installdirs:
+	$(MKINSTALLDIRS) $(bindir) \
+	$(mandir) \
+	$(mandir)/man1 \
+	$(libdir) \
+	$(libdir)/mswordview \
+	$(libdir)/mswordview/symbolfont \
+	$(libdir)/mswordview/wingdingfont \
+	$(libdir)/mswordview/patterns \
+	$(libdir)/mswordview/ttf
+	
+
+install: installdirs $(srcdir)/mswordview$(EXEEXT)
+	$(INSTALL) $(srcdir)/mswordview$(EXEEXT) $(bindir)/mswordview$(EXEEXT)
+	$(INSTALL) $(srcdir)/wvSummary$(EXEEXT) $(bindir)/wvSummary$(EXEEXT)
+	$(INSTALL) $(srcdir)/wvSimpleCLX$(EXEEXT) $(bindir)/wvSimpleCLX$(EXEEXT)
+	$(INSTALL) $(srcdir)/wvConvert$(EXEEXT) $(bindir)/wvConvert$(EXEEXT)
+	$(RM) $(bindir)/wvText$(EXEEXT)
+	$(LN) -s $(bindir)/wvConvert$(EXEEXT) $(bindir)/wvText$(EXEEXT)
+	$(INSTALL) $(srcdir)/wvHtml$(EXEEXT) $(bindir)/wvHtml$(EXEEXT)
+	$(INSTALL) $(srcdir)/wv-libconfig $(bindir)/wv-libconfig
+	$(INSTALL) $(srcdir)/wv-incconfig $(bindir)/wv-incconfig
+	$(INSTALL_DATA) $(srcdir)/mswordview.1 $(mandir)/man1/
+	$(INSTALL_DATA) $(srcdir)/config-mswordview $(libdir)/mswordview/config-mswordview
+	for filename in symbolfont/*.gif; do \
+		$(INSTALL_DATA) $$filename $(libdir)/mswordview/symbolfont; \
+	done
+	for filename in wingdingfont/*.gif; do \
+		$(INSTALL_DATA) $$filename $(libdir)/mswordview/wingdingfont; \
+	done
+	for filename in patterns/*.gif patterns/*.jpg; do \
+		$(INSTALL_DATA) $$filename $(libdir)/mswordview/patterns; \
+	done
+	$(INSTALL_DATA) mswordview.h $(includedir)/wv.h
+	$(INSTALL_DATA) $(srcdir)/libwv.a $(libdir)/libwv.a
+
+
+#  DO  NOT  DELETE THIS LINE -- make depend depends on it.

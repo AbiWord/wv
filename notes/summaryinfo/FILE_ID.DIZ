@@ -1,0 +1,10 @@
+(v1.5) Somar CPPSUM - file summary info
+DLL that can be called from WordBasic, 
+Visual Basic or C. Retrieves the file summary
+info in an OLE 2.0 document, such as the 
+documents produced by WinWord 6.0 and Excel 
+5.0. Source code included. V1.5 fixes problem
+with WinWord EditTime statistic. FREEWARE. 
+By Somar Software, http://www.somar.com,
+72202.2574@compuserve.com.
+

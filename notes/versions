@@ -1,0 +1,17 @@
+an attempt to list all the word version and gather
+as much information about them as possible.
+
+platforms:
+word 	1	2	3 	4 	5 	6 	7(95)	8 (97)	reference
+dos	x	x	x	x	x	x	-	-	(Knowledge Base Article ID: Q68864)
+windows	x	x	-	-	-	x	x	x	(Knowledge Base Article ID: Q100835)
+mac	-	-	x	x	x	-	-	x	(Knowledge Base Article ID: Q40285)
+scounix -	-	-	-	x	-	-	-	(Michael.Huehne@de.uu.net, and SCO have it listed on their website)
+
+spec availability:
+word 	1	2	3 	4 	5 	6 	 7(95)	8 (97)		
+        x[3]  	-	-	-	x[3]	x[2]	-	x[1]
+
+[1] available from msdn.microsoft.com & www.wotsit.org
+[2] available from www.wotsit.org
+[3] available from another.

@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+#	mswordview.wrapper
+#
+#	Copyright 1998 Jager Enterprises and Todd Stiers
+#
+#	Run mswordview directly from X Netscape
+#
+#	T.Stiers		19980531	
+#
+#	Documentation:
+#
+#	Warning: You will need to link DOCUMENTROOT/tmp to /tmp
+#	to work using the current paths. Doing so might pose a 
+#	security issue. This whole CGI is a security issue
+#
+#	This application should be added to X netscape as
+#
+#	MIMEType    : application/msword
+#	Suffix      : .doc
+#	Application : /usr/local/bin/mswordview.wrapper %s
+#
+PATH=/bin:/usr/bin:/usr/local/bin
+
+HTML=/tmp/mswordview.$$.html
+
+#
+#	run mswordview program
+#
+mswordview "$*" > $HTML
+
+#
+#	point netscape to the mswordview generated html file
+#
+netscape4 -remote 'openUrl(http://localhost'$HTML')'
+
+#
+#	remove files within 30 seconds
+#
+(sleep 30; rm -f $HTML)&

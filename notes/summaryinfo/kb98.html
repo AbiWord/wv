@@ -1,0 +1,597 @@
+
+
+<HTML>
+<HEAD>
+<TITLE>HOWTO: Read Compound Document Properties Directly with VC++</TITLE>
+
+<!--STYLE_START-->
+<LINK REL="STYLESHEET" HREF="/support/include/style.css" TYPE="text/css">
+<!--STYLE_END-->
+
+<!--META_START-->
+<META NAME="Premium" CONTENT="Support">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso8859-1">
+<META NAME="ms.locale" CONTENT="EN-US">
+<META NAME="Category" CONTENT="Support; KB Article">
+<META NAME="KBID" CONTENT="Q186898">
+<META NAME="KBModify" CONTENT="1998/11/19">
+<META NAME="KBCreate" CONTENT="1998/06/05">
+<META NAME="Keywords" CONTENT="kbcode kbCmpDoc kbCOMt kbVC500 kbOffice">
+<META NAME="KBArea" CONTENT="Support; KB; visualc, vstudio">
+<META NAME="Description" CONTENT="  You can retrieve compound document properties from a document using standard interfaces without the server running or even being installed. For instance, you can retrieve built-in document properties such as Author, Last Modified Time, and Page Cou...">
+<META NAME="Product" CONTENT="Visual C++">
+<META NAME="Platform" CONTENT="Windows">
+<META NAME="Technology" CONTENT="">
+<META HTTP-EQUIV="PICS-Label" CONTENT='(PICS-1.1 "http://www.rsac.org/ratingsv01.html" l gen true comment "RSACi North America Server" by "Inet@microsoft.com" for "http://support.microsoft.com" on "1998.02.17T12:28-0800" r (n 0 s 0 v 0 l 0))'>
+<!--META_END-->
+
+<META NAME="nyms" CONTENT="QAPN,QABD,QABE,QAUD,QAML,QAGX,QBWC,QA4Q,QAI4,QDL9,QBWQ,QBWO,QBWN,QAG8,QAGJ V02180118">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" LEFTMARGIN="0" MARGINHEIGHT="0" MARGINWIDTH="0" RIGHTMARGIN="0" TOPMARGIN="0">
+
+
+<!--TOOLBAR_START-->
+<A NAME="TOP"></A>
+<!-- Start: ToolBar V2.0-->
+<SCRIPT LANGUAGE="JavaScript" SRC="/library/toolbar/toolbar.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/library/toolbar/en-us/global.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/support/include/toolbars/local_support.js"></SCRIPT>
+
+<!-- Start: ToolBar for down-level browsers-->
+<SPAN ID="TBDownLevelDiv">
+<TABLE BORDER="0" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+	<TR>
+		<TD HEIGHT="60" ROWSPAN="2" VALIGN="top"><A HREF="/isapi/gosupport.asp?target=/support/default.asp?FR=0" TARGET="_top"><IMG ALT="Microsoft Personal Support Center Home" BORDER="0" HEIGHT="60" SRC="/library/images/support/toolbar/supportbanner.gif" WIDTH="250"></A></TD>
+		<TD ALIGN="right" HEIGHT="20" VALIGN="top"><IMG BORDER="0" HEIGHT="20" SRC="/library/toolbar/images/curve.gif" WIDTH="18"></TD>
+		<TD ALIGN="right" BGCOLOR="#000000" COLSPAN="2" HEIGHT="20" NOWRAP VALIGN="middle">
+			<FONT COLOR="#FFFFFF" FACE="Verdana, Arial, Helvetica" SIZE="1"><B>
+			&nbsp;&nbsp;<A HREF="/isapi/gomscom.asp?target=/products/" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">All Products</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gomscom.asp?target=/support/" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Support</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosearch.asp?target=/" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Search</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gomscom.asp?target=/" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">microsoft.com Home</FONT></A>&nbsp;&nbsp;
+			</B></FONT>
+		</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="40" VALIGN="top" WIDTH="19"><IMG BORDER="0" HEIGHT="40" SRC="/library/images/gifs/homepage/1ptrans.gif" WIDTH="19"></TD>
+		<TD ALIGN="right" COLSPAN="2" HEIGHT="40" NOWRAP VALIGN="top"><A HREF="/isapi/gomscom.asp?target=/" TARGET="_top"><IMG ALT="Microsoft" BORDER="0" HEIGHT="40" SRC="/library/toolbar/images/mslogo.gif" WIDTH="112"></A></TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#003399" COLSPAN="4" HEIGHT="20" NOWRAP VALIGN="middle">
+			<FONT COLOR="#FFFFFF" FACE="Verdana, Arial, Helvetica" SIZE="1"><B>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Support Home</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/search/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Search Support</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/browse/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Browse</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/poptopics/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Products</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/downloads/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Downloads</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/contact/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Contact Us</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/help/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Site Help</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			</B></FONT>
+		</TD>
+	</TR>
+</TABLE>
+</SPAN>
+<!-- End: ToolBar For down-level browsers-->
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--//
+var ToolBar_Supported = ToolBar_Supported;
+if (ToolBar_Supported != null && ToolBar_Supported == true)
+{
+	TBDownLevelDiv.style.display ="none";
+	drawToolbar();
+}
+//-->
+</SCRIPT>
+<!-- End: ToolBar V2.0-->
+<!--TOOLBAR_END-->
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+	<TR>
+		<TD VALIGN="top">
+
+			<CENTER>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="95%">
+				<TR>
+					<TD VALIGN="top">
+						<FONT FACE="Verdana, Arial, Helvetica" SIZE="2">
+<!-- ---------- PAGE TEXT BEGINS BELOW HERE ---------- -->
+<H1>HOWTO: Read Compound Document Properties Directly with VC++</H1>
+
+
+ 
+ 
+The information in this article applies to:
+
+<UL><LI>Microsoft Visual C++, 32-bit Editions, version 5.0
+<LI>Microsoft Office 97 for Windows
+</UL> 
+<P>
+<P><h2>SUMMARY</h2>
+ 
+<P>
+You can retrieve compound document properties from a document using
+standard interfaces without the server running or even being installed. For
+instance, you can retrieve built-in document properties such as Author,
+Last Modified Time, and Page Count properties of a Microsoft Office 97
+document as well as other custom document properties.
+<P>
+<P><h2>MORE INFORMATION</h2>
+ 
+<P>
+The following steps illustrate how you can build a compound document
+property viewer with Microsoft Visual C++. The example is a Win32 Console
+Application project, and can be modified to suit your needs.
+<P>
+<P><h3>Steps to Create Sample</h3>
+ 
+<P>
+1. Create a new Win32 Console Application project, and call it PropDump.
+<P>
+2. Add a new file called main.cpp to your project.
+<P>
+3. Copy the following code into main.cpp:
+<P>
+<PRE>      #include &lt;stdio.h&gt;
+      #include &lt;windows.h&gt;
+
+      // Dumps simple PROPVARIANT values.
+      void DumpPropVariant(PROPVARIANT *pPropVar) {
+         // Don't iterate arrays, just inform as an array.
+         if(pPropVar-&gt;vt &amp; VT_ARRAY) {
+            printf("(Array)\n");
+            return;
+         }
+         // Don't handle byref for simplicity, just inform byref.
+         if(pPropVar-&gt;vt &amp; VT_BYREF) {
+            printf("(ByRef)\n");
+            return;
+         }
+
+         // Switch types.
+         switch(pPropVar-&gt;vt) {
+         case VT_EMPTY:
+            printf("(VT_EMPTY)\n");
+            break;
+         case VT_NULL:
+            printf("(VT_NULL)\n");
+            break;
+         case VT_BLOB:
+            printf("(VT_BLOB)\n");
+            break;
+         case VT_BOOL:
+            printf("%s (VT_BOOL)\n",
+               pPropVar-&gt;boolVal ? "TRUE/YES" : "FALSE/NO");
+            break;
+         case VT_I2: // 2-byte signed int.
+            printf("%d (VT_I2)\n", (int)pPropVar-&gt;iVal);
+            break;
+         case VT_I4: // 4-byte signed int.
+            printf("%d (VT_I4)\n", (int)pPropVar-&gt;lVal);
+            break;
+         case VT_R4: // 4-byte real.
+            printf("%.2lf (VT_R4)\n", (double)pPropVar-&gt;fltVal);
+            break;
+         case VT_R8: // 8-byte real.
+            printf("%.2lf (VT_R8)\n", (double)pPropVar-&gt;dblVal);
+            break;
+         case VT_BSTR: // OLE Automation string.
+            {
+               // Translate into ASCII.
+               char dbcs[1024];
+               char *pbstr = (char *)pPropVar-&gt;bstrVal;
+               int i = wcstombs(
+                  dbcs, pPropVar-&gt;bstrVal, *((DWORD *)(pbstr-4)));
+               dbcs[i] = 0;
+               printf("%s (VT_BSTR)\n", dbcs);
+            }
+            break;
+         case VT_LPSTR: // Null-terminated string.
+            {
+               printf("%s (VT_LPSTR)\n", pPropVar-&gt;pszVal);
+            }
+            break;
+         case VT_FILETIME:
+            {
+               char *dayPre[] =
+                            {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
+
+               FILETIME lft;
+               FileTimeToLocalFileTime(&amp;pPropVar-&gt;filetime, &amp;lft);
+               SYSTEMTIME lst;
+               FileTimeToSystemTime(&amp;lft, &amp;lst);
+
+               printf("%02d:%02d.%02d %s, %s %02d/%02d/%d (VT_FILETIME)\n",
+                  1+(lst.wHour-1)%12, lst.wMinute, lst.wSecond,
+                  (lst.wHour&gt;=12) ? "pm" : "am",
+                  dayPre[lst.wDayOfWeek%7],
+                  lst.wMonth, lst.wDay, lst.wYear);
+            }
+            break;
+         case VT_CF: // Clipboard format.
+            printf("(Clipboard format)\n");
+
+            break;
+         default: // Unhandled type, consult wtypes.h's VARENUM structure.
+            printf("(Unhandled type: 0x%08lx)\n", pPropVar-&gt;vt);
+            break;
+         }
+      }
+
+      // Dump's built-in properties of a property storage.
+      void DumpBuiltInProps(IPropertySetStorage *pPropSetStg) {
+         printf("\n==================================================\n");
+         printf("BuiltInProperties Properties...\n");
+         printf("==================================================\n");
+
+         IPropertyStorage *pPropStg = NULL;
+         HRESULT hr;
+
+         // Open summary information, getting an IpropertyStorage.
+         hr = pPropSetStg-&gt;Open(FMTID_SummaryInformation,
+            STGM_READ | STGM_SHARE_EXCLUSIVE, &amp;pPropStg);
+         //hr = pPropSetStg-&gt;Open(FMTID_UserDefinedProperties,
+            //STGM_READ | STGM_SHARE_EXCLUSIVE, &amp;pPropStg);
+         if(FAILED(hr)) {
+            printf("No Summary-Information.\n");
+            return;
+         }
+         // Array of PIDSI's you are interested in.
+         struct pidsiStruct {
+            char *name;
+            long pidsi;
+         } pidsiArr[] = {
+            {"Title",            PIDSI_TITLE}, // VT_LPSTR
+            {"Subject",          PIDSI_SUBJECT}, // ...
+            {"Author",           PIDSI_AUTHOR},
+            {"Keywords",         PIDSI_KEYWORDS},
+            {"Comments",         PIDSI_COMMENTS},
+            {"Template",         PIDSI_TEMPLATE},
+            {"LastAuthor",       PIDSI_LASTAUTHOR},
+            {"Revision Number",  PIDSI_REVNUMBER},
+            {"Edit Time",        PIDSI_EDITTIME}, // VT_FILENAME (UTC)
+            {"Last printed",     PIDSI_LASTPRINTED}, // ...
+            {"Created",          PIDSI_CREATE_DTM},
+            {"Last Saved",       PIDSI_LASTSAVE_DTM},
+            {"Page Count",       PIDSI_PAGECOUNT}, // VT_I4
+            {"Word Count",       PIDSI_WORDCOUNT}, // ...
+            {"Char Count",       PIDSI_CHARCOUNT},
+            {"Thumpnail",        PIDSI_THUMBNAIL}, // VT_CF
+            {"AppName",          PIDSI_APPNAME}, // VT_LPSTR
+            {"Doc Security",     PIDSI_DOC_SECURITY}, // VT_I4
+            {0, 0}
+         };
+         // Count elements in pidsiArr.
+         int nPidsi = 0;
+         for(nPidsi=0; pidsiArr[nPidsi].name; nPidsi++);
+
+         // Initialize PROPSPEC for the properties you want.
+         PROPSPEC *pPropSpec = new PROPSPEC [nPidsi];
+         PROPVARIANT *pPropVar = new PROPVARIANT [nPidsi];
+
+         for(int i=0; i&lt;nPidsi; i++) {
+            ZeroMemory(&amp;pPropSpec[i], sizeof(PROPSPEC));
+            pPropSpec[i].ulKind = PRSPEC_PROPID;
+            pPropSpec[i].propid = pidsiArr[i].pidsi;
+         }
+
+         // Read properties.
+         hr = pPropStg-&gt;ReadMultiple(nPidsi, pPropSpec, pPropVar);
+
+         if(FAILED(hr)) {
+            printf("IPropertyStg::ReadMultiple() failed w/error %08lx\n",
+                   hr);
+         }
+         else {
+            // Dump properties.
+            for(i=0; i&lt;nPidsi; i++) {
+               printf("%16s: ", pidsiArr[i].name);
+               DumpPropVariant(pPropVar + i);
+            }
+         }
+
+         // De-allocate memory.
+         delete [] pPropVar;
+         delete [] pPropSpec;
+
+         // Release obtained interface.
+         pPropStg-&gt;Release();
+
+      }
+
+      // Dump's custom properties of a property storage.
+      void DumpCustomProps(IPropertySetStorage *pPropSetStg) {
+         printf("\n==================================================\n");
+         printf("Custom Properties...\n");
+         printf("==================================================\n");
+
+         IPropertyStorage *pPropStg = NULL;
+         HRESULT hr;
+         IEnumSTATPROPSTG *pEnumProp;
+
+         // Open User-Defined-Properties, getting an IpropertyStorage.
+         hr = pPropSetStg-&gt;Open(FMTID_UserDefinedProperties,
+            STGM_READ | STGM_SHARE_EXCLUSIVE, &amp;pPropStg);
+         if(FAILED(hr)) {
+            printf("No User Defined Properties.\n");
+            return;
+         }
+
+         // Get property enumerator.
+         hr = pPropStg-&gt;Enum(&amp;pEnumProp);
+         if(FAILED(hr)) {
+            pPropStg-&gt;Release();
+            printf("Couldn't enumerate custom properties.\n");
+            return;
+         }
+
+         // Enumerate properties.
+         STATPROPSTG sps;
+         ULONG fetched;
+         PROPSPEC propSpec[1];
+         PROPVARIANT propVar[1];
+         while(pEnumProp-&gt;Next(1, &amp;sps, &amp;fetched) == S_OK) {
+            // Build a PROPSPEC for this property.
+            ZeroMemory(&amp;propSpec[0], sizeof(PROPSPEC));
+            propSpec[0].ulKind = PRSPEC_PROPID;
+            propSpec[0].propid = sps.propid;
+
+            // Read this property.
+            hr = pPropStg-&gt;ReadMultiple(1, &amp;propSpec[0], &amp;propVar[0]);
+            if(!FAILED(hr)) {
+               // Translate Prop name into ASCII.
+               char dbcs[1024];
+               char *pbstr = (char *)sps.lpwstrName;
+               int i = wcstombs(dbcs, sps.lpwstrName,
+                                *((DWORD *)(pbstr-4)));
+               dbcs[i] = 0;
+
+               // Dump this property.
+               printf("%16s: ", dbcs);
+               DumpPropVariant(&amp;propVar[0]);
+            }
+         }
+
+         // Release obtained interface.
+         pEnumProp-&gt;Release();
+         pPropStg-&gt;Release();
+
+      }
+
+      // Dump's custom and built-in properties of a compound document.
+      void DumpProps(char *filename) {
+         // Translate filename to Unicode.
+         WCHAR wcFilename[1024];
+         int i = mbstowcs(wcFilename, filename, strlen(filename));
+         wcFilename[i] = 0;
+
+         IStorage *pStorage = NULL;
+         IPropertySetStorage *pPropSetStg = NULL;
+         HRESULT hr;
+
+         // Open the document as an OLE compound document.
+         hr = ::StgOpenStorage(wcFilename, NULL,
+            STGM_READ | STGM_SHARE_EXCLUSIVE, NULL, 0, &amp;pStorage);
+
+         if(FAILED(hr)) {
+            if(hr == STG_E_FILENOTFOUND)
+               printf("File not found.");
+            else if(hr == STG_E_FILEALREADYEXISTS)
+               printf("Not a compound file.");
+            else
+               printf("StgOpenStorage() failed w/error %08lx", hr);
+            return;
+         }
+
+         // Obtain the IPropertySetStorage interface.
+         hr = pStorage-&gt;QueryInterface(
+                 IID_IPropertySetStorage, (void **)&amp;pPropSetStg);
+         if(FAILED(hr)) {
+            printf("QI for IPropertySetStorage failed w/error %08lx", hr);
+            pStorage-&gt;Release();
+            return;
+         }
+
+         // Dump properties.
+         DumpBuiltInProps(pPropSetStg);
+         DumpCustomProps(pPropSetStg);
+
+         // Release obtained interfaces.
+         pPropSetStg-&gt;Release();
+         pStorage-&gt;Release();
+      }
+
+      // Program entry-point.
+      void main(int argc, char **argv) {
+         // Validate arguments.
+         if(argc != 2) {
+            char *pName = strrchr(argv[0], '.');
+            printf("- OLE Document Property Viewer\n");
+            printf("- Usage: %s filename", pName+1);
+            return;
+         }
+
+         // Pass filename to the subroutine.
+         DumpProps(argv[1]);
+      }
+
+</PRE>4. Compile the program.
+<P>
+To run the example, you should copy the PropDump.exe file to a directory in
+your default path; for instance c:\Windows\ or c:\Windows\Command\. Then,
+in a directory containing a compound document file, type PropDump followed
+by the name of the file. You should see output similar to the following:
+<P>
+ 
+BuiltInProperties Properties...
+ 
+<PRE>           Title: MyTitle (VT_LPSTR)
+         Subject: MySubject (VT_LPSTR)
+          Author: MyAuthor (VT_LPSTR)
+        Keywords: MyKeywords (VT_LPSTR)
+        Comments: MyComments (VT_LPSTR)
+        Template: Normal (VT_LPSTR)
+      LastAuthor: Me (VT_LPSTR)
+ Revision Number: 8 (VT_LPSTR)
+       Edit Time: 01:05.47 pm, Mon 01/01/1601 (VT_FILETIME)
+    Last printed: (VT_EMPTY)
+         Created: 01:42.00 pm, Fri 05/29/1998 (VT_FILETIME)
+      Last Saved: 12:31.00 pm, Mon 06/01/1998 (VT_FILETIME)
+      Page Count: 1 (VT_I4)
+      Word Count: 3 (VT_I4)
+      Char Count: 19 (VT_I4)
+       Thumpnail: (VT_EMPTY)
+         AppName: Microsoft Word 8.0 (VT_LPSTR)
+    Doc Security: 0 (VT_I4)
+
+</PRE> 
+Custom Properties...
+ 
+<PRE>   _PID_LINKBASE: (VT_BLOB)
+       _PID_GUID: (VT_BLOB)
+       CustProp1: CustProp1TextValue (VT_LPSTR)
+       CustProp2: 77777 (VT_I4)
+       CustProp3: TRUE/YES (VT_BOOL)
+       CustProp4: 00:00.00 am, Tue 05/17/1977 (VT_FILETIME)
+
+</PRE><h3>Additional Notes</h3>
+ 
+<P>
+The IPropertyStorage and IPropertySetStorage interfaces were not defined in
+the original release of COM; thus this sample code requires a system with:
+<P>
+- Windows NT 4.0 or later
+<P>
+<PRE>  - or -
+
+</PRE>- Windows 95 with Internet Explorer version 4.0 or later
+<P>
+<PRE>  - or -
+
+</PRE>- Windows 95 with DCOM installed
+<P>
+Previous versions of COM specified very little with respect to properties
+and their usage, but did define a serialized format that allowed developers
+to store properties and property sets in an IStorage instance. The property
+identifiers and semantics of a single property set, used for summary
+information about a document, were also defined. At that time, it was
+necessary to create and manipulate that structure directly as a data
+stream. For more information on the property set serialized data format
+structure, refer to "OLE Serialized Property Set Format" in the Microsoft
+Developer Network.
+<P>
+<P><h2>REFERENCES</h2>
+ 
+<P>
+Microsoft Developer Network: Persistent Property Sets
+<P>
+Microsoft Developer Network: OLE Serialized Property Set Format
+<P>
+(c) Microsoft Corporation 1998, All Rights Reserved. Contributions by Joe
+Crump, Microsoft Corporation
+<P>
+Additional query words: Excel Word Access Powerpoint Binder
+documentproperties builtindocumentproperties customdocumentproperties
+<P>
+ 
+<PRE>Keywords          : kbcode kbCmpDoc kbCOMt kbVC500 kbOffice 
+Version           : WINDOWS:97; WINNT:5.0
+Platform          : WINDOWS winnt
+Issue type        : kbhowto</PRE>
+<!-- ----------- PAGE TEXT ENDS ABOVE HERE ----------- -->
+						</FONT>
+					</TD>
+				</TR>
+			</TABLE>
+			<P>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+				<TR>
+					<TD VALIGN="top">
+						<CENTER>
+						<BR>
+						<FONT FACE="Verdana, Arial, Helvetica" SIZE="1">
+<!--LAST_REVIEWED_DATE_START-->
+Last Reviewed: November 19, 1998<BR>
+<!--LAST_REVIEWED_DATE_END-->
+<!--COPYRIGHT_START-->
+<A HREF="/support/misc/cpyright.asp" ID="smalllink">&copy; 1999 Microsoft Corporation. All rights reserved. Terms of Use.</A><BR>
+<!--COPYRIGHT_END-->
+						</FONT>
+						</CENTER>
+					</TD>
+				</TR>
+			</TABLE>
+			</CENTER>
+		</TD>
+<!--RIGHT_COLUMN_START-->
+		<TD BGCOLOR="#003399" VALIGN="top" WIDTH="1"><IMG BORDER="0" HEIGHT="100%" SRC="/library/images/support/1ptrans.gif" WIDTH="1"></TD>
+		<TD VALIGN="top" WIDTH="135">
+			<CENTER>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="90%">
+				<TR>
+					<TD VALIGN="top">
+						<FONT FACE="Verdana, Arial, Helvetica" SIZE="1">
+						<BR>
+						<P>
+						Article ID: Q186898
+						<P>
+						<B>Last Reviewed:</B><BR>
+						November 19, 1998
+						<P>
+						Provided by <A HREF="/support/default.asp?FR=0" TARGET="_top">Support Online</A> from Microsoft Product Support Services.
+						<P>
+						<A HREF=""></A>
+						<P>
+						<HR>
+<!--VOTING_START-->
+<FORM ACTION="/support/contentvoting/voting_idc.asp" METHOD="post" NAME="VOTED" ONSUBMIT="return votingsubmit();">
+	<INPUT NAME="KBID" TYPE="hidden" VALUE="Q186898">
+	<INPUT NAME="PROD" TYPE="hidden" VALUE="Visual C++">
+	<INPUT NAME="KBAREA" TYPE="hidden" VALUE="visualc, vstudio">
+	<INPUT NAME="SRV" TYPE="hidden" VALUE="support.microsoft.com">
+	<INPUT NAME="URL" TYPE="hidden" VALUE="/support/kb/articles/q186/8/98.asp">
+
+<INPUT NAME="SS" TYPE="hidden" VALUE="">
+Did the information in this article help answer your question?
+<P>
+<INPUT NAME="VOTE" TYPE="radio" VALUE="1">Yes<BR>
+<INPUT NAME="VOTE" TYPE="radio" VALUE="2">No<BR>
+<INPUT NAME="VOTE" TYPE="radio" VALUE="3">Did not apply
+<P>
+Please provide additional comments on this article.<BR>
+(255 character max)
+<P>
+<TEXTAREA COLS="13" ID="COMMENTS" NAME="COMMENTS" ROWS="4" STYLE="font:x-small" WRAP="virtual"></TEXTAREA>
+<P>
+<CENTER>
+<INPUT ALT="Submit" BORDER="0" HEIGHT="32" SRC="/library/images/support/votesubmit.gif" TYPE="image" WIDTH="88">
+</CENTER>
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--//
+function votingsubmit()
+{
+	if((document.VOTED.VOTE[0].checked == false) && (document.VOTED.VOTE[1].checked == false) && (document.VOTED.VOTE[2].checked == false)){
+		alert("Please choose a voting option.");
+		return false;}
+	if(document.VOTED.COMMENTS.value.length > 255){
+		alert("Please reduce the number of characters in your comment.");
+		document.forms[0].COMMENTS.focus();
+		return false;}
+	else return true;
+}
+//-->
+</SCRIPT>
+</FORM>
+<!--VOTING_END-->
+						</FONT>
+					</TD>
+				</TR>
+			</TABLE>
+			</CENTER>
+		</TD>
+<!--RIGHT_COLUMN_END-->
+	</TR>
+</TABLE>
+</BODY>
+</HTML>

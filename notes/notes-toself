@@ -1,0 +1,6 @@
+the FromBucket calls internally should use dread and so on,
+which advance the bucket pointer internally for themselves,
+but leave the pointer as it was when exited.
+
+the Apply calls internally use the FromBucket and dread calls,
+but in addition advance the count parameter accordingly.

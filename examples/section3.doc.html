@@ -1,0 +1,2118 @@
+<!--noncomplex document-->
+
+<html>
+			<head>
+	  		<META HTTP-EQUIV="Content-Type" CONTENT="text/html; 
+			charset=iso-8859-1">
+	  		<title>                Serial ROM format</title>
+	  		</head>
+	  		<body>
+
+<!--newpara-->
+
+<CENTER>
+<!--Normal Para Begin-->
+<font face="Arial,helvetica"  size="+4"><b>
+<hr width="50%">
+</b></font><font face="Times New Roman,helvetica"  ></font>
+<!--Normal Para End-->
+
+</CENTER>
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >1<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+
+<hr width="50%">
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >2<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<h1>
+<font face="Arial,helvetica"  size="+6"><b>1.Overview<a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Toc394285681"><a name="_Toc394288159"><a name="_Toc394288299"><a name="_Toc394292410"><a name="_Toc394292499"><a name="_Toc394373259"><a name="_Toc394373698"><a name="_Toc410372391"></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h1>
+<br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+</font>
+</h1>
+<br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<h1>
+<font   size="+6"><b>
+<hr width="50%">
+</b></font><font face="Times New Roman,helvetica"  ></font>
+</h1>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >3<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<h1>
+<font face="Arial,helvetica"  size="+6"><b>2.General SROM Format<a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Toc394285682"><a name="_Toc394288160"><a name="_Toc394288300"><a name="_Toc394292411"><a name="_Toc394292500"><a name="_Toc394373260"><a name="_Toc394373699"><a name="_Toc410372392"></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h1>
+<br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+
+<CENTER>
+<hr width="50%">
+</font>
+</h1>
+
+</CENTER>
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >4<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<h1>
+<font face="Arial,helvetica"  size="+6"><b>3.SROM Board Information<a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Ref366284846"><a name="_Toc394285683"><a name="_Toc394288161"><a name="_Toc394288301"><a name="_Toc394292412"><a name="_Toc394292501"><a name="_Toc394373261"><a name="_Toc394373700"><a name="_Toc410372393"></A></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h1>
+<br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+
+<DIV align=right><font face="Times New Roman,helvetica"  >
+<hr width="50%">
+</font>
+</h1>
+
+</DIV>
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >5<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<h1>
+<font   size="+6"><b>
+<hr width="50%">
+</b></font><font face="Times New Roman,helvetica"  ></font>
+</h1>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >6<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<h1>
+<font face="Arial,helvetica"  size="+6"><b>4.Magic Packet information block<a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Ref347481102"><a name="_Toc394285684"><a name="_Toc394288162"><a name="_Toc394288302"><a name="_Toc394292413"><a name="_Toc394292502"><a name="_Toc394373262"><a name="_Toc394373701"></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h1>
+<br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+
+<CENTER><font face="Times New Roman,helvetica"  >
+<hr width="50%">
+</font>
+</h1>
+
+</CENTER>
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >7<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<h1>
+<font face="Arial,helvetica"  size="+6"><b>5. Single function ID Block<a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Toc410372394"><a name="_Toc394285685"><a name="_Toc394288163"><a name="_Toc394288303"><a name="_Ref394289437"><a name="_Toc394292414"><a name="_Toc394292503"><a name="_Toc394373263"><a name="_Toc394373702"></A></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h1>
+<br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+</font>
+</h1>
+<br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<h1>
+<font   size="+6"><b>
+<hr width="50%">
+</b></font><font face="Times New Roman,helvetica"  ></font>
+</h1>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >8<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<h1>
+<font face="Arial,helvetica"  size="+6"><b><br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<hr width="50%">
+</b></font><font face="Times New Roman,helvetica"  ></font>
+</h1>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >9<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<h1>
+<font face="Arial,helvetica"  size="+6"><b><br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+6. Dual function ID Block<a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Toc410372395"><a name="_Toc394285686"><a name="_Toc394288164"><a name="_Toc394288304"><a name="_Ref394289443"><a name="_Toc394292415"><a name="_Toc394292504"><a name="_Toc394373264"><a name="_Toc394373703"></A></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h1>
+<br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  >
+<hr width="50%">
+</font>
+</h1>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >10<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+
+
+<h2>
+<font face="Arial,helvetica"  size="+4"><b>6.1</b></font><font face="Courier New,helvetica"  size="+4"><b></b></font><font face="Arial,helvetica"  size="+4"><b> Func1_HwOptions (offset 14d)<a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Toc410372396"><a name="_Ref394285335"><a name="_Toc394285687"><a name="_Toc394288165"><a name="_Toc394288305"><a name="_Toc394292416"><a name="_Toc394292505"><a name="_Toc394373265"><a name="_Toc394373704"></A></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h2>
+<br>
+
+
+<!--newpara-->
+<font face="Arial,helvetica"  size="-1">
+<hr width="50%">
+</font><font face="Times New Roman,helvetica"  ></font>
+</h2>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >11<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+
+<!--newpara-->
+<font face="Arial,helvetica"  size="-1"></font><br>
+
+<!--newpara-->
+
+
+<h2>
+<font face="Arial,helvetica"  size="+4"><b>MiscHwOptions (offset 15d)<a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Toc410372397"><a name="_Toc394285688"><a name="_Toc394288166"><a name="_Toc394288306"><a name="_Ref394291117"><a name="_Toc394292417"><a name="_Toc394292506"><a name="_Toc394373266"><a name="_Toc394373705"></A></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h2>
+<br>
+
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+
+<hr width="50%">
+</font>
+</h2>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >12<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+
+
+<h2>
+<font face="Arial,helvetica"  size="+4"><b></b></font><font face="Courier New,helvetica"  size="+4"><b></b></font><font face="Arial,helvetica"  size="+4"><b>Func0_HwOptions (offset 17d)<a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Toc410372398"><a name="_Toc394285689"><a name="_Toc394288167"><a name="_Toc394288307"><a name="_Ref394291163"><a name="_Toc394292418"><a name="_Toc394292507"><a name="_Toc394373267"><a name="_Toc394373706"></A></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h2>
+<br>
+
+
+<!--newpara-->
+
+<DIV align=right><font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+
+<hr width="50%">
+</font>
+</h2>
+
+</DIV>
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >13<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+
+<!--newpara-->
+
+<hr width="50%">
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >14<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<font face="Arial,helvetica"  size="-1"><br>
+
+<!--newpara-->
+</font><br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<h1>
+<font face="Courier New,helvetica"  size="+6"><b>7.</b></font><font face="Arial,helvetica"  size="+6"><b> CONTROLLER INFO LEAF</b></font><font face="Courier New,helvetica"  size="+6"><b><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Toc410372399"><a name="_Toc394285690"><a name="_Toc394288168"><a name="_Toc394288308"><a name="_Toc394292419"><a name="_Toc394292508"><a name="_Toc394373268"><a name="_Toc394373707"></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h1>
+<br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ></font>
+</h1>
+<br>
+
+<!--newpara-->
+
+
+<h2>
+<font face="Courier New,helvetica"  size="+4"><b>7.1</b></font><font face="Arial,helvetica"  size="+4"><b> Introduction<a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Toc410372400"><a name="_Toc394285691"><a name="_Toc394288169"><a name="_Toc394288309"><a name="_Toc394292420"><a name="_Toc394292509"><a name="_Toc394373269"><a name="_Toc394373708"></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h2>
+<br>
+
+
+<!--newpara-->
+<font face="Arial,helvetica"  size="+6"><b></b></font>
+</h2>
+<br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Toc410372401"></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg">.<b>
+<hr width="50%">
+</b></font>
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >15<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+
+
+<h2>
+<font face="Arial,helvetica"  size="+4"><b>7.2 21041 INFO LEAF<a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Toc394285692"><a name="_Toc394288170"><a name="_Toc394288310"><a name="_Toc394292421"><a name="_Toc394292510"><a name="_Toc394373270"><a name="_Toc394373709"><a name="_Toc410372402"></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h2>
+<br>
+
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ></font>
+</h2>
+<br>
+
+<!--newpara-->
+
+
+<h3>
+<font face="Arial,helvetica"  size="+2"><b>7.2.1 21041 Info Leaf Format<a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="#an99"><img src="file:/usr/local/lib/mswordview/patterns/doccommentb.jpg"><a name="_Toc394285693"><a name="_Toc394288171"></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h3>
+<br>
+
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<h1>
+<font   size="+6"><b>
+<hr width="50%">
+</b></font><font face="Times New Roman,helvetica"  ></font>
+</h1>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >16<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+
+
+<h3>
+<font face="Arial,helvetica"  size="+2"><b>7.2.2 21041 Media Block Format</A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h3>
+<br>
+
+
+<!--newpara-->
+<font face="Courier New,helvetica"  size="+2"><b></b></font><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+
+<hr width="50%">
+</font>
+</h3>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >17<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+
+
+<h2>
+<font face="Arial,helvetica"  size="+4"><b>7.3 21140 Info Leaf</A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h2>
+<br>
+
+
+<!--newpara-->
+<font face="Courier New,helvetica"  size="+2"><b></b></font>
+</h2>
+<br>
+
+<!--newpara-->
+
+
+<h3>
+<font face="Arial,helvetica"  size="+2"><b>7.3.1 21140 Info Leaf Format</A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h3>
+<br>
+
+
+<!--newpara-->
+
+<DIV align=right><font face="Times New Roman,helvetica"  >
+<hr width="50%">
+</font>
+</h3>
+
+</DIV>
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >18<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+
+<!--newpara-->
+
+<DIV align=right>
+</DIV><br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+ <br>
+
+<!--newpara-->
+
+<hr width="50%">
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >19<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+
+
+<h3>
+<font face="Arial,helvetica"  size="+2"><b>7.3.2 21140 Info Block Format</A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h3>
+<br>
+
+
+<!--newpara-->
+<font face="Courier New,helvetica"  size="+2"><b></b></font><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+</font>
+</h3>
+<br>
+
+<!--newpara-->
+
+
+<h4>
+<font face="Arial,helvetica"  size="+2"><b>7.3.2.1 21140 Compact Format</b></font>
+</h4>
+<br>
+
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+<b></b><br>
+
+<!--newpara-->
+
+<hr width="50%">
+</font>
+</h4>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >20<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+
+
+<h4>
+<font face="Arial,helvetica"  size="+2"><b>7.3.2.2 21140 Extended Format</b></font>
+</h4>
+<br>
+
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+
+<hr width="50%">
+</font>
+</h4>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >21<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+
+
+<h5>
+<font face="Arial,helvetica"  size="+2"><b>7.3.2.2.1 21140 Extended Format - Block Type 0</b></font>
+</h5>
+<br>
+
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  >
+<hr width="50%">
+</font>
+</h5>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >22<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+
+
+<h5>
+<font face="Arial,helvetica"  size="+2"><b>7.3.2.2.2 21140 Extended Format - Block Type 1</b></font>
+</h5>
+<br>
+
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+
+<hr width="50%">
+</font>
+</h5>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >23<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+
+
+<h5>
+<font face="Arial,helvetica"  size="+2"><b>7.3.2.2.3 21140 Extended Format - Block Type 5</b></font>
+</h5>
+<br>
+
+
+<!--newpara-->
+<font face="Courier New,helvetica"  size="+2"><b></b></font><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+
+<hr width="50%">
+</font>
+</h5>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >24<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+
+
+<h2>
+<font face="Arial,helvetica"  size="+4"><b>7.4 21142 Info Leaf</A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h2>
+<br>
+
+
+<!--newpara-->
+<font face="Courier New,helvetica"  size="+2"><b></b></font>
+</h2>
+<br>
+
+<!--newpara-->
+
+
+<h3>
+<font face="Arial,helvetica"  size="+2"><b>7.4.1 21142 Info Leaf Format</A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h3>
+<br>
+
+
+<!--newpara-->
+<font face="Courier New,helvetica"  size="+2"><b></b></font><br>
+
+<!--newpara-->
+
+<DIV align=right><font face="Times New Roman,helvetica"  >
+<hr width="50%">
+</font>
+</h3>
+
+</DIV>
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >25<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+
+<!--newpara-->
+
+<DIV align=right>
+</DIV><br>
+
+<!--newpara-->
+
+<hr width="50%">
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >26<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+
+<DIV align=right>
+</DIV><br>
+
+<!--newpara-->
+
+
+<h3>
+<font face="Arial,helvetica"  size="+2"><b>7.4.2 21142 Info Block Format</A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h3>
+<br>
+
+
+<!--newpara-->
+<font face="Courier New,helvetica"  size="+4"><b></b></font>
+</h3>
+<br>
+
+<!--newpara-->
+
+
+<h5>
+<font face="Arial,helvetica"  size="+2"><b>7.4.2.1.1 21142 Extended Format - Block Type 2</b></font>
+</h5>
+<br>
+
+
+<!--newpara-->
+<font face="Courier New,helvetica"  size="+2"><b></b></font><br>
+
+<!--newpara-->
+
+<DIV align=right><font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+
+<hr width="50%">
+</font>
+</h5>
+
+</DIV>
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >27<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+
+
+<h5>
+<font face="Arial,helvetica"  size="+2"><b>7.4.2.1.2 21142 Extended Format - Block Type 3</b></font>
+</h5>
+<br>
+
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+</font>
+</h5>
+<br>
+
+<!--newpara-->
+
+
+<h5>
+<font face="Arial,helvetica"  size="+2"><b>7.4.2.1.3 21142 Extended Format - Block Type 5</b></font>
+</h5>
+<br>
+
+
+<!--newpara-->
+<font face="Courier New,helvetica"  size="+2"><b></b></font><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  >
+<hr width="50%">
+</font>
+</h5>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >28<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendnewpage.gif"><br>
+
+<!--newpara-->
+
+
+<h2>
+<font face="Arial,helvetica"  size="+4"><b>7.5 21143 Info Leaf</A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h2>
+<br>
+
+
+<!--newpara-->
+<font face="Courier New,helvetica"  size="+2"><b></b></font>
+</h2>
+<br>
+
+<!--newpara-->
+
+
+<h3>
+<font face="Arial,helvetica"  size="+2"><b>7.5.1 21143 Info Leaf Format</A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h3>
+<br>
+
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  >
+<hr width="50%">
+</font>
+</h3>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >29<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+
+<DIV align=right>
+</DIV><br>
+
+<!--newpara-->
+
+
+<h3>
+<font face="Arial,helvetica"  size="+2"><b>7.5.2 21143 Info Block Format</A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h3>
+<br>
+
+
+<!--newpara-->
+
+<DIV align=right><font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+</font>
+</h3>
+
+</DIV><br>
+
+<!--newpara-->
+
+
+<h5>
+<font face="Arial,helvetica"  size="+2"><b>7.5.2.1.1 21143 Extended Format - Block Type 2</b></font>
+</h5>
+<br>
+
+
+<!--newpara-->
+<font face="Courier New,helvetica"  size="+2"><b></b></font><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ></font>
+</h5>
+<br>
+
+<!--newpara-->
+
+
+<h5>
+<font face="Arial,helvetica"  size="+2"><b>7.5.2.1.2 21143 Extended Format - Block Type 3</b></font>
+</h5>
+<br>
+
+
+<!--newpara-->
+<font face="Courier New,helvetica"  size="+2"><b></b></font><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ></font>
+</h5>
+<br>
+
+<!--newpara-->
+
+
+<h5>
+<font face="Arial,helvetica"  size="+2"><b>7.5.2.1.3 21143 Extended Format - Block Type 4</b></font>
+</h5>
+<br>
+
+
+<!--newpara-->
+
+<DIV align=right><font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+
+<hr width="50%">
+</font>
+</h5>
+
+</DIV>
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >30<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+
+
+<h5>
+<font face="Arial,helvetica"  size="+2"><b>7.5.2.1.4 21143 Extended Format - Block Type 5</b></font>
+</h5>
+<br>
+
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+
+<hr width="50%">
+</font>
+</h5>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >31<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+
+
+<h5>
+<font face="Arial,helvetica"  size="+2"><b>7.5.2.1.5 21143 (Rev 4.1 and Above) Extended Format - Block Type 6</b></font>
+</h5>
+<br>
+
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ></font><br>
+
+<!--newpara-->
+<font face="Arial,helvetica"  size="+4"><b>
+<hr width="50%">
+</b></font><font face="Times New Roman,helvetica"  ></font>
+</h5>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >32<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+
+<!--newpara-->
+<font face="Arial,helvetica"  size="+4"><b><br>
+
+<!--newpara-->
+Appendix A - SROM_CRC Calculation Algorithm</b></font><font face="Times New Roman,helvetica"  size="+4"><br>
+
+<!--newpara-->
+</font><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  >unsigned short CalcSromCrc(unsigned char *SromData);<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+#define&nbsp;&nbsp;DATA_LEN&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;126<img height=1 width=30 src="file:/usr/local/lib/mswordview/patterns/clear.gif">// 1024 bits SROM<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+struct {<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">unsigned char&nbsp;&nbsp;SromData[DATA_LEN];<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">unsigned short SromCRC;<br>
+
+<!--newpara-->
+ <img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">} Srom;<br>
+
+<!--newpara-->
+main()<br>
+
+<!--newpara-->
+{<br>
+
+<!--newpara-->
+ Srom.SromCRC = CalcSromCrc(&Srom.SromData);<br>
+
+<!--newpara-->
+}<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+unsigned short CalcSromCrc(unsigned char *SromData)<br>
+
+<!--newpara-->
+{<br>
+
+<!--newpara-->
+#define POLY 0x04C11DB6L<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;unsigned long crc = 0xFFFFFFFF;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;unsigned long FlippedCRC = 0;<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;unsigned char CurrentByte;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;unsigned Index;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;unsigned Bit;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;unsigned Msb;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;int i;<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;for (Index = 0; Index &lt; DATA_LEN; Index++)<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;{<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CurrentByte = SromData[Index];<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (Bit = 0; Bit &lt; 8; Bit++)<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Msb = (crc &gt;&gt; 31) & 1;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;crc &lt;&lt;= 1;<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (Msb ^ (CurrentByte & 1))<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;crc ^= POLY;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;crc |= 0x00000001;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CurrentByte &gt;&gt;= 1;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;}<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;for (i = 0; i &lt; 32; i++)<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;{<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FlippedCRC &lt;&lt;= 1;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Bit = crc & 1;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;crc &gt;&gt;= 1;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FlippedCRC += Bit;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;}<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;crc = FlippedCRC ^ 0xFFFFFFFF;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;return (crc & 0xFFFF);<br>
+
+<!--newpara-->
+}<br>
+
+<!--newpara-->
+
+<hr width="50%">
+</font>
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >33<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/sectionendcolumn.gif"><br>
+
+<!--newpara-->
+<font face="Arial,helvetica"  size="+4"><b><br>
+
+<!--newpara-->
+Appendix B - ID_BLOCK_CRC Calculation Algorithm</b></font><font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+/*<br>
+
+<!--newpara-->
+** This program calculates the CRC which sums the Serial ROM ID Block header and the Magic<br>
+
+<!--newpara-->
+** Information Block. <br>
+
+<!--newpara-->
+** In the case of the ID Block header, this serial ROM header of 9 words is read upon reset of<br>
+
+<!--newpara-->
+** the chip. If the CRC result of these 9 words equals 0, it means the data has <br>
+
+<!--newpara-->
+** been read correctly.<br>
+
+<!--newpara-->
+** In the case of the Magic info block, this data is read by the chip upon entering<br>
+
+<!--newpara-->
+** Magic mode. If the CRC result of these 16 words is equal zero, it means the<br>
+
+<!--newpara-->
+** data has been read correctly and the chip can enter Magic mode.<br>
+
+<!--newpara-->
+**<img height=1 width=42 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>
+
+<!--newpara-->
+** CRC is an 8 bit crc. Polynom is</font><font face="Arial,helvetica"  >&nbsp;&nbsp;&nbsp;x</font><font face="Times New Roman,helvetica"  ><sup>8</SUP>&nbsp;&nbsp;+</font><font face="Arial,helvetica"  >&nbsp;&nbsp;x</font><font face="Times New Roman,helvetica"  ><sup>2</SUP>&nbsp;&nbsp;+</font><font face="Arial,helvetica"  > x</font><font face="Times New Roman,helvetica"  ><sup>1</SUP>&nbsp;&nbsp;+ 1 .<br>
+
+<!--newpara-->
+** Note that contrary to a regular CRC, this CRC is calculated on the data stream<br>
+
+<!--newpara-->
+** from MSB 1'st to LSB. This is due to the nature of the SROM data stream<br>
+
+<!--newpara-->
+** which flows in this manner.<br>
+
+<!--newpara-->
+**<br>
+
+<!--newpara-->
+** Predefined SROM header:<br>
+
+<!--newpara-->
+**<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;WORD#<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">Meaning<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;-----------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-----------<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Subsystem vendor ID<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Subsystem ID<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CIS pointer LOW word<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CIS pointer HIGH word<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;High byte is reserved (value = 0), Low byte = CRC<br>
+
+<!--newpara-->
+**<br>
+
+<!--newpara-->
+** Predefined Magic block:<br>
+
+<!--newpara-->
+** <br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;WORD#<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">Meaning<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;-----------&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-----------<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2 <img height=1 width=42 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WOL IEEE addr low word<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WOL IEEE addr middle word<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WOL IEEE addr high word<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WOL Command word<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;13&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;14&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reserved (value = 0)<br>
+
+<!--newpara-->
+**&nbsp;&nbsp;&nbsp;&nbsp;15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;High byte is reserved (value = 0), Low byte = CRC<br>
+
+<!--newpara-->
+*/<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+main()<br>
+
+<!--newpara-->
+{<br>
+
+<!--newpara-->
+#define POLY 0x6<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+#define LEN 9 <img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">/* for ID Block */<br>
+
+<!--newpara-->
+#define LEN 16<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">/* for WOL block */<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+&nbsp;&nbsp;unsigned short DAT[LEN];<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+&nbsp;&nbsp;int i,Word,n;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;char Bit;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;unsigned char BitVal;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;unsigned char crc;<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+&nbsp;&nbsp;n=0;<br>
+
+<!--newpara-->
+&nbsp;&nbsp;crc = -1;<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+&nbsp;&nbsp;for (Word=0; Word&lt;LEN; Word++)<br>
+
+<!--newpara-->
+&nbsp;&nbsp;for (Bit=15; Bit&gt;=0; Bit--)<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">if ((Word == (LEN-1)) && (Bit == 7))<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;{<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;&nbsp;/*<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;&nbsp;** Insert the correct CRC result into input data stream in place.<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;&nbsp;*/<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;&nbsp;DAT[LEN-1] = (DAT[LEN-1] & 0xff00) | (unsigned short)crc;<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;&nbsp;break;<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;}<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">n++;<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">BitVal = ((DAT[Word] &gt;&gt; Bit) & 1) ^ ((crc &gt;&gt; 7) & 1);<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">crc = crc &lt;&lt; 1;<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">if (BitVal == 1)<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;{<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;&nbsp;crc ^= POLY;<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;&nbsp;crc |= 0x01;<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;}<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+
+<!--newpara-->
+</font><br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<h1>
+<font   size="+6"><b><br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+<img width=1 height=12 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+</b></font>
+</h1>
+<br>
+<img width=1 height=3 src=file:/usr/local/lib/mswordview/patterns/clear.gif><br>
+
+<!--newpara-->
+
+<DIV align=right><font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+</font>
+</h1>
+
+</DIV><br>
+
+<!--newpara-->
+
+<h2>
+<font face="Arial,helvetica"  size="+4"><b>Appendix C - CIS pointer setting from SROM</A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h2>
+<br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+CIS (Card Information Structure) is used in CardBus applications to store card's information. This information is a structure of bytes used by the system software. This specification defines two ways to store the CIS data (known as<i> Tuples</I>) in CardBus applications:<br>
+
+<!--newpara-->
+*BOOT ROM<br>
+
+<!--newpara-->
+*SROM<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+The CIS pointer register is defined in the PCI configuration space. It has a standard format defined in CardBus specification.<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+</font>
+<table border=1 width="442">
+
+<tr>
+
+<td valign="top" width="14%" >
+<font face="Times New Roman,helvetica"  >31&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;28</font>
+</td>
+
+<td valign="top" width="60%" >
+<font face="Times New Roman,helvetica"  >27&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3</font>
+</td>
+
+<td valign="top" width="26%" >
+<font face="Times New Roman,helvetica"  >2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</font>
+</td>
+
+<DIV align=right>
+</tr>
+
+<tr>
+
+<td valign="top" width="14%" >
+<font face="Times New Roman,helvetica"  >ROM Image</font>
+</td>
+
+<td valign="top" width="60%" >
+<font face="Times New Roman,helvetica"  >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address Space Offset</font>
+</td>
+
+<td valign="top" width="26%" >
+<font face="Times New Roman,helvetica"  >Address Space Indicator</font>
+</td>
+
+</tr>
+
+</table>
+<font face="Times New Roman,helvetica"  ><br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">CIS Pointer Layout (located in PCI config space)<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+The Address Space Indicator values can be one of two:<br>
+
+<!--newpara-->
+*2 - CIS data is stored in SROM<br>
+
+<!--newpara-->
+*7 - CIS data is stored in BOOT ROM<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+</font>
+</h2>
+
+</DIV><br>
+
+<!--newpara-->
+
+
+<h2>
+<font face="Arial,helvetica"  size="+4"><b>CIS data stored in SROM&nbsp;&nbsp;(Address Space Indicator = 2)</b></A></A></A></A></A></A></A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></font>
+</h2>
+<br>
+
+
+<!--newpara-->
+<font face="Courier New,helvetica"  size="+4"><b></b></font><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  >Use this option in case size of CIS data (Tuples) of a single function (Ethernet) or two functions (Ethernet and Modem) can fit in SROM.<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+To use this option, the SROM CIS Pointer Low bits 2:0 have to be set to 2 (010 binary). Tulpes are read in memory accesses mapped by CBMA base address register. The SROM can be of 1Kbits (128 bytes) or of 4Kbits (512 bytes). CBMA decodes the entire SROMs in memory range offsets of 200h:3FFh from CBMA value. <br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+CardBus CIS Pointer Low & CardBus CIS Pointer High contain the values that are used to construct the CIS pointer register in each function's configuration space. Each function get<i> its own</I> CIS pointer value. This means that each functions' CIS data is accessed at different offset in the same SROM. ROM Image number is not used if CIS points to memory space and hence this field's bits should be zeroed in the SROM.<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+The CIS pointer register for the Ethernet function is constructed by using the SROM CIS pointer field according to the following drawing:<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+</font>
+<table border=1 width="441">
+
+<tr>
+
+<td valign="top" width="14%" >
+<font face="Times New Roman,helvetica"  >31&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;28</font>
+</td>
+
+<td valign="top" width="60%" >
+<font face="Times New Roman,helvetica"  >27&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11&nbsp;&nbsp;&nbsp;10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3</font>
+</td>
+
+<td valign="top" width="25%" >
+<font face="Times New Roman,helvetica"  >2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</font>
+</td>
+
+<DIV align=right>
+</tr>
+
+<tr>
+
+<td valign="top" width="14%" >
+<font face="Times New Roman,helvetica"  >ROM Image</font>
+</td>
+
+<td valign="top" width="60%" >
+<font face="Times New Roman,helvetica"  >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address Space Offset</font>
+</td>
+
+<td valign="top" width="25%" >
+<font face="Times New Roman,helvetica"  >Address Space Indicator</font>
+</td>
+
+</tr>
+
+</table>
+
+<table border=1 width="441">
+
+<tr>
+
+<td valign="top" width="51%" >
+<font face="Times New Roman,helvetica"  >0&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;0</font>
+</td>
+
+<td valign="top" width="23%" >
+<font face="Times New Roman,helvetica"  >SROM CIS Pointer</font>
+</td>
+
+<td valign="top" width="25%" >
+<font face="Times New Roman,helvetica"  >0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</font>
+</td>
+
+</tr>
+
+<tr>
+
+<td valign="top" width="51%" >
+<font face="Times New Roman,helvetica"  ></font>&nbsp;
+</td>
+
+<td valign="top" width="23%" >
+<font face="Times New Roman,helvetica"  >Low &lt;15:8&gt;</font>
+</td>
+
+<td valign="top" width="25%" >
+<font face="Times New Roman,helvetica"  ></font>&nbsp;
+</td>
+
+</tr>
+
+</table>
+<font face="Times New Roman,helvetica"  >CIS Pointer register (located in PCI configuration space of<i> Ethernet</I> function) layout - SROM application<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+Note:<img height=1 width=24 src="file:/usr/local/lib/mswordview/patterns/clear.gif">SROM CIS Pointer Low bits 7:3 are MBZ.<br>
+
+<!--newpara-->
+
+<hr width="50%">
+</font>
+</h2>
+
+</DIV>
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >34<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+
+<!--newpara-->
+The CIS pointer register for the Modem function is constructed by using the SROM CIS pointer field<br>
+
+<!--newpara-->
+according to the following drawing:<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+
+<table border=1 width="441">
+
+<tr>
+
+<td valign="top" width="14%" >
+31&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;28
+</td>
+
+<td valign="top" width="60%" >
+27&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;11&nbsp;&nbsp;&nbsp;10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3
+</td>
+
+<td valign="top" width="25%" >
+2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0
+</td>
+
+<DIV align=right>
+</tr>
+
+</DIV>
+<tr>
+
+<td valign="top" width="14%" >
+ROM Image
+</td>
+
+<td valign="top" width="60%" >
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address Space Offset
+</td>
+
+<td valign="top" width="25%" >
+Address Space Indicator
+</td>
+
+<DIV align=right>
+</tr>
+
+</DIV>
+</table>
+
+<table border=1 width="441">
+
+<tr>
+
+<td valign="top" width="51%" >
+0&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;0
+</td>
+
+<td valign="top" width="23%" >
+SROM CIS Pointer
+</td>
+
+<td valign="top" width="25%" >
+0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0
+</td>
+
+<DIV align=right>
+</tr>
+
+</DIV>
+<tr>
+
+<td valign="top" width="51%" >
+&nbsp;
+</td>
+
+<td valign="top" width="23%" >
+High &lt;7:0&gt;
+</td>
+
+<td valign="top" width="25%" >
+&nbsp;
+</td>
+
+<DIV align=right>
+</tr>
+
+</DIV>
+</table>
+CIS Pointer register (located in PCI configuration space of<i> Modem</I> function) layout - SROM application<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+Note:<img height=1 width=24 src="file:/usr/local/lib/mswordview/patterns/clear.gif">- SROM CIS Pointer High bits 15:8 are MBZ.<br>
+
+<!--newpara-->
+- If Modem function is disabled (<font face="Arial,helvetica"  size="-1">ModemEnable = 0), then</font><font face="Times New Roman,helvetica"  > SROM CIS Pointer High bits 7:0 are MBZ.<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+</font><br>
+
+<!--newpara-->
+
+
+<h2>
+<font face="Arial,helvetica"  size="+4"><b>Calculating the value of the CIS pointer</A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"> field&nbsp;&nbsp;for CIS in SROM</A></A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h2>
+<br>
+
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  ><b></b><br>
+
+<!--newpara-->
+Assume we want to locate the Ethernet CIS block at byte address 90h in the SROM and the Modem CIS block at byte address 128h (both 90h and 128h are above the 80h size of the board info).<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+Ethernet CIS block Offset within the SROM<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">=&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;90h<br>
+
+<!--newpara-->
+SROM Offset from CBMA<img height=1 width=24 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">=&nbsp;&nbsp;&nbsp;200h<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+
+<!--newpara-->
+Ethernet CIS block offset from CBMA<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">=&nbsp;&nbsp;&nbsp;&nbsp;290h<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+Configuration Space CIS pointer for Ethernet CIS block:<br>
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">Offset = 290h&nbsp;&nbsp;= <img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">0000 0000 0000 0000 0000 0010 1001 0000<br>
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">SROM indicator:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;010<br>
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">The pointer:<img height=1 width=30 src="file:/usr/local/lib/mswordview/patterns/clear.gif">0000 0000 0000 0000 0000 0010 1001 0010<br>
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><b>Bits&lt;10:3&gt;:<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;010 1001 0</b><br>
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><b></b><br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+Modem CIS block Offset within the SROM<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">=&nbsp;&nbsp;&nbsp;128h<br>
+
+<!--newpara-->
+SROM Offset from CBMA<img height=1 width=24 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">=&nbsp;&nbsp;&nbsp;200h<br>
+
+<!--newpara-->
+<img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+
+<!--newpara-->
+Modem CIS block offset from CBMA&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">=&nbsp;&nbsp;&nbsp;328h<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+Configuration Space CIS pointer for Modem CIS block:<br>
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">Offset = 328h&nbsp;&nbsp;= <img height=1 width=48 src="file:/usr/local/lib/mswordview/patterns/clear.gif">0000 0000 0000 0000 0000 0011 0010 1000<br>
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">SROM indicator:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;010<br>
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">The pointer:<img height=1 width=30 src="file:/usr/local/lib/mswordview/patterns/clear.gif">0000 0000 0000 0000 0000 0011 0010 1010<br>
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><b>Bits&lt;10:3&gt;:<img height=1 width=30 src="file:/usr/local/lib/mswordview/patterns/clear.gif">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;011 0010 1</b><br>
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=36 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+
+<!--newpara-->
+The SROM CIS Pointer field:<br>
+
+<!--newpara-->
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2<br>
+
+<!--newpara-->
+0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;011 0010 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;010 1001 0&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;00000&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;010&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;&nbsp;&nbsp;&nbsp;00655202h<br>
+
+<!--newpara-->
+MBZ&nbsp;&nbsp;&nbsp;&nbsp;MBZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Modem CIS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Ethernet CIS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MBZ&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SROM<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+The SROM CIS field the indicates that the Ethernet CIS block is at offset 90h in the SROM and the Modem CIS block is at offset 128h in the SROM is: 00655202h.<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+
+<hr width="50%">
+</font>
+</h2>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >35<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+
+
+<h2>
+<font face="Arial,helvetica"  size="+4"><b>CIS data stored in BOOT ROM&nbsp;&nbsp;(Address Space Indicator = 7)</A></A><img src="file:/usr/local/lib/mswordview/patterns/doccommente.jpg"></b></font>
+</h2>
+<br>
+
+
+<!--newpara-->
+<font face="Arial,helvetica"  size="+4"><b></b></font><font face="Courier New,helvetica"  size="+4"><b>&nbsp;&nbsp;</b></font><br>
+
+<!--newpara-->
+<font face="Times New Roman,helvetica"  >Use this option in case size of CIS data (Tuples) of a single function (Ethernet) or two functions (Ethernet and Modem) is too big to fit in SROM. <br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+To use this option, the SROM CIS Pointer Low bits 2:0 have to be set to 7 (111 binary).<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+CardBus CIS Pointer Low & CardBus CIS Pointer High contain the values that are used to construct the CIS pointer register in each function's configuration space. Both functions get<i> same</I> CIS pointer value. This means that both functions' CIS data is accessed at 'same' offset and 'same' ROM Image number (from host software point of view). Each function has half of the physical BOOT ROM size. The Ethernet function gets the first half while the Modem function gets the second half of the physical BOOT ROM. The Ethernet or the Modem's half&nbsp;&nbsp;BOOT ROM is selected by the MSB bit of the BOOT ROM address lines according to its defined size.<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+The CIS pointer register for each function is constructed by using the SROM CIS pointer field according to the following drawing:<br>
+
+<!--newpara-->
+<br>
+
+<!--newpara-->
+</font>
+<table border=1 width="442">
+
+<tr>
+
+<td valign="top" width="14%" >
+<font face="Times New Roman,helvetica"  >31&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;28</font>
+</td>
+
+<td valign="top" width="60%" >
+<font face="Times New Roman,helvetica"  >27&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;16&nbsp;&nbsp;&nbsp;15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3</font>
+</td>
+
+<td valign="top" width="26%" >
+<font face="Times New Roman,helvetica"  >2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0</font>
+</td>
+
+<DIV align=right>
+</tr>
+
+<tr>
+
+<td valign="top" width="14%" >
+<font face="Times New Roman,helvetica"  >ROM Image</font>
+</td>
+
+<td valign="top" width="60%" >
+<font face="Times New Roman,helvetica"  >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Address Space Offset</font>
+</td>
+
+<td valign="top" width="26%" >
+<font face="Times New Roman,helvetica"  >Address Space Indicator</font>
+</td>
+
+</tr>
+
+</table>
+
+<table border=1 width="442">
+
+<tr>
+
+<td valign="top" width="50%" >
+<font face="Times New Roman,helvetica"  >SROM CIS Pointer</font>
+</td>
+
+<td valign="top" width="24%" >
+<font face="Times New Roman,helvetica"  >SROM CIS Pointer</font>
+</td>
+
+<td valign="top" width="26%" >
+<font face="Times New Roman,helvetica"  >1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1</font>
+</td>
+
+</tr>
+
+<tr>
+
+<td valign="top" width="50%" >
+<font face="Times New Roman,helvetica"  > High &lt;15:0&gt;</font>
+</td>
+
+<td valign="top" width="24%" >
+<font face="Times New Roman,helvetica"  >Low &lt;15:3&gt;</font>
+</td>
+
+<td valign="top" width="26%" >
+<font face="Times New Roman,helvetica"  ></font>&nbsp;
+</td>
+
+</tr>
+
+</table>
+<font face="Times New Roman,helvetica"  >CIS Pointer register (located in PCI configuration space of<i> each</I> function) layout - BOOT ROM application<br>
+
+<hr width="50%">
+</font>
+</h2>
+
+</DIV>
+<!--newpara-->
+<font face="Times New Roman,helvetica" color="#7f5555" >36<br>
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif">
+<!--newpara-->
+<img height=1 width=18 src="file:/usr/local/lib/mswordview/patterns/clear.gif"></font>
+<br><img src="file:/usr/local/lib/mswordview/patterns/documentend.gif">
+			<hr><p>
+			Document converted from ms word 8 by 
+			<a href="http://www.csn.ul.ie/~caolan/docs/MSWordView.html">
+			MSWordView</a>(wv ver 0.5.16)<br>
+			MSWordView written by <a href="mailto:Caolan.McNamara@ul.ie">
+			Caolan McNamara</a>
+			</body>
+			</html>

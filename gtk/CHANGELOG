@@ -1,0 +1,7 @@
+* grey out file info until a file is opened
+* on file open get ole streams if present, 
+* if summaryinfo stream is present ungrap file info
+* on fileinfo put the streaminfo stuff there + put the
+* preview if present there are well using the x wmf 
+  binding.
+

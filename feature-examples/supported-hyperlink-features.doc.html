@@ -1,0 +1,110 @@
+<html>
+<!--noncomplex document-->
+
+<head>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+</head>
+<body>
+<font  face="Times New Roman,Times">
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+</FONT>
+<CENTER><H1><font size = "+4"  face="Arial,Helvetica"><B>Hyperlinking<br>
+
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+</B></FONT></H1>
+
+</CENTER><font  face="Times New Roman,Times">nonhidden point bookmark link, <a href="#bookmark1">Jump to other location</a><a name="bookmark1"></A><br>
+Other location<br>
+
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+Hidden point bookmark link, <a href="#bookmark2">Jump to another location</a><a name="bookmark2"></A><br>
+Another location<br>
+
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+Nonhidden selection bookmark link, <a href="#bookmark3">Jump to this location</a><a name="bookmark3"><br>
+This location</A><br>
+
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+Hidden selection bookmark link, <a href="#bookmark4">jump to that location</a><a name="bookmark4"><br>
+That Location</A>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+Ordinary http link <a href="http://www.csn.ul.ie/~caolan/docs/MSWordView.html">http://www.csn.ul.ie/~caolan/docs/MSWordView.html</a><br>
+Ordinary mailto link <a href="mailto:caolan.mcnamara@ul.ie">mailto:caolan.mcnamara@ul.ie</a><br>
+
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+</FONT>
+<CENTER><H1><font size = "+4"  face="Arial,Helvetica"><B></B></font><font  face="Times New Roman,Times"></center>
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+<center>
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+</FONT><font size = "+4"  face="Arial,Helvetica"><B>CrossReferencing<br>
+
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+</B></FONT></H1>
+<H2><font size = "+2"  face="Arial,Helvetica"><B><I>Crossreference BookMark by Text<br>
+
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+</I></B></FONT></H2>
+
+</CENTER><font  face="Times New Roman,Times"><a name="cross">I am a particular reference selection bookmark</A><p>
+I reference the text&lt; I am a particular reference point bookmark<br>
+&gt; directly.<br>
+I reference the text&lt;I am a particular reference selection bookmark<br>
+&gt; as a hyperlink<p>
+
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+</FONT>
+<CENTER><H2><font size = "+2"  face="Arial,Helvetica"><B><I>Crossreference BookMark by Pagenumber<br>
+
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+</I></B></FONT></H2>
+
+</CENTER><font  face="Times New Roman,Times">I reference the pagenumber of the reference text &lt;<a href="#cross">*</a>&gt;<br>
+I reference bookmark 1's pagenumber with above/below &lt;<a href="#bookmark1">*</a>&gt;<br>
+I reference the reference bookmark with above/below &lt;<a href="#cross">*</a>&gt;<br>
+I reference the line below me with above/below &lt;<a href="#cross2">*</a>&gt;<a name="cross2"><br>
+I reference the final bookmark with above/below</A> &lt;<a href="#finalpoint">*</a><a name="_Hlt435979441"></A>&gt;<br>
+I reference the final bookmark with above/below without hyperlink &lt;<a href="#finalpoint">*</a>&gt;, this only matters<br>
+as to whether word should take a click on it to mean jump to that location<br>
+
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+</FONT>
+<CENTER><H2><font size = "+2"  face="Arial,Helvetica"><B><I>Crossreference BookMark by above below<br>
+
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+</I></B></FONT></H2>
+
+</CENTER><font  face="Times New Roman,Times">Reference above &lt;abo<a name="_Hlt435979431">v</A>e&gt;<br>
+Reference below&lt;below&gt;<p>
+
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+</FONT>
+<CENTER><H2><font size = "+2"  face="Arial,Helvetica"><B><I>Attempts to Break Crossreferencing BookMarks<br>
+
+<img width=1 height=4 src="file:/usr/local/lib/mswordview/patterns/clear.gif"><br>
+</I></B></FONT></H2>
+
+</CENTER><font  face="Times New Roman,Times"><br>
+I have been unable to create a bookmark that contains &quot; # or spaces, so I believe there cannot be any conflict with either the simple grammer I have devised for them or with html tags.<a name="inbookmark"><p>
+I am<a name="abookmark"> &quot;a bookmark&quot;</A> within a bookmark<p>
+I am a link to the internal bookmark on page <a href="#abookmark">*</a><br>
+I am a link to the external bookmark on page <a href="#inbookmark">*</a><a name="htmlbookmark"><p>
+I am a bookmark that contains a url <a href="#abookmark">abookmark</a></A><p>
+I reference the paragraph number of a bookmark 0<br>
+I reference the para num with no context 0<br>
+I reference the para num with full context 0
+<br><img src="file:/usr/local/lib/mswordview/patterns/pagebreak.gif"><br>
+<a name="finalpoint"></A>I am the last point bookmark</A><br>
+
+<br><img src="file:/usr/local/lib/mswordview/patterns/documentend.gif"><br>
+<hr><p>
+Document converted from word 8 by 
+<a href="http://www.csn.ul.ie/~caolan/docs/MSWordView.html">MSWordView</a> (mswordview 0.5.1)<br>
+MSWordView written by <a href="mailto:Caolan.McNamara@ul.ie">Caolan McNamara</a>
+</body>
+
+</html>

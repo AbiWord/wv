@@ -1,0 +1,204 @@
+.PU
+.TH mswordview 1 
+.SH NAME
+mswordview \- convert word 8 files to html
+.SH SYNOPSIS
+.ll +8
+.B mswordview [-v] [--version] [-n] [--nocredits] [-c] [--corehtmlonly] [-t seconds] [--timeout seconds] [-f points] 
+[--defaultfontsize points] [-w type] [--horizontalwhite type] [-u type] [--verticalwhite type] [-s url] 
+[--symbolurl url] [-p url] [--patternurl url] [-d url] [--wingdingurl url] [-h] [--ignoreheadings] [-a]
+[--noannotations] [-m] [--mainonly] [-b] [--riskbadole] [-e] [--nofontfaces] [-o filename] [--outputfile filename] 
+[-g erroroutputfile] [--errorfile erroroutputfile] [-y tabvalue] [--tabsize tabvalue] [-i dir] [--imagesdir dir] 
+[-j url] [--imagesurl url ] [-k] [--notablewidth] [-r] [--norevisions] [-x truetypedir] [--truetypedir truetypedir]
+[-z configfile] [--configfile configfile] filename
+.ll -8
+.br
+.SH DESCRIPTION
+.I mswordview
+breaks the OLE word document into its component
+streams, and then converts the document and its graphics to html. 
+.SS OPTIONS
+.TP
+.I "\-v, \-\-version"
+Output program version.
+.TP
+.I "\-n, \-\-nocredits"
+Dont append credits at end of the html output.
+.TP
+.I "\-c, \-\-corehtmlonly"
+Dont put <html> and </html> around output.
+.TP
+.I "\-f points, \-\-defaultpointsize points"
+The base pointsize for mswordview is 10 (like ms word), you can change this
+to a different size if you feel that your output is too large, otherwise e.g a 12
+point font becomes a html font+2, which can look too big. An aside here... many of the files that
+mswordview outputs are tagged as being in unicode, often this turns out to be unnecessary, but theres
+no sure way to know sometimes (short of examining every single character in advance to see if it falls into 
+the ascii range) if this header is necessary. Thus netscape will use a unicode font, as most european readers
+wont ever have read a document in this font they wont have customized the unicode base font size as they might have done
+the western font size. So if you have set your usual language encoding fontsize away from the default, then do the
+same for your unicode font, sorry about the long entry ;-)
+.TP
+.I "\-w type, \-\-horizontalwhite type"
+attempting to convert formatting done in word with whitespace such as space and tab is quite difficult.
+In html output theres no easy way to get nice lined up text using spaces so white space padding
+looks awful but of course so does no attempt to do formatting. So i have given five options, the default type is 0 but
+i am beginning to think that 2 is the best option really.
+.br
+.B 0
+convert runs of more than one space into hardcoded spaces i.e. &nbsp; 
+and convert tabs into a clear gif with width equal to the tabsize option.
+.br
+.B 1
+convert runs of more than one space into hardcoded spaces i.e. &nbsp;
+and convert tabs into a run of &nbsp;'s
+.br
+.B 2
+convert runs of more than one space into hardcoded spaces i.e. &nbsp;
+but dont convert tabs into anything.
+.br
+.B 3
+dont convert spaces into anything at all but
+convert tabs into a clear gif with width equal to the tabwidth option.
+.br
+.B 4
+dont convert spaces into anything at all but
+convert tabs into a run of &nbsp;'s
+.br
+.B 5
+dont convert spaces into anything at all and
+dont convert tabs into anything at all.
+.TP
+.I "\-u type, \-\-verticalwhite type"
+what to do with multiple line breaks is set here. There are three options for type i.e
+.br
+.B 0 
+the default, a single line break becomes a <br>, but if theres a run of more that one, then the first two are transformed
+into a <p>, if theres more then they are outputted as <br>, the intention here is to retain the meaning that
+word usually associates with two linebreaks, which is that thats the end of the paragraph, but to be aware
+and support the fact that the users of word often whack away madly at the return key to try and force formatting 
+decisions by that mechanism. 
+.br
+.B 1 
+replaces each line break one for one with a <br>
+.br
+.B 2 
+replaces a single line break with <br>, and a run of more that one (no matter how long) with a single <p>
+
+.TP
+.I "\-t seconds, \-\-timeout seconds"
+time out after so many 
+.BR seconds , 
+useful if you use this as a web gateway, coz theres noone watching the conversion process to 
+reaslize that iits gone into a busy loop.
+.I "\-s url, \-\-symbolurl url"
+this is the url that will be used to find the gif pics that are used for 
+displaying the ms symbol font. Not the tidiest of solutions for the
+problem, but it works.
+.TP
+.I "\-d url, \-\-wingdingurl url"
+this is the url that will be used to find the gif pics that are used for 
+displaying the ms wingding font. Not the tidiest of solutions for the
+problem, but it works.
+.TP
+.I "\-p url, \-\-patternurl url"
+this is the url that will be used to find the background patterns that msword
+can use as backdrops for cells of a table, this is hardly the most important
+of msword features, but theres always someone bleating for some feature that
+appears ridiculous to me to be included, so here this one is in all its glory.
+This dir is also used for any extra graphics that mswordview might use, e.g. the
+clear gif optionally used for tab.
+.TP
+.I "\-h, \-\-ignoreheadings"
+dont convert msword heading types into html heading levels, sometimes users use
+heading types inappropiately, if the user used heading types but changed the
+attributes to make the heading type inappropiate for html heading levels, use this
+option.
+.TP
+.I "\-a, \-\-noannotations"
+By default mswordview will output annotations, but msword itself doesnt print
+annotations when outputting to paper, so to not have them included use this
+option.
+.TP
+.I "\-m, \-\-mainonly"
+With this option then no footers or headers are shown.
+.TP
+.I "\-b, \-\-riskbadole"
+With this option on then mswordview will attempt to decode files whose ole tables
+are corrupt, more than likely the broken word file will crash mswordview, and crash
+it hard.
+.TP
+.I "\-e, \-\-nofontfaces"
+With this option set mswordview wont insert fontface tags, as it stands fontfaces
+are on by default, but this feature is alpha so it is only supported for ascii
+based languages (i.e western european only) and then only under certain conditions
+, as it is suprisingly difficult to be sure which of a few choices is the correct font
+to use otherwise.
+.TP
+.I "\-o filename, \-\-outputfile filename"
+set the filename to place output in, use - as the filename to output
+to standard output (the screen). The default is that output is put into
+a file the same name as the input file with a .html ending. Any graphic
+files created have the same prefix as this file.
+.TP
+.I "\-g filename, \-\-errorfile filename"
+set the filename to place error messages in. The default is the stderr
+(the screen)
+.TP
+.I "\-y tabvalue , \-\-tabsize tabvalue"
+specifies either the amount of pixels of indentation that a tab should be translated
+into, or the amount of hard spaces to replace one with, multiples of 8 only work in
+the second case. read the horitontalwhite entry to understand which one will get used. Pixels
+is the default measurement. This is messy because tabs are obviously messy things
+under html, and wed all be better off if they didnt exist at all, but we live in a 
+world where they get used for indentation, and worse, alignment, which youll
+basically just be damn lucky if you see any hint of that in the html output :-)
+Tabs basically just dont work.
+.TP
+.I "\-i directory, \-\-imagesdir directory"
+Specifies the dir into which the graphics will be saved into, the default is the
+same dir that the html file is placed in. If you use this but intend to move the graphics
+before viewing the html information, or for some other reason you want the html to
+link to the graphics with some custom img src url then use --imageurl in conjunction with this
+.TP
+.I "\-j url, \-\-imagesurl url"
+Specifies the url in which the graphics from the word doc can be found, the default is the
+same dir that mswordview put the graphics itself.
+.TP
+.I "\-k, \-\-notablewidth"
+With this on, table widths are not specified.
+.TP
+.I "\-r, \-\-norevisions"
+With this on, no revision marks are displayed
+.TP
+.I "\-x dir, \-\-truetypedir dir"
+Specifies the dir in which truetype fonts can be found to be used in the libwmf conversion
+of wmf files to gif. The default is the ttf subdir of the install dir of mswordview
+.TP
+.I "\-z file, \-\-configfile file"
+Specifies the configuration file of mswordview. The default is the install dir of mswordview.
+See the example config file for details of its format. mswordview can function fully without
+a config file.
+.SH BUGS
+I appear to have gone a little mad on the number of command line options, i have
+only 4 letters left l,q,x & z. Some of these options arent really needed, i dont
+use 
+.B any 
+of them myself :-)
+.PP
+mswordview can be incredibly slow when a document is fastsaved and has many tables.
+.SH MORE INFORMATION
+More information may be got at 
+http://www.gnu.org/~caolan/docs/MSWordView.html 
+or 
+http://skynet.csn.ul.ie/~caolan/docs/MSWordView.html
+.SH "SEE ALSO"
+.BR laola(1), 
+.BR lls(1), 
+.BR elser(1), 
+.BR catdoc(1), 
+.BR word2x(1)
+.SH "AUTHOR"
+ Caolan McNamara 
+ WWW: http://www.csn.ul.ie/~caolan/
+ Mail: Caolan.McNamara@ul.ie

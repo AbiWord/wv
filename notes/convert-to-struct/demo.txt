@@ -1,0 +1,1492 @@
+
+ 0   0x0000 fibh                  FIBH                   Beginning of the
+                                                         FIB header
+
+ 0   0x0000 wIdent                ushort                 magic number
+
+ 2   0x0002 nFib                  ushort                 FIB version
+                                                         written. This
+                                                         will be >= 101
+                                                         for all Word 6.0
+                                                         for Windows and
+                                                         after documents.
+
+ 4   0x0004 nProduct              ushort                 product version
+                                                         written by
+
+ 6   0x0006 lid                   ushort                 language stamp --
+                                                         localized version
+                                                         In pre-WinWord
+                                                         2.0 files this
+                                                         value was the
+                                                         nLocale. If value
+                                                         is < 999, then it
+                                                         is the nLocale,
+                                                         otherwise it is
+                                                         the lid.
+
+ 8   0x0008 pnNext                short
+
+ 10  0x000A fDot                  ushort   :1   0x0001   Set if this
+                                                         document is a
+                                                         template
+
+            fGlsy                 ushort   :1   0x0002   Set if this
+                                                         document is a
+                                                         glossary
+
+            fComplex              ushort   :1   0x0004   when 1, file is
+                                                         in complex,
+                                                         fast-saved
+                                                         format.
+
+            fHasPic               ushort   :1   0x0008   set if file
+                                                         contains 1 or
+                                                         more pictures
+
+            cQuickSaves           ushort   :4   0x00F0   count of times
+                                                         file was
+                                                         quicksaved
+
+            fEncrypted            ushort   :1   0x0100   Set if file is
+                                                         encrypted
+
+            fWhichTblStm          ushort   :1   0x0200   When 0, this fib
+                                                         refers to the
+                                                         table stream
+                                                         named "0Table",
+                                                         when 1, this fib
+                                                         refers to the
+                                                         table stream
+                                                         named "1Table".
+                                                         Normally, a file
+                                                         will have only
+                                                         one table stream,
+                                                         but under unusual
+                                                         circumstances a
+                                                         file may have
+                                                         table streams
+                                                         with both names.
+                                                         In that case,
+                                                         this flag must be
+                                                         used to decide
+                                                         which table
+                                                         stream is valid.
+
+            fReadOnlyRecommended  ushort   :1   0x0400   Set when user has
+                                                         recommended that
+                                                         file be read
+                                                         read-only
+
+            fWriteReservation     ushort   :1   0x0800   Set when file
+                                                         owner has made
+                                                         the file write
+                                                         reserved
+
+            fExtChar              ushort   :1   0x1000   Set when using
+                                                         extended
+                                                         character set in
+                                                         file
+
+            fLoadOverride         ushort   :1   0x2000   REVIEW
+
+            fFarEast              ushort   :1   0x4000   REVIEW
+
+            fCrypto               ushort   :1   0x8000   REVIEW
+
+ 12  0x000C nFibBack              ushort                 This file format
+                                                         it compatible
+                                                         with readers that
+                                                         understand nFib
+                                                         at or above this
+                                                         value.
+
+ 14  0x000E lKey                                         File encrypted
+                                                         key, only valid
+                                                         if fEncrypted.
+
+ 18  0x0012 envr                  uchar                  environment in
+                                                         which file was
+                                                         created
+                                                         0 created by Win
+                                                         Word
+                                                         1 created by Mac
+                                                         Word
+
+ 19  0x0013 fMac                  uchar    :1   0x01     when 1, this file
+                                                         was last saved in
+                                                         the Mac
+                                                         environment
+
+            fEmptySpecial         uchar    :1   0x02
+
+            fLoadOverridePage     uchar    :1   0x04
+
+            fFutureSavedUndo      uchar    :1   0x08
+
+            fWord97Saved          uchar    :1   0x10
+
+            fSpare0               uchar    :3   0xFE
+
+ 20  0x0014 chs                   ushort                 Default extended
+                                                         character set id
+                                                         for text in
+                                                         document stream.
+                                                         (overridden by
+                                                         chp.chse)
+                                                         0 by default
+                                                         characters in doc
+                                                         stream should be
+                                                         interpreted using
+                                                         the ANSI
+                                                         character set
+                                                         used by Windows
+                                                         256 characters in
+                                                         doc stream should
+                                                         be interpreted
+                                                         using the
+                                                         Macintosh
+                                                         character set.
+
+ 22  0x0016 chsTables             ushort                 Default extended
+                                                         character set id
+                                                         for text in
+                                                         internal data
+                                                         structures
+                                                         0 by default
+                                                         characters stored
+                                                         in internal data
+                                                         structures should
+                                                         be interpreted
+                                                         using the ANSI
+                                                         character set
+                                                         used by Windows
+                                                         256 characters
+                                                         stored in
+                                                         internal data
+                                                         structures should
+                                                         be interpreted
+                                                         using the
+                                                         Macintosh
+                                                         character set.
+
+ 24  0x0018 fcMin                 long                   file offset of
+                                                         first character
+                                                         of text. In
+                                                         non-complex files
+                                                         a CP can be
+                                                         transformed into
+                                                         an FC by the
+                                                         following
+                                                         transformation:
+                                                         fc = cp +
+                                                         fib.fcMin.
+
+ 28  0x001C fcMac                 long                   file offset of
+                                                         last character of
+                                                         text in document
+                                                         text stream + 1
+
+ 32  0x0020 csw                   ushort                 Count of fields
+                                                         in the array of
+                                                         "shorts"
+
+ 34  0x0022 rgsw                                         Beginning of the
+                                                         array of shorts
+
+ 34  0x0022 wMagicCreated                                unique number
+                                                         Identifying the
+                                                         File's creator
+                                                         0x6A62 is the
+                                                         creator ID for
+                                                         Word and is
+                                                         reserved. Other
+                                                         creators should
+                                                         choose a
+                                                         different value.
+
+ 36  0x0024 wMagicRevised                                identifies the
+                                                         File's last
+                                                         modifier
+
+ 38  0x0026 wMagicCreatedPrivate                         private data
+
+ 40  0x0028 wMagicRevisedPrivate                         private data
+
+ 42  0x002A pnFbpChpFirst_W6      short                  not used
+
+ 44  0x002C pnChpFirst_W6         short                  not used
+
+ 46  0x002E cpnBteChp_W6          short                  not used
+
+ 48  0x0030 pnFbpPapFirst_W6      short                  not used
+
+ 50  0x0032 pnPapFirst_W6         short                  not used
+
+ 52  0x0034 cpnBtePap_W6          short                  not used
+
+ 54  0x0036 pnFbpLvcFirst_W6      short                  not used
+
+ 56  0x0038 pnLvcFirst_W6         short                  not used
+
+ 58  0x003A cpnBteLvc_W6          short                  not used
+
+ 60  0x003C lidFE                 short                  Language id if
+                                                         document was
+                                                         written by Far
+                                                         East version of
+                                                         Word (i.e.
+                                                         FIB.fFarEast is
+                                                         on)
+
+ 62  0x003E clw                   ushort                 Number of fields
+                                                         in the array of
+                                                         longs
+
+ 64  0x0040 rglw                                         Beginning of the
+                                                         array of longs
+
+ 64  0x0040 cbMac                 long                   file offset of
+                                                         last byte written
+                                                         to file + 1.
+
+ 68  0x0044 lProductCreated                              contains the
+                                                         build date of the
+                                                         creator. 10695
+                                                         indicates the
+                                                         creator program
+                                                         was compiled on
+                                                         Jan 6, 1995
+
+ 72  0x0048 lProductRevised                              contains the
+                                                         build date of the
+                                                         File's last
+                                                         modifier
+
+ 76  0x004C ccpText               long                   length of main
+                                                         document text
+                                                         stream
+
+ 80  0x0050 ccpFtn                long                   length of
+                                                         footnote
+                                                         subdocument text
+                                                         stream
+
+ 84  0x0054 ccpHdd                long                   length of header
+                                                         subdocument text
+                                                         stream
+
+ 88  0x0058 ccpMcr                long                   length of macro
+                                                         subdocument text
+                                                         stream, which
+                                                         should now always
+                                                         be 0.
+
+ 92  0x005C ccpAtn                long                   length of
+                                                         annotation
+                                                         subdocument text
+                                                         stream
+
+ 96  0x0060 ccpEdn                long                   length of endnote
+                                                         subdocument text
+                                                         stream
+
+ 100 0x0064 ccpTxbx               long                   length of textbox
+                                                         subdocument text
+                                                         stream
+
+ 104 0x0068 ccpHdrTxbx            long                   length of header
+                                                         textbox
+                                                         subdocument text
+                                                         stream.
+
+ 108 0x006C pnFbpChpFirst         long                   when there was
+                                                         insufficient
+                                                         memory for Word
+                                                         to expand the
+                                                         plcfbte at save
+                                                         time, the plcfbte
+                                                         is written to the
+                                                         file in a linked
+                                                         list of 512-byte
+                                                         pieces starting
+                                                         with this pn
+
+ 112 0x0070 pnChpFirst            long                   the page number
+                                                         of the lowest
+                                                         numbered page in
+                                                         the document that
+                                                         records CHPX FKP
+                                                         information
+
+ 116 0x0074 cpnBteChp             long                   count of CHPX
+                                                         FKPs recorded in
+                                                         file. In
+                                                         non-complex files
+                                                         if the number of
+                                                         entries in the
+                                                         plcfbteChpx is
+                                                         less than this,
+                                                         the plcfbteChpx
+                                                         is incomplete.
+
+ 120 0x0078 pnFbpPapFirst         long                   when there was
+                                                         insufficient
+                                                         memory for Word
+                                                         to expand the
+                                                         plcfbte at save
+                                                         time, the plcfbte
+                                                         is written to the
+                                                         file in a linked
+                                                         list of 512-byte
+                                                         pieces starting
+                                                         with this pn
+
+ 124 0x007C pnPapFirst            long                   the page number
+                                                         of the lowest
+                                                         numbered page in
+                                                         the document that
+                                                         records PAPX FKP
+                                                         information
+
+ 128 0x0080 cpnBtePap             long                   count of PAPX
+                                                         FKPs recorded in
+                                                         file. In
+                                                         non-complex files
+                                                         if the number of
+                                                         entries in the
+                                                         plcfbtePapx is
+                                                         less than this,
+                                                         the plcfbtePapx
+                                                         is incomplete.
+
+ 132 0x0084 pnFbpLvcFirst         long                   when there was
+                                                         insufficient
+                                                         memory for Word
+                                                         to expand the
+                                                         plcfbte at save
+                                                         time, the plcfbte
+                                                         is written to the
+                                                         file in a linked
+                                                         list of 512-byte
+                                                         pieces starting
+                                                         with this pn
+
+ 136 0x0088 pnLvcFirst            long                   the page number
+                                                         of the lowest
+                                                         numbered page in
+                                                         the document that
+                                                         records LVC FKP
+                                                         information
+
+ 140 0x008C cpnBteLvc             long                   count of LVC FKPs
+                                                         recorded in file.
+                                                         In non-complex
+                                                         files if the
+                                                         number of entries
+                                                         in the
+                                                         plcfbtePapx is
+                                                         less than this,
+                                                         the plcfbtePapx
+                                                         is incomplete.
+
+ 144 0x0090 fcIslandFirst         long
+
+ 148 0x0094 fcIslandLim           long
+
+ 152 0x0098 cfclcb                ushort                 Number of fields
+                                                         in the array of
+                                                         FC/LCB pairs.
+
+ 154 0x009A rgfclcb                                      Beginning of
+                                                         array of FC/LCB
+                                                         pairs.
+
+ 154 0x009A fcStshfOrig           long                   file offset of
+                                                         original
+                                                         allocation for
+                                                         STSH in table
+                                                         stream. During
+                                                         fast save Word
+                                                         will attempt to
+                                                         reuse this
+                                                         allocation if
+                                                         STSH is small
+                                                         enough to fit.
+
+ 158 0x009E lcbStshfOrig          ulong                  count of bytes of
+                                                         original STSH
+                                                         allocation
+
+ 162 0x00A2 fcStshf               long                   offset of STSH in
+                                                         table stream.
+
+ 166 0x00A6 lcbStshf              ulong                  count of bytes of
+                                                         current STSH
+                                                         allocation
+
+ 170 0x00AA fcPlcffndRef          long                   offset in table
+                                                         stream of
+                                                         footnote
+                                                         reference PLCF of
+                                                         FRD structures.
+                                                         CPs in PLC are
+                                                         relative to main
+                                                         document text
+                                                         stream and give
+                                                         location of
+                                                         footnote
+                                                         references.
+
+ 174 0x00AE lcbPlcffndRef         ulong                  count of bytes of
+                                                         footnote
+                                                         reference PLC== 0
+                                                         if no footnotes
+                                                         defined in
+                                                         document.
+
+ 178 0x00B2 fcPlcffndTxt          long                   offset in table
+                                                         stream of
+                                                         footnote text
+                                                         PLC. CPs in PLC
+                                                         are relative to
+                                                         footnote
+                                                         subdocument text
+                                                         stream and give
+                                                         location of
+                                                         beginnings of
+                                                         footnote text for
+                                                         corresponding
+                                                         references
+                                                         recorded in
+                                                         plcffndRef. No
+                                                         structure is
+                                                         stored in this
+                                                         plc. There will
+                                                         just be n+1 FC
+                                                         entries in this
+                                                         PLC when there
+                                                         are n footnotes
+
+ 182 0x00B6 lcbPlcffndTxt         ulong                  count of bytes of
+                                                         footnote text
+                                                         PLC. == 0 if no
+                                                         footnotes defined
+                                                         in document
+
+ 186 0x00BA fcPlcfandRef          long                   offset in table
+                                                         stream of
+                                                         annotation
+                                                         reference ATRD
+                                                         PLC. The CPs
+                                                         recorded in this
+                                                         PLC give the
+                                                         offset of
+                                                         annotation
+                                                         references in the
+                                                         main document.
+
+ 190 0x00BE lcbPlcfandRef         ulong                  count of bytes of
+                                                         annotation
+                                                         reference PLC.
+
+ 194 0x00C2 fcPlcfandTxt          long                   offset in table
+                                                         stream of
+                                                         annotation text
+                                                         PLC. The Cps
+                                                         recorded in this
+                                                         PLC give the
+                                                         offset of the
+                                                         annotation text
+                                                         in the annotation
+                                                         sub document
+                                                         corresponding to
+                                                         the references
+                                                         stored in the
+                                                         plcfandRef. There
+                                                         is a 1 to 1
+                                                         correspondence
+                                                         between entries
+                                                         recorded in the
+                                                         plcfandTxt and
+                                                         the plcfandRef.
+                                                         No structure is
+                                                         stored in this
+                                                         PLC.
+
+ 198 0x00C6 lcbPlcfandTxt         ulong                  count of bytes of
+                                                         the annotation
+                                                         text PLC
+
+ 202 0x00CA fcPlcfsed             long                   offset in table
+                                                         stream of section
+                                                         descriptor SED
+                                                         PLC. CPs in PLC
+                                                         are relative to
+                                                         main document.
+
+ 206 0x00CE lcbPlcfsed            ulong                  count of bytes of
+                                                         section
+                                                         descriptor PLC.
+
+ 210 0x00D2 fcPlcpad              long                   no longer used
+
+ 214 0x00D6 lcbPlcpad             ulong                  no longer used
+
+ 218 0x00DA fcPlcfphe             long                   offset in table
+                                                         stream of PHE PLC
+                                                         of paragraph
+                                                         heights. CPs in
+                                                         PLC are relative
+                                                         to main document
+                                                         text stream. Only
+                                                         written for files
+                                                         in complex
+                                                         format. Should
+                                                         not be written by
+                                                         third party
+                                                         creators of Word
+                                                         files.
+
+ 222 0x00DE lcbPlcfphe            ulong                  count of bytes of
+                                                         paragraph height
+                                                         PLC. ==0 when
+                                                         file is
+                                                         non-complex.
+
+ 226 0x00E2 fcSttbfglsy           long                   offset in table
+                                                         stream of
+                                                         glossary string
+                                                         table. This table
+                                                         consists of
+                                                         Pascal style
+                                                         strings (strings
+                                                         stored prefixed
+                                                         with a length
+                                                         byte)
+                                                         concatenated one
+                                                         after another.
+
+ 230 0x00E6 lcbSttbfglsy          ulong                  count of bytes of
+                                                         glossary string
+                                                         table. == 0 for
+                                                         non-glossary
+                                                         documents.!=0 for
+                                                         glossary
+                                                         documents.
+
+ 234 0x00EA fcPlcfglsy            long                   offset in table
+                                                         stream of
+                                                         glossary PLC. CPs
+                                                         in PLC are
+                                                         relative to main
+                                                         document and mark
+                                                         the beginnings of
+                                                         glossary entries
+                                                         and are in 1-1
+                                                         correspondence
+                                                         with entries of
+                                                         sttbfglsy. No
+                                                         structure is
+                                                         stored in this
+                                                         PLC. There will
+                                                         be n+1 FC entries
+                                                         in this PLC when
+                                                         there are n
+                                                         glossary entries.
+
+ 238 0x00EE lcbPlcfglsy           ulong                  count of bytes of
+                                                         glossary PLC.== 0
+                                                         for non-glossary
+                                                         documents.!=0 for
+                                                         glossary
+                                                         documents.
+
+ 242 0x00F2 fcPlcfhdd             long                   byte offset in
+                                                         table stream of
+                                                         header HDD PLC.
+                                                         CPs are relative
+                                                         to header
+                                                         subdocument and
+                                                         mark the
+                                                         beginnings of
+                                                         individual
+                                                         headers in the
+                                                         header
+                                                         subdocument. No
+                                                         structure is
+                                                         stored in this
+                                                         PLC. There will
+                                                         be n+1 FC entries
+                                                         in this PLC when
+                                                         there are n
+                                                         headers stored
+                                                         for the document.
+
+ 246 0x00F6 lcbPlcfhdd            ulong                  count of bytes of
+                                                         header PLC.
+                                                         == 0 if document
+                                                         contains no
+                                                         headers
+
+ 250 0x00FA fcPlcfbteChpx         long                   offset in table
+                                                         stream of
+                                                         character
+                                                         property bin
+                                                         table.PLC. FCs in
+                                                         PLC are file
+                                                         offsets in the
+                                                         main stream.
+                                                         Describes text of
+                                                         main document and
+                                                         all subdocuments.
+
+ 254 0x00FE lcbPlcfbteChpx        ulong                  count of bytes of
+                                                         character
+                                                         property bin
+                                                         table PLC.
+
+ 258 0x0102 fcPlcfbtePapx         long                   offset in table
+                                                         stream of
+                                                         paragraph
+                                                         property bin
+                                                         table.PLC. FCs in
+                                                         PLC are file
+                                                         offsets in the
+                                                         main stream.
+                                                         Describes text of
+                                                         main document and
+                                                         all subdocuments.
+
+ 262 0x0106 lcbPlcfbtePapx        ulong                  count of bytes of
+                                                         paragraph
+                                                         property bin
+                                                         table PLC
+
+ 266 0x010A fcPlcfsea             long                   offset in table
+                                                         stream of PLC
+                                                         reserved for
+                                                         private use. The
+                                                         SEA is 6 bytes
+                                                         long.
+
+ 270 0x010E lcbPlcfsea            ulong                  count of bytes of
+                                                         private use PLC.
+
+ 274 0x0112 fcSttbfffn            long                   offset in table
+                                                         stream of font
+                                                         information
+                                                         STTBF. The
+                                                         sttbfffn is a
+                                                         STTBF where is
+                                                         string is
+                                                         actually an FFN
+                                                         structure. The
+                                                         nth entry in the
+                                                         STTBF describes
+                                                         the font that
+                                                         will be displayed
+                                                         when the chp.ftc
+                                                         for text is equal
+                                                         to n. See the FFN
+                                                         file structure
+                                                         definition.
+
+ 278 0x0116 lcbSttbfffn           ulong                  count of bytes in
+                                                         sttbfffn.
+
+ 282 0x011A fcPlcffldMom          long                   offset in table
+                                                         stream to the FLD
+                                                         PLC of field
+                                                         positions in the
+                                                         main document.
+                                                         The CPs point to
+                                                         the beginning CP
+                                                         of a field, the
+                                                         CP of field
+                                                         separator
+                                                         character inside
+                                                         a field and the
+                                                         ending CP of the
+                                                         field. A field
+                                                         may be nested
+                                                         within another
+                                                         field. 20 levels
+                                                         of field nesting
+                                                         are allowed.
+
+ 286 0x011E lcbPlcffldMom         ulong                  count of bytes in
+                                                         plcffldMom
+
+ 290 0x0122 fcPlcffldHdr          long                   offset in table
+                                                         stream to the FLD
+                                                         PLC of field
+                                                         positions in the
+                                                         header
+                                                         subdocument.
+
+ 294 0x0126 lcbPlcffldHdr         ulong                  count of bytes in
+                                                         plcffldHdr
+
+ 298 0x012A fcPlcffldFtn          long                   offset in table
+                                                         stream to the FLD
+                                                         PLC of field
+                                                         positions in the
+                                                         footnote
+                                                         subdocument.
+
+ 302 0x012E lcbPlcffldFtn         ulong                  count of bytes in
+                                                         plcffldFtn
+
+ 306 0x0132 fcPlcffldAtn          long                   offset in table
+                                                         stream to the FLD
+                                                         PLC of field
+                                                         positions in the
+                                                         annotation
+                                                         subdocument.
+
+ 310 0x0136 lcbPlcffldAtn         ulong                  count of bytes in
+                                                         plcffldAtn
+
+ 314 0x013A fcPlcffldMcr          long                   no longer used
+
+ 318 0x013E lcbPlcffldMcr         ulong                  no longer used
+
+ 322 0x0142 fcSttbfbkmk           long                   offset in table
+                                                         stream of the
+                                                         STTBF that
+                                                         records bookmark
+                                                         names in the main
+                                                         document
+
+ 326 0x0146 lcbSttbfbkmk          ulong
+
+ 330 0x014A fcPlcfbkf             long                   offset in table
+                                                         stream of the
+                                                         PLCF that records
+                                                         the beginning CP
+                                                         offsets of
+                                                         bookmarks in the
+                                                         main document.
+                                                         See BKF structure
+                                                         definition
+
+ 334 0x014E lcbPlcfbkf            ulong
+
+ 338 0x0152 fcPlcfbkl             long                   offset in table
+                                                         stream of the
+                                                         PLCF that records
+                                                         the ending CP
+                                                         offsets of
+                                                         bookmarks
+                                                         recorded in the
+                                                         main document. No
+                                                         structure is
+                                                         stored in this
+                                                         PLCF.
+
+ 342 0x0156 lcbPlcfbkl            ulong
+
+ 346 0x015A fcCmds                long                   offset in table
+                                                         stream of the
+                                                         macro commands.
+                                                         These commands
+                                                         are private and
+                                                         undocumented.
+
+ 350 0x015E lcbCmds               ulong                  undocument size
+                                                         of undocument
+                                                         structure not
+                                                         documented above
+
+ 354 0x0162 fcPlcmcr              long                   no longer used
+
+ 358 0x0166 lcbPlcmcr             ulong
+
+ 362 0x016A fcSttbfmcr            long                   no longer used
+
+ 366 0x016E lcbSttbfmcr           ulong
+
+ 370 0x0172 fcPrDrvr              long                   offset in table
+                                                         stream of the
+                                                         printer driver
+                                                         information
+                                                         (names of
+                                                         drivers, port,
+                                                         etc.)
+
+ 374 0x0176 lcbPrDrvr             ulong                  count of bytes of
+                                                         the printer
+                                                         driver
+                                                         information
+                                                         (names of
+                                                         drivers, port,
+                                                         etc.)
+
+ 378 0x017A fcPrEnvPort           long                   offset in table
+                                                         stream of the
+                                                         print environment
+                                                         in portrait mode.
+
+ 382 0x017E lcbPrEnvPort          ulong                  count of bytes of
+                                                         the print
+                                                         environment in
+                                                         portrait mode.
+
+ 386 0x0182 fcPrEnvLand           long                   offset in table
+                                                         stream of the
+                                                         print environment
+                                                         in landscape
+                                                         mode.
+
+ 390 0x0186 lcbPrEnvLand          ulong                  count of bytes of
+                                                         the print
+                                                         environment in
+                                                         landscape mode.
+
+ 394 0x018A fcWss                 long                   offset in table
+                                                         stream of Window
+                                                         Save State data
+                                                         structure. WSS
+                                                         contains
+                                                         dimensions of
+                                                         document's main
+                                                         text window and
+                                                         the last
+                                                         selection made by
+                                                         Word user.
+
+ 398 0x018E lcbWss                ulong                  count of bytes of
+                                                         WSS. ==0 if
+                                                         unable to store
+                                                         the window state.
+                                                         Should not be
+                                                         written by third
+                                                         party creators of
+                                                         Word files.
+
+ 402 0x0192 fcDop                 long                   offset in table
+                                                         stream of
+                                                         document property
+                                                         data structure.
+
+ 406 0x0196 lcbDop                ulong                  count of bytes of
+                                                         document
+                                                         properties.
+
+ 410 0x019A fcSttbfAssoc          long                   offset in table
+                                                         stream of STTBF
+                                                         of associated
+                                                         strings. The
+                                                         strings in this
+                                                         table specify
+                                                         document summary
+                                                         info and the
+                                                         paths to special
+                                                         documents related
+                                                         to this document.
+                                                         See documentation
+                                                         of the
+                                                         STTBFASSOC.
+
+ 414 0x019E lcbSttbfAssoc         ulong
+
+ 418 0x01A2 fcClx                 long                   offset in table
+                                                         stream of
+                                                         beginning of
+                                                         information for
+                                                         complex files.
+                                                         Consists of an
+                                                         encoding of all
+                                                         of the prms
+                                                         quoted by the
+                                                         document followed
+                                                         by the plcpcd
+                                                         (piece table) for
+                                                         the document.
+
+ 422 0x01A6 lcbClx                ulong                  count of bytes of
+                                                         complex file
+                                                         information == 0
+                                                         if file is
+                                                         non-complex.
+
+ 426 0x01AA fcPlcfpgdFtn          long                   not used
+
+ 430 0x01AE lcbPlcfpgdFtn         ulong
+
+ 434 0x01B2 fcAutosaveSource      long                   offset in table
+                                                         stream of the
+                                                         name of the
+                                                         original file.
+                                                         fcAutosaveSource
+                                                         and
+                                                         cbAutosaveSource
+                                                         should both be 0
+                                                         if autosave is
+                                                         off.
+
+ 438 0x01B6 lcbAutosaveSource     ulong                  count of bytes of
+                                                         the name of the
+                                                         original file.
+
+ 442 0x01BA fcGrpXstAtnOwners     long                   offset in table
+                                                         stream of group
+                                                         of strings
+                                                         recording the
+                                                         names of the
+                                                         owners of
+                                                         annotations
+                                                         stored in the
+                                                         document
+
+ 446 0x01BE lcbGrpXstAtnOwners    ulong                  count of bytes of
+                                                         the group of
+                                                         strings
+
+ 450 0x01C2 fcSttbfAtnbkmk        long                   offset in table
+                                                         stream of the
+                                                         sttbf that
+                                                         records names of
+                                                         bookmarks for the
+                                                         annotation
+                                                         subdocument
+
+ 454 0x01C6 lcbSttbfAtnbkmk       ulong                  length in bytes
+                                                         of the sttbf that
+                                                         records names of
+                                                         bookmarks for the
+                                                         annotation
+                                                         subdocument
+
+ 458 0x01CA fcPlcdoaMom           long                   no longer used
+
+ 462 0x01CE lcbPlcdoaMom          ulong
+
+ 466 0x01D2 fcPlcdoaHdr           long                   no longer used
+
+ 470 0x01D6 lcbPlcdoaHdr          ulong
+
+ 474 0x01DA fcPlcspaMom           long                   offset in table
+                                                         stream of the
+                                                         FSPA PLC for main
+                                                         document. == 0 if
+                                                         document has no
+                                                         office art
+                                                         objects.
+
+ 478 0x01DE lcbPlcspaMom          ulong                  length in bytes
+                                                         of the FSPA PLC
+                                                         of the main
+                                                         document.
+
+ 482 0x01E2 fcPlcspaHdr           long                   offset in table
+                                                         stream of the
+                                                         FSPA PLC for
+                                                         header document.
+                                                         == 0 if document
+                                                         has no office art
+                                                         objects.
+
+ 486 0x01E6 lcbPlcspaHdr          ulong                  length in bytes
+                                                         of the FSPA PLC
+                                                         of the header
+                                                         document.
+
+ 490 0x01EA fcPlcfAtnbkf          long                   offset in table
+                                                         stream of BKF
+                                                         (bookmark first)
+                                                         PLC of the
+                                                         annotation
+                                                         subdocument
+
+ 494 0x01EE lcbPlcfAtnbkf         ulong                  length in bytes
+                                                         of BKF (bookmark
+                                                         first) PLC of the
+                                                         annotation
+                                                         subdocument
+
+ 498 0x01F2 fcPlcfAtnbkl          long                   offset in table
+                                                         stream of BKL
+                                                         (bookmark last)
+                                                         PLC of the
+                                                         annotation
+                                                         subdocument
+
+ 502 0x01F6 lcbPlcfAtnbkl         ulong                  length in bytes
+                                                         of PLC marking
+                                                         the CP limits of
+                                                         the annotation
+                                                         bookmarks. No
+                                                         structure is
+                                                         stored in this
+                                                         PLC.
+
+ 506 0x01FA fcPms                 long                   offset in table
+                                                         stream of PMS
+                                                         (Print Merge
+                                                         State)
+                                                         information
+                                                         block. This
+                                                         contains the
+                                                         current state of
+                                                         a print merge
+                                                         operation
+
+ 510 0x01FE lcbPms                ulong                  length in bytes
+                                                         of PMS. ==0 if no
+                                                         current print
+                                                         merge state.
+                                                         Should not be
+                                                         written by third
+                                                         party creators of
+                                                         Word files.
+
+ 514 0x0202 fcFormFldSttbs        long                   offset in table
+                                                         stream of form
+                                                         field Sttbf which
+                                                         contains strings
+                                                         used in form
+                                                         field dropdown
+                                                         controls
+
+ 518 0x0206 lcbFormFldSttbs       ulong                  length in bytes
+                                                         of form field
+                                                         Sttbf
+
+ 522 0x020A fcPlcfendRef          long                   offset in table
+                                                         stream of endnote
+                                                         reference PLCF of
+                                                         FRD structures.
+                                                         CPs in PLCF are
+                                                         relative to main
+                                                         document text
+                                                         stream and give
+                                                         location of
+                                                         endnote
+                                                         references.
+
+ 526 0x020E lcbPlcfendRef         ulong
+
+ 530 0x0212 fcPlcfendTxt          long                   offset in table
+                                                         stream of
+                                                         PlcfendRef which
+                                                         points to endnote
+                                                         text in the
+                                                         endnote document
+                                                         stream which
+                                                         corresponds with
+                                                         the plcfendRef.
+                                                         No structure is
+                                                         stored in this
+                                                         PLC.
+
+ 534 0x0216 lcbPlcfendTxt         ulong
+
+ 538 0x021A fcPlcffldEdn          long                   offset in table
+                                                         stream to FLD
+                                                         PLCF of field
+                                                         positions in the
+                                                         endnote subdoc
+
+ 542 0x021E lcbPlcffldEdn         ulong
+
+ 546 0x0222 fcPlcfpgdEdn          long                   not used
+
+ 550 0x0226 lcbPlcfpgdEdn         ulong
+
+ 554 0x022A fcDggInfo             long                   offset in table
+                                                         stream of the
+                                                         office art object
+                                                         table data. The
+                                                         format of office
+                                                         art object table
+                                                         data is found in
+                                                         a separate
+                                                         document.
+
+ 558 0x022E lcbDggInfo            ulong                  length in bytes
+                                                         of the office art
+                                                         object table data
+
+ 562 0x0232 fcSttbfRMark          long                   offset in table
+                                                         stream to STTBF
+                                                         that records the
+                                                         author
+                                                         abbreviations for
+                                                         authors who have
+                                                         made revisions in
+                                                         the document.
+
+ 566 0x0236 lcbSttbfRMark         ulong
+
+ 570 0x023A fcSttbCaption         long                   offset in table
+                                                         stream to STTBF
+                                                         that records
+                                                         caption titles
+                                                         used in the
+                                                         document.
+
+ 574 0x023E lcbSttbCaption        ulong
+
+ 578 0x0242 fcSttbAutoCaption     long                   offset in table
+                                                         stream to the
+                                                         STTBF that
+                                                         records the
+                                                         object names and
+                                                         indices into the
+                                                         caption STTBF for
+                                                         objects which get
+                                                         auto captions.
+
+ 582 0x0246 lcbSttbAutoCaption    ulong
+
+ 586 0x024A fcPlcfwkb             long                   offset in table
+                                                         stream to WKB
+                                                         PLCF that
+                                                         describes the
+                                                         boundaries of
+                                                         contributing
+                                                         documents in a
+                                                         master document
+
+ 590 0x024E lcbPlcfwkb            ulong
+
+ 594 0x0252 fcPlcfspl             long                   offset in table
+                                                         stream of PLCF
+                                                         (of SPLS
+                                                         structures) that
+                                                         records spell
+                                                         check state
+
+ 598 0x0256 lcbPlcfspl            ulong
+
+ 602 0x025A fcPlcftxbxTxt         long                   offset in table
+                                                         stream of PLCF
+                                                         that records the
+                                                         beginning CP in
+                                                         the text box
+                                                         subdoc of the
+                                                         text of
+                                                         individual text
+                                                         box entries. No
+                                                         structure is
+                                                         stored in this
+                                                         PLCF
+
+ 606 0x025E lcbPlcftxbxTxt        ulong
+
+ 610 0x0262 fcPlcffldTxbx         long                   offset in table
+                                                         stream of the FLD
+                                                         PLCF that records
+                                                         field boundaries
+                                                         recorded in the
+                                                         textbox subdoc.
+
+ 614 0x0266 lcbPlcffldTxbx        ulong
+
+ 618 0x026A fcPlcfhdrtxbxTxt      long                   offset in table
+                                                         stream of PLCF
+                                                         that records the
+                                                         beginning CP in
+                                                         the header text
+                                                         box subdoc of the
+                                                         text of
+                                                         individual header
+                                                         text box entries.
+                                                         No structure is
+                                                         stored in this
+                                                         PLC.
+
+ 622 0x026E lcbPlcfhdrtxbxTxt     ulong
+
+ 626 0x0272 fcPlcffldHdrTxbx      long                   offset in table
+                                                         stream of the FLD
+                                                         PLCF that records
+                                                         field boundaries
+                                                         recorded in the
+                                                         header textbox
+                                                         subdoc.
+
+ 630 0x0276 lcbPlcffldHdrTxbx     ulong
+
+ 634 0x027A fcStwUser             long                   Macro User
+                                                         storage
+
+ 638 0x027E lcbStwUser            ulong
+
+ 642 0x0282 fcSttbttmbd           long                   offset in table
+                                                         stream of
+                                                         embedded true
+                                                         type font data.
+
+ 646 0x0286 cbSttbttmbd           ulong
+
+ 650 0x028A fcUnused              long
+
+ 654 0x028E lcbUnused             ulong
+
+ 658 0x0292 rgpgdbkd              FCPGD                  beginning of
+                                                         array of fcPgd /
+                                                         fcBkd pairs
+
+ 658 0x0292 fcPgdMother           long                   offset in table
+                                                         stream of the PLF
+                                                         that records the
+                                                         page descriptors
+                                                         for the main text
+                                                         of the doc.
+
+ 662 0x0296 lcbPgdMother          ulong
+
+ 666 0x029A fcBkdMother           long                   offset in table
+                                                         stream of the
+                                                         PLCF that records
+                                                         the break
+                                                         descriptors for
+                                                         the main text of
+                                                         the doc.
+
+ 670 0x029E lcbBkdMother          ulong
+
+ 674 0x02A2 fcPgdFtn              long                   offset in table
+                                                         stream of the PLF
+                                                         that records the
+                                                         page descriptors
+                                                         for the footnote
+                                                         text of the doc.
+
+ 678 0x02A6 lcbPgdFtn             ulong
+
+ 682 0x02AA fcBkdFtn              long                   offset in table
+                                                         stream of the
+                                                         PLCF that records
+                                                         the break
+                                                         descriptors for
+                                                         the footnote text
+                                                         of the doc.
+
+ 686 0x02AE lcbBkdFtn             ulong
+
+ 690 0x02B2 fcPgdEdn              long                   offset in table
+                                                         stream of the PLF
+                                                         that records the
+                                                         page descriptors
+                                                         for the endnote
+                                                         text of the doc.
+
+ 694 0x02B6 lcbPgdEdn             ulong
+
+ 698 0x02BA fcBkdEdn              long                   offset in table
+                                                         stream of the
+                                                         PLCF that records
+                                                         the break
+                                                         descriptors for
+                                                         the endnote text
+                                                         of the doc.
+
+ 702 0x02BE lcbBkdEdn             ulong
+
+ 706 0x02C2 fcSttbfIntlFld        long                   offset in table
+                                                         stream of the
+                                                         STTBF containing
+                                                         field keywords.
+                                                         This is only used
+                                                         in a small number
+                                                         of the
+                                                         international
+                                                         versions of word.
+                                                         This field is no
+                                                         longer written to
+                                                         the file for nFib
+                                                         >= 167.
+
+ 710 0x02C6 lcbSttbfIntlFld       ulong                  Always 0 for nFib
+                                                         >= 167.
+
+ 714 0x02CA fcRouteSlip           long                   offset in table
+                                                         stream of a
+                                                         mailer routing
+                                                         slip.
+
+ 718 0x02CE lcbRouteSlip          ulong
+
+ 722 0x02D2 fcSttbSavedBy         long                   offset in table
+                                                         stream of STTBF
+                                                         recording the
+                                                         names of the
+                                                         users who have
+                                                         saved this
+                                                         document
+                                                         alternating with
+                                                         the save
+                                                         locations.
+
+ 726 0x02D6 lcbSttbSavedBy        ulong
+
+ 730 0x02DA fcSttbFnm             long                   offset in table
+                                                         stream of STTBF
+                                                         recording
+                                                         filenames of
+                                                         documents which
+                                                         are referenced by
+                                                         this document.
+
+ 734 0x02DE lcbSttbFnm            ulong
+
+ 738 0x02E2 fcPlcfLst             long                   offset in the
+                                                         table stream of
+                                                         list format
+                                                         information.
+
+ 742 0x02E6 lcbPlcfLst            ulong
+
+ 746 0x02EA fcPlfLfo              long                   offset in the
+                                                         table stream of
+                                                         list format
+                                                         override
+                                                         information.
+
+ 750 0x02EE lcbPlfLfo             ulong
+
+ 754 0x02F2 fcPlcftxbxBkd         long                   offset in the
+                                                         table stream of
+                                                         the textbox break
+                                                         table (a PLCF of
+                                                         BKDs) for the
+                                                         main document
+
+ 758 0x02F6 lcbPlcftxbxBkd        ulong
+
+ 762 0x02FA fcPlcftxbxHdrBkd      long                   offset in the
+                                                         table stream of
+                                                         the textbox break
+                                                         table (a PLCF of
+                                                         BKDs) for the
+                                                         header
+                                                         subdocument
+
+ 766 0x02FE lcbPlcftxbxHdrBkd     ulong
+
+ 770 0x0302 fcDocUndo             long                   offset in main
+                                                         stream of
+                                                         undocumented undo
+                                                         / versioning data
+
+ 774 0x0306 lcbDocUndo            ulong
+
+ 778 0x030A fcRgbuse              long                   offset in main
+                                                         stream of
+                                                         undocumented undo
+                                                         / versioning data
+
+ 782 0x030E lcbRgbuse             ulong
+
+ 786 0x0312 fcUsp                 long                   offset in main
+                                                         stream of
+                                                         undocumented undo
+                                                         / versioning data
+
+ 790 0x0316 lcbUsp                ulong
+
+ 794 0x031A fcUskf                long                   offset in table
+                                                         stream of
+                                                         undocumented undo
+                                                         / versioning data
+
+ 798 0x031E lcbUskf               ulong
+
+ 802 0x0322 fcPlcupcRgbuse        long                   offset in table
+                                                         stream of
+                                                         undocumented undo
+                                                         / versioning data
+
+ 806 0x0326 lcbPlcupcRgbuse       ulong
+
+ 810 0x032A fcPlcupcUsp           long                   offset in table
+                                                         stream of
+                                                         undocumented undo
+                                                         / versioning data
+
+ 814 0x032E lcbPlcupcUsp          ulong
+
+ 818 0x0332 fcSttbGlsyStyle       long                   offset in table
+                                                         stream of string
+                                                         table of style
+                                                         names for
+                                                         glossary entries
+
+ 822 0x0336 lcbSttbGlsyStyle      ulong
+
+ 826 0x033A fcPlgosl              long                   offset in table
+                                                         stream of
+                                                         undocumented
+                                                         grammar options
+                                                         PL
+
+ 830 0x033E lcbPlgosl             ulong
+
+ 834 0x0342 fcPlcocx              long                   offset in table
+                                                         stream of
+                                                         undocumented ocx
+                                                         data
+
+ 838 0x0346 lcbPlcocx             ulong
+
+ 842 0x034A fcPlcfbteLvc          long                   offset in table
+                                                         stream of
+                                                         character
+                                                         property bin
+                                                         table.PLC. FCs in
+                                                         PLC are file
+                                                         offsets.
+                                                         Describes text of
+                                                         main document and
+                                                         all subdocuments.
+
+ 846 0x034E lcbPlcfbteLvc         ulong
+
+ 850 0x0352 ftModified            FILETIME
+
+ 850 0x0352 dwLowDateTime         ulong
+
+ 854 0x0356 dwHighDateTime        ulong
+
+ 858 0x035A fcPlcflvc             long                   offset in table
+                                                         stream of LVC
+                                                         PLCF
+
+ 862 0x035E lcbPlcflvc            ulong                  size of LVC PLCF,
+                                                         ==0 for
+                                                         non-complex files
+
+ 866 0x0362 fcPlcasumy            long                   offset in table
+                                                         stream of
+                                                         autosummary ASUMY
+                                                         PLCF.
+
+ 870 0x0366 lcbPlcasumy           ulong
+
+ 874 0x036A fcPlcfgram            long                   offset in table
+                                                         stream of PLCF
+                                                         (of SPLS
+                                                         structures) which
+                                                         records grammar
+                                                         check state
+
+ 878 0x036E lcbPlcfgram           ulong
+
+ 882 0x0372 fcSttbListNames       long                   offset in table
+                                                         stream of list
+                                                         names string
+                                                         table
+
+ 886 0x0376 lcbSttbListNames      ulong
+
+ 890 0x037A fcSttbfUssr           long                   offset in table
+                                                         stream of
+                                                         undocumented undo
+                                                         / versioning data
+
+ 894 0x037E lcbSttbfUssr          ulong
+

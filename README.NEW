@@ -1,0 +1,37 @@
+Theres now a small herd of programs based upon libwv.
+
+1) wvHtml, this is what you are looking for, it converts
+word 8 files to html
+
+2) wvText, this converts word 8 files to raw text, its not
+going to be of much use to many as it can't retain formatting
+obviously
+
+3) wvSummary, displays the summary information stream of *all*
+ole2 files, i.e excel, powerpoint, visio, access etc etc etc, 
+ive sent wvSummary as a patch to the file program, so that utility
+should in the future have this ability to know what windows application
+created the ole2 document.
+
+4) wvSimpleCLX, helps distinguish between fast and full saved
+files
+
+
+
+<!--
+not done yet include...
+
+wvMacroRemove, deletes macros out of word files
+
+wvFastToFull, converts fastsaved docs to full saved, shrinking their
+size usually by quite a lot, and making them safe for security 
+consious firms
+
+wvAbiword, plugin for abiword
+
+wvStarWriter, plugin for starwriter
+
+wvKword, plugin for KWord, (they'll have to this one themselves, but based
+upon wvAbiword should make it pretty easy, especially if they use the
+xml config file approach that im looking into.
+-->

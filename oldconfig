@@ -1,0 +1,141 @@
+#Elements are *not* supported at this time, only Styles
+#The currently acceptable variable are
+#pixelsBefore	the height of space in pixels before a paragraph
+#pixelsAfter	the height of space in pixels after a paragraph
+#patterndir		the directory of the patterns
+
+#Element Bold
+#	{
+#	Start <b>
+#	End </b>
+#	}
+
+#Element Italic
+#	{
+#	Start <i>
+#	End </i>
+#	}
+
+
+#Some of the global options that we can tweak.
+
+Document
+	{
+	Start the doc begins
+	TWIPS 76
+	End the doc ends
+	}
+
+# A style configuration has the following syntax
+#Style Name , Name is the name that word gives to the style.
+#	{
+#	Prespace string, prespace is designed to be a placeholder for
+#	                 the vertical space that is at the beginning of
+#	                 a paragraph
+#	Start string,    start is the starting tag of a style
+#	Bold On/Off,	 Each one of these tags can be set to On or Off.
+#	                 Off means that if the style according to word 
+#	                 should be bold, then that is ignored. On means
+#	                 that mswordview follows what word says, if its
+#	                 bold, it stays bold, if its not it stays non-bold.
+#	Italic On/Off,	 
+#	Font On/Off,
+#   Default On/Off,  Default On/Off sets the default handling for character
+#	                 attributes in a style to On or Off, ala the Bold example.
+#	End string, 	 end is the ending tag of a style
+#	Postspace string, postspace is designed to be a placeholder for
+#	                  the vertical space that is at the end of a
+#	                  paragraph
+#	}
+
+Style Normal
+	{
+	PreSpace "<img width=1 height=$pixelsBefore src=$patterndir/clear.gif><br>"
+	Start "<!--Normal Para Begin-->"
+	End "<!--Normal Para End-->"
+	PostSpace "<img width=1 height=$pixelsAfter src=$patterndir/clear.gif><br>"
+	}
+
+#e.g. advanced configuration
+#if you want the default word heading to be just a <h1></h1>, and to ignore
+#the character formatting do something like this.
+Style "Heading 1"
+	{
+	PreSpace "<img width=1 height=$pixelsBefore src=$patterndir/clear.gif><br>"
+	Start <h1>                     
+	Default Off
+	End </h1>
+	PostSpace "<img width=1 height=$pixelsAfter src=$patterndir/clear.gif><br>"
+	}
+
+Style "Heading 2"
+	{
+	PreSpace " "
+	Start <h2>
+	Default Off
+	End </h2>
+	PostSpace " "
+	}
+
+Style "Heading 3"
+	{
+	PreSpace " "
+	Start <h3>
+	Default Off
+	End </h3>
+	PostSpace " "
+	}
+
+Style "Heading 4"
+	{
+	PreSpace " "
+	Start <h4>
+	Default Off
+	End </h4>
+	PostSpace " "
+	}
+
+Style "Heading 5"
+	{
+	PreSpace " "
+	Start <h5>
+	Default Off
+	End </h5>
+	PostSpace " "
+	}
+
+Style "Heading 6"
+	{
+	PreSpace " "
+	Start <h6>
+	Default Off
+	End </h6>
+	PostSpace " "
+	}
+
+Style "Heading 7"
+	{
+	PreSpace " "
+	Start <h7>
+	Default Off
+	End </h7>
+	PostSpace " "
+	}
+
+Style "Heading 8"
+	{
+	PreSpace " "
+	Start <h8>
+	Default Off
+	End </h8>
+	PostSpace " "
+	}
+
+Style "Heading 9"
+	{
+	PreSpace " "
+	Start <h9>
+	Default Off
+	End </h9>
+	PostSpace " "
+	}

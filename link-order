@@ -1,0 +1,14 @@
+These linker lines
+
+[
+-LZLIB -lz
+]
+[
+the gd path -lgdwmf -lwmf -lxgd -ldib  
+[
+-LTTF -lttf
+]
+-LXPM -lXpm -L/usr/X11R6/lib  
+-lX11 and whatever else x needs 
+]
+-lm 

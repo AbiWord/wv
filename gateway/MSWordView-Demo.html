@@ -1,0 +1,51 @@
+<html>
+<head><title>MSWordView, MSWord 8 converter Web Gateway</title></head>
+<!--#include file="header.shtml" -->
+<!--#include file="tophalf.shtml" -->
+<center>
+<img src="../pics/mswordview.gif" alt>
+<h1>A Word 8 converter Web Gateway</h1>
+</center>
+This is a web gateway to mswordview, which is a GPLed converter for word 8
+(office 97) documents to html. The standalone program for unix et al <a href="MSWordView.html">is available</a>
+as well. Dont use this to convert information you wouldnt want me to
+see, coz if the conversion doesnt work, ill be using the file you convert
+to try and extend what mswordview can support, which will require me to read
+it. Also due to possible bugs, the converter will give up if it isnt 
+finished after 4 minutes, so very big docs that would legitimately be
+converted will be truncated by that time limit.
+<p>
+   <FORM ENCTYPE="multipart/form-data" ACTION="../cgi-bin/file-upload.cgi" METHOD="POST">
+        <TABLE BORDER=0 WIDTH="460">
+        <TR>
+            <TD ALIGN=RIGHT>
+                File 1:
+            </TD>
+            <TD>
+                <INPUT TYPE="FILE" NAME="file-to-upload-01" SIZE="35">
+            </TD>
+        </TR>
+        <TR>
+            <TD COLSPAN=2>&nbsp;<BR></TD>
+        </TR>
+        <TR>
+            <TD>
+                <INPUT TYPE="SUBMIT" VALUE="Upload File(s)!">
+            </TD>
+            <TD ALIGN=RIGHT>
+                <INPUT TYPE="RESET" VALUE="Reset Form">
+            </TD>
+        </TR>
+        </TABLE>
+        </FORM>
+
+<br>
+<hr>
+<center>
+<A HREF="http://skynet.csn.ul.ie/"> <IMG Border="0" SRC="../pics/skynet-button.gif"></a>
+</center>
+<!--#include file="paraclose.shtml" -->
+<!--#include file="sidemaps.shtml" -->
+</body></html>
+
+

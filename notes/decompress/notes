@@ -1,0 +1,18 @@
+wmf files are often stored compressed compressed with lz compression in 
+word files
+
+<quote from documentation>
+They are normally stored in a compressed format using the LZ compression
+algorithm in the format used by GNU Zip deflate/inflate with a 32k window.
+The format is zlib format . The only metafile compression version number
+currently defined identifies this format and is analogous to the PNG
+compression type value in the PNG file format.
+</quote>
+
+Peter Brandstrom - D/Z <peter.brandstrom@ericsson.com> took at look at it
+and said
+<quote>
+The compressed data begins with a zlib header which seems to be two
+bytes containing the compression method, window size and check byte. The
+zlib default is a 32k window.
+</quote>

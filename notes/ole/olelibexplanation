@@ -1,0 +1,391 @@
+X-RDate: Fri, 09 Oct 1998 09:15:15 +0100 (IST)
+Received: from mailgate.ul.ie ([136.201.1.23]) by exch-staff1.ul.ie with SMTP
+ (Microsoft Exchange Internet Mail Service Version 5.5.1960.3) id 4QKT1D00;
+ Fri, 9 Oct 1998 08:58:53 +0100
+Received: from gatekeeper.research.natpower.co.uk by mailgate.ul.ie with SMTP
+ (PP) id <25470-0@mailgate.ul.ie>; Fri, 9 Oct 1998 09:13:56 +0000
+Received: by gatekeeper.research.natpower.co.uk id AA17695 (InterLock SMTP
+ Gateway 3.0 for caolan.mcnamara@ul.ie); Fri, 9 Oct 1998 09:13:01 +0100
+Received: by gatekeeper.research.natpower.co.uk (Protected-side Proxy Mail
+ Agent-2); Fri, 9 Oct 1998 09:13:01 +0100
+Received: by gatekeeper.research.natpower.co.uk (Protected-side Proxy Mail
+ Agent-1); Fri, 9 Oct 1998 09:13:01 +0100
+Message-ID: <199810090813.AA17695@gatekeeper.research.natpower.co.uk>
+Date: Fri, 9 Oct 1998 10:12:58 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+XFMstatus: 0000
+From: Andrew Scriven <andy.scriven@research.natpower.co.uk>
+To: Filters Proyect <filters@centauri.lci.ulsa.mx>
+Subject: RE: Which streams are toplevel in which tree?
+Cc: Caolan McNamara <Caolan.McNamara@ul.ie>
+
+Hi, 
+
+Caolan copied me your email. Perhaps I can explain.
+
+The code I wrote does parse the OLE tree fully in its original form. In
+fact I 
+attach a small C program, called OLEread.c which prints out the full
+tree 
+structure. 
+
+Caolan tells me he only needs the "top level" entries from the OLE file,
+so in 
+the code I sent him, only those entries are extracted. Question is how
+to find 
+this "top level" linked list? Have a look at the recursive function
+"unravel" 
+in the C code.
+
+If you start with the list of pps entries, one of them, usually the
+first, has 
+a "type" of 5 which means Root. All pps entries have pointers to
+previous, 
+next and directory pps entires. The Root pps entry will have a directory
+entry 
+which is effectively the "top" of the tree.
+
+If you start with the pps pointed to by this Root->directory, and start
+to 
+follow it, it will unravel into a list of linked pps entries. However,
+the 
+list will consist of previous and next references and also some
+directory 
+entries. 
+
+If all you want is the "top level" list, you simply DO NOT follow the 
+directory entries.
+
+The code I attach DOES follow the directory entries just to print out
+the 
+tree, but it keeps track of what "level" of nesting you are at.
+
+So a typical OLE doc may look like this
+
+                  Root
+                   |
+                   3
+                  / \
+                 5   6- dir- 8
+                / \   \     / \
+               9   8   10  4   2
+           
+
+the top level list would be
+       9-5-8-3-6-10
+  and you ignore 4-8-2 as this is "nested" under 6.
+
+Happy?
+
+Andrew
+-----------------------------------------------------------------------
+Andrew Scriven
+Research and Engineering
+Electron Building, Windmill Hill, Whitehill Way, Swindon, SN5 6PB, UK
+Phone (44) 1793 896206, Fax (44) 1793 896251
+-----------------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+#include <malloc.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <assert.h>
+
+#define MIN(a,b) ((a)<(b) ? (a) : (b))
+#define MAXBLOCKS 64
+
+struct pps_block
+  {
+  char name[64];
+  int nsize;
+  char type;
+  struct pps_block *previous;
+  struct pps_block *next;
+  struct pps_block *directory;
+  long int start;
+  long int size;
+  int level;
+  int index;
+  };
+
+typedef struct pps_block pps_entry;
+
+char *pps_type[]={"","DIR ","FILE","","","ROOT"};
+
+/* Routine prototypes */
+unsigned short int ShortInt(unsigned char* array);
+unsigned long int LongInt(unsigned char* array);
+
+unsigned short int ShortInt(unsigned char* array)
+{
+union two_byte {
+ unsigned short int num;
+ char  ch[2];
+ } Short;
+
+#ifndef INTEL
+  Short.ch[1] = *array++;
+  Short.ch[0] = *array;
+#else
+  Short.ch[0] = *array++;
+  Short.ch[1] = *array;
+#endif
+return Short.num;
+
+}
+
+unsigned long int LongInt(unsigned char* array)
+{
+union four_byte {
+ unsigned long int num;
+ char  ch[4];
+ } Long;
+
+#ifndef INTEL
+  Long.ch[3] = *array++;
+  Long.ch[2] = *array++;
+  Long.ch[1] = *array++;
+  Long.ch[0] = *array;
+#else
+  Long.ch[0] = *array++;
+  Long.ch[1] = *array++;
+  Long.ch[2] = *array++;
+  Long.ch[3] = *array;
+#endif
+return Long.num;
+}
+
+/* recurse to follow forward/backward list of root pps's */
+void unravel(pps_entry *pps_node, int level)
+{
+  if(pps_node->nsize ==0) return;
+  if(pps_node->previous != NULL) unravel(pps_node->previous,level);
+  pps_node->level = level;
+  printf("PPS %s: %*x: ->
+%s\n",pps_type[pps_node->type],level*3,pps_node->
+index,pps_node->name);
+  if(pps_node->directory != NULL) unravel(pps_node->directory,level+1);
+  if(pps_node->next != NULL) unravel(pps_node->next,level);
+}
+
+int main(int argc, char **argv)
+{
+  FILE *input=NULL;
+  FILE *OLEfile=NULL;
+  FILE *sbfile=NULL;
+  FILE *infile=NULL;
+  char Target[64];
+  int debug=0, BlockSize=0,Offset=0;
+  int c,i,j,k,len,bytes;
+  char *s,*p,*t;
+  char *Block,*BDepot,*SDepot,*Depot,*Root;
+  char Name[64];
+  unsigned long int FilePos=0x00000000;
+  long int num_bbd_blocks;
+  long int root_list[MAXBLOCKS], sbd_list[MAXBLOCKS];
+  long int pps_size,pps_start=-1;
+  long int linkto;
+  int root_entry;
+  pps_entry **pps_list;
+
+  if(argc < 2) {
+    fprintf(stderr,"No input file name\n");
+    exit (12);
+  }
+  fprintf(stderr,"File given was %s\n",argv[1]);
+  input = fopen(argv[1], "rb");
+  if(input==NULL) {
+    fprintf(stderr,"Error opening file %s\n",argv[1]);
+    exit (12);
+  }
+  if(argc < 3) {
+    fprintf(stderr,"Listing contents\n");
+    strncpy(Target,"UnLiKeLy",8);
+  } else {
+    strncpy(Target,argv[2],64);
+    fprintf(stderr,"Extracting %s...\n",Target);
+  }
+
+  /* peek into file to guess file type */
+  c=getc(input);
+  ungetc(c,input);
+
+  if(isprint(c)) {
+     fprintf(stderr,"File looks like a plain text file.\n");
+     return 8;
+  /* check for MS OLE wrapper */
+  } else if(c==0xd0) {
+     Block = malloc(512);
+     /* read header block */
+     if(fread(Block,512,1,input)!=1) {
+       fprintf(stderr,"1 ===========> Input file has faulty OLE
+format\n");
+        exit (5);
+     }
+     num_bbd_blocks=LongInt(Block+0x2c);
+     BDepot = malloc(512*num_bbd_blocks);
+     s = BDepot;
+     root_list[0]=LongInt(Block+0x30);
+     sbd_list[0]=LongInt(Block+0x3c);
+     if(debug) fprintf(stderr,"num_bbd_blocks %ld, root start %ld, sbd
+start 
+%ld\n",num_bbd_blocks,root_list[0],sbd_list[0]);
+
+     /* read big block Depot */
+     for(i=0;i<(int)num_bbd_blocks;i++) {
+       FilePos = 512*(LongInt(Block+0x4c+(i*4))+1);
+       fseek(input,FilePos,SEEK_SET);
+       if(fread(s,512,1,input)!=1) {
+         fprintf(stderr,"2 ===========> Input file has faulty bbd\n");
+         exit (5);
+       }
+       s += 0x200;
+     }
+
+     /* Extract the sbd block list */
+     for(len=1;len<MAXBLOCKS;len++){
+       sbd_list[len] = LongInt(BDepot+(sbd_list[len-1]*4));
+       if(sbd_list[len]==-2) break;
+     }
+     if(len>=MAXBLOCKS) fprintf(stderr,"Help too many sbd blocks\n");
+     SDepot = malloc(512*len);
+     s = SDepot;
+     /* Read in Small Block Depot */
+     for(i=0;i<len;i++) {
+       FilePos = 512 *(sbd_list[i]+1);
+       fseek(input,FilePos,SEEK_SET);
+       if(fread(s,512,1,input)!=1) {
+         fprintf(stderr,"3 ===========> Input file has faulty OLE
+format\n");
+         return 5;
+       }
+       s += 0x200;
+     }
+     /* Extract the root block list */
+     for(len=1;len<MAXBLOCKS;len++){
+       root_list[len] = LongInt(BDepot+(root_list[len-1]*4));
+       fprintf(stderr,"root block %d\n",len);
+       if(root_list[len]==-2) break;
+     }
+     if(len>=MAXBLOCKS) fprintf(stderr,"Help too many root blocks\n");
+     Root = malloc(512*len);
+     s = Root;
+     /* Read in Root stream data */
+     for(i=0;i<len;i++) {
+       FilePos = 512 *(root_list[i]+1);
+       fseek(input,FilePos,SEEK_SET);
+       if(fread(s,512,1,input)!=1) {
+         fprintf(stderr,"4 ===========> Input file has faulty OLE
+format\n");
+         return 5;
+       }
+       s += 0x200;
+     }
+
+     /* assign space for pps list */
+     pps_list = malloc(len*4*sizeof(pps_entry *));
+     for(j=0;j<len*4;j++) pps_list[j] = malloc(sizeof(pps_entry));
+     /* Store pss entry details and look out for Root Entry */
+     for(j=0;j<len*4;j++) {
+       pps_list[j]->level = -1;
+       pps_list[j]->index = j;
+       s = Root+(j*0x80);
+       /* some pps names have first byte as an integer !!
+          so we make it visible so you can extract a named pps */
+       if(!isprint(*s)) *s = *s + 48;
+       pps_list[j]->nsize=ShortInt(s+0x40);
+       if(pps_list[j]->nsize == 0) continue;
+       for(p=pps_list[j]->name,t=s;t<s+pps_list[j]->nsize;t++) *p++ =
+*t++;
+       s+=0x42;
+       pps_list[j]->type = *s;
+       if(pps_list[j]->type == 5) {
+         root_entry = j; /* this is root */
+       }
+       s+=0x02;
+       linkto = LongInt(s);
+       if(linkto != -1) pps_list[j]->previous = pps_list[linkto];
+       else pps_list[j]->previous = NULL;
+       s+=0x04;
+       linkto = LongInt(s);
+       if(linkto != -1) pps_list[j]->next = pps_list[linkto];
+       else pps_list[j]->next = NULL;
+       s+=0x04;
+       linkto = LongInt(s);
+       if(linkto != -1) pps_list[j]->directory = pps_list[linkto];
+       else pps_list[j]->directory = NULL;
+       s+=0x28;
+       pps_list[j]->start = LongInt(s);
+       s+=0x04;
+       pps_list[j]->size = LongInt(s);
+     }
+
+     /* go through the pps entries, tagging them with level number
+        use recursive routine to follow list starting at root entry */
+     unravel(pps_list[root_entry],0);
+
+     /* go through the level 0 list looking for named entries */
+     for(j=0;j<len*4;j++) {
+       if(pps_list[j]->nsize == 0) continue; /* skip empty pps */
+       /* we mostly only want the top level (level 1) stuff, so
+          here we skip anything more deeply nested. */
+       if(pps_list[j]->level > 1) continue;
+       pps_start = pps_list[j]->start;
+       pps_size  = pps_list[j]->size;
+       OLEfile = NULL;
+       if(pps_list[j]->type==5) {  /* Root entry */
+         OLEfile = tmpfile();
+         sbfile = OLEfile;
+         if(debug) fprintf(stderr,"Reading sbFile %ld\n",pps_start);
+       }
+       else if(!strcmp(pps_list[j]->name,Target)) {
+         OLEfile=fopen("OLE.tmp","w+b");  /* try and open */
+         printf("Reading Target %s\n",Target);
+       }
+       if(pps_size<=0) OLEfile = NULL;
+       if(OLEfile == NULL) continue;
+       if(pps_size>=4096 | OLEfile==sbfile) {
+         Offset = 1;
+         BlockSize = 512;
+         infile = input;
+         Depot = BDepot;
+       } else {
+         Offset = 0;
+         BlockSize = 64;
+         infile = sbfile;
+         Depot = SDepot;
+       }
+       while(pps_start != -2) {
+         if(debug) fprintf(stderr,"Reading block %ld\n",pps_start);
+         FilePos = (pps_start+Offset)* BlockSize;
+         bytes = MIN(BlockSize,pps_size);
+         fseek(infile,FilePos,SEEK_SET);
+         if(fread(Block,bytes,1,infile)!=1) {
+           fprintf(stderr,"5 ===========> Input file has faulty OLE
+format\n");
+           exit (5);
+         }
+         fwrite(Block,bytes,1,OLEfile);
+         pps_start = LongInt(Depot+(pps_start*4));
+         pps_size -= BlockSize;
+         if(pps_size <= 0) pps_start=-2;
+       }
+       rewind(OLEfile);
+     }
+    for(j=0;j<len*4;j++) free(pps_list[j]);
+    free(pps_list);
+    free(Root);
+    free(BDepot);
+    free(Block);
+    fclose(input);
+    return 0;
+  } else {
+    /* not a OLE file! */
+    fprintf(stderr,"7 ===========> Input file is not an OLE file\n");
+    exit (8);
+  }
+}

@@ -1,0 +1,6 @@
+Text begins at fib.fcMin and ends at fib.fcMac.
+
+The main text begins at fib.fcMin for a count of
+fib.ccpText characters, each of which may be one or two
+U8 in length. The piecetable can be consulted
+to determine this.

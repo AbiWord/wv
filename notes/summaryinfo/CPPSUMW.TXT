@@ -1,0 +1,62 @@
+'---------------------------------------------------------------------------
+' WordBasic interface definitions for CPPSUM.DLL
+' DLL functions to get summary info from OLE 2.0 document files.
+'
+'     Copyright © 1994-1995 Somar Software, All Rights Reserved
+'     Send problem reports and comments to 72202.2574@compuserve.com
+'     Visit the Somar Software WWW site at http://www.somar.com
+'
+' Example of usage:
+'     PID_TITLE = 2
+'     wInitStatus = SumInfoInit
+'     If wInitStatus <> 0 Then
+'        hSumInfo = SumInfoOpenFile(".. put your file name here ..")
+'        If hSumInfo <> 0 Then	
+'	    s$ = String$(256, "*")
+'      	    nResult = SumInfoGetString(hSumInfo, PID_TITLE, s$, 256)
+'           SumInfoCloseFile(hSumInfo)
+'        End If
+'      	 SumInfoUninit(wInitStatus)
+'     EndIf
+'
+' Reasons for failure:
+'     SumInfoInit:     out of memory
+'     SumInfoOpenFile: out of memory
+'                      file not found
+'                      file is not an OLE 2.0 structured storage file
+'                      file does not contain OLE 2.0 summary info
+'                      OLE 2.0 summary info is incorrectly formatted
+'     SumInfoGet...  : specified property type is not available
+'     
+' See CPPSUM.CPP for change log
+'---------------------------------------------------------------------------
+PID_TITLE          = 2
+PID_SUBJECT        = 3
+PID_AUTHOR         = 4
+PID_KEYWORDS       = 5
+PID_COMMENTS       = 6
+PID_TEMPLATE       = 7
+PID_LASTAUTHOR     = 8
+PID_REVNUMBER      = 9
+PID_APPNAME        = 18
+
+	' 16 bit DLL
+Declare Function SumInfoInit Lib "CPPSUM.DLL"() As Integer
+Declare Function SumInfoOpenFile Lib "CPPSUM.DLL" \
+	(szPath As String) As Integer
+Declare Function SumInfoGetString Lib "CPPSUM.DLL" \
+	(hSumInfo As Integer, pid As Long, \
+	 lpBuf As String,  cbBuf As Integer) As Integer
+Declare Sub SumInfoCloseFile Lib "CPPSUM.DLL"(hSumInfo As Integer)
+Declare Sub SumInfoUninit Lib "CPPSUM.DLL"(wInitStatus As Integer)
+
+	' 32 bit DLL
+Declare Function SumInfoInit Lib "CPPSUM32.DLL"() As Integer
+Declare Function SumInfoOpenFile Lib "CPPSUM32.DLL" \
+	(szPath As String) As Long
+Declare Function SumInfoGetString Lib "CPPSUM32.DLL" \
+	(hSumInfo As Long, pid As Long, \
+	 lpBuf As String,  cbBuf As Integer) As Integer
+Declare Sub SumInfoCloseFile Lib "CPPSUM32.DLL"(hSumInfo As Long)
+Declare Sub SumInfoUninit Lib "CPPSUM32.DLL"(wInitStatus As Integer)
+

@@ -1,0 +1,315 @@
+
+
+<HTML>
+<HEAD>
+<TITLE>HOWTO: Determine the Version of a Microsoft Word Document</TITLE>
+
+<!--STYLE_START-->
+<LINK REL="STYLESHEET" HREF="/support/include/style.css" TYPE="text/css">
+<!--STYLE_END-->
+
+<!--META_START-->
+<META NAME="Premium" CONTENT="Support">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso8859-1">
+<META NAME="ms.locale" CONTENT="EN-US">
+<META NAME="Category" CONTENT="Support; KB Article">
+<META NAME="KBID" CONTENT="Q174140">
+<META NAME="KBModify" CONTENT="1997/09/23">
+<META NAME="KBCreate" CONTENT="1997/09/19">
+<META NAME="Keywords" CONTENT="kbcode">
+<META NAME="KBArea" CONTENT="Support; KB; visualc, vstudio">
+<META NAME="Description" CONTENT="  This article shows you how to determine the version of a Microsoft Word document.  MORE INFORMATION  Microsoft Word saves its data in an OLE Compound file that is made up of streams and storages. In particular, it creates a data stream called  Word...">
+<META NAME="Product" CONTENT="Visual C++">
+<META NAME="Platform" CONTENT="Windows">
+<META NAME="Technology" CONTENT="">
+<META HTTP-EQUIV="PICS-Label" CONTENT='(PICS-1.1 "http://www.rsac.org/ratingsv01.html" l gen true comment "RSACi North America Server" by "Inet@microsoft.com" for "http://support.microsoft.com" on "1998.02.17T12:28-0800" r (n 0 s 0 v 0 l 0))'>
+<!--META_END-->
+
+<META NAME="nyms" CONTENT="QAIH,QAUD,QABD,QABE,QDO7,QALW V02180118">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF" LEFTMARGIN="0" MARGINHEIGHT="0" MARGINWIDTH="0" RIGHTMARGIN="0" TOPMARGIN="0">
+
+
+<!--TOOLBAR_START-->
+<A NAME="TOP"></A>
+<!-- Start: ToolBar V2.0-->
+<SCRIPT LANGUAGE="JavaScript" SRC="/library/toolbar/toolbar.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/library/toolbar/en-us/global.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript" SRC="/support/include/toolbars/local_support.js"></SCRIPT>
+
+<!-- Start: ToolBar for down-level browsers-->
+<SPAN ID="TBDownLevelDiv">
+<TABLE BORDER="0" BGCOLOR="#FFFFFF" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+	<TR>
+		<TD HEIGHT="60" ROWSPAN="2" VALIGN="top"><A HREF="/isapi/gosupport.asp?target=/support/default.asp?FR=0" TARGET="_top"><IMG ALT="Microsoft Personal Support Center Home" BORDER="0" HEIGHT="60" SRC="/library/images/support/toolbar/supportbanner.gif" WIDTH="250"></A></TD>
+		<TD ALIGN="right" HEIGHT="20" VALIGN="top"><IMG BORDER="0" HEIGHT="20" SRC="/library/toolbar/images/curve.gif" WIDTH="18"></TD>
+		<TD ALIGN="right" BGCOLOR="#000000" COLSPAN="2" HEIGHT="20" NOWRAP VALIGN="middle">
+			<FONT COLOR="#FFFFFF" FACE="Verdana, Arial, Helvetica" SIZE="1"><B>
+			&nbsp;&nbsp;<A HREF="/isapi/gomscom.asp?target=/products/" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">All Products</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gomscom.asp?target=/support/" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Support</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosearch.asp?target=/" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Search</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gomscom.asp?target=/" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">microsoft.com Home</FONT></A>&nbsp;&nbsp;
+			</B></FONT>
+		</TD>
+	</TR>
+	<TR>
+		<TD HEIGHT="40" VALIGN="top" WIDTH="19"><IMG BORDER="0" HEIGHT="40" SRC="/library/images/gifs/homepage/1ptrans.gif" WIDTH="19"></TD>
+		<TD ALIGN="right" COLSPAN="2" HEIGHT="40" NOWRAP VALIGN="top"><A HREF="/isapi/gomscom.asp?target=/" TARGET="_top"><IMG ALT="Microsoft" BORDER="0" HEIGHT="40" SRC="/library/toolbar/images/mslogo.gif" WIDTH="112"></A></TD>
+	</TR>
+	<TR>
+		<TD BGCOLOR="#003399" COLSPAN="4" HEIGHT="20" NOWRAP VALIGN="middle">
+			<FONT COLOR="#FFFFFF" FACE="Verdana, Arial, Helvetica" SIZE="1"><B>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Support Home</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/search/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Search Support</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/browse/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Browse</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/poptopics/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Products</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/downloads/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Downloads</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/contact/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Contact Us</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			&nbsp;&nbsp;<A HREF="/isapi/gosupport.asp?target=/support/help/default.asp?FR=0" STYLE="color:#FFFFFF;text-decoration:none;" TARGET="_top"><FONT COLOR="#FFFFFF">Site Help</FONT></A>&nbsp;&nbsp;<FONT COLOR="#FFFFFF">|</FONT>
+			</B></FONT>
+		</TD>
+	</TR>
+</TABLE>
+</SPAN>
+<!-- End: ToolBar For down-level browsers-->
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--//
+var ToolBar_Supported = ToolBar_Supported;
+if (ToolBar_Supported != null && ToolBar_Supported == true)
+{
+	TBDownLevelDiv.style.display ="none";
+	drawToolbar();
+}
+//-->
+</SCRIPT>
+<!-- End: ToolBar V2.0-->
+<!--TOOLBAR_END-->
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+	<TR>
+		<TD VALIGN="top">
+
+			<CENTER>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="95%">
+				<TR>
+					<TD VALIGN="top">
+						<FONT FACE="Verdana, Arial, Helvetica" SIZE="2">
+<!-- ---------- PAGE TEXT BEGINS BELOW HERE ---------- -->
+<H1>HOWTO: Determine the Version of a Microsoft Word Document</H1>
+
+
+ 
+ 
+The information in this article applies to:
+
+<UL><LI>Microsoft Visual C++, 32-bit Editions, versions 2.0, 2.1, 2.2, 4.0,
+   4.1, 4.2, 5.0
+<LI>Microsoft Word 97 for Windows
+<LI>Microsoft Word for Windows 95, version 7.0
+<LI>Microsoft Word for Windows, version 6.0
+</UL> 
+<P>
+<P><h2>SUMMARY</h2>
+ 
+<P>
+This article shows you how to determine the version of a Microsoft Word
+document.
+<P>
+<P><h2>MORE INFORMATION</h2>
+ 
+<P>
+Microsoft Word saves its data in an OLE Compound file that is made up of
+streams and storages. In particular, it creates a data stream called
+"WordDocument" where it saves the contents and a special header called a
+"FIB" (File information block). This header contains information about the
+various attributes of the file that are documented in the MSDN as well as
+the version of Microsoft Word that saved the document. The following
+Microsoft Visual C++ code demonstrates how to open and read the
+WordDocument stream, and return the version number.
+<P>
+<P><h3>Sample Code</h3>
+ 
+<P>
+<PRE>   // Word's File-Information-Block (FIB) structure...
+   typedef struct _fib {
+      short magicNumber;
+      // Word 6.0: 0xA5DC
+      // Word 7.0 (95): 0xA5DC
+      // Word 8.0 (97): 0xA5EC
+
+      short version;   // &gt;= 101 for Word 6.0 and higher...
+      // Word 6.0: 101
+      // Word 7.0 (95): 104
+      // Word 8.0 (97): 105
+   } FIB, *LPFIB;
+
+
+   //* WordVersionFromFile()
+</PRE>******************************************************
+<PRE>   //* Returns
+   //*        6 for Word 6.0
+   //*        7 for Word 7.0 (95)
+   //*        8 for Word 8.0 (97)
+   //*        Negative if an error occurs...
+   //****************************************************
+   int WordVersionFromFile(char *filename) {
+      // Translate filename to UNICODE...
+      WCHAR wcFilename[1024];
+      int i = mbstowcs(wcFilename, filename, strlen(filename));
+      wcFilename[i] = 0;
+
+      IStorage *pStorage;
+      HRESULT hr;
+      FIB fib;
+
+      // Open document as an OLE compound document...
+      hr = ::StgOpenStorage(wcFilename, NULL, STGM_READ |
+</PRE>STGM_SHARE_EXCLUSIVE, NULL, 0, &amp;pStorage);
+<P>
+<PRE>      if(!FAILED(hr)) {
+         // Open the data-stream where Word stores the data...
+         IStream *pStream;
+         hr = pStorage-&gt;OpenStream(L"WordDocument", NULL, STGM_READ |
+</PRE>STGM_SHARE_EXCLUSIVE, 0, &amp;pStream);
+<P>
+<PRE>         if(!FAILED(hr)) {
+            // Read relevant FIB information...
+            DWORD dwCount; // bytes read...
+            pStream-&gt;Read(&amp;fib, sizeof(FIB), &amp;dwCount);
+
+            // Let go of our IStream pointer...
+            pStream-&gt;Release();
+         }
+         else return -2;
+
+         // Let go of our IStorage pointer...
+         pStorage-&gt;Release();
+      }
+      else return -1;
+
+      // Determine version to return...
+      if(fib.version &lt; 101) return fib.version;
+
+      switch(fib.version) {
+         case 101: return 6;
+         case 103: // fall-through...
+         case 104: return 7;
+         case 105: return 8;
+         default: return 8; // Default, return the latest
+      }
+   }
+
+</PRE><h2>REFERENCES</h2>
+ 
+<P>
+For more information about OLE Compound files and Structured Storage,
+search the MSDN or Microsoft Visual C++ online help on "Structured
+Storage."
+<P>
+For more information about the Microsoft Word file format, and/or the FIB
+structure, search the MSDN for "Microsoft Word 97 Binary File Format."
+<P>
+Additional query words: word97 winword
+ 
+<PRE>Keywords          : kbcode
+Version           : WINDOWS:6.0,7.0,97; WINNT:2.0,2.1,2.2,4.0,4.1,4.2,5.0
+Platform          : WINDOWS winnt
+Issue type        : kbhowto</PRE>
+<!-- ----------- PAGE TEXT ENDS ABOVE HERE ----------- -->
+						</FONT>
+					</TD>
+				</TR>
+			</TABLE>
+			<P>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+				<TR>
+					<TD VALIGN="top">
+						<CENTER>
+						<BR>
+						<FONT FACE="Verdana, Arial, Helvetica" SIZE="1">
+<!--LAST_REVIEWED_DATE_START-->
+Last Reviewed: September 23, 1997<BR>
+<!--LAST_REVIEWED_DATE_END-->
+<!--COPYRIGHT_START-->
+<A HREF="/support/misc/cpyright.asp" ID="smalllink">&copy; 1999 Microsoft Corporation. All rights reserved. Terms of Use.</A><BR>
+<!--COPYRIGHT_END-->
+						</FONT>
+						</CENTER>
+					</TD>
+				</TR>
+			</TABLE>
+			</CENTER>
+		</TD>
+<!--RIGHT_COLUMN_START-->
+		<TD BGCOLOR="#003399" VALIGN="top" WIDTH="1"><IMG BORDER="0" HEIGHT="100%" SRC="/library/images/support/1ptrans.gif" WIDTH="1"></TD>
+		<TD VALIGN="top" WIDTH="135">
+			<CENTER>
+			<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="90%">
+				<TR>
+					<TD VALIGN="top">
+						<FONT FACE="Verdana, Arial, Helvetica" SIZE="1">
+						<BR>
+						<P>
+						Article ID: Q174140
+						<P>
+						<B>Last Reviewed:</B><BR>
+						September 23, 1997
+						<P>
+						Provided by <A HREF="/support/default.asp?FR=0" TARGET="_top">Support Online</A> from Microsoft Product Support Services.
+						<P>
+						<A HREF=""></A>
+						<P>
+						<HR>
+<!--VOTING_START-->
+<FORM ACTION="/support/contentvoting/voting_idc.asp" METHOD="post" NAME="VOTED" ONSUBMIT="return votingsubmit();">
+	<INPUT NAME="KBID" TYPE="hidden" VALUE="Q174140">
+	<INPUT NAME="PROD" TYPE="hidden" VALUE="Visual C++">
+	<INPUT NAME="KBAREA" TYPE="hidden" VALUE="visualc, vstudio">
+	<INPUT NAME="SRV" TYPE="hidden" VALUE="support.microsoft.com">
+	<INPUT NAME="URL" TYPE="hidden" VALUE="/support/kb/articles/q174/1/40.asp">
+
+<INPUT NAME="SS" TYPE="hidden" VALUE="">
+Did the information in this article help answer your question?
+<P>
+<INPUT NAME="VOTE" TYPE="radio" VALUE="1">Yes<BR>
+<INPUT NAME="VOTE" TYPE="radio" VALUE="2">No<BR>
+<INPUT NAME="VOTE" TYPE="radio" VALUE="3">Did not apply
+<P>
+Please provide additional comments on this article.<BR>
+(255 character max)
+<P>
+<TEXTAREA COLS="13" ID="COMMENTS" NAME="COMMENTS" ROWS="4" STYLE="font:x-small" WRAP="virtual"></TEXTAREA>
+<P>
+<CENTER>
+<INPUT ALT="Submit" BORDER="0" HEIGHT="32" SRC="/library/images/support/votesubmit.gif" TYPE="image" WIDTH="88">
+</CENTER>
+
+<SCRIPT LANGUAGE="JavaScript">
+<!--//
+function votingsubmit()
+{
+	if((document.VOTED.VOTE[0].checked == false) && (document.VOTED.VOTE[1].checked == false) && (document.VOTED.VOTE[2].checked == false)){
+		alert("Please choose a voting option.");
+		return false;}
+	if(document.VOTED.COMMENTS.value.length > 255){
+		alert("Please reduce the number of characters in your comment.");
+		document.forms[0].COMMENTS.focus();
+		return false;}
+	else return true;
+}
+//-->
+</SCRIPT>
+</FORM>
+<!--VOTING_END-->
+						</FONT>
+					</TD>
+				</TR>
+			</TABLE>
+			</CENTER>
+		</TD>
+<!--RIGHT_COLUMN_END-->
+	</TR>
+</TABLE>
+</BODY>
+</HTML>

@@ -1,0 +1,356 @@
+MSWordView
+==========
+It should all work hunky dory from a ./configure followed by 
+make and make install, a few sample word 8 files to try this out 
+are included in the examples dir. Recommended libraries to also
+install to convert wmf files are the zlib library and libwmf 
+library, read on for details and download locations.
+
+Configure Options
+=================
+mswordview now requires zlib to be able to uncompress wmf files,
+use 
+./configure --with-zlib=dir_above_zlibs_include&lib_dirs
+if configure does not find zlib on its own, if configure
+does not find zlib then mswordview will still make, but it'll
+warn you about this feature loss. zlib can be found at
+http://www.cdrom.com/pub/infozip/zlib
+
+mswordview also needs libwmf to be able to convert wmf files
+to gif files for inclusion in the html output use
+./configure --with-wmf==dir_above_libwmf_include&lib_dirs
+if configure does not find libwmf on its own, if configure
+does not find libwmf then mswordview will still make, but it'll
+warn you that it can't convert those wmf's. libwmf can be
+found at 
+http://www.csn.ul.ie/~caolan/docs/libwmf.html
+
+mswordview also needs freetype to be able to allow libwmf to
+output text in its conversion of wmf files to gif.
+./configure --with-ttf=dir_above_ttf_includes&lib_dirs
+it can be found at
+http://www.freetype.org
+*note* libwmf also has to be compiled with freetype support for this
+to work.
+
+In each case the dir argument to configure can either be the dir 
+*above* the include and lib dirs where the component can be found. 
+Or the actual dir where *both* the lib and include files exist.
+
+
+But in general if you install zlib,libwmf and freetype, then you just have
+to do
+./configure
+make
+
+Compilation Problems
+====================
+
+(1) Make does nothing except complain
+If for some reason the standard make didnt work i.e.
+if make gives up without compiling a single thing then try 
+gmake -f Makefile 
+instead, this is a for systems with old make, like Irix for example.
+
+(2) Cant install mswordview from a make install
+If install fails due to some systems not allowing installs into user dirs
+change the INSTALL variable in the Makefiles to the path of the included
+install-sh, this is the kind of thing that happens on AIX.
+
+(3) Final link fails with "undefined reference to `uncompress'"
+Now there is one possible problem that i've come across, for some reason
+on my old redhat4.2 system there was a libz.a in /usr/X11R6/lib that
+mswordview was linking against rather than the correct one in /usr/lib.
+To fix that i just deleted it :-). You can recognize this problem if the
+make breaks like this at link time
+gcc -lm -o mswordview mswordview.o laolareplace.old.o support.o list.o 
+	piecetable.o stylesheet.o sprm.o blip.o utf.o init_chp.o field.o 
+	formatting.o references.o gpprl.o papchpsep.o hyperlink.o decompresswmf.o 
+	table.o annotations.o dop.o roman.o  oledecod/oledecod.o -lz   
+	-L/usr/X11R6/lib  -lX11  -lgdwmf -lwmf -lxgd -ldib -lXpm -lttf 
+decompresswmf.o: In function `decompress':
+decompresswmf.o(.text+0x211): undefined reference to `uncompress'
+gmake: *** [mswordview] Error 1
+
+The solution is to either delete /usr/X11R6/lib/libz.a or place -L/usr/lib
+or -L/usr/local/lib (whichever one has libz.a in it) before -lz i.e
+gcc -lm -o mswordview mswordview.o laolareplace.old.o support.o list.o 
+    piecetable.o stylesheet.o sprm.o blip.o utf.o init_chp.o field.o 
+	formatting.o references.o gpprl.o papchpsep.o hyperlink.o decompresswmf.o 
+	table.o annotations.o dop.o roman.o  oledecod/oledecod.o -L/usr/lib -lz
+	-L/usr/X11R6/lib  -lX11  -lgdwmf -lwmf -lxgd -ldib -lXpm -lttf
+
+The current configure script is tweaked to attempt to work around this one
+case of distribution madness, which im told is due to usage of the imake 
+system and gnuplot or something.
+
+(4) Compilation failed on parser.lex or lex.yy.c
+In this case the problem is probably something ive done wrong in the lex 
+code, im not a great lex head. The only solution for this one that i
+know of is to install flex 2.5.4 or higher, available from ftp.gnu.org.
+
+Alternatively a good lex person could take a look at my definition of
+myalpha in parser.lex and see if its a portable definition or not.
+
+Supported Platforms
+===================
+Ive gotten this to work myself so far on Linux/AIX/Solaris/OSF1 and Windows
+(for windows skip to windows section) and ive heard that irix/hpux/bsd also 
+work, and i had one report that with some magic it works on os/2. One mad
+person ported it to AmigaOS, check the homepage for a link to that insanity.
+And there was a few mails from someone who said he had it working under VMS,
+i don't have any patches for that one yet though.
+
+MSWordView for Windows
+======================
+
+Its trivial to compile mswordview with the cygwin32 package, available from 
+www.cygnus.com.  get that package and install it, then unpack mswordview and 
+run ./configure.  then just add -DWINDOWS to the compiler flags are you are off. 
+i.e. change
+CC = gcc
+to
+CC = gcc -DWINDOWS
+The only thing that extra define does is change the / to \, in the scanning of a 
+command line so as to find the name of the word doc without the prepended path.
+
+I haven't tried mswordview under windows since zlib or the wmblib library were
+needed to be installed for full functionality, but i imagine that compiling them
+under cygwin32 would go smoothly as well, let me know on that one.
+
+Running MSWordView from Netscape
+================================
+theres some scripts in helper-scripts that were sent to me to
+get netscape to use mswordview as a helper application. I dont
+know anything about them, and they might not work, especially
+as the program changes while they dont, but they are a useful
+resource, i believe the nsopen nswordview are you're best bet
+for this.
+
+Support Files
+=============
+mswordview currently uses gifs to replace the wingding and symbol fonts 
+and a set of custom graphics for pattern backgrounds for tables, and some
+graphics for end of a page, footnotes etc, so do the make install to put
+them in the place that mswordview will reference them, or use the commandline
+options to set their location.
+
+MSWordView Crashes
+==================
+I don't believe you. You question the worthiness of my Code? I should kill
+you where you stand!, but seriously, follow these steps to help me.
+
+make clean first
+add -g -DDEBUG to the flags to the c compiler to generate
+a stack of debugging info if things go wrong for you.
+
+if you get a crash please recompile mswordview with 
+CC options -g -DDEBUG, run and send the output to a temporary
+file, and generate a core dump
+for tcsh 
+limit core unlimited
+and run again
+then do
+gdb mswordview core
+and type
+backtrace
+send the output of gdb to me with the bugreport and the output
+from the -DDEBUG mswordview and if possible send me the file that 
+mswordview crashed on as well. if the word file is particulary 
+big compress it for me please. please mention your platform and
+mswordview version.
+
+
+C.
+
+HomePage and Contact Details
+============================
+http://www.csn.ul.ie/~caolan/docs/MSWordView.html
+
+Caolan.McNamara@ul.ie
+
+standard configure help file follows...
+
+Basic Installation
+==================
+
+   These are generic installation instructions.
+
+   The `configure' shell script attempts to guess correct values for
+various system-dependent variables used during compilation.  It uses
+those values to create a `Makefile' in each directory of the package.
+It may also create one or more `.h' files containing system-dependent
+definitions.  Finally, it creates a shell script `config.status' that
+you can run in the future to recreate the current configuration, a file
+`config.cache' that saves the results of its tests to speed up
+reconfiguring, and a file `config.log' containing compiler output
+(useful mainly for debugging `configure').
+
+   If you need to do unusual things to compile the package, please try
+to figure out how `configure' could check whether to do them, and mail
+diffs or instructions to the address given in the `README' so they can
+be considered for the next release.  If at some point `config.cache'
+contains results you don't want to keep, you may remove or edit it.
+
+   The file `configure.in' is used to create `configure' by a program
+called `autoconf'.  You only need `configure.in' if you want to change
+it or regenerate `configure' using a newer version of `autoconf'.
+
+The simplest way to compile this package is:
+
+  1. `cd' to the directory containing the package's source code and type
+     `./configure' to configure the package for your system.  If you're
+     using `csh' on an old version of System V, you might need to type
+     `sh ./configure' instead to prevent `csh' from trying to execute
+     `configure' itself.
+
+     Running `configure' takes awhile.  While running, it prints some
+     messages telling which features it is checking for.
+
+  2. Type `make' to compile the package.
+
+  3. Optionally, type `make check' to run any self-tests that come with
+     the package.
+
+  4. Type `make install' to install the programs and any data files and
+     documentation.
+
+  5. You can remove the program binaries and object files from the
+     source code directory by typing `make clean'.  To also remove the
+     files that `configure' created (so you can compile the package for
+     a different kind of computer), type `make distclean'.  There is
+     also a `make maintainer-clean' target, but that is intended mainly
+     for the package's developers.  If you use it, you may have to get
+     all sorts of other programs in order to regenerate files that came
+     with the distribution.
+
+Compilers and Options
+=====================
+
+   Some systems require unusual options for compilation or linking that
+the `configure' script does not know about.  You can give `configure'
+initial values for variables by setting them in the environment.  Using
+a Bourne-compatible shell, you can do that on the command line like
+this:
+     CC=c89 CFLAGS=-O2 LIBS=-lposix ./configure
+
+Or on systems that have the `env' program, you can do it like this:
+     env CPPFLAGS=-I/usr/local/include LDFLAGS=-s ./configure
+
+Compiling For Multiple Architectures
+====================================
+
+   You can compile the package for more than one kind of computer at the
+same time, by placing the object files for each architecture in their
+own directory.  To do this, you must use a version of `make' that
+supports the `VPATH' variable, such as GNU `make'.  `cd' to the
+directory where you want the object files and executables to go and run
+the `configure' script.  `configure' automatically checks for the
+source code in the directory that `configure' is in and in `..'.
+
+   If you have to use a `make' that does not supports the `VPATH'
+variable, you have to compile the package for one architecture at a time
+in the source code directory.  After you have installed the package for
+one architecture, use `make distclean' before reconfiguring for another
+architecture.
+
+Installation Names
+==================
+
+   By default, `make install' will install the package's files in
+`/usr/local/bin', `/usr/local/man', etc.  You can specify an
+installation prefix other than `/usr/local' by giving `configure' the
+option `--prefix=PATH'.
+
+   You can specify separate installation prefixes for
+architecture-specific files and architecture-independent files.  If you
+give `configure' the option `--exec-prefix=PATH', the package will use
+PATH as the prefix for installing programs and libraries.
+Documentation and other data files will still use the regular prefix.
+
+   In addition, if you use an unusual directory layout you can give
+options like `--bindir=PATH' to specify different values for particular
+kinds of files.  Run `configure --help' for a list of the directories
+you can set and what kinds of files go in them.
+
+   If the package supports it, you can cause programs to be installed
+with an extra prefix or suffix on their names by giving `configure' the
+option `--program-prefix=PREFIX' or `--program-suffix=SUFFIX'.
+
+Optional Features
+=================
+
+   Some packages pay attention to `--enable-FEATURE' options to
+`configure', where FEATURE indicates an optional part of the package.
+They may also pay attention to `--with-PACKAGE' options, where PACKAGE
+is something like `gnu-as' or `x' (for the X Window System).  The
+`README' should mention any `--enable-' and `--with-' options that the
+package recognizes.
+
+   For packages that use the X Window System, `configure' can usually
+find the X include and library files automatically, but if it doesn't,
+you can use the `configure' options `--x-includes=DIR' and
+`--x-libraries=DIR' to specify their locations.
+
+Specifying the System Type
+==========================
+
+   There may be some features `configure' can not figure out
+automatically, but needs to determine by the type of host the package
+will run on.  Usually `configure' can figure that out, but if it prints
+a message saying it can not guess the host type, give it the
+`--host=TYPE' option.  TYPE can either be a short name for the system
+type, such as `sun4', or a canonical name with three fields:
+     CPU-COMPANY-SYSTEM
+
+See the file `config.sub' for the possible values of each field.  If
+`config.sub' isn't included in this package, then this package doesn't
+need to know the host type.
+
+   If you are building compiler tools for cross-compiling, you can also
+use the `--target=TYPE' option to select the type of system they will
+produce code for and the `--build=TYPE' option to select the type of
+system on which you are compiling the package.
+
+Sharing Defaults
+================
+
+   If you want to set default values for `configure' scripts to share,
+you can create a site shell script called `config.site' that gives
+default values for variables like `CC', `cache_file', and `prefix'.
+`configure' looks for `PREFIX/share/config.site' if it exists, then
+`PREFIX/etc/config.site' if it exists.  Or, you can set the
+`CONFIG_SITE' environment variable to the location of the site script.
+A warning: not all `configure' scripts look for a site script.
+
+Operation Controls
+==================
+
+   `configure' recognizes the following options to control how it
+operates.
+
+`--cache-file=FILE'
+     Use and save the results of the tests in FILE instead of
+     `./config.cache'.  Set FILE to `/dev/null' to disable caching, for
+     debugging `configure'.
+
+`--help'
+     Print a summary of the options to `configure', and exit.
+
+`--quiet'
+`--silent'
+`-q'
+     Do not print messages saying which checks are being made.  To
+     suppress all normal output, redirect it to `/dev/null' (any error
+     messages will still be shown).
+
+`--srcdir=DIR'
+     Look for the package's source code in directory DIR.  Usually
+     `configure' can determine that directory automatically.
+
+`--version'
+     Print the version of Autoconf used to generate the `configure'
+     script, and exit.
+
+`configure' also accepts some other, not widely useful, options.
+

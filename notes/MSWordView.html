@@ -1,0 +1,181 @@
+<html>
+<!--
+<META name="description"
+content="MSWordView is a converter of MS Word Ver 8 (office97) to html for 
+unix/linux">
+<META name="keywords" content="msword, word, office, office97, html, linux, convert">
+-->
+<head><title>MSWordView, MSWord 8 converter for unix</title></head>
+<!--#include file="header.shtml" -->
+<!--#include file="tophalf-ms.shtml" -->
+<center>
+<img src="../pics/mswordview.gif" alt="MSWordView">
+<h1>A Word 8 converter for Unix</h1>
+</center>
+<H2>What is it</H2>
+MSWordView is a program that can understand the microsofts word 8 binary file format (office97), 
+it currently converts word into html, which can then be read with a browser. <p>
+MSWordView is being actively worked on, and will be pretty bleeding edge for the next few weeks, bear with me.
+<p>
+Current Features include<br>
+<ul>
+<li>ability to understand fastsaved files as well as non-fastsaved files.  
+<li>conversion of word header paragraph style into 
+appropiate header levels of html.
+<li>support of font attributes such as italic, bold, underline, subscript, superscript, font size, animated text, all caps<sup><a href="#one">[1]</a></sup>, small caps<sup><a href="#one">[1]</a></sup>, font face<sup><a href="#one">[1]</a></sup> and colour into html tags 
+<li>conversion of word tables into html tables, features now include background color and background patterns, also table width and height are supported.
+<li>conversion of ms symbol and wingding font into gif pics for html output, so math done directly
+in word shows up fairly alright, note <b>not</b> equation editor, thats an ole embedded type
+<li>encoding of non-west-european ascii languages into utf-8 encoding, which should work
+with at least netscape.
+<li>conversion of footnotes to html linked text. 
+<li>understands headers and footers. odd even and titlepages
+<li>understands sections so that section numbering restarts if needs be,
+is the right type of numbering i.e 1 vs i vs a, and sections get the right
+headers and footers.
+<li>conversion of lists and multilevel lists.
+<li>extraction of some pictures now supported, gifs/jpgs/pngs inserted through
+the insert->picture->from file mechanism work!! as do some other methods.
+<li>paragraph alignment through centering or right justification is supported, other amounts of
+indentation is still not supported.
+</ul>
+Currently Non Supported Features include<br>
+<ul>
+<li><a name="one">all caps, small caps and font face arent done when the language cannot be guaranteed
+to be ascii based (western european) language.</a>
+<li>no office draw stuff, graphics that arent gif/png/jpg as of the moment, or equation editor or other ole embedded types. 
+<li>not wysiwhg output, watch out for stuff where a heading level in word
+has had its point size shrunk to look like ordinary text,, thats going
+to look wrong in html with default options (use -h if you get this), fonts
+might look too large in default output use -f pointsize (e.g -f 12) for this problem.
+<li>pagenumbering works off hard page breaks, the one the user puts in with insert break, so
+pagenumbering mightnt be exactly as you would want it to be.
+<li>indentation of lists doesnt work, for the same reasons that theres no
+real layout being preserved from doc to html.
+<li>fully correct conversion of tab stops and other formatting done by the user done with whitespace, again
+indentation done with this is just going to be broken in html no matter what anyone does.
+<li>word 6 and 7 etc arent currently supported, just word 8. mswordview cant understand
+these formats as they're somewhat different.
+</ul>
+I will be working on the unsupported features, but as its already fairly useful, im releasing it. Also it only does word 8, not word 6 and/or
+word 7, i will be adding word 6 capabilities to it as well, and if i get lucky word 7.<p>
+This is to be considered early beta software as theres loads to be done and many
+bits and bobs to be fixed and supported.
+
+<H2>What do you need</H2>
+Just the <a href="#source">source</a><br>
+
+<h2>Web Gateway</h2>
+<a href="http://www.csn.ul.ie/~caolan/docs/MSWordView-Demo.html">Demo mswordview here</a>, dont use this to convert information you wouldnt want me to
+see, coz if the conversion doesnt work, ill be using the file you convert
+to try and extend what mswordview can support, which will require me to read
+it. This script is broken for non ascii languages, mswordview supports them
+but the utf-8 is getting stripped somewhere in the web interface to it.
+
+<H2>More Info</H2>
+MsWordView used to use <a href="http://wwwwbs.cs.tu-berlin.de/~schwartz/pmh/laola.html">laola</a> to break the word file up into its
+ole streams, but now uses custom c code that is included in the distribution, after that the word specification that microsoft has made available
+is followed to extract the text and paragraph properties, i.e whether we are in a table or not.<br>
+<H3> How to Obtain Microsoft Office File Formats</h3>
+The MS Office file formats (Word, Excel, Powerpoint, Office Binder and 
+Office Drawing) are all freely available from the MS web site provided you 
+are a member of the MS Developer Network (MSDN).  Joining MSDN is free to gain
+access to these specifications
+<p>
+Simply go to the following address:<br>
+<a href="http://msdn.microsoft.com/">http://msdn.microsoft.com</a><br>
+From the list on the left of the screen select MSDN library online<br>
+If you are not a member of the MS Developer Network you will need to join - it's free.<br>
+Once you have subscribed to the MSDN, you can obtain online copies of the file formats. To do this, follow these steps: <br>
+1.On the MSDN World Wide Web site, click MSDN Library Online. <br>
+2.Under Member Area, click the Library Online tab. <br>
+3.Double-click Microsoft Office Development. <br>
+4.Double-click Office. <br>
+5.Double-click Microsoft Office 97 Binary File Formats. <br>
+6.Select the format you are interested in (Word, Excel, Powerpoint, etc.)<P>
+There is a definite need for converters for the other msoffice products. In 
+relation to this converter ms office draw is needed, so go out there and work
+on it. <p>
+<!--#include file="paraclose.shtml" -->
+<!--#include file="bottomhalf.shtml" -->
+<H3>Other Decoders and related projects</H3>
+There already exist a few attempts as word converters<br>
+<a href="http://wwwwbs.cs.tu-berlin.de/~schwartz/pmh/laola.html">laola</a> (originally used by mswordview) includes one called elser, doesnt handle word 8, but can do word 6 and 7<br>
+<a href="http://word2x.astra.co.uk/">word2x</a>, which is for word 6 and doesnt do fastsaves <br>
+<a href="http://www.fe.msk.ru/~vitus/works/works_unix.html">catdoc</a>, which doesnt do fastsaves or tables, also for word 6.<p>
+all these converters are almost magical in how far they managed to go without access to the 
+microsoft format specification, and their code was terribly useful in figuring out some things<p>
+Sun has <a href="http://access1.Sun.COM/Products/solaris/PCFileViewer/">something</a> which displays
+word files on screen, though it doesnt print<br>
+Corels <a href="http://www.sdcorp.com/wplinux/wplinux.html">word processor for linux</a>, has a very good
+converter for word6/7/8 built in. Its has had a few mistakes in conversion, but unlike current mswordview it retains
+formatting very very well.<br>
+Use wine and the ms 16bit word viewer, heres a <a href="http://www.blarg.net/~mmadore/worddocs.html">howto</a>.<br>
+the <a href="http://arturo.directmail.org/filters/">filters project</a>.<br>
+A word macro <a href="http://www.bocklabs.wisc.edu/~janda/programs.html">investigation tool</a>
+
+<h3><A name="source">Download MSWordView</a></h3>
+<UL>
+<LI><A href="../publink/mswordview/">Source</A> last version as of Thu Oct 29 18:28<br>
+</UL>
+<h3>Warning, mswordview no longer outputs to standard output by default</h3>
+Remember this is a work in progress, its not finished yet and may show bugs.
+<A name="bugs"><H3>Known Bugs</H3></a>
+i reckon that theres loads of problems with more complex
+docs, and theres stacks of codes i havent implemented yet, often unknown
+graphics are spat out, which are incorrect, if the graphic name says unknown
+then its an unsupported graphic type.
+Heres my <a href="../publink/mswordview/mswordview/CHANGELOG">CHANGELOG</a>, keep track of it for news and updates
+what im working on etc.
+<a name ="mail"><h3>Mailing List</h3></a>
+an incredibly low volume mailing list for announcements has been set up for mswordview (Aug 24th 1998)<br>
+to subscribe send email to <a href="mailto:mswordview-subscribe@makelist.com">mswordview-subscribe@makelist.com</a><br>
+to unsubscribe send email to <a href="mailto:mswordview-unsubscribe@makelist.com">mswordview-unsubscribe@makelist.com</a><br>
+the address of the list itself is <a href="mailto:mswordview@makelist.com">mswordview@makelist.com</a><br>
+the list archive is at
+<a href="http://www.findmail.com/list/mswordview/">http://www.findmail.com/list/mswordview/</a><br>
+
+<form method=GET action="http://www.findmail.com/subscribe">
+              <input type=hidden name="listname" value="mswordview">
+              <table bgcolor="#000000" border=0 cellpadding=1 cellspacing=0>
+              <tr><td><table bgcolor="#ffffcc" border=0 cellpadding=0 cellspacing=0>
+              <tr><td bgcolor="#000000" width=225 ALIGN=center>
+              <table bgcolor="#ffffcc" border=0 cellpadding=3 cellspacing=0>
+              <tr align=center><td bgcolor="#000000" width=225>
+              <font size=-1 face="arial,helvetica" color="#FFFFFF">
+              <b>Subscribe to mswordview</b></font></td></tr>
+              <tr><td><font size=-1>Enter your e-mail address:</font></td></tr>
+              <tr><td><font size=-1>
+              <input type=text name="emailaddr" value="your e-mail" size=18>
+              <input type=submit name="SubmitAction" VALUE="Subscribe"></font></td>
+              </tr><tr><td><font size=-1>
+              <a href="http://www.findmail.com/list/mswordview/">FindMail 
+              List Archive</a></font></td></tr><tr>
+              <td><font face="arial,helvetica" size=-2>A mailing list hosted by 
+              <a href="http://www.findmail.com/">FindMail</A></font></td>
+              </tr></table></td></tr></table></td></tr></table></form>
+
+<h3>What would be nice to get</h3>
+
+<ul>
+<li>the word 7 (office 95), 4, 3 & 2 formats, i have the others.
+<li>someone to implement decoders for excel, access, powerpoint & office draw.
+<ul>
+<li>theres someone working on excel i see <a href="http://www.az.com/~drysdam/projects.html">here.</a>
+</ul>
+<li>a converter for wmf to something else useful, theres a gimp plugin that
+would be a good starting location.
+<li>a converter for equation editor stuff to tex, or something else
+<li>a nice logo, i cant draw too well.
+<li>some sponsership :-), id love some of that <a href="http://www.robotstore.com/lego_mindstorms_site.html">cool mindstorms lego</a>.
+</ul>
+
+<HR>
+<center>
+<A HREF="http://skynet.csn.ul.ie/"> <IMG Border="0" SRC="../pics/skynet-button.gif" ALT="Skynet Home Page"></a>
+</center
+<!--#include file="paraclose.shtml" -->
+<!--#include file="sidemaps.shtml" -->
+</BODY>
+</HTML>
+

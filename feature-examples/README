@@ -1,0 +1,25 @@
+this isnt finished yet, this will be a clearing house
+of all the word features that mswordview can convert 
+and handle.
+
+fully done are...
+
+supported-font-features.doc
+supported-paragraph-features.doc
+supported-hyperlink-features.doc
+supported-break-features.doc
+supported-caption-features.doc
+supported-footnote-1-features.doc
+supported-footnote-2-features.doc
+supported-footnote-3-features.doc
+supported-footnote-4-features.doc
+
+not fully done are...
+
+1) some missing field support makes supported-headers-features.doc incomplete
+and theres one bug in the header above Chapter1 I am a H1 title
+2) supported-footnote-5-features.doc is fine, except that the cross and double
+cross symbols arent iso chars, and as such are wrong.
+3) supported-revision-features.doc is not finished yet
+
+C.

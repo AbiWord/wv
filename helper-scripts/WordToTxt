@@ -1,0 +1,8 @@
+#!/bin/sh
+#from mswordview mailing list by
+#E. Frank Ball <frankb@sr.hp.com>
+
+htmlfile=/tmp/mswordviewfile$$
+mswordview -o $htmlfile $1
+lynx -dump -force_html $htmlfile
+/bin/rm $htmlfile

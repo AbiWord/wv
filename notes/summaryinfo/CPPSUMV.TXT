@@ -1,0 +1,83 @@
+'---------------------------------------------------------------------------
+' Visual Basic interface definitions for CPPSUM.DLL
+' DLL functions to get summary info from OLE 2.0 document files.
+'
+'     Copyright © 1994-1995 Somar Software, All Rights Reserved
+'     Send problem reports and comments to 72202.2574@compuserve.com
+'     Visit the Somar Software WWW site at http://www.somar.com
+'
+' Example of usage:
+'    Dim wInitStatus as Integer, hSumInfo As Integer, bResult As Integer
+'    Dim s$, yr%, mon%, dy%, hr%, min%, sec%
+'    wInitStatus = SumInfoInit()
+'    If wInitStatus <> 0 Then
+'       hSumInfo = SumInfoOpenFile("..put your file name here..")
+'       If hSumInfo <> 0 Then
+'          s$ = String$(256, " ")
+'          bResult = SumInfoGetString(hSumInfo, PID_TITLE, s$, 256)
+'          bResult = SumInfoGetTime(hSumInfo, PID_LASTSAVED, yr%, mon%, dy%, hr%, min%, sec%)
+'          SumInfoCloseFile (hSumInfo)
+'       End If
+'       SumInfoUninit(wInitStatus)
+'    End If
+'
+' Reasons for failure:
+'     SumInfoInit:     out of memory
+'     SumInfoOpenFile: out of memory
+'                      file not found
+'                      file is not an OLE 2.0 structured storage file
+'                      file does not contain OLE 2.0 summary info
+'                      OLE 2.0 summary info is incorrectly formatted
+'     SumInfoGet...  : specified property type is not available
+'     
+' See CPPSUM.CPP for change log
+'---------------------------------------------------------------------------
+
+   ' String properties 
+Global Const PID_TITLE          = &H02
+Global Const PID_SUBJECT        = &H03
+Global Const PID_AUTHOR         = &H04
+Global Const PID_KEYWORDS       = &H05
+Global Const PID_COMMENTS       = &H06
+Global Const PID_TEMPLATE       = &H07
+Global Const PID_LASTAUTHOR     = &H08
+Global Const PID_REVNUMBER      = &H09
+Global Const PID_APPNAME        = &H12
+
+   ' Time properties
+Global Const PID_TOTAL_EDITTIME = &H0A
+Global Const PID_LASTPRINTED    = &H0B
+Global Const PID_CREATED        = &H0C
+Global Const PID_LASTSAVED      = &H0D
+
+   ' Long integer properties
+Global Const PID_PAGECOUNT      = &H0E
+Global Const PID_WORDCOUNT      = &H0F
+Global Const PID_CHARCOUNT      = &H10
+Global Const PID_SECURITY       = &H13
+
+   ' bit masks for security long integer
+Global Const AllSecurityFlagsEqNone         = &H00
+Global Const fSecurityPassworded            = &H01
+Global Const fSecurityRORecommended         = &H02
+Global Const fSecurityRO                    = &H04
+Global Const fSecurityLockedForAnnotations  = &H08
+
+	' 16 bit DLL
+Declare Function SumInfoInit Lib "CPPSUM.DLL" () As Integer
+Declare Function SumInfoOpenFile Lib "CPPSUM.DLL" (ByVal szPath As String) As Integer
+Declare Function SumInfoGetString Lib "CPPSUM.DLL" (ByVal hSumInfo As Integer, ByVal pid As Long, ByVal lpBuf As String, ByVal cbBuf As Integer) As Integer
+Declare Function SumInfoGetLong Lib "CPPSUM.DLL" (ByVal hSumInfo As Integer, ByVal pid As Long, lpLong As Long) As Integer
+Declare Function SumInfoGetTime Lib "CPPSUM.DLL" (ByVal hSumInfo As Integer, ByVal pid As Long, lpYr%, lpMon%, lpDay%, lpHr%, lpMin%, lpSec%) As Integer
+Declare Sub SumInfoCloseFile Lib "CPPSUM.DLL" (ByVal hSumInfo As Integer)
+Declare Sub SumInfoUninit Lib "CPPSUM.DLL" (ByVal wInitStatus as Integer)
+
+	' 32 bit DLL
+Declare Function SumInfoInit Lib "CPPSUM32.DLL" () As Integer
+Declare Function SumInfoOpenFile Lib "CPPSUM32.DLL" (ByVal szPath As String) As Long
+Declare Function SumInfoGetString Lib "CPPSUM32.DLL" (ByVal hSumInfo As Long, ByVal pid As Long, ByVal lpBuf As String, ByVal cbBuf As Integer) As Integer
+Declare Function SumInfoGetLong Lib "CPPSUM32.DLL" (ByVal hSumInfo As Long, ByVal pid As Long, lpLong As Long) As Integer
+Declare Function SumInfoGetTime Lib "CPPSUM32.DLL" (ByVal hSumInfo As Long, ByVal pid As Long, lpYr%, lpMon%, lpDay%, lpHr%, lpMin%, lpSec%) As Integer
+Declare Sub SumInfoCloseFile Lib "CPPSUM32.DLL" (ByVal hSumInfo As Long)
+Declare Sub SumInfoUninit Lib "CPPSUM32.DLL" (ByVal wInitStatus as Integer)
+

@@ -1,0 +1,28 @@
+#!/bin/tcsh
+
+if ($#argv != 1) then
+    echo "Usage: $0 file.doc"
+    exit 1
+endif
+
+set source = $argv[1]
+
+#Generate a unique html filename (/tmp/scriptname.pidnum.html)
+set com = $0
+set temp = /tmp/$com:t.$$
+set html = $temp.html
+
+(mswordview $source) >! $html
+if ((!(-s $html)) | ($status)) then
+    echo "$0: failed to generate HTML file"
+    exit 1
+endif
+
+#File exists and is of length > 0, so open it
+nsopen $html
+
+#I do NOT remove the html file so that the user
+#can click on the "Back" button without generating
+#a "file not found" error
+
+exit 0

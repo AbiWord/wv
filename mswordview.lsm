@@ -1,0 +1,66 @@
+Begin3
+Title:          mswordview  MS Word Decoder
+Version:        0.5.1
+Entered-date:   031298
+Description:    mswordview is a program that can understand 
+                the microsoft word 8 binary file format (office97), 
+                it currently converts word into html, which can then 
+                be read with a browser. 
+                Features include
+                    1) ability to understand fastsaved files as well as
+                       non-fastsaved files.
+                    2) conversion of word header paragraph styles into 
+                       appropiate header levels of html
+                    3) conversion of symbol and wingding font into gif
+                       images.
+                    3) conversion of font attributes such as italic,
+                       bold, underline, subscript, superscript,font size,
+                       color, font face, hyperlinks etc
+                    4) conversion of paragraph attributes such as left, right
+                       and centered justification, distance from other 
+                       paragraphs, etc
+                    5) conversion of word tables into html tables.
+                    6) conversion of lists and multilevel lists.
+                    7) conversion of footnotes and crossreferences into html 
+                       linked text.
+                    8) support for footers and headers, support for odd/even/
+                       first page ones.
+                    9) support for sections, i.e knows when to restart 
+                       pagenumbering and so on, understands what style of 
+                       pagenumbering i.e i vs 1 vs a
+                   10) some support for pictures in word docs. gifs/jpgs/pngs 
+                       work, wmfs are correctly extracted but not converted
+                   11) conversion of non european languages into utf-8 
+                       encoding which can be viewed correcly by netscape 
+                       (definitely works with 4.05 and above)
+                Non Supported Features include
+                    1) wmf graphics, and many office draw contructs
+                    2) *ole* embedded graphics or other embedded types (e.g. 
+                       equations)
+                    3) formatting done by the user done with whitespace is
+                       mostly not going to work correctly
+                    4) nonexplicit pagebreaks. i.e mswordview only counts 
+                       manually inserted pagebreaks.
+                    5) word 6 and 7 etc arent currently supported, just 
+                       word 8
+                    6) mswordview's ole code is more strict than ms's so some
+                       corrupt docs that word can open cannot be opened by 
+                       mswordview, on the other hand some docs that hang 
+                       msword dont hang mswordview.
+                Web Page for download and information at..
+                  http://www.csn.ul.ie/~caolan/docs/MSWordView.html
+                       and
+                  http://www.gnu.org/~caolan/docs/MSWordView.html
+                Web gateway to mswordview at..
+                  http://www.csn.ul.ie/~caolan/docs/MSWordView-Demo.html
+Keywords:       msword, word, office, converter, decoder, translator, html
+Author:         Caolan.McNamara@ul.ie (Caolan McNamara)
+Maintained-by:  Caolan.McNamara@ul.ie (Caolan McNamara)
+Primary-site:   sunsite.unc.edu /pub/Linux/apps/www/converters
+                mswordview-0.5.1.tar.gz
+Alternate-site: skynet.csn.ul.ie /pub/linux/utils
+                mswordview-0.5.1.tar.gz
+Original-site:  skynet.csn.ul.ie /pub/linux/utils
+                mswordview-0.5.1.tar.gz
+Copying-policy: GPL
+End

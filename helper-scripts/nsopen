@@ -1,0 +1,22 @@
+#!/bin/tcsh
+
+if ($#argv != 1) then
+    echo "Usage: $0 file"
+    exit 1
+endif
+
+set file = $argv[1]
+if (!(-r $file)) then
+    echo "$0: File $file cannot be read"
+    exit 1
+endif
+
+#Try to open file in an existing netscape window
+(netscape -remote "openFile(${file})") >& /dev/null
+
+#if this fails, it means that netscape is not running, so start it
+if ($status) then
+  netscape -no-install file:${file}
+endif
+
+

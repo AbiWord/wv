@@ -1,0 +1,9 @@
+The summary.c file in the root of the mswordview dist is a port of the Somar 
+Software freeware DLL functions to get summary info from OLE 2.0 document 
+files, named CPPSUM available from the Somar Software WWW site at 
+http://www.somar.com
+
+The port (as always) is written by Caolan.McNamara@ul.ie and is released
+under the LGPL
+
+An example of usage of the summary stream is shown in wvSummary.c

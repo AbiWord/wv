@@ -1,0 +1,67 @@
+EXEEXT = @EXEEXT@
+
+LDFLAGS = @LDFLAGS@
+
+CC = @CC@
+
+SHELL=/bin/sh
+
+RANLIB = @RANLIB@
+
+AR = ar
+
+# If you know what your system's byte order is, define XML_BYTE_ORDER:
+# use -DXML_BYTE_ORDER=12 for little-endian byte order;
+# use -DXML_BYTE_ORDER=21 for big-endian (network) byte order.
+# -DXML_NS adds support for checking of lexical aspects of XML namespaces spec
+# -DXML_MIN_SIZE makes a smaller but slower parser
+CFLAGS = @CFLAGS@ -Ixmltok -Ixmlparse -DXML_NS
+
+# Use one of the next two lines; unixfilemap is better if it works.
+FILEMAP_OBJ=xmlwf/unixfilemap.o
+#FILEMAP_OBJ=xmlwf/readfilemap.o
+
+SHELL = /bin/sh
+
+.SUFFIXES: .C .o
+
+XMLOBJECTS =	\
+	xmlwf/xmlwf.o \
+	xmlwf/xmlfile.o \
+	xmlwf/codepage.o \
+	$(FILEMAP_OBJ)
+
+PARSEOBJECTS =	\
+	xmlparse/xmlparse.o \
+	xmlparse/hashtable.o
+
+TOKENOBJECTS =	\
+	xmltok/xmltok.o \
+	xmltok/xmlrole.o 
+	
+
+all: xmlwf/xmlwf$(EXEEXT) lib/libxmlparse.a lib/libxmltok.a
+
+xmlwf/xmlwf$(EXEEXT): lib/libxmlparse.a lib/libxmltok.a $(XMLOBJECTS)
+	 $(CC) -o $@ $(XMLOBJECTS) -Llib -lxmlparse -lxmltok
+
+lib/libxmlparse.a:	$(PARSEOBJECTS)
+	$(AR) rc $@ $(PARSEOBJECTS) 
+	$(RANLIB) $@
+
+lib/libxmltok.a:	$(TOKENOBJECTS)
+	$(AR) rc $@ $(TOKENOBJECTS) 
+	$(RANLIB) $@
+
+%.o: %.c 
+	$(CC) $(CFLAGS) -c $*.c -o $*.o
+
+clean: 
+	rm -rf $(XMLOBJECTS) $(PARSEOBJECTS) $(TOKENOBJECTS)
+
+distclean: clean
+	rm -rf Makefile lib/*.a xmlwf/xmlwf$(EXEEXT)
+
+realclean: distclean
+
+#  DO  NOT  DELETE THIS LINE -- make depend depends on it.

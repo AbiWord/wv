@@ -1,0 +1,32 @@
+wordview is currently capable of converting word 8 (office 97) documents
+into html, the future proposed feature list include.
+
+* support word 6, 7 and older versions as well as the current word 8.
+
+* expand support to allow wordview to be used as import filters for
+abiword and kword (underway), and also for commercial wordprocessors.
+
+* allow wordview to output in tex,rtf, rax ascii, ps etc etc etc.
+
+* graphical standalone viewer for word documents.
+
+* web browser plugin for word documents.
+
+* toolkit support to allow writing of word documents.
+
+* programmer api to do all sorts of searching, and scripting to
+work with word docs.
+
+* programmers manual for using the wordview toolkit.
+
+* fully support the office 97 decryption mechanism (50% complete).
+
+* fully support wmf files (80% complete).
+
+* ole tools such as wvSummary (complete) and other analysis and investigation
+tools.
+
+* fastsave to fullsave converter for outgoing mail servers to protect
+companies from sensitive information being distributed accidentally.
+
+* macro deleter for incoming mail servers to protect against macro virii.

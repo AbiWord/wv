@@ -1,0 +1,53 @@
+Read INSTALL for install information.
+
+After installing mswordview the basic things
+to note are that 
+
+1) if you compiled with libwmf support mswordview will
+by default look for ttf file to give to it in
+the ttf subdir of the mswordview install dir
+e.g. /usr/local/lib/mswordview/lib
+
+you can copy your windows fonts in there, or make
+it a link to where you have some ttf fonts.
+
+2) mswordview uses gifs for some things that it
+cannot display in html, the dirs for all of
+these can be overridded in command line options
+read the man page for these options notable
+patternurl, wingdingurl, symbolurl.
+
+3) there is a ridiculous amount of options for mswordview, sorry
+about that.
+
+4) There is a config file now as well, its in development so
+there not a lot you can override with it. Nonetheless you
+can override word stylenames with custom beginnings,endings,
+custom handling of the vertical space before and after a
+paragraph, and the capacity to allow or disallow the 
+bold, italic and font attributes of a style.
+
+so for instance if a word style called "Heading 1" is a
+set of text in font Helvetica and is bold and italic, with half
+an inch of space before and after it, but you just want it
+to be <h1></h1> in the output html. Then you're config file 
+can contain
+
+Style "Heading 1"
+	{
+	PreSpace " "
+	Start <h1>
+	Default Off
+	End </h1>
+	PostSpace " "
+	}
+
+to achieve this. Read the sample config-mswordview file for
+the current set of available options.
+
+5) There are helper applications in the helper-scripts dir
+that allow both lynx and netscape to view word 8 docs easily
+
+6) The gateway dir contains the cgi script that allows the
+online demo page that some people wanted for themselves.
+

@@ -1,0 +1,30 @@
+The little scripts here do most of the awful work of reformatting the
+ms specs into header files.
+
+Given a selected structure from the docs in text format
+e.g.
+cat demo.txt | wvh.awk | wv.sed > headerfile
+
+edit headerfile to check for duplicate offsets (they will be marked
+with lines beginning with /*error. Determine which one you want to
+use in the c implementation. After this...
+
+wv-get-c.awk, creates the basic internal read from file and bucket functions.
+
+wv-init-c.awk, creates a structure initializer.
+
+wv-copy-c.awk, creates a basic structure copier
+
+cat headerfile | wv-get-c.awk > cfile, 
+cat headerfile | wv-init-c.awk >> cfile
+cat headerfile | wv-copy-c.awk >> cfile
+
+we can get things pretty much as we need them.
+
+This mostly gets around the rewriting of the specs into structures and
+generates pseudo c++ constructors, copy constructors and assignment.
+
+Caolan.McNamara@ul.ie
+
+(a perl guy can rewrite this if they want, i never got up to date with that
+new fangled perl stuff)

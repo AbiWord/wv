@@ -1,0 +1,50 @@
+<!--asdasd-->
+<main>
+
+<element name="Bold">
+<begin>&lt;b&gt;</begin>
+<end>&lt;/b&gt;</end>
+</element>
+
+<element name="Italic">
+<begin>&lt;i&gt;</begin>
+<end>&lt;/j&gt;</end>
+</element>
+
+<attribute name="Just">
+<jc0>"left"</jc0>
+<jc1>"center"</jc1>
+<jc2>"right"</jc2>
+<jc3>"left and right justification"</jc3>
+</attribute>
+
+<element name="Justify">
+<begin>text-align="<Just/>"</begin>
+<end></end>
+</element>
+
+<element name="Paragraph">
+<begin>&lt;p PROPS=<Justify.begin> &gt;</begin>
+<end>&lt;/p&gt;</end>
+</element>
+
+<document>
+<start>Document Started</start>
+<end>Document Ended</end>
+</document>
+
+</main>
+
+<!--
+
+<p props="text-align=center">
+</p>
+
+or
+
+<p>
+<center>
+</center>
+</p>
+
+-->
