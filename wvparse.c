@@ -1,5 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
+/* Don't use GNOMEVFS unless it is requested via config.h
+ */
+#ifdef HAVE_GNOMEVFS
+#undef HAVE_GNOMEVFS
+#endif
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
