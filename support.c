@@ -144,7 +144,7 @@ static size_t memorystream_read(MemoryStream *stream, void *buf, size_t count)
 {
   size_t ret;
 
-  if ( stream->current + count < stream->size)
+  if ( stream->current + count <= stream->size)
     {  
       memcpy(buf, stream->mem + stream->current, count);
       stream->current += count;
@@ -258,7 +258,6 @@ wvStream_read (void *ptr, size_t size, size_t nmemb, wvStream * in)
     else
       {
 	return memorystream_read(in->stream.memory_stream, ptr, size * nmemb);
-	return size * nmemb;
       }
 }
 
