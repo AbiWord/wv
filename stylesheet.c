@@ -296,7 +296,7 @@ wvReleaseSTSH (STSH * item)
     int i;
     for (i = 0; i < item->Stshi.cstd; i++)
       {
-	  wvTrace (("Releaseing %d std\n", i));
+	  wvTrace (("Releasing %d std\n", i));
 	  wvReleaseSTD (&(item->std[i]));
       }
     wvFree (item->std);

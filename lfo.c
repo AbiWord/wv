@@ -191,7 +191,7 @@ int
 wvReleaseLFO_records (LFO ** lfo, LFOLVL ** lfolvl, LVL ** lvl, U32 nooflvl)
 {
     U32 i;
-    wvTrace (("releaseing %d lvl records\n", nooflvl));
+    wvTrace (("releasing %d lvl records\n", nooflvl));
     wvFree (*lfo);
     wvFree (*lfolvl);
     for (i = 0; i < nooflvl; i++)
