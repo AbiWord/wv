@@ -1154,12 +1154,14 @@ pps_decode_tree (MsOle *f, PPS_IDX p, PPS *parent)
 
 	if (PPS_GET_NEXT(mem) != PPS_END_OF_CHAIN)
 		pps_decode_tree (f, PPS_GET_NEXT(mem), parent);
-
+	
 	if (PPS_GET_PREV(mem) != PPS_END_OF_CHAIN)
 		pps_decode_tree (f, PPS_GET_PREV(mem), parent);
-
+	
 	if (PPS_GET_DIR (mem) != PPS_END_OF_CHAIN)
-		pps_decode_tree (f, PPS_GET_DIR(mem), pps);
+		if (pps->type == MsOleStorageT ||
+		    pps->type == MsOleRootT)
+			pps_decode_tree (f, PPS_GET_DIR(mem), pps);
 
 	pps->start   = PPS_GET_STARTBLOCK (mem);
 
