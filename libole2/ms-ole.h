@@ -22,6 +22,7 @@ extern "C" {
 #endif
 # include <fcntl.h>       /* for mode_t */
 #else
+# include <stdlib.h>
 	typedef unsigned long mode_t;
 	typedef size_t ssize_t;
 	typedef /* signed */ long off_t;
