@@ -7,11 +7,11 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-/* Disabling this for the moment - fjf
-#ifdef HAVE_MALLOC_H
+
+#if 0
 #include <malloc.h>
 #endif
- */
+
 #include "wvexporter-priv.h"
 #include "ms-ole-summary.h"
 
