@@ -7,6 +7,7 @@ SHELL=/bin/sh
 
 @SET_MAKE@
 
+prefix=@prefix@
 srcdir=@srcdir@
 datadir=@datadir@
 

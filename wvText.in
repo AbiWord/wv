@@ -38,7 +38,7 @@ if [ ${USING_LYNX} -ne "0" ]; then
     fi
 
     # lynx actually does quite well
-    lynx -dump -force_html "${TMP_FILE}" > "${2}"
+    TERM=vt100 lynx -dump -force_html "${TMP_FILE}" > "${2}"
     if [ ${?} -ne "0" ]; then
 	    echo "Could not convert into Text"
 	    exit 1

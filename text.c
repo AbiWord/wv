@@ -18,7 +18,7 @@ int (*wvConvertUnicodeToEntity)(U16 char16)=NULL;
 
 /* i hate iconv - compilers treat its prototype differently */
 #if !defined(WIN32) || !defined(_WIN32)
-  #define wv_iconv(a,b,c,d,e) iconv(a, (const char**)b,c,(char**)d,e)
+  #define wv_iconv(a,b,c,d,e) iconv(a, (char**)b,c,(char**)d,e)
 #else
   #define wv_iconv(a,b,c,d,e) iconv(a,b,c,(char**)d,e)
 #endif
@@ -291,18 +291,15 @@ U16 wvHandleCodePage(U16 eachchar, U16 lid)
         U8 buffer[2];
         U8 buffer2[2];
 
-	U16 t1, t2;
+	U16 rtn;
 
-       if(eachchar > 0xff)
-               {
-               buffer[0]= (char)(eachchar >> 8);
-               buffer[1]= (char)eachchar & 0xff;
-               }
-       else
-               {
-               buffer[0] = eachchar & 0xff;
-               buffer[1] = 0;
-               }
+	if(eachchar > 0xff) {
+	  buffer[0]= (char)(eachchar >> 8);
+	  buffer[1]= (char)eachchar & 0xff;
+	} else {
+	  buffer[0] = eachchar & 0xff;
+	  buffer[1] = 0;
+	}
 
         ibuf = buffer;
         obuf = buffer2;
@@ -331,86 +328,91 @@ U16 wvHandleCodePage(U16 eachchar, U16 lid)
 	wv_iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
 	
 	/* We might have double byte char here. */
-	
-	t1 = (U16)buffer2[0] << 8;
-	t1 |=(U16)buffer2[1];
 
-	t2 = *(U16*)buffer2;
-	
 	if(swap_iconv(lid))
-	  eachchar = t1;
+	  {
+	    rtn = (U16)buffer2[0] << 8;
+	    rtn |=(U16)buffer2[1];
+	  }
 	else
-	  eachchar = t2;
-
-	wvTrace(("DOM: t1:%x t2:%x\n", t1, t2));
+	  {
+	    rtn = *(U16*)buffer2;
+	  }
 
 	iconv_close(iconv_handle);
 
-	return(eachchar);
+	return(rtn);
        }
         
-void wvOutputFromUnicode(U16 eachchar,char *outputtype)
-        {
-    U16 i;
-    char f_code[33];  /* From CCSID                       */
-    char t_code[33];            /* To CCSID                             */
-    iconv_t iconv_handle;       /* Conversion Descriptor returned       */
-                                /* from iconv_open() function           */
-    U8 *obuf;                 /* Buffer for converted characters      */
-    U8 *p;
-    size_t ibuflen;               /* Length of input buffer               */
-    size_t obuflen;               /* Length of output buffer              */
-    size_t len;
-    U8 *ibuf;
-    U8 buffer[2];
-    U8 buffer2[5];
+void wvOutputFromUnicode( U16 eachchar, char *outputtype )
+{
+  static char cached_outptype[33];    /* Last outputtype		    */
+  static iconv_t iconv_handle = NULL;	/* Cached iconv descriptor	    */
+  static int need_swapping;
+  U8 *ibuf, *obuf;
+  size_t ibuflen, obuflen, len, count, i;
+  U8 buffer[2], buffer2[5];
 
-    buffer[0]=(eachchar>>8)&0x00ff;
-    buffer[1]=eachchar&0x00ff;
-    ibuf = buffer;
-    obuf = buffer2;
+  if ((wvConvertUnicodeToEntity != NULL) && wvConvertUnicodeToEntity(eachchar))
+    return;
 
-        if ((wvConvertUnicodeToEntity != NULL) && wvConvertUnicodeToEntity(eachchar))
-                return;
+  if ( !iconv_handle || strcmp(cached_outptype, outputtype) != 0 )
+    {
+      if (iconv_handle)
+	iconv_close(iconv_handle);
 
-         /* All reserved positions of from code (last 12 characters) and to code   */
-    /* (last 19 characters) must be set to hexadecimal zeros.                 */
+      iconv_handle = iconv_open( outputtype, "UCS-2" );
+      if (iconv_handle == (iconv_t)-1) {
+	wvError(("iconv_open fail: %d, cannot convert %s to %s\n",errno,"UCS-2",outputtype));
+	printf("?");
+	return;
+      }
 
-    memset(f_code,'\0',33);
-    memset(t_code,'\0',33);
+      /* Determining if unicode biteorder is swapped (glibc < 2.2) */
+      need_swapping = 1;
 
-    strcpy(f_code,"UCS-2");
-    strcpy(t_code,outputtype);
+      buffer[0] = 0x20; buffer[1] = 0;
+      ibuf = buffer;    obuf = buffer2;
+      ibuflen = 2;      obuflen = 5;
+      
+      count = wv_iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+      if (count >= 0)
+	need_swapping = buffer2[0] != 0x20;
+    }
+  
+  if (need_swapping) {
+    buffer[0] = (eachchar>>8) & 0x00ff;
+    buffer[1] = eachchar & 0x00ff;
+  } else {
+    buffer[0] = eachchar & 0x00ff;
+    buffer[1] = (eachchar>>8) & 0x00ff;
+  }
 
-        iconv_handle = iconv_open(t_code,f_code);
-    if (iconv_handle == (iconv_t)-1)
-        {
-        wvError(("iconv_open fail: %d, cannot convert %s to %s\n",errno,"UCS-2",outputtype));
-        printf("?");
-        return;
-        }
+  ibuf = buffer;
+  obuf = buffer2;
 
-        ibuflen = 2;
-    obuflen = 5;
-        p = obuf;
-    len = obuflen;
+  ibuflen = 2;
+  len = obuflen = 5;
 
-    if(wv_iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen) == (size_t)-1)
-      {
-        wvError(("iconv failed errno: %d, to:%s from:%s\n",errno, t_code, f_code));
+  count = wv_iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+  if(count == (size_t)-1)
+    {
+      wvError(("iconv failed errno: %d, char: 0x%X, %s -> %s\n",
+	       errno, eachchar, "UCS-2", outputtype));
+
 	/* I'm torn here - do i just announce the failure, continue, or copy over to the other buffer? */
 
 	/* errno is usually 84 (illegal byte sequence)
 	   should i reverse the bytes and try again? */
 	printf ("%c", ibuf[1]);
-      } else {
-        len = len-obuflen;
-        iconv_close(iconv_handle);
+    } else {
+      len = len-obuflen;
 
-        for (i=0;i<len;i++)
-                printf("%c",p[i]);
-      }
-	}
+      for (i=0; i<len; i++)
+	printf("%c", buffer2[i]);
+    }
+}
+
 
 void wvBeginDocument(expand_data *data)
         {

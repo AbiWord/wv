@@ -357,7 +357,7 @@ XMLPARSER:
 	@(cd expat && $(MAKE)) || exit 1
 else
 XMLPARSER:
-       @echo using system libxml... will not compile expat
+	@echo using system libxml... will not compile expat
 endif
 
 LIBOLE2:	GLIB-WV

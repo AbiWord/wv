@@ -11,6 +11,9 @@
 
 #define VERSION "0.6.4"
 
+/* strdup isn't declared in <string.h> for `gcc -ansi'; declare it here */
+extern char* strdup (const char*);
+
 /*
 Released under GPL, written by Caolan.McNamara@ul.ie.
 
@@ -50,7 +53,7 @@ char *strdup(const char *text)
     char *buf;
     size_t len;
 
-    len = strlen(text);
+    len = strlen(text) + 1;
     buf = (char *) wvMalloc(len);
     memcpy(buf, text, len);
 

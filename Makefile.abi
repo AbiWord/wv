@@ -174,18 +174,21 @@ CSRCS= \
 
 #CFLAGS+=		-I. -I./exporter/ -I./iconv -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
 
+
 #if Abi ever supports WMF files embedded inside of Word Docs, append
 #-DSYSTEM_ZLIB=1 to the CFLAGS
-_dummyCFLAGS+= -DHAVE_CONFIG_H -I. -I./exporter/ -I./iconv -I./expat/xmlparse  -I./oledecod -I./libole2 -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
-
-_dummyCFLAGS+= $(CFLAGS)
-CFLAGS := $(_dummyCFLAGS)
-
+CFLAGS+= -DHAVE_CONFIG_H -I. -I./exporter/ -I./iconv -I./expat/xmlparse -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\" 
+ 
 CSRCS+= \
 	oledecod/oledecod.c \
 	laolareplace.c \
 	libole2/ms-ole.c \
 	libole2/ms-ole-summary.c
+
+CFLAGS+= \
+	-I./oledecod \
+	-I./libole2
+	
 	
 ifdef GLIB_CONFIG
 

@@ -46,7 +46,7 @@ int wvGetFTXBXS_PLCF(FTXBXS **ftxbxs,U32 **pos,U32 *noftxbxs,U32 offset,U32 len,
 			return(1);
 			}
 
-		*ftxbxs = (FTXBXS *) wvMalloc(*noftxbxs * sizeof(FTXBXS));
+		*ftxbxs = (FTXBXS *) wvMalloc((*noftxbxs + 1) * sizeof(FTXBXS));
 		if (*ftxbxs == NULL)
 			{
 			wvError(("NO MEM 1, failed to alloc %d bytes\n",*noftxbxs * sizeof(FTXBXS)));

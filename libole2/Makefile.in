@@ -6,7 +6,9 @@ SHELL=/bin/sh
 
 @SET_MAKE@
 
+prefix=@prefix@
 srcdir=@srcdir@
+datadir=@datadir@
 
 HAVE_GLIB = @HAVE_GLIB@
 

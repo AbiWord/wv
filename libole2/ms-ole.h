@@ -12,7 +12,7 @@
 #define MS_OLE_H
 
 /* This should be done in glib */
-#ifndef _WIN32
+#if !defined(_WIN32) || defined(__CYGWIN__)
 #if defined(__QNXNTO__)
 #		include <sys/types.h>	
 #endif
