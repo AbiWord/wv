@@ -191,7 +191,7 @@ void wvHandleCodePage(U16 eachchar,char *outputtype,U16 lid)
 	buffer[0]=eachchar;
 	ibuf = buffer;
 	obuf = buffer2;
-	
+
 	codepage = wvLIDToCodePageConverter(lid);
 	if (!(strcasecmp(codepage,"CP1252")))
 		{

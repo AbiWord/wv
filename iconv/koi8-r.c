@@ -12,9 +12,13 @@ size_t wvConvertUnicodeToKOI8_R(const char **inbuf, size_t *inbytesleft, char **
     U16 c1,c2;
     while(  (*inbytesleft) && (*outbytesleft)   )
         {
-        c2 = sread_16ubit(*inbuf);
-        (*inbuf)+=2;
+		c2 = (U8)**inbuf;
+        (*inbuf)++;
+        c2 = (c2<< 8)&0xFF00;
+        c2 += (U8)**inbuf;
+        (*inbuf)++;
         (*inbytesleft)-=2;
+
         c1 = ConvertUnicodeToKOI8_R(c2);
         if (c1 == 0xffff)
             **outbuf = '?';
