@@ -647,7 +647,7 @@ wvApplySprmFromBucket (wvVersion ver, U16 sprm, PAP * apap, CHP * achp,
 	  (*pos) += wvGetBRCFromBucket (ver, &achp->brc, pointer);
 	  break;
       case sprmCShd:
-	  wvGetSHDFromBucket (&apap->shd, pointer);
+	  wvGetSHDFromBucket (&achp->shd, pointer);
 	  (*pos) += 2;
       case sprmCIdslRMarkDel:
 	  /* achp->idslRMReasonDel ???? */
