@@ -213,14 +213,12 @@ EXPORTER_OBJECTS = \
 	exporter/dop.$(OBJEXT) \
 	exporter/doptypography.$(OBJEXT) \
 	exporter/dttm.$(OBJEXT) \
-	exporter/fbse.$(OBJEXT) \
 	exporter/fdoa.$(OBJEXT) \
 	exporter/ffn.$(OBJEXT) \
 	exporter/fib.$(OBJEXT) \
 	exporter/filetime.$(OBJEXT) \
 	exporter/fld.$(OBJEXT) \
 	exporter/font.$(OBJEXT) \
-	exporter/fopt.$(OBJEXT) \
 	exporter/frd.$(OBJEXT) \
 	exporter/fspa.$(OBJEXT) \
 	exporter/ftxbxs.$(OBJEXT) \

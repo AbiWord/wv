@@ -131,14 +131,12 @@ CSRCS= \
 	exporter/dop.c \
 	exporter/doptypography.c \
 	exporter/dttm.c \
-	exporter/fbse.c \
 	exporter/fdoa.c \
 	exporter/ffn.c \
 	exporter/fib.c \
 	exporter/filetime.c \
 	exporter/fld.c \
 	exporter/font.c \
-	exporter/fopt.c \
 	exporter/frd.c \
 	exporter/fspa.c \
 	exporter/ftxbxs.c \

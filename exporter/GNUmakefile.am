@@ -30,14 +30,12 @@ libexporter_la_SOURCES = \
 	dop.c \
 	doptypography.c \
 	dttm.c \
-	fbse.c \
 	fdoa.c \
 	ffn.c \
 	fib.c \
 	filetime.c \
 	fld.c \
 	font.c \
-	fopt.c \
 	frd.c \
 	fspa.c \
 	ftxbxs.c \

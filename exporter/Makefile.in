@@ -40,14 +40,12 @@ MYOBJECTS = \
 	dop.$(OBJEXT) \
 	doptypography.$(OBJEXT) \
 	dttm.$(OBJEXT) \
-	fbse.$(OBJEXT) \
 	fdoa.$(OBJEXT) \
 	ffn.$(OBJEXT) \
 	fib.$(OBJEXT) \
 	filetime.$(OBJEXT) \
 	fld.$(OBJEXT) \
 	font.$(OBJEXT) \
-	fopt.$(OBJEXT) \
 	frd.$(OBJEXT) \
 	fspa.$(OBJEXT) \
 	ftxbxs.$(OBJEXT) \

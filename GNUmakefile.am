@@ -60,6 +60,7 @@ wvVersion_LDADD = libwv.la $(GETOPT)
 libwv_la_LIBADD = magick/libmagick.la libole2/libole2.la oledecod/liboledecod.la $(LIBGLIB) $(LIBEXPAT) $(LIBEXPORTER) $(WVLIBS)
 libwv_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) -release $(LT_RELEASE) -export-dynamic
 libwv_la_SOURCES = \
+	winmmap.c \
 	support.c \
 	list.c \
 	stylesheet.c \
@@ -160,6 +161,7 @@ OTHERHEADERS = \
 	rc4.h \
 	roman.h \
 	utf.h \
+	winmmap.h \
 	wvinternal.h
 
 OTHERSCRIPTS = wvMime

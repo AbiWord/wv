@@ -7,12 +7,7 @@
 extern "C" {
 #endif
 
-    /* simple stream creation and writing functions */
     wvStream *wvStream_new (wvDocument * ole_file, const char *name);
-    int wvStream_write (void *ptr, size_t size, size_t nmemb, wvStream * in);
-    int write_32ubit (wvStream * in, U32 out);
-    int write_16ubit (wvStream * in, U16 out);
-    int write_8ubit (wvStream * in, U8 out);
 
     void wvInitFIBForExport (FIB * item);
     void wvPutFIB (FIB * item, wvStream * fd);
@@ -37,7 +32,6 @@ extern "C" {
     void wvPutDOPTYPOGRAPHY (DOPTYPOGRAPHY * dopt, wvStream * fd);
     void wvPutDTTM (DTTM * item, wvStream * fd);
     void wvUnixToDTTM (struct tm *src, DTTM * dest);
-    void wvPutFBSE (FBSE * item, wvStream * fd);
     void wvPutFDOA (FDOA * item, wvStream * fd);
     void wvPutFFN6 (FFN * item, wvStream * fd);
     void wvPutFFN (FFN * item, wvStream * fd);
@@ -45,9 +39,6 @@ extern "C" {
     void wvPutFLD (FLD * item, wvStream * fd);
     void wvPutFONTSIGNATURE (FONTSIGNATURE * fs, wvStream * fd);
     void wvPutPANOSE (PANOSE * item, wvStream * fd);
-    void wvPutFAnchor (FAnchor * item, wvStream * fd);
-    void wvPutFOPTE (FOPTE * afopte, wvStream * fd);
-    void wvPutFOPTEArray (FOPTE ** fopte, MSOFBH * msofbh, wvStream * fd);
     void wvPutFRD (FRD * item, wvStream * fd);
     void wvPutFSPA (FSPA * item, wvStream * fd);
     void wvPutFTXBXS (FTXBXS * item, wvStream * fd);
