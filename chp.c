@@ -13,6 +13,17 @@ void wvAddCHPXFromBucket(CHP *achp,UPXF *upxf,STSH *stsh)
 	U8 *pointer;
 	U16 i=0;
 	U16 sprm;
+
+#ifdef SPRMTEST
+	fprintf(stderr,"\n");
+    while (i < upxf->cbUPX)
+        {
+        fprintf(stderr,"%x (%d)\n",*(upxf->upx.chpx.grpprl+i),*(upxf->upx.chpx.grpprl+i));
+        i++;
+        }
+    fprintf(stderr,"\n");
+	i=0;
+#endif
 	while (i < upxf->cbUPX)
 		{
 		sprm = bread_16ubit(upxf->upx.chpx.grpprl+i,&i);
@@ -27,6 +38,16 @@ void wvApplyCHPXFromBucket(CHP *achp,CHPX *chpx,STSH *stsh)
 	U8 *pointer;
 	U16 i=0;
 	U16 sprm;
+#ifdef SPRMTEST
+	fprintf(stderr,"\n");
+    while (i < chpx->cbGrpprl)
+        {
+        fprintf(stderr,"%x (%d)\n",*(chpx->grpprl+i),*(chpx->grpprl+i));
+        i++;
+        }
+    fprintf(stderr,"\n");
+	i=0;
+#endif
 	while (i < chpx->cbGrpprl)
 		{
 		sprm = bread_16ubit(chpx->grpprl+i,&i);

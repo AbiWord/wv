@@ -37,8 +37,10 @@ int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl
 		wvInitLVL(&((*lvl)[i]));
 		wvTrace(("pos now %x %d\n",ftell(fd),*nooflvl));
 		wvGetLFOLVL(&((*lfolvl)[i]),fd);
+#if 0
 		if (wvInvalidLFOLVL(&((*lfolvl)[i])) )
 			continue;
+#endif
 		if ((*lfolvl)[i].fFormatting)
 			{
 			wvTrace(("formatting set\n"));
@@ -61,6 +63,7 @@ int wvGetLFO_PLF(LFO **lfo,U32 *nolfo,U32 offset,U32 len,FILE *fd)
         {
         fseek(fd,offset,SEEK_SET);
         *nolfo=read_32ubit(fd);
+		wvTrace(("%d\n",*nolfo));
 
         *lfo= (LFO *) malloc(*nolfo* sizeof(LFO));
         if (*lfo== NULL)
@@ -92,6 +95,13 @@ void wvGetLFOLVL(LFOLVL *item,FILE *fd)
 	wvInitLFOLVL(item);
 #endif
 	item->iStartAt = read_32ubit(fd);
+
+	while (wvInvalidLFOLVL(item))
+		{
+		wvTrace(("pos %x\n",ftell(fd)));
+		item->iStartAt = read_32ubit(fd);
+		}
+
 	temp8 = getc(fd);
     item->ilvl = temp8 & 0x0F;
     item->fStartAt = (temp8 & 0x10) >> 4;

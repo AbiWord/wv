@@ -649,6 +649,9 @@ encoded into the first 22 bytes.
 	if (section_pendingclose)
         wvHandleElement(ps, SECTIONEND, (void*)&sep,section_dirty);
 
+	wvFree(ps->fspa);
+	wvFree(ps->fspapos);
+
 	wvFree(posBKL);
 	wvFree(bkl);
 	wvFree(posBKF);
@@ -715,6 +718,9 @@ int wvGetComplexSEP(int version,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx)
 		{
 		val = clx->pcd[cpiece].prm.para.var1.val;
 		pointer = &val;
+#ifdef SPRMTEST
+		wvError(("singleton\n",clx->pcd[cpiece].prm.para.var1.isprm));
+#endif
 		RetSprm = wvApplySprmFromBucket(version,wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
 		NULL,NULL, sep,stsh,pointer,&pos);
 		if (RetSprm.sgc == sgcSep)	ret = 1;
@@ -722,6 +728,16 @@ int wvGetComplexSEP(int version,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx)
 	else
 		{
 		index = clx->pcd[cpiece].prm.para.var2.igrpprl;
+#ifdef SPRMTEST
+		fprintf(stderr,"\n");
+		while (i < clx->cbGrpprl[index])
+			{
+			fprintf(stderr,"%x (%d)\n",*(clx->grpprl[index]+i),*(clx->grpprl[index]+i));
+			i++;
+			}
+		fprintf(stderr,"\n");
+		i=0;
+#endif
 		while (i < clx->cbGrpprl[index])   
 			{
 			if (version == 0)
@@ -766,6 +782,9 @@ int wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 		{
 		val = clx->pcd[cpiece].prm.para.var1.val;
 		pointer = &val;
+#ifdef SPRMTEST
+		wvError(("singleton\n",clx->pcd[cpiece].prm.para.var1.isprm));
+#endif
 		RetSprm = wvApplySprmFromBucket(version,wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
 		apap,NULL, NULL,stsh,pointer,&pos);
 		if (RetSprm.sgc == sgcPara)	ret = 1;
@@ -773,7 +792,13 @@ int wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 	else
 		{
 		index = clx->pcd[cpiece].prm.para.var2.igrpprl;
+#ifdef SPRMTEST
+		fprintf(stderr,"\n");
+		for (i=0;i<clx->cbGrpprl[index];i++)
+			fprintf(stderr,"%x ",*(clx->grpprl[index]+i));
+		fprintf(stderr,"\n");
 		i=0;
+#endif
 		while (i < clx->cbGrpprl[index])   
 			{
 			if (version == 0)
@@ -807,6 +832,9 @@ int wvAssembleComplexCHP(int version,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 		{
 		val = clx->pcd[cpiece].prm.para.var1.val;
 		pointer = &val;
+#ifdef SPRMTEST
+		wvError(("singleton\n",clx->pcd[cpiece].prm.para.var1.isprm));
+#endif
 		RetSprm = wvApplySprmFromBucket(version,wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
 		NULL, achp, NULL,stsh,pointer,&pos);
 		if (RetSprm.sgc == sgcChp)  ret = 1;
@@ -814,6 +842,13 @@ int wvAssembleComplexCHP(int version,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 	else
 		{
 		index = clx->pcd[cpiece].prm.para.var2.igrpprl;
+#ifdef SPRMTEST
+		fprintf(stderr,"\n");
+		for (i=0;i<clx->cbGrpprl[index];i++)
+			fprintf(stderr,"%x ",*(clx->grpprl[index]+i));
+		fprintf(stderr,"\n");
+		i=0;
+#endif
 		while (i < clx->cbGrpprl[index])   
 			{
 			if (version == 0)

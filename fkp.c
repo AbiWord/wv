@@ -34,11 +34,13 @@ already recorded.
 void wvGetPAPX_FKP(int version,PAPX_FKP *fkp,U32 pn,FILE *fd)
 	{
 	int i;
+	wvTrace(("seeking to %x to get crun\n",pn*PAGESIZE+(PAGESIZE-1)));
 	fseek(fd,pn*PAGESIZE+(PAGESIZE-1),SEEK_SET);
 	fkp->crun = getc(fd);
 	fkp->rgfc = (U32 *)malloc(sizeof(U32) * (fkp->crun+1));
 	fkp->rgbx = (BX *)malloc(sizeof(BX) * (fkp->crun));
 	fkp->grppapx = (PAPX *)malloc(sizeof(PAPX) * (fkp->crun));
+	wvTrace(("seeking to %x to get fkp\n",pn*PAGESIZE));
 	fseek(fd,pn*PAGESIZE,SEEK_SET);
 	for (i=0;i<fkp->crun+1;i++)
 		{
@@ -173,7 +175,7 @@ int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc)
 	
 	while (i<until)
 		{
-		wvTrace(("current fc is %x, %x\n",currentfc,wvNormFC(fkp->rgfc[i],NULL)));
+		wvTrace(("current fc is %x, %x, %x\n",currentfc,wvNormFC(fkp->rgfc[i],NULL),fkp->rgfc[i]));
 		if (wvNormFC(fkp->rgfc[i],NULL) == currentfc)
 			return(i);
 		i++;

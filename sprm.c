@@ -168,8 +168,9 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 #endif
 		asep = &tempsep;
 		}
-
-	wvTrace(("sprm is %x\n",sprm));
+#ifdef SPRMTEST
+	wvError(("sprm is %x\n",sprm));
+#endif
 
 	switch(sprm)
 		{
@@ -656,6 +657,13 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 								*/
 			achp->lid = bread_16ubit(pointer,pos);
 			break;
+		case sprmCFBoldBi:		/* ???? */
+		case sprmCFBiDi:		/* ???? */
+			bgetc(pointer,pos);
+			break;
+		case sprmCHpsBi:		/* ???? */
+			bread_16ubit(pointer,pos);
+			break;
 		/* End of CHP */
 
 
@@ -833,7 +841,6 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		case sprmTDyaRowHeight:	/* check len */
 			asep->dyaLinePitch = (S16)bread_16ubit(pointer,pos);
 			break;
-		case sprmTFBiDi:	/* ????? */
 		case sprmTDiagLine:	/* ????? */
 			wvError(("huh, show me this document\n"));
 			break;
@@ -856,7 +863,15 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvApplysprmTDefTable(&apap->ptap,pointer,pos);
 			break;
 		case sprmTDefTableShd:
+		/*
+		wvApplysprmTDefTableShd follows the written spec, but
+		it isnt't working out for me, maybe its my own fault, 
+		anyhow Im trying wv2 out temporarily 
+		*/
+			wv2ApplysprmTDefTableShd(&apap->ptap,pointer,pos);
+			/*
 			wvApplysprmTDefTableShd(&apap->ptap,pointer,pos);
+			*/
 			break;
 		case sprmTTlp:
 			wvGetTLPFromBucket(&(apap->ptap.tlp),pointer);
@@ -896,6 +911,9 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		case sprmTVertMerge:
 			wvApplysprmTVertMerge(&apap->ptap,pointer,pos);
 			break;
+		case sprmTFBiDi:	/* ????? */
+			bread_16ubit(pointer,pos);
+			break;
 		case sprmTUNKNOWN1:	
 		/* read wv.h and word 6 sprm 204 
 		further down in this file to understand this
@@ -913,14 +931,11 @@ Sprm wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		case sprmPicBrcl
 			*/
 
-		case sprmCFBiDi:		/* ???? */
 		case sprmCFDiacColor:	/* ???? */
-		case sprmCFBoldBi:		/* ???? */
 		case sprmCFItalicBi:	/* ???? */
 		case sprmCFtcBi:		/* ???? */
 		case sprmCLidBi:		/* ???? */
 		case sprmCIcoBi:		/* ???? */
-		case sprmCHpsBi:		/* ???? */
 		case sprmPRuler:		/* ???? */
 		case sprmCIdCharType:	/* obsolete*/
 		case sprmCKcd: 			/* ???? */
@@ -2068,13 +2083,13 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 	U16 len;
 	int i,t,oldpos,type;
 	len = dread_16ubit(NULL,&pointer);
-	oldpos = *pos;
-	wvTrace(("wvApplysprmTDefTable\n"));
-	wvTrace(("oldpos is %x\n",oldpos));
 	(*pos)+=2;
+	wvTrace(("wvApplysprmTDefTable\n"));
 	tap->itcMac = dgetc(NULL,&pointer);
-	wvTrace(("C: there are %d cells\n",tap->itcMac));
 	(*pos)++;
+	oldpos = (*pos)-2;
+	wvTrace(("oldpos is %x\n",oldpos));
+	wvTrace(("C: there are %d cells\n",tap->itcMac));
 	for (i=0;i<tap->itcMac + 1;i++)
 		{
 		tap->rgdxaCenter[i] = (S16)dread_16ubit(NULL,&pointer);
@@ -2082,21 +2097,23 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 		(*pos)+=2;
 		}
 
-	wvTrace(("len %d, %d, cb6TC * tap->itcMac %d\n",len,len - (tap->itcMac + 1)*2 -1,cb6TC * tap->itcMac));
+	wvTrace(("HERE-->pos is now %d, the len was %d, there is %d left\n",*pos,len,len-(*pos-oldpos)));
 
-	if ( (len - (tap->itcMac + 1)*2 -1) < (cb6TC * tap->itcMac) )
+	if ( (len-(*pos-oldpos)) < (cb6TC * tap->itcMac) )
 		{
 		pointer += len - (*pos - oldpos);
 		(*pos) += len - (*pos - oldpos);
 		return;
 		}
 
-	if ( (len - (tap->itcMac + 1)*2 -1) < (cbTC * tap->itcMac) )
+	if ( (len-(*pos-oldpos)) < (cbTC * tap->itcMac) )
 		type = 1;
 	else
 		type = 0;
 
 	wvTrace(("type is %d\n",type));
+
+	wvTrace(("left over is %d\n",len-(*pos-oldpos)));
 
 	for (i=0;i<tap->itcMac;i++)
 		{
@@ -2105,14 +2122,15 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 		/* for christ sake !!, word 8 stores word 6 sized TC's in this sprm ! */
 		(*pos)+=t;
 		pointer+=t;
+		wvTrace(("t is %d, under is %x\n",t,*pointer));
 		}
 
-	wvTrace(("oldpos is %x, pos is %x, diff is %d, len %d\n",oldpos,*pos,*pos-oldpos-2,len));
+	wvTrace(("left over is %d\n",len-(*pos-oldpos)));
 
-	while (*pos-oldpos-2 < len) 
+	while (len-(*pos-oldpos)) 
 		{
+		wvTrace(("Eating byte %x\n",dgetc(NULL,&pointer)));
 		(*pos)++;
-		pointer++;
 		}
 	wvTrace(("oldpos is %x, pos is %x, diff is %d\n",oldpos,*pos,*pos-oldpos-2));
 	}
@@ -2144,6 +2162,26 @@ void wvApplysprmTDefTable10(TAP *tap,U8 *pointer,U16 *pos)
 		}
 	}
 
+void wv2ApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos)
+	{
+	U8 len;
+	U16 itcMac;
+	int i,t,oldpos,type;
+
+	len = dgetc(NULL,&pointer);
+	(*pos)++;
+	itcMac = len/cbSHD;
+	wvTrace(("len in 2sprmTDefTableShd is %d, no of cells is %d\n",len,itcMac));
+
+	for (i=0;i<itcMac;i++)
+		{
+		wvGetSHDFromBucket(&(tap->rgshd[i]),pointer);
+		pointer+=cbSHD;
+		(*pos)+=cbSHD;
+		}
+	}
+	
+
 /*
 sprmTDefTableShd (opcode 0xD609) is similar to sprmTDefTable, and
 compliments it by defining the shading of each cell in a table (tap.rgshd).
@@ -2157,17 +2195,47 @@ void wvApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos)
 	{
 	U16 len;
 	U16 itcMac;
-	int i;
+	int i,t,oldpos,type;
+
 	len = dread_16ubit(NULL,&pointer);
+	(*pos)+=2;
+	if (len >= 0x4000)
+		{
+		len = len&0x00ff;
+		wvError(("bad len in sprmTDefTableShd, munging to %d instead\n",len));
+		}
+	wvTrace(("wvApplysprmTDefTableShd, len %d\n",len));
 	itcMac = dgetc(NULL,&pointer);
 	(*pos)++;
-
-	for (i=0;i<itcMac;i++)
+	oldpos = (*pos)-2;
+	wvTrace(("oldpos is %x\n",oldpos));
+	wvTrace(("C: there are %d cells\n",itcMac));
+	if (itcMac > 32)
+		wvError(("Broken word doc, recovering from stupidity\n"));
+	else
 		{
-		wvGetSHDFromBucket(&(tap->rgshd[i]),pointer);
-		pointer+=cbSHD;
-		(*pos)+=cbSHD;
+		if ( (len-(*pos-oldpos)) < (cbSHD * tap->itcMac) )
+			{
+			wvError(("Broken sprmDefTableShd, recovering from problem\n"));
+			pointer += len - (*pos - oldpos);
+			(*pos) += len - (*pos - oldpos);
+			return;
+			}
+		
+		for (i=0;i<itcMac;i++)
+			{
+			wvGetSHDFromBucket(&(tap->rgshd[i]),pointer);
+			pointer+=cbSHD;
+			(*pos)+=cbSHD;
+			}
 		}
+
+	while (len-(*pos-oldpos)) 
+		{
+		wvTrace(("Eating byte %x\n",dgetc(NULL,&pointer)));
+		(*pos)++;
+		}
+	wvTrace(("oldpos is %x, pos is %x, diff is %d\n",oldpos,*pos,*pos-oldpos-2));
 	}
 /*
 Word 8

@@ -12,6 +12,7 @@ int wvGetTC_internal(int version,TC *tc,FILE *infd,U8 *pointer)
     wvInitTC(tc);
 #endif
 	temp16 = dread_16ubit(infd,&pointer);
+	wvTrace(("temp16 is %x\n",temp16));
 
 	if (version==0)
 		{

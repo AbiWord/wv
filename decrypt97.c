@@ -209,7 +209,7 @@ int main (int argc, char *argv[])
     j = 0;
     fseek(enc,j,SEEK_SET);
 
-	outtable = fopen("tablefd","w+b");
+	outtable = tmpfile();
 
 	blk = 0;
     makekey(blk, &key);
@@ -353,7 +353,7 @@ int wvDecrypt97(wvParseStruct *ps)
     j = 0;
     fseek(enc,j,SEEK_SET);
 
-	outmain = fopen("mainfd","w+b");
+	outmain = tmpfile();
 
 	blk = 0;
     makekey(blk, &key);

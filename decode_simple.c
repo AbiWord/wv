@@ -219,7 +219,6 @@ void wvDecodeSimple(wvParseStruct *ps)
 					}
 				else if (apap.fInTable == 0)
 					ps->intable=0;
-				
 				wvHandleElement(ps, PARABEGIN, (void*)&apap,para_dirty);
 				char_fcFirst = j;
 				para_pendingclose = 1;
@@ -288,6 +287,9 @@ void wvDecodeSimple(wvParseStruct *ps)
 
 	if (section_pendingclose)
 		wvHandleElement(ps, SECTIONEND, (void*)&sep,section_dirty);
+
+	wvFree(ps->fspa);
+	wvFree(ps->fspapos);
 
 	wvFree(posBKL);
 	wvFree(bkl);

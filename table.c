@@ -92,6 +92,7 @@ void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *p
 			{
 			test = (TAP *)realloc(test,sizeof(TAP)*(j+1));
 			wvCopyTAP(&(test[j]),&apap.ptap);
+			wvTrace(("Row %d\n",j));
 			for (l=0;l<apap.ptap.itcMac+1;l++)
 				wvTrace(("In This Row-->%d\n",apap.ptap.rgdxaCenter[l]));
 			j++;

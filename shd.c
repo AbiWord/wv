@@ -5,6 +5,9 @@
 void wvGetSHD_internal(SHD *item,FILE *fd,U8 *pointer)
 	{
 	U16 temp16;
+#ifdef PURIFY
+	wvInitSHD(item);
+#endif
 	temp16 = dread_16ubit(fd,&pointer);
 	item->icoFore = temp16 & 0x001F;
 	item->icoBack = (temp16 & 0x03E0) >> 5;

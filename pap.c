@@ -15,7 +15,7 @@ void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh)
 	if (upxf->cbUPX <= 2)
 		return;
 	wvTrace(("no is %d\n",upxf->cbUPX));
-#if 0	
+#ifdef SPRMTEST
 	fprintf(stderr,"\n");
 	while (i < upxf->cbUPX-2)
 		{
@@ -25,7 +25,6 @@ void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh)
 	fprintf(stderr,"\n");
 	i=0;
 #endif
-
 	/*
 	while (i < upxf->cbUPX-2)	
 	*/
@@ -322,10 +321,12 @@ int wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 	if ((papx) && (papx->cb > 2))
 		{
 		ret=1;
-		wvTrace(("cbUPX is %d\n",papx->cb));
+#ifdef SPRMTEST
+		fprintf(stderr,"cbUPX is %d\n",papx->cb);
 		for (i=0;i<papx->cb-2;i++)
-			wvTrace(("-->%x ",papx->grpprl[i]));
-		wvTrace(("\n"));
+			fprintf(stderr,"%x ",papx->grpprl[i]);
+		fprintf(stderr,"\n");
+#endif
 		upxf.cbUPX = papx->cb;
 		upxf.upx.papx.istd = papx->istd;
 		upxf.upx.papx.grpprl = papx->grpprl;
@@ -359,8 +360,9 @@ void wvInitPAPX(PAPX *item)
 
 void wvGetPAPX(int version,PAPX *item,U32 offset,FILE *fd)
 	{
-	U8 cw,i;
+	U16 cw,i;
 	fseek(fd,offset,SEEK_SET);
+	wvTrace(("offset is %x\n",offset));
 	cw = getc(fd);
 	if ( (cw == 0) && (version == 0) )	/* only do this for word 97 */
 		{
@@ -369,6 +371,7 @@ void wvGetPAPX(int version,PAPX *item,U32 offset,FILE *fd)
 		wvTrace(("cw was %d\n",cw));
 		}
 	item->cb=cw*2;
+	wvTrace(("no of bytes is %d\n",item->cb));
 	if (item->cb > 2)
 		item->grpprl = (U8 *)malloc(item->cb-2);
 	else

@@ -85,7 +85,7 @@ char *wvDTTMtoUnix(DTTM *src)
 	t = mktime(&out);
 	if (t == -1)
 		{
-		wvError(("Bad Time!!, not critical error\n"));
+		wvWarning("Bad Time!!, not critical error\n");
 		return(NULL);
 		}
 	return(ctime(&t));

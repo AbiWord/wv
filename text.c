@@ -45,17 +45,19 @@ U16 wvLookupCharset(char *optarg)
 
 int wvOutputTextChar(U16 eachchar,U8 chartype,U16 outputtype,U8 *state,wvParseStruct *ps, CHP *achp)
 	{
-	/*
-	if the character is still one of the special ones then call this other handler 
-	instead
-	*/
 	if (achp->fSpec)
 		{
-		if (charhandler)
+	/*
+	if the character is still one of the special ones then call this other 
+	handler 
+	instead
+	*/
+		if (scharhandler)
 			return( (*scharhandler)(ps,eachchar,achp) );
 		}	
 	else 
 		{
+	/* Most Chars go through this baby */
 		if (charhandler)
 			return( (*charhandler)(ps,eachchar,chartype) );
 		}
@@ -157,7 +159,7 @@ thing and just put ... instead of this
 		case 0x94:
 			printf("\"");
 			return;
-		case 0xF8E7:	/* without this things should work in theory, but not for me */
+		case 0xF8E7:	/* without this, things should work in theory, but not for me */
 			printf("_");
 			return;
 		}
@@ -309,7 +311,7 @@ void wvBeginSection(expand_data *data)
 	}
 
 
-int wvIsEmptyPara(PAP *apap,expand_data *data)
+int wvIsEmptyPara(PAP *apap,expand_data *data,int inc)
 	{
 	/* 
 	if we are a end of table para then i consist of nothing that is of
@@ -332,7 +334,7 @@ int wvIsEmptyPara(PAP *apap,expand_data *data)
 		if ((*data->vmerges)[data->whichrow][data->whichcell] == 0)
 			{
 			wvTrace(("Skipping the next paragraph\n"));
-			data->whichcell++;
+			if (inc) data->whichcell++;
 			return(1);
 			}
 		}
@@ -373,7 +375,7 @@ void wvEndComment(expand_data *data)
 
 void wvBeginPara(expand_data *data)
 	{
-	if (wvIsEmptyPara((PAP *)data->props,data))
+	if (wvIsEmptyPara((PAP *)data->props,data,1))
 		return;
 
 	if (data != NULL)
@@ -425,7 +427,7 @@ void wvBeginCharProp(expand_data *data,PAP *apap)
 	{
 	CHP *achp;
 
-	if (wvIsEmptyPara(apap,data))
+	if (wvIsEmptyPara(apap,data,0))
 		return;
 	
 	achp = (CHP*)data->props;
@@ -443,11 +445,6 @@ void wvBeginCharProp(expand_data *data,PAP *apap)
 			wvFree(data->retstring);
 			}
 		}
-   
-	/* some test examples */
-	if (achp->fBold) { wvTrace(("a BOLD character run\n")); }
-	if (achp->fItalic) { wvTrace(("an ITALIC character run\n")); }
-	if (achp->kul) { wvTrace(("some kind of UNDERLINED character run\n")); }
 	}
 
 void wvEndCharProp(expand_data *data)

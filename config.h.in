@@ -66,3 +66,4 @@
 
 #include <getopt.h>
 
+#undef WORDS_BIGENDIAN

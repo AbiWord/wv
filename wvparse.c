@@ -18,7 +18,11 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 	ret = wvOLEDecode(fp,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
 		&ps->data,&ps->summary);
 	if (ret) 
+		{
+		wvOpenPreOLE(&fp,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
+		        &ps->data,&ps->summary);
 		return ret;
+		}
 	if (ps->mainfd == NULL) 
 		{
 		ret = 4;
@@ -64,4 +68,22 @@ void wvSetPassword(char *password,wvParseStruct *ps)
 			break;
 		}
 	ps->password[i]=0;
+	}
+
+int wvOpenPreOLE(FILE **input, FILE **mainfd, FILE **tablefd0, FILE **tablefd1,FILE **data, FILE **summary)
+	{
+	if (*input)
+		rewind(*input);
+	getc(*input);
+	if (0xa5 == getc(*input))
+		wvError(("Theres a good change that this is a pre word 6 doc of nFib %d\n",read_16ubit(*input)));
+	if (*input)
+		rewind(*input);
+	*mainfd=*input;
+	*tablefd0=*input;
+	*tablefd1=*input;
+	*data=*input;
+	*summary=NULL;
+
+	return(1);
 	}

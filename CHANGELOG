@@ -1,55 +1,71 @@
 Changes to to 0.5.38
-	* added the symbol mapping to unicode as best as I could, I made one or two mods from
-	the proper unicode so as to get a few more to work with the current generation of
-	web browsers. very bad behaviour I know and the sort of stuff that got the world into
-	this mess, but at least you can recompile wv at a later to date to fix it, replace
-	the commented out bits of symbol.c to do it.
-	* added messages for conversion table request for special fonts (the spawn of the 
-	devil as far as I am concerned).
-	* added a character property end and start at the beginning of a new paragraph, this
-	is necessary in many cases, funny i never noticed it before.
-	* figured out some rules to handle placement of graphics, abandoned stylesheet placement
-	as netscape is too much of a mess to be of any use there, and thats the target 
-	audience.
-	* the CHP code didnt work for word 7 and 8 sprms, this ironically means that rather
-	than falling through the default case and being ignored, each chp sprm is now parsed
-	leading to certainly more crashes and bugs as we find differences one by one between
-	word 8 and the previous versions character property sprms.
-	* fixed sprmCSymbol for pre word 8, there might be problems with fonts not named "Symbol",
-	like wingdings.
-	* due to serious oddities I have added a TABLEOVERRIDES option in wvHtml.xml which allows
-	the margins before and after and paragraph, and the first line indent to be turned off
-	inside tables, as having them on creates a real mess in netscape, in the future when this
-	ability is supported by browsers you can just remove tableoverrides and ta-da all will
-	work fine.
+	* added the symbol mapping to unicode as best as I could, I made one or two 
+	mods from the proper unicode so as to get a few more to work with the 
+	current generation of web browsers. very bad behaviour I know and the sort 
+	of stuff that got the world into this mess, but at least you can recompile 
+	wv at a later to date to fix it, replace the commented out bits of symbol.c 
+	to do it.
+	* added messages for conversion table request for special fonts (the spawn 
+	of the devil as far as I am concerned).
+	* added a character property end and start at the beginning of a new 
+	paragraph, this is necessary in many cases, funny i never noticed it before
+	* figured out some rules to handle placement of graphics, abandoned 
+	stylesheet placement as netscape is too much of a mess to be of any use 
+	there, and thats the target audience.
+	* the CHP code didnt work for word 7 and 8 sprms, this ironically means 
+	that rather than falling through the default case and being ignored, each 
+	chp sprm is now parsed leading to certainly more crashes and bugs as we 
+	find differences one by one between word 8 and the previous versions 
+	character property sprms.  * fixed sprmCSymbol for pre word 8, there might 
+	be problems with fonts not named "Symbol", like wingdings.
+	* due to serious oddities I have added a TABLEOVERRIDES option in 
+	wvHtml.xml which allows the margins before and after and paragraph, and the 
+	first line indent to be turned off inside tables, as having them on creates 
+	a real mess in netscape, in the future when this ability is supported by 
+	browsers you can just remove tableoverrides and ta-da all will work fine.
 	* fixed table row scanner bug
 	* fix for last para scan in complex mode
-	* make mods to table.c to allow cells within 3 units of eachother be considered the same.
-	* hmm, added a workaround for missing the beginning of a para in complex mode under 
-	certain conditions.
-	* some incredible hackery to differciate between 16 and 8 bit character modes in word 95
-	and 6, real dodgy stuff, but its working so far. Though its certainly a point of failure
-	in the future.
+	* make mods to table.c to allow cells within 3 units of eachother be 
+	considered the same.
+	* hmm, added a workaround for missing the beginning of a para in complex 
+	mode under certain conditions.
+	* some incredible hackery to differciate between 16 and 8 bit character 
+	modes in word 95 and 6, real dodgy stuff, but its working so far. Though 
+	its certainly a point of failure in the future.
 	* fix for table colspan mistakes
-	* modified sprmTTableBorder to work with the smaller word 6 BRC's, also fixed bug where I
-	thought the sprm was variable
-	* had to fix sprmTTableBorder again, because it *is* variable under word 8 despite the
-	docs to the contrary !!, gagh.
+	* modified sprmTTableBorder to work with the smaller word 6 BRC's, also 
+	fixed bug where I thought the sprm was variable
+	* had to fix sprmTTableBorder again, because it *is* variable under word 8 
+	despite the docs to the contrary !!, gagh.
+	* aaaargh!, wvGetLFOLVL and that wvInvalidLFOLVL has struck again, this
+	time I think I have it sorted out once and for all (but i bet not), this
+	new layout fixes quite a number of crashes.
+	* incredibly hard to find overflow in U8 in wvGetPAPX, silly me, must
+	really pay more attention to these things, you tend to forget that U8 are
+	a really small type, left to my own devices i'd use int, but for this
+	program I slavishly follow the types in the spec, and overlook the 
+	workarounds that are obvious in the struct definitions for PAPX.
+	* fixed the rather ugly empty paragraph skipping code to only go to the
+	next cell when a para level check is done.
+	Im having terrible problems with sprmDefTableShd, it always follows
+	sprmDefTable, and there is something wrong with Shd, maybe its me, maybe
+	its word. Either way im working around the problem.
+	* I had broken the word97 decryption, fixed again.
 ALL TODO
-	* Got to think of some way to keep the list stuff in sync with the margins of the enclosed 
-	paragraphs.
+	* Got to think of some way to keep the list stuff in sync with the margins 
+	of the enclosed paragraphs in html output.
 
-	* break stylesheet into two, first read all the poxy little sprms into one location
-	and afterwards do the pap and chp generation.
+	* break stylesheet into two, first read all the poxy little sprms into one 
+	location and afterwards do the pap and chp generation.
 
-	* need to add a color Auto thing that figures out what color goes against what fore
-	or back ground.
-	* multiple columns are part of section code, how to support this in html without 
-	brain failure.
+	* need to add a color Auto thing that figures out what color goes against 
+	what fore or back ground.
+	* multiple columns are part of section code, how to support this in html 
+	without brain failure.
 
-	* put the default text and char stuff into one single "style", and then try and
-	figure out a way to save arbitrary no of styles into some nice structure for
-	later seaching and stylesheet implementation.
+	* put the default text and char stuff into one single "style", and then 
+	try and figure out a way to save arbitrary no of styles into some nice 
+	structure for later seaching and stylesheet implementation.
 
 
 	* title not being done in the correct charset
@@ -73,23 +89,21 @@ ALL TODO
 
 	* fontface and size for char runs..
 
-	* what about a collision between underline and revision added ? and also the 
-	strike and revision deleted ?, what if a mad user created his own collisions. 
-	In the future there will be problems with links being broken by references, 
-	this is a similar problem.
+	* what about a collision between underline and revision added ? and also 
+	the strike and revision deleted ?, what if a mad user created his own 
+	collisions.  In the future there will be problems with links being broken 
+	by references, this is a similar problem.
 	* what was i at with sprmCFtcDefault ????, fBold ??, what the...
-	* install cygwin thingy at home and test configure mechanism for searching and
-	installing strcasecmp/rint.
-	* i figured out what the story is with ole embedded files, ill have to modify
-	my ole code so as to be able in the future to parse embedded docs and splice
-	them together, which could be a wee bit of a challenge.
-	* modify configure script so its possible to link against a different expat
-	lib, or to disable it or something.
+	* install cygwin thingy at home and test configure mechanism for searching 
+	and installing strcasecmp/rint.
+	* i figured out what the story is with ole embedded files, ill have to 
+	modify my ole code so as to be able in the future to parse embedded docs 
+	and splice them together, which could be a wee bit of a challenge.
+	* modify configure script so its possible to link against a different 
+	expat lib, or to disable it or something.
 	* add errors via numbered errors to wvInitParser.
 	* additional code checks for conversion of codepage whatever to iso for
 	ancillary strings that might be stored in that format.
-	* the old ffffffff list problem still exists with the new interface, i must 
-	finally kill that issue once and for all
 
 	* implement whatever special drawing format there is.
 	* patch thai handling back in.
@@ -118,11 +132,12 @@ ALL TODO
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
 Changes to to 0.5.37
-	* para indentation, first line indentation, top bottom left and right margins
+	* para indentation, first line indentation, top bottom left and right 
+	margins
 	* border code started, mountain of tags included.
 	* border color added for paragraphs
-	* we can handle individual sides to the border rather than just taking the top for all
-	sides.
+	* we can handle individual sides to the border rather than just taking the 
+	top for all sides.
 	* supporting brcBetween required that we repeat the table style lookahead
 	for brc's as well, this is very annoying, and seeing as netscape doesnt even allow
 	margin support correctly I hate putting it in as noone can use it, makes me feel
@@ -147,9 +162,9 @@ Changes to to 0.5.36
 	the actual comment itself and so on is part of the subdocuments which are
 	not implemented yet, but will be soon.
 	* overlooked complex sep properties, added them in.
-	* added dirty tag to the elehandler, 1 means that the property might (more than
-	likely it is) be modified from the original style as indicated by the istd, this
-	is implemented in simple and complex for PAP,CHP and SEP.
+	* added dirty tag to the elehandler, 1 means that the property might (more 
+	than likely it is) be modified from the original style as indicated by the 
+	istd, this is implemented in simple and complex for PAP,CHP and SEP.
 Changes to to 0.5.35
 	* tables.
 	* wvToggle was still in todo, it was fixed a while ago

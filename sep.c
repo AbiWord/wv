@@ -152,6 +152,16 @@ int wvAddSEPXFromBucket(SEP *asep,SEPX *item,STSH *stsh)
     U16 sprm;
 	int ret=0;
 	Sprm RetSprm;
+#ifdef SPRMTEST
+	fprintf(stderr,"\n");
+    while (i < item->cb)
+        {
+        fprintf(stderr,"%x (%d)\n",*(item->grpprl+i),*(item->grpprl+i));
+        i++;
+        }
+    fprintf(stderr,"\n");
+	i=0;
+#endif
     while (i < item->cb)
         {
         sprm = bread_16ubit(item->grpprl+i,&i);

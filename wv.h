@@ -2115,6 +2115,7 @@ void wvApplysprmTTableBorders(int version,TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDefTable10(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos);
+void wv2ApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTSetBrc(int version,TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTInsert(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDelete(TAP *tap,U8 *pointer,U16 *pos);
@@ -2619,6 +2620,8 @@ returns the same as wvOLEDecode with the addition that
 */
 int wvInitParser(wvParseStruct *ps,FILE *fp);
 
+int wvOpenPreOLE(FILE **input, FILE **mainfd, FILE **tablefd0, FILE **tablefd1,FILE **data, FILE **summary);
+
 void wvDecodeSimple(wvParseStruct *ps);
 
 typedef enum
@@ -2711,7 +2714,7 @@ void wvGetBX6(BX *item, FILE *fd);
 
 typedef struct _PAPX
 	{
-	U8  cb;
+	U16  cb;
  	U16 istd;
  	U8 *grpprl;
 	} PAPX;
@@ -2801,7 +2804,7 @@ void wvReleaseStateData(state_data *data);
 
 U32 wvConvertCPToFC(U32 currentcp,CLX *clx);
 
-int wvIsEmptyPara(PAP *apap,expand_data *data);
+int wvIsEmptyPara(PAP *apap,expand_data *data,int inc);
 void wvBeginPara(expand_data *data);
 void wvEndPara(expand_data *data);
 

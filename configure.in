@@ -547,7 +547,11 @@ if [ test "$SYSTEM_ZLIB" != "" ]; then
 AC_DEFINE(SYSTEM_ZLIB)
 fi
 
-AC_PROG_LEX
+if [ test "$cross_compiling" != "yes" ]; then
+	AC_C_BIGENDIAN
+else
+	AC_DEFINE(WORDS_BIGENDIAN)
+fi
 
 AC_SUBST(TTF_LIBS)
 AC_SUBST(TTF_CFLAGS)
