@@ -3188,6 +3188,7 @@ returns the same as wvOLEDecode with the addition that
 
     char *wvLIDToCodePageConverter (U16 lid);
     char *wvLIDToLangConverter (U16 lid);
+  U16 wvLangToLIDConverter ( const char * lang );
 
     typedef struct _MSOFBH {
 	U32 ver:4;

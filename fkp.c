@@ -12,6 +12,26 @@ static CHPX_FKP wvCHPX_FKP_previous;
 static U32 wvCHPX_pn_previous = 0;
 
 void
+external_wvReleasePAPX_FKP (void)
+{
+        if (wvPAPX_pn_previous != 0)
+        {
+                internal_wvReleasePAPX_FKP( &wvPAPX_FKP_previous );
+                wvPAPX_pn_previous = 0;
+        }
+}
+
+void
+external_wvReleaseCHPX_FKP (void)
+{
+        if (wvCHPX_pn_previous != 0)
+        {
+                internal_wvReleaseCHPX_FKP (&wvCHPX_FKP_previous);
+                wvCHPX_pn_previous = 0;
+        }
+}
+
+void
 internal_wvReleasePAPX_FKP (PAPX_FKP * fkp)
 {
     int i;

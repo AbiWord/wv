@@ -59,6 +59,9 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
     U32 bkd_intervals;
     wvVersion ver;
 
+    external_wvReleasePAPX_FKP ();
+    external_wvReleaseCHPX_FKP ();
+
     ver = wvQuerySupported (&ps->fib, NULL);
 
 

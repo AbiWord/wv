@@ -156,6 +156,105 @@ wvOutputHtmlChar (U16 eachchar, U8 chartype, char *outputtype, U16 lid)
        return cpname;  \
 }
 
+#if 0
+
+// todo: use this to cut down on duplicate data
+
+typedef struct {
+  const char * locale;
+  U16 cp;
+  U16 lid;
+} wvLanguageId;
+
+#endif
+
+U16 wvLangToLIDConverter ( const char * lang )
+{
+  if ( !lang || !strcmp(lang, "en-US") )
+    return 0x0409;
+  
+  if (!strcmp(lang, "af-ZA"))
+    return 0x0436;
+  else if(!strcmp(lang, "af-EG"))
+    return 0x0c01;
+  else if(!strcmp(lang, "af-SA"))
+    return 0x0401;
+  else if(!strcmp(lang, "zh-HK"))
+    return 0x0c04;
+  else if(!strcmp(lang, "zh-CN"))
+    return 0x0804;
+  else if(!strcmp(lang, "zh-SG"))
+    return 0x1004;
+  else if(!strcmp(lang, "zh-TW"))
+    return 0x0404;
+  else if(!strcmp(lang, "cs-CZ"))
+    return 0x0405;
+  else if(!strcmp(lang, "da-DK"))
+    return 0x0406;
+  else if(!strcmp(lang, "de-AT"))
+    return 0x0c07;
+  else if(!strcmp(lang, "de-DE"))
+    return 0x0407;
+  else if(!strcmp(lang, "el-GR"))
+    return 0x0408;
+  else if(!strcmp(lang, "en-AU"))
+    return 0x0c09;
+  else if(!strcmp(lang, "en-CA"))
+    return 0x1009;
+  else if(!strcmp(lang, "en-GB"))
+    return 0x0809;
+  else if(!strcmp(lang, "en-IE"))
+    return 0x1809;
+  else if(!strcmp(lang, "en-NZ"))
+    return 0x1409;
+  else if(!strcmp(lang, "es-ES"))
+    return 0x040a;
+  else if(!strcmp(lang, "es-MX"))
+    return 0x080a;
+  else if(!strcmp(lang, "fa-IR"))
+    return 0x040b;
+  else if(!strcmp(lang, "fr-FR"))
+    return 0x040c;
+  else if(!strcmp(lang, "hi-IN"))
+    return 0x0439;
+  else if(!strcmp(lang, "hy-AM"))
+    return 0x042b;
+  else if(!strcmp(lang, "it-IT"))
+    return 0x0410;
+  else if(!strcmp(lang, "iw-IL"))
+    return 0x0410;
+  else if(!strcmp(lang, "ka-GE"))
+    return 0x0437;
+  else if(!strcmp(lang, "ja-JP"))
+    return 0x0411;
+  else if(!strcmp(lang, "ko-KR"))
+    return 0x0412;
+  else if(!strcmp(lang, "nl-NL"))
+    return 0x0413;
+  else if(!strcmp(lang, "nb-NO"))
+    return 0x0414;
+  else if(!strcmp(lang, "nn-NO"))
+    return 0x0814;
+  else if(!strcmp(lang, "pt-BR"))
+    return 0x0416;
+  else if(!strcmp(lang, "pt-PT"))
+    return 0x0816;
+  else if(!strcmp(lang, "ru-RU"))
+    return 0x0419;
+  else if(!strcmp(lang, "sv-SE"))
+    return 0x041d;
+  else if(!strcmp(lang, "th-TH"))
+    return 0x041e;
+  else if(!strcmp(lang, "tr-TR"))
+    return 0x041f;
+  else if(!strcmp(lang, "vi-VN"))
+    return 0x042a;
+  else if(!strcmp(lang, "-none-"))
+    return 0x0400;
+  else
+    return 0x0409;
+}
+
 char *
 wvLIDToLangConverter (U16 lid)
 {

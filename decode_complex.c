@@ -365,6 +365,9 @@ wvDecodeComplex (wvParseStruct * ps)
     U32 *posBKL;
     U32 bkl_intervals;
 
+    external_wvReleasePAPX_FKP ();
+    external_wvReleaseCHPX_FKP ();
+
     /*dop */
     wvGetDOP (wvQuerySupported (&ps->fib, NULL), &ps->dop, ps->fib.fcDop,
 	      ps->fib.lcbDop, ps->tablefd);
