@@ -8,10 +8,6 @@
 #endif
 #include "wv.h"
 
-extern wvStream *outputfile;
-extern wvStream *erroroutput;
-extern char *outputfilename;
-
 /*
 when we magically know that we will not be using a delay stream, i.e. big gobs of
 emperical evidence, left external so that if im wrong it'll be looking me in the face

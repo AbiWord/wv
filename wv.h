@@ -4539,7 +4539,6 @@ Property       PID            Type            Default        Description
 		       textportions * portions, int *issection, style * sheet);
     void get_next_f_ref (textportions * portions, signed long *nextfootnote);
     void get_next_e_ref (textportions * portions, signed long *nextendnote);
-  /* void decode_annotation (textportions * portions); */
 
     void decode_s_specials (pap * apap, chp * achp, list_info * a_list_info);
     int decode_s_table (pap * apap, chp * achp, list_info * a_list_info,
@@ -4682,9 +4681,6 @@ has got
     U32 decode_b_bookmark (bookmark_limits * l_bookmarks, STTBF * bookmarks);
     U32 decode_e_bookmark (bookmark_limits * l_bookmarks);
 
-    void decode_annotations (wvStream * mafd, FILE * tablefd,
-			     textportions * portions);
-
     void myfreeOLEtree (void);
 
     void output_tablebg (pap * apap);
@@ -4698,8 +4694,6 @@ has got
     void copy_tap (tap * rettap, tap * intap);
     void check_auto_color (chp * achp);
 
-    Xst *extract_authors (wvStream * tablefd, U32 fcGrpXstAtnOwners,
-			  U32 lcbGrpXstAtnOwners);
     void extract_bookm_limits (bookmark_limits * l_bookmarks,
 			       wvStream * tablefd, U32 fcPlcfbkf,
 			       U32 lcbPlcfbkf, U32 fcPlcfbkl, U32 lcbPlcfbkl);
