@@ -1,0 +1,57 @@
+#!/bin/sh
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+
+# argument checking
+if [ ${#} -ne "2" ]; then
+	echo "Usage: ${0} <word document> <text output file>"
+	exit 1
+fi
+
+# start out optimistic
+USING_LYNX=1
+which lynx 2>&1 >/dev/null
+if [ ${?} -ne "0" ]; then
+	echo "Could not find required program 'lynx'"
+	echo "Not using lynx. Ouput will be pretty bad."
+	USING_LYNX=0
+fi
+
+if [ ${USING_LYNX} -ne "0" ]; then
+
+    # first, test for wvHtml
+    which wvHtml 2>&1 >/dev/null
+    if [ ${?} -ne "0" ]; then
+       	echo "Could not find required program 'wvHtml'"
+	exit 1
+    fi
+
+    # intermediate file
+    TMP_FILE="/tmp/wv${1}.html"
+
+    wvHtml "${1}" "${TMP_FILE}" 2>&1 >/dev/null
+    if [ ${?} -ne "0" ]; then
+	echo "Could not convert into HTML"
+	exit 1
+    fi
+
+    # lynx actually does quite well
+    lynx -dump -force_html "${TMP_FILE}" > "${2}"
+    if [ ${?} -ne "0" ]; then
+	    echo "Could not convert into Text"
+	    exit 1
+    fi
+
+    # clean up
+    rm -f ${TMP_FILE}
+
+else
+    # fall back onto our cruddy output
+    # this is, admittedly, better than running
+    # 'strings' on the word document though :)
+    wvWare -x ${libdir}/wv/wvText.xml "${1}" > "${2}"
+fi
+
+exit 0

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "wv.h"
 
 void wvInitFIB(FIB *item)
@@ -259,6 +260,28 @@ void wvInitFIB(FIB *item)
 	item->lcbSttbListNames = 0;
 	item->fcSttbfUssr = 0;
 	item->lcbSttbfUssr = 0;
+
+	/* Word 2 */
+        item->Spare = 0;
+        item->rgwSpare0 [0] = 0;
+        item->rgwSpare0 [1] = 0;
+        item->rgwSpare0 [2] = 0;
+        item->fcSpare0 = 0;
+        item->fcSpare1 = 0;
+        item->fcSpare2 = 0;
+        item->fcSpare3 = 0;
+        item->ccpSpare0 = 0;
+        item->ccpSpare1 = 0;
+        item->ccpSpare2 = 0;
+        item->ccpSpare3 = 0;
+        item->fcPlcfpgd = 0; 
+        item->cbPlcfpgd = 0; 
+       
+	item->fcSpare5 = 0;
+        item->cbSpare5 = 0; 
+        item->fcSpare6 = 0;
+        item->cbSpare6 = 0;
+        item->wSpare4 = 0;
 	}
 
 void wvGetFIB(FIB *item,wvStream *fd)
@@ -274,6 +297,14 @@ void wvGetFIB(FIB *item,wvStream *fd)
 #endif
 	item->wIdent = read_16ubit(fd);
 	item->nFib = read_16ubit(fd);
+
+	if ( (wvQuerySupported(item,NULL) == WORD2) )
+		{
+		wvInitFIB(item);
+		wvStream_offset(fd,-4);
+		wvGetFIB2(item,fd);
+		return;
+		}
 
 	if ( (wvQuerySupported(item,NULL) == WORD5) || (wvQuerySupported(item,NULL) == WORD6) || (wvQuerySupported(item,NULL) == WORD7) )
 		{
@@ -618,6 +649,144 @@ version wvQuerySupported(FIB *fib,int *reason)
     return(ret);
     }
 
+void wvGetFIB2(FIB *item,wvStream *fd)
+	{
+	U16 temp16 = 0;
+
+	item->wIdent = read_16ubit(fd);
+	item->nFib = read_16ubit(fd);
+
+	item->nProduct = read_16ubit(fd);
+	item->lid = read_16ubit(fd);
+	wvTrace(("lid is %x\n",item->lid));
+	item->pnNext = (S16)read_16ubit(fd);
+	temp16 = read_16ubit(fd);
+
+	item->fDot = (temp16 & 0x0001);
+	item->fGlsy = (temp16 & 0x0002) >> 1;
+	item->fComplex = (temp16 & 0x0004) >> 2;
+	item->fHasPic = (temp16 & 0x0008) >> 3;
+	item->cQuickSaves = (temp16 & 0x00F0) >> 4;
+	item->fEncrypted = (temp16 & 0x0100) >> 8;
+	item->fWhichTblStm = 0;	/* Unused from here on */	
+	item->fReadOnlyRecommended = 0;
+	item->fWriteReservation = 0;
+	item->fExtChar = 0;
+	item->fLoadOverride = 0;
+	item->fFarEast = 0;
+	item->fCrypto = 0;
+
+	item->nFibBack = read_16ubit(fd);
+	wvTrace(("nFibBack is %d\n",item->nFibBack));
+
+	item->Spare = read_32ubit(fd); /* A spare for W2 */
+	item->rgwSpare0[0] = read_16ubit(fd);
+	item->rgwSpare0[1] = read_16ubit(fd);
+	item->rgwSpare0[2] = read_16ubit(fd);
+	item->fcMin = read_32ubit(fd);  /* These appear correct MV 29.8.2000 */
+	item->fcMac = read_32ubit(fd);
+	wvTrace(("fc from %d to %d\n", item->fcMin, item->fcMac));
+
+	item->cbMac = read_32ubit(fd); /* Last byte file position plus one. */
+
+	item->fcSpare0 = read_32ubit(fd);
+	item->fcSpare1 = read_32ubit(fd);
+	item->fcSpare2 = read_32ubit(fd);
+	item->fcSpare3 = read_32ubit(fd);
+
+	item->ccpText = read_32ubit(fd);
+	wvTrace(("length %d == %d\n", item->fcMac - item->fcMin, item->ccpText));
+
+	item->ccpFtn = (S32)read_32ubit(fd);
+	item->ccpHdr = (S32)read_32ubit(fd);
+	item->ccpMcr = (S32)read_32ubit(fd);
+	item->ccpAtn = (S32)read_32ubit(fd);
+	item->ccpSpare0 = (S32)read_32ubit(fd);
+	item->ccpSpare1 = (S32)read_32ubit(fd);
+	item->ccpSpare2 = (S32)read_32ubit(fd);
+	item->ccpSpare3 = (S32)read_32ubit(fd);
+
+	item->fcStshfOrig = read_32ubit(fd);
+	item->lcbStshfOrig = (S32)read_16ubit(fd);
+	item->fcStshf = read_32ubit(fd);
+	item->lcbStshf = (S32)read_16ubit(fd);
+	item->fcPlcffndRef = read_32ubit(fd);
+	item->lcbPlcffndRef = (S32)read_16ubit(fd);
+	item->fcPlcffndTxt = read_32ubit(fd);
+	item->lcbPlcffndTxt = (S32)read_16ubit(fd);
+	item->fcPlcfandRef = read_32ubit(fd);
+	item->lcbPlcfandRef = (S32)read_16ubit(fd);
+	item->fcPlcfandTxt = read_32ubit(fd);
+	item->lcbPlcfandTxt = (S32)read_16ubit(fd);
+	item->fcPlcfsed = read_32ubit(fd);
+	item->lcbPlcfsed = (S32)read_16ubit(fd);
+	item->fcPlcfpgd = read_32ubit(fd);
+	item->cbPlcfpgd = read_16ubit(fd);
+	item->fcPlcfphe = read_32ubit(fd);
+	item->lcbPlcfphe = (S32)read_16ubit(fd);
+	item->fcPlcfglsy = read_32ubit(fd);
+	item->lcbPlcfglsy = (S32)read_16ubit(fd);
+	item->fcPlcfhdd = read_32ubit(fd);
+	item->lcbPlcfhdd = (S32)read_16ubit(fd);
+	item->fcPlcfbteChpx = read_32ubit(fd);
+	item->lcbPlcfbteChpx = (S32)read_16ubit(fd);
+	item->fcPlcfbtePapx = read_32ubit(fd);
+	item->lcbPlcfbtePapx = (S32)read_16ubit(fd);
+	item->fcPlcfsea = read_32ubit(fd);
+	item->lcbPlcfsea = (S32)read_16ubit(fd);
+	item->fcSttbfffn = read_32ubit(fd);
+	item->lcbSttbfffn = (S32)read_16ubit(fd);
+	item->fcPlcffldMom = read_32ubit(fd);
+	item->lcbPlcffldMom = (S32)read_16ubit(fd);
+	item->fcPlcffldHdr = read_32ubit(fd);
+	item->lcbPlcffldHdr = (S32)read_16ubit(fd);
+	item->fcPlcffldFtn = read_32ubit(fd);
+	item->lcbPlcffldFtn = (S32)read_16ubit(fd);
+	item->fcPlcffldAtn = read_32ubit(fd);
+	item->lcbPlcffldAtn = (S32)read_16ubit(fd);
+	item->fcPlcffldMcr = read_32ubit(fd);
+	item->lcbPlcffldMcr = (S32)read_16ubit(fd);
+	item->fcSttbfbkmk = read_32ubit(fd);
+	item->lcbSttbfbkmk = (S32)read_16ubit(fd);
+	item->fcPlcfbkf = read_32ubit(fd);
+	item->lcbPlcfbkf = (S32)read_16ubit(fd);
+	item->fcPlcfbkl = read_32ubit(fd);
+	item->lcbPlcfbkl = (S32)read_16ubit(fd);
+	item->fcCmds = read_32ubit(fd);
+	item->lcbCmds = (S32)read_16ubit(fd);
+	item->fcPlcmcr = read_32ubit(fd);
+	item->lcbPlcmcr = (S32)read_16ubit(fd);
+	item->fcSttbfmcr = read_32ubit(fd);
+	item->lcbSttbfmcr = (S32)read_16ubit(fd);
+	item->fcPrDrvr = read_32ubit(fd);
+	item->lcbPrDrvr = (S32)read_16ubit(fd);
+	item->fcPrEnvPort = read_32ubit(fd);
+	item->lcbPrEnvPort = (S32)read_16ubit(fd);
+	item->fcPrEnvLand = read_32ubit(fd);
+	item->lcbPrEnvLand = (S32)read_16ubit(fd);
+	item->fcWss = read_32ubit(fd);
+	item->lcbWss = (S32)read_16ubit(fd);
+	item->fcDop = read_32ubit(fd);
+	item->lcbDop = (S32)read_16ubit(fd);
+	item->fcSttbfAssoc = read_32ubit(fd);
+	item->lcbSttbfAssoc = (S32)read_16ubit(fd);
+	item->fcClx = read_32ubit(fd);
+	item->lcbClx = (S32)read_16ubit(fd);
+	item->fcPlcfpgdFtn = read_32ubit(fd);
+	item->lcbPlcfpgdFtn = (S32)read_16ubit(fd);
+	item->fcAutosaveSource = read_32ubit(fd);
+	item->lcbAutosaveSource = (S32)read_16ubit(fd);
+	item->fcSpare5 = read_32ubit(fd);
+	item->cbSpare5 = read_16ubit(fd);
+	item->fcSpare6 = read_32ubit(fd);
+	item->cbSpare6 = read_16ubit(fd);
+	item->wSpare4 = read_16ubit(fd);
+	item->pnChpFirst = read_16ubit(fd);
+	item->pnPapFirst = read_16ubit(fd);
+	item->cpnBteChp = read_16ubit(fd);
+	item->cpnBtePap = read_16ubit(fd);
+
+	}
 
 void wvGetFIB6(FIB *item,wvStream *fd)
 	{

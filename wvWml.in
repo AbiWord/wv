@@ -1,0 +1,14 @@
+#!/bin/sh
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+
+# argument checking
+if [ ${#} -ne "2" ]; then
+	echo "Usage: ${0} <word document> <wml output file>"
+	exit 1
+fi
+
+wvWare -x ${libdir}/wv/wvWml.xml "${1}" > "${2}"
+exit ${?}

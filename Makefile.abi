@@ -169,7 +169,8 @@ CSRCS= \
 	exporter/tbd.c \
 	exporter/tc.c \
 	exporter/tlp.c \
-	exporter/wkb.c
+	exporter/wkb.c \
+	exporter/wvexporter.c
 
 CFLAGS+=		-I. -I./exporter/ -I./iconv -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
 
@@ -177,7 +178,8 @@ CFLAGS+=		-I. -I./exporter/ -I./iconv -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\"
 CSRCS+= \
 	oledecod/oledecod.c \
 	laolareplace.c \
-	libole2/ms-ole.c
+	libole2/ms-ole.c \
+	libole2/ms-ole-summary.c
 
 CFLAGS+= \
 	-I./oledecod \
@@ -214,5 +216,5 @@ include $(ABI_ROOT)/src/config/abi_rules.mk
 
 build:: $(TARGETS)
 
-libole2/msole.c:
-	CFLAGS+= -I libole2/system-includes/
+#leave this line here
+

@@ -62,7 +62,8 @@ int wvInitParser(wvParseStruct *ps,char *path)
 	if ( (ret&0x7fff) != WORD8 )
 		ps->data = ps->mainfd;
 
-	if ( (ret != WORD8) && (ret != WORD7) && (ret!= WORD6) )
+	if ( (ret != WORD8) && (ret != WORD7) && (ret!= WORD6) && (ret!= WORD2) ) 
+			/* WORD2 test */
 		{
 		/* return the errors and the encrypted files*/
 		if (!(ret & 0x8000))
@@ -119,7 +120,8 @@ int wvOpenPreOLE(char *path, wvStream **mainfd, wvStream **tablefd0, wvStream **
 		{
 		wvError(("Theres a good chance that this is a word 2 doc of nFib %d\n",read_16ubit(*mainfd)));
 		wvStream_rewind(*mainfd);
-		return(-1);
+		/* return(-1); */
+		return(0);
 		}
 	else if (0x37fe == magic)
 		{

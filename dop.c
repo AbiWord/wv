@@ -69,20 +69,37 @@ void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,wvStream *fd)
 	
 	temp16 = read_16ubit(fd);
 
-	dop->rncFtn = temp16&0x0003;
-	dop->nFtn = (temp16&0xFFFC)>>2;
-
+	if (ver == WORD2)
+		{
+		dop->fFtnRestart =temp16&0x0001;
+		dop->nFtn = (temp16&0xFFFE)>>1;
+		}
+	else
+		{
+		dop->rncFtn = temp16&0x0003;
+		dop->nFtn = (temp16&0xFFFC)>>2;
+		}
 	temp16 = read_16ubit(fd);
 
-	dop->fOutlineDirtySave = temp16&0x0001;
-	dop->reserved2 = (temp16&0x00FE)>>1;
-	dop->fOnlyMacPics = (temp16&0x0100)>>8;
-	dop->fOnlyWinPics = (temp16&0x0200)>>9;
-	dop->fLabelDoc = (temp16&0x0400)>>10;
-	dop->fHyphCapitals = (temp16&0x0800)>>11;
-	dop->fAutoHyphen = (temp16&0x1000)>>12;
-	dop->fFormNoFields = (temp16&0x2000)>>13;
-	dop->fLinkStyles = (temp16&0x4000)>>14;
+	if (ver == WORD2)
+		{
+		dop->irmBar = temp16&0x00FF;
+		dop->irmProps = temp16&0x8F00>>8;
+		}
+	else
+		{
+		dop->fOutlineDirtySave = temp16&0x0001;
+		dop->reserved2 = (temp16&0x00FE)>>1;
+
+		dop->fOnlyMacPics = (temp16&0x0100)>>8;
+		dop->fOnlyWinPics = (temp16&0x0200)>>9;
+		dop->fLabelDoc = (temp16&0x0400)>>10;
+		dop->fHyphCapitals = (temp16&0x0800)>>11;
+		dop->fAutoHyphen = (temp16&0x1000)>>12;
+		dop->fFormNoFields = (temp16&0x2000)>>13;
+		dop->fLinkStyles = (temp16&0x4000)>>14;
+		}
+
 	dop->fRevMarking = (temp16&0x8000)>>15;
 
 	temp16 = read_16ubit(fd);
@@ -93,10 +110,28 @@ void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,wvStream *fd)
 	dop->fPagResults = (temp16&0x0008)>>3;
 	dop->fLockAtn = (temp16&0x0010)>>4;
 	dop->fMirrorMargins = (temp16&0x0020)>>5;
-	dop->reserved3 = (temp16&0x0040)>>6;
+
+	if (ver == WORD2)
+		{
+		dop->fKeepFileFormat = (temp16&0x0040)>>6;
+		}
+	else
+		{
+		dop->reserved3 = (temp16&0x0040)>>6;
+		}
 	dop->fDfltTrueType = (temp16&0x0080)>>7;
 	dop->fPagSuppressTopSpacing = (temp16&0x0100)>>8;
-	dop->fProtEnabled = (temp16&0x0200)>>9;
+
+	if (ver == WORD2)
+		{
+		dop->fRTLAlignment = (temp16&0x0200)>>9;
+		}
+	else
+		{
+		dop->fProtEnabled = (temp16&0x0200)>>9;
+		}
+
+	/* (Nameless in W2) */
 	dop->fDispFormFldSel = (temp16&0x0400)>>10;
 	dop->fRMView = (temp16&0x0800)>>11;
 	dop->fRMPrint = (temp16&0x1000)>>12;
@@ -104,17 +139,32 @@ void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,wvStream *fd)
 	dop->fLockRev = (temp16&0x4000)>>14;
 	dop->fEmbedFonts = (temp16&0x8000)>>15;
 
+	if (ver == WORD2) 
+		{
+		temp16 = read_16ubit(fd);
+		/* nameless to (temp16&0xFE00)>>8 */
+		dop->fSpares = read_16ubit(fd);
+		
+		}
+
 
 	/*
 	not used in word 8 as far as i know, but are in previous word's
+	not in word 2 either 
 	*/
-	wvGetCOPTS(&dop->copts,fd);
+	if (ver > WORD2) wvGetCOPTS(&dop->copts,fd);
 
 	dop->dxaTab = read_16ubit(fd);
+
+	if (ver == WORD2) dop->ftcDefaultBi = read_16ubit(fd);
+
 	dop->wSpare = read_16ubit(fd);
 	dop->dxaHotZ = read_16ubit(fd);
-	dop->cConsecHypLim = read_16ubit(fd);
+
+	if (ver > WORD2) dop->cConsecHypLim = read_16ubit(fd);
+
 	dop->wSpare2 = read_16ubit(fd);
+	if (ver == WORD2) dop->wSpare3 = read_16ubit(fd);
 
 	wvGetDTTM(&dop->dttmCreated,fd);
 	wvGetDTTM(&dop->dttmRevised,fd);
@@ -125,7 +175,17 @@ void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,wvStream *fd)
 	dop->cWords = read_32ubit(fd);
 	dop->cCh = read_32ubit(fd);
 	dop->cPg = read_16ubit(fd);
-	dop->cParas = read_32ubit(fd);
+
+	if (ver == WORD2) 
+		{
+		dop->rgwSpareDocSum [1] = read_16ubit(fd);
+		dop->rgwSpareDocSum [2] = read_16ubit(fd);
+		return;  /* No more for Word 2 */
+		}
+	else
+		{
+		dop->cParas = read_32ubit(fd);
+		}
 
 	temp16 = read_16ubit(fd);
 	
@@ -273,7 +333,10 @@ void wvInitDOP(DOP *dop)
    dop->reserved1 = 0;
    dop->grpfIhdt = 0;
    dop->rncFtn = 0;
+   dop->fFtnRestart = 0;
    dop->nFtn = 0;
+   dop->irmBar = 0;
+   dop->irmProps = 0;
    dop->fOutlineDirtySave = 0;
    dop->reserved2 = 0;
    dop->fOnlyMacPics = 0;
@@ -290,9 +353,12 @@ void wvInitDOP(DOP *dop)
    dop->fPagResults = 0;
    dop->fLockAtn = 0;
    dop->fMirrorMargins = 0;
+   dop->fKeepFileFormat = 0;
    dop->reserved3 = 0;
    dop->fDfltTrueType = 0;
    dop->fPagSuppressTopSpacing = 0;
+   dop->fRTLAlignment = 0;
+   dop->fSpares = 0;
    dop->fProtEnabled = 0;
    dop->fDispFormFldSel = 0;
    dop->fRMView = 0;
@@ -302,6 +368,7 @@ void wvInitDOP(DOP *dop)
    dop->fEmbedFonts = 0;
    wvInitCOPTS(&dop->copts);
    dop->dxaTab = 0;
+   dop->ftcDefaultBi = 0;
    dop->wSpare = 0;
    dop->dxaHotZ = 0;
    dop->cConsecHypLim = 0;
@@ -315,6 +382,8 @@ void wvInitDOP(DOP *dop)
    dop->cCh = 0;
    dop->cPg = 0;
    dop->cParas = 0;
+   dop->rgwSpareDocSum [1] = 0;
+   dop->rgwSpareDocSum [2] = 0;
    dop->rncEdn = 0;
    dop->nEdn = 0;
    dop->epc = 0;

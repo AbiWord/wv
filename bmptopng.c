@@ -1,4 +1,4 @@
-#include <magick.h>
+#include <magick/magick.h>
 #include <string.h>
 int bmptopng(char *prefix);
 #if 0

@@ -9,6 +9,8 @@ extern "C" {
 #define strcasecmp(s1,s2) stricmp(s1,s2)
 #else
 #if !defined(__GLIBC__) || (__GLIBC__ < 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2)
+
+#include "getopt.h"
 int strcasecmp(const char *s1, const char *s2);
 #endif
 #endif
@@ -17,9 +19,11 @@ int strcasecmp(const char *s1, const char *s2);
 /* end redefs */
 
 #include <time.h>
-#include <config.h>
+#include <stdio.h>
 
+  /* find a way to remove this */
 #include "ms-ole.h"
+#include "config.h"
 
 /* The structure below is used to refer to a wvStream.  Usually,
  * kind = LIBOLE_STREAM,
@@ -465,9 +469,33 @@ typedef struct _FIB
 	U32 lcbSttbListNames ;				/* 0x0376 */
 	S32 fcSttbfUssr ;				/* 0x037A */
 	U32 lcbSttbfUssr ;				/* 0x037E */
+
+	/* Added for Word 2 */
+
+	U32 Spare ;					/* 0x000E */	
+	U16 rgwSpare0 [3] ;				/* 0x0012 */
+	U32 fcSpare0 ;					/* 0x0024 */
+	U32 fcSpare1 ;					/* 0x0028 */
+	U32 fcSpare2 ;					/* 0x002C */
+	U32 fcSpare3 ;					/* 0x0030 */
+	U32 ccpSpare0 ;					/* 0x0048 */
+	U32 ccpSpare1 ;					/* 0x004C */
+	U32 ccpSpare2 ;					/* 0x0050 */
+	U32 ccpSpare3 ;					/* 0x0054 */
+
+	U32 fcPlcfpgd ;					/* 0x0082 */
+	U16 cbPlcfpgd ;					/* 0x0086 */
+
+	U32 fcSpare5 ;					/* 0x0130 */
+	U16 cbSpare5 ;					/* 0x0136 */
+	U32 fcSpare6 ;					/* 0x0130 */
+	U16 cbSpare6 ;					/* 0x0136 */
+	U16 wSpare4 ;					/* 0x013C */
+
 	} FIB;
 
 void wvGetFIB(FIB *item,wvStream *fd);
+void wvGetFIB2(FIB *item,wvStream *fd);
 void wvGetFIB6(FIB *item,wvStream *fd);
 void wvInitFIB(FIB *item);
 
@@ -723,7 +751,12 @@ typedef struct _DOP
 	U32 reserved1:1;
 	U32 grpfIhdt:8;
 	U32 rncFtn:2;	/*how to restart footnotes*/
-	U32	nFtn:14;	/*first footnote no*/
+	U16 fFtnRestart:1; /* Word 2*/
+
+	U32 nFtn:15;	/*first footnote no. WORD 2: int :15*/
+
+   	U8 irmBar;    /* W2 */
+	U16 irmProps:7; /* W2 */
 
 	U32 fOutlineDirtySave:1;
 	U32 reserved2:7;
@@ -734,6 +767,7 @@ typedef struct _DOP
 	U32 fAutoHyphen:1;
 	U32 fFormNoFields:1;
 	U32 fLinkStyles:1;
+
 	U32 fRevMarking:1;
 	U32 fBackup:1;
 	U32 fExactCWords:1;
@@ -741,9 +775,20 @@ typedef struct _DOP
 	U32 fPagResults:1;
 	U32 fLockAtn:1;
 	U32 fMirrorMargins:1;
+
+	U16 fKeepFileFormat:1; /* W2 */
+
 	U32 reserved3:1;
+
 	U32 fDfltTrueType:1;
 	U32 fPagSuppressTopSpacing:1;
+
+	U16 fRTLAlignment:1; /* W2 */
+        U16 reserved3a:6;    /* " */
+        U16 reserved3b:7;    /* " */
+
+	U16 fSpares:16;      /* W2 */
+
 	U32 fProtEnabled:1;
 	U32 fDispFormFldSel:1;
 	U32 fRMView:1;
@@ -755,10 +800,15 @@ typedef struct _DOP
 	COPTS copts;
 
 	U16 dxaTab;
+
+	U16 ftcDefaultBi; /* W2 */
+
 	U16 wSpare;
 	U16 dxaHotZ;
 	U16 cConsecHypLim;
 	U16 wSpare2;
+
+	U16 wSpare3; /* W2 */
 
 	DTTM dttmCreated;
 	DTTM dttmRevised;
@@ -770,6 +820,8 @@ typedef struct _DOP
 	U32 cCh;
 	U16 cPg;
 	U32 cParas;
+
+	U16 rgwSpareDocSum[2]; /* W2 */
 
 	U32 rncEdn:2;		/*how endnotes are restarted*/
 	U32 nEdn:14;		/*beginning endnote no*/
@@ -4653,6 +4705,8 @@ void wvAddPAP_FromBucket(pap *pap,U8 *pointer8,U16 len,style *sheet);
 /*we have to replace chp with CHP*/
 void wvAddCHP_FromBucket(chp *achp,U8 *pointer8,U16 len,style *sheet);
 void twvCopyCHP(chp *dest,chp *src);
+
+  void wvSetEntityConverter(expand_data *data);
 
 #ifdef __cplusplus
 }

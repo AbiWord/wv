@@ -47,12 +47,13 @@
 %
 %
 */
-
+
 /*
   Include declarations.
 */
 #include "magick.h"
 #include "defines.h"
+#include <stdlib.h>
 
 
 int ReadInteger(const char *p,char **q)
@@ -132,7 +133,7 @@ Export void TemporaryFilename(char *filename)
 #if defined(macintosh)
     (void) getcwd(filename,MaxTextExtent >> 1);
 #endif
-    (void) tmpnam(filename+strlen(filename));
+    (void) mkstemp(filename+strlen(filename));
 #endif
 #endif
     if ((strchr(filename,'%') == (char *) NULL) &&

@@ -2,25 +2,35 @@ Read INSTALL for install information, basically pretty standard
 requirements for a modern unix program plus libwmf to convert
 wmf files to something useful.
 
-Theres now a small herd of programs based upon libwv.
+There are now a small herd of programs based upon libwv.
 
-1) wvHtml, this is what you are looking for, it converts
-word 6,7.8,9 files to html, man wvHtml for its details
+1) wvWare: this is what you are looking for, it converts
+Word 2,6,7,8,9 files to html and latex. The Word 2 conversion
+is still incomplete (no formatting), but it will do a passable
+job extracting the text, which is what you probably want anyway.
 
-2) wvHtml --config wvLaTeX.xml attempt to convert word
-documents to latex
+2) The small army of helper scripts:
+	wvHtml
+	wvLatex
+	wvCleanLatex
+	wvPS
+	wvDVI
+	wvPDF
+	wvMime
+	wvText
+   Do: `man wvXXX` where "XXX" is Html, Latex, etc.. for more information
 
 3) wvSummary, displays the summary information stream of *all*
-ole2 files, i.e excel, powerpoint, visio, access etc etc etc,
-ive sent wvSummary as a patch to the file program, so that utility
+ole2 files, i.e Excel, PowerPoint, Visio, Access etc etc etc,
+I've sent wvSummary as a patch to the file program, so that utility
 should in the future have this ability to know what windows application
-created the ole2 document.
+created the ole2 document. `man wvSummary`
 
 4) wvSimpleCLX, helps distinguish between fast and full saved
 files
 
 5) wvVersion, outputs the version of the word format which the document
-is stored as.
+is stored as. `man wvVersion`
 
 Also...
 
@@ -32,13 +42,13 @@ online demo page that some people wanted for themselves.
 
 
 The webpage with the online demo facility is at
-http://www.wvWare.com
+http://wvware.sourceforge.net/
 
 Finally...
 
 8) libwv can be used as a library by third party programs, abiword
 uses it as its word importer, and kword may use it in the future.
-wvHtml is a sample application for the use of wv, as is abiword
+wvWare is a sample application for the use of wv, as is abiword
 itself. The library (will be some day) documented in the 
 Documentation dir
 

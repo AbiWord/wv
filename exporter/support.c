@@ -13,8 +13,6 @@
 
 #if defined(WORDS_BIGENDIAN) || !defined(MATCHED_TYPE)
 
-        /* TODO: convert from big to little endian */
-
 /* Basic bit swapping functions from Glib
  */
 
@@ -39,24 +37,6 @@
 	#define TO_LE_8(i)  (i)
 
 #endif
-
-extern MsOle *ole_file;
-
-wvDocument* wvDocument_create(const char* filename) 
-    {
-    wvDocument* ret;
-    
-    if(ms_ole_create((MsOle**)(&ret), filename) != MS_OLE_ERR_OK)
-        {
-        free(ret);
-        return(NULL);
-        }
-    else
-        {
-        ole_file=(MsOle*)ret;
-        return(ret);
-        }
-    }
 
 wvStream* wvStream_new(wvDocument* ole_file, const char* name)
     {

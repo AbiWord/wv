@@ -137,10 +137,12 @@ typedef enum {
 #define MsOleSummarySecurityRO                    0x04
 #define MsOleSummarySecurityLockedForAnnotations  0x08
 
+#if 0
 typedef struct {
 	GTimeVal time;
 	GDate    date;
 } MsOleSummaryTime;
+#endif
 
 typedef struct {
 	guint32 len;
@@ -159,9 +161,12 @@ guint16			ms_ole_summary_get_short	(MsOleSummary *si,
 guint32			ms_ole_summary_get_long		(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 gboolean *available);
+#if 0
 GTimeVal		ms_ole_summary_get_time		(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 gboolean *available);
+#endif
+
 MsOleSummaryPreview	ms_ole_summary_get_preview	(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 gboolean *available);
@@ -174,16 +179,18 @@ void			ms_ole_summary_set_string	(MsOleSummary *si,
 							 const gchar *str);
 void			ms_ole_summary_set_boolean	(MsOleSummary *si,
 							 MsOleSummaryPID id,
-							 gboolean bool);
+							 gboolean b);
 void			ms_ole_summary_set_short	(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 guint16 i);
 void			ms_ole_summary_set_long		(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 guint32 i);
+#if 0
 void			ms_ole_summary_set_time		(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 GTimeVal time);
+#endif
 void			ms_ole_summary_set_preview	(MsOleSummary *si,
 							 MsOleSummaryPID id,
 							 const

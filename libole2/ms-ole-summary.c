@@ -13,7 +13,7 @@
 #include <config.h>
 #include <glib.h>
 #include <stdio.h>
-
+#include <string.h>
 #include <libole2/ms-ole.h>
 #include <libole2/ms-ole-summary.h>
 
@@ -620,7 +620,7 @@ ms_ole_summary_get_string (MsOleSummary *si, MsOleSummaryPID id,
 
 	ans = g_new (gchar, len + 1);
 	
-	if (!si->s->read_copy (si->s, ans, len)) {
+	if (!si->s->read_copy (si->s, (guint8 *)ans, len)) {
 		g_free (ans);
 		return NULL;
 	}
@@ -954,6 +954,7 @@ unixtime_to_filetime (time_t unix_time, unsigned int *time_high, unsigned int *t
  * 
  * Return value: FIXME
  **/
+#if 0
 GTimeVal
 ms_ole_summary_get_time (MsOleSummary *si, MsOleSummaryPID id,
 			 gboolean *available)
@@ -996,6 +997,7 @@ ms_ole_summary_get_time (MsOleSummary *si, MsOleSummaryPID id,
 	*available = TRUE;
 	return time;
 }
+#endif
 
 /**
  * ms_ole_summary_preview_destroy:
@@ -1119,6 +1121,7 @@ ms_ole_summary_set_preview (MsOleSummary *si, MsOleSummaryPID id,
  * 
  * FIXME
  **/
+#if 0
 void
 ms_ole_summary_set_time (MsOleSummary *si, MsOleSummaryPID id,
 			 GTimeVal time)
@@ -1142,6 +1145,7 @@ ms_ole_summary_set_time (MsOleSummary *si, MsOleSummaryPID id,
 	MS_OLE_SET_GUINT32 (w->data + 4, time_low);
 	MS_OLE_SET_GUINT32 (w->data + 8, time_high);
 }
+#endif
 
 /**
  * ms_ole_summary_set_boolean:
@@ -1153,7 +1157,7 @@ ms_ole_summary_set_time (MsOleSummary *si, MsOleSummaryPID id,
  **/
 void
 ms_ole_summary_set_boolean (MsOleSummary *si, MsOleSummaryPID id,
-			    gboolean bool)
+			    gboolean b)
 {
 	write_item_t *w;
 
@@ -1166,7 +1170,7 @@ ms_ole_summary_set_boolean (MsOleSummary *si, MsOleSummaryPID id,
 	w->len  = 6;
 
 	MS_OLE_SET_GUINT32 (w->data + 0, TYPE_BOOLEAN);
-	MS_OLE_SET_GUINT16 (w->data + 4, bool);
+	MS_OLE_SET_GUINT16 (w->data + 4, b);
 }
 
 

@@ -1,3 +1,20 @@
+Changes to 0.6.0
+	* Changed executable name from wvHtml to wvWare
+	* Added Mime display script (wvMime) (Martin Vermeer, Dom)
+	* Added Conversion Helper Scripts (wvHtml, wvLatex, wvCleanLatex,
+	  wvPS, wvDVI, wvPDF) (Dom)
+	* Added CleanLaTeX output mode, more closely resembling hand-crafted
+	  LaTeX (Martin)
+	* Use GLib (http://www.gtk.org) (Dom)
+	* Use Gnome Libole2 (http://www.gnome.org) (Dom, Jamie)
+	* New wvStream architecture (Jamie)
+	* Word 2 support! (Martin Vermeer)
+	* Code speedups and XP improvements (the Abiword team)
+	* Massive work started on an exporter (Dom)
+	* Move to wvware.sourceforge.net (Dom)
+	* New Maintainer: Dom Lachowicz (cinamod@hotmail.com)
+	  |-> also getting lots of help from Martin Vermeer
+
 Changes to to 0.5.44
 	* Seriously warped fastsaved table cell deleting licked
 Changes to to 0.5.43

@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# argument checking
+if [ ${#} -ne "2" ]; then
+	echo "Usage: ${0} <word document> <dvi output file>"
+	exit 1
+fi
+
+which wvLatex 2>&1 >/dev/null
+if [ ${?} -ne "0" ]; then
+	echo "Could not find required program 'wvLatex'"
+	exit 1
+fi
+
+which latex 2>&1 >/dev/null
+if [ ${?} -ne "0" ]; then
+	echo "Could not find required program 'latex'"
+	exit 1
+fi
+
+#
+LATEX_FILE="${2}.tex"
+
+wvLatex "${1}" "${LATEX_FILE}" 2>&1 >/dev/null
+if [ ${?} -ne "0" ]; then
+    echo "Error converting into LaTeX"
+    exit 1
+fi
+
+DIRNAME=`dirname "$2"`
+BASENAME=`basename "$LATEX_FILE"`
+(
+cd "$DIRNAME"
+
+latex --interaction=batchmode "${BASENAME}" 2>&1 >/dev/null
+if [ ${?} -ne "0" ]; then
+	echo "Conversion into dvi failed"
+	exit 1
+fi
+
+)
+
+# clean up after ourselves
+rm -f "${LATEX_FILE}" 
+mv "${2}.dvi" "${2}"
+exit ${?}

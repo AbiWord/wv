@@ -1,8 +1,9 @@
 #!/bin/sh
 #from mswordview mailing list by
 #E. Frank Ball <frankb@sr.hp.com>
+# Modified by Dom Lachowicz Sept 19,2000
 
 htmlfile=/tmp/mswordviewfile$$
-mswordview -o $htmlfile $1
+wvHtml $1 $htmlfile
 lynx -dump -force_html $htmlfile
 /bin/rm $htmlfile

@@ -249,7 +249,9 @@ void wvOutputFromUnicode(U16 eachchar,char *outputtype)
     obuflen = 5;
 	p = obuf;
     len = obuflen;
+
     iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+
 	len = len-obuflen;
     iconv_close(iconv_handle);
 
@@ -554,6 +556,10 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 	{
 	switch(char16)
 		{
+		case 0xa0:
+			printf("\\ "); /* hard space */
+			return(1);
+
 		/* Fix up these as math characters: */
 		case 0xb1:
 			printf("$\\pm$");
@@ -582,15 +588,34 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 11:
 			printf("\\\\\n");
 			return(1);
-		case 30:
-		case 31:
-		case 45:
-		
+		case 31:  /* non-required hyphen */
+			printf("\\-");
+			return(1);
+		case 30:  /* non-breaking hyphen */
+			printf("-");
+			return(1);
+
+		/* case 45: minus/hyphen, pass through */
+
 		case 12:
 		case 13:
 		case 14:
 		case 7:
 			return(1);
+		case 9:
+			printf("\\hfill{}"); /* tab -- horrible cludge */
+			return(1);
+
+		case 0xf020:
+			printf(" "); /* Mac specialty ? MV 10.10.2000*/
+			return(1);
+		case 0xf02c:
+			printf(","); /* Mac */
+			return(1);
+		case 0xf028:
+			printf("("); /* Mac */
+			return(1);
+
 		case 34:
 			printf("\"");
 			return(1);
@@ -603,9 +628,19 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 38:
 			printf("\\&"); /* MV 1.7.2000 */
 			return(1);
+		case 92:
+			printf("$\\backslash$"); /* MV 23.9.2000 */
+			return(1);
+		case 94:
+			printf("\\^"); /* MV 13.9.2000 */
+			return(1);
+		case 95:
+			printf("\\_"); /* MV 13.9.2000 */
+			return(1);
 		case 60:
 			printf("<");
 			return(1);
+		case 0xf03e: /* Mac */
 		case 62:
 			printf(">");
 			return(1);
@@ -909,75 +944,77 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 
 		/* Greek (thanks Petr Vanicek!): */
 		case 0x0391:
-			printf("$\\Alpha$");
+			printf("$A$");
 			return(1);
 		case 0x0392:
-			printf("$\\Beta$");
+			printf("$B$");
 			return(1);
 		case 0x0393:
 			printf("$\\Gamma$");
 			return(1);
+		case 0x2206: /* Mac */
 		case 0x0394:
 			printf("$\\Delta$");
 			return(1);
 		case 0x0395:
-			printf("$\\Epsilon$");
+			printf("$E$");
 			return(1);
 		case 0x0396:
-			printf("$\\Zeta$");
+			printf("$Z$");
 			return(1);
 		case 0x0397:
-			printf("$\\Eta$");
+			printf("$H$");
 			return(1);
 		case 0x0398:
 			printf("$\\Theta$");
 			return(1);
 		case 0x0399:
-			printf("$\\Iota$");
+			printf("$I$");
 			return(1);
 		case 0x039a:
-			printf("$\\Kappa$");
+			printf("$K$");
 			return(1);
 		case 0x039b:
 			printf("$\\Lambda$");
 			return(1);
 		case 0x039c:
-			printf("$\\Mu$");
+			printf("$M$");
 			return(1);
 		case 0x039d:
-			printf("$\\Nu$");
+			printf("$N$");
 			return(1);
 		case 0x039e:
 			printf("$\\Xi$");
 			return(1);
 		case 0x039f:
-			printf("$\\Omicron$");
+			printf("$O$"); /* Omicron */
 			return(1);
 		case 0x03a0:
 			printf("$\\Pi$");
 			return(1);
 		case 0x03a1:
-			printf("$\\Rho$");
+			printf("$R$");
 			return(1);
 
 		case 0x03a3:
 			printf("$\\Sigma$");
 			return(1);
 		case 0x03a4:
-			printf("$\\Tau$");
+			printf("$T$");
 			return(1);
 		case 0x03a5:
-			printf("$\\Upsilon$");
+			printf("$Y$");
 			return(1);
 		case 0x03a6:
 			printf("$\\Phi$");
 			return(1);
 		case 0x03a7:
-			printf("$\\Chi$");
+			printf("$X$"); /* Chi */
 			return(1);
 		case 0x03a8:
 			printf("$\\Psi$");
 			return(1);
+		case 0x2126: /* Mac */
 		case 0x03a9:
 			printf("$\\Omega$");
 			return(1);
@@ -990,9 +1027,11 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x03b2:
 			printf("$\\beta$");
 			return(1);
+		case 0xf067: /* Mac */
 		case 0x03b3:
 			printf("$\\gamma$");
 			return(1);
+		case 0xf064: /* Mac */
 		case 0x03b4:
 			printf("$\\delta$");
 			return(1);
@@ -1027,15 +1066,16 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 			printf("$\\xi$");
 			return(1);
 		case 0x03bf:
-			printf("$\\omicron$");
+			printf("$o$");  /* omicron */
 			return(1);
 		case 0x03c0:
 			printf("$\\pi$");
 			return(1);
+		case 0xf072:  /* Mac */
 		case 0x03c1:
 			printf("$\\rho$");
 			return(1);
-
+		case 0xf073:  /* Mac */
 		case 0x03c3:
 			printf("$\\sigma$");
 			return(1);
@@ -1056,6 +1096,9 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 			return(1);
 		case 0x03c9:
 			printf("$\\omega$");
+			return(1);
+		case 0x03d5:
+			printf("$\\varphi$"); /* ? */
 			return(1);
 
 	/* More math, typical inline: */
@@ -1078,6 +1121,7 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x2191:
 			printf("$\\uparrow$");
 			return(1);
+		case 0xf0ae: /* Mac */
 		case 0x2192:
 			printf("$\\rightarrow$");
 			return(1);
@@ -1103,6 +1147,7 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x2200:
 			printf("$\\forall$");
 			return(1);
+		case 0xf0b6: /* Mac */
 		case 0x2202:
 			printf("$\\partial$");
 			return(1);
@@ -1166,6 +1211,7 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x2264:
 			printf("$\\leq$");
 			return(1);
+		case 0xf0b3: /* Mac? */
 		case 0x2265:
 			printf("$\\geq$");
 			return(1);
@@ -1679,6 +1725,43 @@ thing and just put ... instead of this
 		case 0x20ac:
 			printf("&euro;");
 			return(1);
+
+		/* Mac specials (MV): */
+
+ 		case 0xf020:
+ 			printf(" ");
+ 			return(1);
+ 		case 0xf02c:
+ 			printf(","); 
+ 			return(1);
+ 		case 0xf028:
+ 			printf("(");
+ 			return(1);
+ 
+ 		case 0xf03e: 
+ 			printf("&gt;");
+ 			return(1);
+ 		case 0xf067:
+ 			printf("&gamma;");
+ 			return(1);
+ 		case 0xf064:
+ 			printf("&delta;");
+ 			return(1);
+ 		case 0xf072:
+ 			printf("&rho;");
+ 			return(1);
+ 		case 0xf073:
+ 			printf("&sigma;");
+ 			return(1);
+ 		case 0xf0ae:
+ 			printf("&rarr;"); /* right arrow */
+ 			return(1);
+ 		case 0xf0b6:
+ 			printf("&part;");  /* partial deriv. */
+ 			return(1);
+ 		case 0xf0b3:
+ 			printf("&ge;");
+ 			return(1);
 
 		}
 	/* Debugging aid: */

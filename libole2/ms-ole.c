@@ -37,11 +37,6 @@
 #ifdef HAVE_UNISTD_H 
 #include <unistd.h>
 #else
-#ifndef __OpenBSD__
-#include <io.h>
-#else
-#include <sys/uio.h>
-#endif
 #include <io.h> 
 #define S_IRUSR 0000400 
 #define S_IWUSR 0000200 
@@ -126,13 +121,23 @@ struct _MsOle
 static int
 open2_wrap (const char *pathname, int flags)
 {
+  /* small fix for OS/2 and Win32 not applicable for Unix */
+#ifdef O_BINARY
+	return open (pathname, flags | O_BINARY);
+#else
 	return open (pathname, flags);
+#endif
 }
 
 static int
 open3_wrap (const char *pathname, int flags, mode_t mode)
 {
+  /* small fix for OS/2 and Win32 not applicable for Unix */
+#ifdef O_BINARY
+	return open (pathname, flags | O_BINARY, mode);
+#else
 	return open (pathname, flags, mode);
+#endif
 }
 
 static ssize_t

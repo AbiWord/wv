@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "wv.h"
 
 void wvReleaseCLX(CLX *clx)
@@ -103,7 +104,7 @@ void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,wvStream *fd)
 			wvGetPCD_PLCF(&clx->pcd,&clx->pos,&clx->nopcd,wvStream_tell(fd),lcb,fd);
 			j+=lcb;
 
-			if (ver == WORD7)
+			if (ver <= WORD7) /* MV 28.8.2000 Appears to be valid */
 				{
 #if 0
 				/* DANGER !!, this is a completely mad attempt to differenciate 
@@ -115,18 +116,6 @@ void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,wvStream *fd)
 				/* I think that this is the correct reason for this behaviour */
 				if (fExtChar == 0)
 #endif
-					for (i=0;i<clx->nopcd;i++)
-						{
-						clx->pcd[i].fc *= 2;
-						clx->pcd[i].fc |= 0x40000000UL;
-						}
-				}
-			if (ver == WORD6)
-				{
-				/* Copy the above ;-) MV 27.8.2000 
-				Note: worth trying for WORD2 etc. also (?)
-				*/
-				if (fExtChar == 0)
 					for (i=0;i<clx->nopcd;i++)
 						{
 						clx->pcd[i].fc *= 2;

@@ -126,6 +126,7 @@ char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
             break;
         }
 	return(name);
+printf("<%s>\n", name);
 	}
 
 
@@ -166,7 +167,7 @@ int HandleMetafile(char *name,MetaFileBlip *bitmap)
 
 void usage( void )
 	{
-	printf("Usage: wvHtml [--config config.xml] [--charset charset] [--password password] [--dir dir] filename.doc\n");
+	printf("Usage: wvWare [--config config.xml] [--charset charset] [--password password] [--dir dir] filename.doc\n");
 	exit(-1);
 	}
 
@@ -251,7 +252,7 @@ int main(int argc,char **argv)
 	ps.filename = argv[optind];
 	ps.dir = dir;
 
-	if (ret & 0x8000)
+	if (ret & 0x8000)  /* Password protected? */
 		{
 		if ( (ret & 0x7fff) == WORD8)
 			{
@@ -489,8 +490,8 @@ void wvStrangeNoGraphicData(char *config, int graphicstype)
 	{
 	wvError(("Strange No Graphic Data in the 0x01/0x08 graphic\n"));
 
-	if ( (strcmp(config, "wvLaTeX.xml") == 0) 
-	  || (strcmp(config, "wvCleanLaTeX.xml") == 0) )
+	if ( (strstr(config, "wvLaTeX.xml") != NULL) 
+	  || (strstr(config, "wvCleanLaTeX.xml") != NULL) )
 		printf("\n\\resizebox*{\\baselineskip}{!}{\\includegraphics{placeholder.eps}}\
  		  \n-- %#.2x graphic: StrangeNoGraphicData --", 
 			graphicstype);
@@ -503,15 +504,19 @@ void wvStrangeNoGraphicData(char *config, int graphicstype)
 void wvPrintGraphics(char *config, int graphicstype, int width, int height,
 		char *source)
 	{
-	if ( (strcmp(config, "wvLaTeX.xml") == 0) 
-	  || (strcmp(config, "wvCleanLaTeX.xml") == 0) )
-		/* Output to real file name. Conversion to .eps must 
-		be done manually for now (until libwmf supports .eps)
-		but it's a start */
+	if ( (strstr(config, "wvLaTeX.xml") != NULL) 
+	  || (strstr(config, "wvCleanLaTeX.xml") != NULL) )
+	      {
+		remove_suffix (source, ".wmf");
+		remove_suffix (source, ".png");
+		/* 
+		Output to real file name. Conversion to .eps must be done manually for now 
+		*/
 		printf("\n\\resizebox{%dpt}{%dpt}\
-		  {\\includegraphics{%s}}\
+		  {\\includegraphics{%s.eps}}\
 		  \n-- %#.2x graphic -- \n",
 			width, height, source, graphicstype);
+	      }
 	else
 		printf("<img width=\"%d\" height=\"%d\" alt=\"%#.2x graphic\" src=\"%s\"><br>",
 		width, height, graphicstype, source);
@@ -520,10 +525,10 @@ void wvPrintGraphics(char *config, int graphicstype, int width, int height,
 
 int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 	{
-	static int message,state;
+	static int message;
 	PICF picf;
 	FSPA *fspa;
-    expand_data *data = (expand_data *)ps->userData;
+	expand_data *data = (expand_data *)ps->userData;
 
 	switch(eachchar)
 		{

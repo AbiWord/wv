@@ -27,12 +27,12 @@ HTML=/tmp/mswordview.$$.html
 #
 #	run mswordview program
 #
-mswordview "$*" > $HTML
+wvWare "$*" > $HTML
 
 #
 #	point netscape to the mswordview generated html file
 #
-netscape4 -remote 'openUrl(http://localhost'$HTML')'
+netscape -remote 'openUrl(http://localhost'$HTML')'
 
 #
 #	remove files within 30 seconds

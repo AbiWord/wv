@@ -9,11 +9,11 @@ extern wvStream *outputfile;
 extern wvStream *erroroutput;
 extern char *outputfilename;
 
-int external_knowledge_0x01 = 0;/*when we magically know that we will not
-							      be using a delay stream, i.e. big gobs of
-								  emperical evidence, left external so that
-								  if im wrong it'll be looking me in the face
-								*/
+/*
+when we magically know that we will not be using a delay stream, i.e. big gobs of
+emperical evidence, left external so that if im wrong it'll be looking me in the face
+*/
+int external_knowledge_0x01 = 0;
 
 char failsafe[1];
 

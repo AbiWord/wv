@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "wv.h"
 
 void wvCopyBlip(Blip *dest,Blip *src)

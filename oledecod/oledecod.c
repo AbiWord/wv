@@ -94,13 +94,14 @@ OLEdecode (FILE *input, pps_entry ** stream_list, U32 * root, U16 max_level)
   root_list = sbd_list = NULL;
 
   /* open input file */
-  test (input != NULL, 4, ends ());
+  test (input != NULL, 4, ends ()); /* cannot be opened */
 
   /* fast check type of file */
   verbose ("fast testing type of file");
   test ((c = getc (input)) != EOF, 5, ends ());
   test (ungetc (c, input) != EOF, 5, ends ());
-  test ( (c < 32 || c > 126) , 8, ends ());
+  test ( (c < 32 || c > 126) , 8, ends ());  /* We have a legible character, not good */
+  test (c != 0xdb, 2, ends ());  /* probably non-ole Word 2 file */
   test (c == 0xd0, 9, ends ());
 
   /* read header block */
@@ -367,7 +368,7 @@ OLEdecode (FILE *input, pps_entry ** stream_list, U32 * root, U16 max_level)
 	  {
 	    assert (i == *root);
 	    assert (i == 0);
-	    tmpnam (sbfilename);
+	    mkstemp (sbfilename);
 	    test (sbfilename[0], 7, ends ());
 	    sbfile = OLEfile = fopen (sbfilename, "wb+");
 	    test (OLEfile != NULL, 7, ends ());
@@ -376,7 +377,7 @@ OLEdecode (FILE *input, pps_entry ** stream_list, U32 * root, U16 max_level)
 	else
 	  /* other entry, save in a file */
 	  {
-	    tmpnam (pps_list[i].filename);
+	    mkstemp (pps_list[i].filename);
 	    test (pps_list[i].filename[0], 7, ends ());
 	    verbose (pps_list[i].name);
 	    OLEfile = fopen (pps_list[i].filename, "wb");

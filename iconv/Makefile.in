@@ -19,12 +19,12 @@ PERL = @PERL@
 
 VPATH = @srcdir@
 
-CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/../
+CFLAGS = @CFLAGS@ @DEFS@ @WMF_CFLAGS@ -I$(srcdir)/ -I$(srcdir)/../
 
 CFLAGS += \
         -I$(srcdir)/../libole2/ \
         -I$(srcdir)/../glib-wv/
-              
+
 SHELL = /bin/sh
 
 .SUFFIXES: .C .$(OBJEXT)

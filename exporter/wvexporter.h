@@ -1,25 +1,51 @@
 #ifndef WVEXPORTER_H
 #define WVEXPORTER_H
 
-#include "../wv.h"
+/* hack for abiword people */
+#define WVWARE_CVS 1
+
+#include "wv.h"
+#include "ms-ole-summary.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-
-/* This is our exportation abstraction layer.  Each wvDocument maps to one file,
+/* This is our exportation abstraction layer.  
+ * Each wvDocument maps to one file,
  * which streams can be opened within.
  */
 typedef MsOle wvDocument;
 
-wvDocument* wvDocument_create(const char* fileName);
+  typedef struct {
+    wvDocument *ole;
+
+    wvStream     *documentStream;
+    wvStream     *tableStream;
+    MsOleSummary *summaryStream;
+    wvStream     *dataStream;
+
+    /* more accounting structures to come later */
+
+    FIB fib;
+  } wvExporter;
+
+  wvExporter * wvExporter_create(const char *filename);
+  void wvExporter_close(wvExporter *exp);
+  void wvExporter_summaryPutString(wvExporter *exp, U32 field, const char *str);
+  void wvExporter_summaryPutLong(wvExporter *exp, U32 field, U32 l);
+  void wvExporter_summaryPutTime(wvExporter *exp, U32 field, time_t *t);
+
+  size_t wvExporter_writeChars(wvExporter *exp, const char *chars);
+  size_t wvExporter_writeBytes(wvExporter *exp, size_t sz, size_t nmemb,
+			       const void *bytes);
+
+  /* */
 wvStream* wvStream_new(wvDocument* ole_file, const char* name);
+int wvStream_write(void *ptr, size_t size, size_t nmemb, wvStream *in);
 int write_32ubit(wvStream *in, U32 out);
 int write_16ubit(wvStream *in, U16 out);
 int write_8ubit(wvStream *in, U8 out);
-int wvStream_write(void *ptr, size_t size, size_t nmemb, wvStream *in);
-
 
 void wvInitFIBForExport(FIB *item);
 void wvPutFIB(FIB *item, wvStream *fd);
@@ -92,4 +118,3 @@ void wvPutSTSH(STSH *item, U16 cbStshi, wvStream *fd);
 #endif
     
 #endif /* WVEXPORTER_H */
-

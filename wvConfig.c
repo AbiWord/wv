@@ -555,7 +555,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 	char *text,*str;
 	static int bold,italic,strike,outline,smallcaps,caps,vanish,
 	shadow,lowercase,emboss,imprint,dstrike,iss,kul,color,fontstr,proprmark,
-	animation,delete,added,FldRMark,ilfo,ilvl=-1,ulist,olist,fintable,fttp=1,
+	animation,deleted,added,FldRMark,ilfo,ilvl=-1,ulist,olist,fintable,fttp=1,
 	table,txt,lastcell;
 	char buffer[64];
 	static LVL lvl;
@@ -1351,7 +1351,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			HANDLE_B_CHAR_ELE(TT_DispFldRMark,fDispFldRMark,FldRMark,1)
 			break;
 		case TT_RMarkDelB:
-			HANDLE_B_CHAR_ELE(TT_RMarkDel,fRMarkDel,delete,1)
+			HANDLE_B_CHAR_ELE(TT_RMarkDel,fRMarkDel,deleted,1)
 			break;
 		case TT_OUTLINEB:
 			HANDLE_B_CHAR_ELE(TT_OUTLINE,fOutline,outline,1)
@@ -1363,7 +1363,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 			HANDLE_B_CHAR_ELE(TT_ITALIC,fItalic,italic,1)
 			break;
 		case TT_RMarkDelE:
-			HANDLE_E_CHAR_ELE(TT_RMarkDel,fRMarkDel,delete,1)
+			HANDLE_E_CHAR_ELE(TT_RMarkDel,fRMarkDel,deleted,1)
 			break;
 		case TT_DispFldRMarkE:
 			HANDLE_E_CHAR_ELE(TT_DispFldRMark,fDispFldRMark,FldRMark,1)

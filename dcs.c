@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "wv.h"
 
 void wvGetDCS_internal(DCS *item,wvStream *fd, U8 *pointer)

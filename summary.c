@@ -338,11 +338,15 @@ int wvSumInfoOpenStream(SummaryInfo *si,wvStream *stream)
     U32 i;
    
     wvGetPropHeader(&header,stream);
-    if (header.byteOrder != 0xFFFE)
-        return(1);
+    if (header.byteOrder != 0xFFFE){
+      wvError(("Bad byte order: %d\n", header.byteOrder));
+      return(1);
+    }
 
-    if (header.wFormat != 0)
-        return(1);
+    if (header.wFormat != 0){
+      wvError(("Bad format: %d\n", header.wFormat));
+      return(1);
+    }
 
     for (i = 0; i < header.cSections; i++)
         {

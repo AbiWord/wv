@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include "wv.h"
 
+extern void (*charhandler) ();
+extern void (*scharhandler) ();
+
 /*
 how this works,
 we seek to the beginning of the text, we loop for a count of charaters that is stored in the fib.
@@ -166,6 +169,23 @@ void wvDecodeSimple(wvParseStruct *ps,subdocument whichdoc)
 	If !fib.fComplex, the document text stream is represented by the text
 	beginning at fib.fcMin up to (but not including) fib.fcMac.
 	*/
+
+	if ( (ver == WORD2) && !ps->fib.fComplex)
+		{
+		wvHandleDocument(ps,DOCBEGIN);
+		wvStream_goto(ps->mainfd,ps->fib.fcMin);
+		for (i = ps->fib.fcMin; i < ps->fib.fcMac; i++)
+			{
+			eachchar = wvGetChar(ps->mainfd, 1);
+			(*charhandler)(ps, eachchar, 1, ps->fib.lid);
+			/* (*scharhandler)(ps,eachchar,&achp;        no go */
+			/* wvOutputTextChar(eachchar, 1, ps, &achp); no go */
+			/* Formatting still lacking. This is just a start. */
+			}
+		wvHandleDocument(ps,DOCEND);
+		return;
+		}
+
 
 #ifdef DEBUG
 	if ( ps->fib.fcMac != wvGetEndFCPiece(ps->clx.nopcd-1,&ps->clx) )

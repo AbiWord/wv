@@ -6,7 +6,7 @@ void wvInitFIBForExport(FIB *item)
 	{
 	item->wIdent = 0;       /* The 'magic number' */
 	item->nFib = 101;
-	item->nProduct = 0;     /* The product version */
+	item->nProduct = 8;     /* The product version */
 	item->lid = 0;          /* The 'language stamp' */
 	item->pnNext = 0;       /* Fantastically undescribed in the spec... */
 	item->fDot = 0;         /* We are not a template */

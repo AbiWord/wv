@@ -1,6 +1,5 @@
 CC = @CC@
 OBJEXT = @OBJEXT@
-
 LEX = @LEX@
 
 SHELL=/bin/sh
@@ -15,17 +14,22 @@ SHELL = /bin/sh
 
 .SUFFIXES: .C .$(OBJEXT)
 
-MYOBJECTS =  ms-ole.$(OBJEXT)
+MYOBJECTS = \
+	ms-ole.$(OBJEXT) \
+	ms-ole-summary.$(OBJEXT)
 
 all: $(MYOBJECTS) 
 
 ms-ole.$(OBJEXT): $(srcdir)/ms-ole.c 
-	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
+	$(CC) $(CFLAGS) -c $(srcdir)/ms-ole.c 
+
+ms-ole-summary.$(OBJEXT): $(srcdir)/ms-ole-summary.c
+	$(CC) $(CFLAGS) -c $(srcdir)/ms-ole-summary.c
 
 clean:	
 	rm -rf $(MYOBJECTS) core 
 
 realclean:  
-	rm -rf config.cache config.status config.log Makefile *.$(OBJEXT) core demo
+	rm -rf Makefile *.$(OBJEXT) core demo
 
 #  DO  NOT  DELETE THIS LINE -- make depend depends on it.
