@@ -24,6 +24,7 @@ ABI_PEER:=/wv
 include $(ABI_ROOT)/src/config/abi_defs.mk
 
 CSRCS=	laolareplace.old.c \
+	twips.c \
 	support.c \
 	list.c \
 	piecetable.c \
