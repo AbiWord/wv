@@ -300,6 +300,18 @@ if test "$check_for_libiconv" = "yes"; then
         fi
         AC_DEFINE(USE_ICONV)
         have_iconv=yes])
+    dnl some libiconv don't have iconv_open but rather libiconv_open
+    if test "$have_iconv" = "no"; then
+        AC_CHECK_LIB(iconv,libiconv_open,[
+            if test "x$LIBICONV_DIR" != "x"; then
+                ICONV_CFLAGS="-I$LIBICONV_DIR/include"
+                ICONV_LIBS="-L$LIBICONV_DIR/lib -liconv"
+            else
+                ICONV_LIBS="-liconv"
+            fi
+            AC_DEFINE(USE_ICONV)
+            have_iconv=yes])
+    fi
 fi
 
 if test "$have_iconv" = "no"; then
