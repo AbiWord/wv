@@ -1,0 +1,27 @@
+word 6 lists.
+
+pap->nLvlAnm is the equivalent to pap->ilvl, 
+1 to 9 are a list with levels, and are equivalent to 0-8 for ilvl.
+
+the values of 10 and above wrap around 10 to become 0 onwards.
+
+the ilfo does not exist, but I believe that due to the nature of
+word95 lists you can generate lvl and lfo contructs from the
+ANLD, and add a new entry for each anld in the lfo and set the
+ilfo to that number. And only add a new entry if the checksum
+of the anld has not been seen before.
+
+The numbering of word 6 multilevel lists is very odd indeed, Heres the
+theory, If the list nfc is the exact same as the previous level's nfc then
+the nfc is quite possibly wrong. If the list has been altered in any way
+then it is ok, but if it is a stock list then you have to use the ordering
+that I derived from looking at a list in word95. To determine if a list has
+not been changed the best mechanism I can find is to look at fNumber1.
+
+So if lvl > 1, and lvl.nfc == lvl-1.nfc and fNumber == 46 then use standard
+word 6 numbering.
+
+Using the mechanism now in wv, what this boils down to is that if an anld list
+is found which has already had an exact copy found previously (the crc the same)
+and that the level is not the first, and the fNumber is 46 then we ignore the
+nfc and figure out what it *should* be based on external knowledge.

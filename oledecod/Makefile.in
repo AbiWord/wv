@@ -1,4 +1,5 @@
 CC = @CC@
+OBJEXT = @OBJEXT@
 
 LEX = @LEX@
 
@@ -6,23 +7,38 @@ SHELL=/bin/sh
 
 @SET_MAKE@
 
-CFLAGS = @CFLAGS@ @DEFS@ -I. -I.. @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/mswordview/ttf\"
+prefix=@prefix@
+srcdir=@srcdir@
+datadir=@datadir@
+
+HAVE_GLIB = @HAVE_GLIB@
+
+ifeq ($(EPATH_DYLIB),1)
+WVPICFLAGS = -fno-common -DPIC
+else
+WVPICFLAGS = 
+endif
+
+CFLAGS = -I.. -I$(srcdir) -I$(srcdir)/.. @CPPFLAGS@ @CFLAGS@ @DEFS@ -I$(srcdir)/../libole2 @GLIB_CFLAGS@ $(WVPICFLAGS)
+ifneq ($(HAVE_GLIB), 1)
+CFLAGS += -I$(srcdir)/../glib-wv
+endif
 
 SHELL = /bin/sh
 
-.SUFFIXES: .C .o
+.SUFFIXES: .C .$(OBJEXT)
 
-MYOBJECTS =  oledecod.o
+MYOBJECTS =  oledecod.$(OBJEXT)
 
-all: oledecod.o
+all: oledecod.$(OBJEXT)
 
-%.o: %.c 
-	$(CC) $(CFLAGS) -c $*.c 
+%.$(OBJEXT): $(srcdir)/%.c 
+	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
 clean:	
 	rm -rf $(MYOBJECTS) core 
 
 realclean:  
-	rm -rf config.cache config.status config.log Makefile *.o core demo
+	rm -rf config.cache config.status config.log Makefile *.$(OBJEXT) core demo
 
 #  DO  NOT  DELETE THIS LINE -- make depend depends on it.
