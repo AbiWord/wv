@@ -232,12 +232,15 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 	  else
 	    {
 		char buf[16];
+		char buf2[4];
 		char  * tmp;
 		const char * tmp2;
 		size_t insz, sz;
 		temp16 = read_16ubit (fd);
-		tmp2 = (char *)&temp16;
-		insz = sizeof(temp16);
+		buf2[0] =  temp16 & 0x00ff;
+		buf2[1] = (temp16 & 0xff00) >> 8;
+		tmp2 = buf2;
+		insz = 2 * sizeof(char);
 		tmp = buf;
 		sz =  sizeof(buf);
 		if ((size_t) -1 != iconv (conv, &tmp2, &insz, &tmp, &sz)) {
