@@ -95,10 +95,10 @@ int DocProc(wvParseStruct *ps,wvTag tag)
 	return(pDocReader->_docProc(ps, tag));
 	}
 
-int ElementProc(wvParseStruct *ps,wvTag tag,PAP *apap)
+int ElementProc(wvParseStruct *ps,wvTag tag,void *props)
 	{
 	IE_Imp_wv* pDocReader = (IE_Imp_wv *) ps->userData;
-	return(pDocReader->_eleProc(ps, tag,apap));
+	return(pDocReader->_eleProc(ps, tag, props));
 	fprintf(stderr,"ele begins\n");
 	return(0);
 	}
@@ -125,14 +125,12 @@ int IE_Imp_wv::_docProc(wvParseStruct *ps,wvTag tag)
 	return(0);
 	}
 
-int IE_Imp_wv::_charPropProc(wvParseStruct *ps, wvTag tag, CHP *achp)
-{
-}
-
 int IE_Imp_wv::_eleProc(wvParseStruct *ps,wvTag tag, void *props)
 	{
 	XML_Char propBuffer[1024];
 	XML_Char* pProps = "PROPS";
+	const XML_Char* propsArray[3];
+
 	propBuffer[0] = 0;
 	fprintf(stderr," started\n");
 	PAP *apap;
@@ -165,7 +163,6 @@ int IE_Imp_wv::_eleProc(wvParseStruct *ps,wvTag tag, void *props)
 					break;
 				}
 			//strcat(propBuffer, "; ");
-			const XML_Char* propsArray[3];
 			propsArray[0] = pProps;
 			propsArray[1] = propBuffer;
 			propsArray[2] = NULL;
@@ -176,13 +173,29 @@ int IE_Imp_wv::_eleProc(wvParseStruct *ps,wvTag tag, void *props)
 			*/
 			break;
 		case CHARPROPBEGIN:
-		        achp = (CHP*)props;
-		        // add code to handle character properties here
-		        break;
+		   achp = (CHP*)props;
+		   if (achp->fBold) { 
+		      strcat(propBuffer, "font-weight:bold;");
+		   } else {
+		      strcat(propBuffer, "font-weight:normal;");
+		   }
+		   if (achp->fItalic) {
+		      strcat(propBuffer, "font-style:italic;");
+		   } else {
+		      strcat(propBuffer, "font-style:normal;");
+		   }
+		   propsArray[0] = pProps;
+		   // remove trailing ;
+		   propBuffer[strlen(propBuffer)-1] = 0;
+		   propsArray[1] = propBuffer;
+		   propsArray[2] = NULL;
+		   fprintf(stderr,"the propBuffer is %s\n",propBuffer);
+		   X_ReturnNoMemIfError(m_pDocument->appendFmt(propsArray));
+		   break;
 		case PARAEND:	/* not needed */
 		case CHARPROPEND: /* not needed */
 		default:
-			break;
+		   break;
 		}
 	fprintf(stderr,"ended\n");
 	return(0);

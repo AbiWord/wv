@@ -49,7 +49,7 @@ public:
 	static UT_Bool 		SupportsFileType(IEFileType ft);
 	int					_charData(U16 *, int);
 	int 				_docProc(wvParseStruct *ps,wvTag tag);
-	int 				_eleProc(wvParseStruct *ps,wvTag tag,PAP *apap);
+	int 				_eleProc(wvParseStruct *ps,wvTag tag,void *props);
 protected:
 	IEStatus			m_iestatus;
 };
