@@ -513,8 +513,8 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
     wvFree (posAtrd);
     wvFree (atrd);
 
-    wvReleasePAPX_FKP (&para_fkp);
-    wvReleaseCHPX_FKP (&char_fkp);
+    internal_wvReleasePAPX_FKP (&para_fkp);
+    internal_wvReleaseCHPX_FKP (&char_fkp);
     wvHandleDocument (ps, DOCEND);
     wvFree (posSedx);
     wvFree (sed);
