@@ -113,8 +113,8 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 
 
     /* get font list */
-    if ((wvQuerySupported (&ps->fib, NULL) == WORD6)
-	|| (wvQuerySupported (&ps->fib, NULL) == WORD7))
+    if ((ver == WORD6)
+	|| (ver == WORD7))
 	wvGetFFN_STTBF6 (&ps->fonts, ps->fib.fcSttbfffn, ps->fib.lcbSttbfffn,
 			 ps->tablefd);
     else
@@ -122,8 +122,8 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 			ps->tablefd);
 
     /*we will need the table of names to answer questions like the name of the doc */
-    if ((wvQuerySupported (&ps->fib, NULL) == WORD6)
-	|| (wvQuerySupported (&ps->fib, NULL) == WORD7))
+    if ((ver == WORD6)
+	|| (ver == WORD7))
       {
 	  wvGetSTTBF6 (&ps->anSttbfAssoc, ps->fib.fcSttbfAssoc,
 		       ps->fib.lcbSttbfAssoc, ps->tablefd);
@@ -175,8 +175,8 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
        we will need the paragraph and character bounds table to make decisions as 
        to where a para/char run begins and ends
      */
-    if ((wvQuerySupported (&ps->fib, NULL) == WORD6)
-	|| (wvQuerySupported (&ps->fib, NULL) == WORD7))
+    if ((ver == WORD6)
+	|| (ver == WORD7))
       {
 	  wvGetBTE_PLCF6 (&btePapx, &posPapx, &para_intervals,
 			  ps->fib.fcPlcfbtePapx, ps->fib.lcbPlcfbtePapx,
@@ -317,8 +317,7 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 		  {
 		      wvTrace (("j i is %x %d\n", j, i));
 		      section_dirty =
-			  wvGetSimpleSectionBounds (wvQuerySupported
-						    (&ps->fib, NULL), ps,
+			  wvGetSimpleSectionBounds (ver, ps,
 						    &sep, &section_fcFirst,
 						    &section_fcLim, i,
 						    &ps->clx, sed, &spiece,
@@ -340,8 +339,7 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 		if ((para_fcLim == 0xffffffff) || (para_fcLim == j))
 		  {
 		      wvReleasePAPX_FKP (&para_fkp);
-		      wvGetSimpleParaBounds (wvQuerySupported
-					     (&ps->fib, NULL), &para_fkp,
+		      wvGetSimpleParaBounds (ver, &para_fkp,
 					     &para_fcFirst, &para_fcLim,
 					     wvConvertCPToFC (i, &ps->clx),
 					     btePapx, posPapx, para_intervals,
@@ -371,19 +369,17 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 		if (j == para_fcFirst)
 		  {
 		      para_dirty =
-			  wvAssembleSimplePAP (wvQuerySupported
-					       (&ps->fib, NULL), &apap,
+			  wvAssembleSimplePAP (ver, &apap,
 					       para_fcLim, &para_fkp,
 					       &ps->stsh, ps->data);
 
 		      /* test section */
 		      wvReleasePAPX_FKP (&para_fkp);
-		      wvGetSimpleParaBounds (wvQuerySupported
-					     (&ps->fib, NULL), &para_fkp,
+		      wvGetSimpleParaBounds (ver, &para_fkp,
 					     &dummy, &nextpara_fcLim,
 					     para_fcLim, btePapx, posPapx,
 					     para_intervals, ps->mainfd);
-		      wvAssembleSimplePAP (wvQuerySupported (&ps->fib, NULL),
+		      wvAssembleSimplePAP (ver,
 					   &ps->nextpap, nextpara_fcLim,
 					   &para_fkp, &ps->stsh, ps->data);
 		      /* end test section */
@@ -432,8 +428,7 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 		  {
 		      wvTrace (("j i is %x %d\n", j, i));
 		      wvReleaseCHPX_FKP (&char_fkp);
-		      wvGetSimpleCharBounds (wvQuerySupported
-					     (&ps->fib, NULL), &char_fkp,
+		      wvGetSimpleCharBounds (ver, &char_fkp,
 					     &char_fcFirst, &char_fcLim, i,
 					     &ps->clx, bteChpx, posChpx,
 					     char_intervals, ps->mainfd);
@@ -467,8 +462,7 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 		      /* a CHP's base style is in the para style */
 		      achp.istd = apap.istd;
 		      char_dirty =
-			  wvAssembleSimpleCHP (wvQuerySupported
-					       (&ps->fib, NULL), &achp,
+			  wvAssembleSimpleCHP (ver, &achp,
 					       char_fcLim, &char_fkp,
 					       &ps->stsh);
 		      wvTrace (("CHP assembled.\n"));

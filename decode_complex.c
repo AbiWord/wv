@@ -366,12 +366,12 @@ wvDecodeComplex (wvParseStruct * ps)
     BKL *bkl;
     U32 *posBKL;
     U32 bkl_intervals;
-
+    wvVersion ver = wvQuerySupported (&ps->fib, NULL);
     external_wvReleasePAPX_FKP ();
     external_wvReleaseCHPX_FKP ();
 
     /*dop */
-    wvGetDOP (wvQuerySupported (&ps->fib, NULL), &ps->dop, ps->fib.fcDop,
+    wvGetDOP (ver, &ps->dop, ps->fib.fcDop,
 	      ps->fib.lcbDop, ps->tablefd);
 
 #if 0
@@ -381,7 +381,7 @@ unknown, the rest is a ordinary unicode string, is the time and date and saved b
 encoded into the first 22 bytes.
 */
     STTBF versioning;
-    if (wvQuerySupported (&ps->fib, NULL) == 0)
+    if (ver == 0)
       {
 	  U16 *str;
 	  wvError (("into the versions\n"));
@@ -411,8 +411,8 @@ encoded into the first 22 bytes.
     wvGetSTSH (&ps->stsh, ps->fib.fcStshf, ps->fib.lcbStshf, ps->tablefd);
 
     /* get font list */
-    if ((wvQuerySupported (&ps->fib, NULL) == WORD6)
-	|| (wvQuerySupported (&ps->fib, NULL) == WORD7))
+    if ((ver == WORD6)
+	|| (ver == WORD7))
 	wvGetFFN_STTBF6 (&ps->fonts, ps->fib.fcSttbfffn, ps->fib.lcbSttbfffn,
 			 ps->tablefd);
     else
@@ -420,8 +420,8 @@ encoded into the first 22 bytes.
 			ps->tablefd);
 
     /*we will need the table of names to answer questions like the name of the doc */
-    if ((wvQuerySupported (&ps->fib, NULL) == WORD6)
-	|| (wvQuerySupported (&ps->fib, NULL) == WORD7))
+    if ((ver == WORD6)
+	|| (ver == WORD7))
       {
 	  wvGetSTTBF6 (&ps->anSttbfAssoc, ps->fib.fcSttbfAssoc,
 		       ps->fib.lcbSttbfAssoc, ps->tablefd);
@@ -468,7 +468,7 @@ encoded into the first 22 bytes.
     wvGetFDOA_PLCF (&ps->fdoa, &ps->fdoapos, &ps->nooffdoa,
 		    ps->fib.fcPlcdoaMom, ps->fib.lcbPlcdoaMom, ps->tablefd);
 
-    wvGetCLX (wvQuerySupported (&ps->fib, NULL), &ps->clx,
+    wvGetCLX (ver, &ps->clx,
 	      (U32) ps->fib.fcClx, ps->fib.lcbClx, (U8) ps->fib.fExtChar,
 	      ps->tablefd);
 
@@ -484,8 +484,8 @@ encoded into the first 22 bytes.
        we will need the paragraph and character bounds table to make decisions as 
        to where a table begins and ends
      */
-    if ((wvQuerySupported (&ps->fib, NULL) == WORD6)
-	|| (wvQuerySupported (&ps->fib, NULL) == WORD7))
+    if ((ver == WORD6)
+	|| (ver == WORD7))
       {
 	  wvGetBTE_PLCF6 (&btePapx, &posPapx, &para_intervals,
 			  ps->fib.fcPlcfbtePapx, ps->fib.lcbPlcfbtePapx,
@@ -581,8 +581,7 @@ encoded into the first 22 bytes.
 		if ((section_fcLim == 0xffffffff) || (section_fcLim == j))
 		  {
 		      section_dirty =
-			  wvGetSimpleSectionBounds (wvQuerySupported
-						    (&ps->fib, NULL), ps,
+			  wvGetSimpleSectionBounds (ver, ps,
 						    &sep, &section_fcFirst,
 						    &section_fcLim, i,
 						    &ps->clx, sed, &spiece,
@@ -591,7 +590,7 @@ encoded into the first 22 bytes.
 						    &ps->stsh, ps->mainfd);
 		      section_dirty =
 			  (wvGetComplexSEP
-			   (wvQuerySupported (&ps->fib, NULL), &sep, spiece,
+			   (ver, &sep, spiece,
 			    &ps->stsh, &ps->clx) ? 1 : section_dirty);
 		  }
 
@@ -610,8 +609,7 @@ encoded into the first 22 bytes.
 			       ("cp and fc are %x(%d) %x\n", i, i,
 				wvConvertCPToFC (i, &ps->clx)));
 		      cpiece =
-			  wvGetComplexParaBounds (wvQuerySupported
-						  (&ps->fib, NULL), &para_fkp,
+			  wvGetComplexParaBounds (ver, &para_fkp,
 						  &para_fcFirst, &para_fcLim,
 						  wvConvertCPToFC (i,
 								   &ps->clx),
@@ -644,13 +642,12 @@ encoded into the first 22 bytes.
 		if (j == para_fcFirst)
 		  {
 		      para_dirty =
-			  wvAssembleSimplePAP (wvQuerySupported
-					       (&ps->fib, NULL), &apap,
+			  wvAssembleSimplePAP (ver, &apap,
 					       para_fcLim, &para_fkp,
 					       &ps->stsh, ps->data);
 		      para_dirty =
 			  (wvAssembleComplexPAP
-			   (wvQuerySupported (&ps->fib, NULL), &apap, cpiece,
+			   (ver, &apap, cpiece,
 			    &ps->stsh, &ps->clx, ps->data) ? 1 : para_dirty);
 #ifdef SPRMTEST
 		      {
@@ -670,8 +667,7 @@ encoded into the first 22 bytes.
 			       ("cp and fc are %x(%d) %x\n", i, i,
 				wvConvertCPToFC (i, &ps->clx)));
 		      npiece =
-			  wvGetComplexParaBounds (wvQuerySupported
-						  (&ps->fib, NULL), &para_fkp,
+			  wvGetComplexParaBounds (ver, &para_fkp,
 						  &dummy, &nextpara_fcLim,
 						  para_fcLim, &ps->clx,
 						  btePapx, posPapx,
@@ -682,14 +678,10 @@ encoded into the first 22 bytes.
 				para_fcLim));
 		      if (npiece > -1)
 			{
-			    wvAssembleSimplePAP (wvQuerySupported
-						 (&ps->fib, NULL),
-						 &ps->nextpap, nextpara_fcLim,
+			    wvAssembleSimplePAP (ver, &ps->nextpap, nextpara_fcLim,
 						 &para_fkp, &ps->stsh,
 						 ps->data);
-			    wvAssembleComplexPAP (wvQuerySupported
-						  (&ps->fib, NULL),
-						  &ps->nextpap, npiece,
+			    wvAssembleComplexPAP (ver, &ps->nextpap, npiece,
 						  &ps->stsh, &ps->clx,
 						  ps->data);
 			}
@@ -744,8 +736,7 @@ encoded into the first 22 bytes.
 		  {
 		      wvReleaseCHPX_FKP (&char_fkp);
 		      /*try this without using the piece of the end char for anything */
-		      wvGetComplexCharBounds (wvQuerySupported
-					      (&ps->fib, NULL), &char_fkp,
+		      wvGetComplexCharBounds (ver, &char_fkp,
 					      &char_fcFirst, &char_fcLim,
 					      wvConvertCPToFC (i, &ps->clx),
 					      &ps->clx, bteChpx, posChpx,
@@ -784,14 +775,13 @@ encoded into the first 22 bytes.
 		      achp.istd = apap.istd;
 		      wvTrace (("getting chp\n"));
 		      char_dirty =
-			  wvAssembleSimpleCHP (wvQuerySupported
-					       (&ps->fib, NULL), &achp,
+			  wvAssembleSimpleCHP (ver, &achp,
 					       char_fcLim, &char_fkp,
 					       &ps->stsh);
 		      wvTrace (("getting complex chp\n"));
 		      char_dirty =
 			  (wvAssembleComplexCHP
-			   (wvQuerySupported (&ps->fib, NULL), &achp, cpiece,
+			   (ver, &achp, cpiece,
 			    &ps->stsh, &ps->clx) ? 1 : char_dirty);
 		      wvHandleElement (ps, CHARPROPBEGIN, (void *) &achp,
 				       char_dirty);

@@ -47,7 +47,7 @@ wvGetRowTap (wvParseStruct * ps, PAP * dpap, U32 para_intervals,
     PAP apap;
     U32 i;
     S32 j = 0;
-
+    wvVersion ver = wvQuerySupported (&ps->fib, NULL);
     wvCopyPAP (&apap, dpap);
 
     wvInitPAPX_FKP (&para_fkp);
@@ -57,11 +57,11 @@ wvGetRowTap (wvParseStruct * ps, PAP * dpap, U32 para_intervals,
     do
       {
 	  wvReleasePAPX_FKP (&para_fkp);
-	  wvGetSimpleParaBounds (wvQuerySupported (&ps->fib, NULL), &para_fkp,
+	  wvGetSimpleParaBounds (ver, &para_fkp,
 				 &para_fcFirst, &para_fcLim, i, btePapx,
 				 posPapx, para_intervals, ps->mainfd);
 	  wvTrace (("2: para from %x to %x\n", para_fcFirst, para_fcLim));
-	  wvAssembleSimplePAP (wvQuerySupported (&ps->fib, NULL), &apap,
+	  wvAssembleSimplePAP (ver, &apap,
 			       para_fcLim, &para_fkp, &ps->stsh, ps->data);
 	  i = para_fcLim;
       }
@@ -85,7 +85,7 @@ wvGetFullTableInit (wvParseStruct * ps, U32 para_intervals, BTE * btePapx,
     PAP apap;
     U32 i, j = 0;
     TAP *test = NULL;
-
+    wvVersion ver = wvQuerySupported (&ps->fib, NULL);
     if (ps->intable)
 	return;
 
@@ -96,10 +96,10 @@ wvGetFullTableInit (wvParseStruct * ps, U32 para_intervals, BTE * btePapx,
     do
       {
 	  wvReleasePAPX_FKP (&para_fkp);
-	  wvGetSimpleParaBounds (wvQuerySupported (&ps->fib, NULL), &para_fkp,
+	  wvGetSimpleParaBounds (ver, &para_fkp,
 				 &para_fcFirst, &para_fcLim, i, btePapx,
 				 posPapx, para_intervals, ps->mainfd);
-	  wvAssembleSimplePAP (wvQuerySupported (&ps->fib, NULL), &apap,
+	  wvAssembleSimplePAP (ver, &apap,
 			       para_fcLim, &para_fkp, &ps->stsh, ps->data);
 	  wvTrace (("para from %x to %x\n", para_fcFirst, para_fcLim));
 	  i = para_fcLim;
@@ -694,7 +694,7 @@ TheTest (wvParseStruct * ps, U32 piece, BTE * btePapx, U32 * posPapx,
     PAPX_FKP para_fkp;
     PAP apap;
     int cpiece = 0;
-
+    wvVersion ver = wvQuerySupported (&ps->fib, NULL);
     long pos = wvStream_tell (ps->mainfd);
     wvInitPAPX_FKP (&para_fkp);
 
@@ -735,11 +735,9 @@ TheTest (wvParseStruct * ps, U32 piece, BTE * btePapx, U32 * posPapx,
 			       ("cp and fc are %x(%d) %x\n", i, i,
 				wvConvertCPToFC (i, &ps->clx)));
 		      cpiece =
-			  wvGetComplexParaBounds (wvQuerySupported
-						  (&ps->fib, NULL), &para_fkp,
+			  wvGetComplexParaBounds (ver, &para_fkp,
 						  &para_fcFirst, &para_fcLim,
-						  wvConvertCPToFC (i,
-								   &ps->clx),
+						  wvConvertCPToFC (i, &ps->clx),
 						  &ps->clx, btePapx, posPapx,
 						  para_intervals, piececount,
 						  ps->mainfd);
@@ -750,11 +748,9 @@ TheTest (wvParseStruct * ps, U32 piece, BTE * btePapx, U32 * posPapx,
 		  }
 		if (j == para_fcFirst)
 		  {
-		      wvAssembleSimplePAP (wvQuerySupported (&ps->fib, NULL),
-					   &apap, para_fcLim, &para_fkp,
+		      wvAssembleSimplePAP (ver, &apap, para_fcLim, &para_fkp,
 					   &ps->stsh, ps->data);
-		      wvAssembleComplexPAP (wvQuerySupported (&ps->fib, NULL),
-					    &apap, cpiece, &ps->stsh,
+		      wvAssembleComplexPAP (ver, &apap, cpiece, &ps->stsh,
 					    &ps->clx, ps->data);
 		      wvTrace (
 			       ("table ttp are %d %d\n", apap.fInTable,
@@ -776,7 +772,7 @@ wvGetComplexFullTableInit (wvParseStruct * ps, U32 para_intervals,
     U32 i, j = 0, k = 0;
     S32 l;
     TAP *test = NULL;
-
+    wvVersion ver = wvQuerySupported (&ps->fib, NULL);
     if (ps->intable)
 	return;
 
@@ -800,7 +796,7 @@ wvGetComplexFullTableInit (wvParseStruct * ps, U32 para_intervals,
 		   ("2: cp and fc are %x(%d) %x\n", i, i,
 		    wvConvertCPToFC (i, &ps->clx)));
 	  piece =
-	      wvGetComplexParaBounds (wvQuerySupported (&ps->fib, NULL),
+	      wvGetComplexParaBounds (ver,
 				      &para_fkp, &para_fcFirst, &para_fcLim,
 				      i, &ps->clx, btePapx, posPapx,
 				      para_intervals, piece, ps->mainfd);
@@ -808,10 +804,10 @@ wvGetComplexFullTableInit (wvParseStruct * ps, U32 para_intervals,
 
 	  if (piece == 0xffffffffL)
 	      break;
-	  wvAssembleSimplePAP (wvQuerySupported (&ps->fib, NULL), &apap,
+	  wvAssembleSimplePAP (ver, &apap,
 			       para_fcLim, &para_fkp, &ps->stsh, ps->data);
 	  wvTrace (("para from %x to %x\n", para_fcFirst, para_fcLim));
-	  wvAssembleComplexPAP (wvQuerySupported (&ps->fib, NULL), &apap,
+	  wvAssembleComplexPAP (ver, &apap,
 				piece, &ps->stsh, &ps->clx, ps->data);
 
 	  wvTrace (("para from %x to %x\n", para_fcFirst, para_fcLim));
@@ -854,7 +850,7 @@ wvGetComplexRowTap (wvParseStruct * ps, PAP * dpap, U32 para_intervals,
     PAP apap;
     U32 i;
     S32 j = 0;
-
+    wvVersion ver = wvQuerySupported (&ps->fib, NULL);
     wvCopyPAP (&apap, dpap);
 
     wvInitPAPX_FKP (&para_fkp);
@@ -869,15 +865,14 @@ wvGetComplexRowTap (wvParseStruct * ps, PAP * dpap, U32 para_intervals,
 		   ("3: cp and fc are %x(%d) %x\n", i, i,
 		    wvConvertCPToFC (i, &ps->clx)));
 	  piece =
-	      wvGetComplexParaBounds (wvQuerySupported (&ps->fib, NULL),
-				      &para_fkp, &para_fcFirst, &para_fcLim,
+	      wvGetComplexParaBounds (ver, &para_fkp, &para_fcFirst, &para_fcLim,
 				      i, &ps->clx, btePapx, posPapx,
 				      para_intervals, piece, ps->mainfd);
 	  if (piece == 0xffffffffL)
 	      break;
-	  wvAssembleSimplePAP (wvQuerySupported (&ps->fib, NULL), &apap,
+	  wvAssembleSimplePAP (ver, &apap,
 			       para_fcLim, &para_fkp, &ps->stsh, ps->data);
-	  wvAssembleComplexPAP (wvQuerySupported (&ps->fib, NULL), &apap,
+	  wvAssembleComplexPAP (ver, &apap,
 				piece, &ps->stsh, &ps->clx, ps->data);
 	  wvTrace (
 		   ("para from %x to %x, table is %d\n", para_fcFirst,

@@ -16,7 +16,7 @@ wvOLEDecode (wvParseStruct * ps, char *path, wvStream ** mainfd, wvStream ** tab
 	     wvStream ** tablefd1, wvStream ** data, wvStream ** summary)
 {
     MsOle *ole_file = NULL;
-    int result;
+    int result = 5;
 
     if (ms_ole_open (&ole_file, path) == MS_OLE_ERR_OK)
       {
@@ -86,6 +86,7 @@ wvOLEDecode (wvParseStruct * ps, char *path, wvStream ** mainfd, wvStream ** tab
 	  wvFree (temp_stream);
 	  result = 0;
       }
+#if 0
     else
       {
 
@@ -233,6 +234,7 @@ wvOLEDecode (wvParseStruct * ps, char *path, wvStream ** mainfd, wvStream ** tab
 		break;
 	    }
       }
+#endif
 
     return (result);
 }
