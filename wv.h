@@ -2237,6 +2237,8 @@ that indicates their length.
 	FC_TOC_FROM_RANGE,
 	FC_PAGEREF,
 	FC_EMBED,
+	FC_SPEICHERDAT,
+	FC_DATEINAME,
 	FieldCodeTableSize	/*must be last entry on pain of death */
     } FIELDCODE;
 

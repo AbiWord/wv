@@ -18,6 +18,8 @@ static const TokenTable s_Tokens[] = {
     {"PAGEREF", FC_PAGEREF},
     {"EMBED", FC_EMBED},
     {"EDITTIME", FC_EDITTIME},
+    {"SPEICHERDAT", FC_SPEICHERDAT},
+    {"DATEINAME"  , FC_DATEINAME  },
     {"*", FC_OTHER}
 };
 
@@ -113,7 +115,13 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		break;
 	    case 'd':
 	    case 'D':
-		no = lookahead (token, 'd', 'D');
+	    case 't':
+	    case 'T':
+
+	        if(*token == 't' || *token == 'T')
+		    no = lookahead (token, 't', 't');
+	        else
+		    no = lookahead (token, 'd', 'D');
 		token += (no - 1);
 		switch (no)
 		  {
@@ -134,7 +142,12 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		break;
 	    case 'y':
 	    case 'Y':
-		no = lookahead (token, 'y', 'Y');
+	    case 'j':
+	    case 'J':
+	        if(*token == 'j' || *token == 'J')
+		    no = lookahead (token, 'j', 'J');
+		else
+		    no = lookahead (token, 'y', 'Y');
 		token += (no - 1);
 		switch (no)
 		  {
@@ -233,14 +246,26 @@ wvHandleTotalField (char *command)
     return (ret);
 }
 
+static time_t s_file_mtime(char *name)
+{
+    struct stat buf;
+
+    if(stat(name, &buf) == -1) 
+    {
+	wvError(("stat %s failed.", name));
+	return (time_t)-1;
+    }
+    return buf.st_mtime;
+}
+
 int
-wvHandleCommandField (char *command)
+wvHandleCommandField (wvParseStruct *ps, char *command)
 {
     int ret = 0;
     unsigned int tokenIndex;
     char *token;
     char datestr[4096];
-    time_t mytime;
+    time_t mytime = (time_t)-1;
 
     if (*command != 0x13)
       {
@@ -287,7 +312,8 @@ wvHandleCommandField (char *command)
 	    case FC_DateTimePicture:
 		wvTrace (("DateTimePicture\n"));
 		token = strtok (NULL, "\"\"");
-		time (&mytime); /*fixed by lvm007@aha.ru*/
+		if(mytime == (time_t)-1)
+		    time (&mytime);
 		if (wvHandleDateTimePicture (datestr, 4096, token, &mytime))
 		    printf ("%s", datestr);
 		else
@@ -295,6 +321,17 @@ wvHandleCommandField (char *command)
 			     ("date and time field function returned nothing\n"));
 		ret = 1; /*dont print text wich following after spec char*/
 		break;
+
+	    case FC_DATEINAME:
+		printf("%s", ps->filename);
+		ret = 1;
+		break;
+
+	    case FC_SPEICHERDAT:
+		mytime = s_file_mtime(ps->filename);
+		ret = 1;
+		break;
+		
 	    default:
 		break;
 	    }
@@ -332,7 +369,7 @@ fieldCharProc (wvParseStruct * ps, U16 eachchar, U8 chartype, U16 lid)
 	    {
 		command[i] = 0;
 		c = wvWideStrToMB (command);
-		if (wvHandleCommandField (c))
+		if (wvHandleCommandField (ps, c))
 		    ret = 1;
 		else
 		    ret = 0;

@@ -12,6 +12,9 @@
 /* strdup isn't declared in <string.h> for `gcc -ansi'; declare it here */
 extern char *strdup (const char *);
 
+extern char *str_copy(char *d, size_t n, char *s);
+extern char *str_append(char *d, size_t n, char *s);
+
 /*
 Released under GPL, written by Caolan.McNamara@ul.ie.
 
@@ -1565,6 +1568,7 @@ myCharProc (wvParseStruct * ps, U16 eachchar, U8 chartype, U16 lid)
 int
 wvOpenConfig (state_data *myhandle,char *config)
 {
+    char buf[BUFSIZ];
     FILE *tmp;
     int i = 0;
     if (config == NULL)
@@ -1572,6 +1576,16 @@ wvOpenConfig (state_data *myhandle,char *config)
     else
 	i = 1;
     tmp = fopen (config, "rb");
+
+    if(tmp == NULL)
+    {
+	str_copy  (buf, sizeof(buf), WVDATADIR);
+	str_append(buf, sizeof(buf), "/");
+	str_append(buf, sizeof(buf), config);
+	config = buf;
+	tmp = fopen(config, "rb");
+    }
+
     if (tmp == NULL)
       {
 	  if (i)

@@ -2139,7 +2139,13 @@ wvConvertUnicodeToXml (U16 char16)
     return (0);
 }
 
-
+char *str_append(char *d, size_t n, char *s)
+{
+    int max = n - strlen(d) - 1;
+    strncat(d, s, max);
+    d[n-1] = 0;
+    return d;
+}    
 
 char *str_copy(char *d, size_t n, char *s)
 {
