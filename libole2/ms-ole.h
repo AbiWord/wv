@@ -29,7 +29,9 @@ extern "C" {
 	typedef unsigned long mode_t;
 	typedef long off_t;
 #endif
+#ifndef _SSIZE_T_
 	typedef size_t ssize_t;
+#endif
 	typedef long caddr_t;
 #endif
 
