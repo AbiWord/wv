@@ -61,8 +61,7 @@ wvGetRowTap (wvParseStruct * ps, PAP * dpap, U32 para_intervals,
 				 &para_fcFirst, &para_fcLim, i, btePapx,
 				 posPapx, para_intervals, ps->mainfd);
 	  wvTrace (("2: para from %x to %x\n", para_fcFirst, para_fcLim));
-	  wvAssembleSimplePAP (ver, &apap,
-			       para_fcLim, &para_fkp, &ps->stsh, ps->data);
+	  wvAssembleSimplePAP (ver, &apap, para_fcLim, &para_fkp, ps);
 	  i = para_fcLim;
       }
     while (apap.fTtp == 0);
@@ -99,8 +98,7 @@ wvGetFullTableInit (wvParseStruct * ps, U32 para_intervals, BTE * btePapx,
 	  wvGetSimpleParaBounds (ver, &para_fkp,
 				 &para_fcFirst, &para_fcLim, i, btePapx,
 				 posPapx, para_intervals, ps->mainfd);
-	  wvAssembleSimplePAP (ver, &apap,
-			       para_fcLim, &para_fkp, &ps->stsh, ps->data);
+	  wvAssembleSimplePAP (ver, &apap, para_fcLim, &para_fkp, ps);
 	  wvTrace (("para from %x to %x\n", para_fcFirst, para_fcLim));
 	  i = para_fcLim;
 
@@ -748,10 +746,8 @@ TheTest (wvParseStruct * ps, U32 piece, BTE * btePapx, U32 * posPapx,
 		  }
 		if (j == para_fcFirst)
 		  {
-		      wvAssembleSimplePAP (ver, &apap, para_fcLim, &para_fkp,
-					   &ps->stsh, ps->data);
-		      wvAssembleComplexPAP (ver, &apap, cpiece, &ps->stsh,
-					    &ps->clx, ps->data);
+		      wvAssembleSimplePAP (ver, &apap, para_fcLim, &para_fkp, ps);
+		      wvAssembleComplexPAP (ver, &apap, cpiece, ps);
 		      wvTrace (
 			       ("table ttp are %d %d\n", apap.fInTable,
 				apap.fTtp));
@@ -805,10 +801,10 @@ wvGetComplexFullTableInit (wvParseStruct * ps, U32 para_intervals,
 	  if (piece == 0xffffffffL)
 	      break;
 	  wvAssembleSimplePAP (ver, &apap,
-			       para_fcLim, &para_fkp, &ps->stsh, ps->data);
+			       para_fcLim, &para_fkp, ps);
 	  wvTrace (("para from %x to %x\n", para_fcFirst, para_fcLim));
 	  wvAssembleComplexPAP (ver, &apap,
-				piece, &ps->stsh, &ps->clx, ps->data);
+				piece, ps);
 
 	  wvTrace (("para from %x to %x\n", para_fcFirst, para_fcLim));
 	  i = para_fcLim;
@@ -870,10 +866,8 @@ wvGetComplexRowTap (wvParseStruct * ps, PAP * dpap, U32 para_intervals,
 				      para_intervals, piece, ps->mainfd);
 	  if (piece == 0xffffffffL)
 	      break;
-	  wvAssembleSimplePAP (ver, &apap,
-			       para_fcLim, &para_fkp, &ps->stsh, ps->data);
-	  wvAssembleComplexPAP (ver, &apap,
-				piece, &ps->stsh, &ps->clx, ps->data);
+	  wvAssembleSimplePAP (ver, &apap, para_fcLim, &para_fkp, ps);
+	  wvAssembleComplexPAP (ver, &apap, piece, ps);
 	  wvTrace (
 		   ("para from %x to %x, table is %d\n", para_fcFirst,
 		    para_fcLim, apap.fInTable));

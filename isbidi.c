@@ -190,13 +190,10 @@ int wvIsBidiDocumentComplex (wvParseStruct * ps)
 			if (j == para_fcFirst)
 			{
 				para_dirty =
-					wvAssembleSimplePAP (ver, &apap,
-										 para_fcLim, &para_fkp,
-										 &ps->stsh, ps->data);
+					wvAssembleSimplePAP (ver, &apap, para_fcLim, &para_fkp, ps);
 				para_dirty =
 					(wvAssembleComplexPAP
-					 (ver, &apap, cpiece,
-					  &ps->stsh, &ps->clx, ps->data) ? 1 : para_dirty);
+					 (ver, &apap, cpiece,ps) ? 1 : para_dirty);
 #if 0
 				/* not sure what this is about, Tomas*/
 				/* test section */
@@ -448,9 +445,7 @@ int wvIsBidiDocumentSimple(wvParseStruct * ps, subdocument whichdoc)
 			if (j == para_fcFirst)
 			{
 				para_dirty =
-					wvAssembleSimplePAP (ver, &apap,
-										 para_fcLim, &para_fkp,
-										 &ps->stsh, ps->data);
+					wvAssembleSimplePAP (ver, &apap, para_fcLim, &para_fkp,ps);
 
 				if(apap.fBidi)
 				{

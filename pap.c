@@ -228,6 +228,8 @@ wvInitPAP (PAP * item)
 
     item->fBidi = 0;
 	item->stylename[0] = 0;
+
+	memset(&item->linfo,0,sizeof(item->linfo));
 }
 
 /*
@@ -253,16 +255,39 @@ of the paragraph were at the last full save.
 */
 
 int
-wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp,
-		     STSH * stsh, wvStream * data)
+wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseStruct * ps)
 {
     PAPX *papx;
     int index;
     UPXF upxf;
     int ret = 0;
-#ifdef SPRMTEST
-    int i;
-#endif
+
+	/* list processing vars */
+	U32 myListId = 0;
+	LVLF * myLVLF = NULL;
+	LVL * myLVL = NULL;
+	LFO * myLFO = NULL;
+	LST * myLST = NULL;
+	LFOLVL * myLFOLVL = NULL;
+
+	S32 myStartAt = -1;
+	U8 * mygPAPX = NULL;
+	U8 * mygCHPX = NULL;
+	XCHAR * myNumberStr = NULL;
+	S32 myNumberStr_count = 0;
+	U32 mygPAPX_count = 0, mygCHPX_count = 0;
+
+	PAPX myPAPX;
+	CHPX myCHPX;
+
+	S32 i = 0, j = 0, k = 0;
+
+	int bNeedLST_LVL;
+	int bLST_LVL_format;
+	
+	LVL * prevLVL;
+	LVLF * prevLVLF;
+
     /*index is the i in the text above */
     index = wvGetIndexFCInFKP_PAPX (fkp, fc);
 
@@ -272,10 +297,10 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp,
     if (papx)
       {
 	  wvTrace (("istd index is %d\n", papx->istd));
-	  wvInitPAPFromIstd (apap, papx->istd, stsh);
+	  wvInitPAPFromIstd (apap, papx->istd, &ps->stsh);
       }
     else
-	wvInitPAPFromIstd (apap, istdNil, stsh);
+	wvInitPAPFromIstd (apap, istdNil, &ps->stsh);
 
     if ((papx) && (papx->cb > 2))
       {
@@ -290,9 +315,9 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp,
 	  upxf.upx.papx.istd = papx->istd;
 	  upxf.upx.papx.grpprl = papx->grpprl;
 	  if (ver == WORD8)
-	      wvAddPAPXFromBucket (apap, &upxf, stsh, data);
+	      wvAddPAPXFromBucket (apap, &upxf, &ps->stsh, ps->data);
 	  else
-	      wvAddPAPXFromBucket6 (apap, &upxf, stsh);
+	      wvAddPAPXFromBucket6 (apap, &upxf, &ps->stsh);
       }
 
     if (papx)
@@ -300,6 +325,260 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp,
 
     if (fkp->rgbx != NULL)
       wvCopyPHE (&apap->phe, &(fkp->rgbx[index - 1].phe), apap->fTtp);
+
+	/*
+	  By now we have assembled the paragraph properties based on the
+	  info in the style associated with this pap and also in any of the
+	  PAPX overrides; next step is to see if this paragraph is a part of
+	  a list, and if so, to apply any list-specific overrides
+
+	  The MS documentation on lists really sucks, but we've been able to decipher
+	  some meaning from it and get simple lists to sorta work. This code mostly prints out
+	  debug messages with useful information in them, but it will also append a list
+	  and add a given paragraph to a given list
+	*/
+
+	if (!apap->ilfo)
+		return ret;
+	
+	/* 	all lists have ilfo set */
+	wvTrace(("list: ilvl %d, ilfo %d\n",apap->ilvl,apap->ilfo));	//ilvl is the list level
+
+	// first, get the LFO, and then find the lfovl for this paragraph
+	myLFO = &ps->lfo[apap->ilfo - 1];
+
+	while(i < (S32)apap->ilfo - 1 && i < (S32)ps->nolfo)
+	{
+		j += ps->lfo[i].clfolvl;
+		i++;
+	}
+
+	/* 	remember how many overrides are there for this record */
+	k = ps->lfo[i].clfolvl;
+
+	/* 	if there are any overrides, then see if one of them applies to this level */
+	if(k && ps->lfolvl)
+	{
+		i = 0;
+		while(i < k && ps->lfolvl[j].ilvl != apap->ilvl)
+		{
+			j++;
+			i++;
+		}
+
+		if(ps->lfolvl[--j].ilvl != apap->ilvl)
+		{
+			wvTrace(("list: no LFOLVL found for this level (1)\n"));
+			myLFOLVL = NULL;
+		}
+		else
+		{
+			myLFOLVL = &ps->lfolvl[j];
+			wvTrace(("list: lfovl: iStartAt %d, fStartAt\n", myLFOLVL->iStartAt,myLFOLVL->fStartAt,myLFOLVL->fFormatting));
+			if(!myLFOLVL->fFormatting && myLFOLVL->fStartAt)
+				myStartAt = myLFOLVL->iStartAt;
+		}
+	}
+	else
+	{
+		wvTrace(("list: no LFOLVL found for this level (2)\n"));
+		myLFOLVL = NULL;
+	}
+
+	/* now that we might have the LFOLVL, let's see if we should use
+	   the LVL from the LFO */
+	bNeedLST_LVL = (!myLFOLVL || !myLFOLVL->fStartAt || !myLFOLVL->fFormatting);
+	bLST_LVL_format = 1;
+	
+	if(myLFOLVL)
+	{
+		/* this branch has not been (thoroughly) debugged
+		   Abi bugs 2205 and 2393 exhibit this behavior */
+		wvTrace(("list: using the LVL from LFO\n"));
+		myListId = myLFOLVL->iStartAt;
+		i = 0;
+		wvTrace(("list: number of LSTs %d, my lsid %d\n", ps->noofLST,myListId));
+		while(i < ps->noofLST && ps->lst[i].lstf.lsid != myListId)
+		{
+			i++;
+			wvTrace(("list: lsid in LST %d\n", ps->lst[i-1].lstf.lsid));
+		}
+
+		if(i == ps->noofLST || ps->lst[i].lstf.lsid != myListId)
+		{
+			wvTrace(("error: could not locate LST entry\n"));
+			goto list_error;
+		}
+
+		myLST = &ps->lst[i];
+		myLVL = &myLST->lvl[apap->ilvl];
+
+		/* now we should have the LVL */
+		if(!myLVL)
+			return ret;
+
+		myLVLF = &myLVL->lvlf;
+
+		if(!myLVLF)
+			return ret;
+
+		myStartAt = myLFOLVL->fStartAt ? (S32)(myLVLF->iStartAt) : -1;
+
+		mygPAPX = myLFOLVL->fFormatting ? myLVL->grpprlPapx : NULL;
+		mygPAPX_count = myLFOLVL->fFormatting ? myLVLF->cbGrpprlPapx : 0;
+
+		/* not sure about this, the CHPX applies to the number, so it
+		   might be that we should take this if the fStartAt is set --
+		   the docs are not clear */
+		mygCHPX = myLFOLVL->fFormatting ? myLVL->grpprlChpx : NULL;
+		mygCHPX_count = myLFOLVL->fFormatting ? myLVLF->cbGrpprlChpx : 0;
+
+		myNumberStr = myLFOLVL->fStartAt && myLVL->numbertext ? myLVL->numbertext + 1 : NULL;
+		myNumberStr_count = myNumberStr ? *(myLVL->numbertext) : 0;
+
+		if(myLFOLVL->fFormatting)
+			bLST_LVL_format = 0;
+
+	}
+
+	if(bNeedLST_LVL)
+	{
+		prevLVL = myLVL;
+		prevLVLF = myLVLF;
+		myListId = myLFO->lsid;
+		wvTrace(("list: using the LVL from LST\n"));
+		i = 0;
+		
+		wvTrace(("list: number of LSTs %d, my lsid %d\n", ps->noofLST,myListId));
+		while(i < ps->noofLST && ps->lst[i].lstf.lsid != myListId)
+		{
+			i++;
+			wvTrace(("list: lsid in LST %d\n", ps->lst[i-1].lstf.lsid));
+		}
+
+		if(i == ps->noofLST || ps->lst[i].lstf.lsid != myListId)
+		{
+			wvTrace(("error: could not locate LST entry\n"));
+			goto list_error;
+		}
+
+		myLST = &ps->lst[i];
+		myLVL = &myLST->lvl[apap->ilvl];
+
+		/* now we should have the correct LVL */
+		if(!myLVL)
+			return ret;
+		
+		myLVLF = &myLVL->lvlf;
+
+		if(!myLVLF)
+			return ret;
+
+		/* retrieve any stuff we need from here (i.e., only what we
+		   did not get from the LFO LVL) */
+		myStartAt = myStartAt == -1 ? myLVLF->iStartAt : myStartAt;
+
+		mygPAPX_count = !mygPAPX ? myLVLF->cbGrpprlPapx : mygPAPX_count;
+		mygPAPX = !mygPAPX ? myLVL->grpprlPapx : mygPAPX;
+
+		mygCHPX_count = !mygCHPX ? myLVLF->cbGrpprlChpx : mygCHPX_count;
+		mygCHPX = !mygCHPX ? myLVL->grpprlChpx : mygCHPX;
+
+		myNumberStr_count = !myNumberStr && myLVL->numbertext ? *(myLVL->numbertext) : myNumberStr_count;
+		myNumberStr = !myNumberStr && myLVL->numbertext ? myLVL->numbertext + 1 : myNumberStr;
+
+
+		/* if there was a valid LFO LVL record that pertained to
+		   formatting then we will set the myLVL and myLVLF variables
+		   back to this record so that it can be used */
+		if(!bLST_LVL_format && prevLVL && prevLVLF)
+		{
+			myLVL = prevLVL;
+			myLVLF = prevLVLF;
+		}
+	}
+
+	wvTrace(("list: number text len %d, papx len %d, chpx len%d\n",myNumberStr_count,mygPAPX_count,mygCHPX_count));
+	myPAPX.cb = mygPAPX_count;
+	myPAPX.grpprl = mygPAPX;
+	myPAPX.istd = 4095; // no style
+
+	myCHPX.cbGrpprl = mygCHPX_count;
+	myCHPX.grpprl = mygCHPX;
+	myCHPX.istd = 4095; // no style
+
+
+	/*
+	  IMPORTANT now we have the list formatting sutff retrieved; it is found in several
+	  different places:
+	  apap->ilvl - the level of this list (0-8)
+
+	  myStartAt	- the value at which the numbering for this listshould start
+	  (i.e., the number of the first item on the list)
+
+	  myListId	- the id of this list, we need this to know to which list this
+	  paragraph belongs; unfortunately, there seem to be some cases where separate
+	  lists *share* the same id, for instance when two lists, of different formatting,
+	  are separated by only empty paragraphs. As a hack, AW will add the format number
+	  to the list id, so gaining different id for different formattings (it is not foolproof,
+	  for if id1 + format1 == id2 + format2 then we get two lists joined, but the probability
+	  of that should be small). Further problem is that in AW, list id refers to the set of
+	  list elements on the same level, while in Word the id is that of the entire list. The
+	  easiest way to tranform the Word id to AW id is to add the level to the id
+
+	  PAPX - the formatting information that needs to be added to the
+	  format of this list
+
+	  CHPX - the formatting of the list number
+
+	  myNumberStr - the actual number string to display (XCHAR *); we probably need
+	  this to work out the number separator, since there does not seem
+	  to be any reference to this anywhere
+
+	  myNumberStr_count - length of the number string
+
+	  myLVLF->nfc - number format (see the enum below)
+
+	  myLVLF->jc	- number alignment [0: lft, 1: rght, 2: cntr]
+
+	  myLVLF->ixchFollow - what character stands between the number and the para
+	  [0:= tab, 1: spc, 2: none]
+
+	  we shall copy this info, except the ilvl, to the wv extension of
+	  the PAP structure
+
+	*/
+	wvTrace(("list: id %d \n",myListId));
+	wvTrace(("list: iStartAt %d\n", myStartAt));
+	wvTrace(("list: lvlf: format %d\n",myLVLF->nfc)); // see the comment above for nfc values
+	wvTrace(("list: lvlf: number align %d [0: lft, 1: rght, 2: cntr]\n",myLVLF->jc));
+	wvTrace(("list: lvlf: ixchFollow %d [0:= tab, 1: spc, 2: none]\n",myLVLF->ixchFollow));
+
+	apap->linfo.id = myListId;
+	apap->linfo.start = myStartAt;
+	apap->linfo.numberstr = myNumberStr;
+	apap->linfo.numberstr_size = myNumberStr_count;
+	apap->linfo.format = myLVLF->nfc;
+	apap->linfo.align = myLVLF->jc;
+	apap->linfo.ixchFollow = myLVLF->ixchFollow;
+
+	/* next we need to apply the PAPX to our PAP */
+    if (myPAPX.cb > 2)
+	{
+		ret = 1;
+		upxf.cbUPX = myPAPX.cb;
+		upxf.upx.papx.istd = myPAPX.istd;
+		upxf.upx.papx.grpprl = myPAPX.grpprl;
+		if (ver == WORD8)
+			wvAddPAPXFromBucket (apap, &upxf, &ps->stsh, ps->data);
+		else
+			wvAddPAPXFromBucket6 (apap, &upxf, &ps->stsh);
+	}
+
+    if (myPAPX.istd != istdNil)
+		apap->istd = myPAPX.istd;
+	
+list_error:
     return (ret);
 }
 

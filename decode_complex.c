@@ -643,12 +643,10 @@ encoded into the first 22 bytes.
 		  {
 		      para_dirty =
 			  wvAssembleSimplePAP (ver, &apap,
-					       para_fcLim, &para_fkp,
-					       &ps->stsh, ps->data);
+					       para_fcLim, &para_fkp,ps);
 		      para_dirty =
 			  (wvAssembleComplexPAP
-			   (ver, &apap, cpiece,
-			    &ps->stsh, &ps->clx, ps->data) ? 1 : para_dirty);
+			   (ver, &apap, cpiece, ps) ? 1 : para_dirty);
 #ifdef SPRMTEST
 		      {
 			  int p;
@@ -679,11 +677,8 @@ encoded into the first 22 bytes.
 		      if (npiece > -1)
 			{
 			    wvAssembleSimplePAP (ver, &ps->nextpap, nextpara_fcLim,
-						 &para_fkp, &ps->stsh,
-						 ps->data);
-			    wvAssembleComplexPAP (ver, &ps->nextpap, npiece,
-						  &ps->stsh, &ps->clx,
-						  ps->data);
+						 &para_fkp, ps);
+			    wvAssembleComplexPAP (ver, &ps->nextpap, npiece,ps);
 			}
 		      else
 			  wvInitPAP (&ps->nextpap);
@@ -995,8 +990,7 @@ CLX.  If that grpprl contains any paragraph sprms, they should be applied to
 the local PAP.
 */
 int
-wvAssembleComplexPAP (wvVersion ver, PAP * apap, U32 cpiece, STSH * stsh,
-		      CLX * clx, wvStream * data)
+wvAssembleComplexPAP (wvVersion ver, PAP * apap, U32 cpiece, wvParseStruct *ps)
 {
     int ret = 0;
     U16 sprm, pos = 0, i = 0;
@@ -1006,46 +1000,46 @@ wvAssembleComplexPAP (wvVersion ver, PAP * apap, U32 cpiece, STSH * stsh,
     U8 val;
     Sprm RetSprm;
 
-    if (clx->pcd[cpiece].prm.fComplex == 0)
+    if (ps->clx.pcd[cpiece].prm.fComplex == 0)
       {
-	  val = clx->pcd[cpiece].prm.para.var1.val;
+	  val = ps->clx.pcd[cpiece].prm.para.var1.val;
 	  pointer = &val;
 #ifdef SPRMTEST
-	  wvError (("singleton\n", clx->pcd[cpiece].prm.para.var1.isprm));
+	  wvError (("singleton\n", ps->clx.pcd[cpiece].prm.para.var1.isprm));
 #endif
 	  RetSprm =
 	      wvApplySprmFromBucket (ver,
-				     (U16) wvGetrgsprmPrm ( (U16) clx->pcd[cpiece].prm.
+				     (U16) wvGetrgsprmPrm ( (U16) ps->clx.pcd[cpiece].prm.
 						     para.var1.isprm), apap,
-				     NULL, NULL, stsh, pointer, &pos, data);
+				     NULL, NULL, &ps->stsh, pointer, &pos, ps->data);
 	  if (RetSprm.sgc == sgcPara)
 	      ret = 1;
       }
     else
       {
-	  index = clx->pcd[cpiece].prm.para.var2.igrpprl;
+	  index = ps->clx.pcd[cpiece].prm.para.var2.igrpprl;
 #ifdef SPRMTEST
 	  wvError (("HERE-->\n"));
 	  fprintf (stderr, "\n");
-	  for (i = 0; i < clx->cbGrpprl[index]; i++)
-	      fprintf (stderr, "%x ", *(clx->grpprl[index] + i));
+	  for (i = 0; i < ps->clx.cbGrpprl[index]; i++)
+	      fprintf (stderr, "%x ", *(ps->clx.grpprl[index] + i));
 	  fprintf (stderr, "\n");
 	  i = 0;
 #endif
-	  while (i < clx->cbGrpprl[index])
+	  while (i < ps->clx.cbGrpprl[index])
 	    {
 		if (ver == WORD8)
-		    sprm = bread_16ubit (clx->grpprl[index] + i, &i);
+		    sprm = bread_16ubit (ps->clx.grpprl[index] + i, &i);
 		else
 		  {
-		      sprm8 = bread_8ubit (clx->grpprl[index] + i, &i);
+		      sprm8 = bread_8ubit (ps->clx.grpprl[index] + i, &i);
 		      sprm = (U16) wvGetrgsprmWord6 (sprm8);
 		      wvTrace (("sprm is %x\n", sprm));
 		  }
-		pointer = clx->grpprl[index] + i;
+		pointer = ps->clx.grpprl[index] + i;
 		RetSprm =
-		    wvApplySprmFromBucket (ver, sprm, apap, NULL, NULL, stsh,
-					   pointer, &i, data);
+		    wvApplySprmFromBucket (ver, sprm, apap, NULL, NULL, &ps->stsh,
+					   pointer, &i, ps->data);
 		if (RetSprm.sgc == sgcPara)
 		    ret = 1;
 	    }

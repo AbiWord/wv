@@ -1452,6 +1452,17 @@ brc.dxpSpace should be set to 0.
     void wvGetTBD (TBD * item, wvStream * fd);
     void wvGetTBDFromBucket (TBD * item, U8 * pointer);
 
+	/* list information: this is an wv extension to the PAP struct */
+	typedef struct 
+	{
+		U32     id;
+		S32     start;
+		XCHAR * numberstr;
+		U32     numberstr_size;
+		U8      format;
+		U8      align;
+		U8      ixchFollow;
+	}wvListInfo;
 
 
     typedef struct _PAP {
@@ -1540,6 +1551,7 @@ brc.dxpSpace should be set to 0.
 /* -----------------------<< */
       /* BiDi */
       U32 fBidi:1;
+		wvListInfo linfo;
     } PAP;
 
 #define istdNil 4095
@@ -2964,9 +2976,8 @@ returns the same as wvOLEDecode with the addition that
 #endif
 
     int wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp,
-			     STSH * stsh, wvStream * data);
-    int wvAssembleComplexCHP (wvVersion ver, CHP * achp, U32 cpiece,
-			      STSH * stsh, CLX * clx);
+							 wvParseStruct * ps);
+    int wvAssembleComplexCHP (wvVersion ver, CHP * achp, U32 cpiece,STSH * stsh, CLX * clx);
 
     void wvAppendStr (char **orig, const char *add);
     int wvParseConfig (state_data * myhandle);
@@ -3023,8 +3034,7 @@ returns the same as wvOLEDecode with the addition that
     int wvHandleDocument (wvParseStruct * ps, wvTag tag);
 
     SprmName wvGetrgsprmPrm (U16 in);
-    int wvAssembleComplexPAP (wvVersion ver, PAP * apap, U32 cpiece,
-			      STSH * stsh, CLX * clx, wvStream * data);
+    int wvAssembleComplexPAP (wvVersion ver, PAP * apap, U32 cpiece, wvParseStruct *ps);
     U32 wvGetEndFCPiece (U32 piece, CLX * clx);
     void wvInitSprm (Sprm * Sprm);
 
@@ -4751,9 +4761,12 @@ has got
     void wvSetEntityConverter (expand_data * data);
 
 	int wvIsBidiDocument(wvParseStruct * ps);
+
+	int wvGetPLCF (void ** plcf, U32 offset, U32 len, wvStream * fd);
+	
 /* & finally */
     extern const char* wv_version;
-
+	
 #ifdef __cplusplus
 }
 #endif

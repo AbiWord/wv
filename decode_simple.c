@@ -371,8 +371,7 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 		  {
 		      para_dirty =
 			  wvAssembleSimplePAP (ver, &apap,
-					       para_fcLim, &para_fkp,
-					       &ps->stsh, ps->data);
+					       para_fcLim, &para_fkp,ps);
 
 		      /* test section */
 		      wvReleasePAPX_FKP (&para_fkp);
@@ -382,7 +381,7 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 					     para_intervals, ps->mainfd);
 		      wvAssembleSimplePAP (ver,
 					   &ps->nextpap, nextpara_fcLim,
-					   &para_fkp, &ps->stsh, ps->data);
+					   &para_fkp, ps);
 		      /* end test section */
 
 		      if ((apap.fInTable) && (!apap.fTtp))

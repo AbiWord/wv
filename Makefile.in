@@ -196,7 +196,8 @@ MYOBJECTS =	\
 	bmptopng.$(OBJEXT) \
 	basename.$(OBJEXT) \
 	laolareplace.$(OBJEXT)\
-	isbidi.$(OBJEXT)
+	isbidi.$(OBJEXT)\
+	plcf.$(OBJEXT)
 
 # conditionally compile in the exporter
 ifdef EXPORTER
