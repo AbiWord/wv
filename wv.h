@@ -166,6 +166,19 @@ typedef enum
 	WORD8 = 0x0007
 	} version;
 
+typedef enum
+	{
+	Dmain,
+	Dfootnote,
+	Dheader,
+	Dannotation,
+	Dendnote,
+	Dtextbox,
+	Dheader_textbox
+	} subdocument;
+
+
+
 typedef struct _FIB
 	{
 	U16 wIdent ;				/* 0x0000 */
@@ -221,7 +234,7 @@ typedef struct _FIB
 	U32 lProductRevised ;				/* 0x0048 */
 	U32 ccpText ;				/* 0x004C */
 	S32 ccpFtn ;				/* 0x0050 */
-	S32 ccpHdd ;				/* 0x0054 */
+	S32 ccpHdr ;				/* 0x0054 */
 	S32 ccpMcr ;				/* 0x0058 */
 	S32 ccpAtn ;				/* 0x005C */
 	S32 ccpEdn ;				/* 0x0060 */
@@ -582,14 +595,14 @@ int wvGetFLD_PLCF(FLD **fld,U32 **pos,U32 *nofld,U32 offset,U32 len,FILE *fd);
 typedef struct _COPTS
 	{
 	/* 16 bits for bitfields */
-	U32 fNoTabForInd1:1;
+	U32 fNoTabForInd:1;
 	U32 fNoSpaceRaiseLower:1;
 	U32 fSuppressSpbfAfterPageBreak:1;
 	U32 fWrapTrailSpaces:1;
 	U32 fMapPrintTextColor:1;
 	U32 fNoColumnBalance:1;
 	U32 fConvMailMergeEsc:1;
-	U32 fSupressTopSpacing:1;
+	U32 fSuppressTopSpacing:1;
 	U32 fOrigWordTableRules:1;
 	U32 fTransparentMetafiles:1;
 	U32 fShowBreaksInFrames:1;
@@ -632,6 +645,7 @@ typedef struct _DOPTYPOGRAPHY
 	} DOPTYPOGRAPHY;
 
 void wvGetDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt,FILE *fd);
+void wvInitDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt);
 
 
 typedef struct _DOGRID
@@ -653,6 +667,7 @@ typedef struct _ASUMY
 
 
 void wvGetDOGRID(DOGRID *dogrid,FILE *fd);
+void wvInitDOGRID(DOGRID *dog);
 
 typedef struct _ASUMYI
 	{
@@ -668,6 +683,7 @@ typedef struct _ASUMYI
 	} ASUMYI;
 
 void wvGetASUMYI(ASUMYI *asumyi,FILE *fd);
+void wvInitASUMYI(ASUMYI *asu);
 
 typedef struct _DOP
 	{
@@ -753,12 +769,12 @@ typedef struct _DOP
 	U32 iGutterPos:1;
 	U32 fNoTabForInd:1;
 	U32 fNoSpaceRaiseLower:1;
-	U32 fSupressSpbfAfterPageBreak:1;
+	U32 fSuppressSpbfAfterPageBreak:1;
 	U32 fWrapTrailSpaces:1;
 	U32 fMapPrintTextColor:1;
 	U32 fNoColumnBalance:1;
 	U32 fConvMailMergeEsc:1;
-	U32 fSupressTopSpacing:1;
+	U32 fSuppressTopSpacing:1;
 	U32 fOrigWordTableRules:1;
 	U32 fTransparentMetafiles:1;
 	U32 fShowBreaksInFrames:1;
@@ -816,7 +832,8 @@ typedef struct _DOP
 	U16 dywDispPag;
 	} DOP;
 
-void wvGetDOP(DOP *dop,U32 fcDop,U32 lcbDop,FILE *tablefd);
+void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,FILE *tablefd);
+void wvInitDOP(DOP *dop);
 
 typedef struct _BKF
     {
@@ -1134,9 +1151,10 @@ typedef union _PHE
         } var2;
     } PHE;
 
+
 void wvCopyPHE(PHE *dest,PHE *src,int which);
 void wvInitPHE(PHE *item,int which);
-void wvGetPHE6(PHE *dest,U8 *page,U16 *pos);
+void wvGetPHE(PHE *dest,int which,U8 *page,U16 *pos);
 void wvGetPHE6(PHE *dest,U8 *page,U16 *pos);
 
 typedef struct _NUMRM
@@ -2711,7 +2729,8 @@ int wvInitParser(wvParseStruct *ps,FILE *fp);
 
 int wvOpenPreOLE(FILE **input, FILE **mafd, FILE **tablefd0, FILE **tablefd1,FILE **data, FILE **summary);
 
-void wvDecodeSimple(wvParseStruct *ps);
+void wvDecodeSimple(wvParseStruct *ps,subdocument whichdoc);
+U32 wvGetBeginFC(wvParseStruct *ps,subdocument whichdoc);
 
 typedef enum
 	{
@@ -2756,6 +2775,9 @@ typedef enum
 	cbWKB = 12,
 	cbLSTF = 28,
 	cbFDOA = 6,
+	cbFTXBXS = 22,
+	
+	cb7DOP = 88,
 
 	cb6BTE = 2,
 	cb6FIB = 682,
@@ -2952,6 +2974,8 @@ typedef struct _BKD
     } BKD;
 
 void wvGetBKD(BKD *item,FILE *fd);
+int wvGetBKD_PLCF(BKD **bkd,U32 **pos,U32 *nobkd,U32 offset,U32 len,FILE *fd);
+
 
 
 typedef struct _BKL
@@ -3030,6 +3054,8 @@ typedef struct _FTXBXS
     } FTXBXS;
 
 void wvGetFTXBXS(FTXBXS *item,FILE *fd);
+int wvGetFTXBXS_PLCF(FTXBXS **ftxbxs,U32 **pos,U32 *noftxbxs,U32 offset,U32 len,FILE *fd);
+
 
 typedef struct _WKB
     {
@@ -3281,7 +3307,7 @@ typedef struct _FOPTE
 	} FOPTE;
 
 U32 wvGetFOPTE(FOPTE *afopte,FILE *fd);
-U32 wvReleaseFOPTE(FOPTE *afopte);
+void wvReleaseFOPTE(FOPTE *afopte);
 U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,FILE *fd);
 void wvReleaseFOPTEArray(FOPTE **fopte);
 void wvInitFOPTEArray(FOPTE **fopte);
@@ -4294,7 +4320,7 @@ struct ttextportions
 	U32 fcMac;
 	U32 ccpText;
 	U32 ccpFtn;
-	U32 ccpHdd;
+	U32 ccpHdr;
 	U32 ccpAtn;
 	U32 ccpEdn;
 	U32 fcPlcfhdd;

@@ -22,7 +22,7 @@ void wvListBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte)
 	{
 	U32 i=0;
 	for (i=0;i<*nobte;i++)
-		wvTrace(("range %x %x is pn %d\n",(*pos)[i],(*pos)[i+1],(*bte)[i].pn));
+		wvError(("range %x %x is pn %d\n",(*pos)[i],(*pos)[i+1],(*bte)[i].pn));
 	}
 
 int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)

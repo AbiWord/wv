@@ -423,13 +423,13 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 				{
 				wvTrace(("Here\n"));
 				name = wvHtmlGraphic(ps,&blip);
-				printf("<img alt=\"0x01 graphic\" src=\"%s\"><br>",name);
+				printf("<img width=\"%d\" height=\"%d\" alt=\"0x01 graphic\" src=\"%s\"><br>",(int)wvTwipsToHPixels(picf.dxaGoal),(int)wvTwipsToVPixels(picf.dyaGoal),name);
 				wvFree(name);
 				}
 			else
 				{
 				wvError(("Strange No Graphic Data in the 0x01 graphic\n"));
-				printf("<img alt=\"0x01 graphic\" src=\"%s\"><br>","StrangeNoGraphicData");
+				printf("<img alt=\"0x08 graphic\" src=\"%s\"><br>","StrangeNoGraphicData");
 				}
 			fseek(ps->data,p,SEEK_SET);
 			return(0);
@@ -446,7 +446,9 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 					{
 					wvTrace(("Here\n"));
 					name = wvHtmlGraphic(ps,&blip);
-					printf("<img alt=\"0x08 graphic\" src=\"%s\"><br>",name);
+					printf("<img width=\"%d\" height=\"%d\" alt=\"0x08 graphic\" src=\"%s\"><br>",
+					(int)wvTwipsToHPixels(fspa->xaRight-fspa->xaLeft),(int)wvTwipsToVPixels(fspa->yaBottom-fspa->yaTop),
+					name);
 					wvFree(name);
 					}
 				else

@@ -7,7 +7,7 @@ int wvGetTC_internal(version ver,TC *tc,FILE *infd,U8 *pointer)
     {
     U16 temp16;
 	BRC10 brc10;
-	wvError(("TC ver %d\n",ver));
+	wvTrace(("TC ver %d\n",ver));
 
 #ifdef PURIFY
     wvInitTC(tc);

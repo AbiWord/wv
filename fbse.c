@@ -40,7 +40,7 @@ U32 wvGetBlip(Blip *blip,FILE *fd,FILE *delay)
 	{
 	U32 i,count,count2;
 	MSOFBH amsofbh;
-	long pos;
+	long pos=0;
 	count = wvGetFBSE(&blip->fbse,fd);
 	wvTrace(("count is %d\n",count));
 	if (blip->fbse.cbName == 0)
@@ -112,21 +112,7 @@ U32 wvGetFBSE(FBSE *afbse,FILE *fd)
 
 void wvCopyFBSE(FBSE *dest,FBSE *src)
     {
-    int i;
-#if 0
-    dest->btWin32 = src->btWin32;
-    dest->btMacOS = src->btMacOS;
-    for (i=0;i<16;i++)
-        dest->rgbUid[i] = src->rgbUid[i];
-    dest->tag = src->tag;
-    dest->size = src->size;
-    dest->cRef = src->cRef;
-    dest->foDelay = src->foDelay;
-    dest->usage = src->usage;
-    dest->cbName = src->cbName;
-    dest->unused2 = src->unused2;
-    dest->unused3 = src->unused3;
-#endif
+	memcpy(dest,src,sizeof(FBSE));
     }
 
 

@@ -132,8 +132,8 @@ fi
 if [ test "$SYSTEM_ZLIB" = 1 ]; then
 
 dnl there is often a crap libz hiding in the X11 lib dir
-dnl redhat 4.2 and SuSE have been known to do this, something to do with the libgr 
-dnl package and imake
+dnl redhat 4.2 and SuSE have been known to do this, something to do with the 
+dnl libgr package and imake
 dnl so for this reason i stick -L/usr/lib before the X11 options here first
 
 	_SAVE_LD=$LDFLAGS
@@ -164,7 +164,7 @@ if [ test "$SYSTEM_ZLIB" = "" ]; then
 		AC_MSG_CHECKING("for zlib.h")
 		AC_TRY_COMPILE([#include "zlib.h"], [],
 		[result="yes" SYSTEM_ZLIB=1],
-		[result="no, WARNING mswordview will not be able to decompress wmf files" SYSTEM_ZLIB=])
+		[result="no" SYSTEM_ZLIB=])
 		AC_MSG_RESULT("$result") 
 	fi  
 
@@ -341,7 +341,7 @@ if test "x$no_ttf" = xyes; then
 		AC_MSG_CHECKING("for freetype.h")
 		AC_TRY_COMPILE([#include "freetype.h"], [],
 		[result="yes" SYSTEM_TTF=1],
-		[result="no, WARNING the gd binding will not be able to handle wmf text" SYSTEM_TTF=0])
+		[result="no" SYSTEM_TTF=0])
 		AC_MSG_RESULT("$result")
 	fi
 	if [ test "$SYSTEM_TTF" = 1 ]; then
@@ -366,7 +366,7 @@ fi
 dnl system libwmf support
 dnl ========================================================
 AC_ARG_WITH(wmf,
-[  --with-wmf=\$dir          use wmf libraries in \$dir],
+[  --with-wmf=\$dir	  use wmf libraries in \$dir],
     WMF_DIR=$withval)
 
 _SAVE_CFLAGS=$CFLAGS
@@ -390,8 +390,8 @@ else
     AC_MSG_RESULT("$result") 
 fi  
 if [ test "$SYSTEM_WMF" = 1 ]; then
-    AC_CHECK_LIB(gdwmf, gd_draw_rectangle, [WMF_LIBS="-lgdwmf -lwmf -lxgd -ldib"],
-	no_wmf=yes,-lwmf -lxgd -ldib $TTF_LIBS $XPM_LIBS $X_LIBS -lX11 $X_EXTRA_LIBS -lm)
+    AC_CHECK_LIB(gdwmf, gd_draw_rectangle, [WMF_LIBS="-lgdwmf -lwmf -lxgd -ldib -lpng"],
+	no_wmf=yes,-lwmf -lxgd -ldib -lpng $TTF_LIBS $XPM_LIBS $X_LIBS -lX11 $X_EXTRA_LIBS -lm)
 else
     no_wmf=yes
 fi
@@ -415,12 +415,12 @@ if test "x$no_wmf" = xyes; then
 		AC_MSG_CHECKING("for gdwmfapi.h")
 		AC_TRY_COMPILE([#include "gdwmfapi.h"], [],
 		[result="yes" SYSTEM_WMF=1],
-		[result="no, WARNING mswordview will not be able to convert wmf files to gif" SYSTEM_WMF=0])
+		[result="no"  SYSTEM_WMF=0])
 		AC_MSG_RESULT("$result") 
 	fi  
 	if [ test "$SYSTEM_WMF" = 1 ]; then
-		AC_CHECK_LIB(gdwmf, gd_draw_rectangle, [WMF_LIBS="-lgdwmf -lwmf -lxgd -ldib"],
-		no_wmf=yes,-lwmf -lxgd -ldib $TTF_LIBS $XPM_LIBS $X_LIBS -lX11 $X_EXTRA_LIBS -lm)
+		AC_CHECK_LIB(gdwmf, gd_draw_rectangle, [WMF_LIBS="-lgdwmf -lwmf -lxgd -ldib -lpng"],
+		no_wmf=yes,-lwmf -lxgd -ldib -lpng $TTF_LIBS $XPM_LIBS $X_LIBS -lX11 $X_EXTRA_LIBS -lm)
 	else
 		no_wmf=yes
 	fi
@@ -548,7 +548,7 @@ dnl try it with the X varient of that, and then try it with
 dnl both.
 
 AC_ARG_WITH(Magick,
-[  --with-Magick=\$dir	  use Magick in \$Magici],
+[  --with-Magick=\$dir	  use Magick in \$dir],
 MAGICK_DIR=$withval)
 
 if test "$MAGICK_DIR" = no; then
@@ -681,21 +681,6 @@ dnl end of imagemagick
 dnl ========================================================
 
 
-if test "x$no_wmf" = xyes; then
-	AC_MSG_WARN(Could not find gdwmf library or some of its components: \nmswordview will not have wmf to gif support: see README)
-else
-	AC_DEFINE(HAVE_WMF)
-fi
-
-if test "x$no_ttf" = xyes; then
-	AC_MSG_WARN(Could not find ttf library or some of its components: \nmswordview will not have text in its wmf to gif support: see README)
-else
-	AC_DEFINE(HAVE_TTF)
-fi
-
-if [ test "$SYSTEM_ZLIB" != "" ]; then
-AC_DEFINE(SYSTEM_ZLIB)
-fi
 
 AC_SUBST(TTF_LIBS)
 AC_SUBST(TTF_CFLAGS)
@@ -774,6 +759,24 @@ AC_SUBST(ZLIB_CFLAGS)
 AC_SUBST(ZLIB_LIBS)
 AC_SUBST(LIB_PNG)
 
+
+
+if test "x$no_wmf" != xyes; then
+	AC_DEFINE(HAVE_WMF)
+fi
+
+if test "x$no_ttf" != xyes; then
+	AC_DEFINE(HAVE_TTF)
+fi
+
+if test "x$no_Xpm" != xyes; then
+	AC_DEFINE(HAVE_XPM)
+fi
+
+if [ test "$SYSTEM_ZLIB" != "" ]; then
+	AC_DEFINE(SYSTEM_ZLIB)
+fi
+
 AC_OUTPUT(
 Makefile 
 oledecod/Makefile 
@@ -783,3 +786,19 @@ expat/xmlparse/Makefile
 iconv/Makefile
 magick/Makefile
 )
+
+if test "x$no_wmf" = xyes; then
+	AC_MSG_WARN(Could not find gdwmf library or some of its components: libwv *will* build but will not have wmf to png support: see README)
+fi
+
+if test "x$no_ttf" = xyes; then
+	AC_MSG_WARN(Could not find ttf library or some of its components: libwv *will* build but will not have text in its wmf to png support: see README)
+fi
+
+if test "x$no_Xpm" = xyes; then
+	AC_MSG_WARN(Could not find xpm library or some of its components: libwv *will* build but will not have full wmf to png support: see README)
+fi
+
+if [ test "$SYSTEM_ZLIB" = "" ]; then
+	AC_MSG_WARN(Could not find zlib library or some of its components: libwv *will* build but will not be able to decompress most wmf files: see README)
+fi

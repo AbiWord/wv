@@ -56,11 +56,33 @@ Changes to to 0.5.43
 	lookup.
 	* I had left wvGetTC out of sync with the new WORD8 version
 	numbering
+	* horrific table supported munged in latex. latex people
+	should have a better suggestion to do what I want with them,
+	I *dont* want to hear the endless whining about form over
+	content, I still need to support tables that both vertically
+	merged cells, and horizontally merged cells together in
+	one table.
+	* dop reader takes account of the version for word 6/7 compatability
+	needs to be tested.
+	* allow latex or html or raw text conversion options from the config
+	file, this is not the same as charset, the latex option is pretty
+	empty at the moment, I will take submissions for it.
+	* wmf's are decompressed again, and dumped out to disk, so right
+	now you can manually use libwmf to convert them to gif.
+	* hdd should be hdr i reckon really.
+	* began to make some changes which will allow subdocuments to be
+	handled individually.
 ALL TODO
-	* dop needs to be checked for word 6/7 compatability
-
-	* allow latex or html or raw text conversion options.
-
+	* extend escher to read the wierd.doc
+		extract background image for html
+		find the text id and return it so
+		as to find the break table for it
+		fiddle wvDecodeSimple to be able to handle
+		arbitrary subdocuments
+		stick each textid's range of text into a subdocument
+		handler which can be put in a html layer, extend to
+		handle headers and footers, and feed that to abiword.
+	
 	* more graphic checks, more escher records etc etc.
 	* promote old graphics into escher format.
 	* decompress wmf etc.

@@ -2,16 +2,17 @@ wv
 ==========
 It should all work hunky dory from a ./configure followed by 
 make and make install, a few sample word files to try this out 
-are included in the examples dir. Recommended libraries to also
-install to convert wmf files are the zlib library and libwmf 
-library. Reccomended libraries for bitmap graphic conversion are
-ImageMagick in conjunction with libpng, read on for details and 
+are included in the examples dir. Recommended libraries to
+install to convert wmf files are the zlib, png, ttf and libwmf 
+libraries. Recomended libraries to convert dib bitmap graphics
+are ImageMagick in conjunction with libpng, read on for details and 
 download locations.
 (redhat users note that..)
 If your using Red Hat Version 6 you should have the "zlib", "freetype" 
 "ImageMagick" and "png" packages installed. Check with rpm and the 
 cd-rom with /Redhat/RPMS/ on it. You will than just need to get, 
-compile and install libwmf.
+compile and install libwmf (unless they are shipping libwmf with 
+redhat alread)
 
 
 Configure Options
@@ -47,8 +48,9 @@ output text in its conversion of wmf files to gif.
 (Use ./configure --with-ttf=dir_above_ttf_includes&lib_dirs
 if configure does not find freetype on its own)
 
-It can be found at http://www.freetype.org, *note* libwmf also has to be 
-compiled with freetype support for this to work.
+It can be found at http://www.freetype.org, 
+*note* libwmf also has to be compiled with freetype support for this 
+to work.
 
 ImageMagick
 -----------
@@ -61,6 +63,14 @@ if configure does not find Magick on its own)
 It can be found at http://www.wizards.dupont.com/cristy/ImageMagick.html
 *note* ImageMagick as to be compiled with png support for this to be of
 any use.
+
+
+png
+---
+libwv also needs png, not for itself, but because both libwmf and
+ImageMagick require it for theirselves.
+
+png can be found at http://www.cdrom.com/pub/png/ 
 
 General
 -------
@@ -135,7 +145,7 @@ i don't have any patches for that one yet though.
 libwv for Windows
 ======================
 
-Its trivial to compile libwv with the cygwin32 package, available from 
+Its should be possible to compile libwv with the cygwin32 package, available from 
 www.cygnus.com.  get that package and install it, then unpack libwv and 
 run ./configure.  then just add -DWINDOWS to the compiler flags are you are off. 
 i.e. change
@@ -145,7 +155,7 @@ CC = gcc -DWINDOWS
 The only thing that extra define does is change the / to \, in the scanning of a 
 command line so as to find the name of the word doc without the prepended path.
 
-I haven't tried libwv under windows since zlib or the wmblib library were
+I haven't tried libwv under windows since zlib or the libwmf library were
 needed to be installed for full functionality, but i imagine that compiling them
 under cygwin32 would go smoothly as well, let me know on that one.
 
@@ -155,16 +165,8 @@ theres some scripts in helper-scripts that were sent to me to
 get netscape to use libwv as a helper application. I dont
 know anything about them, and they might not work, especially
 as the program changes while they dont, but they are a useful
-resource, i believe the nsopen nswordview are you're best bet
+resource, i believe the nsopen nswordview are your best bet
 for this.
-
-Support Files
-=============
-libwv currently uses gifs to replace the wingding fonts 
-and a set of custom graphics for pattern backgrounds for tables, and some
-graphics for end of a page, footnotes etc, so do the make install to put
-them in the place that libwv will reference them, or use the commandline
-options to set their location.
 
 libwv Crashes
 ==================
@@ -196,7 +198,7 @@ C.
 
 HomePage and Contact Details
 ============================
-http://www.csn.ul.ie/~caolan/docs/MSWordView.html
+http://www.wvWare.com
 
 Caolan.McNamara@ul.ie
 

@@ -81,7 +81,7 @@ in the color tags mentioned later
 Html example is
 
 <cell>
-<begin>&lt;td bgcolor=&quot;<cellbgcolor/>&quot; width=&quot;<cellwidth/>&quot;
+<begin>&lt;td bgcolor=&quot;<cellbgcolor/>&quot; width=&quot;<cellrelwidth/>&quot;
 rowspan=&quot;<rowspan/>&quot; colspan=&quot;<colspan/>&quot;&gt;</begin>
 <end>&lt;/td&gt;</end>
 </cell>

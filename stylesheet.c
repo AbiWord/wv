@@ -284,7 +284,7 @@ void wvReleaseSTSH(STSH *item)
 
 void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 	{
-	U16 cbStshi,cbStd,i,word6,j;
+	U16 cbStshi,cbStd,i,word6=0,j;
 	U16 *chains1;
 	U16 *chains2;
 	if (len == 0)

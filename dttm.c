@@ -47,12 +47,12 @@ void wvCopyDTTM(DTTM *dest,DTTM *src)
 
 void wvListDTTM(DTTM *src)
 	{
-	wvTrace(("min is %d\n",src->mint));
-	wvTrace(("hr is %d\n",src->hr));
-	wvTrace(("dom is %d\n",src->dom));
-	wvTrace(("mon is %d\n",src->mon));
-	wvTrace(("yr is %d\n",src->yr));
-	wvTrace(("wdy is %d\n",src->wdy));
+	wvError(("min is %d\n",src->mint));
+	wvError(("hr is %d\n",src->hr));
+	wvError(("dom is %d\n",src->dom));
+	wvError(("mon is %d\n",src->mon));
+	wvError(("yr is %d\n",src->yr));
+	wvError(("wdy is %d\n",src->wdy));
 	}
 /* 
 dont free the char * back from this, its engine is

@@ -352,10 +352,10 @@ int wvSumInfoOpenStream(SummaryInfo *si,FILE *stream)
             fid.dwords[2] == 0X000891AB &&
             fid.dwords[3] == 0XD9B3272B) break;
         }
-
+#ifdef DEBUG
     if (i >= header.cSections)
 		wvTrace(("possible problem\n"));
-
+#endif
     wvGetSummaryInfo(si,stream,fid.dwOffset);
     return(0);
     }

@@ -196,7 +196,7 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
 	wvTrace(("end of out\n"));
 
 	ps->vmerges = (S16 **)malloc(sizeof(S16 *) * no);
-	wvError(("no of rows is %d",no));
+	wvTrace(("no of rows is %d",no));
 	for(i=0;i<no;i++)
 		{
 		ps->vmerges[i] = (S16 *)malloc(sizeof(S16) * ptap[i].itcMac);
@@ -205,14 +205,14 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
 			ps->vmerges[i][j]=1;
 		}
 
-	for (i=no-1;i>=0;i--)
+	for (i=no-1;i>0;i--)
 		{
 		for (j=0;j<ptap[i].itcMac;j++)
 			{
-			wvError(("Vertical merge is %d\n",ptap[i].rgtc[j].fVertMerge));
+			wvTrace(("Vertical merge is %d\n",ptap[i].rgtc[j].fVertMerge));
 			if (ptap[i].rgtc[j].fVertMerge)
 				{
-				wvError(("Vertical merge found, row %d, cell %d\n",i,j));
+				wvTrace(("Vertical merge found, row %d, cell %d\n",i,j));
 				/* 
 				find a cell above me with the same boundaries
 					if it is also merged increment it, and set myself to 0

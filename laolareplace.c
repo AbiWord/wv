@@ -96,7 +96,7 @@ pps_entry *myfind(char *idname,U32 start_entry)
 pps_entry *wvFindObject(S32 id)
 	{
 	char idname[64];
-	sprintf(idname,"_%ld",id);
+	sprintf(idname,"_%d",id);
 	return(myfind(idname,0));
 	}
 

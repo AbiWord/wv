@@ -22,3 +22,20 @@ void wvGetDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt,FILE *fd)
 	for (i=0;i<51;i++)
 		dopt->rgxchLPunct[i] = read_16ubit(fd);
 	}
+
+void wvInitDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt)
+   {
+   int i;
+   dopt->fKerningPunct = 0;
+   dopt->iJustification = 0;
+   dopt->iLevelOfKinsoku = 0;
+   dopt->f2on1 = 0;
+   dopt->reserved = 0;
+   dopt->cchFollowingPunct = 0;
+   dopt->cchLeadingPunct = 0;
+   for (i=0;i<101;i++)
+       dopt->rgxchFPunct[i] = 0;
+   for (i=0;i<51;i++)
+       dopt->rgxchLPunct[i] = 0;
+   }
+

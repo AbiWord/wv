@@ -52,7 +52,8 @@ int wvHandleDateTimePicture(char *retstring,size_t max,char *token,time_t *mytim
 	char temp[64];
 	timestr[0] = '\0';
 
-	if (!token) return;
+	if (!token) return(0);
+	current = localtime(mytime);
 	while(*token)
 		{
 		switch(*token)
@@ -192,7 +193,6 @@ int wvHandleDateTimePicture(char *retstring,size_t max,char *token,time_t *mytim
 			}
 		token++;
 		}
-	current = localtime(mytime);
 	return(strftime(retstring,max,timestr,current));
 	}
 
@@ -200,19 +200,16 @@ int wvHandleDateTimePicture(char *retstring,size_t max,char *token,time_t *mytim
 int wvHandleTotalField(char *command)
 	{
 	int ret=0;
-	int a=0;
 	unsigned int tokenIndex;
 	char *token;
-	char datestr[4096];
-	time_t mytime;
 	
 	if (*command!= 0x13)
 		{
 		wvError(("field did not begin with 0x13\n"));
-		return;
+		return(1);
 		}
 	strtok(command,"\t, ");
-	while(token = strtok(NULL,"\t, "))
+	while((token = strtok(NULL,"\t, ")))
 		{
 		tokenIndex = s_mapNameToToken(token);
 		switch (s_Tokens[tokenIndex].m_type)
@@ -231,7 +228,6 @@ int wvHandleTotalField(char *command)
 int wvHandleCommandField(char *command)
 	{
 	int ret=0;
-	int a=0;
 	unsigned int tokenIndex;
 	char *token;
 	char datestr[4096];
@@ -240,10 +236,10 @@ int wvHandleCommandField(char *command)
 	if (*command!= 0x13)
 		{
 		wvError(("field did not begin with 0x13\n"));
-		return;
+		return(1);
 		}
 	strtok(command,"\t, ");
-	while(token = strtok(NULL,"\t, "))
+	while((token = strtok(NULL,"\t, ")))
 		{
 		tokenIndex = s_mapNameToToken(token);
 		switch (s_Tokens[tokenIndex].m_type)
@@ -269,8 +265,10 @@ int wvHandleCommandField(char *command)
 				break;
 			case FC_TOC_FROM_RANGE:
 				token = strtok(NULL,"\"\" ");
+#if DEBUG
 				if (token)
 					wvTrace(("toc range is %s\n",token));
+#endif
 				break;
 			case FC_TIME:
 				wvError(("time token\n"));
@@ -299,10 +297,9 @@ int fieldCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 	{
 	static U16 *which;
 	static int i,depth;
-	int arse=0;
 	char *a;
 	static char*c=NULL;
-	static ret;
+	static int ret;
 
 	if (eachchar == 0x13)
 		{

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 #include "wv.h"
 #include "wvinternal.h"
 #include "xmlparse.h"
@@ -391,7 +392,6 @@ void tokenTreeInsert(int token)
 	int d;
 	const char *s;
 	char ch;
-	const char *instr = s;
 	Tokenptr pp, *p;
 	/* start at one - TT_OTHER is the zero element.*/
 	p = &tokenTreeRoot;
@@ -546,7 +546,6 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	unsigned int tokenIndex;
 	expand_data *mydata = (expand_data *)userData;
 	char *text,*str;
-	const char *ctext;
 	static int bold,italic,strike,outline,smallcaps,caps,vanish,
 	shadow,lowercase,emboss,imprint,dstrike,iss,kul,color,fontstr,proprmark,
 	animation,delete,added,FldRMark,ilfo,ilvl=-1,ulist,olist,fintable,fttp=1,
@@ -1180,31 +1179,31 @@ void exstartElement(void *userData, const char *name, const char **atts)
 					}
 				else
 					{
-					U32 i;
+					U8 i2;
 					U8 tilvl = ((PAP*)(mydata->props))->ilvl;
 					wvTrace(("start number is %d, type is %d\n",lvl.lvlf.iStartAt,lvl.lvlf.nfc));
 					wvTrace(("lfo is %d, ilvi is %d\n",((PAP*)(mydata->props))->ilfo,((PAP*)(mydata->props))->ilvl));
 					wvTrace(("Start No is %d\n",(*mydata->liststartnos)[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl]));
 
-					for (i=0;i<tilvl+1;i++)
+					for (i2=0;i2<tilvl+1;i2++)
                            {
                            LVL lvl2;
                            LFO *retlfo2;
-                           ((PAP*)(mydata->props))->ilvl = i;
-                           wvTrace(("Level %d united (%d %d %d)\n",i,((PAP*)(mydata->props))->ilfo,i,(((PAP*)(mydata->props))->ilfo-1)*9+i));
+                           ((PAP*)(mydata->props))->ilvl = i2;
+                           wvTrace(("Level %d united (%d %d %d)\n",i2,((PAP*)(mydata->props))->ilfo,i2,(((PAP*)(mydata->props))->ilfo-1)*9+i2));
                            wvInitLVL(&lvl2);
                            wvGetListEntryInfo(wvQuerySupported(mydata->fib,NULL),mydata->finallvl,mydata->liststartnos,mydata->listnfcs,&lvl2,&retlfo2,(PAP*)(mydata->props),mydata->lfo,mydata->lfolvl,mydata->lvl,mydata->nolfo, mydata->lst, mydata->noofLST);
 
                            /* begin temp special case */
-                           if ( (i<tilvl) && ((*mydata->liststartnos)[(((PAP*)(mydata->props))->ilfo-1)*9+i] == 0xffffffffL) )
+                           if ( (i2<tilvl) && ((*mydata->liststartnos)[(((PAP*)(mydata->props))->ilfo-1)*9+i2] == 0xffffffffL) )
                                 {
                                 wvTrace(("Force this Level to be inced\n"));
-                                (*mydata->liststartnos)[(((PAP*)(mydata->props))->ilfo-1)*9+i] = lvl2.lvlf.iStartAt+1;
+                                (*mydata->liststartnos)[(((PAP*)(mydata->props))->ilfo-1)*9+i2] = lvl2.lvlf.iStartAt+1;
                                 }
                            /* end temp special case */
-                           (*mydata->listnfcs)[(((PAP*)(mydata->props))->ilfo-1)*9+i] = lvl2.lvlf.nfc;
-                           wvTrace(("Level %d united,nfc set to %d\n",i,lvl2.lvlf.nfc));
-                           wvCopyLVL(&((*mydata->finallvl)[(((PAP*)(mydata->props))->ilfo-1)*9+i]),&lvl2);
+                           (*mydata->listnfcs)[(((PAP*)(mydata->props))->ilfo-1)*9+i2] = lvl2.lvlf.nfc;
+                           wvTrace(("Level %d united,nfc set to %d\n",i2,lvl2.lvlf.nfc));
+                           wvCopyLVL(&((*mydata->finallvl)[(((PAP*)(mydata->props))->ilfo-1)*9+i2]),&lvl2);
                            wvTrace(("here\n"));
                            wvReleaseLVL(&lvl2);
                            }

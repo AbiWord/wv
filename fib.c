@@ -56,7 +56,7 @@ void wvInitFIB(FIB *item)
 	item->lProductRevised = 0;
 	item->ccpText = 0;
 	item->ccpFtn = 0;
-	item->ccpHdd = 0;
+	item->ccpHdr = 0;
 	item->ccpMcr = 0;
 	item->ccpAtn = 0;
 	item->ccpEdn = 0;
@@ -337,7 +337,7 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->lProductRevised = read_32ubit(fd);
 	item->ccpText = read_32ubit(fd);
 	item->ccpFtn = (S32)read_32ubit(fd);
-	item->ccpHdd = (S32)read_32ubit(fd);
+	item->ccpHdr = (S32)read_32ubit(fd);
 	item->ccpMcr = (S32)read_32ubit(fd);
 	item->ccpAtn = (S32)read_32ubit(fd);
 	item->ccpEdn = (S32)read_32ubit(fd);
@@ -676,7 +676,7 @@ void wvGetFIB6(FIB *item,FILE *fd)
 
 	item->ccpText = read_32ubit(fd);
 	item->ccpFtn = (S32)read_32ubit(fd);
-	item->ccpHdd = (S32)read_32ubit(fd);
+	item->ccpHdr = (S32)read_32ubit(fd);
 	item->ccpMcr = (S32)read_32ubit(fd);
 	item->ccpAtn = (S32)read_32ubit(fd);
 	item->ccpEdn = (S32)read_32ubit(fd);

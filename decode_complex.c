@@ -332,7 +332,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 	U32 bkl_intervals;
 
 	/*dop*/
-	wvGetDOP(&ps->dop,ps->fib.fcDop,ps->fib.lcbDop,ps->tablefd);
+	wvGetDOP(wvQuerySupported(&ps->fib,NULL),&ps->dop,ps->fib.fcDop,ps->fib.lcbDop,ps->tablefd);
 
 #if 0	
 /* 
@@ -411,7 +411,7 @@ encoded into the first 22 bytes.
 	para_fcFirst = char_fcFirst = section_fcFirst = wvConvertCPToFC(0,&ps->clx);
 
 #ifdef DEBUG
-	if ((ps->fib.ccpFtn) || (ps->fib.ccpHdd))
+	if ((ps->fib.ccpFtn) || (ps->fib.ccpHdr))
 		wvTrace(("Special ending\n"));
 #endif
 

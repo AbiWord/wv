@@ -16,3 +16,44 @@ void wvGetBKD(BKD *item,FILE *fd)
 	item->fTextOverflow = (temp16 & 0x1000) >> 12;
 	item->reserved1 = (temp16 & 0xE000) >> 13;
 	} 
+
+int wvGetBKD_PLCF(BKD **bkd,U32 **pos,U32 *nobkd,U32 offset,U32 len,FILE *fd)
+    {
+    U32 i;
+    if (len == 0)
+        {
+        *bkd = NULL;
+        *pos = NULL;
+        *nobkd = 0;
+        }
+    else
+        {
+        *nobkd=(len-4)/(cbBKD+4);
+        *pos = (U32 *) malloc( (*nobkd+1) * sizeof(U32));
+        if (*pos == NULL)
+            {
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nobkd+1) * sizeof(U32)));
+            return(1);
+            }
+
+        *bkd = (BKD *) malloc(*nobkd * sizeof(BKD));
+        if (*bkd == NULL)
+            {
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",*nobkd * sizeof(BKD)));
+            free(pos);
+            return(1);
+            }
+        fseek(fd,offset,SEEK_SET);
+        for(i=0;i<*nobkd+1;i++)
+			{
+            (*pos)[i]=read_32ubit(fd);
+			wvError(("bkd cp is %d\n",(*pos)[i]));
+			}
+        for(i=0;i<*nobkd;i++)
+			{
+            wvGetBKD(&((*bkd)[i]),fd);
+			wvError(("bkd id is %x\n",(*bkd)[i].ipgd_itxbxs));
+			}
+        }
+    return(0);
+    }

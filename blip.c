@@ -223,6 +223,7 @@ U32 twvGetFOPTE(FOPTE *afopte,FILE *infd)
 	return(ret);
 	}
 
+#if 0
 fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *tablefd,FILE *mainfd)
 	{
 	int remainder;
@@ -233,7 +234,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 	FIDCL *afidcl;
 	FBSE afbse;
 	MetaFileBlip amf;
-	BitmapBlip abm;
+	
 	fsp_list *afsp_list=NULL;
 	fsp_list *pfsp_list=NULL;
 	fopte_list *pfopte_list=NULL;
@@ -472,6 +473,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 	fseek(mainfd,lastpos,SEEK_SET);
 	return(afsp_list);
 	}
+#endif
 
 fbse_list *wvGetSPID(U32 spid,fsp_list *afsp_list,fbse_list *afbse_list)
 	{

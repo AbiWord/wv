@@ -56,14 +56,13 @@ U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,FILE *fd)
 	}
 
 
-U32 wvReleaseFOPTE(FOPTE *afopte)
+void wvReleaseFOPTE(FOPTE *afopte)
 	{
 	wvFree(afopte->entry);
 	}
 
 U32 wvGetFOPTE(FOPTE *afopte,FILE *fd)
     {
-	U32 i;
     U16 dtemp;
 	wvTrace(("pos is %x\n",ftell(fd)));
     dtemp = read_16ubit(fd);

@@ -94,7 +94,6 @@ MYOBJECTS =	\
 	blip.$(OBJEXT) \
 	utf.$(OBJEXT) \
 	field.$(OBJEXT) \
-	formatting.$(OBJEXT) \
 	references.$(OBJEXT) \
 	gpprl.$(OBJEXT) \
 	papchpsep.$(OBJEXT) \

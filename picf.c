@@ -6,12 +6,10 @@
 
 int wvGetPICF(version ver,PICF *apicf,FILE *fd)
 	{
-	char buffer[1024];
 	int ret=0;
 	FILE *f;
 	U8 temp;
 	U32 i;
-	static int s;
 	long pos=ftell(fd);
 
 	apicf->lcb = read_32ubit(fd);
@@ -227,6 +225,7 @@ U32 wvEatOldGraphicHeader(FILE *fd,U32 len)
 
 extern int external_knowledge_0x01;
 
+#if 0
 void oldwvGetPICF(PICF *apicf,FILE *fd,U32 offset)
 	{
 	U32 count=0;
@@ -331,3 +330,4 @@ void oldwvGetPICF(PICF *apicf,FILE *fd,U32 offset)
 		}
 
 	}
+#endif

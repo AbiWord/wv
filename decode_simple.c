@@ -13,7 +13,7 @@ the table tells us to go.
 there are special cases for coming to the end of a section, and for the beginning and ends of
 pages. for the purposes of headers and footers etc.
 */
-void wvDecodeSimple(wvParseStruct *ps)
+void wvDecodeSimple(wvParseStruct *ps,subdocument whichdoc)
 	{
 	PAPX_FKP para_fkp;
 	CHPX_FKP char_fkp;
@@ -46,11 +46,42 @@ void wvDecodeSimple(wvParseStruct *ps)
 	BKL *bkl;
 	U32 *posBKL;
 	U32 bkl_intervals;
+	FTXBXS *ftxbx;
+	U32 *txbxTxt;
+	U32 txbxTxt_intervals;
+	BKD *bkd;
+	U32 *posBKD;
+	U32 bkd_intervals;
+	version ver;
 
+	ver = wvQuerySupported(&ps->fib,NULL);
+
+
+	/* 
+	despite what some parts of the spec might have you believe you still need to 
+	get the piecetable from even simple files, some simple files can have 8bit
+	chars in one part, and 16bit chars in another, so you have to watch out for
+	that
+	*/
+	wvGetCLX(ver,&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->fib.fExtChar,
+		ps->tablefd);
+	/* for word 6 and just in case */
+	if (ps->clx.nopcd == 0) wvBuildCLXForSimple6(&ps->clx,&ps->fib);
+
+	para_fcFirst = wvGetBeginFC(ps,whichdoc);
+	para_fcFirst = char_fcFirst = section_fcFirst;
+
+	/*we will need the stylesheet to do anything useful with layout and look*/
+	wvGetSTSH(&ps->stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
 
 	/*dop*/
-	wvGetDOP(&ps->dop,ps->fib.fcDop,ps->fib.lcbDop,ps->tablefd);
+	wvGetDOP(ver,&ps->dop,ps->fib.fcDop,ps->fib.lcbDop,ps->tablefd);
 	wvTrace(("tabstops are every %d twips\n",ps->dop.dxaTab));
+
+	/*textbox information*/
+	wvGetFTXBXS_PLCF(&ftxbx,&txbxTxt,&txbxTxt_intervals,ps->fib.fcPlcftxbxTxt,ps->fib.lcbPlcftxbxTxt,ps->tablefd);
+	wvGetBKD_PLCF(&bkd,&posBKD,&bkd_intervals,ps->fib.fcPlcftxbxBkd,ps->fib.lcbPlcftxbxBkd,ps->tablefd);
+
 	
 	/* this mountain of informatio is just to get comments organized*/
 	wvGetATRD_PLCF(&atrd,&posAtrd,&atrd_intervals,ps->fib.fcPlcfandRef,ps->fib.lcbPlcfandRef,ps->tablefd);
@@ -60,8 +91,6 @@ void wvDecodeSimple(wvParseStruct *ps)
 	wvGetBKF_PLCF(&bkf,&posBKF,&bkf_intervals,ps->fib.fcPlcfAtnbkf,ps->fib.lcbPlcfAtnbkf,ps->tablefd);
 	wvGetBKL_PLCF(&bkl,&posBKL,&bkl_intervals,ps->fib.fcPlcfAtnbkl,ps->fib.lcbPlcfAtnbkl,ps->tablefd);
 
-	/*we will need the stylesheet to do anything useful with layout and look*/
-	wvGetSTSH(&ps->stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
 
 	/* get font list */
 	if ( (wvQuerySupported(&ps->fib,NULL) == WORD6) || (wvQuerySupported(&ps->fib,NULL) == WORD7) )
@@ -108,16 +137,6 @@ void wvDecodeSimple(wvParseStruct *ps)
 	wvGetFDOA_PLCF(&ps->fdoa,&ps->fdoapos,&ps->nooffdoa,ps->fib.fcPlcdoaMom,ps->fib.lcbPlcdoaMom,ps->tablefd);
 
 
-	/* 
-	despite what some parts of the spec might have you believe you still need to 
-	get the piecetable from even simple files, some simple files can have 8bit
-	chars in one part, and 16bit chars in another, so you have to watch out for
-	that
-	*/
-	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->fib.fExtChar,ps->tablefd);
-	if (ps->clx.nopcd == 0) wvBuildCLXForSimple6(&ps->clx,&ps->fib);	/* for word 6 and just in case */
-
-	para_fcFirst = char_fcFirst = section_fcFirst = wvConvertCPToFC(0,&ps->clx);
 	
 	/*
 	we will need the paragraph and character bounds table to make decisions as 
@@ -441,7 +460,7 @@ int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U3
 	{
 	BTE entry;
 	long currentpos;
-	static noerror;
+	static int noerror;
 
 	/*
 	currentfc = wvConvertCPToFC(currentcp,clx);
@@ -623,3 +642,41 @@ int wvGetSimpleSectionBounds(version ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst
 	fseek(fd,pos,SEEK_SET);
 	return(ret);
 	}
+
+U32 wvGetBeginFC(wvParseStruct *ps,subdocument whichdoc)
+   {
+   U32 para_fcFirst=0x400;
+   switch(whichdoc)
+       {
+       case Dmain:
+       default:
+           para_fcFirst = wvConvertCPToFC(0,&ps->clx);
+           break;
+       case Dfootnote:
+           para_fcFirst = wvConvertCPToFC(ps->fib.ccpText,&ps->clx);
+           break;
+       case Dheader:
+           para_fcFirst = wvConvertCPToFC(ps->fib.ccpText+ps->fib.ccpFtn,
+               &ps->clx);
+           break;
+       case Dannotation:
+           para_fcFirst = wvConvertCPToFC(ps->fib.ccpText+ps->fib.ccpFtn+
+           ps->fib.ccpHdr, &ps->clx);
+           break;
+       case Dendnote:
+           para_fcFirst = wvConvertCPToFC(ps->fib.ccpText+ps->fib.ccpFtn+
+               ps->fib.ccpHdr+ps->fib.ccpAtn,&ps->clx);
+           break;
+       case Dtextbox:
+           para_fcFirst = wvConvertCPToFC(ps->fib.ccpText+ps->fib.ccpFtn+
+               ps->fib.ccpHdr+ps->fib.ccpAtn+ps->fib.ccpEdn,&ps->clx);
+           break;
+       case Dheader_textbox:
+           para_fcFirst = wvConvertCPToFC(ps->fib.ccpText+ps->fib.ccpFtn+
+               ps->fib.ccpHdr+ps->fib.ccpAtn+ps->fib.ccpEdn+ps->fib.ccpTxbx,
+               &ps->clx);
+           break;
+       }
+   return(para_fcFirst);
+   }
+

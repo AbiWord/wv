@@ -12,7 +12,7 @@ void wvInitLVL(LVL *lvl)
 
 void wvCopyLVL(LVL *dest,LVL *src)
 	{
-	int len,i;
+	int len;
 	wvReleaseLVL(dest);
 	wvInitLVL(dest);
 
@@ -47,7 +47,7 @@ void wvCopyLVL(LVL *dest,LVL *src)
 
 void wvGetLVL(LVL *lvl,FILE *fd)
 	{
-	int len,i;
+	int len;
 	wvGetLVLF(&(lvl->lvlf),fd);
 	if (lvl->lvlf.cbGrpprlPapx > 0)
 		{

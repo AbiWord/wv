@@ -296,7 +296,7 @@ void wvInitPAPX(PAPX *item)
 
 void wvGetPAPX(version ver,PAPX *item,U8 *page,U16 *pos)
 	{
-	U16 cw,i;
+	U16 cw;
 	cw = bgetc(&(page[*pos]),pos);
 	if ( (cw == 0) && (ver == WORD8) )	/* only do this for word 97 */
 		{

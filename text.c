@@ -207,8 +207,7 @@ U16 wvHandleCodePage(U16 eachchar,U16 lid)
 	if (iconv_handle == (iconv_t)-1)
 		{
 		wvError(("iconv_open fail: %d, cannot convert %s to unicode\n",errno,codepage));
-		printf("?");
-		return;
+		return('?');
 		}
 
 	ibuflen = 1;
@@ -225,10 +224,7 @@ U16 wvHandleCodePage(U16 eachchar,U16 lid)
 	
 void wvOutputFromUnicode(U16 eachchar,char *outputtype)
 	{
-	int i;
-	U16 temp16;
-	U8 temp8;
-	char *str;
+	U16 i;
 	char f_code[33];            /* From CCSID                           */
     char t_code[33];            /* To CCSID                             */
     iconv_t iconv_handle;       /* Conversion Descriptor returned       */
@@ -558,7 +554,7 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 	switch(char16)
 		{
 		case 37:
-			printf("\\%");
+			printf("\\%%");
 			return(1);
 		case 11:
 			printf("newline\n");

@@ -114,6 +114,7 @@ int HandleBitmap(char *name,BitmapBlip *bitmap)
 	return(0);
 	}
 
+
 int HandleMetafile(char *name,MetaFileBlip *bitmap)
 	{
 	int c;

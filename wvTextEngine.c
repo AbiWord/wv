@@ -7,6 +7,6 @@ int wvText(wvParseStruct *ps)
 	if (ps->fib.fComplex)
 		wvDecodeComplex(ps);
 	else
-		wvDecodeSimple(ps);
+		wvDecodeSimple(ps,Dmain);
 	return(0);
 	}

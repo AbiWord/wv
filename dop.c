@@ -9,14 +9,14 @@ void wvGetCOPTS(COPTS *item,FILE *fd)
 	U16 temp16;
 	temp16 = read_16ubit(fd);
 
-	item->fNoTabForInd1  = temp16 & 0x0001;
+	item->fNoTabForInd  = temp16 & 0x0001;
     item->fNoSpaceRaiseLower = (temp16 & 0x0002) >> 1;
     item->fSuppressSpbfAfterPageBreak = (temp16 & 0x0004) >> 2;
     item->fWrapTrailSpaces = (temp16 & 0x0008) >> 3;
     item->fMapPrintTextColor = (temp16 & 0x0010) >> 4;
     item->fNoColumnBalance = (temp16 & 0x0020) >> 5;
     item->fConvMailMergeEsc = (temp16 & 0x0040) >> 6;
-    item->fSupressTopSpacing = (temp16 & 0x0080) >> 7;
+    item->fSuppressTopSpacing = (temp16 & 0x0080) >> 7;
     item->fOrigWordTableRules = (temp16 & 0x0100) >> 8;
     item->fTransparentMetafiles = (temp16 & 0x0200) >> 9;
     item->fShowBreaksInFrames = (temp16 & 0x0400) >> 10;
@@ -25,11 +25,32 @@ void wvGetCOPTS(COPTS *item,FILE *fd)
 	}
 
 
-void wvGetDOP(DOP *dop,U32 fcDop,U32 lcbDop,FILE *fd)
+void wvInitCOPTS(COPTS *item)
+	{
+	item->fNoTabForInd = 0;
+	item->fNoSpaceRaiseLower = 0;
+	item->fSuppressSpbfAfterPageBreak = 0;
+	item->fWrapTrailSpaces = 0;
+	item->fMapPrintTextColor = 0;
+	item->fNoColumnBalance = 0;
+	item->fConvMailMergeEsc = 0;
+	item->fSuppressTopSpacing = 0;
+	item->fOrigWordTableRules = 0;
+	item->fTransparentMetafiles = 0;
+	item->fShowBreaksInFrames = 0;
+	item->fSwapBordersFacingPgs = 0;
+	item->reserved = 0;
+	}
+
+
+void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,FILE *fd)
 	{
 	U16 temp16;
 	U32 temp32;
 	int i;
+
+	if (ver != WORD8)
+		wvInitDOP(dop);
 
 	if (lcbDop <= 0)
 		return;
@@ -139,16 +160,35 @@ void wvGetDOP(DOP *dop,U32 fcDop,U32 lcbDop,FILE *fd)
 	dop->fRotateFontW6 = (temp16&0x4000)>>14;
 	dop->iGutterPos = (temp16&0x8000)>>15;
 
+	if (ver == WORD6)
+		{
+		dop->fNoTabForInd = dop->copts.fNoTabForInd;
+		dop->fNoSpaceRaiseLower = dop->copts.fNoSpaceRaiseLower;
+		dop->fSuppressSpbfAfterPageBreak = dop->copts.fSuppressSpbfAfterPageBreak;
+		dop->fWrapTrailSpaces = dop->copts.fWrapTrailSpaces;
+		dop->fMapPrintTextColor = dop->copts.fMapPrintTextColor;
+		dop->fNoColumnBalance = dop->copts.fNoColumnBalance;
+		dop->fConvMailMergeEsc = dop->copts.fConvMailMergeEsc;
+		dop->fSuppressTopSpacing = dop->copts.fSuppressTopSpacing;
+		dop->fOrigWordTableRules = dop->copts.fOrigWordTableRules;
+		dop->fTransparentMetafiles = dop->copts.fTransparentMetafiles;
+		dop->fShowBreaksInFrames = dop->copts.fShowBreaksInFrames;
+		dop->fSwapBordersFacingPgs = dop->copts.fSwapBordersFacingPgs;
+	    return;
+		}
+	
+
+
 	temp32 = read_32ubit(fd);
 
 	dop->fNoTabForInd = temp32&0x00000001;
 	dop->fNoSpaceRaiseLower = (temp32&0x00000002)>>1;
-	dop->fSupressSpbfAfterPageBreak = (temp32&0x00000004)>>2;
+	dop->fSuppressSpbfAfterPageBreak = (temp32&0x00000004)>>2;
 	dop->fWrapTrailSpaces = (temp32&0x00000008)>>3;
 	dop->fMapPrintTextColor = (temp32&0x00000010)>>4;
 	dop->fNoColumnBalance = (temp32&0x00000020)>>5;
 	dop->fConvMailMergeEsc = (temp32&0x00000040)>>6;
-	dop->fSupressTopSpacing = (temp32&0x00000080)>>7;
+	dop->fSuppressTopSpacing = (temp32&0x00000080)>>7;
 	dop->fOrigWordTableRules = (temp32&0x00000100)>>8;
 	dop->fTransparentMetafiles = (temp32&0x00000200)>>9;
 	dop->fShowBreaksInFrames = (temp32&0x00000400)>>10;
@@ -161,6 +201,9 @@ void wvGetDOP(DOP *dop,U32 fcDop,U32 lcbDop,FILE *fd)
 	dop->reserved8 = (temp32&0x00100000)>>20;
 	dop->fMWSmallCaps = (temp32&0x00200000)>>21;
 	dop->reserved9 = (temp32&0xFFC00000)>>22;
+
+	if (ver == WORD7)
+		return;
 
 	dop->adt = read_16ubit(fd);
 	wvGetDOPTYPOGRAPHY(&dop->doptypography,fd);
@@ -215,6 +258,141 @@ void wvGetDOP(DOP *dop,U32 fcDop,U32 lcbDop,FILE *fd)
 
 	/*
 	if ((dop->fLockAtn) || (dop->fLockRev))
-		fprintf(stderr,"doc protection key is %x\n",dop->lKeyProtDoc);
+		wvError(("doc protection key is %x\n",dop->lKeyProtDoc));
 	*/
 	}
+
+void wvInitDOP(DOP *dop)
+   {
+   int i;
+   dop->fFacingPages = 0;
+   dop->fWidowControl = 0;
+   dop->fPMHMainDoc = 0;
+   dop->grfSuppression = 0;
+   dop->fpc = 0;
+   dop->reserved1 = 0;
+   dop->grpfIhdt = 0;
+   dop->rncFtn = 0;
+   dop->nFtn = 0;
+   dop->fOutlineDirtySave = 0;
+   dop->reserved2 = 0;
+   dop->fOnlyMacPics = 0;
+   dop->fOnlyWinPics = 0;
+   dop->fLabelDoc = 0;
+   dop->fHyphCapitals = 0;
+   dop->fAutoHyphen = 0;
+   dop->fFormNoFields = 0;
+   dop->fLinkStyles = 0;
+   dop->fRevMarking = 0;
+   dop->fBackup = 0;
+   dop->fExactCWords = 0;
+   dop->fPagHidden = 0;
+   dop->fPagResults = 0;
+   dop->fLockAtn = 0;
+   dop->fMirrorMargins = 0;
+   dop->reserved3 = 0;
+   dop->fDfltTrueType = 0;
+   dop->fPagSuppressTopSpacing = 0;
+   dop->fProtEnabled = 0;
+   dop->fDispFormFldSel = 0;
+   dop->fRMView = 0;
+   dop->fRMPrint = 0;
+   dop->reserved4 = 0;
+   dop->fLockRev = 0;
+   dop->fEmbedFonts = 0;
+   wvInitCOPTS(&dop->copts);
+   dop->dxaTab = 0;
+   dop->wSpare = 0;
+   dop->dxaHotZ = 0;
+   dop->cConsecHypLim = 0;
+   dop->wSpare2 = 0;
+   wvInitDTTM(&dop->dttmCreated);
+   wvInitDTTM(&dop->dttmRevised);
+   wvInitDTTM(&dop->dttmLastPrint);
+   dop->nRevision = 0;
+   dop->tmEdited = 0;
+   dop->cWords = 0;
+   dop->cCh = 0;
+   dop->cPg = 0;
+   dop->cParas = 0;
+   dop->rncEdn = 0;
+   dop->nEdn = 0;
+   dop->epc = 0;
+   dop->nfcFtnRef = 0;
+   dop->nfcEdnRef = 0;
+   dop->fPrintFormData = 0;
+   dop->fSaveFormData = 0;
+   dop->fShadeFormData = 0;
+   dop->reserved6 = 0;
+   dop->fWCFtnEdn = 0;
+   dop->cLines = 0;
+   dop->cWordsFtnEnd = 0;
+   dop->cChFtnEdn = 0;
+   dop->cPgFtnEdn = 0;
+   dop->cParasFtnEdn = 0;
+   dop->cLinesFtnEdn = 0;
+   dop->lKeyProtDoc = 0;
+   dop->wvkSaved = 0;
+   dop->wScaleSaved = 0;
+   dop->zkSaved = 0;
+   dop->fRotateFontW6 = 0;
+   dop->iGutterPos = 0;
+   dop->fNoTabForInd = 0;
+   dop->fNoSpaceRaiseLower = 0;
+   dop->fSuppressSpbfAfterPageBreak = 0;
+   dop->fWrapTrailSpaces = 0;
+   dop->fMapPrintTextColor = 0;
+   dop->fNoColumnBalance = 0;
+   dop->fConvMailMergeEsc = 0;
+   dop->fSuppressTopSpacing = 0;
+   dop->fOrigWordTableRules = 0;
+   dop->fTransparentMetafiles = 0;
+   dop->fShowBreaksInFrames = 0;
+   dop->fSwapBordersFacingPgs = 0;
+   dop->reserved7 = 0;
+   dop->fSuppressTopSpacingMac5 = 0;
+   dop->fTruncDxaExpand  = 0;
+   dop->fPrintBodyBeforeHdr = 0;
+   dop->fNoLeading = 0;
+   dop->reserved8 = 0;
+   dop->fMWSmallCaps = 0;
+   dop->reserved9 = 0;
+   dop->adt = 0;
+   wvInitDOPTYPOGRAPHY(&dop->doptypography);
+   wvInitDOGRID(&dop->dogrid);
+   dop->reserved10 = 0;
+   dop->lvl = 0;
+   dop->fGramAllDone = 0;
+   dop->fGramAllClean = 0;
+   dop->fSubsetFonts = 0;
+   dop->fHideLastVersion = 0;
+   dop->fHtmlDoc = 0;
+   dop->reserved11 = 0;
+   dop->fSnapBorder = 0;
+   dop->fIncludeHeader = 0;
+   dop->fIncludeFooter = 0;
+   dop->fForcePageSizePag = 0;
+   dop->fMinFontSizePag = 0;
+   dop->fHaveVersions = 0;
+   dop->fAutoVersion = 0;
+   dop->reserved11 = 0;
+   wvInitASUMYI(&dop->asumyi);
+   dop->cChWS = 0;
+   dop->cChWSFtnEdn = 0;
+   dop->grfDocEvents = 0;
+   dop->fVirusPrompted = 0;
+   dop->fVirusLoadSafe = 0;
+   dop->KeyVirusSession30 = 0;
+   for(i=0;i<30;i++)
+       dop->Spare[i] = 0;
+   dop->reserved12 = 0;
+   dop->reserved13 = 0;
+   dop->cDBC = 0;
+   dop->cDBCFtnEdn = 0;
+   dop->reserved14 = 0;
+   dop->new_nfcFtnRef = 0;
+   dop->new_nfcEdnRef = 0;
+   dop->hpsZoonFontPag = 0;
+   dop->dywDispPag = 0;
+    }
+

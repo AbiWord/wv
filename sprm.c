@@ -1121,8 +1121,11 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 		rgdxaAdd=NULL;
 		rgtbdAdd=NULL;
 		}
+
+#ifdef DEBUG
 	if (*pos-oldpos != cch+1)
 		wvTrace(("Offset Problem in wvApplysprmPChgTabsPapx\n"));
+#endif
 	
 	/*
 	When sprmPChgTabsPapx is interpreted, the rgdxaDel of the sprm is applied
@@ -2167,7 +2170,7 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 	(*pos)++;
 	oldpos = (*pos)-2;
 	wvTrace(("oldpos is %x\n",oldpos));
-	wvError(("C: there are %d cells\n",tap->itcMac));
+	wvTrace(("C: there are %d cells\n",tap->itcMac));
 	for (i=0;i<tap->itcMac + 1;i++)
 		{
 		tap->rgdxaCenter[i] = (S16)dread_16ubit(NULL,&pointer);
@@ -2175,7 +2178,7 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 		(*pos)+=2;
 		}
 
-	wvError(("HERE-->pos is now %d, the len was %d, there is %d left\n",*pos,len,len-(*pos-oldpos)));
+	wvTrace(("HERE-->pos is now %d, the len was %d, there is %d left\n",*pos,len,len-(*pos-oldpos)));
 
 	if ( (len-(*pos-oldpos)) < (cb6TC * tap->itcMac) )
 		{
@@ -2196,7 +2199,7 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 	for (i=0;i<tap->itcMac;i++)
 		{
 		t = wvGetTCFromBucket(type,&(tap->rgtc[i]),pointer);
-		wvError(("DefTable merge is %d\n",tap->rgtc[i].fVertMerge));
+		wvTrace(("DefTable merge is %d\n",tap->rgtc[i].fVertMerge));
 		/* for christ sake !!, word 8 stores word 6 sized TC's in this sprm ! */
 		(*pos)+=t;
 		pointer+=t;
@@ -2675,7 +2678,7 @@ only in grpprls linked to piece table entries.
 void wvApplysprmTVertMerge(TAP *tap,U8 *pointer,U16 *pos)
 	{
 	U8 index,props,count;
-	wvError(("doing Vertical merge\n"));
+	wvTrace(("doing Vertical merge\n"));
 
 	count = dgetc(NULL,&pointer);
 	wvTrace(("count is %d\n",count));	/* check against word 8 please */

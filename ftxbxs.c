@@ -2,6 +2,17 @@
 #include <stdio.h>
 #include "wv.h"
 
+void wvListFTXBXS(FTXBXS *item)
+	{
+	wvError(("%d\n",item->cTxbx_iNextReuse));
+	wvError(("%d\n",item->cReusable));
+	wvError(("%d\n",item->fReusable));
+	wvError(("%d\n",item->reserved));
+	wvError(("%d\n",item->lid));
+	wvError(("%d\n",item->txidUndo));
+	}
+
+
 void wvGetFTXBXS(FTXBXS *item,FILE *fd)
 	{
 	item->cTxbx_iNextReuse = (S32)read_32ubit(fd);
@@ -10,4 +21,41 @@ void wvGetFTXBXS(FTXBXS *item,FILE *fd)
 	item->reserved = (S32)read_32ubit(fd);
 	item->lid = (S32)read_32ubit(fd);
 	item->txidUndo = (S32)read_32ubit(fd);
+	wvListFTXBXS(item);
 	}
+
+int wvGetFTXBXS_PLCF(FTXBXS **ftxbxs,U32 **pos,U32 *noftxbxs,U32 offset,U32 len,FILE *fd)
+	{
+	U32 i;
+	if (len == 0)
+		{
+		*ftxbxs = NULL;
+		*pos = NULL;
+		*noftxbxs = 0;
+		}
+	else
+		{
+		*noftxbxs=(len-4)/(cbFTXBXS+4);
+		*pos = (U32 *) malloc( (*noftxbxs+1) * sizeof(U32));
+		if (*pos == NULL)
+			{
+			wvError(("NO MEM 1, failed to alloc %d bytes\n",(*noftxbxs+1) * sizeof(U32)));
+			return(1);
+			}
+
+		*ftxbxs = (FTXBXS *) malloc(*noftxbxs * sizeof(FTXBXS));
+		if (*ftxbxs == NULL)
+			{
+			wvError(("NO MEM 1, failed to alloc %d bytes\n",*noftxbxs * sizeof(FTXBXS)));
+			free(pos);
+			return(1);
+			}
+		fseek(fd,offset,SEEK_SET);
+		for(i=0;i<*noftxbxs+1;i++)
+			(*pos)[i]=read_32ubit(fd);
+		for(i=0;i<*noftxbxs;i++)
+			wvGetFTXBXS(&((*ftxbxs)[i]),fd);
+		}
+	return(0);
+	}
+

@@ -1,14 +1,5 @@
 #!/usr/bin/perl
 #
-# File Upload Script, slightly modified by Caolan.McNamara@ul.ie to
-# serve as a msword to html gateway.
-# original notice follows
-#
-# modify lines 89 & 401 for your own configuration.
-#
-#
-#
-#
 # File Upload Script        Version 6.00
 # Created by Jeff Carnahan  jeffc@terminalp.com
 # Created on: 4/8/95        Last Modified on: 01/23/98 23:06
@@ -86,7 +77,7 @@
 
 BEGIN {
 
-	$SAVE_DIRECTORY = "/home/sysadm/caolan/tmp/upload-mswordview";
+	$SAVE_DIRECTORY = "f";
                               #
                               # --> Variable:
                               #         $SAVE_DIRECTORY
@@ -203,7 +194,7 @@ BEGIN {
 		</OL>
 		<HR SIZE=1>
 <center>
-<A HREF="http://skynet.csn.ul.ie/"> <IMG Border="0" SRC="../pics/skynet-button.gif"></a>
+<A HREF="http://www.csn.ul.ie/"> <IMG Border="0" SRC="../pics/skynet-button.gif"></a>
 </center>
 		</td>
 		</tr>
@@ -252,7 +243,7 @@ __END_OF_HTML_CODE__
 				<P>
 				<HR SIZE=1>
 <center>
-<A HREF="http://skynet.csn.ul.ie/"> <IMG Border="0" SRC="../pics/skynet-button.gif"></a>
+<A HREF="http://www.csn.ul.ie/"> <IMG Border="0" SRC="../pics/skynet-button.gif"></a>
 </center>
 
 		</td>
@@ -294,7 +285,7 @@ __END_OF_HTML_CODE__
 			<P>
 			<HR SIZE=1>
 <center>
-<A HREF="http://skynet.csn.ul.ie/"> <IMG Border="0" SRC="../pics/skynet-button.gif"></a>
+<A HREF="http://www.csn.ul.ie/"> <IMG Border="0" SRC="../pics/skynet-button.gif"></a>
 </center>
 
 		</td>
@@ -306,7 +297,10 @@ __END_OF_HTML_CODE__
 __END_OF_HTML_CODE__
 			exit;
 		}
-		
+
+		$PRE = getpgrp(0);
+		$Filename = "$PRE.$Filename";
+
         if (!open(OUTFILE, ">$SAVE_DIRECTORY\/$Filename")) {
             print "Content-type: text/plain\n\n";
             print "-------------------------\n";
@@ -379,7 +373,7 @@ __END_OF_HTML_CODE__
 		<P>
 		<HR SIZE=1>
 <center>
-<A HREF="http://skynet.csn.ul.ie/"> <IMG Border="0" SRC="../pics/skynet-button.gif"></a>
+<A HREF="http://www.csn.ul.ie/"> <IMG Border="0" SRC="../pics/skynet-button.gif"></a>
 </center>
 
 		</td>
@@ -398,21 +392,39 @@ __END_OF_HTML_CODE__
 	
 
 		print header;
-		$command = join(' ',"mswordview","-o -","-s http:\/\/www.csn.ul.ie\/~caolan\/docs\/symbolfont","-d http:\/\/www.csn.ul.ie\/~caolan\/docs\/wingdingfont","-p http:\/\/www.csn.ul.ie\/~caolan\/docs\/patterns","-t 240","\"$SAVE_DIRECTORY\/$Filename\"");
-		system($command);
+		$command = join(' ',"/usr/local/bin/wvHtml --dir ../temp/ --config wvOnline.xml","\"$SAVE_DIRECTORY\/$Filename\"");
+		if (system($command) != 0)
+			{
+			print <<__END_OF_HTML_CODE__;
 
-		foreach $key (keys (%Confirmation)) {
-			print "$key - $Confirmation{$key} bytes\n";
-		}
-		
-		print <<__END_OF_HTML_CODE__;
-		
-		<P>
-		<HR SIZE=1>
-<center>
-<A HREF="http://skynet.csn.ul.ie/"> <IMG Border="0" SRC="../pics/skynet-button.gif"></a>
-</center>
+		<HTML>
+		<HEAD>
+			<TITLE>Error: File Did Not Convert</TITLE>
+		</HEAD>
+		<BODY link="#CC0000" alink="#FF3300" vlink="#330099" text="#000000" bgcolor="#ffffff" background="../pics/weave.jpg">
+		The File did not convert, it probably was not actually a word file at all, if it was
+		then wvHtml crashed, (which is pretty unlikely with this version). You can submit
+		a bugreport here if necessary<p>
+		<table border="1">
+		<tr>
+		<td>
+		This table does not exist in the ordinary output of wvHtml, just in the online version to get any
+		necessary bug reports, so if this file did not convert as you expected please submit a bugreport here<br>
+		<form method="post" action="wvHtmlBug.cgi">
+		<textarea name="comments" wrap=hard rows=6 cols=80>
+		</textarea>
+		<br>
+		<input type="hidden" name="name" value="$Filename">
+		<input type=submit value="Submit Bug Report">
+		</form>
+		</td>
+		</tr>
+		</table>
+		</BODY>
+		</HTML>
 __END_OF_HTML_CODE__
+		exit;
+			}
 		exit;	
 	}
 	

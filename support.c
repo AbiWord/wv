@@ -33,8 +33,10 @@ indentation.
 
 #ifdef HAVE_WMF
 #	include "gdwmfapi.h"
+/*
 	extern listentry *ourlist;
 	extern int list;
+*/
 #endif
 
 U32 read_32ubit(FILE *in)
