@@ -15,7 +15,7 @@ An example of usage of the summary stream is shown in wvSummary.c
 */
 
 
-void wvGetPropHeader(PropHeader *header,FILE *file)
+void wvGetPropHeader(PropHeader *header,wvStream *file)
 	{
 	int i;
 	header->byteOrder=read_16ubit(file);
@@ -23,11 +23,11 @@ void wvGetPropHeader(PropHeader *header,FILE *file)
 	header->osVersion1=read_16ubit(file);
 	header->osVersion2=read_16ubit(file);
 	for (i=0;i<16;i++)
-	 	header->classId[i] = getc(file);
+	 	header->classId[i] = read_8ubit(file);
 	header->cSections=read_32ubit(file);
 	}
 
-void wvGetFIDAndOffset(FIDAndOffset *fid,FILE *file)
+void wvGetFIDAndOffset(FIDAndOffset *fid,wvStream *file)
 	{
 	int i;
 	for (i=0;i<4;i++)
@@ -45,11 +45,11 @@ void wvReleaseSummaryInfo(SummaryInfo *si)
 		free(si->data);
 	}
 
-void wvGetSummaryInfo(SummaryInfo *si,FILE *file,U32 offset)
+void wvGetSummaryInfo(SummaryInfo *si,wvStream *file,U32 offset)
 	{
-	int i;
+	U32 i;
 
-	fseek(file,offset,SEEK_SET);
+	wvStream_offset(file,offset);
 
 	si->cBytes = read_32ubit(file);
 	si->cProps = read_32ubit(file);
@@ -71,8 +71,51 @@ void wvGetSummaryInfo(SummaryInfo *si,FILE *file,U32 offset)
 		{
 		si->data = (U8 *)malloc(si->cBytes - 8*si->cProps);
 		for (i=0;i<si->cBytes - 8*si->cProps;i++)
-			si->data[i] = getc(file);
+			si->data[i] = read_8ubit(file);
 		}
+	}
+
+/* 
+0 is success
+1 is failure
+-1 is wmf files, cannot be converted
+*/
+int wvSumInfoForceString(char *lpStr, U16 cbStr, U32 pid, SummaryInfo *si)
+	{
+	int len;
+	PropValue Prop;
+	U16 yr, mon, day, hr, min, sec;
+
+	if (1 == wvGetProperty(&Prop, si, pid))
+		return(1);
+
+    if (Prop.vtType == VT_I4) 
+		sprintf(lpStr,"%d",Prop.vtValue.vtLong);
+	else if (Prop.vtType == VT_LPSTR)
+		{
+		len = (int) Prop.vtValue.vtBSTR.cBytes;
+		if (len > cbStr) 
+			len = cbStr;
+		if (len <= 0) 
+			*(lpStr) = '\0';
+		else 
+			{
+			strncpy(lpStr, Prop.vtValue.vtBSTR.ch, len);
+			*(lpStr + len - 1) = '\0'; /* len includes terminating null*/
+			}
+		}
+	else if (Prop.vtType == VT_FILETIME)
+		{
+		wvSumInfoGetTime(&yr, &mon, &day, &hr, &min, &sec, pid, si);
+		sprintf(lpStr,"%d/%d/%d %d:%d:%d",day,mon,yr,hr,min,sec);
+		}
+	else
+		{
+		strcpy(lpStr,"Cannot be made into a str\n");
+		return(-1);
+		}
+	wvReleaseProperty(&Prop);
+    return(0);
 	}
 
 int wvSumInfoGetString(char *lpStr, U16 cbStr, U32 pid, SummaryInfo *si)
@@ -268,7 +311,7 @@ int wvGetProperty(PropValue *Prop, SummaryInfo *si, U32 pid)
 						Prop->vtValue.vtBSTR.ch=NULL;
 						break;
 						}
-					Prop->vtValue.vtBSTR.ch = (U8 *)malloc(Prop->vtValue.vtBSTR.cBytes);
+					Prop->vtValue.vtBSTR.ch = (char *)malloc(Prop->vtValue.vtBSTR.cBytes);
 					for (j=0;j<Prop->vtValue.vtBSTR.cBytes;j++)
 						Prop->vtValue.vtBSTR.ch[j] = *t++;
 					break;
@@ -288,22 +331,18 @@ int wvGetProperty(PropValue *Prop, SummaryInfo *si, U32 pid)
     return(1);
 }
 
-int wvSumInfoOpenStream(SummaryInfo *si,FILE *stream)
+int wvSumInfoOpenStream(SummaryInfo *si,wvStream *stream)
     {
     PropHeader header;
     FIDAndOffset fid;
-    int i;
+    U32 i;
    
     wvGetPropHeader(&header,stream);
     if (header.byteOrder != 0xFFFE)
-        {
         return(1);
-        }
 
     if (header.wFormat != 0)
-        {
         return(1);
-        }
 
     for (i = 0; i < header.cSections; i++)
         {
@@ -313,12 +352,19 @@ int wvSumInfoOpenStream(SummaryInfo *si,FILE *stream)
             fid.dwords[2] == 0X000891AB &&
             fid.dwords[3] == 0XD9B3272B) break;
         }
-
+#ifdef DEBUG
     if (i >= header.cSections)
-        {
-        return(1);
-        }
-
+		wvTrace(("possible problem\n"));
+#endif
     wvGetSummaryInfo(si,stream,fid.dwOffset);
     return(0);
     }
+
+int wvOLESummaryStream(char *filename,wvStream **summary)
+	{
+	int ret;
+	wvStream *mainfd,*tablefd0,*tablefd1,*data;
+    ret = wvOLEDecode(filename,&mainfd,&tablefd0,&tablefd1,&data,summary);
+    return(ret);
+	}
+

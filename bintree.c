@@ -48,10 +48,12 @@ Node *InsertNode(BintreeInfo *tree,void *Data) {
 
     /* insert X in tree */
     if(Parent)
-        if(tree->CompLT(Data, Parent->Data))
+		{
+        if (tree->CompLT(Data, Parent->Data))
             Parent->Left = X;
         else
             Parent->Right = X;
+		}
     else
         tree->Root = X;
 
@@ -88,12 +90,15 @@ void DeleteNode(BintreeInfo *tree,Node *Z)
         X = Y->Right;
 
     /* remove Y from the parent chain */
-    if (X) X->Parent = Y->Parent;
+    if (X) 
+		X->Parent = Y->Parent;
     if (Y->Parent)
+		{
         if (Y == Y->Parent->Left)
             Y->Parent->Left = X;
         else
             Y->Parent->Right = X;
+		}
     else
         tree->Root = X;
 
@@ -107,10 +112,12 @@ void DeleteNode(BintreeInfo *tree,Node *Z)
         if (Y->Right) Y->Right->Parent = Y;
         Y->Parent = Z->Parent;
         if (Z->Parent)
+			{
             if (Z == Z->Parent->Left)
                 Z->Parent->Left = Y;
             else
                 Z->Parent->Right = Y;
+			}
         else
             tree->Root = Y;
         free (Z);

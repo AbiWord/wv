@@ -1,14 +1,52 @@
 EXEEXT = @EXEEXT@
+OBJEXT = @OBJEXT@
 
 LDFLAGS = @LDFLAGS@
 
 #Some Users might have problems with linking against -lz, this is because there is probably an
 #old version of it hanging around in the X dirs, you can add -L/usr/lib to the begging of there 
 #options to fix it.
-#LIBS = -L/usr/lib  @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ -lX11 @X_EXTRA_LIBS@ -lm
-LIBS =  @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ -lX11 @X_EXTRA_LIBS@ -lm
+#LIBS = -L/usr/lib @MAGICK_LIBS@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ -lm
+LIBS =  @MAGICK_LIBS@ @LIB_PNG@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ -lm
 
 GETOPT = @LIBOBJS@
+
+ICONV = @ICONV@
+RICONVOBJS = \
+iconv/codepage-874.$(OBJEXT)    \
+iconv/codepage-1250.$(OBJEXT)   \
+iconv/codepage-1251.$(OBJEXT)   \
+iconv/codepage-1254.$(OBJEXT)   \
+iconv/codepage-1257.$(OBJEXT)   \
+iconv/codepage-1252.$(OBJEXT)   \
+iconv/codepage-1255.$(OBJEXT)   \
+iconv/codepage-1253.$(OBJEXT)   \
+iconv/codepage-1256.$(OBJEXT)   \
+iconv/koi8-r.$(OBJEXT)          \
+iconv/iso-8859-15.$(OBJEXT)     \
+iconv/tis-620.$(OBJEXT)         \
+iconv/utf-8.$(OBJEXT)           \
+iconv/iconv.$(OBJEXT)
+ICONVOBJS =  @ICONVOBJS@
+
+MAGICK = @MAGICK@
+RMAGICKOBJS = \
+magick/magick.$(OBJEXT) \
+magick/image.$(OBJEXT) \
+magick/blob.$(OBJEXT) \
+magick/colors.$(OBJEXT) \
+magick/error.$(OBJEXT) \
+magick/transform.$(OBJEXT) \
+magick/compress.$(OBJEXT) \
+magick/memory.$(OBJEXT) \
+magick/utility.$(OBJEXT) \
+magick/png.$(OBJEXT) \
+magick/bmp.$(OBJEXT) \
+magick/signature.$(OBJEXT)
+MAGICKOBJS =  @MAGICKOBJS@
+
+#abi's picky warning checks
+#CC = @CC@ -Wall -W -ansi -pedantic
 
 CC = @CC@
 
@@ -27,132 +65,177 @@ INSTALL_DATA = @INSTALL_DATA@
 
 @SET_MAKE@
 
-prefix = @prefix@
-exec_prefix = @exec_prefix@
-srcdir = @srcdir@
-bindir = @bindir@
-libdir = @libdir@
-mandir = @mandir@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+srcdir=@srcdir@
+bindir=@bindir@
+libdir=@libdir@
+mandir=@mandir@
 includedir = @includedir@
 PERL = @PERL@
 
-CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -Iexpat/xmlparse -Ioledecod -I. @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/mswordview/ttf\" -DCONFIGFILE=\"$(libdir)/mswordview/config-mswordview\" -DPATTERNDIR=\"file:$(libdir)/mswordview/patterns\" -DSYMBOLFONTDIR=\"file:$(libdir)/mswordview/symbolfont\" -DWINGDINGFONTDIR=\"file:$(libdir)/mswordview/wingdingfont\"
+VPATH = @srcdir@
+
+CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I. -I./ -I$(srcdir)/ -I$(srcdir)/getopt-wv/ -I$(srcdir)/iconv/ -I$(srcdir)/magick/ -I$(srcdir)/expat/xmlparse/ @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DXMLCONFIG=\"$(libdir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(libdir)/wv/wvHtml.xml\" 
+
+CFLAGS += \
+	-I$(srcdir)/libole2/ \
+	-I$(srcdir)/glib-wv/ \
+	-I$(srcdir)/oledecod/ 
+	
 
 MKINSTALLDIRS = $(srcdir)/mkinstalldirs
 
 SHELL = /bin/sh
 
-.SUFFIXES: .C .o
+.SUFFIXES: .C .$(OBJEXT)
 
 MYOBJECTS =	\
-	mswordview.o \
-	laolareplace.old.o \
-	support.o \
-	list.o \
-	piecetable.o \
-	stylesheet.o \
-	sprm.o \
-	blip.o \
-	utf.o \
-	init_chp.o \
-	field.o \
-	formatting.o \
-	references.o \
-	gpprl.o \
-	papchpsep.o \
-	hyperlink.o \
-	decompresswmf.o \
-	table.o \
-	annotations.o \
-	dop.o \
-	roman.o \
-	doc_limits.o \
-	fib.o \
-	frd.o \
-	atrd.o \
-	sed.o \
-	font.o \
-	ffn.o \
-	fld.o \
-	bkf.o \
-	dttm.o \
-	generic.o \
-	error.o \
-	unicode.o \
-	sttbf.o \
-	xst.o \
-	fspa.o \
-	lst.o \
-	lvl.o \
-	lfo.o \
-	nfc.o \
-	ordinal.o \
-	summary.o \
-	filetime.o \
-	chp.o \
-	brc.o \
-	anld.o \
-	shd.o \
-	dcs.o \
-	numrm.o \
-	asumyi.o \
-	version.o \
-	lex.yy.o \
-	lspd.o \
-	phe.o \
-	tlp.o \
-	tc.o \
-	tap.o \
-	pap.o \
-	bintree.o \
-	decode_simple.o \
-	pcd.o \
-	prm.o \
-	clx.o \
-	bte.o \
-	bx.o \
-	fkp.o \
-	codepage-1252.o \
-	iso-5589-15.o \
-	text.o \
-	decode_complex.o \
-	wvTextEngine.o \
-	wvHtmlEngine.o \
-	wvConfig.o \
-	wvparse.o \
-	reasons.o
+	support.$(OBJEXT) \
+	list.$(OBJEXT) \
+	piecetable.$(OBJEXT) \
+	stylesheet.$(OBJEXT) \
+	sprm.$(OBJEXT) \
+	blip.$(OBJEXT) \
+	utf.$(OBJEXT) \
+	field.$(OBJEXT) \
+	references.$(OBJEXT) \
+	gpprl.$(OBJEXT) \
+	papchpsep.$(OBJEXT) \
+	hyperlink.$(OBJEXT) \
+	decompresswmf.$(OBJEXT) \
+	annotations.$(OBJEXT) \
+	dop.$(OBJEXT) \
+	roman.$(OBJEXT) \
+	fib.$(OBJEXT) \
+	frd.$(OBJEXT) \
+	atrd.$(OBJEXT) \
+	sed.$(OBJEXT) \
+	font.$(OBJEXT) \
+	ffn.$(OBJEXT) \
+	fld.$(OBJEXT) \
+	bkf.$(OBJEXT) \
+	dttm.$(OBJEXT) \
+	generic.$(OBJEXT) \
+	error.$(OBJEXT) \
+	unicode.$(OBJEXT) \
+	sttbf.$(OBJEXT) \
+	xst.$(OBJEXT) \
+	fspa.$(OBJEXT) \
+	fdoa.$(OBJEXT) \
+	lst.$(OBJEXT) \
+	lvl.$(OBJEXT) \
+	lfo.$(OBJEXT) \
+	nfc.$(OBJEXT) \
+	ordinal.$(OBJEXT) \
+	summary.$(OBJEXT) \
+	filetime.$(OBJEXT) \
+	chp.$(OBJEXT) \
+	brc.$(OBJEXT) \
+	anld.$(OBJEXT) \
+	shd.$(OBJEXT) \
+	dcs.$(OBJEXT) \
+	numrm.$(OBJEXT) \
+	asumyi.$(OBJEXT) \
+	version.$(OBJEXT) \
+	lspd.$(OBJEXT) \
+	phe.$(OBJEXT) \
+	tlp.$(OBJEXT) \
+	tc.$(OBJEXT) \
+	tap.$(OBJEXT) \
+	pap.$(OBJEXT) \
+	bintree.$(OBJEXT) \
+	decode_simple.$(OBJEXT) \
+	pcd.$(OBJEXT) \
+	prm.$(OBJEXT) \
+	clx.$(OBJEXT) \
+	bte.$(OBJEXT) \
+	bx.$(OBJEXT) \
+	fkp.$(OBJEXT) \
+	text.$(OBJEXT) \
+	decode_complex.$(OBJEXT) \
+	wvTextEngine.$(OBJEXT) \
+	wvHtmlEngine.$(OBJEXT) \
+	wvConfig.$(OBJEXT) \
+	wvparse.$(OBJEXT) \
+	reasons.$(OBJEXT) \
+	sep.$(OBJEXT) \
+	anlv.$(OBJEXT) \
+	olst.$(OBJEXT) \
+	asumy.$(OBJEXT) \
+	bkd.$(OBJEXT) \
+	bkl.$(OBJEXT) \
+	dogrid.$(OBJEXT) \
+	doptypography.$(OBJEXT) \
+	pgd.$(OBJEXT) \
+	rs.$(OBJEXT) \
+	rr.$(OBJEXT) \
+	tbd.$(OBJEXT) \
+	ftxbxs.$(OBJEXT) \
+	wkb.$(OBJEXT) \
+	graphics.$(OBJEXT) \
+	picf.$(OBJEXT) \
+	crc32.$(OBJEXT) \
+	md5.$(OBJEXT) \
+	rc4.$(OBJEXT) \
+	decrypt97.$(OBJEXT) \
+	decrypt95.$(OBJEXT) \
+	twips.$(OBJEXT) \
+	table.$(OBJEXT) \
+	symbol.$(OBJEXT) \
+	fopt.$(OBJEXT) \
+	fbse.$(OBJEXT) \
+	escher.$(OBJEXT) \
+	bmptopng.$(OBJEXT) \
+	basename.$(OBJEXT) \
+	laolareplace.$(OBJEXT) 
+	
+OLE = \
+	libole2/ms-ole.$(OBJEXT) \
+	glib-wv/garray.$(OBJEXT) \
+	glib-wv/gmem.$(OBJEXT) \
+	glib-wv/gslist.$(OBJEXT) \
+	glib-wv/gtree.$(OBJEXT) \
+	glib-wv/glist.$(OBJEXT) \
+	glib-wv/gmessages.$(OBJEXT) \
+	glib-wv/gstrfuncs.$(OBJEXT) \
+	oledecod/oledecod.$(OBJEXT)
+	
+
+#XML = -Lexpat/lib -lxmlparse -lxmltok
+XML = 	expat/xmlparse/xmlparse.$(OBJEXT) \
+    	expat/xmlparse/hashtable.$(OBJEXT) \
+		expat/xmltok/xmltok.$(OBJEXT) \
+    	expat/xmltok/xmlrole.$(OBJEXT)
 
 
-XML = -Lexpat/lib -lxmlparse -lxmltok
+all: wvSummary$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSimpleCLX$(EXEEXT) wvVersion$(EXEEXT) wv-libconfig wv-incconfig
 
-OLE = oledecod/oledecod.o
+wvSummary$(EXEEXT): wvSummary.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a 
+	$(CC)  -o $@ wvSummary.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-CRYPT = crypt/rc4.o crypt/md5.o
+wvSimpleCLX$(EXEEXT): wvSimpleCLX.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
+	$(CC)  -o $@ wvSimpleCLX.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-all: mswordview$(EXEEXT) wvSummary$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSimpleCLX$(EXEEXT) wv-libconfig wv-incconfig
+wvVersion$(EXEEXT): wvVersion.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
+	$(CC)  -o $@ wvVersion.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-mswordview$(EXEEXT):  main.o $(GETOPT) OLEDECODE XMLPARSER libwv.a
-	 $(CC)  -o $@ main.o $(GETOPT) -L. -lwv $(OLE) $(LIBS) $(XML) $(LDFLAGS)
-
-wvSummary$(EXEEXT): wvSummary.o $(GETOPT) OLEDECODE XMLPARSER libwv.a
-	 $(CC)  -o $@ wvSummary.o $(GETOPT) -L. -lwv $(OLE) $(LIBS) $(XML) $(LDFLAGS)
-
-wvSimpleCLX$(EXEEXT): wvSimpleCLX.o $(GETOPT) OLEDECODE XMLPARSER libwv.a
-	 $(CC)  -o $@ wvSimpleCLX.o $(GETOPT) -L. -lwv $(OLE) $(LIBS) $(XML) $(LDFLAGS)
-
-wvConvert$(EXEEXT): wvConvert.o $(GETOPT) OLEDECODE XMLPARSER libwv.a
-	 $(CC)  -o $@ wvConvert.o $(GETOPT) -L. -lwv $(OLE) $(LIBS) $(XML) $(LDFLAGS)
+wvConvert$(EXEEXT): wvConvert.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
+	$(CC)  -o $@ wvConvert.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wvText$(EXEEXT): wvConvert$(EXEEXT)
-	 $(LN) -s wvConvert$(EXEEXT) wvText$(EXEEXT)
+	$(LN) -s wvConvert$(EXEEXT) wvText$(EXEEXT)
 
-wvHtml$(EXEEXT): wvHtml.o $(GETOPT) OLEDECODE XMLPARSER libwv.a
-	 $(CC)  -o $@ wvHtml.o $(GETOPT) -L. -lwv $(OLE) $(LIBS) $(XML) $(LDFLAGS)
+wvHtml$(EXEEXT): wvHtml.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
+	$(CC)  -o $@ wvHtml.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+
+wvGraphicConvert$(EXEEXT): wvGraphicConvert.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
+	$(CC)  -o $@ wvGraphicConvert.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wv-libconfig: Makefile
 	rm -f wv-libconfig
 	echo \#\!/bin/sh > wv-libconfig
-	echo echo -L $(libdir) -lwv $(LIBS) $(LDFLAGS) >> wv-libconfig
+	echo echo -L$(libdir) -lwv $(LIBS) $(LDFLAGS) >> wv-libconfig
 
 wv-incconfig: Makefile
 	rm -f wv-incconfig
@@ -162,95 +245,118 @@ wv-incconfig: Makefile
 lex.yy.c: parser.lex
 	$(LEX) parser.lex
 
-testparse$(EXEEXT):  testparse.o $(GETOPT) OLEDECODE libwv.a
-	 $(CC)  -o $@ testparse.o $(GETOPT) -L. -lwv $(OLE) $(LIBS)  $(LDFLAGS)
+testparse$(EXEEXT):  testparse.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
+	$(CC)  -o $@ testparse.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS)  $(LDFLAGS)
 
-error.o: error.c Makefile
-	$(CC) $(CFLAGS) -c $*.c 
+error.$(OBJEXT): $(srcdir)/error.c Makefile
+	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
-laolareplace.o: laolareplace.c 
-	$(CC) $(CFLAGS) -c $*.c 
+laolareplace.$(OBJEXT): $(srcdir)/laolareplace.c 
+	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
-libwv.a:	$(MYOBJECTS)
-	$(AR) rc $@ $(MYOBJECTS) 
+libwv.a:	$(MYOBJECTS) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE LIBOLE2
+	$(AR) rc $@ $(MYOBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE)
 	$(RANLIB) $@
+
+ICONV:
+	@echo making iconv in iconv
+	@(cd iconv && $(MAKE)) || exit 1
+
+MAGICK:
+	@echo making magick in magick  
+	@(cd magick && $(MAKE)) || exit 1
+
 
 OLEDECODE:
 	@echo making oledecod in oledecod
 	@(cd oledecod && $(MAKE)) || exit 1
 
+
 XMLPARSER:
 	@echo making expat in expat
 	@(cd expat && $(MAKE)) || exit 1
 
-CRYPTCODE:
-	@echo making rc4 in crypt
-	@(cd crypt && $(MAKE)) || exit 1
+LIBOLE2:	GLIB-WV
+	@echo making libole2 in libole2
+	@(cd libole2 && $(MAKE)) || exit 1
+	
+GLIB-WV:
+	@echo making glib-wv in glib-wv
+	@(cd glib-wv && $(MAKE)) || exit 1
 
-
-%.o: %.c 
-	$(CC) $(CFLAGS) -c $*.c -o $*.o
+%.$(OBJEXT): $(srcdir)/%.c 
+	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
 cleansub:
 	@echo cleaning oledecod in oledecod
 	@(cd oledecod && $(MAKE) clean) || exit 1
 	@echo cleaning expat in expat
 	@(cd expat && $(MAKE) clean) || exit 1
-	@echo cleaning crypt in crypt
-	@(cd crypt && $(MAKE) clean) || exit 1
-
+	@echo cleaning iconv in iconv 
+	@(cd iconv && $(MAKE) clean) || exit 1
+	@echo cleaning magick in magick
+	@(cd magick && $(MAKE) clean) || exit 1
+	@echo cleaning libole2 in libole2
+	@(cd libole2 && $(MAKE) clean) || exit 1
+	@echo cleaning glib-wv in glib-wv
+	@(cd glib-wv && $(MAKE) clean) || exit 1
+	
 clean: cleansub
-	rm -rf *.o $(GETOPT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) mswordview$(EXEEXT) wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) core a.out *.a
+	rm -rf *.$(OBJEXT) $(GETOPT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) core a.$(OBJEXT)ut *.a
 
 distclean: realcleansub
-	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.o wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) mswordview$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) core out* analyze/* .pure
+	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.$(OBJEXT) wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvSimpleCLX$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvGraphicConvert$(EXEEXT) core out* analyze/* .pure lex.yy.c libtool
 
 realclean: distclean
-	rm -rf lex.yy.c
 
 realcleansub:
 	@echo real cleaning oledecod in oledecod
 	@(cd oledecod && $(MAKE) realclean) || exit 1
 	@echo real cleaning expat in expat
 	@(cd expat && $(MAKE) realclean) || exit 1
-	@echo real cleaning crypt in crypt
-	@(cd crypt && $(MAKE) realclean) || exit 1
+	@echo real cleaning iconv in iconv 
+	@(cd iconv && $(MAKE) realclean) || exit 1
+	@echo real cleaning magick in magick
+	@(cd magick && $(MAKE) realclean) || exit 1
+	@echo real cleaning libole2 in libole2
+	@(cd libole2 && $(MAKE) realclean) || exit 1
+	@echo real cleaning gilb-wv in glib-wv
+	@(cd glib-wv && $(MAKE) realclean) || exit 1
 
 installdirs:
 	$(MKINSTALLDIRS) $(bindir) \
 	$(mandir) \
 	$(mandir)/man1 \
 	$(libdir) \
-	$(libdir)/mswordview \
-	$(libdir)/mswordview/symbolfont \
-	$(libdir)/mswordview/wingdingfont \
-	$(libdir)/mswordview/patterns \
-	$(libdir)/mswordview/ttf
+	$(libdir)/wv\
+	$(libdir)/wv/wingdingfont \
+	$(libdir)/wv/patterns \
+	$(libdir)/wv/ttf \
+	$(includedir)
 	
 
-install: installdirs $(srcdir)/mswordview$(EXEEXT)
-	$(INSTALL) $(srcdir)/mswordview$(EXEEXT) $(bindir)/mswordview$(EXEEXT)
+install: installdirs all
 	$(INSTALL) $(srcdir)/wvSummary$(EXEEXT) $(bindir)/wvSummary$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvSimpleCLX$(EXEEXT) $(bindir)/wvSimpleCLX$(EXEEXT)
+	$(INSTALL) $(srcdir)/wvVersion$(EXEEXT) $(bindir)/wvVersion$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvConvert$(EXEEXT) $(bindir)/wvConvert$(EXEEXT)
-	$(RM) $(bindir)/wvText$(EXEEXT)
+	$(RM) -f $(bindir)/wvText$(EXEEXT)
 	$(LN) -s $(bindir)/wvConvert$(EXEEXT) $(bindir)/wvText$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvHtml$(EXEEXT) $(bindir)/wvHtml$(EXEEXT)
 	$(INSTALL) $(srcdir)/wv-libconfig $(bindir)/wv-libconfig
 	$(INSTALL) $(srcdir)/wv-incconfig $(bindir)/wv-incconfig
-	$(INSTALL_DATA) $(srcdir)/mswordview.1 $(mandir)/man1/
-	$(INSTALL_DATA) $(srcdir)/config-mswordview $(libdir)/mswordview/config-mswordview
-	for filename in symbolfont/*.gif; do \
-		$(INSTALL_DATA) $$filename $(libdir)/mswordview/symbolfont; \
-	done
+	$(INSTALL_DATA) $(srcdir)/wvHtml.1 $(mandir)/man1/
+	$(INSTALL_DATA) wv.h $(includedir)/wv.h
+	$(INSTALL_DATA) $(srcdir)/libwv.a $(libdir)/libwv.a
+	$(INSTALL_DATA) $(srcdir)/wvHtml.xml $(libdir)/wv/wvHtml.xml
+	$(INSTALL_DATA) $(srcdir)/wvConfig.xml $(libdir)/wv/wvConfig.xml
 	for filename in wingdingfont/*.gif; do \
-		$(INSTALL_DATA) $$filename $(libdir)/mswordview/wingdingfont; \
+		$(INSTALL_DATA) $$filename $(libdir)/wv/wingdingfont; \
 	done
 	for filename in patterns/*.gif patterns/*.jpg; do \
-		$(INSTALL_DATA) $$filename $(libdir)/mswordview/patterns; \
+		$(INSTALL_DATA) $$filename $(libdir)/wv/patterns; \
 	done
-	$(INSTALL_DATA) mswordview.h $(includedir)/wv.h
-	$(INSTALL_DATA) $(srcdir)/libwv.a $(libdir)/libwv.a
+
 
 
 #  DO  NOT  DELETE THIS LINE -- make depend depends on it.

@@ -1,23 +1,26 @@
 <main>
 
 <document>
-<begin>
-&lt;awml&gt;
-&lt;section&gt;
+<begin>&lt;awml&gt;
 </begin>
 <end>
-&lt;/section&gt;
 &lt;/awml&gt;
 </end>
 </document>
+
+<section>
+<begin>
+&lt;section&gt;</begin>
+<end>&lt;/section&gt;</end>
+</section>
 
 <justification>
 <left>left</left>
 <right>right</right>
 <center>center</center>
 <block>justify</block>
+<asian>&lt;!--Could Someone who sees this tag tell me what was is this type of justification, asian languages only i thing--&gt;</asian>
 </justification>
-
 
 <paragraph>
 <begin>

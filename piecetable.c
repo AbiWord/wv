@@ -2,12 +2,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "config.h"
 #include "wv.h"
 
 extern FILE *erroroutput;
 
-int get_piecetable(FILE *in,U32 **rgfc,U32 **avalrgfc,U16 **sprm,U32 *clxcount)
+int get_piecetable(wvStream *in,U32 **rgfc,U32 **avalrgfc,U16 **sprm,U32 *clxcount)
 	{
 	U32 lcb;
 	int nopieces=0;
@@ -71,7 +70,7 @@ flag_8_16 is modified to be 1 if the piece that querycp is in is one
 	(the usual). 
 the index of the piece that querycp belongs to is returned.
 */
-int query_piece_cp(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U32 *nextpiececp,int *flag_8_16)
+int query_piece_cp(U32 *rgfc,U32* avalrgfc,int nopieces,U32 querycp,U32 *nextpiececp,int *flag_8_16)
 	{
 	int i=0;
 
@@ -96,7 +95,7 @@ int query_piece_cp(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U32 *ne
 does the same as query_piece_cp, only it seeks fd to the beginning of the piece that
 querycp is in, and returns the position that we've seeked to.
 */
-int query_piece_cp_seek(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U32 *nextpiececp,int *flag_8_16,FILE *fd)
+int query_piece_cp_seek(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U32 *nextpiececp,int *flag_8_16,wvStream *fd)
 	{
 	int index = query_piece_cp(rgfc,avalrgfc,nopieces,querycp,nextpiececp,flag_8_16);
 	int thisfc;
@@ -105,7 +104,7 @@ int query_piece_cp_seek(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U3
 		thisfc = (avalrgfc[index]&0xbfffffffUL)/2;
 	else
 		thisfc = avalrgfc[index];
-	fseek(fd,thisfc,SEEK_SET);
+	wvStream_goto(fd,thisfc);
 
 	return(thisfc);
 	}

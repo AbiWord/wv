@@ -12,9 +12,9 @@ extern int insuper;
 
 ATRD *key_atrd;
 
-void decode_annotation(textportions *portions, FILE *main)
+void decode_annotation(textportions *portions)
 	{
-	int i,j;
+	U32 i,j,val;
 	/*
 	search in the first thing for the cp of this
 	reference.
@@ -22,23 +22,25 @@ void decode_annotation(textportions *portions, FILE *main)
 	i=0;
 	while(i<portions->andref_no)
 		{
-		if (portions->andRef[i] == cp)
+		if (portions->andRef[i] == (U32)cp)
 			{
 			error(erroroutput,"found correct anno ref pos at %x, index was %d\n",portions->andRef[i],i);
 			if (!insuper)
 				fprintf(outputfile,"<sup>");
 			fprintf(outputfile,"<a href=\"#");
 			j = portions->the_atrd[i].xstUsrInitl[0];
-			for (j=1;j<portions->the_atrd[i].xstUsrInitl[0]+1;j++)
+			val = portions->the_atrd[i].xstUsrInitl[0]+1;
+			for (j=1;j<val;j++)
                     {
                     /*warning despite the possibility of being 16 bit nos ive done this*/
                     fprintf(outputfile,"%c",portions->the_atrd[i].xstUsrInitl[j]);
                     }
 			fprintf(outputfile,"%d\">[",i);
 			j = portions->the_atrd[i].xstUsrInitl[0];
+			val = portions->the_atrd[i].xstUsrInitl[0]+1;
 			key_atrd[portions->the_atrd[i].ibst].xstUsrInitl[0] = j;
 			key_atrd[portions->the_atrd[i].ibst].ibst = portions->the_atrd[i].ibst;
-			for (j=1;j<portions->the_atrd[i].xstUsrInitl[0]+1;j++)
+			for (j=1;j<val;j++)
                     {
                     /*warning despite the possibility of being 16 bit nos ive done this*/
                     fprintf(outputfile,"%c",portions->the_atrd[i].xstUsrInitl[j]);
@@ -65,7 +67,7 @@ void decode_annotation(textportions *portions, FILE *main)
 	}
 
 #if 0
-Xst *extract_authors(FILE *tablefd,U32 fcGrpXstAtnOwners,U32 lcbGrpXstAtnOwners)
+Xst *extract_authors(wvStream *tablefd,U32 fcGrpXstAtnOwners,U32 lcbGrpXstAtnOwners)
 	{
 	U16 len,i;
 	U32 count=0;
@@ -131,12 +133,12 @@ Xst *extract_authors(FILE *tablefd,U32 fcGrpXstAtnOwners,U32 lcbGrpXstAtnOwners)
 
 /*this finds the beginning of a annotation given a particular cp, adds
 the beginning tag and returns the next annotation cp*/
-U32 decode_b_annotation(bookmark_limits *l_bookmarks, STTBF *bookmarks)
+U32 decode_b_annotation(bookmark_limits *l_bookmarks)
 	{
-	int i=0;
+	U32 i=0;
 	while (i<l_bookmarks->bookmark_b_no)
 		{
-		if (l_bookmarks->bookmark_b_cps[i] == realcp)
+		if (l_bookmarks->bookmark_b_cps[i] == (U32)realcp)
 			{
 			l_bookmarks->bookmark_b_cps[i] = 0xffff;		/*mark it off the list*/
 			fprintf(outputfile,"<a name=\"#an");
@@ -148,7 +150,7 @@ U32 decode_b_annotation(bookmark_limits *l_bookmarks, STTBF *bookmarks)
 			fprintf(outputfile,"\">");
 			fprintf(outputfile,"<img src=\"%s/doccommentb.jpg\">",patterndir());
 			if (i == l_bookmarks->bookmark_b_no-1)
-				return(-1);
+				return(0xffffffffL);
 			else
 				return(l_bookmarks->bookmark_b_cps[i+1]);
 			}
@@ -158,7 +160,7 @@ U32 decode_b_annotation(bookmark_limits *l_bookmarks, STTBF *bookmarks)
 	i=0;
 	while (i<l_bookmarks->bookmark_b_no)
 		{
-		if ( (l_bookmarks->bookmark_b_cps[i] != 0xffff) && (l_bookmarks->bookmark_b_cps[i] > realcp))
+		if ( (l_bookmarks->bookmark_b_cps[i] != 0xffff) && (l_bookmarks->bookmark_b_cps[i] > (U32)realcp))
 			return(l_bookmarks->bookmark_b_cps[i]);
 		i++;
 		}
@@ -166,22 +168,22 @@ U32 decode_b_annotation(bookmark_limits *l_bookmarks, STTBF *bookmarks)
 	if ((l_bookmarks->bookmark_b_no) > 0)
 		return(l_bookmarks->bookmark_b_cps[0]);
 		
-	return(-1);
+	return(0xffffffffL);
 	}
 
 U32 decode_e_annotation(bookmark_limits *l_bookmarks)
 	{
-	int i=0;
+	U32 i=0;
 	
 	while (i<l_bookmarks->bookmark_e_no)
 		{
-		if (l_bookmarks->bookmark_e_cps[i] == realcp)
+		if (l_bookmarks->bookmark_e_cps[i] == (U32)realcp)
 			{
 			l_bookmarks->bookmark_e_cps[i] = 0xffff;		/*mark it off the list*/
 			fprintf(outputfile,"</A>");
 			fprintf(outputfile,"<img src=\"%s/doccommente.jpg\">",patterndir());
 			if (i == l_bookmarks->bookmark_e_no-1)
-				return(-1);
+				return(0xffffffffL);
 			else
 				return(l_bookmarks->bookmark_e_cps[i+1]);
 			}
@@ -191,7 +193,7 @@ U32 decode_e_annotation(bookmark_limits *l_bookmarks)
 	i=0;
 	while (i<l_bookmarks->bookmark_e_no)
 		{
-		if ((l_bookmarks->bookmark_e_cps[i] != 0xffff) && (l_bookmarks->bookmark_e_cps[i] > realcp))
+		if ((l_bookmarks->bookmark_e_cps[i] != 0xffff) && (l_bookmarks->bookmark_e_cps[i] > (U32)realcp))
 			return(l_bookmarks->bookmark_e_cps[i]);
 		i++;
 		}
@@ -199,5 +201,5 @@ U32 decode_e_annotation(bookmark_limits *l_bookmarks)
 	if ((l_bookmarks->bookmark_e_no) > 0)
 		return(l_bookmarks->bookmark_e_cps[0]);
 		
-	return(-1);
+	return(0xffffffffL);
 	}

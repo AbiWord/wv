@@ -1,0 +1,31 @@
+CC = @CC@
+OBJEXT = @OBJEXT@
+
+LEX = @LEX@
+
+SHELL=/bin/sh
+
+@SET_MAKE@
+
+srcdir=@srcdir@
+
+CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/.. -I$(srcdir)/../glib-wv/
+
+SHELL = /bin/sh
+
+.SUFFIXES: .C .$(OBJEXT)
+
+MYOBJECTS =  ms-ole.$(OBJEXT)
+
+all: $(MYOBJECTS) 
+
+ms-ole.$(OBJEXT): $(srcdir)/ms-ole.c 
+	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
+
+clean:	
+	rm -rf $(MYOBJECTS) core 
+
+realclean:  
+	rm -rf config.cache config.status config.log Makefile *.$(OBJEXT) core demo
+
+#  DO  NOT  DELETE THIS LINE -- make depend depends on it.

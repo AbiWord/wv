@@ -47,45 +47,6 @@
 /* Define if you have freetype*/
 #undef HAVE_TTF
 
-#if defined(HAVE_SYS_WAIT_H)
-#include <sys/wait.h>
-#endif
-
-
-#if defined (ultrix) && defined (mips) && defined (_POSIX_VERSION)
-#  define WAITPID(pid, statusp, options) \
-wait3 ((union wait *)statusp, options, (struct rusage *)0)
-#else
-#  if defined (_POSIX_VERSION) || defined (HAVE_WAITPID)
-#    define WAITPID(pid, statusp, options) \
-waitpid ((pid_t)pid, statusp, options)
-#  else
-#    if defined (HAVE_WAIT3)
-#      define WAITPID(pid, statusp, options) \
-wait3 (statusp, options, (struct rusage *)0)
-#    else
-#      define WAITPID(pid, statusp, options) \
-wait3 (statusp, options, (int *)0)
-#    endif /* HAVE_WAIT3 */
-#  endif /* !_POSIX_VERSION && !HAVE_WAITPID*/
-#endif /* !(Ultrix && mips && _POSIX_VERSION) */
-
-
-/*signal things*/
-#include <signal.h>
-
-#if !defined (HAVE_POSIX_SIGNALS)
-#  define signal_handle(sig, handler) signal (sig, handler)
-#else
-extern void signal_handle();   /* in c code*/
-#if !defined (SA_RESTART)
-#  define SA_RESTART 0
-#endif
-#endif /* _POSIX_VERSION */
-
-typedef RETSIGTYPE SigHandler ();
-
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
@@ -100,8 +61,35 @@ typedef RETSIGTYPE SigHandler ();
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <limits.h>
-#include <dirent.h>
+/* #include <dirent.h> */
 #include <stdarg.h>
 
+/*
 #include <getopt.h>
+*/
 
+#undef MATCHED_TYPE
+#undef WORDS_BIGENDIAN
+#undef XML_BYTE_ORDER
+
+#if defined(__GNUC__) && !defined(WORDS_BIGENDIAN) && defined(MATCHED_TYPE)
+#define NO_HOLES
+#endif
+
+/* define if you have iconv */
+#undef USE_ICONV
+
+/* define if you have iconv but do not have windows codepage to unicode support */
+#undef MUST_USE_INTERNAL_ICONV_TABLE
+
+/* define if you have libpng */
+#undef HasPNG
+
+/* Define if you have the memcpy function.  */
+#undef HAVE_MEMCPY
+
+#ifndef HAVE_MEMCPY
+#define memcpy(d, s, n) bcopy ((s), (d), (n))
+#endif /* not HAVE_MEMCPY */
+
+#undef HAVE_MMAP

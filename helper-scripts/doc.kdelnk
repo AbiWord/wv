@@ -1,0 +1,10 @@
+# KDE Config File
+[KDE Desktop Entry]
+MimeType=text/doc
+Comment=Word Text Format
+Comment[de]=Format MSWORD Doc
+#DefaultApp=mswordview.sh
+DefaultApp=vwHtml
+Icon=txt.xpm
+Type=MimeType
+Patterns=*.doc;*.DOC;

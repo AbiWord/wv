@@ -1,43 +1,81 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "wv.h"
+#include "wvinternal.h"
 
-void wvGetBRC_internal(BRC *abrc,FILE *infd,U8 *pointer)
+void wvGetBRC_internal(BRC *abrc,wvStream *infd,U8 *pointer)
     {
     U8 temp8;
 
-    abrc->dptLineWidth = dgetc(infd,&pointer);
-    abrc->brcType = dgetc(infd,&pointer);
-    abrc->ico = dgetc(infd,&pointer);
-    temp8 = dgetc(infd,&pointer);
-
 #ifdef PURIFY
-    abrc->dptSpace = 0;
-    abrc->fShadow = 0;
-    abrc->fFrame = 0;
-    abrc->reserved = 0;
+	wvInitBRC(abrc);
 #endif
-   
+
+    abrc->dptLineWidth = dread_8ubit(infd,&pointer);
+    abrc->brcType = dread_8ubit(infd,&pointer);
+    abrc->ico = dread_8ubit(infd,&pointer);
+    temp8 = dread_8ubit(infd,&pointer);
     abrc->dptSpace = temp8 & 0x1f;
     abrc->fShadow = (temp8 & 0x20)>>5;
     abrc->fFrame = (temp8 & 0x40)>>6;
     abrc->reserved = (temp8 & 0x80)>>7;
     }
 
-void wvGetBRC(BRC *abrc,FILE *infd)
+void wvGetBRC(version ver,BRC *abrc,wvStream *infd)
     {
-	wvGetBRC_internal(abrc,infd,NULL);
+	if (ver == WORD8)
+		wvGetBRC_internal(abrc,infd,NULL);
+	else
+		wvGetBRC_internal6(abrc,infd,NULL);
     }
 
-void wvGetBRCFromBucket(BRC *abrc,U8 *pointer)
+void wvGetBRC_internal6(BRC *abrc,wvStream *infd,U8 *pointer)
     {
-	wvGetBRC_internal(abrc,NULL,pointer);
+    U16 temp16;
+
+#ifdef PURIFY
+    wvInitBRC(abrc);
+#endif
+
+    temp16 = dread_16ubit(infd,&pointer);
+
+    abrc->dptLineWidth = (temp16 & 0x0007);
+    abrc->brcType = (temp16 & 0x0018)>>3;
+    abrc->fShadow = (temp16 & 0x0020)>>5;
+    abrc->ico = (temp16 & 0x07C0)>>6;
+    abrc->dptSpace = (temp16 & 0xF800)>>11;
     }
 
-void wvGetBRC10_internal(BRC10 *item,FILE *infd,U8 *pointer)
+
+int wvGetBRCFromBucket(version ver,BRC *abrc,U8 *pointer)
+    {
+	if (ver == WORD8)
+		wvGetBRC_internal(abrc,NULL,pointer);
+	else
+		{
+		wvGetBRC_internal6(abrc,NULL,pointer);
+		return(cb6BRC);
+		}
+	return(cbBRC);
+    }
+
+void wvInitBRC10(BRC10 *item)
+	{
+	item->dxpLine2Width = 0;
+	item->dxpSpaceBetween = 0;
+	item->dxpLine1Width = 0;
+	item->dxpSpace = 0;
+	item->fShadow = 0;
+	item->fSpare = 0;
+	}
+
+void wvGetBRC10_internal(BRC10 *item,wvStream *infd,U8 *pointer)
     {
     U16 temp16;
 	temp16 = dread_16ubit(infd,&pointer);
+#ifdef PURIFY
+	wvInitBRC10(item);
+#endif
 	item->dxpLine2Width = (temp16 & 0x0007);
 	item->dxpSpaceBetween = (temp16 & 0x0038)>>3;
 	item->dxpLine1Width = (temp16 & 0x01C0)>>6;
@@ -46,9 +84,10 @@ void wvGetBRC10_internal(BRC10 *item,FILE *infd,U8 *pointer)
 	item->fSpare = (temp16 & 0x8000)>>15;
     }
 
-void wvGetBRC10FromBucket(BRC10 *abrc10,U8 *pointer)
+int wvGetBRC10FromBucket(BRC10 *abrc10,U8 *pointer)
     {
 	wvGetBRC10_internal(abrc10,NULL,pointer);
+	return(cbBRC10);
     }
 
 void wvInitBRC(BRC *abrc)
@@ -60,6 +99,19 @@ void wvInitBRC(BRC *abrc)
     abrc->fShadow = 0;
     abrc->fFrame = 0;
     abrc->reserved = 0;
+    }
+
+int wvEqualBRC(BRC *a,BRC *b)
+    {
+    if (a->dptLineWidth == b->dptLineWidth)
+    	if (a->brcType == b->brcType)
+			if (a->ico == b->ico)
+			    if (a->dptSpace == b->dptSpace)
+				    if (a->fShadow == b->fShadow)
+				    	if (a->fFrame == b->fFrame)
+					    	if (a->reserved == b->reserved)
+								return(1);
+	return(0);
     }
 
 void wvCopyBRC(BRC *dest, BRC *src)
@@ -123,4 +175,5 @@ void wvConvertBRC10ToBRC(BRC *item,BRC10 *in)
 	else
 		item->brcType=0;
 	}
+
 
