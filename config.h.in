@@ -49,8 +49,6 @@
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#else
-typedef ssize
 #endif
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
