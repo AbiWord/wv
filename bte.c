@@ -113,7 +113,7 @@ wvGetBTE_PLCF (BTE ** bte, U32 ** pos, U32 * nobte, U32 offset, U32 len,
 		wvError (
 			 ("NO MEM 1, failed to alloc %d bytes\n",
 			  *nobte * sizeof (BTE)));
-		wvFree (pos);
+		wvFree (*pos);
 		return (1);
 	    }
 	  wvStream_goto (fd, offset);

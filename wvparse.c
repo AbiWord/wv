@@ -7,16 +7,23 @@
 #include "utf.h"
 
 #ifdef HAVE_GNOMEVFS
+#include <libgnomevfs/gnome-vfs.h>
 #include "ms-ole-gnomevfs.h"
 #endif
 
-void
+int
 wvInit (void)
 {
 #ifdef HAVE_GNOMEVFS
-  ms_ole_init (ms_ole_get_gnomevfs_fs());
+  if (gnome_vfs_init ())
+    {
+      ms_ole_init (ms_ole_get_gnomevfs_fs());
+      return 1;
+    }
+  return 0;
 #else
   ms_ole_init (NULL);
+  return 1;
 #endif
 }
 

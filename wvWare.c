@@ -323,6 +323,7 @@ main (int argc, char **argv)
 	  return (-1);
       }
 
+#if 0
     input = fopen (argv[optind], "rb");
     if (!input)
       {
@@ -331,6 +332,7 @@ main (int argc, char **argv)
 	  return (-1);
       }
     fclose (input);
+#endif
 
     getcwd (wv_cwd,4096);
     wv_cwd[4096] = 0;
