@@ -174,6 +174,7 @@ static const wvLanguageId mLanguageIds[] =
 		{ "-none-", 0x0000 }, /* none (language neutral) */
 		{ "-none-", 0x0400 }, /* none */
 		{ "af-ZA", 0x0436 }, /* Afrikaans */
+		{ "am", 0x045e }, /* Amharic */
 		{ "al-AL", 0x041c }, /* Albanian */
 		{ "ar-SA", 0x0401 }, /* Arabic (Saudi) */
 		{ "ar-IQ", 0x0801 }, /* Arabic (Iraq) */
@@ -191,6 +192,8 @@ static const wvLanguageId mLanguageIds[] =
 		{ "ar-AE", 0x3801 }, /* Arabic (United Arab Emirates) */
 		{ "ar-BH", 0x3c01 }, /* Arabic (Bahrain) */		
 		{ "ar-QA", 0x4001 }, /* Arabic (Qatar) */
+		{ "as", 0x044d }, /* Assamese */
+		{ "az", 0x042c }, /* Azerbaijani */
 		{ "hy-AM", 0x042b }, /* Armenian */
 		{ "az", 0x044c }, /* Azeri (Latin) az- */
 		{ "az", 0x082c }, /* Azeri (Cyrillic) az- */
@@ -234,6 +237,8 @@ static const wvLanguageId mLanguageIds[] =
 		{ "fr-LU", 0x140c }, /* French (Luxembourg) */
 		{ "fr-MC", 0x180c }, /* French (Monaco) */		
 		{ "gl", 0x0456 }, /* Galician gl- */
+		{ "ga-IE", 0x083c }, /* Irish Gaelic */
+		{ "gd-GB", 0x100c }, /* Scottish Gaelic */
 		{ "ka-GE", 0x0437 }, /* Georgian */
 		{ "de-DE", 0x0407 }, /* German (Germany) */
 		{ "de-CH", 0x0807 }, /* German (Switzerland) */
@@ -242,11 +247,13 @@ static const wvLanguageId mLanguageIds[] =
 		{ "de-LI", 0x1407 }, /* German (Liechtenstein) */		
 		{ "el-GR", 0x0408 }, /* Greek */
 		{ "gu", 0x0447 }, /* Gujarati gu- */
+		{ "ha", 0x0468 }, /* Hausa */
 		{ "he-IL", 0x040d }, /* Hebrew */
 		{ "hi-IN", 0x0439 }, /* Hindi */
 		{ "hu-HU", 0x040e }, /* Hungarian */
 		{ "is-IS", 0x040f }, /* Icelandic */		
 		{ "id-ID", 0x0421 }, /* Indonesian */
+		{ "iu", 0x045d }, /* Inkutitut */
 		{ "it-IT", 0x0410 }, /* Italian (Italy) */
 		{ "it-CH", 0x0810 }, /* Italian (Switzerland) */
 		{ "ja-JP", 0x0411}, /* Japanese */
@@ -257,6 +264,8 @@ static const wvLanguageId mLanguageIds[] =
 		{ "ko-KR", 0x0412 }, /* Korean */
 		{ "ko", 0x0812 }, /* Korean (Johab) ko- */
 		{ "kir", 0x0440 }, /* Kyrgyz */
+		{ "la", 0x0476 }, /* Latin */
+		{ "lo", 0x0454 }, /* Laothian */
 		{ "lv-LV", 0x0426 }, /* Latvian */
 		{ "lt-LT", 0x0427 }, /* Lithuanian */		
 		{ "lt-LT", 0x0827 }, /* Lithuanian (Classic) */
@@ -264,16 +273,20 @@ static const wvLanguageId mLanguageIds[] =
 		{ "my-MY", 0x043e }, /* Malaysian */
 		{ "my-BN", 0x083e }, /* Malay Brunei Darussalam */
 		{ "ml", 0x044c }, /* Malayalam ml- */
-		{ "mr", 0x044e }, /* Marathi mr- */		
+		{ "mr", 0x044e }, /* Marathi mr- */
+		{ "mt", 0x043a }, /* Maltese */
+		{ "mo", 0x0450 }, /* Mongolian */
 		{ "ne-NP", 0x0461 }, /* Napali (Nepal) */
 		{ "ne-IN", 0x0861 }, /* Nepali (India) */
 		{ "nb-NO", 0x0414 }, /* Norwegian (Bokmai) */
 		{ "nn-NO", 0x0814 }, /* Norwegian (Nynorsk) */
 		{ "or", 0x0448 }, /* Oriya or- */
+		{ "om", 0x0472 }, /* Oromo (Afan, Galla) */
 		{ "pl-PL", 0x0415 }, /* Polish */		
 		{ "pt-BR", 0x0416 }, /* Portuguese (Brazil) */
 		{ "pt-PT", 0x0816 }, /* Portuguese (Portugal) */
 		{ "pa", 0x0446 }, /* Punjabi pa- */
+		{ "ps", 0x0463 }, /* Pashto (Pushto) */
 		{ "rm", 0x0417 }, /* Rhaeto-Romanic rm- */
 		{ "ro-RO", 0x0418 }, /* Romanian */
 		{ "ro-MD", 0x0818 }, /* Romanian (Moldova) */		
@@ -287,6 +300,7 @@ static const wvLanguageId mLanguageIds[] =
 		{ "sk-SK", 0x041b }, /* Slovak */
 		{ "sl-SI", 0x0424 }, /* Slovenian */
 		{ "wen", 0x042e }, /* Sorbian wen- */
+		{ "so", 0x0477 }, /* Somali */
 		{ "es-ES", 0x040a }, /* Spanish (Spain, Traditional) */
 		{ "es-MX", 0x080a }, /* Spanish (Mexico) */		
 		{ "es-ES", 0x0c0a }, /* Spanish (Modern) */
@@ -308,7 +322,7 @@ static const wvLanguageId mLanguageIds[] =
 		{ "es-NI", 0x4c0a }, /* Spanish (Nicaragua) */
 		{ "es-PR", 0x500a }, /* Spanish (Puerto Rico) */		
 		{ "sx", 0x0430 }, /* Sutu */
-		{ "sw-KE", 0x0441 }, /* Swahili (Kenya) */
+		{ "sw", 0x0441 }, /* Swahili (Kiswahili/Kenya) */
 		{ "sv-SE", 0x041d }, /* Swedish */
 		{ "sv-FI", 0x081d }, /* Swedish (Finland) */
 		{ "ta", 0x0449 }, /* Tamil ta- */
@@ -318,16 +332,23 @@ static const wvLanguageId mLanguageIds[] =
 		{ "ts", 0x0431 }, /* Tsonga ts- */
 		{ "tn", 0x0432 }, /* Tswana tn- */
 		{ "tr-TR", 0x041f }, /* Turkish */
+		{ "tl", 0x0464 }, /* Tagalog */
+		{ "tg", 0x0428 }, /* Tajik */
+		{ "bo", 0x0451 }, /* Tibetan */
+		{ "ti", 0x0473 }, /* Tigrinya */
 		{ "uk-UA", 0x0422 }, /* Ukrainian */		
 		{ "ur-PK", 0x0420 }, /* Urdu (Pakistan) */
 		{ "ur-IN", 0x0820 }, /* Urdu (India) */
 		{ "uz", 0x0443 }, /* Uzbek (Latin) uz- */
 		{ "uz", 0x0843 }, /* Uzbek (Cyrillic) uz- */
 		{ "ven", 0x0433 }, /* Venda ven- */
-		{ "vi-VN", 0x042a }, /* Vietnamese */		
+		{ "vi-VN", 0x042a }, /* Vietnamese */
+		{ "cy-GB", 0x0452 }, /* Welsh */
 		{ "xh", 0x0434 }, /* Xhosa xh */
 		{ "yi", 0x043d }, /* Yiddish yi- */
-		{ "zu", 0x0435 } /* Zulu zu- */
+		{ "yo", 0x046a }, /* Yoruba */
+		{ "zu", 0x0435 }, /* Zulu zu- */
+		{ "en-US", 0x0800 } /* Default */
 	};
 
 #define NrMappings (sizeof(mLanguageIds)/sizeof(mLanguageIds[0]))
