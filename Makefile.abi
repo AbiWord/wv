@@ -44,6 +44,7 @@ CSRCS=	laolareplace.old.c \
 	dop.c \
 	roman.c \
 	fib.c \
+	fdoa.c \
 	frd.c \
 	atrd.c \
 	sed.c \
