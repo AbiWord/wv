@@ -461,6 +461,13 @@ bread_16ubit (U8 * in, U16 * pos)
 {
     U8 temp1, temp2;
     U16 ret;
+
+    if (in == 0) /* this really ought to be called more sanely */
+      {
+	(*pos) = 0xffff;
+	return 0;
+      }
+
     temp1 = *in;
     temp2 = *(in + 1);
     ret = temp2;
