@@ -112,7 +112,7 @@ dnl LIBS="$X_LIBS $LIBS -lX11 $X_EXTRA_LIBS"
 dnl system ZLIB support, originally nicked from mozilla source
 dnl ========================================================
 AC_ARG_WITH(zlib,
-[  --with-zlib=\$dir        use system libz in \$dir],
+[  --with-zlib=\$dir        use libz in \$dir],
     ZLIB_DIR=$withval)
 
 _SAVE_CFLAGS=$CFLAGS
@@ -206,7 +206,7 @@ dnl end of zlib
 dnl system xpm support, done after X, as its usually in the same place
 dnl ========================================================
 AC_ARG_WITH(xpm,
-[  --with-xpm=\$dir   find the xpm library in \$dir],
+[  --with-xpm=\$dir	  use xpm in \$dir],
     XPM_DIR=$withval)
 
 _SAVE_CFLAGS=$CFLAGS
@@ -298,7 +298,7 @@ LIBS=$_SAVE_LIBS
 dnl system ttf support
 dnl ========================================================
 AC_ARG_WITH(ttf,
-[  --with-ttf=\$dir   find the ttf library in \$dir],
+[  --with-ttf=\$dir	  use ttf in \$dir],
     TTF_DIR=$withval)
 
 _SAVE_CFLAGS=$CFLAGS
@@ -366,7 +366,7 @@ fi
 dnl system libwmf support
 dnl ========================================================
 AC_ARG_WITH(wmf,
-[  --with-wmf=\$dir        use wmf libraries in \$dir],
+[  --with-wmf=\$dir          use wmf libraries in \$dir],
     WMF_DIR=$withval)
 
 _SAVE_CFLAGS=$CFLAGS
@@ -547,7 +547,7 @@ dnl try it with the X varient of that, and then try it with
 dnl both.
 
 AC_ARG_WITH(Magick,
-[  --with-Magick=\$dir        use system Magick in \$Magici],
+[  --with-Magick=\$dir	  use Magick in \$Magici],
 MAGICK_DIR=$withval)
 
 if test "$MAGICK_DIR" = no; then
@@ -641,6 +641,9 @@ dnl if we have to use our own then we need libpng
 #
 # Check for PNG
 #
+AC_ARG_WITH(png,
+[  --with-png=\$dir	  use png in \$dir],
+    PNG_DIR=$withval)
 _SAVE_CFLAGS=$CFLAGS
 _SAVE_LDFLAGS=$LDFLAGS
 	have_png='no'

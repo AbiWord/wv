@@ -4,6 +4,10 @@
 #include <string.h>
 #include "config.h"
 #include "wv.h"
+#include "oledecod.h"
+
+pps_entry *wvFindObject(S32 id);
+
 /*
 Released under GPL, written by Caolan.McNamara@ul.ie.
 
@@ -353,7 +357,7 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 	switch(eachchar)
 		{
 		case 19:
-			wvTrace(("field began\n"));
+			wvError(("field began\n"));
 			ps->fieldstate++;
 			ps->fieldmiddle=0;
 			fieldCharProc(ps,eachchar,0,0x400);	/* temp */
@@ -361,6 +365,14 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			break;
 		case 20:
 			wvTrace(("field middle\n"));
+			if (achp->fOle2)
+				{
+				pps_entry *test;
+				wvError(("this field has an associated embedded object of id %x\n",achp->fcPic_fcObj_lTagObj));
+				test = wvFindObject(achp->fcPic_fcObj_lTagObj);
+				if (test)
+					wvError(("data can be found in object entry named %s\n",test->name));
+				}
 			fieldCharProc(ps,eachchar,0,0x400);	/* temp */
 			ps->fieldmiddle=1;
 			return(0);

@@ -28,8 +28,12 @@ Changes to to 0.5.43
 	* implemented PAGEREF field
 	* added bookmarks to wvParseStruct
 	* wmf files are decompressed and extracted correctly
+	* unicode in fields is support ok now again.
+	* field thing split into two parts, the command part and
+	the "argument", or last outputted text from the field part.
+	this allow hyperlinked fields to do the right thing, and for
+	unrecognized fields to output their original default contents.
 ALL TODO
-	* unicode in FIELDS.
 
 	* allow latex or html or raw text conversion options.
 

@@ -139,12 +139,15 @@ void wvInitPAP(PAP *item)
 	item->fSideBySide = 0;
 	item->reserved3 = 0;
 	item->fNoAutoHyph = 0;
-	item->fWidowControl = 0;
+	item->fWidowControl = 1;
 	item->dxaRight = 0;
 	item->dxaLeft = 0;
 	item->dxaLeft1 = 0;
-
+	/*
 	wvInitLSPD(&item->lspd);
+	*/
+	item->lspd.fMultLinespace=1;
+	item->lspd.dyaLine=240;
 
 	item->dyaBefore = 0;
 	item->dyaAfter = 0;
@@ -192,7 +195,7 @@ void wvInitPAP(PAP *item)
 
 	wvInitSHD(&item->shd);
 	wvInitDCS(&item->dcs);
-	item->lvl = 0;
+	item->lvl = 9;
 	item->fNumRMIns = 0;
 	wvInitANLD(&item->anld);
 	item->fPropRMark  = 0;

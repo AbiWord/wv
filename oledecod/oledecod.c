@@ -37,7 +37,7 @@
  */
 /*
    The interface to OLEdecode now has
-   int OLEdecode (char *OLEfilename, pps_entry ** stream_list, U32 * root,
+   int OLEdecode (FILE *OLEfile, pps_entry ** stream_list, U32 * root,
 		  U16 max_level);
    See the oledecod.h to see a description of the inputs and output
  */
@@ -67,7 +67,6 @@ static void reorder_pps_tree (pps_entry * root_pps, U16 level);
 static void ends (void);
 
 
-static FILE *input;
 static U8 *Block;
 static U8 *BDepot, *SDepot, *Root;
 static pps_entry *pps_list = NULL;
@@ -78,7 +77,7 @@ static U32 *sbd_list;
 static U32 *root_list;
 
 int
-OLEdecode (char *OLEfilename, pps_entry ** stream_list, U32 * root,
+OLEdecode (FILE *input, pps_entry ** stream_list, U32 * root,
 	   U16 max_level)
 {
   int c;
@@ -89,7 +88,6 @@ OLEdecode (char *OLEfilename, pps_entry ** stream_list, U32 * root,
   /* FilePos is long, not U32, because second argument of fseek is long */
 
   /* initialize static variables */
-  input = sbfile = NULL;
   Block = BDepot = SDepot = Root = NULL;
   pps_list = NULL;
   num_of_pps = 0;
@@ -97,8 +95,6 @@ OLEdecode (char *OLEfilename, pps_entry ** stream_list, U32 * root,
   root_list = sbd_list = NULL;
 
   /* open input file */
-  verbose ("open input file");
-  input = fopen (OLEfilename, "rb");
   test (input != NULL, 4, ends ());
 
   /* fast check type of file */
@@ -308,9 +304,8 @@ OLEdecode (char *OLEfilename, pps_entry ** stream_list, U32 * root,
      next link is used (move the previous-link-children to the last visited
      next-link-children) */
   reorder_pps_tree (&pps_list[*root], 0);
-
-  /* NEXT IS VERBOSE verbose */
 #ifdef VERBOSE
+  /* NEXT IS VERBOSE verbose */
   {
     U32 i;
     printf ("after reorder pps tree\n");
@@ -330,8 +325,6 @@ OLEdecode (char *OLEfilename, pps_entry ** stream_list, U32 * root,
 	printf ("%s\n", pps_list[i].name);
       }
   }
-#endif
-#ifdef VERBOSE
   /* NEXT IS VERBOSE verbose */
   verbosePPSTree (*root, 0);
 #endif
@@ -466,7 +459,7 @@ reorder_pps_tree (pps_entry * node, U16 level)
 
   if (depth == 50)
   	{
-  	fprintf(stderr,"this ole tree appears far too deep\n");
+  	wvError(("this ole tree appears far too deep\n"));
 	depth--;
   	return;
 	}
@@ -476,8 +469,6 @@ reorder_pps_tree (pps_entry * node, U16 level)
   /* reorder subtrees, if there's any */
   if (node->dir != 0xffffffffUL)
   	{
-	fprintf(stderr,"1here , %d\n",node->dir);
-	fprintf(stderr,"2here , %d\n",num_of_pps);
     reorder_pps_tree (&pps_list[node->dir], level+1);
 	}
 
@@ -554,8 +545,6 @@ freeOLEtree (pps_entry * tree)
 void
 ends (void)
 {
-  if (input != NULL)
-    fclose (input);
   freeNoNULL (Block);
   freeNoNULL (BDepot);
   freeNoNULL (SDepot);

@@ -83,7 +83,7 @@ typedef struct pps_block pps_entry;
    .       7 = Error creating temporal files.
    .       10 = Error allocating memory, there's no more memory.
  */
-int OLEdecode (char *OLEfilename, pps_entry ** stream_list, U32 * root,
+int OLEdecode (FILE *OLEfile, pps_entry ** stream_list, U32 * root,
 	       U16 max_level);
 
 

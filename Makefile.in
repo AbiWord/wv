@@ -85,7 +85,7 @@ SHELL = /bin/sh
 .SUFFIXES: .C .$(OBJEXT)
 
 MYOBJECTS =	\
-	laolareplace.$(OBJEXT)ld.$(OBJEXT) \
+	laolareplace.$(OBJEXT) \
 	support.$(OBJEXT) \
 	list.$(OBJEXT) \
 	piecetable.$(OBJEXT) \
@@ -196,7 +196,7 @@ OLE = oledecod/oledecod.$(OBJEXT)
 
 all: wvSummary$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSimpleCLX$(EXEEXT) wvVersion$(EXEEXT) wv-libconfig wv-incconfig
 
-wvSummary$(EXEEXT): wvSummary.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+wvSummary$(EXEEXT): wvSummary.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a 
 	$(CC)  -o $@ wvSummary.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wvSimpleCLX$(EXEEXT): wvSimpleCLX.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
@@ -239,8 +239,8 @@ error.$(OBJEXT): $(srcdir)/error.c Makefile
 laolareplace.$(OBJEXT): $(srcdir)/laolareplace.c 
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
-libwv.a:	$(MYOBJECTS) XMLPARSER $(ICONV) $(MAGICK)
-	$(AR) rc $@ $(MYOBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML)
+libwv.a:	$(MYOBJECTS) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE
+	$(AR) rc $@ $(MYOBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE)
 	$(RANLIB) $@
 
 ICONV:

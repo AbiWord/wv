@@ -429,3 +429,15 @@ void wvOLEFree(void)
 		free(SDepot);
 	}
 
+void wvFindObject(S32 id)
+    {
+    U32 stream;
+    char idname[64];
+    sprintf(idname,"_%ld",id);
+    for (stream = stream_tree[root_stream].dir; stream != 0xffffffff; stream = stream_tree[stream].next)
+        {
+        if (!(strcmp(stream_tree[stream].name,idname)))
+            wvError(("found object\n"));
+        }
+    }
+
