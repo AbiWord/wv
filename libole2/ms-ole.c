@@ -125,7 +125,7 @@ struct _MsOle {
 #define BLOCK_COUNT(f) (((f)->length + BB_BLOCK_SIZE - 1) / BB_BLOCK_SIZE)
 
 static MsOleHandleType
-open2_wrap (const char *pathname, int flags)
+open2_wrap (const char *pathname, int flags, gpointer closure)
 {
 	gint fd;
 #ifdef O_BINARY
@@ -140,7 +140,7 @@ open2_wrap (const char *pathname, int flags)
 }
 
 static MsOleHandleType
-open3_wrap (const char *pathname, int flags, mode_t mode)
+open3_wrap (const char *pathname, int flags, mode_t mode, gpointer closure)
 {
 	gint fd;
 #ifdef O_BINARY
@@ -155,31 +155,32 @@ open3_wrap (const char *pathname, int flags, mode_t mode)
 }
 
 static ssize_t
-read_wrap (MsOleHandleType fd, void *buf, size_t count)
+read_wrap (MsOleHandleType fd, void *buf, size_t count, gpointer closure)
 {
 	return read (GPOINTER_TO_INT(fd), buf, count);
 }
 
 static int
-close_wrap (MsOleHandleType fd)
+close_wrap (MsOleHandleType fd, gpointer closure)
 {
 	return close (GPOINTER_TO_INT(fd));
 }
 
 static ssize_t
-write_wrap (MsOleHandleType fd, const void *buf, size_t count)
+write_wrap (MsOleHandleType fd, const void *buf, size_t count,
+	    gpointer closure)
 {
 	return write (GPOINTER_TO_INT(fd), (void *)buf, count);
 }
 
 static off_t
-lseek_wrap (MsOleHandleType fd, off_t offset, int whence)
+lseek_wrap (MsOleHandleType fd, off_t offset, int whence, gpointer closure)
 {
 	return lseek (GPOINTER_TO_INT(fd), offset, whence);
 }
 
 static int
-isregfile_wrap (MsOleHandleType fd)
+isregfile_wrap (MsOleHandleType fd, gpointer closure)
 {
 	struct stat st;
 
@@ -190,7 +191,7 @@ isregfile_wrap (MsOleHandleType fd)
 }
 
 static int
-getfilesize_wrap (MsOleHandleType fd, guint32 *size)
+getfilesize_wrap (MsOleHandleType fd, guint32 *size, gpointer closure)
 {
 	struct stat st;
 
@@ -204,13 +205,13 @@ getfilesize_wrap (MsOleHandleType fd, guint32 *size)
 #if defined(HAVE_MMAP)
 static void *
 mmap_wrap (void *start, size_t length, int prot,
-	   int flags, MsOleHandleType fd, off_t offset)
+	   int flags, MsOleHandleType fd, off_t offset, gpointer closure)
 {
 	return mmap (start, length, prot, flags, GPOINTER_TO_INT(fd), offset);
 }
 
 static int
-munmap_wrap (void *start, size_t length)
+munmap_wrap (void *start, size_t length, gpointer closure)
 {
 	return munmap (start, length);
 }
@@ -228,11 +229,12 @@ static MsOleSysWrappers ms_ole_default_wrappers = {
 
 #if defined(HAVE_MMAP)
 	mmap_wrap,
-	munmap_wrap
+	munmap_wrap,
 #else
 	NULL,
-	NULL
+	NULL,
 #endif
+	NULL /* no closure */
 };
 
 /*
@@ -368,8 +370,8 @@ write_cache_block (MsOle *f, BBBlkAttr *attr)
 	g_return_if_fail (attr->data);
 	
 	offset = (attr->blk+1)*BB_BLOCK_SIZE;
-	if (f->syswrap->lseek (f->file_des, offset, SEEK_SET)==(off_t)-1 ||
-	    f->syswrap->write (f->file_des, attr->data, BB_BLOCK_SIZE) == -1)
+	if (f->syswrap->lseek (f->file_des, offset, SEEK_SET, f->syswrap->closure) == (off_t)-1 ||
+	    f->syswrap->write (f->file_des, attr->data, BB_BLOCK_SIZE, f->syswrap->closure) == -1)
 		g_warning ("Fatal error writing block %d at %d\n", attr->blk, offset);
 #if OLE_DEBUG > 2
 	g_print ("Writing cache block %d to offset %d\n",
@@ -432,8 +434,8 @@ get_block_ptr (MsOle *f, BLP b, gboolean forwrite)
 		attr->data = g_new (guint8, BB_BLOCK_SIZE);
 	
 	offset = (b+1)*BB_BLOCK_SIZE;
-	f->syswrap->lseek (f->file_des, offset, SEEK_SET);
-	f->syswrap->read (f->file_des, attr->data, BB_BLOCK_SIZE);
+	f->syswrap->lseek (f->file_des, offset, SEEK_SET, f->syswrap->closure);
+	f->syswrap->read (f->file_des, attr->data, BB_BLOCK_SIZE, f->syswrap->closure);
 	attr->usage = 1;
 	attr->dirty = forwrite;
 
@@ -833,16 +835,16 @@ remap_file (MsOle *f, guint blocks)
 	g_assert (f);
 	file = f->file_des;
 		
-	g_assert (f->syswrap->munmap (f->mem, f->length) != -1);
+	g_assert (f->syswrap->munmap (f->mem, f->length, f->syswrap->closure) != -1);
 
 	/* Extend that file by blocks */
-	if (f->syswrap->getfilesize (file, &filesize)) {
+	if (f->syswrap->getfilesize (file, &filesize, f->syswrap->closure)) {
 		g_warning ("Serious error extending file\n");
 		f->mem = 0;
 		return;
 	}
 
-	if (f->syswrap->lseek (file, 0, SEEK_END) == (off_t)-1) {
+	if (f->syswrap->lseek (file, 0, SEEK_END, f->syswrap->closure) == (off_t)-1) {
 		g_warning ("Serious error extending file\n");
 		f->mem = 0;
 		return;
@@ -850,14 +852,15 @@ remap_file (MsOle *f, guint blocks)
 
 	for (icount = 0; icount < blocks; icount++) {
 		if (f->syswrap->write (file, zeroblock, BB_BLOCK_SIZE -
-				       ((icount == blocks - 1) ? 1 : 0))
+				       ((icount == blocks - 1) ? 1 : 0),
+				       f->syswrap->closure)
 		    == -1) {
 			g_warning ("Serious error extending file\n");
 			f->mem = 0;
 			return;
 		}
 	}
-	if (f->syswrap->write (file, &zero, 1) == -1) {
+	if (f->syswrap->write (file, &zero, 1, f->syswrap->closure) == -1) {
 		g_warning ("Serious error extending file\n");
 		f->mem = 0;
 		return;
@@ -865,7 +868,7 @@ remap_file (MsOle *f, guint blocks)
 
 	oldlen = filesize;
 
-	if (f->syswrap->getfilesize (file, &(f->length)))
+	if (f->syswrap->getfilesize (file, &(f->length), f->syswrap->closure))
 		g_warning ("couldn't get the size of the file\n");
 
 	g_assert (f->length == BB_BLOCK_SIZE*blocks + oldlen);
@@ -874,7 +877,7 @@ remap_file (MsOle *f, guint blocks)
 		g_warning ("file %d non-integer number of blocks\n", f->length);
 
 	newptr = f->syswrap->mmap (f->mem, f->length, PROT_READ|PROT_WRITE,
-				   MAP_SHARED, file, 0);
+				   MAP_SHARED, file, 0, f->syswrap->closure);
 #if OLE_DEBUG > 0
 	if (newptr != f->mem)
 		g_print ("Memory map moved from %p to %p\n",
@@ -1658,26 +1661,26 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 	f = *fs = ms_ole_new ();
 	take_wrapper_functions (f, wrappers);
 
-	f->file_des = file = f->syswrap->open2 (name, O_RDWR);
+	f->file_des = file = f->syswrap->open2 (name, O_RDWR, f->syswrap->closure);
 	f->ref_count = 0;
 	f->mode = 'w';
 
 	if (file == BAD_MSOLE_HANDLE) {
-		f->file_des = file = f->syswrap->open2 (name, O_RDONLY);
+		f->file_des = file = f->syswrap->open2 (name, O_RDONLY, f->syswrap->closure);
 		f->mode = 'r';
 		prot &= ~PROT_WRITE;
 	}
 
-	if ((file == BAD_MSOLE_HANDLE) || !(f->syswrap->isregfile (file))) {
+	if ((file == BAD_MSOLE_HANDLE) || !(f->syswrap->isregfile (file, f->syswrap->closure))) {
 		g_warning ("No such file '%s'\n", name);
 		g_free (f) ;
 		*fs = NULL;
 		return MS_OLE_ERR_EXIST;
 	}
 
-	if (f->syswrap->getfilesize (file, &(f->length) )) {
+	if (f->syswrap->getfilesize (file, &(f->length), f->syswrap->closure)) {
 		g_warning ("Couldn't get the size of file '%s'\n", name);
-		f->syswrap->close (file) ;
+		f->syswrap->close (file, f->syswrap->closure) ;
 		g_free (f);
 		*fs = NULL;
 		return MS_OLE_ERR_EXIST;
@@ -1687,7 +1690,7 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 #if OLE_DEBUG > 0
 		g_warning ("File '%s' too short\n", name);
 #endif
-		f->syswrap->close (file) ;
+		f->syswrap->close (file, f->syswrap->closure) ;
 		g_free (f) ;
 		*fs = NULL;
 		return MS_OLE_ERR_FORMAT;
@@ -1695,7 +1698,7 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 
 	if (try_mmap && f->syswrap->mmap) {
 		f->mem = f->syswrap->mmap (
-			0, f->length, prot, MAP_SHARED, file, 0);
+			0, f->length, prot, MAP_SHARED, file, 0, f->syswrap->closure);
 		if (!f->mem || (caddr_t)f->mem == (caddr_t)MAP_FAILED) {
 			g_warning ("I can't mmap that file, falling back to slower method");
 			f->mem = NULL;
@@ -1712,9 +1715,10 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 		f->mem = g_new (guint8, BB_BLOCK_SIZE);
 
 		if (!f->mem ||
-		    f->syswrap->read (file, f->mem, BB_BLOCK_SIZE == -1)) {
+		    f->syswrap->read (file, f->mem, (BB_BLOCK_SIZE == -1), 
+				      f->syswrap->closure)) {
 			g_warning ("Error reading header\n");
-			f->syswrap->close (file) ;
+			f->syswrap->close (file, f->syswrap->closure) ;
 			g_free (f);
 			*fs = NULL;
 			return MS_OLE_ERR_EXIST;
@@ -1790,7 +1794,8 @@ ms_ole_create_vfs (MsOle **fs, const char *name, gboolean try_mmap,
 	take_wrapper_functions (f, wrappers);
 	if ((file = f->syswrap->open3 (name,
 				       O_RDWR|O_CREAT|O_TRUNC,
-				       S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP))
+				       S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP,
+				       f->syswrap->closure))
 	    == BAD_MSOLE_HANDLE) {
 		g_warning ("Can't create file '%s'\n", name);
 		g_free (f);
@@ -1799,8 +1804,8 @@ ms_ole_create_vfs (MsOle **fs, const char *name, gboolean try_mmap,
 	}
 
 	if ((f->syswrap->lseek (file, BB_BLOCK_SIZE * init_blocks - 1,
-		    SEEK_SET) == (off_t)-1) ||
-	    (f->syswrap->write (file, &zero, 1) == -1)) {
+		    SEEK_SET, f->syswrap->closure) == (off_t)-1) ||
+	    (f->syswrap->write (file, &zero, 1, f->syswrap->closure) == -1)) {
 		g_warning ("Serious error extending file to %d bytes\n",
 			   BB_BLOCK_SIZE*init_blocks);
 		g_free (f);
@@ -1811,7 +1816,7 @@ ms_ole_create_vfs (MsOle **fs, const char *name, gboolean try_mmap,
 	f->ref_count = 0;
 	f->file_des  = file;
 	f->mode      = 'w';
-	if (f->syswrap->getfilesize (file, &(f->length))) {
+	if (f->syswrap->getfilesize (file, &(f->length), f->syswrap->closure)) {
 		g_warning ("Warning couldn't get the size of the file '%s'\n",
 			   name);
 	}
@@ -1823,7 +1828,7 @@ ms_ole_create_vfs (MsOle **fs, const char *name, gboolean try_mmap,
 		if (f->syswrap->mmap)
 			f->mem = f->syswrap->mmap (
 				0, f->length, PROT_READ | PROT_WRITE,
-				MAP_SHARED, file, 0);
+				MAP_SHARED, file, 0, f->syswrap->closure);
 		else
 			f->mem = NULL;
 
@@ -1933,9 +1938,11 @@ ms_ole_destroy (MsOle **ptr)
 			}
 
 			if (f->dirty) {
-				f->syswrap->lseek (f->file_des, 0, SEEK_SET);
+				f->syswrap->lseek (f->file_des, 0, SEEK_SET,
+						   f->syswrap->closure);
 				f->syswrap->write (f->file_des, f->mem,
-						   BB_BLOCK_SIZE);
+						   BB_BLOCK_SIZE, 
+						   f->syswrap->closure);
 			}
 			g_free (f->mem);
 			f->mem = NULL;
@@ -1944,7 +1951,7 @@ ms_ole_destroy (MsOle **ptr)
 		destroy_pps (f->pps);
 		f->pps = NULL;
 
-		f->syswrap->close (f->file_des);
+		f->syswrap->close (f->file_des, f->syswrap->closure);
 		g_free (f);
 
 #if OLE_DEBUG > 0

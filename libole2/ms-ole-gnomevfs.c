@@ -53,7 +53,7 @@ whence_to_vfs (int whence)
 }
 
 static MsOleHandleType
-open2_wrap (const char *pathname, int flags)
+open2_wrap (const char *pathname, int flags, gpointer closure)
 {
 	GnomeVFSHandle * handle = NULL;
 	GnomeVFSOpenMode mode   = flags_to_vfs (flags);
@@ -68,7 +68,7 @@ open2_wrap (const char *pathname, int flags)
 }
 
 static MsOleHandleType
-open3_wrap (const char *pathname, int flags, mode_t mode)
+open3_wrap (const char *pathname, int flags, mode_t mode, gpointer closure)
 {
 	GnomeVFSHandle * handle = NULL;      
 	GnomeVFSOpenMode m = flags_to_vfs (flags);
@@ -96,7 +96,7 @@ open3_wrap (const char *pathname, int flags, mode_t mode)
 }
 
 static ssize_t
-read_wrap (MsOleHandleType fd, void *buf, size_t count)
+read_wrap (MsOleHandleType fd, void *buf, size_t count, gpointer closure)
 {
 	GnomeVFSFileSize bytes_read = 0;
 	
@@ -106,13 +106,13 @@ read_wrap (MsOleHandleType fd, void *buf, size_t count)
 }
 
 static int
-close_wrap (MsOleHandleType fd)
+close_wrap (MsOleHandleType fd, gpointer closure)
 {
 	return (gnome_vfs_close ((GnomeVFSHandle *)fd) != GNOME_VFS_OK);
 }
 
 static ssize_t
-write_wrap (MsOleHandleType fd, const void *buf, size_t count)
+write_wrap (MsOleHandleType fd, const void *buf, size_t count, gpointer closure)
 {
 	GnomeVFSFileSize bytes_written = 0;
 	
@@ -122,7 +122,7 @@ write_wrap (MsOleHandleType fd, const void *buf, size_t count)
 }
 
 static off_t
-lseek_wrap (MsOleHandleType fd, off_t offset, int whence)
+lseek_wrap (MsOleHandleType fd, off_t offset, int whence, gpointer closure)
 {
 	GnomeVFSSeekPosition w = whence_to_vfs (whence);
 	GnomeVFSFileSize o;
@@ -136,7 +136,7 @@ lseek_wrap (MsOleHandleType fd, off_t offset, int whence)
 }
 
 static int
-isregfile_wrap (MsOleHandleType fd)
+isregfile_wrap (MsOleHandleType fd, gpointer closure)
 {
 	int rtn = 0;
 	GnomeVFSFileInfo * fi = gnome_vfs_file_info_new ();
@@ -151,7 +151,7 @@ isregfile_wrap (MsOleHandleType fd)
 }
 
 static int
-getfilesize_wrap (MsOleHandleType fd, guint32 *size)
+getfilesize_wrap (MsOleHandleType fd, guint32 *size, gpointer closure)
 {
 	int rtn = 0;
 	GnomeVFSFileInfo * fi = gnome_vfs_file_info_new ();
@@ -175,8 +175,9 @@ static MsOleSysWrappers gnomevfs_default_wrappers = {
 	lseek_wrap,
 	isregfile_wrap,	
 	getfilesize_wrap,
-	NULL,
-	NULL
+	NULL, /* no memmap */
+	NULL, /* no memunmap */
+	NULL  /* no closure */
 };
 
 MsOleSysWrappers *ms_ole_get_gnomevfs_fs (void)

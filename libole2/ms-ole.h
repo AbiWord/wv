@@ -62,19 +62,29 @@ typedef gpointer MsOleHandleType;
 #define BAD_MSOLE_HANDLE NULL
 
 struct _MsOleSysWrappers {
-	MsOleHandleType     (*open2)	(const char *pathname, int flags);
-	MsOleHandleType     (*open3)	(const char *pathname, int flags, mode_t mode);
-	ssize_t (*read)		(MsOleHandleType fd, void *buf, size_t count);
-	int     (*close)	(MsOleHandleType fd);
-	ssize_t (*write)	(MsOleHandleType fd, const void *buf, size_t count);
-	off_t   (*lseek)	(MsOleHandleType fd, off_t offset, int whence);
-	int     (*isregfile)	(MsOleHandleType fd);
-	int     (*getfilesize)	(MsOleHandleType fd, guint32 *size);
+	MsOleHandleType     (*open2)	(const char *pathname, int flags,
+					 gpointer closure);
+	MsOleHandleType     (*open3)	(const char *pathname, int flags, 
+					 mode_t mode, gpointer closure);
+	ssize_t (*read)		(MsOleHandleType fd, void *buf, size_t count,
+				 gpointer closure);
+	int     (*close)	(MsOleHandleType fd, gpointer closure);
+	ssize_t (*write)	(MsOleHandleType fd, const void *buf, 
+				 size_t count, gpointer closure);
+	off_t   (*lseek)	(MsOleHandleType fd, off_t offset,
+				 int whence, gpointer closure);
+	int     (*isregfile)	(MsOleHandleType fd, gpointer closure);
+	int     (*getfilesize)	(MsOleHandleType fd, guint32 *size,
+				 gpointer closure);
 
 	/* Optionaly implementable */
 	void   *(*mmap)         (void *start, size_t length, int prot,
-				 int flags, MsOleHandleType fd, off_t offset);
-	int     (*munmap)       (void *start, size_t length);
+				 int flags, MsOleHandleType fd, off_t offset,
+				 gpointer closure);
+	int     (*munmap)       (void *start, size_t length,
+				 gpointer closure);
+  
+        gpointer closure;
 };
 
 struct _MsOleStat {
