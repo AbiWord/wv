@@ -1,13 +1,13 @@
 /* just for now, testing purposes */
 #define DEBUG 1
 
+#include <stdlib.h>
+#include <malloc.h>
+#include <string.h>
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
 #include "wvexporter.h"
-#include <stdlib.h>
-#include <malloc.h>
-#include <string.h>
 
 /* document stream names */
 #define DOCUMENT_STREAM  "WordDocument"
