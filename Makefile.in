@@ -269,7 +269,6 @@ installdirs:
 	$(mandir)/man1 \
 	$(libdir) \
 	$(libdir)/wv\
-	$(libdir)/wv/symbolfont \
 	$(libdir)/wv/wingdingfont \
 	$(libdir)/wv/patterns \
 	$(libdir)/wv/ttf \
@@ -291,9 +290,6 @@ install: installdirs all
 	$(INSTALL_DATA) $(srcdir)/libwv.a $(libdir)/libwv.a
 	$(INSTALL_DATA) $(srcdir)/wvHtml.xml $(libdir)/wv/wvHtml.xml
 	$(INSTALL_DATA) $(srcdir)/wvConfig.xml $(libdir)/wv/wvConfig.xml
-	for filename in symbolfont/*.gif; do \
-		$(INSTALL_DATA) $$filename $(libdir)/wv/symbolfont; \
-	done
 	for filename in wingdingfont/*.gif; do \
 		$(INSTALL_DATA) $$filename $(libdir)/wv/wingdingfont; \
 	done
