@@ -13,12 +13,20 @@ int (*elehandler)(wvParseStruct *ps,wvTag tag, void *props, int dirty)=NULL;
 int (*dochandler)(wvParseStruct *ps,wvTag tag)=NULL;
 int (*wvConvertUnicodeToEntity)(U16 char16)=NULL;
 
+#if !defined(WIN32) || !defined(_WIN32)
+  #define wv_iconv(a,b,c,d,e) iconv(a, (const char**)b,c,d,e)
+#else
+  #define wv_iconv(a,b,c,d,e) iconv(a,b,c,d,e)
+#endif
+
 int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps, CHP *achp)
 	{
 	U16 lid;
 	/* testing adding a language */
-    lid = achp->lidDefault;
-	if (lid == 0x400)
+	lid = achp->lidDefault;
+        /* No lidDefault for ver < WORD6 */
+        /* Should try achp->lid first? */
+        if (lid == 0x400 || lid == 0)
 		lid = ps->fib.lid;
 	/* end testing adding a language */
 
@@ -37,7 +45,13 @@ int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps, CHP *achp)
 		{
 	/* Most Chars go through this baby */
 		if (charhandler)
+                       {
+                       if (wvQuerySupported(&ps->fib,NULL) <= WORD6)
+                               {
+                               chartype = 1;   /* WORD6 do not use unicode */
+                               }
 			return( (*charhandler)(ps,eachchar,chartype,lid) );
+		       }
 		}
 	wvError(("No CharHandler registered, programmer error\n"));
 	return(0);
@@ -50,6 +64,24 @@ void wvOutputHtmlChar(U16 eachchar,U8 chartype,char *outputtype,U16 lid)
 	wvOutputFromUnicode(eachchar,outputtype);
 	}
 
+#define CPNAME_OR_FALLBACK(name,fallbackname)  \
+{      \
+       static char* cpname = NULL;                             \
+       if (!cpname)    \
+               {       \
+                       iconv_t cd = iconv_open(name,name);     \
+                       if (cd==(iconv_t)-1)    \
+                               {       \
+                                       cpname = fallbackname;  \
+                               }       \
+                       else    \
+                               {       \
+                                       cpname = name;  \
+                                       iconv_close(cd);        \
+                               }       \
+               };      \
+       return cpname;  \
+}
 
 char *wvLIDToCodePageConverter(U16 lid)
 	{
@@ -62,9 +94,9 @@ char *wvLIDToCodePageConverter(U16 lid)
 		case 0x0403:	/*Catalan*/
 			return("CP1252");
 		case 0x0404:	/*Traditional Chinese*/
-			return("CP950");
+		  CPNAME_OR_FALLBACK("CP950","BIG5");
 		case 0x0804:	/*Simplified Chinese*/
-			return("CP936");
+		  CPNAME_OR_FALLBACK("CP936","GB2312");
 		case 0x0405:	/*Czech*/
 			return("CP1250");
 		case 0x0406:	/*Danish*/
@@ -154,8 +186,104 @@ char *wvLIDToCodePageConverter(U16 lid)
 		};
 	return("CP1252");
 	}
+/*********************************************************************************************/
 
-U16 wvHandleCodePage(U16 eachchar,U16 lid)
+/**
+ * This next bit of code is messy
+ * Basically, iconv's byte order got changed on RH7
+ * And some version of Debian. Now I have to detect and
+ * Swap byte ordering on the fly
+ */
+static U32 approximate(char* out, U32 max_length, U16 c)
+{
+	if (max_length == 0)
+		return 0;
+	if (max_length == 1)
+	{
+		switch (c)
+		{
+			case 0x201d:
+			case 0x201c:
+				*out = '"'; return 1;
+			default:
+				return 0;
+		}
+	} 	
+	else 
+	{
+		/* 
+		 this case can't happen with current code, so there is no
+		 proper implementation.
+		*/
+	}
+	return 0;
+}
+
+static U16 try_UToC(U16 c, iconv_t iconv_handle)
+{
+  	char ibuf[2],obuf[10];			
+	size_t ibuflen = sizeof(ibuf), obuflen=sizeof(obuf);
+	const char* iptr = ibuf;
+	char* optr = obuf;
+	size_t donecnt = 0;
+
+	if (iconv_handle == (iconv_t)-1)
+		return 0;
+	{
+		unsigned char b0 = c & 0xff, b1 = c >>8;
+		ibuf[0] = b0;
+		ibuf[1] = b1;
+	}
+	donecnt = wv_iconv(iconv_handle,(&iptr),&ibuflen,&optr,&obuflen);
+	/* reset state */
+	wv_iconv(iconv_handle,NULL,NULL,NULL,NULL);
+	if (donecnt!=(size_t)-1 && ibuflen==0) 
+	{
+		int len = sizeof(obuf) - obuflen;
+		if (len!=1)
+			return 0x1ff;/* tell that singlebyte encoding can't represent it*/
+		else
+			return (unsigned char)*obuf;
+	} else
+		return  0;
+}
+
+static U16 UToNative(U16 c, iconv_t handle)
+{
+    U16 ret = try_UToC(c, handle);
+    if (!ret || ret>0xff) 
+    {
+    	char repl;
+	int repl_len = approximate(&repl, 1, c);
+	return repl_len == 1 ? repl : '?';
+    }
+    else
+    	return ret;
+}
+
+static int swap_iconv_u2n_always(iconv_t handle)
+{
+  return UToNative(0x20, handle) != 0x20;
+}
+
+static int swap_iconv_u2n(iconv_t handle, U16 lid)
+{
+  static int last_lid = -1;
+  int rtn = -1;
+
+  if(lid != last_lid)
+    {
+      rtn = swap_iconv_u2n_always(handle);
+      last_lid = lid;
+      wvTrace(("DOM: swapping iconv byte order: (%d, %d)\n", rtn, lid));
+    }
+
+  return rtn;
+}
+
+/*********************************************************************************************/
+
+U16 wvHandleCodePage(U16 eachchar, U16 lid)
 	{
 	char f_code[33];            /* From CCSID                           */
 	char t_code[33];            /* To CCSID                             */
@@ -165,12 +293,22 @@ U16 wvHandleCodePage(U16 eachchar,U16 lid)
 	char *p;
 	size_t ibuflen;               /* Length of input buffer               */
 	size_t obuflen;               /* Length of output buffer              */
-	const char *ibuf;
+	char *ibuf;
 	char *codepage;
-	char buffer[1];
+	char buffer[2];
 	char buffer2[2];
 
-	buffer[0]= (char)eachchar;
+       if(eachchar > 0xff)
+               {
+               buffer[0]= (char)(eachchar >> 8);
+               buffer[1]= (char)eachchar & 0xff;
+               }
+       else
+               {
+               buffer[0] = eachchar & 0xff;
+               buffer[1] = 0;
+               }
+
 	ibuf = buffer;
 	obuf = buffer2;
 
@@ -192,13 +330,23 @@ U16 wvHandleCodePage(U16 eachchar,U16 lid)
 		return('?');
 		}
 
-	ibuflen = 1;
-    obuflen = 2;
+	ibuflen = 2;
+	obuflen = 2;
 	p = obuf;
-    iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
-    eachchar = (U8)*p++;
-    eachchar = (eachchar << 8)&0xFF00;
-    eachchar += (U8)*p;
+    wv_iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+
+    if(!swap_iconv_u2n(iconv_handle, lid))
+      {
+	eachchar = (U8)*p++;
+	eachchar = (eachchar << 8)&0xFF00;
+	eachchar += (U8)*p;
+      }
+    else
+      {
+	eachchar = (U8)*(p+1);
+	eachchar = (eachchar << 8)&0xFF00;
+	eachchar += (U8)*p;
+      }
 
 	iconv_close(iconv_handle);
 	return(eachchar);
@@ -216,7 +364,7 @@ void wvOutputFromUnicode(U16 eachchar,char *outputtype)
     size_t ibuflen;               /* Length of input buffer               */
     size_t obuflen;               /* Length of output buffer              */
 	size_t len;
-    const char *ibuf;
+    char *ibuf;
     char buffer[2];
     char buffer2[5];
 
@@ -250,7 +398,19 @@ void wvOutputFromUnicode(U16 eachchar,char *outputtype)
 	p = obuf;
     len = obuflen;
 
-    iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+
+    /* TODO: change this to swap_iconv_n2u() */
+    if(swap_iconv_u2n_always(iconv_handle))
+      {
+	char temp = *ibuf;
+	*ibuf = *(ibuf+1);
+	*(ibuf + 1) = temp;
+      }
+
+    if(wv_iconv(iconv_handle, (char**)&ibuf, &ibuflen, &obuf, &obuflen) == (iconv_t)-1)
+      {
+	wvError(("iconv failed errno: %d",errno));
+      }
 
 	len = len-obuflen;
     iconv_close(iconv_handle);

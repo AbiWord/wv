@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "config.h"
+/* already done in wv.h
+ #include "config.h"
+*/
 #include "wv.h"
 
 void internal_wvReleasePAPX_FKP(PAPX_FKP *fkp)

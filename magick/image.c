@@ -55,6 +55,9 @@
 #include "magick.h"
 #include "defines.h"
 
+/* local prototype */
+void wvStrToUpper(char *str);
+
 /*
   Constant declaration.
 */
@@ -1889,7 +1892,7 @@ Export void SetImageInfo(ImageInfo *image_info,const unsigned int rectify)
       (void) strncpy(magick,image_info->filename,p-image_info->filename);
       magick[p-image_info->filename]='\0';
       wvStrToUpper(magick);
-#if defined(macintosh) || defined(WIN32)
+#if 0	/* defined(macintosh) || defined(WIN32) */
       if (!ImageFormatConflict(magick))
       if (!ImageFormatConflict(magick))
 #endif

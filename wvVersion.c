@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
-#include "config.h"
+/* already done in wv.h
+ #include "config.h"
+*/
 #include "wv.h"
 /*
 Released under GPL, written by Caolan.McNamara@ul.ie.

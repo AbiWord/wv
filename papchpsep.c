@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "config.h"
+/* already done in wv.h
+ #include "config.h"
+*/
 #include "wv.h"
 #if 0
 extern wvStream *erroroutput;

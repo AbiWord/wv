@@ -3,7 +3,9 @@
 #include <ctype.h>
 #include <string.h>
 #include <time.h>
-#include "config.h"
+/* already done in wv.h
+ #include "config.h"
+*/
 #include "wv.h"
 
 static TokenTable s_Tokens[] =

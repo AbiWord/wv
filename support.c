@@ -29,7 +29,9 @@ indentation.
 #include <time.h>
 #include <math.h>
 #include <assert.h>
-#include "config.h"
+/* already done in wv.h
+   #include "config.h"
+*/
 #include "wv.h"
 #include "oledecod.h"
 

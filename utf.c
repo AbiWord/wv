@@ -3,12 +3,16 @@
 #include	<libc.h>
 #include	<bio.h>
 #else
-#include	<sys/types.h>
+#ifndef _WIN32
+#include <sys/types.h>
+#endif
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<errno.h>
-#include	"config.h"
+/* already done in wv.h
+ #include "config.h"
+*/
 #include	"plan9.h"
 #endif
 #include	"hdr.h"

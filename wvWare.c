@@ -3,11 +3,13 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
-#include "getopt.h"
-#include "config.h"
+/* already done in wv.h
+ #include "config.h"
+*/
 #include "wv.h"
+#include "getopt.h"
 
-#define VERSION "0.6.2"
+#define VERSION "0.6.3"
 
 /*
 Released under GPL, written by Caolan.McNamara@ul.ie.
@@ -40,6 +42,23 @@ FILE *wvOpenConfig(char *config);
 
 int HandleBitmap(char *name,BitmapBlip *bitmap);
 int HandleMetafile(char *name,MetaFileBlip *bitmap);
+
+/* should really be a config.h decl for having strdup, but... */
+#ifdef __MWERKS__
+char *strdup(const char *text)
+{
+    char *buf;
+    size_t len;
+
+    len = strlen(text);
+    buf = (char *) malloc(len);
+    memcpy(buf, text, len);
+
+    return buf;
+}
+
+
+#endif
 
 char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
 	{
@@ -643,6 +662,13 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 				if(ps->nooffspa>0) 
 					{
 					fspa = wvGetFSPAFromCP(ps->currentcp,ps->fspa,ps->fspapos,ps->nooffspa);
+
+					if(!fspa)
+					  {
+					    wvError(("No fspa! Insanity abounds!\n"));
+					    return 0;
+					  }
+
 					data->props = fspa;
 					if (wv0x08(&blip,fspa->spid,ps))
 						{

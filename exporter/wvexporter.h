@@ -1,9 +1,6 @@
 #ifndef WVEXPORTER_H
 #define WVEXPORTER_H
 
-/* hack for abiword people */
-#define WVWARE_CVS 1
-
 #include "wv.h"
 #include "ms-ole-summary.h"
 
@@ -18,19 +15,27 @@ extern "C" {
 typedef MsOle wvDocument;
 
   typedef struct {
+    /* consider all of this data to be private */    
+
+    /* our toplevel OLE Document */
     wvDocument *ole;
 
+    /* the OLE streams within the toplevel OLE document */
     wvStream     *documentStream;
-    wvStream     *tableStream;
-    MsOleSummary *summaryStream;
+    wvStream     *table1Stream;
+    wvStream     *table0Stream;
     wvStream     *dataStream;
+    MsOleSummary *summaryStream;
 
     /* more accounting structures to come later */
 
     FIB fib;
+    version ver;
   } wvExporter;
 
+  int wvExporter_queryVersionSupported(version v);
   wvExporter * wvExporter_create(const char *filename);
+  wvExporter * wvExporter_create_version(const char *filename, version v);
   void wvExporter_close(wvExporter *exp);
   void wvExporter_summaryPutString(wvExporter *exp, U32 field, const char *str);
   void wvExporter_summaryPutLong(wvExporter *exp, U32 field, U32 l);

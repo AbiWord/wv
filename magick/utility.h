@@ -34,7 +34,7 @@ extern "C" {
 #include "mac.h"
 #endif
 #if defined(WIN32)
-#include "nt.h"
+  /* #include "nt.h" */
 #endif
 #endif
 

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "wv.h"
+#include 	"utf.h"
 #include "iconv_internal.h"
 
 size_t wvConvertUnicodeToUTF_8(const char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft)

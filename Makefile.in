@@ -1,13 +1,12 @@
 EXEEXT = @EXEEXT@
 OBJEXT = @OBJEXT@
-
 LDFLAGS = @LDFLAGS@
 
 #Some Users might have problems with linking against -lz, this is because there is probably an
 #old version of it hanging around in the X dirs, you can add -L/usr/lib to the begging of there 
 #options to fix it.
 #LIBS = -L/usr/lib @MAGICK_LIBS@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ -lm
-LIBS =  @MAGICK_LIBS@ @PNG_LIBS@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ -lm
+LIBS =  @MAGICK_LIBS@ @PNG_LIBS@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ @ICONV_LIBS@ -lm
 
 GETOPT = @LIBOBJS@
 EXPORTER=@EXPORTER@
@@ -80,12 +79,7 @@ src_mandir=$(srcdir)/help/man
 
 VPATH = @srcdir@
 
-CFLAGS = @CPPFLAGS@ @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I. -I./ -I$(srcdir)/ -I$(srcdir)/iconv/ -I$(srcdir)/magick/ -I$(srcdir)/expat/xmlparse/ @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DXMLCONFIG=\"$(libdir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(libdir)/wv/wvHtml.xml\" 
-
-CFLAGS += \
-	-I$(srcdir)/libole2/ \
-	-I$(srcdir)/glib-wv/ \
-	-I$(srcdir)/oledecod/
+CFLAGS = @CPPFLAGS@ @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I. -I./ -I$(srcdir)/ -I$(srcdir)/magick/ -I$(srcdir)/expat/xmlparse/ @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DXMLCONFIG=\"$(libdir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(libdir)/wv/wvHtml.xml\" -I$(srcdir)/libole2/ -I$(srcdir)/glib-wv/ -I$(srcdir)/oledecod/
 
 # not supported by lots of compilers
 #	-Wall
@@ -258,12 +252,12 @@ else
 endif
 
 # prepare to have glib as an external dependency
-ifdef GLIB_CONFIG
-OLE= \
-	libole2/ms-ole.$(OBJEXT) \
-	libole2/ms-ole-summary.$(OBJEXT) \
-	oledecod/oledecod.$(OBJEXT)
-else
+#ifdef GLIB_CONFIG
+#OLE= \
+#	libole2/ms-ole.$(OBJEXT) \
+#	libole2/ms-ole-summary.$(OBJEXT) \
+#	oledecod/oledecod.$(OBJEXT)
+#else
 OLE = \
 	libole2/ms-ole.$(OBJEXT) \
 	libole2/ms-ole-summary.$(OBJEXT) \
@@ -275,7 +269,7 @@ OLE = \
 	glib-wv/gmessages.$(OBJEXT) \
 	glib-wv/gstrfuncs.$(OBJEXT) \
 	oledecod/oledecod.$(OBJEXT)
-endif
+#endif
 
 #XML = -Lexpat/lib -lxmlparse -lxmltok
 XML = 	expat/xmlparse/xmlparse.$(OBJEXT) \
@@ -329,8 +323,8 @@ error.$(OBJEXT): $(srcdir)/error.c Makefile
 laolareplace.$(OBJEXT): $(srcdir)/laolareplace.c 
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
-libwv.a:	$(MYOBJECTS) $(EXPORTER) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE LIBOLE2
-	$(AR) rc $@ $(MYOBJECTS) $(EXPORTER_OBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE)
+libwv.a:	$(MYOBJECTS) $(EXPORTER) XMLPARSER $(MAGICK) OLEDECODE LIBOLE2
+	$(AR) rc $@ $(MYOBJECTS) $(EXPORTER_OBJECTS) $(MAGICKOBJS) $(XML) $(OLE)
 	$(RANLIB) $@
 
 EXPORTER:
@@ -371,8 +365,8 @@ cleansub:
 	@(cd oledecod && $(MAKE) clean) || exit 1
 	@echo cleaning expat in expat
 	@(cd expat && $(MAKE) clean) || exit 1
-	@echo cleaning iconv in iconv 
-	@(cd iconv && $(MAKE) clean) || exit 1
+#	@echo cleaning iconv in iconv 
+#	@(cd iconv && $(MAKE) clean) || exit 1
 	@echo cleaning magick in magick
 	@(cd magick && $(MAKE) clean) || exit 1
 	@echo cleaning libole2 in libole2
@@ -396,8 +390,8 @@ realcleansub:
 	@echo real cleaning expat in expat
 	@(cd expat && $(MAKE) realclean) || exit 1
 	@echo real cleaning iconv in iconv 
-	@(cd iconv && $(MAKE) realclean) || exit 1
-	@echo real cleaning magick in magick
+#	@(cd iconv && $(MAKE) realclean) || exit 1
+#	@echo real cleaning magick in magick
 	@(cd magick && $(MAKE) realclean) || exit 1
 	@echo real cleaning libole2 in libole2
 	@(cd libole2 && $(MAKE) realclean) || exit 1

@@ -10,10 +10,10 @@
 #define MS_OLE_H
 
 /* THIS SHOULD BE NICER */
-#ifndef _WIN32
+#if !defined(HAVE_FCNTL_H) || !defined(_WIN32) 
 #include <fcntl.h>	/* for mode_t */
 #else
-typedef unsigned long mode_t; 
+typedef unsigned short mode_t; 
 typedef size_t ssize_t;
 typedef /* signed */ long off_t;
 #endif  

@@ -1,4 +1,6 @@
-#include "config.h"
+/* already done in wv.h
+ #include "config.h"
+*/
 
 #if defined(SYSTEM_ZLIB) && defined(HAVE_MMAP)
 #include <zlib.h>
@@ -11,7 +13,9 @@
 #include <string.h>
 #include "wv.h"
 
+#ifndef WIN32
 #include <sys/types.h>
+#endif
 #include <sys/stat.h>
 #include <fcntl.h>
 
@@ -38,7 +42,7 @@ int decompress(FILE *inputfile,FILE *outputfile,U32 inlen,U32 outlen)
 	unsigned char *compr;
 	unsigned char *uncompr;
 	int err;
-	uLong uncomprLen, comprLen;
+	unsigned long uncomprLen, comprLen;
 	
 	
 	unsigned char *input,*output;

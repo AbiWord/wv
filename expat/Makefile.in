@@ -43,7 +43,7 @@ XMLPARSE:
 clean: cleansub
 
 distclean: clean realcleansub
-	rm -rf Makefile 
+	rm -rf Makefile
 
 cleansub:
 	@echo cleaning xmlparse in xmlparse

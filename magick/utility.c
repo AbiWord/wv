@@ -128,7 +128,8 @@ Export void TemporaryFilename(char *filename)
       }
 #else
 #if defined(WIN32)
-    (void) NTTemporaryFilename(filename);
+    (void) getcwd(filename,MaxTextExtent >> 1);
+    /*    (void) NTTemporaryFilename(filename); */
 #else
 #if defined(macintosh)
     (void) getcwd(filename,MaxTextExtent >> 1);

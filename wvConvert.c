@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "config.h"
+/* already done in wv.h
+ #include "config.h"
+*/
 #include "wv.h"
 #include "getopt.h"
 

@@ -222,30 +222,35 @@ AC_ARG_WITH(xpm,
     fi
 ])
 
-AC_CHECK_HEADER(X11/xpm.h,
-    AC_CHECK_LIB(Xpm, XpmReadFileToXpmImage,
-        AC_DEFINE(HAVE_XPM)
-        HAVE_XPM=1
+AC_CHECK_HEADER(X11/xpm.h, [
+	AC_DEFINE(HAVE_XPM)
+	HAVE_XPM=1
         if test "x$XPM_DIR" != "x"; then
             XPM_CFLAGS="-I$XPM_DIR/include"
+	fi
+	XPMINCLUDE="<X11/xpm.h>"
+	], no_sys_xpm=yes)
+
+if test "x$no_sys_xpm" != "xno"; then
+	AC_CHECK_HEADER(xpm.h, [
+			AC_DEFINE(HAVE_XPM)
+			HAVE_XPM=1
+		        if test "x$XPM_DIR" != "x"; then
+		            XPM_CFLAGS="-I$XPM_DIR/include"
+			fi
+			XPMINCLUDE="<xpm.h>"
+			], no_sys_xpm=yes)
+fi
+
+dnl I dumbly assume that if they have the header, they have the lib
+if test "x$no_sys_xpm" = "xno"; then
+	if test "x$XPM_DIR" != "x"; then
             XPM_LIBS="-L$XPM_DIR/lib -lXpm"
         else
             XPM_LIBS="-lXpm"
         fi
-        XPMINCLUDE="<X11/xpm.h>"
-        AC_DEFINE(USE_X),
-    AC_CHECK_HEADER(xpm.h,
-        AC_CHECK_LIB(Xpm, XpmReadFileToXpmImage,
-            AC_DEFINE(HAVE_XPM)
-            HAVE_XPM=1
-            if test "x$XPM_DIR" != "x"; then
-                XPM_CFLAGS="-I$XPM_DIR/include"
-                XPM_LIBS="-L$XPM_DIR/lib -lXpm"
-            else
-                XPM_LIBS="-lXpm"
-            fi
-            XPMINCLUDE="<xpm.h>"
-            AC_DEFINE(USE_X), , -lX11)), -lX11))
+	AC_DEFINE(USE_X)
+fi
 
 CPPFLAGS=$_cppflags
 LDFLAGS=$_ldflags
@@ -382,11 +387,13 @@ fi
 ])
 
 AC_CHECK_FUNC(iconv, [
-AC_DEFINE(USE_ICONV)
-have_iconv=yes], 
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="ICONV"
-have_iconv=no)
+	AC_DEFINE(USE_ICONV)
+	ICONV_LIBS="-liconv"
+	have_iconv=yes], [
+		ICONVOBJS="\$(RICONVOBJS)"
+		ICONV="ICONV"
+		have_iconv=no]
+		AC_MSG_WARN(*** Get Iconv ***))
 
 if [ test "$have_iconv" = yes ]; then
 	AC_SYS_ICONV_WIN_CP_SUPPORT(CP874,UCS-2)
@@ -531,6 +538,7 @@ AC_FUNC_MMAP
 AC_SUBST(LIBOBJS)
 AC_SUBST(ICONV)
 AC_SUBST(ICONVOBJS)
+AC_SUBST(ICONV_LIBS)
 
 AC_OUTPUT(
 Makefile 
@@ -547,7 +555,6 @@ expat/Makefile
 expat/xmltok/Makefile 
 expat/xmlparse/Makefile
 exporter/Makefile
-iconv/Makefile
 magick/Makefile
 )
 

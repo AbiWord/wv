@@ -5,7 +5,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#ifndef WIN32
 #include <sys/types.h>
+#endif
 #include <string.h>
 #include "wv.h"
 #undef S32
