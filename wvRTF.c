@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <malloc.h>
+#include <time.h>
 #include "getopt.h"
 #include "config.h"
 #include "wv.h"
@@ -11,24 +12,31 @@
 /* By Dom Lachowicz (cinamod@hotmail.com) */
 
 /* i don't like appearing to use printf */
-#define output printf
+#define rtf_output printf
+#define rtf_output_char(c)  do {rtf_output("%c", (c));} while(0)
+#define ENSURE_BUF()    fflush(stdout)
 
 typedef struct _rtfUserData
 {
-  int cFont;
-  int cCol;
-  int bIsBold;
-  int bIsItal;
-  int bIsStrike;
-  int bIsSup;
-  int bIsSub;
-} rtfUserData;
+  /* formatting variables */
 
-/* our 4 magical functions */
-int charProc(wvParseStruct *ps, U16 eachchar, U8 chartype, U16 lid);
-int specCharProc(wvParseStruct *ps, U16 eachchar, CHP * achp);
-int eleProc(wvParseStruct *ps, wvTag tag, void *props, int dirty);
-int docProc(wvParseStruct *ps, wvTag tag);
+  /* cached integer values */
+  int cFont;
+  int cFontSize;
+  int cCol;
+
+  /* boolean formats */
+  int bIsBold  :1;
+  int bIsItalic:1;
+  int bIsStrike:1;
+  int bIsUl    :1;
+  int bIsSup   :1;
+  int bIsSub   :1;
+
+  /* paragraph related */
+  int bInPara  :1;  
+  int bInSec   :1;
+} rtfUserData;
 
 /* this gets printed at the top of each document in the {\fonttbl section */
 
@@ -41,35 +49,35 @@ struct _fontMapping
 /* TODO: build me up appropriately */
 static struct _fontMapping fontMap[] =
 {
-  {"Arial", "Arial"},
-  {"Bitstream Charter", "Bitstream Charter"},
-  {"Bookman", "Bookman"},
-  {"Courier", "Courier"},
-  {"Courier New", "Courier New"},
+  {"Arial",              "Arial"},
+  {"Bitstream Charter",  "Bitstream Charter"},
+  {"Bookman",            "Bookman"},
+  {"Courier",            "Courier"},
+  {"Courier New",        "Courier New"},
   {"Century Schoolbook", "Century Schoolbook"},
-  {"Dingbats", "Dingbats"},
-  {"Goth", "Goth"},
-  {"Nimbus Sans", "Nimbus Sans"},
-  {"Palladio", "Palladio"},
-  {"Standard Symbol", "Standard Symbol"},
-  {"Symbol", "Symbol"},
-  {"Times", "Times New Roman"},
-  {"Times New Roman", "Times New Roman"},
+  {"Dingbats",           "Dingbats"},
+  {"Goth",               "Goth"},
+  {"Nimbus Sans",        "Nimbus Sans"},
+  {"Palladio",           "Palladio"},
+  {"Standard Symbol",    "Standard Symbol"},
+  {"Symbol",             "Symbol"},
+  {"Times",              "Times New Roman"},
+  {"Times New Roman",    "Times New Roman"},
 };
 
 #define FontTblSize (sizeof(fontMap)/sizeof(fontMap[0]))
-#define DFL_FONT_INDEX 3 /* I map this to whatever "Times New Roman" is */
+#define DFL_FONT_INDEX 13 /* I map this to whatever "Times New Roman" is */
 static void
 output_fonttable(void)
 {
   int i;
 
-  output("{\\fonttbl\n");
+  rtf_output("{\\fonttbl\n");
 
-  for(i=0; i<FontTblSize; i++)
-    output("{\\f%d\\fnil\\fcharset0\\fprq0\\fttruetype %s;}\n", i, fontMap[i].rtf);
+  for(i = 0; i<FontTblSize; i++)
+    rtf_output("{\\f%d\\fnil\\fcharset0\\fprq0\\fttruetype %s;}\n", i, fontMap[i].rtf);
   
-  output("}\n");
+  rtf_output("}\n");
 }
 
 /* map the MSWord name to the corresponding RTF name index */
@@ -84,7 +92,6 @@ mapFont(const char * name)
 
   return DFL_FONT_INDEX;
 }
-
 #undef DFL_FONT_INDEX
 #undef FontTblSize
 
@@ -112,22 +119,22 @@ static int colorTable[][3] =
 /* rtf names for the color_table as above */
 static char *rtfColors[] =
 {
-  "\\cf1", /* black */
-  "\\cf2", /* blue */
-  "\\cf3", /* cyan */
-  "\\cf4", /* green */
-  "\\cf5", /* magenta */
-  "\\cf6", /* red */
-  "\\cf7", /* yellow */
-  "\\cf8", /* white */
-  "\\cf9", /* dark blue */
-  "\\cf10", /* dark cyan */
-  "\\cf11", /* dark green */
-  "\\cf12", /* dark magenta */
-  "\\cf13", /* dark red */
-  "\\cf14", /* dark yellow */
-  "\\cf15", /* dark gray */
-  "\\cf16", /* light gray */
+  "\\cf0", /* black */
+  "\\cf1", /* blue */
+  "\\cf2", /* cyan */
+  "\\cf3", /* green */
+  "\\cf4", /* magenta */
+  "\\cf5", /* red */
+  "\\cf6", /* yellow */
+  "\\cf7", /* white */
+  "\\cf8", /* dark blue */
+  "\\cf9", /* dark cyan */
+  "\\cf10", /* dark green */
+  "\\cf11", /* dark magenta */
+  "\\cf12", /* dark red */
+  "\\cf13", /* dark yellow */
+  "\\cf14", /* dark gray */
+  "\\cf15", /* light gray */
 };
 
 #define RED(i)   colorTable[(i)][0]
@@ -139,19 +146,392 @@ output_colortable(void)
 {
   int i;
 
-  output("{\\colortbl\n");
+  rtf_output("{\\colortbl\n");
 
   for(i=0;i<ClrTblSize;i++)
     {
-      output("\\red%d\\green%d\\blue\\%d;\n", RED(i), GREEN(i), BLUE(i));
+      rtf_output("\\red%d\\green%d\\blue%d;\n", RED(i), GREEN(i), BLUE(i));
     }
   
-  output("}\n");
+  rtf_output("}\n");
 }
 #undef RED
 #undef GREEN
 #undef BLUE
 #undef ClrTblSize
+
+static void
+output_rtfUserData(rtfUserData *ud)
+{
+  /* add the initial bracket */
+  rtf_output_char('{');
+
+  /* font color */
+  rtf_output(rtfColors[ud->cCol]);
+
+  /* font face */
+  rtf_output("\\f%d", ud->cFont);
+
+  /* font size */
+  rtf_output("\\fs%d", ud->cFontSize);
+
+  /* italic text */
+  if (ud->bIsItalic) 
+    rtf_output("\\i");
+
+  /* bold text */
+  if(ud->bIsBold)
+    rtf_output("\\b");
+
+  /* underline and strike-through */
+  if(ud->bIsUl)
+    rtf_output("\\ul");
+  if(ud->bIsStrike)
+    rtf_output("\\strike");
+    
+  /* sub/superscript */
+  if (ud->bIsSup) {
+    rtf_output("\\super");
+  } else if (ud->bIsSub) {
+    rtf_output("\\sub");
+  }
+  /* add the final space */
+  rtf_output_char(' ');
+}
+
+static void
+fill_rtfUserData(rtfUserData *ud, CHP *chp, wvParseStruct *ps)
+{
+  char *fname = NULL;
+  if (!ps->fib.fFarEast) {
+    fname = wvGetFontnameFromCode(&ps->fonts, chp->ftcAscii);
+  } else {
+    fname = wvGetFontnameFromCode(&ps->fonts, chp->ftcFE);
+  }
+
+  ud->cCol      = ((chp->ico) ? (chp->ico - 1) : 0);
+  ud->cFont     = mapFont(fname);
+  ud->cFontSize = chp->hps;
+  ud->bIsBold   = (chp->fBold);
+  ud->bIsItalic = (chp->fItalic);
+  ud->bIsUl     = (chp->kul);
+  ud->bIsStrike = (chp->fStrike);
+  ud->bIsSup    = (chp->iss == 1);
+  ud->bIsSub    = (chp->iss == 2);
+}
+
+static void
+handleImage(Blip * b, long width, long height)
+{
+#if 0
+
+  /* TODO: image support */
+  FILE *fd = NULL;
+  int data = 0;
+  int tag = time(NULL);
+
+  /* short-circuit this method if we don't support
+     the incoming format */
+  switch(b->type)
+    {
+    case msoblipPNG:
+      /* conveniently I know how to export to PNG */
+      rtf_output("{\\*\\shppict{\\pict\\pngblip\\picw%d\\pich%d\\picwgoal\\pichgoal\n", width, height);
+      break;
+    case msoblipDIB:
+    case msoblipWMF:
+    case msoblipEMF:
+    case msoblipPICT:
+    case msoblipJPEG:
+    default:
+      /* TODO: support other image types */
+      return;
+    }
+
+  rtf_output("\bliptag%d{\\*\\blipuid%032x}", tag, tag);
+  
+  fd = (FILE*)(b->blip.bitmap.m_pvBits);
+  while (EOF != (data = getc(fd)))
+    rtf_output("%02x", data);
+
+  rtf_output_char('}');
+
+#endif
+}
+
+static int 
+charProc(wvParseStruct *ps, U16 eachchar, U8 chartype, U16 lid)
+{
+
+  /* convert incoming character to unicode */
+  if (chartype)
+    eachchar = wvHandleCodePage(eachchar, lid);
+
+  /* take care of any oddities in Microsoft's character "encoding" */
+  /* TODO: does the above code page handler take care of these? */
+  if (chartype == 1 && eachchar == 146) eachchar = 39; /* apostrophe */
+
+  switch (eachchar)
+    {
+    case 13: /* paragraph end */
+      return 0;
+
+    case 11: /* hard line break */
+      break;
+
+    case 12: /* page breaks, section marks */
+      break;
+
+    case 14: /* column break */
+      break;
+
+    case 19: /* field begin */
+      /* flush current text buffer */
+      ps->fieldstate++;
+      ps->fieldmiddle = 0;
+      return 0;
+    case 20: /* field separator */
+      ps->fieldmiddle = 1;
+      return 0;
+    case 21: /* field end */
+      ps->fieldstate--;
+      ps->fieldmiddle = 0;
+      return 0;
+
+    default:
+      break;
+    }
+
+  /* todo: properly handle fields */
+  if (eachchar == 0x13 || eachchar == 0x14) 
+    return 0;
+
+  /* properly escape this */
+  if(eachchar == '{' || eachchar == '}')
+    rtf_output_char('\\');
+
+  rtf_output_char(eachchar);
+  return 0;
+}
+
+static int 
+specCharProc(wvParseStruct *ps, U16 eachchar, CHP * achp)
+{
+  Blip blip;
+  wvStream *fil;       
+  long pos;
+  FSPA * fspa;
+  PICF picf;
+  FDOA * fdoa;
+  
+  switch(eachchar)
+    {
+    case 19: /* field begin */
+      ps->fieldstate++;
+      ps->fieldmiddle = 0;
+      return 0;
+    case 20: /* field separator */
+      if (achp->fOle2)
+	{
+	  wvTrace(("Field has an embedded OLE2 object\n"));
+	}
+      ps->fieldmiddle = 1;
+      return 0;
+    case 21: /* field end */
+      ps->fieldstate--;
+      ps->fieldmiddle = 0;
+      return 0;
+    default:
+      break;
+    }
+
+  /* TODO: properly handle fields */
+  if(ps->fieldstate)
+    {
+      if (eachchar == 0x13 || eachchar == 0x14) 
+	return 0;
+    }
+
+  /* image handling */
+  switch (eachchar) 
+    {
+    case 0x01:
+      
+      if (achp->fOle2)
+	{
+	  wvTrace(("embedded OLE2 component. currently unsupported"));
+	  return 0;
+	}
+         
+      pos = wvStream_tell(ps->data);
+      
+      wvStream_goto(ps->data, achp->fcPic_fcObj_lTagObj);
+      
+      wvGetPICF(wvQuerySupported(&ps->fib, NULL), &picf, ps->data);
+      
+      fil = picf.rgb;
+      
+      if (wv0x01(&blip, fil, picf.lcb - picf.cbHeader))
+	{
+	  handleImage(&blip, picf.dxaGoal, picf.dyaGoal);
+	}
+      else
+	{
+	  wvTrace(("Dom: strange no graphic data 1\n"));
+	}
+ 
+      wvStream_goto(ps->data, pos);
+      
+      return 0;
+      break;
+         
+    case 0x08:
+      
+      if (wvQuerySupported(&ps->fib, NULL) == WORD8)
+	{
+	  if(ps->nooffspa>0)
+	    {
+	      
+	      fspa = wvGetFSPAFromCP(ps->currentcp, ps->fspa,
+				     ps->fspapos, ps->nooffspa);
+	      
+	      if(!fspa)
+		{
+		  wvError(("No fspa! Panic and Insanity Abounds!\n"));
+		  return 0;
+		}          
+ 
+	      if (wv0x08(&blip, fspa->spid, ps))
+		{
+		  handleImage(&blip, fspa->xaRight-fspa->xaLeft,
+			      fspa->yaBottom-fspa->yaTop);
+		}
+	      else
+		{
+		  wvTrace(("Dom: strange no graphic data 2\n"));
+		  return 0;
+		}
+	    }
+	  else
+             {
+               wvTrace(("nooffspa was <=0 -- ignoring"));
+             } 
+           }
+      else
+	{
+	  wvError(("pre Word8 0x08 graphic -- unsupported at the moment"));
+	  fdoa = wvGetFDOAFromCP(ps->currentcp, NULL, ps->fdoapos, ps->nooffdoa);
+	  
+	  // TODO: do something with the data in this fdoa someday...             
+	}
+      
+    }
+
+  return 0;
+}
+
+static int 
+eleProc(wvParseStruct *ps, wvTag tag, void *props, int dirty)
+{
+  /* some word structures */
+  PAP *apap;
+  CHP *achp;
+  SEP *asep;
+  int iRes;
+
+  rtfUserData *ud = (rtfUserData*)ps->userData;
+
+  switch(tag)
+    {
+    case SECTIONBEGIN:
+
+      /* TODO: get smarter */
+      asep = (SEP*)props;
+      rtf_output("\\sectd\\sbknone\\colsx360\n");
+
+      ud->bInSec = 1;
+      break;
+
+    case SECTIONEND:
+      ud->bInSec = 0;
+      break;
+
+    case PARABEGIN:
+      apap = (PAP*)props;
+
+      ud->bInPara = 1;
+
+      rtf_output("\\pard");
+      switch(apap->jc)
+	{
+	case 0: /* left */
+	  break;
+	case 1: /* center */
+	  rtf_output("\\qc");
+	  break;
+	case 2: /* right */
+	  rtf_output("\\qr");
+	  break;
+	default:
+	  break;
+	}
+
+      break;
+
+    case PARAEND: /* pretty much nothing */
+      rtf_output_char('\n');
+      ud->bInPara = 0;
+      break;
+
+    case CHARPROPBEGIN:
+      achp = (CHP*)props;
+      fill_rtfUserData(ud, achp, ps);
+      output_rtfUserData(ud);
+      break;
+      
+    case CHARPROPEND:
+      achp = (CHP*)props;
+      fill_rtfUserData(ud, achp, ps);
+      if(ud->bInPara)
+	{
+	  rtf_output_char('}');
+	}
+      break;
+
+    default:
+      break;
+    }
+
+  return 0;
+}
+
+static int 
+docProc(wvParseStruct *ps, wvTag tag)
+{
+  switch(tag)
+    {
+    case DOCBEGIN:
+      /* print out my rtf preamble */
+      rtf_output("{\\rtf1\\ansi\\ansicpg1252\\deff0\n");
+      
+      /* now print out a font table */
+      /* and a color table */
+      output_fonttable();
+      output_colortable();
+      rtf_output("\\kerning0\\cf0\\viewkind1\\paperw12240\\paperh15840\\margl1440\\margr1440\\widowctl\n");
+      break;
+
+    case DOCEND:
+      rtf_output("}\n");
+      ENSURE_BUF();
+      break;
+
+    default:
+      break;
+    }
+
+  return 0;
+}
 
 static void
 do_version(void)
@@ -172,7 +552,7 @@ do_help(void)
   printf("\nConverts MSWord documents to RTF\n");
 }
 
-char *charset=NULL;
+static char *charset=NULL;
 
 int
 main(int argc, char *argv[])
@@ -263,7 +643,8 @@ main(int argc, char *argv[])
   ps.filename = fname;
   ps.dir = dir;
   
-  memset(&ud, sizeof(ud), 0);
+  /* set to 0 */
+  memset(&ud, 1, sizeof(rtfUserData));
   ps.userData = &ud;
 
   if (ret & 0x8000)  /* Password protected? */
@@ -325,202 +706,3 @@ main(int argc, char *argv[])
 
   return 0;
 }
-
-#define OUTPUT_CHAR(c)  do {output("%c", (c));} while(0)
-#define OUTPUT_CHARS(s) do {output("%s", (s));} while(0)
-#define ENSURE_BUF()    fflush(stdout)
-
-int 
-charProc(wvParseStruct *ps, U16 eachchar, U8 chartype, U16 lid)
-{
-
-  /* convert incoming character to unicode */
-  if (chartype)
-    eachchar = wvHandleCodePage(eachchar, lid);
-
-  /* take care of any oddities in Microsoft's character "encoding" */
-  /* TODO: does the above code page handler take care of these? */
-  if (chartype == 1 && eachchar == 146) eachchar = 39; /* apostrophe */
-
-  switch (eachchar)
-    {
-    case 13: /* paragraph end */
-      return 0;
-
-    case 11: /* hard line break */
-      break;
-
-    case 12: /* page breaks, section marks */
-      break;
-
-    case 14: /* column break */
-      break;
-
-    case 19: /* field begin */
-      /* flush current text buffer */
-      ps->fieldstate++;
-      ps->fieldmiddle = 0;
-      return 0;
-    case 20: /* field separator */
-      ps->fieldmiddle = 1;
-      return 0;
-    case 21: /* field end */
-      ps->fieldstate--;
-      ps->fieldmiddle = 0;
-      return 0;
-
-    default:
-      break;
-    }
-
-  if (ps->fieldstate && !ps->fieldmiddle) return 0;
-	   
-  OUTPUT_CHAR(eachchar);
-  return 0;
-}
-
-int 
-specCharProc(wvParseStruct *ps, U16 eachchar, CHP * achp)
-{
-  /* TODO: handle RTF images and fields */
-  return 0;
-}
-
-int 
-eleProc(wvParseStruct *ps, wvTag tag, void *props, int dirty)
-{
-  /* some word structures */
-  PAP *apap;
-  CHP *achp;
-  SEP *asep;
-  int iRes;
-
-  switch(tag)
-    {
-    case SECTIONBEGIN:
-      asep = (SEP*)props;
-      break;
-
-    case SECTIONEND:
-      break;
-
-    case PARABEGIN:
-      OUTPUT_CHARS("\\par\\parad");
-
-      apap = (PAP*)props;
-
-      switch(apap->jc)
-	{
-	case 0: /* left */
-	  break;
-	case 1: /* center */
-	  OUTPUT_CHARS("\\qc");
-	  break;
-	case 2: /* right */
-	  OUTPUT_CHARS("\\qr");
-	  break;
-	default:
-	  break;
-	}
-
-      break;
-
-    case PARAEND: /* pretty much nothing */
-      OUTPUT_CHAR('\n');
-      break;
-
-    case CHARPROPBEGIN:
-      achp = (CHP*)props;
-
-      OUTPUT_CHAR('{');
-
-      /* text color */
-      if (achp->ico) {
-	OUTPUT_CHARS(rtfColors[achp->ico-1]);
-      }  
-
-      /* font family */
-      {
-	char *fname;
-	if (!ps->fib.fFarEast) {
-	  fname = wvGetFontnameFromCode(&ps->fonts, achp->ftcAscii);
-	} else {
-	  fname = wvGetFontnameFromCode(&ps->fonts, achp->ftcFE);
-	}
-	
-	output("\\f%d", mapFont(fname));
-      }
-
-      /* font size */
-      output("\\fs%d", achp->hps);
-
-      /* italic text */
-      if (achp->fItalic) {
-	OUTPUT_CHARS("\\i");
-      }
-
-      /* bold text */
-      if (achp->fBold) { 
-	OUTPUT_CHARS("\\b");
-      }
-      
-      /* underline and strike-through */
-      if (achp->fStrike || achp->kul) {
-	if (achp->fStrike && achp->kul) {
-	  OUTPUT_CHARS("\\ul\\strike");
-	} else if (achp->kul) {
-	  OUTPUT_CHARS("\\ul");
-	} else {
-	  OUTPUT_CHARS("\\strike");
-	}
-      }
-      
-      /* sub/superscript */
-      if (achp->iss == 1) {
-	OUTPUT_CHARS("\\super");
-      } else if (achp->iss == 2) {
-	OUTPUT_CHARS("\\sub");
-      }
-      
-      /* add the final space */
-      OUTPUT_CHAR(' ');
-      break;
-      
-    case CHARPROPEND:
-      OUTPUT_CHAR('}');
-      break;
-
-    default:
-      break;
-    }
-
-  return 0;
-}
-
-int 
-docProc(wvParseStruct *ps, wvTag tag)
-{
-  switch(tag)
-    {
-    case DOCBEGIN:
-      /* print out my rtf preamble */
-      output("{\\rtf1\\ansi\\ansicpg1252\\deff0\n");
-      
-      /* now print out a font table */
-      /* and a color table */
-      output_fonttable();
-      output_colortable();
-      break;
-
-    case DOCEND:
-      output("}\n");
-      ENSURE_BUF();
-      break;
-
-    default:
-      break;
-    }
-
-  return 0;
-}
-
