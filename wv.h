@@ -1065,11 +1065,6 @@ number to use for each list entry, Caolan
     int wvReleaseLFO_records (LFO ** lfo, LFOLVL ** lfolvl, LVL ** lvl,
 			      U32 nooflvl);
 
-
-#if 0
-    char *wvGenerateNFC (int value, int no_type);
-#endif
-    char *wvOrdinal (U32 x);
     U16 *wvListString (int ilfo, int ilvl, LST * alst);
 
     typedef U16 LID;
@@ -3890,7 +3885,6 @@ Property       PID            Type            Default        Description
     fsp_list *wvParseEscher (fbse_list ** pic_list, U32 fcDggInfo,
 			     U32 lcbDggInfo, wvStream * escherstream,
 			     FILE * delaystream);
-    int wvQueryDelayStream (FBSE * afbse);
     fbse_list *wvGetSPID (U32 spid, fsp_list * afsp_list,
 			  fbse_list * afbse_list);
     U32 twvGetFBSE (FBSE * item, wvStream * fd);
@@ -4730,7 +4724,6 @@ has got
 
 /*interim*/
     U32 wvGetSPIDfromCP (U32 cp, textportions * portions);
-    void wvDumpPicture (U32 pos, wvStream * fd);
     void oldwvGetPICF (PICF * apicf, wvStream * fd, U32 offset);
 
 /* have to have pap replaced with PAP, and change the text output code to the new ones, whenever they are ready*/

@@ -9,7 +9,7 @@
 #endif
 #include "wv.h"
 
-static TokenTable s_Tokens[] = {
+static const TokenTable s_Tokens[] = {
     {"TIME", FC_TIME},
     {"\\@", FC_DateTimePicture},
     {"HYPERLINK", FC_HYPERLINK},
@@ -300,12 +300,11 @@ wvHandleCommandField (char *command)
     return (ret);
 }
 
-U16 command[40000];
-U16 argumen[40000];
-
 int
 fieldCharProc (wvParseStruct * ps, U16 eachchar, U8 chartype, U16 lid)
 {
+    static U16 command[40000];
+    static U16 argumen[40000];
     static U16 *which;
     static int i, depth;
     char *a;

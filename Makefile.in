@@ -130,7 +130,6 @@ MYOBJECTS =	\
 	lst.$(OBJEXT) \
 	lvl.$(OBJEXT) \
 	lfo.$(OBJEXT) \
-	ordinal.$(OBJEXT) \
 	summary.$(OBJEXT) \
 	filetime.$(OBJEXT) \
 	chp.$(OBJEXT) \
@@ -176,7 +175,6 @@ MYOBJECTS =	\
 	tbd.$(OBJEXT) \
 	ftxbxs.$(OBJEXT) \
 	wkb.$(OBJEXT) \
-	graphics.$(OBJEXT) \
 	picf.$(OBJEXT) \
 	crc32.$(OBJEXT) \
 	md5.$(OBJEXT) \
@@ -287,16 +285,13 @@ else
 endif
 
 
-all: wvSummary$(EXEEXT) wvWare$(EXEEXT) wvRTF${EXEEXT} wvConvert$(EXEEXT) wvSimpleCLX$(EXEEXT) wvVersion$(EXEEXT) wv-libconfig wv-incconfig
+all: wvSummary$(EXEEXT) wvWare$(EXEEXT) wvRTF${EXEEXT} wvConvert$(EXEEXT) wvVersion$(EXEEXT) wv-libconfig wv-incconfig
 
 wvRTF$(EXEEXT): wvRTF.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvRTF.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wvSummary$(EXEEXT): wvSummary.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a 
 	$(CC)  -o $@ wvSummary.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
-
-wvSimpleCLX$(EXEEXT): wvSimpleCLX.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
-	$(CC)  -o $@ wvSimpleCLX.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wvVersion$(EXEEXT): wvVersion.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvVersion.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
@@ -306,9 +301,6 @@ wvConvert$(EXEEXT): wvConvert.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 
 wvWare$(EXEEXT): wvWare.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvWare.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
-
-wvGraphicConvert$(EXEEXT): wvGraphicConvert.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
-	$(CC)  -o $@ wvGraphicConvert.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wv-libconfig: Makefile
 	$(RM) -f wv-libconfig
@@ -393,10 +385,10 @@ cleansub:
 	@(cd exporter && $(MAKE) clean) || exit 1
 
 clean: cleansub
-	$(RM) -rf *.$(OBJEXT) $(GETOPT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvRTF$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) core a.$(OBJEXT)ut *.a 
+	$(RM) -rf *.$(OBJEXT) $(GETOPT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvRTF$(EXEEXT) core a.$(OBJEXT)ut *.a 
 
 distclean: realcleansub
-	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.$(OBJEXT) wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvSimpleCLX$(EXEEXT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvHtml wvAbw wvLatex wvText wvWml wvCleanLatex wvGraphicConvert$(EXEEXT) core out* analyze/* .pure lex.yy.c libtool
+	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.$(OBJEXT) wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvHtml wvAbw wvLatex wvText wvWml wvCleanLatex core out* analyze/* .pure lex.yy.c libtool
 
 realclean: distclean
 
@@ -435,7 +427,6 @@ install: installdirs all
 	chmod +x $(srcdir)/wvCleanLatex
 	chmod +x $(srcdir)/wvAbw	
 	$(INSTALL) $(srcdir)/wvSummary$(EXEEXT) $(bindir)/wvSummary$(EXEEXT)
-	$(INSTALL) $(srcdir)/wvSimpleCLX$(EXEEXT) $(bindir)/wvSimpleCLX$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvVersion$(EXEEXT) $(bindir)/wvVersion$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvConvert$(EXEEXT) $(bindir)/wvConvert$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvWare$(EXEEXT) $(bindir)/wvWare$(EXEEXT)

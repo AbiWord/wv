@@ -59,8 +59,6 @@ CSRCS= \
 	lst.c \
 	lvl.c \
 	lfo.c \
-	nfc.c \
-	ordinal.c \
 	summary.c \
 	filetime.c \
 	chp.c \
@@ -106,7 +104,6 @@ CSRCS= \
 	tbd.c \
 	ftxbxs.c \
 	wkb.c \
-	graphics.c \
 	picf.c \
 	crc32.c \
 	md5.c \
