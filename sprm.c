@@ -121,11 +121,18 @@ wvGetSprmFromU16 (Sprm * aSprm, U16 sprm)
     aSprm->spra = (sprm & 0xe000) >> 13;
 }
 
+#undef EXAMINE_SPRM
 U8
 wvEatSprm (U16 sprm, U8 * pointer, U16 * pos)
 {
     int len;
     Sprm aSprm;
+#ifdef EXAMINE_SPRM
+	U8 temp[256];
+	U16 p;
+	U8  *pi;
+	int i;
+#endif
     wvTrace (("Eating sprm %x\n", sprm));
     wvGetSprmFromU16 (&aSprm, sprm);
     if (sprm == sprmPChgTabs)
@@ -141,19 +148,48 @@ wvEatSprm (U16 sprm, U8 * pointer, U16 * pos)
 	  len = bread_16ubit (pointer, pos);
 	  len--;
       }
-    else
+	else
       {
 	  len = wvSprmLen (aSprm.spra);
+#ifdef EXAMINE_SPRM
+	  i = 0;
+	  p = *pos;
+	  pi = pointer;
+#endif
 	  wvTrace (("wvSprmLen len is %d\n", len));
 	  if (len < 0)
 	    {
 		len = bread_8ubit (pointer, pos);
+		/* bread increased pos, but in order to keep len and pos in
+		   sync later on, we have to decreased it again */
+		(*pos)--;
+#ifdef EXAMINE_SPRM
+		pi++;
+		while(i < sizeof(temp) && i < len)
+		{
+			temp[i] = bread_8ubit(pi, &p);
+			pi++;
+			i++;
+		}
+#endif
 		len++;
 	    }
+#ifdef EXAMINE_SPRM
+	  else
+	  {
+		while(i < sizeof(temp) && i < len)
+		{
+			temp[i] = bread_8ubit(pi, &p);
+			pi++;
+			i++;
+		}
+	  }
+#endif
       }
     (*pos) += len;
     return (len);
 }
+#undef EXAMINE_SPRM
 
 Sprm
 wvApplySprmFromBucket (wvVersion ver, U16 sprm, PAP * apap, CHP * achp,
@@ -869,7 +905,8 @@ wvApplySprmFromBucket (wvVersion ver, U16 sprm, PAP * apap, CHP * achp,
 	  asep->dxtCharSpace = (S32) bread_32ubit (pointer, pos);
 	  break;
       case sprmSDyaLinePitch:
-	  asep->dyaLinePitch = (S32) bread_32ubit (pointer, pos);
+	  /* incorrectly documented; is only word size */
+	  asep->dyaLinePitch = (S32) bread_16ubit (pointer, pos);
 	  break;
       case sprmSClm:
 	  /* who knows */
