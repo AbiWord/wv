@@ -31,6 +31,7 @@ void wvGetFFN(FFN *item,FILE *fd)
 void wvGetFFN_STTBF(FFN_STTBF *item,U32 offset,U32 len,FILE *fd)
 	{
 	int i;
+	   wvTrace(("reading fonts...\n"));
 	if (len==0)
 		{
 		item->nostrings=0;
@@ -47,8 +48,13 @@ void wvGetFFN_STTBF(FFN_STTBF *item,U32 offset,U32 len,FILE *fd)
 		item->extradatalen=read_16ubit(fd);
 		item->ffn = (FFN *)malloc(item->nostrings*sizeof(FFN));
 		for (i=0;i<item->nostrings;i++)
+		     {
 			wvGetFFN(&(item->ffn[i]),fd);
+			wvTrace(("font %d: %s\n", i, wvWideStrToMB(item->ffn[i].xszFfn)));
+		     }
 		}
+
+	   wvTrace(("done reading fonts.\n"));
 	}
 
 void wvReleaseFFN_STTBF(FFN_STTBF *item)

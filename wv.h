@@ -2215,7 +2215,8 @@ typedef struct _wvParseStruct
 	FIB fib;
 	STTBF anSttbfAssoc;
 	CLX clx;
-
+	FFN_STTBF fonts;
+	   
 	/*private*/
 	FILE *tablefd0;
 	FILE *tablefd1;

@@ -358,6 +358,9 @@ void wvDecodeComplex(wvParseStruct *ps)
 	/*we will need the stylesheet to do anything useful with layout and look*/
 	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
 
+        /* get font list */
+	wvGetFFN_STTBF(&ps->fonts, ps->fib.fcSttbfffn, ps->fib.lcbSttbfffn, ps->tablefd);
+	   
 	/*we will need the table of names to answer questions like the name of the doc*/
 	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3) )
 		wvGetSTTBF6(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
@@ -526,7 +529,8 @@ void wvDecodeComplex(wvParseStruct *ps)
 	wvHandleDocument(ps,DOCEND);
 	wvReleaseSTTBF(&ps->anSttbfAssoc);
 	wvReleaseCLX(&ps->clx);
-	wvReleaseSTSH(&stsh);
+	   wvReleaseFFN_STTBF(&ps->fonts);
+	   wvReleaseSTSH(&stsh);
 	wvFree(btePapx);
 	wvFree(posPapx);
 	wvFree(bteChpx);

@@ -526,13 +526,13 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			bgetc(pointer,pos);
 			break;
 		case sprmCRgFtc0:
-			achp->lid = bread_16ubit(pointer,pos);
+			achp->ftcAscii = bread_16ubit(pointer,pos);
 			break;
 		case sprmCRgFtc1:
-			achp->lidDefault = bread_16ubit(pointer,pos);
+			achp->ftcFE = bread_16ubit(pointer,pos);
 			break;
 		case sprmCRgFtc2:
-			achp->lidFE = bread_16ubit(pointer,pos);
+			achp->ftcOther = bread_16ubit(pointer,pos);
 			break;
 		case sprmCFDStrike:
 			achp->fDStrike = bgetc(pointer,pos);
@@ -1369,7 +1369,7 @@ void decode_sprm(FILE* in,U16 clist,pap *retpap,chp *retchp,sep *retsep,U16 *l,U
 		case 0x4A43:
 			retchp->fontsize = dread_16ubit(in,list);
 			(*l)+=2;
-			error(erroroutput,"font is %d\n",retchp->fontsize);
+			wvTrace(("font size is %d half-points\n",retchp->fontsize));
 			break;
 		case 0x4A30:
 			retchp->istd = dread_16ubit(in,list);
@@ -1391,7 +1391,9 @@ void decode_sprm(FILE* in,U16 clist,pap *retpap,chp *retchp,sep *retsep,U16 *l,U
 			(*l)++;
 			break;
 		case 0x4A4F:
-			retchp->ftcAscii=dread_16ubit(in,list);
+			wvTrace(("apply sprm to modified font %d -> ", retchp->ftcAscii));
+		   	retchp->ftcAscii=dread_16ubit(in,list);
+			wvTrace(("%d\n", retchp->ftcAscii));
 			(*l)+=2;
 			break;
 		case 0x4A50:
@@ -1399,7 +1401,9 @@ void decode_sprm(FILE* in,U16 clist,pap *retpap,chp *retchp,sep *retsep,U16 *l,U
 			(*l)+=2;
 			break;
 		case 0x4A51:
+			wvTrace(("apply sprm to modified font %d -> ", retchp->ftcOther));
 			retchp->ftcOther=dread_16ubit(in,list);
+			wvTrace(("%d\n", retchp->ftcOther));
 			(*l)+=2;
 			break;
 		case 0xA413:
@@ -2024,7 +2028,7 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 			}
 		}
 	apap->itbdMac = k;
-	wvTrace("here\n");
+	wvTrace(("here\n"));
 	return(cch);
 
 	k=0;
@@ -2050,13 +2054,13 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 			}
 		}
 
-	wvTrace("here\n");
+	wvTrace(("here\n"));
 	apap->itbdMac = k;
 	wvFree(rgdxaDel);
 	wvFree(rgtbdAdd);
 	wvFree(rgdxaAdd);
 	wvFree(rgdxaClose);
-	wvTrace("Exiting Successfully\n");
+	wvTrace(("Exiting Successfully\n"));
 
 	return(cch);
 	}

@@ -1,4 +1,5 @@
 Changes to to 0.5.21
+	* fix for bad sprm handlers so font changes now occur.
 	* fix for having no summary stream in wvSummary.
 	* added protection support for istd out of sequence, we should in the
 	future handle them correctly
