@@ -15,53 +15,48 @@ AR = ar
 # use -DXML_BYTE_ORDER=21 for big-endian (network) byte order.
 # -DXML_NS adds support for checking of lexical aspects of XML namespaces spec
 # -DXML_MIN_SIZE makes a smaller but slower parser
-CFLAGS = @CFLAGS@ -Ixmltok -Ixmlparse -DXML_NS
+CFLAGS = @CFLAGS@ -Ixmltok/ -Ixmlparse/
 
 # Use one of the next two lines; unixfilemap is better if it works.
 FILEMAP_OBJ=xmlwf/unixfilemap.o
 #FILEMAP_OBJ=xmlwf/readfilemap.o
 
+srcdir=@srcdir@
+
 SHELL = /bin/sh
 
 .SUFFIXES: .C .o
 
-XMLOBJECTS =	\
-	xmlwf/xmlwf.o \
-	xmlwf/xmlfile.o \
-	xmlwf/codepage.o \
-	$(FILEMAP_OBJ)
+all: XMLTOK XMLPARSE
 
-PARSEOBJECTS =	\
-	xmlparse/xmlparse.o \
-	xmlparse/hashtable.o
+XMLTOK:
+	@echo making xmltok in xmltok
+	@(cd xmltok && $(MAKE)) || exit 1
 
-TOKENOBJECTS =	\
-	xmltok/xmltok.o \
-	xmltok/xmlrole.o 
-	
+XMLPARSE:
+	@echo making xmlparse in xmlparse
+	@(cd xmlparse && $(MAKE)) || exit 1
 
-all: xmlwf/xmlwf$(EXEEXT) lib/libxmlparse.a lib/libxmltok.a
+%.o: $(srcdir)/%.c
+	$(CC) $(CFLAGS) -c $(srcdir)/$*.c
 
-xmlwf/xmlwf$(EXEEXT): lib/libxmlparse.a lib/libxmltok.a $(XMLOBJECTS)
-	 $(CC) -o $@ $(XMLOBJECTS) -Llib -lxmlparse -lxmltok
+clean: cleansub
 
-lib/libxmlparse.a:	$(PARSEOBJECTS)
-	$(AR) rc $@ $(PARSEOBJECTS) 
-	$(RANLIB) $@
+distclean: clean realcleansub
+	rm -rf Makefile
 
-lib/libxmltok.a:	$(TOKENOBJECTS)
-	$(AR) rc $@ $(TOKENOBJECTS) 
-	$(RANLIB) $@
+cleansub:
+	@echo cleaning xmlparse in xmlparse
+	@(cd xmlparse && $(MAKE) clean) || exit 1
+	@echo cleaning xmltok in xmltol
+	@(cd xmltok && $(MAKE) clean) || exit 1
 
-%.o: %.c 
-	$(CC) $(CFLAGS) -c $*.c -o $*.o
+realcleansub:
+	@echo real cleaning xmlparse in xmlparse
+	@(cd xmlparse && $(MAKE) realclean) || exit 1
+	@echo real cleaning xmltok in xmltol
+	@(cd xmltok && $(MAKE) realclean) || exit 1
 
-clean: 
-	rm -rf $(XMLOBJECTS) $(PARSEOBJECTS) $(TOKENOBJECTS)
-
-distclean: clean
-	rm -rf Makefile lib/*.a xmlwf/xmlwf$(EXEEXT)
-
-realclean: distclean
+realclean: distclean 
 
 #  DO  NOT  DELETE THIS LINE -- make depend depends on it.

@@ -3,10 +3,13 @@
 #include <ctype.h>
 #include <string.h>
 #include <time.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
 extern FILE *erroroutput;
-extern FILE *outputfile;
+extern wvStream *outputfile;
 
 extern long int cp;
 extern long int realcp;
@@ -15,7 +18,7 @@ extern long int realcp;
 this attempts to parse the HYPERLINK field that ms uses to encode
 hyperlink information
 */
-U16 *decode_hyperlink(int letter, long int *swallowcp1, long int *swallowcp2, U16 **deleteme)
+U16 *decode_hyperlink(int letter, unsigned long int *swallowcp1, unsigned long int *swallowcp2, U16 **deleteme)
 	{
 	/* a little state machine then */
 	/* 
@@ -49,7 +52,7 @@ U16 *decode_hyperlink(int letter, long int *swallowcp1, long int *swallowcp2, U1
 		{
 		from = *swallowcp1;
 		to = *swallowcp2;
-		array = (U16 *) malloc (sizeof(U16) * ((to+1)-from));
+		array = (U16 *) wvMalloc (sizeof(U16) * ((to+1)-from));
 		if (array==NULL)
 			{
 			error(erroroutput,"no mem for hyperlink\n");
@@ -128,7 +131,7 @@ U16 *decode_hyperlink(int letter, long int *swallowcp1, long int *swallowcp2, U1
 this attempts to parse the REF field that ms uses to encode
 crosslink information
 */
-U16 *decode_crosslink(int letter,long int *swallowcp1, long int *swallowcp2)
+U16 *decode_crosslink(int letter,unsigned long int *swallowcp1, unsigned long int *swallowcp2)
 	{
 	/* a little state machine then */
 	/* 
@@ -159,8 +162,8 @@ U16 *decode_crosslink(int letter,long int *swallowcp1, long int *swallowcp2)
 		{
 		from = *swallowcp1;
 		to = *swallowcp2;
-		error(erroroutput,"a mallocing %d\n",(to+1)-from);
-		array = (U16 *) malloc (sizeof(U16) * ((to+1)-from));
+		error(erroroutput,"a wvMallocing %d\n",(to+1)-from);
+		array = (U16 *) wvMalloc (sizeof(U16) * ((to+1)-from));
 		if (array==NULL)
 			{
 			error(erroroutput,"no mem for hyperlink\n");

@@ -7,7 +7,9 @@ Released under the GPL, see COPYING
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "bintree.h"
 
 void InitBintree(BintreeInfo *tree,int (*func1)(void *,void *),int (*func2)(void *,void *))
@@ -36,7 +38,7 @@ Node *InsertNode(BintreeInfo *tree,void *Data) {
     }
 
     /* setup new node */
-    if ((X = (Node *)malloc (sizeof(Node))) == 0) {
+    if ((X = (Node *)wvMalloc (sizeof(Node))) == 0) {
         fprintf (stderr, "insufficient memory (InsertNode)\n");
         exit(1);
     }
@@ -48,10 +50,12 @@ Node *InsertNode(BintreeInfo *tree,void *Data) {
 
     /* insert X in tree */
     if(Parent)
-        if(tree->CompLT(Data, Parent->Data))
+		{
+        if (tree->CompLT(Data, Parent->Data))
             Parent->Left = X;
         else
             Parent->Right = X;
+		}
     else
         tree->Root = X;
 
@@ -88,12 +92,15 @@ void DeleteNode(BintreeInfo *tree,Node *Z)
         X = Y->Right;
 
     /* remove Y from the parent chain */
-    if (X) X->Parent = Y->Parent;
+    if (X) 
+		X->Parent = Y->Parent;
     if (Y->Parent)
+		{
         if (Y == Y->Parent->Left)
             Y->Parent->Left = X;
         else
             Y->Parent->Right = X;
+		}
     else
         tree->Root = X;
 
@@ -107,15 +114,17 @@ void DeleteNode(BintreeInfo *tree,Node *Z)
         if (Y->Right) Y->Right->Parent = Y;
         Y->Parent = Z->Parent;
         if (Z->Parent)
+			{
             if (Z == Z->Parent->Left)
                 Z->Parent->Left = Y;
             else
                 Z->Parent->Right = Y;
+			}
         else
             tree->Root = Y;
-        free (Z);
+        wvFree (Z);
     } else {
-        free (Y);
+        wvFree (Y);
     }
 }
 

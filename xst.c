@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
 void wvFreeXst(Xst **xst)
@@ -13,12 +16,12 @@ void wvFreeXst(Xst **xst)
         freegroup = *xst;
         *xst = (*xst)->next;
         if (freegroup->u16string != NULL)
-            free(freegroup->u16string);
-        free(freegroup);
+            wvFree(freegroup->u16string);
+        wvFree(freegroup);
         }
 	}
 
-void wvGetXst(Xst **xst,U32 offset,U32 len,FILE *fd)
+void wvGetXst(Xst **xst,U32 offset,U32 len,wvStream *fd)
     {
     U16 clen,i;
     U32 count=0;
@@ -31,13 +34,13 @@ void wvGetXst(Xst **xst,U32 offset,U32 len,FILE *fd)
         return;
         }
 
-    fseek(fd,offset,SEEK_SET);
-    *xst = (Xst*) malloc(sizeof(Xst));
+    wvStream_goto(fd,offset);
+    *xst = (Xst*) wvMalloc(sizeof(Xst));
     authorlist = *xst;
 
     if (authorlist == NULL)
         {
-        wvError("not enough mem for annotation group\n");
+        wvError(("not enough mem for annotation group\n"));
         return;
         }
 
@@ -50,11 +53,11 @@ void wvGetXst(Xst **xst,U32 offset,U32 len,FILE *fd)
         {
         clen = read_16ubit(fd);
         count+=2;
-        current->u16string = malloc((clen+1) * sizeof(U16));
+        current->u16string = (U16 *)wvMalloc((clen+1) * sizeof(U16));
         authorlist->noofstrings++;
         if (current->u16string == NULL)
             {
-            wvError("not enough mem for author string of clen %d\n",clen);
+            wvError(("not enough mem for author string of clen %d\n",clen));
             break;
             }
         for (i=0;i<clen;i++)
@@ -66,10 +69,10 @@ void wvGetXst(Xst **xst,U32 offset,U32 len,FILE *fd)
 
         if (count < len)
             {
-            current->next= (Xst*) malloc(sizeof(Xst));
+            current->next= (Xst*) wvMalloc(sizeof(Xst));
             if (current->next == NULL)
                 {
-                wvError("not enough mem for annotation group\n");
+                wvError(("not enough mem for annotation group\n"));
                 break;
                 }
             current = current->next;

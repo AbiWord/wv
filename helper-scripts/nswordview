@@ -12,7 +12,7 @@ set com = $0
 set temp = /tmp/$com:t.$$
 set html = $temp.html
 
-(mswordview $source) >! $html
+(wvWare $source) >! $html
 if ((!(-s $html)) | ($status)) then
     echo "$0: failed to generate HTML file"
     exit 1

@@ -1,9 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
 
-void wvGetSED(SED *item,FILE *fd)
+void wvGetSED(SED *item,wvStream *fd)
 	{
 	item->fn = (S16)read_16ubit(fd);
 	item->fcSepx = read_32ubit(fd);
@@ -11,9 +14,9 @@ void wvGetSED(SED *item,FILE *fd)
 	item->fcMpr = read_32ubit(fd);
 	}
 
-int wvGetSED_PLCF(SED **item,U32 **pos,U32 *noitem,U32 offset,U32 len,FILE *fd)
+int wvGetSED_PLCF(SED **item,U32 **pos,U32 *noitem,U32 offset,U32 len,wvStream *fd)
 	{
-	int i;
+	U32 i;
 	if (len == 0)
 		{
 		*item = NULL;
@@ -23,22 +26,22 @@ int wvGetSED_PLCF(SED **item,U32 **pos,U32 *noitem,U32 offset,U32 len,FILE *fd)
 	else
         {
         *noitem=(len-4)/(cbSED+4);
-        *pos = (U32 *) malloc( (*noitem+1) * sizeof(U32));
+        *pos = (U32 *) wvMalloc( (*noitem+1) * sizeof(U32));
         if (*pos == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",(*noitem+1) * sizeof(U32));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",(*noitem+1) * sizeof(U32)));
             return(1);
             }
 
-        *item = (SED *) malloc(*noitem * sizeof(SED));
+        *item = (SED *) wvMalloc(*noitem * sizeof(SED));
         if (*item == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",*noitem * sizeof(SED));
-			free(pos);
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",*noitem * sizeof(SED)));
+			wvFree(pos);
             return(1);
             }
-        fseek(fd,offset,SEEK_SET);
-        for(i=0;i<*noitem+1;i++)
+        wvStream_goto(fd,offset);
+        for(i=0;i<=*noitem;i++)
             (*pos)[i]=read_32ubit(fd);
         for(i=0;i<*noitem;i++)
             wvGetSED(&((*item)[i]),fd);
