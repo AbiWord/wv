@@ -25,9 +25,9 @@ wvnLocaleToLIDConverter (U8 nLocale)
     switch (nLocale)
       {
 #if 0
-	  // case 0:		/* ANSI_CHARSET */
-	  // case 1:		/* DEFAULT_CHARSET */
-	  // case 2:		/* SYMBOL_CHARSET */
+	/* case 0: */		/* ANSI_CHARSET */
+	/* case 1: */		/* DEFAULT_CHARSET */
+	/* case 2: */		/* SYMBOL_CHARSET */
 #endif
 	  case 77:			/* MAC_CHARSET */
 	  return (0xFFF);	/* This number is a hack */
@@ -61,7 +61,7 @@ wvnLocaleToLIDConverter (U8 nLocale)
 	  return (0x405);	/* Czech - And many others!! */
 
 #if 0
-	  // case 255:		/* OEM_CHARSET */
+	  /* case 255: */		/* OEM_CHARSET */
 #endif
 
       default:
