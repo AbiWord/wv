@@ -199,24 +199,12 @@ U32 wvGetPieceFromCP(U32 currentcp,CLX *clx)
 	return(0xffffffffL);
 	}
 
-U32 wvGetPieceFromFC(U32 currentfc,CLX *clx)
-	{
-	U32 i=0;
-	while(i<clx->nopcd)
-		{
-		if ( (currentfc >= clx->pos[i]) && (currentfc < clx->pos[i+1]) )
-			return(i);
-		i++;
-		}
-	wvTrace(("fc was not in any piece ! \n",currentfc));
-	return(0xffffffffL);
-	}
-
 U32 wvGetEndFCPiece(U32 piece,CLX *clx)
 	{
 	int flag;
 	U32 fc;
 	U32 offset = clx->pos[piece+1] - clx->pos[piece];
+
 	wvTrace(("offset is %x\n",offset));
 	fc = wvNormFC(clx->pcd[piece].fc,&flag);
 	wvTrace(("fc is %x, flag %d\n",fc,flag));

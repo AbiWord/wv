@@ -66,6 +66,7 @@ int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U
 
 	wvTrace(("current cp is %x\n",currentcp));
 	wvTrace(("current fc is %x\n",currentfc));
+	wvTrace(("piece is %d, should be %d\n",piece,wvGetPieceFromCP(currentcp,clx)));
 
 	if (currentfc==0xffffffffL)
 		{
@@ -100,6 +101,7 @@ int wvGetComplexParafcLim(int version,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bt
 
 	wvTrace(("fcTest is %x\n",fcTest));
 
+
 	if (fcTest <= wvGetEndFCPiece(piece,clx))
 		{
 		*fcLim = fcTest/*-1*/;
@@ -111,7 +113,10 @@ int wvGetComplexParafcLim(int version,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bt
 		while (piece < clx->nopcd) 
 			{
 			beginfc = wvNormFC(clx->pcd[piece].fc,NULL);
+			/*
 			if (0 != wvGetBTE_FromFC(&entry,currentfc, bte,pos,nobte))
+			*/
+			if (0 != wvGetBTE_FromFC(&entry,beginfc, bte,pos,nobte))
 				{
 				wvError(("BTE not found !\n"));
 				return(-1);
@@ -157,9 +162,6 @@ int wvGetComplexParafcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
 		*/
 		while (piece != 0xffffffffL) 
 			{
-			/*
-			endfc = wvNormFC(clx->pcd[piece+1].fc,NULL);
-			*/
 			endfc = wvGetEndFCPiece(piece,clx);
 			if (0 != wvGetBTE_FromFC(&entry,endfc, bte,pos,nobte))
 				{
@@ -178,6 +180,7 @@ int wvGetComplexParafcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
 			}
 		
 		}
+	wvTrace(("fcFirst is finally %x\n",*fcFirst));
 	return(0);
 	}
 
@@ -244,7 +247,10 @@ int wvGetComplexCharfcLim(int version, U32 *fcLim, U32 currentfc, CLX *clx, BTE 
 		while (piece < clx->nopcd) 
 			{
 			beginfc = wvNormFC(clx->pcd[piece].fc,NULL);
+			/*
 			if (0 != wvGetBTE_FromFC(&entry,currentfc, bte,pos,nobte))
+			*/
+			if (0 != wvGetBTE_FromFC(&entry,beginfc, bte,pos,nobte))
 				{
 				wvError(("BTE not found !\n"));
 				return(-1);
@@ -499,6 +505,12 @@ void wvDecodeComplex(wvParseStruct *ps)
 			/* previously, in place of ps there was a NULL,
 			 * but it was crashing Abiword. Was it NULL for a
 			 * reason? -JB */
+			/* 
+			nah, it was a oversight from when i didn't actually
+			use ps in this function
+			C.
+			*/
+			
 			wvOutputTextChar(eachchar,chartype,charset,&state,ps);
 			}
 

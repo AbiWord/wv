@@ -550,7 +550,7 @@ FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
 			ret = ps->tablefd1;
 			if (ret == NULL)
 				{
-				wvError(("!!, the FIB lied to us, trying the other table stream, hold on to your seat\n"));
+				wvError(("!!, the FIB lied to us, making a heroic effort to use the other table stream, hold on tight\n"));
 				ret = ps->tablefd0;
 				}
 			}
@@ -560,7 +560,7 @@ FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
 			ret = ps->tablefd0;
 			if (ret == NULL)
 				{
-				wvError(("!!, the FIB lied to us, trying the other table stream, hold on to your seat\n"));
+				wvError(("!!, the FIB lied to us, making a heroic effort to use the other table stream, hold on tight\n"));
 				ret = ps->tablefd1;
 				}
 			}
@@ -595,6 +595,7 @@ int wvQuerySupported(FIB *fib,int *reason)
     if (fib->fEncrypted)
         {
         if (reason) *reason=4;
+		wvWarning(("Encrypted\n"));
         return(4);
         }
     return(0);

@@ -47,6 +47,9 @@ Changes to to 0.5.21
 	* fixed finding first para bounds with complex mode if the first para is a 
 	new fast saved chunk (i think)
 	* ffn sttbf was wrong for word95 & word6, is fixed now.
+	* Squashed one the bugs that was causing one of my annoying problems with 
+	complex files and incorrect para fcLims. This one was driving me completely mad,
+	i don't know if i have fixed it fully correct though, but i think so..
 ALL TODO
 	* fix files in broken
 	* search for SEP sprm diffs between 6 and 8
