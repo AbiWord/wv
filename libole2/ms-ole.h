@@ -16,6 +16,7 @@
 typedef unsigned short mode_t; 
 typedef size_t ssize_t;
 typedef /* signed */ long off_t;
+typedef /* unsigned?*/ long caddr_t;
 #endif  
 
 #include <glib.h>
