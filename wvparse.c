@@ -43,7 +43,7 @@ wvInitParser (wvParseStruct * ps, char *path)
      */
 #endif
 
-    memset ( ps, 0, sizeof ( ps ) ) ;
+    memset ( ps, 0, sizeof ( wvParseStruct ) ) ;
 
     ps->userData = NULL;
     ps->lst = NULL;
