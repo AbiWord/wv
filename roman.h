@@ -18,9 +18,9 @@
  */
 
 
-long   formString (char **, long, char, char);
-char * chomp (char *);
-char * decimalToRoman (long, char *);
-long   romanToDecimal (char *);
-long   value (char);
+long formString (char **, long, char, char);
+char *chomp (char *);
+char *decimalToRoman (long, char *);
+long romanToDecimal (char *);
+long value (char);
 #endif
