@@ -592,11 +592,12 @@ wvLIDToCodePageConverter (U16 lid)
       switch (lid)
 		{
 #if 0
-      	case 0x0c04:		/*Chinese (Hong Kong SAR, PRC) */
       	case 0x1404:		/*Chinese (Macau SAR) */
 #endif
+      	case 0x0c04:		/*Chinese (Hong Kong SAR, PRC) */
+	  	CPNAME_OR_FALLBACK ("CP950", "BIG5-HKSCS");
       	case 0x0804:		/*Chinese (PRC) */
-	  	CPNAME_OR_FALLBACK ("CP936", "GB2312");
+	  	CPNAME_OR_FALLBACK ("CP936", "GBK");
 #if 0
       	case 0x1004:		/*Chinese (Singapore) */
 #endif
@@ -1077,20 +1078,18 @@ wvIsEmptyPara (PAP * apap, expand_data * data, int inc)
      */
     if (apap->fInTable == 1)
       {
+#if 0
 	  wvTrace (
 		   ("This Para is in cell %d %d\n", data->whichrow,
 		    data->whichcell));
 	  if (*data->vmerges)
 	    {
 		/* only ignore a vertically merged cell if the setting in the config file have been set that way */
-		if (data && data->sd
+		if (data
+		    && data->sd
 		    && data->sd->elements[TT_TABLEOVERRIDES].str
 		    && data->sd->elements[TT_TABLEOVERRIDES].str[5])
 		  {
-		      wvTrace (
-			       ("%d\n",
-				(*data->vmerges)[data->whichrow][data->
-								 whichcell]));
 		      if ((*data->vmerges)[data->whichrow][data->whichcell] ==
 			  0)
 
@@ -1102,6 +1101,9 @@ wvIsEmptyPara (PAP * apap, expand_data * data, int inc)
 			}
 		  }
 	    }
+#else
+	  return 0;
+#endif
       }
     return (0);
 }
