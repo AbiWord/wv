@@ -30,7 +30,7 @@ DIST_SUBDIRS = xml help wingdingfont patterns glib-wv libole2 oledecod magick ex
 
 SUBDIRS = xml help wingdingfont patterns $(DIRGLIB) libole2 oledecod magick $(DIREXPAT) $(DIREXPORTER) .
 
-DEFS = @DEFS@ -DVERSION=\"@VERSION@\" -DXMLCONFIG=\"$(pkgdatadir)/wvConfig.xml\" -DHTMLCONFIG=\"$(pkgdatadir)/wvHtml.xml\"
+DEFS = @DEFS@ -DVERSION=\"@VERSION@\" -DXMLCONFIG=\"$(pkgdatadir)/wvConfig.xml\" -DHTMLCONFIG=\"$(pkgdatadir)/wvHtml.xml\" -DWVDATADIR=\"$(datadir)/wv\"
 
 INCLUDES = -I. -I$(top_builddir) -I$(srcdir) \
 	-I$(srcdir)/magick -I$(srcdir)/libole2 -I$(srcdir)/oledecod $(INCGLIB) $(INCEXPAT)
