@@ -1,8 +1,0 @@
-all: demo
-
-demo: demo.c oledecod.h support.h oledecod.c ../support.c
-	gcc -ansi -pedantic -Wall -I. -g *.c -o demo
-
-clean:
-	-rm core
-	-rm demo
