@@ -1,9 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
-void wvGetFILETIME(FILETIME *ft,FILE *fd)
+void wvGetFILETIME(FILETIME *ft,wvStream *fd)
 	{
 	ft->dwLowDateTime = read_32ubit(fd);
 	ft->dwHighDateTime = read_32ubit(fd);

@@ -1,5 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
 void wvInitFIB(FIB *item)
@@ -31,7 +35,7 @@ void wvInitFIB(FIB *item)
 	item->fFutureSavedUndo = 0;
 	item->fWord97Saved = 0;
 	item->fSpare0 = 0;
-	item->chs = 0;
+	item->chse = 0;
 	item->chsTables = 0;
 	item->fcMin = 0;
 	item->fcMac = 0;
@@ -56,7 +60,7 @@ void wvInitFIB(FIB *item)
 	item->lProductRevised = 0;
 	item->ccpText = 0;
 	item->ccpFtn = 0;
-	item->ccpHdd = 0;
+	item->ccpHdr = 0;
 	item->ccpMcr = 0;
 	item->ccpAtn = 0;
 	item->ccpEdn = 0;
@@ -259,19 +263,63 @@ void wvInitFIB(FIB *item)
 	item->lcbSttbListNames = 0;
 	item->fcSttbfUssr = 0;
 	item->lcbSttbfUssr = 0;
+
+	/* Word 2 */
+        item->Spare = 0;
+        item->rgwSpare0 [0] = 0;
+        item->rgwSpare0 [1] = 0;
+        item->rgwSpare0 [2] = 0;
+        item->fcSpare0 = 0;
+        item->fcSpare1 = 0;
+        item->fcSpare2 = 0;
+        item->fcSpare3 = 0;
+        item->ccpSpare0 = 0;
+        item->ccpSpare1 = 0;
+        item->ccpSpare2 = 0;
+        item->ccpSpare3 = 0;
+        item->fcPlcfpgd = 0; 
+        item->cbPlcfpgd = 0; 
+       
+	item->fcSpare5 = 0;
+        item->cbSpare5 = 0; 
+        item->fcSpare6 = 0;
+        item->cbSpare6 = 0;
+        item->wSpare4 = 0;
 	}
 
-void wvGetFIB(FIB *item,FILE *fd)
+void wvGetFIB(FIB *item,wvStream *fd)
 	{
 	U16 temp16;
 	U8 temp8;
+
+    item->fEncrypted=0;
+
+	wvStream_goto(fd,0);
 #ifdef PURIFY
 	wvInitFIB(item);
 #endif
 	item->wIdent = read_16ubit(fd);
 	item->nFib = read_16ubit(fd);
+
+	if ( (wvQuerySupported(item,NULL) == WORD2) )
+		{
+		wvInitFIB(item);
+		wvStream_offset(fd,-4);
+		wvGetFIB2(item,fd);
+		return;
+		}
+
+	if ( (wvQuerySupported(item,NULL) == WORD5) || (wvQuerySupported(item,NULL) == WORD6) || (wvQuerySupported(item,NULL) == WORD7) )
+		{
+		wvInitFIB(item);
+		wvStream_offset(fd,-4);
+		wvGetFIB6(item,fd);
+		return;
+		}
+
 	item->nProduct = read_16ubit(fd);
 	item->lid = read_16ubit(fd);
+	wvTrace(("lid is %x\n",item->lid));
 	item->pnNext = (S16)read_16ubit(fd);
 	temp16 = read_16ubit(fd);
 	item->fDot = (temp16 & 0x0001);
@@ -284,23 +332,24 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->fReadOnlyRecommended = (temp16 & 0x0400) >> 10;
 	item->fWriteReservation = (temp16 & 0x0800) >> 11;
 	item->fExtChar = (temp16 & 0x1000) >> 12;
+	wvTrace(("fExtChar is %d\n",item->fExtChar));
 	item->fLoadOverride = (temp16 & 0x2000) >> 13;
 	item->fFarEast = (temp16 & 0x4000) >> 14;
 	item->fCrypto = (temp16 & 0x8000) >> 15;
 	item->nFibBack = read_16ubit(fd);
 	item->lKey = read_32ubit(fd);
-	item->envr = getc(fd);
-	temp8 = getc(fd);
+	item->envr = read_8ubit(fd);
+	temp8 = read_8ubit(fd);
 	item->fMac = (temp8 & 0x01);
 	item->fEmptySpecial = (temp8 & 0x02) >> 1;
 	item->fLoadOverridePage = (temp8 & 0x04) >> 2;
 	item->fFutureSavedUndo = (temp8 & 0x08) >> 3;
 	item->fWord97Saved = (temp8 & 0x10) >> 4;
 	item->fSpare0 = (temp8 & 0xFE) >> 5;
-	item->chs = read_16ubit(fd);
+	item->chse = read_16ubit(fd);
 	item->chsTables = read_16ubit(fd);
-	item->fcMin = (S32)read_32ubit(fd);
-	item->fcMac = (S32)read_32ubit(fd);
+	item->fcMin = read_32ubit(fd);
+	item->fcMac = read_32ubit(fd);
 	item->csw = read_16ubit(fd);
 	item->wMagicCreated = read_16ubit(fd);
 	item->wMagicRevised = read_16ubit(fd);
@@ -320,9 +369,9 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->cbMac = (S32)read_32ubit(fd);
 	item->lProductCreated = read_32ubit(fd);
 	item->lProductRevised = read_32ubit(fd);
-	item->ccpText = (S32)read_32ubit(fd);
+	item->ccpText = read_32ubit(fd);
 	item->ccpFtn = (S32)read_32ubit(fd);
-	item->ccpHdd = (S32)read_32ubit(fd);
+	item->ccpHdr = (S32)read_32ubit(fd);
 	item->ccpMcr = (S32)read_32ubit(fd);
 	item->ccpAtn = (S32)read_32ubit(fd);
 	item->ccpEdn = (S32)read_32ubit(fd);
@@ -344,6 +393,7 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->lcbStshfOrig = read_32ubit(fd);
 	item->fcStshf = (S32)read_32ubit(fd);
 	item->lcbStshf = read_32ubit(fd);
+
 	item->fcPlcffndRef = (S32)read_32ubit(fd);
 	item->lcbPlcffndRef = read_32ubit(fd);
 	item->fcPlcffndTxt = (S32)read_32ubit(fd);
@@ -527,17 +577,446 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->lcbSttbfUssr = read_32ubit(fd);
 	}
 
-FILE *wvWhichTableStream(FIB *fib,FILE *tablefd0,FILE *tablefd1)
+wvStream *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
     {
-    FILE *ret;
+    wvStream *ret;
 
-    if (fib->fWhichTblStm)
-        ret = tablefd1;
-    else
-        ret = tablefd0;
-
+	if ((wvQuerySupported(fib,NULL)&0x7fff) == WORD8)
+		{
+		if (fib->fWhichTblStm)
+			{
+			wvTrace(("1Table\n"));
+			ret = ps->tablefd1;
+			if (ret == NULL)
+				{
+				wvError(("!!, the FIB lied to us, (told us to use the 1Table) making a heroic effort to use the other table stream, hold on tight\n"));
+				ret = ps->tablefd0;
+				}
+			}
+		else
+			{
+			wvTrace(("0Table\n"));
+			ret = ps->tablefd0;
+			if (ret == NULL)
+				{
+				wvError(("!!, the FIB lied to us, (told us to use the 0Table) making a heroic effort to use the other table stream, hold on tight\n"));
+				ret = ps->tablefd1;
+				}
+			}
+		}
+	else									/* word 7-*/
+		ret = ps->mainfd;
     return(ret);
     }
 
 
+wvVersion wvQuerySupported(FIB *fib,int *reason)
+    {
+	int ret=WORD8;
 
+	if (fib->wIdent == 0x37FE)
+		ret = WORD5;
+	else
+		{
+		/*begin from microsofts kb q 40*/
+		if (fib->nFib <101)
+			{
+			if (reason) *reason=1;
+			ret = WORD2;
+			}
+		else
+			{
+			switch (fib->nFib)
+				{
+				case 101:
+					if (reason) *reason=2;
+					ret = WORD6;
+					break;  /* I'm pretty sure we should break here, Jamie. */
+				case 103:
+				case 104:
+					if (reason) *reason=3;
+					ret = WORD7;
+					break;  /* I'm pretty sure we should break here, Jamie. */
+				default:
+					break;
+				}
+			}
+		/*end from microsofts kb q 40*/
+		}
+	wvTrace(("RET is %d\n",ret));
+    if (fib->fEncrypted)
+        {
+        if (reason) *reason=4;
+        ret|=0x8000;
+        }
+    return(ret);
+    }
+
+void wvGetFIB2(FIB *item,wvStream *fd)
+	{
+	U16 temp16 = 0;
+
+	item->wIdent = read_16ubit(fd);
+	item->nFib = read_16ubit(fd);
+
+	item->nProduct = read_16ubit(fd);
+	item->lid = read_16ubit(fd);
+	wvTrace(("lid is %x\n",item->lid));
+	item->pnNext = (S16)read_16ubit(fd);
+	temp16 = read_16ubit(fd);
+
+	item->fDot = (temp16 & 0x0001);
+	item->fGlsy = (temp16 & 0x0002) >> 1;
+	item->fComplex = (temp16 & 0x0004) >> 2;
+	item->fHasPic = (temp16 & 0x0008) >> 3;
+	item->cQuickSaves = (temp16 & 0x00F0) >> 4;
+	item->fEncrypted = (temp16 & 0x0100) >> 8;
+	item->fWhichTblStm = 0;	/* Unused from here on */	
+	item->fReadOnlyRecommended = 0;
+	item->fWriteReservation = 0;
+	item->fExtChar = 0;
+	item->fLoadOverride = 0;
+	item->fFarEast = 0;
+	item->fCrypto = 0;
+
+	item->nFibBack = read_16ubit(fd);
+	wvTrace(("nFibBack is %d\n",item->nFibBack));
+
+	item->Spare = read_32ubit(fd); /* A spare for W2 */
+	item->rgwSpare0[0] = read_16ubit(fd);
+	item->rgwSpare0[1] = read_16ubit(fd);
+	item->rgwSpare0[2] = read_16ubit(fd);
+	item->fcMin = read_32ubit(fd);  /* These appear correct MV 29.8.2000 */
+	item->fcMac = read_32ubit(fd);
+	wvTrace(("fc from %d to %d\n", item->fcMin, item->fcMac));
+
+	item->cbMac = read_32ubit(fd); /* Last byte file position plus one. */
+
+	item->fcSpare0 = read_32ubit(fd);
+	item->fcSpare1 = read_32ubit(fd);
+	item->fcSpare2 = read_32ubit(fd);
+	item->fcSpare3 = read_32ubit(fd);
+
+	item->ccpText = read_32ubit(fd);
+	wvTrace(("length %d == %d\n", item->fcMac - item->fcMin, item->ccpText));
+
+	item->ccpFtn = (S32)read_32ubit(fd);
+	item->ccpHdr = (S32)read_32ubit(fd);
+	item->ccpMcr = (S32)read_32ubit(fd);
+	item->ccpAtn = (S32)read_32ubit(fd);
+	item->ccpSpare0 = (S32)read_32ubit(fd);
+	item->ccpSpare1 = (S32)read_32ubit(fd);
+	item->ccpSpare2 = (S32)read_32ubit(fd);
+	item->ccpSpare3 = (S32)read_32ubit(fd);
+
+	item->fcStshfOrig = read_32ubit(fd);
+	item->lcbStshfOrig = (S32)read_16ubit(fd);
+	item->fcStshf = read_32ubit(fd);
+	item->lcbStshf = (S32)read_16ubit(fd);
+	item->fcPlcffndRef = read_32ubit(fd);
+	item->lcbPlcffndRef = (S32)read_16ubit(fd);
+	item->fcPlcffndTxt = read_32ubit(fd);
+	item->lcbPlcffndTxt = (S32)read_16ubit(fd);
+	item->fcPlcfandRef = read_32ubit(fd);
+	item->lcbPlcfandRef = (S32)read_16ubit(fd);
+	item->fcPlcfandTxt = read_32ubit(fd);
+	item->lcbPlcfandTxt = (S32)read_16ubit(fd);
+	item->fcPlcfsed = read_32ubit(fd);
+	item->lcbPlcfsed = (S32)read_16ubit(fd);
+	item->fcPlcfpgd = read_32ubit(fd);
+	item->cbPlcfpgd = read_16ubit(fd);
+	item->fcPlcfphe = read_32ubit(fd);
+	item->lcbPlcfphe = (S32)read_16ubit(fd);
+	item->fcPlcfglsy = read_32ubit(fd);
+	item->lcbPlcfglsy = (S32)read_16ubit(fd);
+	item->fcPlcfhdd = read_32ubit(fd);
+	item->lcbPlcfhdd = (S32)read_16ubit(fd);
+	item->fcPlcfbteChpx = read_32ubit(fd);
+	item->lcbPlcfbteChpx = (S32)read_16ubit(fd);
+	item->fcPlcfbtePapx = read_32ubit(fd);
+	item->lcbPlcfbtePapx = (S32)read_16ubit(fd);
+	item->fcPlcfsea = read_32ubit(fd);
+	item->lcbPlcfsea = (S32)read_16ubit(fd);
+	item->fcSttbfffn = read_32ubit(fd);
+	item->lcbSttbfffn = (S32)read_16ubit(fd);
+	item->fcPlcffldMom = read_32ubit(fd);
+	item->lcbPlcffldMom = (S32)read_16ubit(fd);
+	item->fcPlcffldHdr = read_32ubit(fd);
+	item->lcbPlcffldHdr = (S32)read_16ubit(fd);
+	item->fcPlcffldFtn = read_32ubit(fd);
+	item->lcbPlcffldFtn = (S32)read_16ubit(fd);
+	item->fcPlcffldAtn = read_32ubit(fd);
+	item->lcbPlcffldAtn = (S32)read_16ubit(fd);
+	item->fcPlcffldMcr = read_32ubit(fd);
+	item->lcbPlcffldMcr = (S32)read_16ubit(fd);
+	item->fcSttbfbkmk = read_32ubit(fd);
+	item->lcbSttbfbkmk = (S32)read_16ubit(fd);
+	item->fcPlcfbkf = read_32ubit(fd);
+	item->lcbPlcfbkf = (S32)read_16ubit(fd);
+	item->fcPlcfbkl = read_32ubit(fd);
+	item->lcbPlcfbkl = (S32)read_16ubit(fd);
+	item->fcCmds = read_32ubit(fd);
+	item->lcbCmds = (S32)read_16ubit(fd);
+	item->fcPlcmcr = read_32ubit(fd);
+	item->lcbPlcmcr = (S32)read_16ubit(fd);
+	item->fcSttbfmcr = read_32ubit(fd);
+	item->lcbSttbfmcr = (S32)read_16ubit(fd);
+	item->fcPrDrvr = read_32ubit(fd);
+	item->lcbPrDrvr = (S32)read_16ubit(fd);
+	item->fcPrEnvPort = read_32ubit(fd);
+	item->lcbPrEnvPort = (S32)read_16ubit(fd);
+	item->fcPrEnvLand = read_32ubit(fd);
+	item->lcbPrEnvLand = (S32)read_16ubit(fd);
+	item->fcWss = read_32ubit(fd);
+	item->lcbWss = (S32)read_16ubit(fd);
+	item->fcDop = read_32ubit(fd);
+	item->lcbDop = (S32)read_16ubit(fd);
+	item->fcSttbfAssoc = read_32ubit(fd);
+	item->lcbSttbfAssoc = (S32)read_16ubit(fd);
+	item->fcClx = read_32ubit(fd);
+	item->lcbClx = (S32)read_16ubit(fd);
+	item->fcPlcfpgdFtn = read_32ubit(fd);
+	item->lcbPlcfpgdFtn = (S32)read_16ubit(fd);
+	item->fcAutosaveSource = read_32ubit(fd);
+	item->lcbAutosaveSource = (S32)read_16ubit(fd);
+	item->fcSpare5 = read_32ubit(fd);
+	item->cbSpare5 = read_16ubit(fd);
+	item->fcSpare6 = read_32ubit(fd);
+	item->cbSpare6 = read_16ubit(fd);
+	item->wSpare4 = read_16ubit(fd);
+	item->pnChpFirst = read_16ubit(fd);
+	item->pnPapFirst = read_16ubit(fd);
+	item->cpnBteChp = read_16ubit(fd);
+	item->cpnBtePap = read_16ubit(fd);
+
+	}
+
+void wvGetFIB6(FIB *item,wvStream *fd)
+	{
+	U16 temp16;
+	U8 temp8;
+	
+	item->wIdent = read_16ubit(fd);
+	item->nFib = read_16ubit(fd);
+
+	item->nProduct = read_16ubit(fd);
+	item->lid = read_16ubit(fd);
+	wvTrace(("lid is %x\n",item->lid));
+	item->pnNext = (S16)read_16ubit(fd);
+	temp16 = read_16ubit(fd);
+
+	item->fDot = (temp16 & 0x0001);
+	item->fGlsy = (temp16 & 0x0002) >> 1;
+	item->fComplex = (temp16 & 0x0004) >> 2;
+	item->fHasPic = (temp16 & 0x0008) >> 3;
+	item->cQuickSaves = (temp16 & 0x00F0) >> 4;
+	item->fEncrypted = (temp16 & 0x0100) >> 8;
+	item->fWhichTblStm = 0;		/* word 6 files only have one table stream*/
+	item->fReadOnlyRecommended = (temp16 & 0x0400) >> 10;
+	item->fWriteReservation = (temp16 & 0x0800) >> 11;
+	item->fExtChar = (temp16 & 0x1000) >> 12;
+	wvTrace(("fExtChar is %d\n",item->fExtChar));
+	item->fLoadOverride = 0;
+	item->fFarEast = 0;
+	item->fCrypto = 0;
+	item->nFibBack = read_16ubit(fd);
+	item->lKey = read_32ubit(fd);
+	item->envr = read_8ubit(fd);
+	temp8 = read_8ubit(fd);
+	item->fMac = 0;
+	item->fEmptySpecial = 0;
+	item->fLoadOverridePage = 0;
+	item->fFutureSavedUndo = 0;
+	item->fWord97Saved = 0;
+	item->fSpare0 = 0;
+	item->chse = read_16ubit(fd);
+	item->chsTables = read_16ubit(fd);
+	item->fcMin = read_32ubit(fd);
+	item->fcMac = read_32ubit(fd);
+
+	item->csw = 14;
+	item->wMagicCreated = 0xCA0;	/*this is the unique id of the creater, so its me :-)*/
+
+	item->cbMac = read_32ubit(fd);
+
+	read_16ubit(fd);
+	read_16ubit(fd);
+	read_16ubit(fd);
+	read_16ubit(fd);
+	read_16ubit(fd);
+	read_16ubit(fd);
+	read_16ubit(fd);
+	read_16ubit(fd);
+
+	item->ccpText = read_32ubit(fd);
+	item->ccpFtn = (S32)read_32ubit(fd);
+	item->ccpHdr = (S32)read_32ubit(fd);
+	item->ccpMcr = (S32)read_32ubit(fd);
+	item->ccpAtn = (S32)read_32ubit(fd);
+	item->ccpEdn = (S32)read_32ubit(fd);
+	item->ccpTxbx = (S32)read_32ubit(fd);
+	item->ccpHdrTxbx = (S32)read_32ubit(fd);
+
+	read_32ubit(fd);
+
+	item->fcStshfOrig = (S32)read_32ubit(fd);
+	item->lcbStshfOrig = read_32ubit(fd);
+	item->fcStshf = (S32)read_32ubit(fd);
+	item->lcbStshf = read_32ubit(fd);
+	item->fcPlcffndRef = (S32)read_32ubit(fd);
+	item->lcbPlcffndRef = read_32ubit(fd);
+	item->fcPlcffndTxt = (S32)read_32ubit(fd);
+	item->lcbPlcffndTxt = read_32ubit(fd);
+	item->fcPlcfandRef = (S32)read_32ubit(fd);
+	item->lcbPlcfandRef = read_32ubit(fd);
+	item->fcPlcfandTxt = (S32)read_32ubit(fd);
+	item->lcbPlcfandTxt = read_32ubit(fd);
+	item->fcPlcfsed = (S32)read_32ubit(fd);
+	item->lcbPlcfsed = read_32ubit(fd);
+	item->fcPlcpad = (S32)read_32ubit(fd);
+	item->lcbPlcpad = read_32ubit(fd);
+	item->fcPlcfphe = (S32)read_32ubit(fd);
+	item->lcbPlcfphe = read_32ubit(fd);
+	item->fcSttbfglsy = (S32)read_32ubit(fd);
+	item->lcbSttbfglsy = read_32ubit(fd);
+	item->fcPlcfglsy = (S32)read_32ubit(fd);
+	item->lcbPlcfglsy = read_32ubit(fd);
+	item->fcPlcfhdd = (S32)read_32ubit(fd);
+	item->lcbPlcfhdd = read_32ubit(fd);
+	item->fcPlcfbteChpx = (S32)read_32ubit(fd);
+	item->lcbPlcfbteChpx = read_32ubit(fd);
+	item->fcPlcfbtePapx = (S32)read_32ubit(fd);
+	item->lcbPlcfbtePapx = read_32ubit(fd);
+	item->fcPlcfsea = (S32)read_32ubit(fd);
+	item->lcbPlcfsea = read_32ubit(fd);
+	item->fcSttbfffn = (S32)read_32ubit(fd);
+	item->lcbSttbfffn = read_32ubit(fd);
+	item->fcPlcffldMom = (S32)read_32ubit(fd);
+	item->lcbPlcffldMom = read_32ubit(fd);
+	item->fcPlcffldHdr = (S32)read_32ubit(fd);
+	item->lcbPlcffldHdr = read_32ubit(fd);
+	item->fcPlcffldFtn = (S32)read_32ubit(fd);
+	item->lcbPlcffldFtn = read_32ubit(fd);
+	item->fcPlcffldAtn = (S32)read_32ubit(fd);
+	item->lcbPlcffldAtn = read_32ubit(fd);
+	item->fcPlcffldMcr = (S32)read_32ubit(fd);
+	item->lcbPlcffldMcr = read_32ubit(fd);
+	item->fcSttbfbkmk = (S32)read_32ubit(fd);
+	item->lcbSttbfbkmk = read_32ubit(fd);
+	item->fcPlcfbkf = (S32)read_32ubit(fd);
+	item->lcbPlcfbkf = read_32ubit(fd);
+	item->fcPlcfbkl = (S32)read_32ubit(fd);
+	item->lcbPlcfbkl = read_32ubit(fd);
+	item->fcCmds = (S32)read_32ubit(fd);
+	item->lcbCmds = read_32ubit(fd);
+	item->fcPlcmcr = (S32)read_32ubit(fd);
+	item->lcbPlcmcr = read_32ubit(fd);
+	item->fcSttbfmcr = (S32)read_32ubit(fd);
+	item->lcbSttbfmcr = read_32ubit(fd);
+	item->fcPrDrvr = (S32)read_32ubit(fd);
+	item->lcbPrDrvr = read_32ubit(fd);
+	item->fcPrEnvPort = (S32)read_32ubit(fd);
+	item->lcbPrEnvPort = read_32ubit(fd);
+	item->fcPrEnvLand = (S32)read_32ubit(fd);
+	item->lcbPrEnvLand = read_32ubit(fd);
+	item->fcWss = (S32)read_32ubit(fd);
+	item->lcbWss = read_32ubit(fd);
+	item->fcDop = (S32)read_32ubit(fd);
+	item->lcbDop = read_32ubit(fd);
+	item->fcSttbfAssoc = (S32)read_32ubit(fd);
+	item->lcbSttbfAssoc = read_32ubit(fd);
+	item->fcClx = (S32)read_32ubit(fd);
+	item->lcbClx = read_32ubit(fd);
+	item->fcPlcfpgdFtn = (S32)read_32ubit(fd);
+	item->lcbPlcfpgdFtn = read_32ubit(fd);
+	item->fcAutosaveSource = (S32)read_32ubit(fd);
+	item->lcbAutosaveSource = read_32ubit(fd);
+	item->fcGrpXstAtnOwners = (S32)read_32ubit(fd);
+	item->lcbGrpXstAtnOwners = read_32ubit(fd);
+	item->fcSttbfAtnbkmk = (S32)read_32ubit(fd);
+	item->lcbSttbfAtnbkmk = read_32ubit(fd);
+	
+	read_16ubit(fd);
+
+	item->pnChpFirst = (S32)read_16ubit(fd);
+	item->pnPapFirst = (S32)read_16ubit(fd);
+	item->cpnBteChp = (S32)read_16ubit(fd);
+	item->cpnBtePap = (S32)read_16ubit(fd);
+	item->fcPlcdoaMom = (S32)read_32ubit(fd);
+	item->lcbPlcdoaMom = read_32ubit(fd);
+	item->fcPlcdoaHdr = (S32)read_32ubit(fd);
+	item->lcbPlcdoaHdr = read_32ubit(fd);
+	
+	read_32ubit(fd);
+	read_32ubit(fd);
+	read_32ubit(fd);
+	read_32ubit(fd);
+
+	item->fcPlcfAtnbkf = (S32)read_32ubit(fd);
+	item->lcbPlcfAtnbkf = read_32ubit(fd);
+	item->fcPlcfAtnbkl = (S32)read_32ubit(fd);
+	item->lcbPlcfAtnbkl = read_32ubit(fd);
+	item->fcPms = (S32)read_32ubit(fd);
+	item->lcbPms = read_32ubit(fd);
+	item->fcFormFldSttbs = (S32)read_32ubit(fd);
+	item->lcbFormFldSttbs = read_32ubit(fd);
+	item->fcPlcfendRef = (S32)read_32ubit(fd);
+	item->lcbPlcfendRef = read_32ubit(fd);
+	item->fcPlcfendTxt = (S32)read_32ubit(fd);
+	item->lcbPlcfendTxt = read_32ubit(fd);
+	item->fcPlcffldEdn = (S32)read_32ubit(fd);
+	item->lcbPlcffldEdn = read_32ubit(fd);
+	item->fcPlcfpgdEdn = (S32)read_32ubit(fd);
+	item->lcbPlcfpgdEdn = read_32ubit(fd);
+
+	read_32ubit(fd);
+	read_32ubit(fd);
+
+	item->fcSttbfRMark = (S32)read_32ubit(fd);
+	item->lcbSttbfRMark = read_32ubit(fd);
+	item->fcSttbCaption = (S32)read_32ubit(fd);
+	item->lcbSttbCaption = read_32ubit(fd);
+	item->fcSttbAutoCaption = (S32)read_32ubit(fd);
+	item->lcbSttbAutoCaption = read_32ubit(fd);
+	item->fcPlcfwkb = (S32)read_32ubit(fd);
+	item->lcbPlcfwkb = read_32ubit(fd);
+
+	read_32ubit(fd);
+	read_32ubit(fd);
+
+
+	item->fcPlcftxbxTxt = (S32)read_32ubit(fd);
+	item->lcbPlcftxbxTxt = read_32ubit(fd);
+	item->fcPlcffldTxbx = (S32)read_32ubit(fd);
+	item->lcbPlcffldTxbx = read_32ubit(fd);
+	item->fcPlcfhdrtxbxTxt = (S32)read_32ubit(fd);
+	item->lcbPlcfhdrtxbxTxt = read_32ubit(fd);
+	item->fcPlcffldHdrTxbx = (S32)read_32ubit(fd);
+	item->lcbPlcffldHdrTxbx = read_32ubit(fd);
+	item->fcStwUser = (S32)read_32ubit(fd);
+	item->lcbStwUser = read_32ubit(fd);
+	item->fcSttbttmbd = (S32)read_32ubit(fd);
+	item->cbSttbttmbd = read_32ubit(fd);
+	item->fcUnused = (S32)read_32ubit(fd);
+	item->lcbUnused = read_32ubit(fd);
+	item->fcPgdMother = (S32)read_32ubit(fd);
+	item->lcbPgdMother = read_32ubit(fd);
+	item->fcBkdMother = (S32)read_32ubit(fd);
+	item->lcbBkdMother = read_32ubit(fd);
+	item->fcPgdFtn = (S32)read_32ubit(fd);
+	item->lcbPgdFtn = read_32ubit(fd);
+	item->fcBkdFtn = (S32)read_32ubit(fd);
+	item->lcbBkdFtn = read_32ubit(fd);
+	item->fcPgdEdn = (S32)read_32ubit(fd);
+	item->lcbPgdEdn = read_32ubit(fd);
+	item->fcBkdEdn = (S32)read_32ubit(fd);
+	item->lcbBkdEdn = read_32ubit(fd);
+	item->fcSttbfIntlFld = (S32)read_32ubit(fd);
+	item->lcbSttbfIntlFld = read_32ubit(fd);
+	item->fcRouteSlip = (S32)read_32ubit(fd);
+	item->lcbRouteSlip = read_32ubit(fd);
+	item->fcSttbSavedBy = (S32)read_32ubit(fd);
+	item->lcbSttbSavedBy = read_32ubit(fd);
+	item->fcSttbFnm = (S32)read_32ubit(fd);
+	item->lcbSttbFnm = read_32ubit(fd);
+	}

@@ -18,6 +18,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
 #define I 1
@@ -53,10 +56,10 @@ main (int argc, char **argv)
    long decimal = 0;
    if (argc < 2)
    {
-      char *buf = malloc (81);
+      char *buf = wvMalloc (81);
       if (!buf)
       {
-         wvError("Not enough memory\n");
+         wvError(("Not enough memory\n"));
          exit (EXIT_FAILURE);
       }
       printf ("Decimal <=> Roman Numberal converter by Adam Rogoyski\n");
@@ -87,7 +90,7 @@ main (int argc, char **argv)
          fflush (stdout);
          memset (buf, 0, 80);
       }
-      free (buf);
+      wvFree (buf);
    }
    else
    {
@@ -129,7 +132,7 @@ char * decimalToRoman (long decimal, char *roman)
    if (decimal > LARGEST || decimal < 1)
    {
       *r = '\0';
-	  wvError("roman broke\n");
+	  wvError(("roman broke\n"));
       return roman;
    }
    if (decimal >= Z)

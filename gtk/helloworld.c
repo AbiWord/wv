@@ -1,5 +1,8 @@
 /* example-start helloworld helloworld.c */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
        #include <gtk/gtk.h>
 
        /* This is a callback function. The data arguments are ignored

@@ -70,7 +70,11 @@ USA.  */
 /* Don't include stdlib.h for non-GNU C libraries because some of them
    contain conflicting prototypes for getopt.  */
 #include <stdlib.h>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
 #endif	/* GNU C library.  */
 
 #ifdef VMS

@@ -1,4 +1,4 @@
 #!/bin/sh
 for name in $* ; do
-	mswordview "$name"
+	wvWare "$name"
 done

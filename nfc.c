@@ -1,11 +1,15 @@
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
+#include "roman.h"
 
 char *wvGenerateNFC(int value,int no_type)
     {
     char *roman;
-	roman = (char *)malloc(81);
+	roman = (char *)wvMalloc(81);
 	if (roman == NULL)
 		return(NULL);
     switch(no_type)

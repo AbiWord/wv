@@ -1,8 +1,32 @@
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
-void wvGetPHE(PHE *dest,int which,FILE *fd)
+void wvGetPHE6(PHE *dest,U8 *page,U16 *pos)
+	{
+	U8 temp8;
+
+#ifdef PURIFY
+	wvInitPHE(dest,0);
+#endif
+
+	temp8 = bread_8ubit(&(page[*pos]),pos);
+	dest->var1.fSpare = temp8 & 0x01;
+	dest->var1.fUnk = (temp8 & 0x02) >> 1;
+
+	dest->var1.fDiffLines = (temp8 & 0x04) >> 2;
+	dest->var1.reserved1 = (temp8 & 0xf8) >> 3;
+
+	dest->var1.clMac = bread_8ubit(&(page[*pos]),pos);
+
+	dest->var1.dxaCol = (S16) bread_16ubit(&(page[*pos]),pos);
+	dest->var1.dymHeight = (S32) bread_16ubit(&(page[*pos]),pos);
+	}
+
+void wvGetPHE(PHE *dest,int which,U8 *page,U16 *pos)
 	{
 	U8 temp8;
 	U32 temp32;
@@ -13,28 +37,28 @@ void wvGetPHE(PHE *dest,int which,FILE *fd)
 
 	if (which)
 		{
-		temp32 = read_32ubit(fd);
+		temp32 = bread_32ubit(&(page[*pos]),pos);
 		dest->var2.fSpare = temp32 & 0x0001;
         dest->var2.fUnk = (temp32 & 0x0002) >> 1;
         dest->var2.dcpTtpNext = (temp32 & 0xfffffffc) >> 2;
-        dest->var2.dxaCol = (S32) read_32ubit(fd);
-        dest->var2.dymHeight = (S32) read_32ubit(fd);
+		dest->var2.dxaCol = (S32) bread_32ubit(&(page[*pos]),pos);
+		dest->var2.dymHeight = (S32) bread_32ubit(&(page[*pos]),pos);
 		}
 	else
 		{
-		temp8 = getc(fd);
+		temp8 = bread_8ubit(&(page[*pos]),pos);
 		dest->var1.fSpare = temp8 & 0x01;
         dest->var1.fUnk = (temp8 & 0x02) >> 1;
 
 		dest->var1.fDiffLines = (temp8 & 0x04) >> 2;
         dest->var1.reserved1 = (temp8 & 0xf8) >> 3;
 
-        dest->var1.clMac = getc(fd);
+        dest->var1.clMac = bread_8ubit(&(page[*pos]),pos);
 
-        dest->var1.reserved2 = read_16ubit(fd);
+        dest->var1.reserved2 = bread_16ubit(&(page[*pos]),pos);
 		
-		dest->var1.dxaCol = (S32) read_32ubit(fd);
-        dest->var1.dymHeight = (S32) read_32ubit(fd);
+		dest->var1.dxaCol = (S32) bread_32ubit(&(page[*pos]),pos);
+        dest->var1.dymHeight = (S32) bread_32ubit(&(page[*pos]),pos);
 		}
 	}
 
