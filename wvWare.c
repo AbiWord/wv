@@ -42,9 +42,14 @@ int mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp);
 
 FILE *wvOpenConfig (char *config);
 
+char * wv_arg_basename = 0;
+char * figure_name (wvParseStruct * ps);
+char * name_to_url (char * name);
 
-int HandleBitmap (char *name, BitmapBlip * bitmap);
-int HandleMetafile (char *name, MetaFileBlip * bitmap);
+char wv_cwd[4097];
+
+int HandleBitmap (wvParseStruct * ps, char *name, BitmapBlip * bitmap);
+int HandleMetafile (wvParseStruct * ps, char *name, MetaFileBlip * bitmap);
 
 /* should really be a config.h decl for having strdup, but... */
 #ifdef __MWERKS__
@@ -67,27 +72,13 @@ strdup (const char *text)
 char *
 wvHtmlGraphic (wvParseStruct * ps, Blip * blip)
 {
-    static int i;
-    char buffer[10];
     char *name;
     FILE *fd;
     char test[3];
-    sprintf (buffer, "%d", i++);
-    name = strdup (ps->filename);
-    wvTrace (("name is %s\n", name));
-    remove_suffix (name, ".doc");
-    if (ps->dir != NULL)
-      {
-	  char *tempa, *tempb;
-	  tempb = strdup (ps->dir);
-	  tempa = base_name (name);
-	  wvAppendStr (&tempb, "/");
-	  wvAppendStr (&tempb, tempa);
-	  wvFree (name);
-	  name = tempb;
-      }
 
-    wvAppendStr (&name, buffer);
+    name = figure_name (ps);
+    if (name == 0) return (0);
+
     /* 
        temp hack to test older included bmps in word 6 and 7,
        should be wrapped in a modern escher strucure before getting
@@ -113,10 +104,12 @@ wvHtmlGraphic (wvParseStruct * ps, Blip * blip)
 #endif
 	    {
 		wvAppendStr (&name, ".bmp");
-		if (0 != HandleBitmap (name, &blip->blip.bitmap))
+		if (0 != HandleBitmap (ps, name, &blip->blip.bitmap))
 		    return (NULL);
 		remove_suffix (name, ".bmp");
+		if (ps->dir) chdir (ps->dir);
 		bmptopng (name);
+		if (ps->dir) chdir (wv_cwd);
 		wvAppendStr (&name, ".png");
 		return (name);
 	    }
@@ -128,32 +121,32 @@ wvHtmlGraphic (wvParseStruct * ps, Blip * blip)
       {
       case msoblipWMF:
 	  wvAppendStr (&name, ".wmf");
-	  if (0 != HandleMetafile (name, &blip->blip.metafile))
+	  if (0 != HandleMetafile (ps, name, &blip->blip.metafile))
 	      return (NULL);
 	  break;
       case msoblipEMF:
 	  wvAppendStr (&name, ".emf");
-	  if (0 != HandleMetafile (name, &blip->blip.metafile))
+	  if (0 != HandleMetafile (ps, name, &blip->blip.metafile))
 	      return (NULL);
 	  break;
       case msoblipPICT:
 	  wvAppendStr (&name, ".pict");
-	  if (0 != HandleMetafile (name, &blip->blip.metafile))
+	  if (0 != HandleMetafile (ps, name, &blip->blip.metafile))
 	      return (NULL);
 	  break;
       case msoblipJPEG:
 	  wvAppendStr (&name, ".jpg");
-	  if (0 != HandleBitmap (name, &blip->blip.bitmap))
+	  if (0 != HandleBitmap (ps, name, &blip->blip.bitmap))
 	      return (NULL);
 	  break;
       case msoblipDIB:
 	  wvAppendStr (&name, ".dib");
-	  if (0 != HandleBitmap (name, &blip->blip.bitmap))
+	  if (0 != HandleBitmap (ps, name, &blip->blip.bitmap))
 	      return (NULL);
 	  break;
       case msoblipPNG:
 	  wvAppendStr (&name, ".png");
-	  if (0 != HandleBitmap (name, &blip->blip.bitmap))
+	  if (0 != HandleBitmap (ps, name, &blip->blip.bitmap))
 	      return (NULL);
 	  break;
       }
@@ -162,15 +155,17 @@ wvHtmlGraphic (wvParseStruct * ps, Blip * blip)
 
 
 int
-HandleBitmap (char *name, BitmapBlip * bitmap)
+HandleBitmap (wvParseStruct * ps, char *name, BitmapBlip * bitmap)
 {
     int c;
     FILE *fd;
+    if (ps->dir) chdir (ps->dir);
     fd = fopen (name, "wb");
+    if (ps->dir) chdir (wv_cwd);
     if (fd == NULL)
       {
-	  wvError (("Cannot open %s for writing:%s\n", name, strerror (errno)));
-	  return (-1);
+	fprintf (stderr,"\nCannot open %s for writing:%s\n",name,strerror (errno));
+	exit (1);
       }
     while (EOF != (c = getc ((FILE *) (bitmap->m_pvBits))))
 	fputc (c, fd);
@@ -181,15 +176,17 @@ HandleBitmap (char *name, BitmapBlip * bitmap)
 
 
 int
-HandleMetafile (char *name, MetaFileBlip * bitmap)
+HandleMetafile (wvParseStruct * ps, char *name, MetaFileBlip * bitmap)
 {
     int c;
     FILE *fd;
+    if (ps->dir) chdir (ps->dir);
     fd = fopen (name, "wb");
+    if (ps->dir) chdir (wv_cwd);
     if (fd == NULL)
       {
-	  wvError (("Cannot open %s for writing:%s\n", name, strerror (errno)));
-	  return (-1);
+	fprintf (stderr,"\nCannot open %s for writing:%s\n",name,strerror (errno));
+	exit (1);
       }
     while (EOF != (c = getc ((FILE *) (bitmap->m_pvBits))))
 	fputc (c, fd);
@@ -213,9 +210,9 @@ do_help (void)
     printf ("\nCommon Options:\n");
     printf ("  -x --config=config.xml\tSpecify an output filter to use\n");
     printf ("  -c --charset=charset\t\tSpecify an iconv charset encoding\n");
-    printf
-	("  -p --password=password\tSpecify password for encrypted\n\t\t\t\tWord Documents\n");
+    printf ("  -p --password=password\tSpecify password for encrypted\n\t\t\t\tWord Documents\n");
     printf ("  -d --dir=dir\t\t\tDIR\n");
+    printf ("  -b --basename=name\t\tUse name as base name of image files\n");
     printf ("  -v --version\t\t\tPrint wvWare's version number\n");
     printf ("  -? --help\t\t\tPrint this help message\n");
     printf
@@ -248,6 +245,7 @@ main (int argc, char **argv)
 	{"config", 1, 0, 'x'},
 	{"password", 1, 0, 'p'},
 	{"dir", 1, 0, 'd'},
+	{"basename", 1, 0, 'b'},
 	{"version", 0, 0, 'v'},
 	{"help", 0, 0, '?'},
 	{0, 0, 0, 0}
@@ -261,7 +259,7 @@ main (int argc, char **argv)
 
     while (1)
       {
-	  c = getopt_long (argc, argv, "?vc:x:p:d:", long_options, &index);
+	  c = getopt_long (argc, argv, "?vc:x:p:d:b:", long_options, &index);
 	  if (c == -1)
 	      break;
 	  switch (c)
@@ -296,6 +294,12 @@ main (int argc, char **argv)
 		else
 		    wvError (("No directory given to dir option"));
 		break;
+	    case 'b':
+		if (optarg)
+		    wv_arg_basename = optarg;
+		else
+		    wvError (("No name given to basename option"));
+		break;
 	    default:
 		do_help ();
 		return -1;
@@ -316,6 +320,9 @@ main (int argc, char **argv)
 	  return (-1);
       }
     fclose (input);
+
+    getcwd (wv_cwd,4096);
+    wv_cwd[4096] = 0;
 
     ret = wvInitParser (&ps, argv[optind]);
     ps.filename = argv[optind];
@@ -830,9 +837,17 @@ wvPrintGraphics (char *config, int graphicstype, int width, int height,
 	  if (strlen (source) >= 4)
 	      if (strcmp (source + strlen (source) - 4, ".wmf") == 0)
 		  wvConvert_WMF_to_PNG (width, height, &source);
-	  printf
-	      ("<img width=\"%d\" height=\"%d\" alt=\"%#.2x graphic\" src=\"%s\"><br>",
-	       width, height, graphicstype, source);
+	  if ((strstr (config, "wvHtml.xml") != NULL)
+	   || (strstr (config, "wvWml.xml")  != NULL))
+	    {
+	      printf ("<img width=\"%d\" height=\"%d\" alt=\"%#.2x graphic\" src=\"%s\"><br>",
+	              width, height, graphicstype, name_to_url (source));
+	    }
+	  else
+	    {
+	      printf ("<img width=\"%d\" height=\"%d\" alt=\"%#.2x graphic\" src=\"%s\"><br>",
+	              width, height, graphicstype, source);
+	    }
       }
     return;
 }
@@ -911,10 +926,12 @@ mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp)
 		{
 		    wvTrace (("Here\n"));
 		    name = wvHtmlGraphic (ps, &blip);
+		    if (ps->dir) chdir (ps->dir);
 		    wvPrintGraphics (config, 0x01,
 				     (int) wvTwipsToHPixels (picf.dxaGoal),
 				     (int) wvTwipsToVPixels (picf.dyaGoal),
 				     name);
+		    if (ps->dir) chdir (wv_cwd);
 		    wvFree (name);
 		}
 	      else
@@ -948,6 +965,7 @@ mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp)
 			    {
 				wvTrace (("Here\n"));
 				name = wvHtmlGraphic (ps, &blip);
+				if (ps->dir) chdir (ps->dir);
 				wvPrintGraphics (config, 0x08,
 						 (int)
 						 wvTwipsToHPixels (fspa->xaRight
@@ -960,6 +978,7 @@ mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp)
 									 fspa->
 									 yaTop),
 						 name);
+				if (ps->dir) chdir (wv_cwd);
 				wvFree (name);
 			    }
 			  else
@@ -1170,4 +1189,134 @@ wvOpenConfig (char *config)
 	  tmp = fopen (config, "rb");
       }
     return (tmp);
+}
+
+char * figure_name (wvParseStruct * ps)
+{
+  static int number;
+  static char * b_name = 0;
+  char * f_name = 0;
+  char buffer[10];
+
+  if (b_name == 0)
+    {
+      if (wv_arg_basename)
+        {
+          b_name = strdup (wv_arg_basename);
+          if (b_name) /* remove any suffix */
+            {
+              char * dot = 0;
+              char * ptr = b_name;
+              while (*ptr)
+                {
+                  if (*ptr == '.') dot = ptr;
+                  ptr++;
+                }
+              if (dot) *dot = 0;
+            }
+        }
+      else
+        {
+          b_name = strdup (base_name (ps->filename));
+          if (b_name) /* remove '.doc' suffix; case insensitive */
+            {
+              if (strlen (b_name) >= 4)
+                {
+                  char * dot = b_name + strlen (b_name) - 4;
+                  if (strcasecmp (dot,".doc") == 0) *dot = 0;
+                }
+            }
+        }
+    }
+
+  if (b_name == 0)
+    {
+      fprintf (stderr,"error: unable to create basename!");
+      exit (1);
+    }
+
+  f_name = strdup (b_name);
+  if (f_name)
+    {
+      sprintf (buffer, "%d", number++);
+      wvAppendStr (&f_name, buffer);
+    }
+  else
+    {
+      fprintf (stderr,"error: unable to create filename!");
+      exit (1);
+    }
+
+  return (f_name);
+}
+
+char * name_to_url (char * name)
+{
+  static char * url = 0;
+  static long max = 0;
+  char * ptr = 0;
+  long count = 0;
+
+  ptr = name;
+  while (*ptr)
+    {
+      switch (*ptr)
+        {
+        case ' ':
+          count += 3;
+        break;
+        default:
+          count++;
+        break;
+        }
+      ptr++;
+    }
+  count++;
+
+  if (count > max)
+    {
+      char * more = 0;
+      if (url == 0)
+        {
+          more = malloc (count);
+        }
+      else
+        {
+          more = realloc (url,count);
+        }
+      if (more)
+        {
+          url = more;
+          max = count;
+        }
+    }
+
+  if (url)
+    {
+      count = 0;
+      ptr = name;
+      while (*ptr && (count < max))
+        {
+          switch (*ptr)
+            {
+            case ' ':
+              url[count++] = '%';
+              if (count < max) url[count++] = '2';
+              if (count < max) url[count++] = '0';
+            break;
+            default:
+              url[count++] = *ptr;
+            break;
+            }
+          ptr++;
+        }
+      url[max-1] = 0;
+    }
+  else
+    {
+      wvError (("failed to convert name to URL\n"));
+      return (name);
+    }
+
+  return (url);
 }

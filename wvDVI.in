@@ -1,5 +1,11 @@
 #!/bin/sh
 
+which latex >/dev/null 2>&1
+if [ ${?} -ne "0" ]; then
+  echo "Could not find required program 'latex'"
+  exit 1
+fi
+
 prefix=@prefix@
 exec_prefix=
 datadir=
@@ -88,10 +94,16 @@ if test "x$o_file" = "x"; then
   echo "Usage: $1 [OPTIONS] <input-file> <output-file>"
   exit 1
 fi
+if test "x$i_file" = "x-"; then
+  echo "error: cannot specify '-' as output"
+  exit 1
+fi
 name=`basename "$o_file"`
 if test "x$o_file" != "x$name"; then
-  echo "* * * Better to use '--targetdir' for writing in another directory * * *"
+  echo "error: use '--targetdir' for writing in another directory"
+  exit 1
 fi
+name=`basename "$o_file" | sed "s/ /_/g"`
 
 if test "x$exec_prefix" = "x"; then
   exec_prefix=@exec_prefix@
@@ -107,7 +119,7 @@ fi
 if test "x$datadir" = "x"; then
   datadir=@datadir@
 fi
-xmlcfg="$datadir/wv/wvAbw.xml"
+xmlcfg="$datadir/wv/wvLaTeX.xml"
 if test -r "$xmlcfg"; then
   okay=yes
 else
@@ -127,8 +139,28 @@ else
   exit 1
 fi
 
-if test "x$o_file" = "x-"; then
-  "$wv_exec" $wv_opts -x "$xmlcfg" -d "$t_dir" -b "$name" "$i_file"
+"$wv_exec" $wv_opts -x "$xmlcfg" -d "$t_dir" -b "$name" "$i_file" > "$t_dir"/"$name".tex
+
+# "$name".tex is the LaTeX file
+# use latex to convert this to DVI
+
+cd "$t_dir"
+latex --interaction=batchmode "$name".tex >/dev/null 2>&1
+
+# check latex exit status and comment or clean up
+if [ ${?} -ne "0" ]; then
+	echo "Some problem running latex."
+	echo "Check for Errors in $name.log"
+	echo "Continuing..."
 else
-  "$wv_exec" $wv_opts -x "$xmlcfg" -d "$t_dir" -b "$name" "$i_file" > "$t_dir"/"$o_file"
+	rm -f "$name".aux "$name".log "$name".tex
 fi
+
+# latex replaces the "tex" extension with a "dvi" extension
+if [ ! -f "$name".dvi ]; then
+	echo "Conversion into dvi failed"
+	exit 1
+fi
+
+cp -f "$name".dvi "$o_file"
+rm -f "$name".dvi

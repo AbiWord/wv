@@ -505,6 +505,7 @@ AC_SUBST(LIBOBJS)
 AC_OUTPUT(
 Makefile 
 wvAbw
+wvDVI
 wvHtml
 wvLatex
 wvCleanLatex

@@ -260,8 +260,8 @@ wvHandleCommandField (char *command)
 	    case FC_EMBED:
 		wvError (("embed\n"));
 		token = strtok (NULL, "\t, ");
-		printf ("<!--%s-->", token);
-		break;
+	/*	printf ("<!--%s-->", token);
+	 */	break;
 	    case FC_PAGEREF:
 		token = strtok (NULL, "\"\" ");
 		printf ("<a href=\"#%s\">", token);
