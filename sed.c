@@ -37,7 +37,7 @@ int wvGetSED_PLCF(SED **item,U32 **pos,U32 *noitem,U32 offset,U32 len,wvStream *
         if (*item == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*noitem * sizeof(SED)));
-			free(pos);
+			wvFree(pos);
             return(1);
             }
         wvStream_goto(fd,offset);

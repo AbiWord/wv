@@ -74,7 +74,7 @@ int wvGetFSPA_PLCF(FSPA **fspa,U32 **pos,U32 *nofspa,U32 offset,U32 len,wvStream
                        /* I believe it is not always right to free this. Sometimes len == 4 and
                         * although *nofspa == 0, the data structure is needed.
                         * (Wild guesswork by MV 20.12.2000 -- correct me if I'm wrong)        */
-                       /*                      free(pos); */
+                       /*                      wvFree(pos); */
             return(1);
             }
         wvStream_goto(fd,offset);

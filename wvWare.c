@@ -9,7 +9,7 @@
 #include "wv.h"
 #include "getopt.h"
 
-#define VERSION "0.6.3"
+#define VERSION "0.6.4"
 
 /*
 Released under GPL, written by Caolan.McNamara@ul.ie.

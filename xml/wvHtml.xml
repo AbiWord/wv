@@ -102,7 +102,7 @@ Document created with &lt;a href=&quot;http://wvware.sourceforge.net/&quot;&gt;w
 
 <entry>
 <begin>&lt;li&gt;</begin>
-<end></end>
+<end>&lt;/li&gt;</end>
 </entry>
 
 
@@ -138,17 +138,10 @@ these tags in tables, which I find is necessary for at least netscape
 <begin>
 <table.end/>
 <table.begin/>
-<row.begin/>
-<cell.begin/><olist.end/><olist.begin/><ulist.end/><ulist.begin/><entry.begin/>
-<text.begin/>
+<row.begin/><cell.begin/><olist.end/><olist.begin/><ulist.end/><ulist.begin/><entry.begin/><text.begin/>
 </begin>
 <end>
-<text.end/>
-<entry.end/>
-<olist.end/>
-<ulist.end/>
-<cell.end/>
-<row.end/>
+<text.end/><entry.end/><olist.end/><ulist.end/><cell.end/><row.end/>
 </end>
 </paragraph>
 
@@ -343,15 +336,8 @@ border-bottom: thin <borderbottomstyle/> <borderbottomcolor/>
 </pborder>
 
 <text>	
-<begin>
-&lt;div align=&quot;<just/>&quot; style=&quot;<paramargin/> <paraborder/>
-padding: <mmPadTop/> <mmPadRight/> <mmPadBottom/> <mmPadLeft/>; &quot;&gt;
-&lt;p style=&quot;text-indent: <mmParaLeft1/>; text-align: <just/>; line-height: <mmLineHeight/>; color: <parafgcolor/>; background-color: <parabgcolor/>; &quot;&gt;
-</begin>
-<end>
-&lt;/p&gt;
-&lt;/div&gt;
-</end>
+<begin>&lt;p&gt;&lt;div align=&quot;<just/>&quot; style=&quot;<paramargin/> <paraborder/> padding: <mmPadTop/> <mmPadRight/> <mmPadBottom/> <mmPadLeft/>; &quot;&gt; &lt;p style=&quot;text-indent: <mmParaLeft1/>; text-align: <just/>; line-height: <mmLineHeight/>; color: <parafgcolor/>; background-color: <parabgcolor/>; &quot;&gt;</begin>
+<end>&lt;/p&gt;&lt;/div&gt;</end>
 </text>
 
 <picture>
@@ -371,14 +357,8 @@ padding: <mmPadTop/> <mmPadRight/> <mmPadBottom/> <mmPadLeft/>; &quot;&gt;
 </character>
 
 <text>	
-<begin>
-&lt;div align=&quot;<just/>&quot;&gt;
-&lt;p&gt;
-</begin>
-<end>
-&lt;/p&gt;
-&lt;/div&gt;
-</end>
+<begin>&lt;div align=&quot;<just/>&quot;&gt;&lt;p&gt;</begin>
+<end>&lt;/p&gt;&lt;/div&gt;</end>
 </text>
 
 </style>
@@ -391,14 +371,8 @@ padding: <mmPadTop/> <mmPadRight/> <mmPadBottom/> <mmPadLeft/>; &quot;&gt;
 </character>
 
 <text>	
-<begin>
-&lt;div align=&quot;<just/>&quot;&gt;
-&lt;H1&gt;
-</begin>
-<end>
-&lt;/H1&gt;
-&lt;/div&gt;
-</end>
+<begin>&lt;div align=&quot;<just/>&quot;&gt;&lt;H1&gt;</begin>
+<end>&lt;/H1&gt;&lt;/div&gt;</end>
 </text>
 
 

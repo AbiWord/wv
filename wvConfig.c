@@ -386,6 +386,8 @@ static TokenTable s_Tokens[] =
 		{	"dashdotstrokedd",			TT_DASHDOTSTROKEDD,			},
 		{	"emboss3Dd",			TT_EMBOSS3DD,			},
 		{	"engrave3Dd",			TT_ENGRAVE3DD,			},
+	        {       "direction",                    TT_DIRECTION,                   },
+	        {       "dir",                          TT_DIR,                         },
 		{	"defaultd",			TT_DEFAULTD,			}
 };
 
@@ -472,7 +474,7 @@ void tokenTreeFreeAll(void)
 	{
 	int i;
 	for (i = 0; i < tokenfreen; i++)
-		free(tokenfreearr[i]);
+		wvFree(tokenfreearr[i]);
 	tokenfreen = 0;
 	tokenbufn = 0;
 	tokenbuf = NULL;

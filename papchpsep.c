@@ -55,7 +55,7 @@ void fill_table_info(pap *apap,U32 tapfc1, U32 *plcfbtePapx,U32 intervals,
 		{
 		if (tappap != NULL)
 			{
-			free(tappap);
+			wvFree(tappap);
 			tappap=NULL;
 			}
 
@@ -76,7 +76,7 @@ void fill_table_info(pap *apap,U32 tapfc1, U32 *plcfbtePapx,U32 intervals,
 		{
 		copy_tap(&(apap->ourtap),&(tappap->ourtap));
 		error(erroroutput,"no of cells is %d, %d\n",apap->ourtap.cell_no,tappap->ourtap.cell_no);
-		free(tappap);
+		wvFree(tappap);
 		tappap=NULL;
 		}
 	}
@@ -436,7 +436,7 @@ U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, wvStream *in, U16 
 				i--;		
 				}
 
-			free(rgfc);
+			wvFree(rgfc);
 			}
 		}
 	if (pos != NULL)
@@ -488,7 +488,7 @@ U32 find_next_biggest_fc(U32 charindex,U32 pageindex, wvStream *in, U16 *locatio
 				i--;		
 				}
 
-			free(rgfc);
+			wvFree(rgfc);
 			}
 		}
 	if (pos != NULL)
@@ -541,7 +541,7 @@ U32 find_next_smallest_fc(U32 charindex,U32 pageindex, wvStream *in, S16 *locati
 				i++;		
 				}
 
-			free(rgfc);
+			wvFree(rgfc);
 			}
 		}
 	if (pos != NULL)

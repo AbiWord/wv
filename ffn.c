@@ -112,7 +112,7 @@ void wvGetFFN_STTBF(FFN_STTBF *item,U32 offset,U32 len,wvStream *fd)
 			dbg = wvWideStrToMB(item->ffn[i].xszFfn);
 			wvTrace(("font %d: %s\n", i, dbg));
 			if (dbg)
-				free(dbg);
+				wvFree(dbg);
 #endif
 		     }
 		}
@@ -158,7 +158,7 @@ void wvGetFFN_STTBF6(FFN_STTBF *item,U32 offset,U32 len,wvStream *fd)
 		dbg = wvWideStrToMB(item->ffn[noffn].xszFfn);
 		wvTrace(("font %d: %s\n", noffn, dbg));
 		if (dbg)
-			free(dbg);
+			wvFree(dbg);
 #endif
 		noffn++;
 		}
@@ -171,7 +171,7 @@ void wvGetFFN_STTBF6(FFN_STTBF *item,U32 offset,U32 len,wvStream *fd)
 void wvReleaseFFN_STTBF(FFN_STTBF *item)
 	{
 	if (item->ffn != NULL)
-		free(item->ffn);
+		wvFree(item->ffn);
 	}
 
 
@@ -213,7 +213,7 @@ int wvGetFRD_PLCF(FRD **frd,U32 **pos,int *nofrd,U32 offset,U32 len,wvStream *fd
         if (*frd == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nofrd * sizeof(FRD)));
-			free(pos);
+			wvFree(pos);
             return(1);
             }
         wvStream_goto(fd,offset);

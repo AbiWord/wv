@@ -111,7 +111,7 @@ char *remove_slashes(char *in)
 		}
 	temp[j] = '\0';
 	strcpy(in,temp);
-	free(temp);
+	wvFree(temp);
 	return(in);
 	}
 
@@ -266,7 +266,7 @@ char *expand_element(char *in, char *fontface, char *color, char *size)
 
 		if (NULL != replacement)
 			{
-			free(begin);
+			wvFree(begin);
 			begin = replacement;
 			}
 
@@ -341,7 +341,7 @@ char *expand_variables(char *in, pap *apap)
 			
 
 			if (hack)
-				free(apap);
+				wvFree(apap);
 			}
 		else if (!(strcmp(buffer,"pixelsbefore")))
 			{
@@ -367,7 +367,7 @@ char *expand_variables(char *in, pap *apap)
 			error(stderr,"replacement is %s\n",replacement);
 
 			if (hack)
-				free(apap);
+				wvFree(apap);
 			}
 		else if (!(strcmp(buffer,"charset")))
 			{
@@ -416,7 +416,7 @@ char *expand_variables(char *in, pap *apap)
 
 		if (NULL != replacement)
 			{
-			free(begin);
+			wvFree(begin);
 			begin = replacement;
 			}
 

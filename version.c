@@ -13,4 +13,4 @@ How would you have done it?
 #include "config.h"
 #endif
 
-extern const char wv_version[] = "wvWare version 0.6.3";
+extern const char wv_version[] = "wvWare version 0.6.4";

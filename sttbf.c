@@ -119,20 +119,20 @@ void wvReleaseSTTBF(STTBF *item)
     if (item->s8strings!= NULL)
         {
         for(i=0;i<item->nostrings;i++)
-            free(item->s8strings[i]);
-        free(item->s8strings);
+            wvFree(item->s8strings[i]);
+        wvFree(item->s8strings);
         }
     if (item->u16strings!= NULL)
         {
         for(i=0;i<item->nostrings;i++)
-            free(item->u16strings[i]);
-        free(item->u16strings);
+            wvFree(item->u16strings[i]);
+        wvFree(item->u16strings);
         }
     if (item->extradata!= NULL)
         {
         for(i=0;i<item->nostrings;i++)
-            free(item->extradata[i]);
-        free(item->extradata);
+            wvFree(item->extradata[i]);
+        wvFree(item->extradata);
         }
     }
 

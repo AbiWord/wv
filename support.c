@@ -56,7 +56,7 @@ void wvOLEFree(void)
 	while(streams!=NULL) {
 		wvStream_close(streams->stream);
 		tempList=streams->next;
-		free(streams);
+		wvFree(streams);
 		streams=tempList;
 	}
 	if(ole_file!=NULL)
@@ -239,7 +239,7 @@ U32 wvStream_close(wvStream *in)
 	if(in->kind==LIBOLE_STREAM)
 		{
 		U32 ret=(U32)ms_ole_stream_close(&in->stream.libole_stream);
-		free(in);
+		wvFree(in);
 		return(ret);
 		}
 	else
@@ -247,7 +247,7 @@ U32 wvStream_close(wvStream *in)
 		U32 ret;
 		assert(in->kind==FILE_STREAM);
 		ret=(U32)fclose(in->stream.file_stream);
-		free(in);
+		wvFree(in);
 		return(ret);
 		}
 	}

@@ -122,9 +122,9 @@ void DeleteNode(BintreeInfo *tree,Node *Z)
 			}
         else
             tree->Root = Y;
-        free (Z);
+        wvFree (Z);
     } else {
-        free (Y);
+        wvFree (Y);
     }
 }
 

@@ -129,7 +129,7 @@ int wvGetLSTF_PLCF(LSTF **lstf,U32 **pos,U32 *nolstf,U32 offset,U32 len,wvStream
         if (*lstf== NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nolstf* sizeof(LSTF)));
-			free(pos);
+			wvFree(pos);
             return(1);
             }
         wvStream_goto(fd,offset);

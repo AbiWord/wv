@@ -43,7 +43,7 @@ int wvGetBKD_PLCF(BKD **bkd,U32 **pos,U32 *nobkd,U32 offset,U32 len,wvStream *fd
         if (*bkd == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nobkd * sizeof(BKD)));
-            free(pos);
+            wvFree(pos);
             return(1);
             }
         wvStream_goto(fd,offset);

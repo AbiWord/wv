@@ -320,18 +320,18 @@ void oldwvGetPICF(PICF *apicf,wvStream *fd,U32 offset)
 			{
 			tfopte_list = afsp_list->afopte_list;
 			afsp_list->afopte_list = afsp_list->afopte_list->next;
-			free(tfopte_list);
+			wvFree(tfopte_list);
 			}
 		tfsp_list = afsp_list;
 		afsp_list = afsp_list->next;
-		free(tfsp_list);
+		wvFree(tfsp_list);
 		}
 
 	while (pic_list != NULL)
 		{
 		tpic_list = pic_list;
 		pic_list = pic_list->next;
-		free(tpic_list);
+		wvFree(tpic_list);
 		}
 
 	}

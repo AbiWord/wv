@@ -43,9 +43,9 @@ void wvReleaseSummaryInfo(SummaryInfo *si)
 	if (si == NULL)
 		return;
 	if (si->aProps != NULL)
-		free(si->aProps);
+		wvFree(si->aProps);
 	if (si->data != NULL)
-		free(si->data);
+		wvFree(si->data);
 	}
 
 void wvGetSummaryInfo(SummaryInfo *si,wvStream *file,U32 offset)
@@ -283,7 +283,7 @@ void wvReleaseProperty(PropValue *Prop)
 		return;
 	if (Prop->vtType == VT_LPSTR)
 		if (Prop->vtValue.vtBSTR.ch)
-			free(Prop->vtValue.vtBSTR.ch);
+			wvFree(Prop->vtValue.vtBSTR.ch);
 	}
 
 int wvGetProperty(PropValue *Prop, SummaryInfo *si, U32 pid)

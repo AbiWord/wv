@@ -50,7 +50,7 @@ int wvGetFTXBXS_PLCF(FTXBXS **ftxbxs,U32 **pos,U32 *noftxbxs,U32 offset,U32 len,
 		if (*ftxbxs == NULL)
 			{
 			wvError(("NO MEM 1, failed to alloc %d bytes\n",*noftxbxs * sizeof(FTXBXS)));
-			free(pos);
+			wvFree(pos);
 			return(1);
 			}
 		wvStream_goto(fd,offset);

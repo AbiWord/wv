@@ -84,7 +84,7 @@ char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,wvStream *infd)
 	for (i=count;i<amsofbh->cbLength;i++)
 		fputc(getc(infd),out);
 	fclose(out);
-	free(aimage);
+	wvFree(aimage);
 	return(buffer);
 	}
 #endif
@@ -192,7 +192,7 @@ char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,wvStream *infd)
 
 	if (decompressf)
 		unlink(tbuffer);
-	free(aimage);
+	wvFree(aimage);
 	return(buffer);
 #endif
 	}
@@ -297,7 +297,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,wvStre
 					}
 				for(;j<amsofbh.cbLength;j++)
 					getc(out);
-				free(afidcl);
+				wvFree(afidcl);
 				break;
 			case msofbtBSE:
 				finish = ftell(out)+amsofbh.cbLength;
@@ -383,7 +383,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,wvStre
 					if (name != NULL)
 						{
 						strcpy(pfbse_list->filename,name);
-						free(name);
+						wvFree(name);
 						}
 					}
 

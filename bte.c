@@ -54,7 +54,7 @@ int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,wvStream *f
         if (*bte == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nobte * sizeof(BTE)));
-			free(pos);
+			wvFree(pos);
             return(1);
             }
         wvStream_goto(fd,offset);
@@ -96,7 +96,7 @@ int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,wvStream *fd
         if (*bte == NULL)
             {
             wvError(("NO MEM 1, failed to alloc %d bytes\n",*nobte * sizeof(BTE)));
-			free(pos);
+			wvFree(pos);
             return(1);
             }
         wvStream_goto(fd,offset);

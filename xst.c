@@ -16,8 +16,8 @@ void wvFreeXst(Xst **xst)
         freegroup = *xst;
         *xst = (*xst)->next;
         if (freegroup->u16string != NULL)
-            free(freegroup->u16string);
-        free(freegroup);
+            wvFree(freegroup->u16string);
+        wvFree(freegroup);
         }
 	}
 

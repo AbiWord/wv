@@ -90,7 +90,7 @@ main (int argc, char **argv)
          fflush (stdout);
          memset (buf, 0, 80);
       }
-      free (buf);
+      wvFree (buf);
    }
    else
    {

@@ -72,7 +72,7 @@ int wvOLEDecode(char *path, wvStream **mainfd, wvStream **tablefd0, wvStream **t
 			wvTrace(("Opened \"\\005SummaryInformation\" stream\n"));
 			wvStream_libole2_create(summary, *temp_stream);
 			}
-		free(temp_stream);
+		wvFree(temp_stream);
 		result=0;	
 		}	
 	else

@@ -2579,6 +2579,8 @@ typedef enum _TT
 	TT_no_cols,
 	TT_CHARENTITY,
 	TT_VertMergedCells,
+	TT_DIRECTION,
+	TT_DIR,
 	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 
