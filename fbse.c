@@ -134,8 +134,7 @@ wvGetBitmap (BitmapBlip * abm, MSOFBH * amsofbh, wvStream * fd)
 {
     U32 i, count;
     char extra = 0;
-    FILE *tmp;
-    wvStream * stm = 0;
+    wvStream * stm = NULL;
     wvTrace (("starting bitmap at %x\n", wvStream_tell (fd)));
     for (i = 0; i < 16; i++)
 	abm->m_rgbUid[i] = read_8ubit (fd);
@@ -176,15 +175,18 @@ wvGetBitmap (BitmapBlip * abm, MSOFBH * amsofbh, wvStream * fd)
     abm->m_pvBits = NULL;
 
     count++;
-    tmp = tmpfile ();
+    stm = wvStream_TMP_create (amsofbh->cbLength);
+
+    if (!stm) {
+      abm->m_pvBits = NULL;
+      return 0;
+    }
 
     for (i = count; i < amsofbh->cbLength; i++)
-	fputc (read_8ubit (fd), tmp);
-    fflush (tmp);
-    rewind (tmp);
-
-    wvStream_FILE_create (&stm, tmp);
-
+	write_8ubit (stm, read_8ubit (fd));
+    
+    wvStream_rewind (stm);
+    
     abm->m_pvBits = stm;
 
     count += i;

@@ -111,6 +111,31 @@ wvInitSTD (STD * item)
     item->grupe = NULL;
 }
 
+static const char * wvGetUCS2LEName(void)
+{
+  char ** p;
+
+  static char * szUCS2LENames[] = {
+    "UCS-2LE",			/* preferred */
+    "UCS-2-LE",			/* older libiconv */
+    "UNICODELITTLE",	        /* older glibc */
+    "UTF-16LE",			/* superset */
+    "UTF-16-LE",		/* my guess */
+    NULL };
+
+  for (p = szUCS2LENames; *p; ++p)
+    {
+      iconv_t iconv_handle;
+      if ((iconv_handle = iconv_open(*p,*p)) != (iconv_t)-1)
+	{
+	  iconv_close(iconv_handle);
+	  return *p;
+	}
+    }
+
+  return NULL;
+}
+
 int
 wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 {
@@ -188,14 +213,14 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 	    }
       }
 
-
     wvTrace (("doing a std, str len is %d\n", len + 1));
     allocName = (len + 1) * sizeof (char);
     item->xstzName = (char *) wvMalloc (allocName);
 	*(item->xstzName) = 0;
 	b = 0;
 
-    conv = iconv_open("utf-8", "UCS-2");
+    conv = iconv_open("utf-8", wvGetUCS2LEName ());
+
     for (i = 0; i < len + 1; i++)
       {
 	  if (count < 10)
@@ -215,18 +240,18 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 		insz = sizeof(temp16);
 		tmp = buf;
 		sz =  sizeof(buf);
-		iconv (conv, &tmp2, &insz, &tmp, &sz);
-		while ((b + sizeof(buf) - sz + 1) >= allocName) {
-			allocName *=  2;
-			item->xstzName = (char *) realloc(item->xstzName, allocName);
+		if ((size_t) -1 != iconv (conv, &tmp2, &insz, &tmp, &sz)) {
+		  while ((b + sizeof(buf) - sz + 1) >= allocName) {
+		    allocName *=  2;
+		    item->xstzName = (char *) realloc(item->xstzName, allocName);
+		  }
+		  if (sz) {
+		    *tmp = 0;
+		  }
+		  strncat (item->xstzName, buf, sizeof(buf) - sz);
+		  b += (sizeof(buf) - sz);
+		  pos += 2;
 		}
-		if (sz) {
-			*tmp = 0;
-		}
-		strncat (item->xstzName, buf, sizeof(buf) - sz);
-		b += (sizeof(buf) - sz);
-		pos += 2;
-
 	    }
 
 	  wvTrace (("sample letter is %c\n", item->xstzName[i]));

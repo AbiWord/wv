@@ -4449,6 +4449,7 @@ Property       PID            Type            Default        Description
 
 /* These functions take care of memory/file management for wvStreams */
     void wvStream_FILE_create (wvStream ** in, FILE * inner);
+  wvStream * wvStream_TMP_create (size_t size);
     void wvStream_libole2_create (wvStream ** in, MsOleStream * inner);
     void wvStream_memory_create (wvStream ** in, char *buf, size_t size);
     void wvStream_create (wvStream ** in, wvStreamKind kind,
