@@ -14,7 +14,11 @@ Peter Silva <Peter.Silva@ec.gc.ca>, defensive patch
 Pavel Machek <pavel@Elf.ucw.cz>, some buglet patches
 diakka <diakka@staff.sinanet.com>, a make patch
 Zachariah Baum <zack@studioarchetype.com>, little laola finding patch
-Martin Vorlaender <martin@radiogaga.harz.de>, found a few piddling bugs that i would
-	never have found, while he was compiling it under (wait for it) VMS.
+Martin Vorlaender <martin@radiogaga.harz.de>, found a few piddling bugs that i 
+	would never have found, while he was compiling it under (wait for it) VMS.
+Justin Bradford <justin@ukans.edu>, did quite a bit of work to help getting wv
+	functioning as a library for abiword. Character properties as one example
+Jeff Hostetler <jeff@abisource.com>, for some mods to help it compile under
+	windows
 
 if ive forgotten anyone mail me.

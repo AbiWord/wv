@@ -42,7 +42,10 @@ void wvDecodeSimple(wvParseStruct *ps)
 	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
 
 	/* get font list */
-	wvGetFFN_STTBF(&ps->fonts, ps->fib.fcSttbfffn, ps->fib.lcbSttbfffn, ps->tablefd);
+	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3) )
+		wvGetFFN_STTBF6(&ps->fonts, ps->fib.fcSttbfffn, ps->fib.lcbSttbfffn, ps->tablefd);
+	else
+		wvGetFFN_STTBF(&ps->fonts, ps->fib.fcSttbfffn, ps->fib.lcbSttbfffn, ps->tablefd);
 	      
 	/*we will need the table of names to answer questions like the name of the doc*/
 	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3) )

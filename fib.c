@@ -592,13 +592,11 @@ int wvQuerySupported(FIB *fib,int *reason)
             break;
         }
     /*end from microsofts kb q 40*/
-	/*
     if (fib->fEncrypted)
         {
         if (reason) *reason=4;
         return(4);
         }
-	*/
     return(0);
     }
 

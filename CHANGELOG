@@ -44,10 +44,13 @@ Changes to to 0.5.21
 	and putting in defs for rint and strcasecmp.
 	* purified sep code.
 	* fixed fastsaved chp init from pap istd (i think)
-	* fixed finding first para bounds with complex mode if the first para is a new
-	fast saved chunk (i think)
+	* fixed finding first para bounds with complex mode if the first para is a 
+	new fast saved chunk (i think)
+	* ffn sttbf was wrong for word95 & word6, is fixed now.
 ALL TODO
+	* fix files in broken
 	* search for SEP sprm diffs between 6 and 8
+	* add in the list extraction code ?
 
 	* install cygwin thingy at home and test configure mechanism for searching and
 	installing strcasecmp/rint.

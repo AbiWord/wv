@@ -99,6 +99,8 @@ typedef struct tagPANOSE
 	} PANOSE;
 
 void wvGetPANOSE(PANOSE *panose,FILE *fd);
+void wvInitPANOSE(PANOSE *item);
+
 
 /*
  * The FONTSIGNATURE tells which Unicode ranges and which code pages
@@ -119,6 +121,8 @@ typedef struct
 	} FONTSIGNATURE;
 
 void wvGetFONTSIGNATURE(FONTSIGNATURE *fs,FILE *fd);
+void wvInitFONTSIGNATURE(FONTSIGNATURE *fs);
+
 
 #ifndef _FILETIME_
 #define _FILETIME_
@@ -470,6 +474,8 @@ typedef struct _FFN
     } FFN;
 
 void wvGetFFN(FFN *item,FILE *fd);
+void wvGetFFN6(FFN *item,FILE *fd);
+
 
 typedef struct _FFN_STTBF
     {
@@ -480,6 +486,7 @@ typedef struct _FFN_STTBF
     } FFN_STTBF;
 
 void wvGetFFN_STTBF(FFN_STTBF *item,U32 offset,U32 len,FILE *fd);
+void wvGetFFN_STTBF6(FFN_STTBF *item,U32 offset,U32 len,FILE *fd);
 void wvReleaseFFN_STTBF(FFN_STTBF *item);
 char *wvGetFontnameFromCode(FFN_STTBF *item,int fontcode);
 

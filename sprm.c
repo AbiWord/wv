@@ -2028,8 +2028,6 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 			}
 		}
 	apap->itbdMac = k;
-	wvTrace(("here\n"));
-	return(cch);
 
 	k=0;
 	j=0;
@@ -2500,7 +2498,7 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 		(*pos)++;
 		}
 
-	wvTrace(("achp istd is %d\n",achp->istd));
+	wvError(("achp istd is %d\n",achp->istd));
 	
 	wvAddCHPXFromBucket(&base,&upxf,stsh);
 
@@ -2543,6 +2541,8 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	*/
 	if (achp->fVanish == base.fVanish)
 		achp->fVanish = stsh->std[achp->istd].grupe[0].achp.fVanish;
+	wvError(("%d\n",base.dxaSpace));
+	wvError(("%d\n",achp->dxaSpace));
 	if (achp->dxaSpace == base.dxaSpace)
 		achp->dxaSpace = stsh->std[achp->istd].grupe[0].achp.dxaSpace;
 	if (achp->lidDefault == base.lidDefault)

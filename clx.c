@@ -256,6 +256,7 @@ U32 wvConvertCPToFC(U32 currentcp,CLX *clx)
 		currentfc = wvNormFC(clx->pcd[i].fc,&flag);
 		if (flag) currentfc+=(currentcp-clx->pos[i]);
 		else currentfc+=((currentcp-clx->pos[i])*2);
+		wvTrace(("flaky cp to fc conversion underway\n"));
 		}
 
 	return(currentfc);

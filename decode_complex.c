@@ -95,6 +95,7 @@ int wvGetComplexParafcLim(int version,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bt
 	U32 fcTest,beginfc;
 	BTE entry;
 	*fcLim=0xffffffffL;
+	wvTrace(("here is fcLim, currentfc is %x\n",currentfc));
 	fcTest = wvSearchNextSmallestFCPAPX_FKP(fkp,currentfc);
 
 	wvTrace(("fcTest is %x\n",fcTest));
@@ -360,7 +361,10 @@ void wvDecodeComplex(wvParseStruct *ps)
 	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
 
         /* get font list */
-	wvGetFFN_STTBF(&ps->fonts, ps->fib.fcSttbfffn, ps->fib.lcbSttbfffn, ps->tablefd);
+	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3) )
+		wvGetFFN_STTBF6(&ps->fonts, ps->fib.fcSttbfffn, ps->fib.lcbSttbfffn, ps->tablefd);
+	else
+		wvGetFFN_STTBF(&ps->fonts, ps->fib.fcSttbfffn, ps->fib.lcbSttbfffn, ps->tablefd);
 	   
 	/*we will need the table of names to answer questions like the name of the doc*/
 	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3) )
@@ -449,7 +453,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 
 			if ((para_fcLim == 0xffffffffL) || (para_fcLim == j))
 				{
-				wvTrace(("before tests j is %x\n",j));
+				wvTrace(("before tests j is %x, i is %d\n",j,i));
 				wvReleasePAPX_FKP(&para_fkp);
 				cpiece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i,&ps->clx, btePapx, posPapx, para_intervals,piececount,ps->mainfd);
 				wvTrace(("fcLim is %x, fcFirst is %x, j is %x\n",para_fcLim,para_fcFirst,j));
@@ -484,6 +488,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 				achp.istd = apap.istd;
 				wvAssembleSimpleCHP(&achp,char_fcLim,&char_fkp,&stsh);
 				wvTrace(("cpiece is %d, but full no is %d\n",cpiece,ps->clx.nopcd));
+				wvTrace(("test is %d\n",achp.dxaSpace));
 				wvAssembleComplexCHP(wvQuerySupported(&ps->fib,NULL),&achp,cpiece,&stsh,&ps->clx);
 				wvHandleElement(ps,CHARPROPBEGIN, (void*)&achp);
 				char_pendingclose=1;
@@ -637,6 +642,7 @@ void wvAssembleComplexCHP(int version,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 				}
 			wvTrace(("sprm is %x\n",sprm));
 			pointer = clx->grpprl[index]+i;
+			wvTrace(("test %d\n",achp->dxaSpace));
 			wvApplySprmFromBucket(version,sprm,NULL,achp,NULL,stsh,pointer,&i);
 			}
 		}

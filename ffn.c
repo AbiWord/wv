@@ -2,10 +2,61 @@
 #include <stdio.h>
 #include "wv.h"
 
+void wvInitFFN(FFN *item)
+	{
+	U8 i;
+	item->cbFfnM1=0;
+	item->prq=0;
+	item->fTrueType=0;
+	item->reserved1=0;
+	item->ff=0;
+	item->reserved2=0;
+	item->wWeight=0;
+	item->chs=0;
+	item->ixchSzAlt=0;
+	wvInitPANOSE(&item->panose);
+	wvInitFONTSIGNATURE(&item->fs);
+	for (i=0;i<65;i++)
+		item->xszFfn[i] = 0;
+	}
+
+void wvGetFFN6(FFN *item,FILE *fd)
+	{
+	int len,i;
+	U8 temp8;
+
+#ifdef PURIFY
+	wvInitFFN(item);
+#endif
+	
+	item->cbFfnM1 = getc(fd);
+	temp8 = getc(fd);
+	item->prq = temp8&0x03;
+	item->fTrueType = (temp8&0x04)>>2;
+	item->reserved1 = (temp8&0x08)>>3;
+	item->ff = (temp8&0x70)>>4;
+	item->reserved2 = (temp8&0x80)>>7;
+	item->wWeight = (S16)read_16ubit(fd);
+	item->chs = getc(fd);
+	item->ixchSzAlt = getc(fd);
+	wvInitPANOSE(&(item->panose));
+	wvInitFONTSIGNATURE(&(item->fs));
+	len = item->cbFfnM1-5;
+	if (len>65) len=65;
+	for (i=0;i<len;i++)
+		item->xszFfn[i] = getc(fd);
+	}
+	
+
 void wvGetFFN(FFN *item,FILE *fd)
 	{
 	int len,i;
 	U8 temp8;
+
+#ifdef PURIFY
+	wvInitFFN(item);
+#endif
+	
 	item->cbFfnM1 = getc(fd);
 	temp8 = getc(fd);
 	item->prq = temp8&0x03;
@@ -31,7 +82,8 @@ void wvGetFFN(FFN *item,FILE *fd)
 void wvGetFFN_STTBF(FFN_STTBF *item,U32 offset,U32 len,FILE *fd)
 	{
 	int i;
-	   wvTrace(("reading fonts...\n"));
+	wvTrace(("reading fonts...\n"));
+	wvTrace(("seeking to %x, len %d\n",offset,len));
 	if (len==0)
 		{
 		item->nostrings=0;
@@ -55,6 +107,46 @@ void wvGetFFN_STTBF(FFN_STTBF *item,U32 offset,U32 len,FILE *fd)
 		}
 
 	   wvTrace(("done reading fonts.\n"));
+	}
+
+void wvGetFFN_STTBF6(FFN_STTBF *item,U32 offset,U32 len,FILE *fd)
+	{
+	U32 count=0;
+	int noffn=0;
+	wvTrace(("reading fonts 6...\n"));
+	wvTrace(("seeking to %x, len %d\n",offset,len));
+	if (len==0)
+		{
+		item->nostrings=0;
+		item->ffn = NULL;
+		return;
+		}
+	fseek(fd,offset,SEEK_SET);
+	item->extendedflag=0;
+	item->nostrings=5;	/* lets just set a val to start off with */
+	item->extradatalen=0;
+	item->ffn = (FFN *)malloc(item->nostrings*sizeof(FFN));
+	if (len != read_16ubit(fd))
+		wvError(("FFN STTBF lens differ\n"));
+	count+=2;
+	
+	while (count < len)
+		{
+		if (noffn == item->nostrings)
+			{
+			/* need to extend the array just in case */
+			item->nostrings+=5;
+			item->ffn = (FFN *)realloc(item->ffn,item->nostrings*sizeof(FFN));
+			}
+		wvGetFFN6(&(item->ffn[noffn]),fd);
+		count+=(item->ffn[noffn].cbFfnM1+1);
+		wvTrace(("font %d: %s\n", noffn, wvWideStrToMB(item->ffn[noffn].xszFfn)));
+		noffn++;
+		}
+
+	if (item->nostrings != noffn) item->nostrings = noffn;
+
+	wvTrace(("done reading fonts 6.\n"));
 	}
 
 void wvReleaseFFN_STTBF(FFN_STTBF *item)
