@@ -1,0 +1,64 @@
+How to add a new output character encoding to wv
+================================================
+
+The reason that utf-8 is used for output in 90% of cases is that word itself 
+usually stores documents in 16bit unicode. In ascii languages it often uses 
+the windows codepages.
+
+When the text is 8 bit and uses the western european codepage 1252 then we
+have a special case and we output by default iso-5589-15. If it is a 
+different 8 bit codepage we convert it to unicode through one of the unicode
+mapping tables and then output utf-8 from this.
+
+When the document is in unicode or has been converted up to unicode it 
+is easiest to convert it to utf-8 html which netscape can display. It *is* 
+possible to add different conversions.
+
+Ill walk through the issues involved in this.
+
+There exists a call on some unices called iconv which
+is for conversion of charsets. The glibc2 one can handle
+windows codepages. But other platforms such as solaris
+have iconv but its a useless implementation, so wv does
+the following.
+
+tests on configure for the existance of iconv, and test if it can
+handle the windows codepages that I am currently supporting.
+If it does (it appears that only glibc2 fits this profile) then
+we use that for our windows codepage to unicode conversion, if
+it does not then I have a mini iconv implementation which can
+only handle windows codepage into unicode conversion, unicode
+into utf, unicode into koi8-r, unicode into iso-8859-15 and
+unicode into tis-620 (thai).
+
+If you want to convert to a different output language try
+wvHtml --charset nameofcharset file.doc
+If you have a good iconv implementation on your system then
+it will work. If you have a useless iconv and I have had to
+substitite my own mini iconv implementation then you can do
+the following...
+
+Add a new file for your conversion to the iconv dir, add
+the filename to the iconv/Makefile.in *AND* to the 
+wv Makefile.in. Follow the pattern of a converter such as the
+koi8-r.c. It would be nice if you included a document which
+used the language you are supporting to this dir, as well as
+a screenshot of what it should look like so that I can
+confirm in the future that any changes I might have made have
+not broken the converter.
+
+You will have to implement a unicode (16bit varient) to your
+charset, add your converer to 
+1) iconv_internal.h
+2) all the appropiate Makefiles are mentioned before
+3) to the convertt outputs structure in iconv.c, 
+bump up the NOOUTPUTS define by one. Make sure you use the
+correct name for the charset name in the other convertt field.
+4) Test it.
+
+
+C.
+
+Real Life: Caolan McNamara           *  Doing: MSc in HCI
+Work: Caolan.McNamara@ul.ie          *  Phone: +353-86-8790257
+URL: http://www.csn.ul.ie/~caolan    *  Sig: an oblique strategy
