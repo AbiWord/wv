@@ -415,7 +415,7 @@ clean: cleansub
 	$(RM) -rf *.$(OBJEXT) $(GETOPT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvRTF$(EXEEXT) core a.out *.a *.dylib
 
 distclean: realcleansub
-	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.dylib *.$(OBJEXT) wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvHtml wvAbw wvLatex wvText wvWml wvCleanLatex core out* analyze/* .pure lex.yy.c libtool
+	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.dylib *.$(OBJEXT) wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvHtml wvDocBook wvAbw wvLatex wvText wvWml wvCleanLatex core out* analyze/* .pure lex.yy.c libtool
 
 realclean: distclean
 
@@ -451,6 +451,7 @@ installdirs:
 
 install: installdirs all
 	chmod +x $(srcdir)/wvHtml
+	chmod +x $(srcdir)/wvDocBook
 	chmod +x $(srcdir)/wvLatex
 	chmod +x $(srcdir)/wvText
 	chmod +x $(srcdir)/wvWml
@@ -463,6 +464,7 @@ install: installdirs all
 	$(INSTALL) $(srcdir)/wvRTF$(EXEEXT) $(bindir)/wvRTF$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvCleanLatex $(bindir)/wvCleanLatex
 	$(INSTALL) $(srcdir)/wvHtml $(bindir)/wvHtml
+	$(INSTALL) $(srcdir)/wvDocBook $(bindir)/wvDocBook
 	$(INSTALL) $(srcdir)/wvAbw $(bindir)/wvAbw
 	$(INSTALL) $(srcdir)/wvMime $(bindir)/wvMime
 	$(INSTALL) $(srcdir)/wvPS $(bindir)/wvPS
@@ -495,6 +497,7 @@ install: installdirs all
 	$(INSTALL_DATA) $(srcdir)/libwv.a $(libdir)/libwv.a
 	$(INSTALL_DATA) $(src_xmldir)/wvText.xml $(datadir)/wv/wvText.xml
 	$(INSTALL_DATA) $(src_xmldir)/wvHtml.xml $(datadir)/wv/wvHtml.xml
+	$(INSTALL_DATA) $(src_xmldir)/wvDocBook.xml $(datadir)/wv/wvDocBook.xml
 	$(INSTALL_DATA) $(src_xmldir)/wvLaTeX.xml $(datadir)/wv/wvLaTeX.xml
 	$(INSTALL_DATA) $(src_xmldir)/wvAbw.xml $(datadir)/wv/wvAbw.xml
 	$(INSTALL_DATA) $(src_xmldir)/wvWml.xml $(datadir)/wv/wvWml.xml

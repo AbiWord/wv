@@ -660,6 +660,7 @@ wvDVI
 wvPS
 wvPDF
 wvHtml
+wvDocBook
 wvLatex
 wvCleanLatex
 wvText

@@ -43,7 +43,7 @@ WVLIBS = @WMF_LIBS@ @XML_LIBS@ @GLIB_LIBS@ @ICONV_LIBS@ @PNG_LIBS@ @ZLIB_LIBS@ @
 
 include_HEADERS = wv.h
 
-bin_SCRIPTS = libwv-config wvCleanLatex wvHtml wvAbw wvMime wvPS wvDVI wvLatex wvPDF wvText wvWml
+bin_SCRIPTS = libwv-config wvCleanLatex wvHtml wvDocBook wvAbw wvMime wvPS wvDVI wvLatex wvPDF wvText wvWml
 
 bin_PROGRAMS = wvSummary wvWare wvRTF wvConvert wvVersion
 

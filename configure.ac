@@ -737,6 +737,7 @@ AC_CONFIG_FILES([
 	wvPS
 	wvPDF
 	wvHtml
+	wvDocBook
 	wvLatex
 	wvCleanLatex
 	wvText
