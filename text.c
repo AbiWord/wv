@@ -165,47 +165,49 @@ wvOutputHtmlChar (U16 eachchar, U8 chartype, char *outputtype, U16 lid)
 }
 
 typedef struct {
-	const char * locale ;
+	const char * language_tag ;
 	U16 lid ;
 } wvLanguageId ;
 
 static const wvLanguageId mLanguageIds[] =
 	{
+		{ "-none-", 0x0000 }, /* none (language neutral) */
+		{ "-none-", 0x0400 }, /* none */
 		{ "af-ZA", 0x0436 }, /* Afrikaans */
-		{ "", 0x041c }, /* Albanian */
+		{ "al-AL", 0x041c }, /* Albanian */
 		{ "ar-SA", 0x0401 }, /* Arabic (Saudi) */
-		{ "", 0x0801 }, /* Arabic (Iraq) */
+		{ "ar-IQ", 0x0801 }, /* Arabic (Iraq) */
 		{ "ar-EG", 0x0c01 }, /* Arabic (Egypt) */		
-		{ "", 0x1001 }, /* Arabic (Libya) */
-		{ "", 0x1401 }, /* Arabic (Algeria) */
-		{ "", 0x1801 }, /* Arabic (Morocco) */
-		{ "", 0x1c01 }, /* Arabic (Tunisia) */
-		{ "", 0x2001 }, /* Arabic (Oman) */
-		{ "", 0x2401 }, /* Arabic (Yemen) */		
-		{ "", 0x2801 }, /* Arabic (Syria) */
-		{ "", 0x2c01 }, /* Arabic (Jordan) */
-		{ "", 0x3001 }, /* Arabic (Lebanon) */
-		{ "", 0x3401 }, /* Arabic (Kuwait) */
-		{ "", 0x3801 }, /* Arabic (United Arab Emirates) */
-		{ "", 0x3c01 }, /* Arabic (Bahrain) */		
-		{ "", 0x4001 }, /* Arabic (Qatar) */
+		{ "ar-LY", 0x1001 }, /* Arabic (Libya) */
+		{ "ar-DZ", 0x1401 }, /* Arabic (Algeria) */
+		{ "ar-MA", 0x1801 }, /* Arabic (Morocco) */
+		{ "ar-TN", 0x1c01 }, /* Arabic (Tunisia) */
+		{ "ar-OM", 0x2001 }, /* Arabic (Oman) */
+		{ "ar-YE", 0x2401 }, /* Arabic (Yemen) */		
+		{ "ar-SY", 0x2801 }, /* Arabic (Syria) */
+		{ "ar-JO", 0x2c01 }, /* Arabic (Jordan) */
+		{ "ar-LB", 0x3001 }, /* Arabic (Lebanon) */
+		{ "ar-KW", 0x3401 }, /* Arabic (Kuwait) */
+		{ "ar-AE", 0x3801 }, /* Arabic (United Arab Emirates) */
+		{ "ar-BH", 0x3c01 }, /* Arabic (Bahrain) */		
+		{ "ar-QA", 0x4001 }, /* Arabic (Qatar) */
 		{ "hy-AM", 0x042b }, /* Armenian */
-		{ "", 0x044c }, /* Azeri (Latin) */
-		{ "", 0x082c }, /* Azeri (Cyrillic) */
+		{ "az", 0x044c }, /* Azeri (Latin) az- */
+		{ "az", 0x082c }, /* Azeri (Cyrillic) az- */
 		{ "eu-ES", 0x042d }, /* Basque */
-		{ "", 0x0423 }, /* Belarussian */		
-		{ "", 0x0445 }, /* Bengali */
+		{ "be-BY", 0x0423 }, /* Belarussian */		
+		{ "bn", 0x0445 }, /* Bengali bn- */
 		{ "bg-BG", 0x0402 }, /* Bulgarian */
 		{ "ca-ES", 0x0403 }, /* Catalan */
 		{ "zh-TW", 0x0404 }, /* Chinese (Taiwan) */
 		{ "zh-CN", 0x0804 }, /* Chinese (PRC) */
 		{ "zh-HK", 0x0c04 }, /* Chinese (Hong Kong) */		
 		{ "zh-SG", 0x1004 }, /* Chinese (Singapore) */
-		{ "", 0x1404 }, /* Chinese (Macau SAR) */
+		{ "ch-MO", 0x1404 }, /* Chinese (Macau SAR) */
 		{ "hr-HR", 0x041a }, /* Croatian */
 		{ "cs-CZ", 0x0405 }, /* Czech */
 		{ "da-DK", 0x0406 }, /* Danish */
-		{ "", 0x465 }, /* Divehi */
+		{ "div", 0x465 }, /* Divehi div-*/
 		{ "nl-NL", 0x0413 }, /* Dutch (Netherlands) */		
 		{ "nl-BE", 0x0813 }, /* Dutch (Belgium) */
 		{ "en-US", 0x0409 }, /* English (USA) */
@@ -215,14 +217,14 @@ static const wvLanguageId mLanguageIds[] =
 		{ "en-NZ", 0x1409 }, /* English (New Zealand) */		
 		{ "en-IE", 0x1809 }, /* English (Ireland) */
 		{ "en-ZA", 0x1c09 }, /* English (South Africa) */
-		{ "", 0x2009 }, /* English (Jamaica) */
-		{ "", 0x2409 }, /* English (Caribbean) */
-		{ "", 0x2809 }, /* English (Belize) */
-		{ "", 0x2c09 }, /* English (Trinidad) */		
-		{ "", 0x3009 }, /* English (Zimbabwe) */
-		{ "", 0x3409 }, /* English (Phillipines) */
+		{ "en-JM", 0x2009 }, /* English (Jamaica) */
+		{ "en", 0x2409 }, /* English (Caribbean) */
+		{ "en-BZ", 0x2809 }, /* English (Belize) */
+		{ "en-TT", 0x2c09 }, /* English (Trinidad) */		
+		{ "en-ZW", 0x3009 }, /* English (Zimbabwe) */
+		{ "en-PH", 0x3409 }, /* English (Phillipines) */
 		{ "et-EE", 0x0425 }, /* Estonian */
-		{ "", 0x0438 }, /* Faeroese */
+		{ "fo", 0x0438 }, /* Faeroese fo- */
 		{ "fa-IR", 0x0429 }, /* Farsi */
 		{ "fi-FI", 0x040b }, /* Finnish */		
 		{ "fr-FR", 0x040c }, /* French (France) */
@@ -230,103 +232,102 @@ static const wvLanguageId mLanguageIds[] =
 		{ "fr-CA", 0x0c0c }, /* French (Canada) */
 		{ "fr-CH", 0x100c }, /* French (Switzerland) */
 		{ "fr-LU", 0x140c }, /* French (Luxembourg) */
-		{ "", 0x180c }, /* French (Monaco) */		
-		{ "", 0x0456 }, /* Galician */
+		{ "fr-MC", 0x180c }, /* French (Monaco) */		
+		{ "gl", 0x0456 }, /* Galician gl- */
 		{ "ka-GE", 0x0437 }, /* Georgian */
 		{ "de-DE", 0x0407 }, /* German (Germany) */
 		{ "de-CH", 0x0807 }, /* German (Switzerland) */
 		{ "de-AT", 0x0c07 }, /* German (Austria) */
 		{ "de-LU", 0x1007 }, /* German (Luxembourg) */
-		{ "", 0x1407 }, /* German (Liechtenstein) */		
+		{ "de-LI", 0x1407 }, /* German (Liechtenstein) */		
 		{ "el-GR", 0x0408 }, /* Greek */
-		{ "", 0x0447 }, /* Gugarati */
+		{ "gu", 0x0447 }, /* Gujarati gu- */
 		{ "he-IL", 0x040d }, /* Hebrew */
 		{ "hi-IN", 0x0439 }, /* Hindi */
 		{ "hu-HU", 0x040e }, /* Hungarian */
 		{ "is-IS", 0x040f }, /* Icelandic */		
 		{ "id-ID", 0x0421 }, /* Indonesian */
 		{ "it-IT", 0x0410 }, /* Italian (Italy) */
-		{ "", 0x0810 }, /* Italian (Switzerland) */
+		{ "it-CH", 0x0810 }, /* Italian (Switzerland) */
 		{ "ja-JP", 0x0411}, /* Japanese */
-		{ "", 0x044b }, /* Kannada */
-		{ "", 0x0860 }, /* Kashmiri (India) */		
-		{ "", 0x043f }, /* Kazakh */
-		{ "", 0x0457 }, /* Konkani */
+		{ "kn", 0x044b }, /* Kannada kn- */
+		{ "ks", 0x0860 }, /* Kashmiri (India) ks- */		
+		{ "kk", 0x043f }, /* Kazakh kk- */
+		{ "kok", 0x0457 }, /* Konkani kok- */
 		{ "ko-KR", 0x0412 }, /* Korean */
-		{ "", 0x0812 }, /* Korean (Johab) */
-		{ "", 0x0440 }, /* Kyrgyz */
+		{ "ko", 0x0812 }, /* Korean (Johab) ko- */
+		{ "kir", 0x0440 }, /* Kyrgyz */
 		{ "lv-LV", 0x0426 }, /* Latvian */
 		{ "lt-LT", 0x0427 }, /* Lithuanian */		
 		{ "lt-LT", 0x0827 }, /* Lithuanian (Classic) */
-		{ "", 0x042f }, /* FYRO Macedonian */
-		{ "", 0x043e }, /* Malaysian */
-		{ "", 0x083e }, /* Malay Brunei Darussalam */
-		{ "", 0x044c }, /* Malayalam */
-		{ "", 0x044e }, /* Marathi */		
-		{ "", 0x0461 }, /* Napali (Nepal) */
-		{ "", 0x0861 }, /* Nepali (India) */
+		{ "mk", 0x042f }, /* FYRO Macedonian */
+		{ "my-MY", 0x043e }, /* Malaysian */
+		{ "my-BN", 0x083e }, /* Malay Brunei Darussalam */
+		{ "ml", 0x044c }, /* Malayalam ml- */
+		{ "mr", 0x044e }, /* Marathi mr- */		
+		{ "ne-NP", 0x0461 }, /* Napali (Nepal) */
+		{ "ne-IN", 0x0861 }, /* Nepali (India) */
 		{ "nb-NO", 0x0414 }, /* Norwegian (Bokmai) */
 		{ "nn-NO", 0x0814 }, /* Norwegian (Nynorsk) */
-		{ "", 0x0448 }, /* Oriya */
+		{ "or", 0x0448 }, /* Oriya or- */
 		{ "pl-PL", 0x0415 }, /* Polish */		
 		{ "pt-BR", 0x0416 }, /* Portuguese (Brazil) */
 		{ "pt-PT", 0x0816 }, /* Portuguese (Portugal) */
-		{ "", 0x0446 }, /* Punjabi */
-		{ "", 0x0417 }, /* Rhaeto-Romanic */
+		{ "pa", 0x0446 }, /* Punjabi pa- */
+		{ "rm", 0x0417 }, /* Rhaeto-Romanic rm- */
 		{ "ro-RO", 0x0418 }, /* Romanian */
-		{ "", 0x0818 }, /* Romanian (Moldova) */		
+		{ "ro-MD", 0x0818 }, /* Romanian (Moldova) */		
 		{ "ru-RU", 0x0419 }, /* Russian */
-		{ "", 0x0819 }, /* Russian (Moldova) */
-		{ "", 0x043b }, /* Sami (Lappish) */
-		{ "", 0x044f }, /* Sanskrit */
-		{ "", 0x0c1a }, /* Serbian (Cyrillic) */
-		{ "", 0x081a }, /* Serbian (Latin) */		
-		{ "", 0x0459 }, /* Sindhi */
+		{ "ru-MD", 0x0819 }, /* Russian (Moldova) */
+		{ "se", 0x043b }, /* Sami (Lappish) se- */
+		{ "sa", 0x044f }, /* Sanskrit sa- */
+		{ "sr", 0x0c1a }, /* Serbian (Cyrillic) sr- */
+		{ "sr", 0x081a }, /* Serbian (Latin) sr- */		
+		{ "sd", 0x0459 }, /* Sindhi sd- */
 		{ "sk-SK", 0x041b }, /* Slovak */
 		{ "sl-SI", 0x0424 }, /* Slovenian */
-		{ "", 0x042e }, /* Sorbian */
+		{ "wen", 0x042e }, /* Sorbian wen- */
 		{ "es-ES", 0x040a }, /* Spanish (Spain, Traditional) */
 		{ "es-MX", 0x080a }, /* Spanish (Mexico) */		
-		{ "", 0x0c0a }, /* Spanish (Modern) */
-		{ "", 0x100a }, /* Spanish (Guatemala) */
-		{ "", 0x140a }, /* Spanish (Costa Rica) */
-		{ "", 0x180a }, /* Spanish (Panama) */
-		{ "", 0x1c0a }, /* Spanish (Dominican Republic) */
-		{ "", 0x200a }, /* Spanish (Venezuela) */		
-		{ "", 0x240a }, /* Spanish (Colombia) */
-		{ "", 0x280a }, /* Spanish (Peru) */
-		{ "", 0x2c0a }, /* Spanish (Argentina) */
-		{ "", 0x300a }, /* Spanish (Ecuador) */
-		{ "", 0x340a }, /* Spanish (Chile) */
-		{ "", 0x380a }, /* Spanish (Uruguay) */		
-		{ "", 0x3c0a }, /* Spanish (Paraguay) */
-		{ "", 0x400a }, /* Spanish (Bolivia) */
-		{ "", 0x440a }, /* Spanish (El Salvador) */
-		{ "", 0x480a }, /* Spanish (Honduras) */
-		{ "", 0x4c0a }, /* Spanish (Nicaragua) */
-		{ "", 0x500a }, /* Spanish (Puerto Rico) */		
-		{ "", 0x0430 }, /* Sutu */
-		{ "", 0x0441 }, /* Swahili (Kenya) */
+		{ "es-ES", 0x0c0a }, /* Spanish (Modern) */
+		{ "es-GT", 0x100a }, /* Spanish (Guatemala) */
+		{ "es-CR", 0x140a }, /* Spanish (Costa Rica) */
+		{ "es-PA", 0x180a }, /* Spanish (Panama) */
+		{ "es-DO", 0x1c0a }, /* Spanish (Dominican Republic) */
+		{ "es-VE", 0x200a }, /* Spanish (Venezuela) */		
+		{ "es-CO", 0x240a }, /* Spanish (Colombia) */
+		{ "es-PE", 0x280a }, /* Spanish (Peru) */
+		{ "es-AR", 0x2c0a }, /* Spanish (Argentina) */
+		{ "es-EC", 0x300a }, /* Spanish (Ecuador) */
+		{ "es-CL", 0x340a }, /* Spanish (Chile) */
+		{ "es-UY", 0x380a }, /* Spanish (Uruguay) */		
+		{ "es-PY", 0x3c0a }, /* Spanish (Paraguay) */
+		{ "es-BO", 0x400a }, /* Spanish (Bolivia) */
+		{ "es-SV", 0x440a }, /* Spanish (El Salvador) */
+		{ "es-HN", 0x480a }, /* Spanish (Honduras) */
+		{ "es-NI", 0x4c0a }, /* Spanish (Nicaragua) */
+		{ "es-PR", 0x500a }, /* Spanish (Puerto Rico) */		
+		{ "sx", 0x0430 }, /* Sutu */
+		{ "sw-KE", 0x0441 }, /* Swahili (Kenya) */
 		{ "sv-SE", 0x041d }, /* Swedish */
 		{ "sv-FI", 0x081d }, /* Swedish (Finland) */
-		{ "", 0x0449 }, /* Tamil */
-		{ "", 0x0444 }, /* Tatar (Tatarstan) */		
-		{ "", 0x044a }, /* Telugu */
+		{ "ta", 0x0449 }, /* Tamil ta- */
+		{ "tt", 0x0444 }, /* Tatar (Tatarstan) tt- */		
+		{ "te", 0x044a }, /* Telugu te- */
 		{ "th-TH", 0x041e }, /* Thai */
-		{ "", 0x0431 }, /* Tsonga */
-		{ "", 0x0432 }, /* Tswana */
+		{ "ts", 0x0431 }, /* Tsonga ts- */
+		{ "tn", 0x0432 }, /* Tswana tn- */
 		{ "tr-TR", 0x041f }, /* Turkish */
 		{ "uk-UA", 0x0422 }, /* Ukrainian */		
-		{ "", 0x0420 }, /* Urdu (Pakistan) */
-		{ "", 0x0820 }, /* Urdu (India) */
-		{ "", 0x0443 }, /* Uzbek (Latin) */
-		{ "", 0x0843 }, /* Uzbek (Cyrillic) */
-		{ "", 0x0433 }, /* Venda */
+		{ "ur-PK", 0x0420 }, /* Urdu (Pakistan) */
+		{ "ur-IN", 0x0820 }, /* Urdu (India) */
+		{ "uz", 0x0443 }, /* Uzbek (Latin) uz- */
+		{ "uz", 0x0843 }, /* Uzbek (Cyrillic) uz- */
+		{ "ven", 0x0433 }, /* Venda ven- */
 		{ "vi-VN", 0x042a }, /* Vietnamese */		
-		{ "", 0x0434 }, /* Xhosa */
-		{ "", 0x043d }, /* Yiddish */
-		{ "", 0x0435 }, /* Zulu */
-		{ "-none-", 0x0400 } /* none */
+		{ "xh", 0x0434 }, /* Xhosa xh */
+		{ "yi", 0x043d }, /* Yiddish yi- */
+		{ "zu", 0x0435 } /* Zulu zu- */
 	};
 
 #define NrMappings (sizeof(mLanguageIds)/sizeof(mLanguageIds[0]))
@@ -336,13 +337,13 @@ U16 wvLangToLIDConverter ( const char * lang )
 	unsigned int i = 0 ;
 
 	if (!lang)
-		return 0x0409;   /* return en-US */
+		return 0x0400;   /* return -none- */
 	
 	for ( i = 0 ; i < NrMappings ; i++ )
-		if (!strcmp (lang, mLanguageIds[i].locale))
+		if (!strcmp (lang, mLanguageIds[i].language_tag))
 			return mLanguageIds[i].lid ;
 	
-	return 0x409 ;   /* return en-US */
+	return 0x0400 ;   /* return -none- */
 }
 
 const char *
@@ -355,9 +356,9 @@ wvLIDToLangConverter (U16 lid)
 	
 	for ( i = 0 ; i < NrMappings ; i++ )
 		if ( mLanguageIds[i].lid == lid )
-			return mLanguageIds[i].locale ;
+			return mLanguageIds[i].language_tag ;
 
-	return "en-US"; /* default */
+	return "-none-"; /* default */
 }
 
 const char *
