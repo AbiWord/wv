@@ -189,6 +189,8 @@ void wvDecodeSimple(wvParseStruct *ps)
 					wvTrace(("getting row information\n"));
 					wvGetRowTap(ps,&apap,para_intervals,btePapx,posPapx);
 					}
+				else if (apap.fInTable == 0)
+					ps->intable=0;
 				
 				wvHandleElement(ps, PARABEGIN, (void*)&apap);
 

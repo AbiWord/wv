@@ -2028,8 +2028,9 @@ is moved to tap.rgtc. sprmTDefTable is only stored in PAPXs.
 void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 	{
 	U16 len;
-	int i,t;
+	int i,t,oldpos;
 	len = dread_16ubit(NULL,&pointer);
+	oldpos = *pos;
 	(*pos)+=2;
 	tap->itcMac = dgetc(NULL,&pointer);
 	wvTrace(("C: there are %d cells\n",tap->itcMac));
@@ -2040,9 +2041,19 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 		wvTrace(("C: cell boun is %d\n",tap->rgdxaCenter[i]));
 		(*pos)+=2;
 		}
+
+	if ( (len - (*pos - 2 - oldpos)) < (cb6TC * tap->itcMac) )
+		{
+		if ( (len - (*pos - oldpos)) < (cbTAP * tap->itcMac) )
+		pointer += len - (*pos - oldpos);
+		(*pos) += len - (*pos - oldpos);
+		return;
+		}
+	
 	for (i=0;i<tap->itcMac;i++)
 		{
 		t = wvGetTCFromBucket(1,&(tap->rgtc[i]),pointer);
+		wvTrace(("DefTable merge is %d\n",tap->rgtc[i].fVertMerge));
 		/* for christ sake !!, word 8 stores word 6 sized TC's in this sprm ! */
 		(*pos)+=t;
 		pointer+=t;

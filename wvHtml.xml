@@ -76,18 +76,28 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 <end>&lt;/td&gt;</end>
 </cell>
 
-<paragraph>
+<text>
 <begin>
-<table.end/>
-<table.begin/>
-<row.begin/>
-<cell.begin/><olist.end/><olist.begin/><ulist.end/><ulist.begin/><entry.begin/>
 &lt;div align=&quot;<just/>&quot;&gt;
 &lt;p&gt;
 </begin>
 <end>
 &lt;/p&gt;
 &lt;/div&gt;
+</end>
+</text>
+
+
+<paragraph>
+<begin>
+<table.end/>
+<table.begin/>
+<row.begin/>
+<cell.begin/><olist.end/><olist.begin/><ulist.end/><ulist.begin/><entry.begin/>
+<text.begin/>
+</begin>
+<end>
+<text.end/>
 <entry.end/>
 <olist.end/>
 <ulist.end/>

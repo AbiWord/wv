@@ -1,15 +1,4 @@
-Changes to to 0.5.32
-	* multilevel word6/95 lists appear to work fine, needs verification
-	* use new cellwidth thing in wvHtml, wvConvert and wvConfig
-	* colspan probably works in general at least
-	* AHA!!!!, sprmTDefTable contains some TC structs, *but* only 10 bytes
-	are allocated for each one, a word 8 TC is 20 bytes long, a word 6 TC
-	is 10 bytes long, so we can point out another location where word 8
-	is disconnected from its own spec completely, gagh!!!!
-	* completed rowspan support, now wvParseStruct and expand_data are
-	exceedingly messy, and theres a stack of static in wvConfig, it
-	might be a good idea to move them into one location and stuff this
-	pointers from the parsestruct to the expand_data struct nonsense
+Changes to to 0.5.34
 ALL TODO
 	* test rowspan lots and lots on examples.
 	* careful colspan tests.
@@ -104,6 +93,21 @@ ALL TODO
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.33
+	* tested row and col span with fullsave and fixed many
+	many bugs, sprmTDefTable is not as simple as it looks.
+Changes to to 0.5.32
+	* multilevel word6/95 lists appear to work fine, needs verification
+	* use new cellwidth thing in wvHtml, wvConvert and wvConfig
+	* colspan probably works in general at least
+	* AHA!!!!, sprmTDefTable contains some TC structs, *but* only 10 bytes
+	are allocated for each one, a word 8 TC is 20 bytes long, a word 6 TC
+	is 10 bytes long, so we can point out another location where word 8
+	is disconnected from its own spec completely, gagh!!!!
+	* completed rowspan support, now wvParseStruct and expand_data are
+	exceedingly messy, and theres a stack of static in wvConfig, it
+	might be a good idea to move them into one location and stuff this
+	pointers from the parsestruct to the expand_data struct nonsense
 Changes to to 0.5.31
 	* wvSummary bug fix.
 	* word 95 decrypting from the password added as well !, theres no

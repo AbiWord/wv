@@ -33,7 +33,7 @@ int getopt(int argc, char * const argv[], const char *optstring);
 #endif
 
 #ifndef S16
-#define S16 short
+#define S16 signed short
 #endif
 
 #ifndef U8
@@ -2341,6 +2341,9 @@ typedef enum _TT
 	TT_CELLE,
 	TT_COLSPAN,
 	TT_ROWSPAN,
+	TT_TEXT,
+	TT_TEXTB,
+	TT_TEXTE,
 	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 

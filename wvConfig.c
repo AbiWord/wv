@@ -118,6 +118,9 @@ TokenTable s_Tokens[] =
 		  {	"lowerroman",	 	TT_LowerRoman},
 		  {	"uppercasen",	 	TT_UpperCaseN},
 		  {	"lowercasen",	 	TT_LowerCaseN},
+	   {	"text",	 		 TT_TEXT,			},
+		{	"text.begin",	 TT_TEXTB,			},
+		{	"text.end", 	 TT_TEXTE,			},
 	   {	"olist",	 		 TT_OLIST,			},
 		{	"olist.begin",	 TT_OLISTB,			},
 		{	"olist.end", 	 TT_OLISTE,			},
@@ -378,7 +381,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	static int bold,italic,strike,outline,smallcaps,caps,vanish,
 	shadow,lowercase,emboss,imprint,dstrike,iss,kul,color,fontstr,proprmark,
 	animation,delete,added,FldRMark,ilfo,ilvl=-1,ulist,olist,fintable,fttp=1,
-	table;
+	table,txt;
 	char buffer[64];
 	static LVL lvl;
 	static U32 lastid=0;
@@ -416,13 +419,19 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				wvTrace(("begin end %d %d %d\n",(*mydata->cellbounds)[0],(*mydata->cellbounds)[1],(*mydata->cellbounds)[2]));
 				
 				wvTrace(("whichcell is %d, entry is %d %d\n",mydata->whichcell,((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell],(*mydata->cellbounds)[i]));
-				while ( (*mydata->cellbounds)[i] != ((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell])
+				while ( (i <= ((PAP*)(mydata->props))->ptap.itcMac+1) && (*mydata->cellbounds)[i] != ((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell])
+					{
+					wvTrace(("here-->%d %d\n",(*mydata->cellbounds)[i],((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell] ));
 					i++;
+					}
 
 				wvTrace(("found begin point at %d\n",i));
 				j=i;
-				while(  (*mydata->cellbounds)[j] != ((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1] )
+				while( (j <= ((PAP*)(mydata->props))->ptap.itcMac+1) && (*mydata->cellbounds)[j] != ((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1] )
+					{
+					wvTrace(("end point test %d %d\n",(*mydata->cellbounds)[j],((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1] ));
 					j++;
+					}
 
 				wvTrace(("found end point at %d\n",j));
 				wvTrace(("going from %d to %d\n",((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell],((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]  ));
@@ -612,6 +621,33 @@ void exstartElement(void *userData, const char *name, const char **atts)
 					wvReleaseLVL(&lvl);
 					wvInitLVL(&lvl);
 					}
+				}
+			break;
+		case TT_TEXTB:
+			text = (char *)malloc(strlen(mydata->sd->elements[TT_TEXT].str[0])+1);
+			strcpy(text,mydata->sd->elements[TT_TEXT].str[0]);
+			str = mydata->retstring;
+			wvExpand(mydata,text,strlen(text));
+			wvAppendStr(&str,mydata->retstring);
+			wvFree(mydata->retstring);
+			mydata->retstring = str;
+			wvFree(text);
+			mydata->currentlen = strlen(mydata->retstring);
+			txt=1;
+			break;
+		case TT_TEXTE:
+			if (txt)
+				{
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_TEXT].str[1])+1);
+				strcpy(text,mydata->sd->elements[TT_TEXT].str[1]);
+				str = mydata->retstring;
+				wvExpand(mydata,text,strlen(text));
+				wvAppendStr(&str,mydata->retstring);
+				wvFree(mydata->retstring);
+				mydata->retstring = str;
+				wvFree(text);
+				mydata->currentlen = strlen(mydata->retstring);
+				txt=0;
 				}
 			break;
 		case TT_OLISTB:
@@ -1223,6 +1259,7 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_Shimmer:
 		case TT_DispFldRMark:
 		case TT_OLIST:
+		case TT_TEXT:
 		case TT_ULIST:
 		case TT_ENTRY:
 		case TT_TABLE:
@@ -1786,6 +1823,16 @@ void startElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 
+		case TT_TEXTB:
+			wvAppendStr(mydata->current,"<text.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+			break;
+		case TT_TEXTE:
+			wvAppendStr(mydata->current,"<text.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+
 		case TT_OLISTB:
 			wvAppendStr(mydata->current,"<olist.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -1994,6 +2041,8 @@ void endElement(void *userData, const char *name)
 		case TT_ANIMATIONE:
 		case TT_DispFldRMarkB:
 		case TT_DispFldRMarkE:
+		case TT_TEXTB:
+		case TT_TEXTE:
 		case TT_OLISTB:
 		case TT_OLISTE:
 		case TT_ULISTB:

@@ -11,6 +11,10 @@ be considered the same
 int shortCompLT(void *a,void *b)
     {
     S16 *a2,*b2;
+
+	if (shortCompEQ(a,b))
+		return(0);
+
     a2 = (S16 *)a;
     b2 = (S16 *)b;
     return( *a2 < (*b2)+3);
@@ -18,12 +22,22 @@ int shortCompLT(void *a,void *b)
 
 int shortCompEQ(void *a,void *b)
     {
+	int ret;
     S16 *a2,*b2;
+
+
+
+
     a2 = (S16 *)a;
     b2 = (S16 *)b;
-    if( (*a2 - *b2) < 3)
-		return(1);
-	return(0);
+
+
+	ret = abs(*a2 - *b2);
+	if (ret < 3)
+		ret=1;
+	else
+		ret=0;
+	return(ret);
     }
 
 void wvGetRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32 *posPapx)	
@@ -52,6 +66,9 @@ void wvGetRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32
 
 	wvReleasePAPX_FKP(&para_fkp);
 	wvCopyTAP(&(dpap->ptap),&apap.ptap);
+
+	for (j=0;j<apap.ptap.itcMac+1;j++)
+		wvTrace(("This Row-->%d\n",apap.ptap.rgdxaCenter[j]));
 	}
 
 void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx)	
@@ -130,9 +147,7 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
 
 	for (i=0;i<no;i++)
 		for (j=0;j<ptap[i].itcMac+1;j++)
-			{
 			InsertNode(&tree,(void *) &(ptap[i].rgdxaCenter[j]) );
-			}
 
 	testn = NextNode(&tree,NULL);
 	i=0;
