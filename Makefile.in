@@ -100,15 +100,11 @@ SHELL = /bin/sh
 MYOBJECTS =	\
 	support.$(OBJEXT) \
 	list.$(OBJEXT) \
-	piecetable.$(OBJEXT) \
 	stylesheet.$(OBJEXT) \
 	sprm.$(OBJEXT) \
 	blip.$(OBJEXT) \
 	utf.$(OBJEXT) \
 	field.$(OBJEXT) \
-	references.$(OBJEXT) \
-	papchpsep.$(OBJEXT) \
-	hyperlink.$(OBJEXT) \
 	decompresswmf.$(OBJEXT) \
 	dop.$(OBJEXT) \
 	roman.$(OBJEXT) \

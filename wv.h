@@ -4537,8 +4537,6 @@ Property       PID            Type            Default        Description
 		       field_info * magic_fields, wvStream * main, FILE * data,
 		       FFN_STTBF * ffn_sttbf, list_info * a_list_info,
 		       textportions * portions, int *issection, style * sheet);
-    void decode_f_reference (textportions * portions);
-    void decode_e_reference (textportions * portions);
     void get_next_f_ref (textportions * portions, signed long *nextfootnote);
     void get_next_e_ref (textportions * portions, signed long *nextendnote);
   /* void decode_annotation (textportions * portions); */
@@ -4627,9 +4625,6 @@ Property       PID            Type            Default        Description
     void decode_footanno (U32 * begin, U32 * len, textportions * portions,
 			  int i);
 
-    int get_piecetable (wvStream * in, U32 ** rgfc, U32 ** avalrgfc,
-			U16 ** sprm, U32 * clxcount);
-
     int find_piece_cp (U32 sepcp, U32 * rgfc, int nopieces);
 
     obj_by_spid *get_blips (U32 fcDggInfo, U32 lcbDggInfo, wvStream * tablefd,
@@ -4687,16 +4682,6 @@ has got
     U32 decode_b_bookmark (bookmark_limits * l_bookmarks, STTBF * bookmarks);
     U32 decode_e_bookmark (bookmark_limits * l_bookmarks);
 
-#if 0
-    U32 decode_b_annotation (bookmark_limits * l_bookmarks);
-    U32 decode_e_annotation (bookmark_limits * l_bookmarks);
-#endif
-
-    U16 *decode_hyperlink (int letter, unsigned long int *swallowcp1,
-			   unsigned long int *swallowcp2, U16 ** deleteme);
-    U16 *decode_crosslink (int letter, unsigned long int *swallowcp1,
-			   unsigned long int *swallowcp2);
-
     void decode_annotations (wvStream * mafd, FILE * tablefd,
 			     textportions * portions);
 
@@ -4732,11 +4717,6 @@ has got
     void do_output_end (document_style * doc_style, int core, int tail);
     char *argument (void);
 
-    int query_piece_cp (U32 * rgfc, U32 * avalrgfc, int nopieces, U32 querycp,
-			U32 * nextpiececp, int *flag_8_16);
-    int query_piece_cp_seek (U32 * rgfc, U32 * avalrgfc, int nopieces,
-			     long int querycp, U32 * nextpiececp,
-			     int *flag_8_16, wvStream * fd);
     void fill_table_info (pap * apap, U32 tapfc1, U32 * plcfbtePapx,
 			  U32 intervals, wvStream * mafd, style * sheet,
 			  list_info * a_list_info);
