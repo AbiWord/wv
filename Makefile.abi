@@ -132,7 +132,9 @@ CSRCS= \
 	iconv/iso-8859-15.c \
 	iconv/tis-620.c \
 	iconv/utf-8.c \
-	iconv/iconv.c
+	iconv/iconv.c \
+	exporter/support.c \
+  	exporter/fib.c
 
 CFLAGS+=		-I. -I./iconv -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
 

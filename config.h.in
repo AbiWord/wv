@@ -3,47 +3,28 @@
 /* Define to empty if the keyword does not work.  */
 #undef const
 
-/* Define if you have a working `mmap' system call.  */
-#undef HAVE_MMAP
+/* Define if you have <sys/wait.h> that is POSIX.1 compatible.  */
+#undef HAVE_SYS_WAIT_H
+
+/* Define if you have the wait3 system call.  */
+#undef HAVE_WAIT3
+
+/* Define if you have the waitpid system call.  */
+#undef HAVE_WAITPID
+
+/* Define as the return type of signal handlers (int or void).  */
+#undef RETSIGTYPE
+
+/* Define if you have the <errno.h> header file.  */
+#define HAVE_ERRNO_H 1
+
+#undef HAVE_POSIX_SIGNALS
+
+/* Define to `int' if <sys/types.h> doesn't define.  */
+#undef pid_t
 
 /* Define if you have the ANSI C header files.  */
 #undef STDC_HEADERS
-
-/* Define if your processor stores words with the most significant
-   byte first (like Motorola and SPARC, unlike Intel and VAX).  */
-#undef WORDS_BIGENDIAN
-
-/* Define if the X Window System is missing or not being used.  */
-#undef X_DISPLAY_MISSING
-
-#undef HAVE_TTF
-#undef HAVE_WMF
-#undef HAVE_XPM
-#undef HasPNG
-#undef MATCHED_TYPE
-#undef MUST_USE_INTERNAL_ICONV_TABLE
-#undef SYSTEM_ZLIB
-#undef USE_ICONV
-#undef USE_X
-#undef XML_BYTE_ORDER
-
-/* The number of bytes in a char.  */
-#undef SIZEOF_CHAR
-
-/* The number of bytes in a int.  */
-#undef SIZEOF_INT
-
-/* The number of bytes in a long.  */
-#undef SIZEOF_LONG
-
-/* The number of bytes in a short.  */
-#undef SIZEOF_SHORT
-
-/* Define if you have the getpagesize function.  */
-#undef HAVE_GETPAGESIZE
-
-/* Define if you have the memcpy function.  */
-#undef HAVE_MEMCPY
 
 /* Define if you have the <fcntl.h> header file.  */
 #undef HAVE_FCNTL_H
@@ -56,3 +37,57 @@
 
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H
+
+/* Define if you want zlib to uncompress wmf files */
+#undef SYSTEM_ZLIB
+
+/* Define if you have libwmf and want it to convert wmf to gif files */
+#undef HAVE_WMF
+
+/* Define if you have freetype*/
+#undef HAVE_TTF
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#ifdef HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
+#if defined(HAVE_ERRNO_H)
+#include <errno.h>
+#endif
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <limits.h>
+/* #include <dirent.h> */
+#include <stdarg.h>
+
+#include <getopt.h>
+
+#undef MATCHED_TYPE
+#undef WORDS_BIGENDIAN
+#undef XML_BYTE_ORDER
+
+#if defined(__GNUC__) && !defined(WORDS_BIGENDIAN) && defined(MATCHED_TYPE)
+#define NO_HOLES
+#endif
+
+/* define if you have iconv */
+#undef USE_ICONV
+
+/* define if you have iconv but do not have windows codepage to unicode support */
+#undef MUST_USE_INTERNAL_ICONV_TABLE
+
+/* define if you have libpng */
+#undef HasPNG
+
+/* Define if you have the memcpy function.  */
+#undef HAVE_MEMCPY
+
+#ifndef HAVE_MEMCPY
+#define memcpy(d, s, n) bcopy ((s), (d), (n))
+#endif /* not HAVE_MEMCPY */
+
+#undef HAVE_MMAP

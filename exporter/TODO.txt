@@ -1,0 +1,31 @@
+File				Issues/Concerns
+---------------------------------------------------------------------------
+anld.c				Does it need a toBucket() method?
+anlv.c				Does is need a toBucket() method?
+asumy.c				Done
+asumyi.c			Done
+atrd.c				Does it need a PCLF method?
+bkd.c				Does it need a PCLF method?
+bkf.c				Does it need a PCLF method?
+bkl.c				Does it need a PCLF method?
+blip.c				**TODO**
+brc.c				**TODO**
+bte.c				Does it need a PCLF method?
+chp.c				**Does it need a toBucket() method?**
+clx.c				**TODO**
+dcs.c				Does it need a PCLF method?
+dogrid.c			Done
+dop.c				**putCOPTS() is done, putDOP() is not**
+doptypography.c			Done
+dttm.c				Done
+escher.c			**TODO**
+fbse.c				**TODO**
+fdoa.c				Does it need a PCLF method?
+ffn.c				**TODO**
+fib.c				**putFib():HUGE CHECK ME!!, code putFib6() **
+filetime.c			Done
+fld.c				Does it need a PCLF method?
+font.c				Done
+fopt.c				In progress...
+
+lvl.c               Does it need a wvGetLVL method?
