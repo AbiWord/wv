@@ -22,19 +22,17 @@ Changes to to 0.5.43
 	will default correctly to nothing if this cannot be determined
 	due to cross compiling.
 	* implemented TIME field
+	* remove unnecessary expat subdirs
+	* title done in the correct charset
 ALL TODO
-	* move unnecessary expat subdirs
+	* unicode in FIELDS.
+
 	* allow latex or html or raw text conversion options.
 
 	* more graphic checks, more escher records etc etc.
 	* promote old graphics into escher format.
 	* decompress wmf etc.
 	* get libwmf back into action and get picts together as well.
-
-	* test with a bitmap, duplicate the headers for an escher
-	parsed bitmap so as to convert the strange thing that we
-	have found in WordPerfect2000 into a viable blip for
-	the existing structure.
 
 	* wvSetCharHandler(proc,NATIVE|UNICODE)
 	* attempt to remove completely empty para's with the IsEmpty code
@@ -45,14 +43,9 @@ ALL TODO
 	* need to add a color Auto thing that figures out what color goes against 
 	what fore or back ground.
 
-	* multiple columns are part of section code, how to support this in html 
-	without brain failure.
-
 	* put the default text and char stuff into one single "style", and then 
 	try and figure out a way to save arbitrary no of styles into some nice 
 	structure for later seaching and stylesheet implementation.
-
-	* title not being done in the correct charset
 
 	* style overrides for each word style, example idea in wvHtml.xml
 
@@ -64,9 +57,6 @@ ALL TODO
 	foregrounds not work on its own, while the others did, and is there
 	one of two cases where our grid will not handle every case ?
 
-	* bring in some stylesheet constructs, such as para indentation and
-	font size and color and so on. move things that direction instead.
-
 	* add another option for table width, i.e. tableabswidth.
 	* we need character formatting for the <li> itself, we can do this I 
 	suppose, but i'll hold off on that for a while.
@@ -77,7 +67,6 @@ ALL TODO
 	the strike and revision deleted ?, what if a mad user created his own 
 	collisions.  In the future there will be problems with links being broken 
 	by references, this is a similar problem.
-	* what was i at with sprmCFtcDefault ????, fBold ??, what the...
 	* install cygwin thingy at home and test configure mechanism for searching 
 	and installing strcasecmp/rint.
 	* i figured out what the story is with ole embedded files, ill have to 
@@ -85,12 +74,7 @@ ALL TODO
 	and splice them together, which could be a wee bit of a challenge.
 	* modify configure script so its possible to link against a different 
 	expat lib, or to disable it or something.
-	* add errors via numbered errors to wvInitParser.
-	* additional code checks for conversion of codepage whatever to iso for
-	ancillary strings that might be stored in that format.
 
-	* implement whatever special drawing format there is.
-	* patch thai handling back in.
 	* test that continous sections and endnotes at the end of section, and
 	other things like that do what i think they should do.
 	* placement of footnotes, what does "treat like endnotes" really mean ?

@@ -5,7 +5,7 @@
 
 size_t wvConvertUnicodeToUTF_8(const char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft)
 	{
-	U16 c1,c2;
+	U16 c2;
 	size_t ret=0;
 	int len;
     while(  (*inbytesleft) && (*outbytesleft)   )
@@ -18,7 +18,6 @@ size_t wvConvertUnicodeToUTF_8(const char **inbuf, size_t *inbytesleft, char **o
 
         (*inbytesleft)-=2;
 
-        c1 = ConvertUnicodeToiso8859_15(c2);
     	len = our_wctomb(*outbuf,c2);
 
         (*outbuf)+=len;
