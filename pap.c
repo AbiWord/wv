@@ -342,9 +342,9 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 		return ret;
 	
 	/* 	all lists have ilfo set */
-	wvTrace(("list: ilvl %d, ilfo %d\n",apap->ilvl,apap->ilfo));	//ilvl is the list level
+	wvTrace(("list: ilvl %d, ilfo %d\n",apap->ilvl,apap->ilfo));	/* ilvl is the list level */
 
-	// first, get the LFO, and then find the lfovl for this paragraph
+	/* first, get the LFO, and then find the lfovl for this paragraph */
 	myLFO = &ps->lfo[apap->ilfo - 1];
 
 	while(i < (S32)apap->ilfo - 1 && i < (S32)ps->nolfo)
@@ -501,11 +501,11 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 	wvTrace(("list: number text len %d, papx len %d, chpx len%d\n",myNumberStr_count,mygPAPX_count,mygCHPX_count));
 	myPAPX.cb = mygPAPX_count;
 	myPAPX.grpprl = mygPAPX;
-	myPAPX.istd = 4095; // no style
+	myPAPX.istd = 4095; /* no style */
 
 	myCHPX.cbGrpprl = mygCHPX_count;
 	myCHPX.grpprl = mygCHPX;
-	myCHPX.istd = 4095; // no style
+	myCHPX.istd = 4095; /* no style */
 
 
 	/*
@@ -550,7 +550,7 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 	*/
 	wvTrace(("list: id %d \n",myListId));
 	wvTrace(("list: iStartAt %d\n", myStartAt));
-	wvTrace(("list: lvlf: format %d\n",myLVLF->nfc)); // see the comment above for nfc values
+	wvTrace(("list: lvlf: format %d\n",myLVLF->nfc)); /* see the comment above for nfc values */
 	wvTrace(("list: lvlf: number align %d [0: lft, 1: rght, 2: cntr]\n",myLVLF->jc));
 	wvTrace(("list: lvlf: ixchFollow %d [0:= tab, 1: spc, 2: none]\n",myLVLF->ixchFollow));
 
