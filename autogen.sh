@@ -30,6 +30,24 @@ aclocal $ACLOCAL_FLAGS || {
     echo "error: aclocal $ACLOCAL_FLAGS failed"
     exit 1
 }
+
+echo "Checking for PKG_CHECK_MODULES..."
+
+pkgcheckdef=`grep PKG_CHECK_MODULES aclocal.m4 | grep AC_DEFUN`
+if test "x$pkgcheckdef" = "x"; then
+  echo ""
+  echo "error: PKG_CHECK_MODULES isn't defined"
+  echo ""
+  echo "   Either pkg.m4 wasn't in aclocal's search path or pkgconfig"
+  echo "   (or pkgconfig-devel?) isn't installed."
+  echo ""
+  echo "   If pkg-config is installed in <prefix> then re-run autogen.sh:"
+  echo ""
+  echo "       ACLOCAL_FLAGS=\"-I <prefix>/share/aclocal\" ./autogen.sh"
+  echo ""
+  exit
+fi
+
 autoheader || {
     echo "error: autoheader failed"
     exit 1

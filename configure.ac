@@ -68,7 +68,7 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 
 AC_DISABLE_STATIC
-AM_PROG_LIBTOOL
+AC_PROG_LIBTOOL
 
 dnl Checks for headers.
 
@@ -658,18 +658,35 @@ dnl do it if we have __GNUC__ defined
 dnl end of possible optimization tests
 
 dnl check for getopt
-AC_CHECK_FUNC(getopt_long, , [LIBOBJS="$LIBOBJS getopt1.o getopt.o"])
-dnl check for strerror
-AC_CHECK_FUNC(strerror, , [LIBOBJS="$LIBOBJS strerror.o"])
-dnl check for strcasecmp
-AC_CHECK_FUNC(strcasecmp, , [LIBOBJS="$LIBOBJS strcasecmp.o"])
-AC_EGREP_HEADER(strcasecmp,string.h,,AC_DEFINE(DEFINE_STRCASECMP,1,[Define this if strcasecmp must be defined]))
-dnl check for memcpy, if not there we'll use bcopy
-AC_CHECK_FUNCS(memcpy)
-dnl check for mmap
-AC_FUNC_MMAP
+dnl 
+AC_CHECK_FUNC(getopt_long,,[
+	AC_LIBOBJ(getopt1)
+	AC_LIBOBJ(getopt)
+])
 
-AC_SUBST(LIBOBJS)
+dnl check for strerror
+dnl 
+AC_CHECK_FUNC(strerror,,[
+	AC_LIBOBJ(strerror)
+])
+
+dnl check for strcasecmp
+dnl 
+AC_CHECK_FUNC(strcasecmp,,[
+	AC_LIBOBJ(strcasecmp)
+])
+
+AC_EGREP_HEADER(strcasecmp,string.h,,[
+	AC_DEFINE(DEFINE_STRCASECMP,1,[Define this if strcasecmp must be defined])
+])
+
+dnl check for memcpy, if not there we'll use bcopy
+dnl 
+AC_CHECK_FUNCS(memcpy)
+
+dnl check for mmap
+dnl 
+AC_FUNC_MMAP
 
 AH_BOTTOM([
 #ifdef HAVE_UNISTD_H
