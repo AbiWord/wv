@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([wv],[0.7.3],[wvware-devel@sourceforge.net])
+AC_INIT([wv],[0.7.4],[wvware-devel@sourceforge.net])
 AC_CONFIG_SRCDIR([exporter/wvexporter.h])
 
 dnl This next section is courtesy gtk+

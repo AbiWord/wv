@@ -317,7 +317,7 @@ AC_ARG_WITH(glib,[  --with-glib[=DIR]       use system glib [in DIR]],[
 	GLIB_DIR=""
 ])
 
-if [ test $wv_sys_glib = glib2 ]; then
+if test $wv_sys_glib = glib2; then
 	PKG_CHECK_MODULES(GLIB,glib-2.0 >= 2.0,[
 		dnl do we need to set these?
 		wv_glib2=yes
@@ -327,32 +327,45 @@ if [ test $wv_sys_glib = glib2 ]; then
 		AC_MSG_ERROR([$GLIB_PKG_ERRORS])
 	fi
 
-elif [ test $wv_sys_glib != no ]; then
-	if [ test "x$GLIB_DIR" = "x" ]; then
-		AC_PATH_PROG(GLIB_CONFIG, glib12-config, , [$PATH])
-	else
-		AC_PATH_PROG(GLIB_CONFIG, glib12-config, , [$GLIB_DIR/bin:$PATH])
+elif test $wv_sys_glib != no; then
+	wv_glib2=no
+	if test "x$GLIB_DIR" = "x"; then
+		AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+		if test "x$PKG_CONFIG" != "xno" ; then
+			PKG_CHECK_MODULES(GLIB,glib-2.0 >= 2.0,[
+				wv_sys_glib=glib2
+				wv_glib2=yes
+			],[	AC_MSG_WARN([*** falling back to glib-1.2])
+			])
+		fi
 	fi
-	if [ test "x$GLIB_CONFIG" = "x" ]; then
-		if [ test "x$GLIB_DIR" = "x" ]; then
-			AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$PATH])
+	if test $wv_glib2 = no; then
+		if test "x$GLIB_DIR" = "x"; then
+			AC_PATH_PROG(GLIB_CONFIG, glib12-config, , [$PATH])
 		else
-			AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$GLIB_DIR/bin:$PATH])
+			AC_PATH_PROG(GLIB_CONFIG, glib12-config, , [$GLIB_DIR/bin:$PATH])
 		fi
-	fi
-	if [ test "x$GLIB_CONFIG" = "x" ]; then
-		if [ test $wv_sys_glib = required ]; then
-			AC_MSG_ERROR(* * * Unable to find glib12-config or glib-config in path! * * *)
+		if test "x$GLIB_CONFIG" = "x"; then
+			if test "x$GLIB_DIR" = "x"; then
+				AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$PATH])
+			else
+				AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$GLIB_DIR/bin:$PATH])
+			fi
 		fi
-		wv_sys_glib=no
+		if test "x$GLIB_CONFIG" = "x"; then
+			if test $wv_sys_glib = required; then
+				AC_MSG_ERROR([* * * Unable to find glib12-config or glib-config in path! * * *])
+			fi
+			wv_sys_glib=no
+		fi
 	fi
 fi
 
-if [ test $wv_sys_glib = no ]; then
+if test $wv_sys_glib = no; then
 	HAVE_GLIB=0
 	GLIB_CFLAGS=""
 	GLIB_LIBS=""
-elif [ test $wv_sys_glib != glib2 ]; then
+elif test $wv_sys_glib != glib2; then
 	AC_DEFINE(HAVE_GLIB)
 	HAVE_GLIB=1
 	GLIB_CFLAGS=`$GLIB_CONFIG --cflags`
@@ -581,67 +594,6 @@ LDFLAGS=$_ldflags
 
 dnl end of iconv
 dnl ========================================================
-
-dnl ========================================================
-dnl test for imagemagick
-dnl test for the existence of the MagickConfig program,
-dnl if its not there then we dont have imagemagick, if it
-dnl is there then we still have to do a big dance to get
-dnl something to link against it as it does not provide all
-dnl the information that we need to compile against it
-dnl first try it raw, maybe the author will have fixed it
-dnl by now, then try it with the prefix attached, and then
-dnl try it with the X varient of that, and then try it with
-dnl both.
-
-_cppflags=$CPPFLAGS
-_ldflags=$LDFLAGS
-
-AC_ARG_WITH(Magick,
-[  --with-Magick=DIR       use Magick in DIR],[
-    if test "$withval" != "no"; then
-        MAGICK_DIR=$withval
-        CPPFLAGS="$CPPFLAGS -I$withval/include"
-        LDFLAGS="$LDFLAGS -L$withval/lib"
-    fi
-])
-
-if test -n "$MAGICK_DIR"; then
-    AC_PATH_PROG(MAGICK_CONFIG, Magick-config, ,
-    [$MAGICK_DIR:$MAGICK_DIR/bin:$PATH])
-else
-    AC_PATH_PROG(MAGICK_CONFIG, Magick-config)
-fi
-
-if test -n "$MAGICK_CONFIG"; then
-    m_cppflags=`$MAGICK_CONFIG --cppflags`
-    m_ldflags=`$MAGICK_CONFIG --ldflags`
-
-    CPPFLAGS="$CPPFLAGS $m_cppflags"
-    LDFLAGS="$LDFLAGS $m_ldflags"
-
-    AC_CHECK_HEADER(magick/magick.h,
-        AC_CHECK_LIB(Magick, GetImageInfo,[
-            MAGICK_CFLAGS=$m_cppflags
-            MAGICK_LIBS=$m_ldflags
-            MAGICK="BMAGICK"
-            MAGICKOBJS="\$(RMAGICKOBJS)"]))
-fi
-
-if test -z "$MAGICK"; then
-	MAGICK="BMAGICK"
-	MAGICK_CFLAGS="-I./magick"
-	MAGICK_LIBS=""
-	MAGICKOBJS="\$(RMAGICKOBJS)"
-fi
-
-CPPFLAGS=$_cppflags
-LDFLAGS=$_ldflags
-
-AC_SUBST(MAGICK_CFLAGS)
-AC_SUBST(MAGICK_LIBS)
-AC_SUBST(MAGICK)
-AC_SUBST(MAGICKOBJS)
 
 dnl ========================================================
 dnl begin of possible optimization tests
