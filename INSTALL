@@ -2,6 +2,16 @@ libwv
 =====
 
 1. build system
+2. configuring
+3. converting images
+4. compilation problems
+5. supported platforms
+6. libwv for Windows
+7. libwv for Mac OS X 10.2 (Jaguar)
+8. Running wvHtml from Netscape
+9. libwv crashes
+
+1. build system
    ------------
 
    There are currently two methods for generating configure. The traditional
@@ -128,7 +138,57 @@ libwv
    needed to be installed for full functionality, but i imagine that compiling
    them under cygwin32 would go smoothly as well, let me know on that one.
 
-7. Running wvHtml from Netscape
+7. libwv for Mac OS X 10.2 (Jaguar)
+   --------------------------------
+
+   Instructions here are for building wv-0.7.4 and installing in the directory
+   /opt/wv-0.7.4, using Jaguar's default shell; modify as appropriate...
+
+   Note: To create /opt you will need root access - i.e., login to an
+         administrator account and use sudo mkdir /opt. In fact I (fjf) prefer
+         to give this a non-system ownership, e.g.:
+
+	# sudo /bin/bash
+	password: 
+	$ mkdir /opt
+	$ chgrp Staff /opt
+	$ chmod 2775 /opt
+
+         but it's your call. Some people prefer /usr/local. I like /opt.
+         HOWEVER: /opt will not show up in the finder - which can be a pain...
+
+   Note: Of course, if it's just you who wishes to use it, then you can always
+         install under your home directory, e.g.: /Users/fjf/fjf
+
+   Instructions by Manos Krokos
+   ----------------------------
+
+   Install Fink so you get the latest versions of libiconv and libpng 
+   and then do the following:
+
+   1. Untar the wv source into your home directory.
+   2. cd into the wv-0.7.4 directory
+   3. type:
+
+	env CPPFLAGS="-I/sw/include" LDFLAGS="-L/sw/include" ./configure --prefix=/opt/wv-0.7.4
+
+      [those of you who, like me (fjf), prefer bash, just omit the 'env']
+
+   4. type 'make'
+   5. type 'make install'
+   6. type 'pico ~/.cshrc'
+   7. In the text editor that will open in your terminal window, add the 
+      following line:
+
+	set path = ( /opt/wv-0.7.4/bin $path )
+
+   8. Use the wv commands like this (example):
+
+	wvHtml --targetdir=<DIR> file.doc file.html
+
+      Substitute 'Html' with the command of your choice or taste
+
+8. Running wvHtml from Netscape
    ----------------------------
 
    There are some scripts in helper-scripts that were sent to me to get
@@ -137,7 +197,7 @@ libwv
    don't, but they are a useful resource, i believe the nsopen nswordview are
    your best bet for this.
 
-8. libwv crashes
+9. libwv crashes
    -------------
 
    I don't believe you. You question the worthiness of my Code? I should kill
@@ -166,8 +226,8 @@ libwv
    well. If the word file is particulary big, compress it for me please.
    Please mention your platform and libwv version.
 
-9. contact details
-   ---------------
+contact details
+---------------
 
    Usual forums etc. at SourceForge: http://wvware.sourceforge.net/
    Best place to contact us is on the developer list wvware-devel

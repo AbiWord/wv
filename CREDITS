@@ -1,3 +1,14 @@
+This file is out of date, last modified October 2000. Even I (fjf) am not listed
+here... :-) I've tried to acknowledge people in the release notes, as far as I
+could figure out who'd done what, which isn't easy since CHANGELOG gave up after
+0.6.0.
+
+Anyway, just to say that your absence from this list is not a snub, merely a
+blanket laziness on the part of the developers.
+
+Nov.'02
+---------------------------------------------------------------------------------
+
 Andrew Scriven <andy.scriven@research.natpower.co.uk>, originator of ole code
 Arturo Tena <arturo@directmail.org> <filters@centauri.lci.ulsa.mx>, ole changes
 Brian.Ewins <brian.ewins@bt.com>, much needed speed ups 
