@@ -3451,8 +3451,8 @@ returns the same as wvOLEDecode with the addition that
 	} obj;
 	S16 dxaGoal;
 	S16 dyaGoal;
-	S16 mx;
-	S16 my;
+	U16 mx;
+	U16 my;
 	S16 dxaCropLeft;
 	S16 dyaCropTop;
 	S16 dxaCropRight;

@@ -30,8 +30,8 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 	wvGetrc (&(apicf->obj.arc), fd);
     apicf->dxaGoal = (S16) read_16ubit (fd);
     apicf->dyaGoal = (S16) read_16ubit (fd);
-    apicf->mx = (S16) read_16ubit (fd);
-    apicf->my = (S16) read_16ubit (fd);
+    apicf->mx = read_16ubit (fd);
+    apicf->my = read_16ubit (fd);
     apicf->dxaCropLeft = (S16) read_16ubit (fd);
     apicf->dyaCropTop = (S16) read_16ubit (fd);
     apicf->dxaCropRight = (S16) read_16ubit (fd);
