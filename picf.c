@@ -171,11 +171,7 @@ U32 wvEatOldGraphicHeader(wvStream *fd,U32 len)
 				break;
 			default:
 				{
-				/* Commenting the folowing line out makes the AbiWord importer
-				not [appear to] hang, but it's probably technically the 'wrong'
-				thing to do.  Someone who knows more about thw Word file format
-				should take a look at this, I think. (JM) */
-				/*U32 len = entry-2;*/
+				U32 len = entry-2;
 				U32 i;
 				wvTrace(("len is %d, predict end of %x\n",len,wvStream_tell(fd)+(entry-2)*2));
 				for(i=0;i<len;i++)
