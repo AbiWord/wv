@@ -27,15 +27,34 @@ void wvDecodeSimple(wvParseStruct *ps)
 	U32 para_fcFirst, para_fcLim=0xffffffff;
 	U32 char_fcFirst, char_fcLim=0xffffffff;
 	U32 section_fcFirst, section_fcLim=0xffffffff;
+	U32 comment_cpFirst=0xffffffffL,comment_cpLim=0xffffffffL;
 	BTE *btePapx, *bteChpx;
 	U32 *posPapx, *posChpx;
-	U32 para_intervals, char_intervals, section_intervals;
+	U32 para_intervals, char_intervals, section_intervals,atrd_intervals;
 	U16 charset;
 	U8 state=0;
-	int para_pendingclose=0,char_pendingclose=0,section_pendingclose=0;
+	int para_pendingclose=0,char_pendingclose=0,section_pendingclose=0,comment_pendingclose=0;
 	SED *sed;
 	SEP sep;
 	U32 *posSedx;
+	ATRD *atrd,*catrd=NULL;
+	U32 *posAtrd;
+	STTBF grpXstAtnOwners,SttbfAtnbkmk;
+	BKF *bkf;
+	U32 *posBKF;
+	U32 bkf_intervals;
+	BKL *bkl;
+	U32 *posBKL;
+	U32 bkl_intervals;
+
+	
+	/* this mountain of informatio is just to get comments organized*/
+	wvGetATRD_PLCF(&atrd,&posAtrd,&atrd_intervals,ps->fib.fcPlcfandRef,ps->fib.lcbPlcfandRef,ps->tablefd);
+	wvGetGrpXst(&grpXstAtnOwners,ps->fib.fcGrpXstAtnOwners,ps->fib.lcbGrpXstAtnOwners,ps->tablefd);
+	wvTrace(("offset is %x, len is %d\n",ps->fib.fcSttbfAtnbkmk,ps->fib.lcbSttbfAtnbkmk));
+	wvGetSTTBF(&SttbfAtnbkmk,ps->fib.fcSttbfAtnbkmk,ps->fib.lcbSttbfAtnbkmk,ps->tablefd);
+	wvGetBKF_PLCF(&bkf,&posBKF,&bkf_intervals,ps->fib.fcPlcfAtnbkf,ps->fib.lcbPlcfAtnbkf,ps->tablefd);
+	wvGetBKL_PLCF(&bkl,&posBKL,&bkl_intervals,ps->fib.fcPlcfAtnbkl,ps->fib.lcbPlcfAtnbkl,ps->tablefd);
 
 	/*we will need the stylesheet to do anything useful with layout and look*/
 	wvGetSTSH(&ps->stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
@@ -110,10 +129,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	If !fib.fComplex, the document text stream is represented by the text
 	beginning at fib.fcMin up to (but not including) fib.fcMac.
 	*/
-	
-	/*
-	if (ps->fib.fcMac != (S32)(wvNormFC(ps->clx.pcd[ps->clx.nopcd-1].fc,NULL)+ps->clx.pos[ps->clx.nopcd]))
-	*/
+
 	if ( ps->fib.fcMac != wvGetEndFCPiece(ps->clx.nopcd-1,&ps->clx) )
 		wvTrace(("fcMac is not the same as the piecetable %x %x!\n",ps->fib.fcMac,wvGetEndFCPiece(ps->clx.nopcd-1,&ps->clx)));
 
@@ -132,15 +148,22 @@ void wvDecodeSimple(wvParseStruct *ps)
 		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&ps->clx,piececount);
 		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
 		fseek(ps->mainfd,beginfc,SEEK_SET);
-		for (i=begincp,j=beginfc;i<endcp,i<ps->fib.ccpText;i++,j += wvIncFC(chartype))
+		for (i=begincp,j=beginfc;(i<endcp && i<ps->fib.ccpText);i++,j += wvIncFC(chartype))
 			{
-			
 			/* character properties */
 			if (j == char_fcLim)
 				{
 				wvHandleElement(ps, CHARPROPEND, (void*)&achp);
 				char_pendingclose = 0;
 				}
+
+			/* comment ending location */
+            if (i == comment_cpLim)
+                {
+                wvHandleElement(ps,COMMENTEND, (void*)catrd);
+                comment_pendingclose=0;
+                }
+
 			
 			/* paragraph properties */
 			if (j == para_fcLim)
@@ -170,10 +193,8 @@ void wvDecodeSimple(wvParseStruct *ps)
 			
 			if ((para_fcLim == 0xffffffff) || (para_fcLim == j))
 				{
-				wvTrace(("j i is %x %d\n",j,i));
 				wvReleasePAPX_FKP(&para_fkp);
 				wvGetSimpleParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,wvConvertCPToFC(i,&ps->clx), btePapx, posPapx, para_intervals, ps->mainfd);
-				wvTrace(("para begins at %x ends %x\n", para_fcFirst, para_fcLim));
 				}
 
 			if (j == para_fcFirst)
@@ -181,22 +202,31 @@ void wvDecodeSimple(wvParseStruct *ps)
 				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
 				if ( (apap.fInTable) && (!apap.fTtp) )
 					{
-					wvTrace(("Id have to search for all table info %x %x\n",para_fcFirst,para_fcLim));
 					wvGetFullTableInit(ps,para_intervals,btePapx,posPapx);
-					
-					wvTrace(("getting row information\n"));
 					wvGetRowTap(ps,&apap,para_intervals,btePapx,posPapx);
 					}
 				else if (apap.fInTable == 0)
 					ps->intable=0;
 				
 				wvHandleElement(ps, PARABEGIN, (void*)&apap);
-
-				/*testing the next line, to force the char run to begin after a new para*/
 				char_fcFirst = j;
-
 				para_pendingclose = 1;
 				}
+
+			if ((comment_cpLim == 0xffffffffL) || (comment_cpLim == i))
+                {
+                wvTrace(("searching for the next comment begin cp is %d\n",i));
+                catrd = wvGetCommentBounds(&comment_cpFirst,&comment_cpLim,i,atrd,posAtrd,atrd_intervals,&SttbfAtnbkmk,
+                bkf,posBKF,bkf_intervals,bkl,posBKL,bkl_intervals);
+                wvTrace(("begin and end are %d %d\n",comment_cpFirst,comment_cpLim));
+                }
+
+            if (i == comment_cpFirst)
+                {
+                wvHandleElement(ps,COMMENTBEGIN, (void*)catrd);
+                comment_pendingclose=1;
+                }
+
 
 			if ((char_fcLim == 0xffffffff) || (char_fcLim == j))
 				{
@@ -230,7 +260,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 				ps->endcell=1;
 
 			ps->currentcp = i;
-			wvOutputTextChar(eachchar, chartype, charset, &state, ps);
+			wvOutputTextChar(eachchar, chartype, charset, &state, ps,&achp);
 
 			}
 		}
@@ -240,15 +270,25 @@ void wvDecodeSimple(wvParseStruct *ps)
 		wvInitCHP(&achp);
 		wvHandleElement(ps, CHARPROPEND, (void*)&achp);
 		}
+
+	if (comment_pendingclose)
+        wvHandleElement(ps,COMMENTEND, (void*)catrd);
+
 	if (para_pendingclose)
 		{
 		wvInitPAP(&apap);
 		wvHandleElement(ps, PARAEND, (void*)&apap);
 		}
+
 	if (section_pendingclose)
-		{
 		wvHandleElement(ps, SECTIONEND, (void*)&sep);
-		}
+
+	wvFree(posBKL);
+	wvFree(bkl);
+	wvFree(posBKF);
+	wvFree(bkf);
+	wvFree(posAtrd);
+	wvFree(atrd);
 
 	wvReleasePAPX_FKP(&para_fkp);
 	wvReleaseCHPX_FKP(&char_fkp);
@@ -279,6 +319,8 @@ void wvDecodeSimple(wvParseStruct *ps)
 	wvReleaseCLX(&ps->clx);
     wvReleaseFFN_STTBF(&ps->fonts);
 	wvReleaseSTSH(&ps->stsh);
+	wvReleaseSTTBF(&SttbfAtnbkmk);
+    wvReleaseSTTBF(&grpXstAtnOwners);
 	if (ps->vmerges)
 		{
 		for(i=0;i<ps->norows;i++)

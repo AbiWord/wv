@@ -4,6 +4,9 @@
 extern "C" {
 #endif
 
+#include <stdlib.h>
+#include <time.h>
+
 /* redefs of things that are either in glibc or we have to include them ourselves*/
 #ifdef WIN32
 #define strcasecmp(s1,s2) stricmp(s1,s2)
@@ -14,7 +17,6 @@ int strcasecmp(const char *s1, const char *s2);
 int getopt(int argc, char * const argv[], const char *optstring);
 /* end redefs */
 
-#include <time.h>
 
 #ifndef PATH_MAX
 #define PATH_MAX 1024 /*seems a reasonable figure*/
@@ -505,6 +507,7 @@ void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,FILE *fd);
 void wvListSTTBF(STTBF *item);
 void wvReleaseSTTBF(STTBF *item);
 char *wvGetTitle(STTBF *item);
+void wvGetGrpXst(STTBF *anS,U32 offset,U32 len,FILE *fd);
 
 U16 *UssrStrBegin(STTBF *sttbf,int no);
 
@@ -817,6 +820,8 @@ typedef struct _BKF
 
 void wvGetBKF(BKF *item,FILE *fd);
 int wvGetBKF_PLCF(BKF **bkf,U32 **pos,U32 *nobkf,U32 offset,U32 len,FILE *fd);
+void wvInitBKF(BKF *item);
+
 
 
 typedef struct _Xst
@@ -1289,7 +1294,7 @@ typedef struct _TC
     U32 fVertRestart:1;
     U32 vertAlign:2;
     U32 fUnused:7;
-    U16 wUnused:16;
+    U32 wUnused:16;
     BRC brcTop;
     BRC brcLeft;
     BRC brcBottom;
@@ -2352,6 +2357,10 @@ typedef enum _TT
 	TT_CELLWIDTH,
 	TT_CELLBGCOLOR,
 	TT_TABLERELWIDTH,
+	TT_STYLE,
+	TT_COMMENT,
+	TT_IBSTANNO,
+	TT_xstUsrInitl,
 	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 
@@ -2646,7 +2655,7 @@ int wvIncFC(int chartype);
 
 int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,/*CLX *clx,*/ BTE *bte, U32 *pos,int nobte, FILE *fd);
 
-int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStruct *ps);
+int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStruct *ps,CHP *achp);
 void wvOutputFromCP1252(U16 eachchar,U8 outputtype);
 void wvOutputFromUnicode(U16 eachchar,U8 outputtype);
 
@@ -2720,6 +2729,9 @@ void wvEndCharProp(expand_data *data);
 
 void wvBeginSection(expand_data *data);
 void wvEndSection(expand_data *data);
+
+void wvBeginComment(expand_data *data);
+void wvEndComment(expand_data *data);
    
 int wvGetComplexParafcLim(int first,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd);
 
@@ -2740,7 +2752,9 @@ typedef enum
 	PARABEGIN,
 	PARAEND,
 	CHARPROPBEGIN,
-	CHARPROPEND
+	CHARPROPEND,
+	COMMENTBEGIN,
+	COMMENTEND
 	} wvTag;
 
 int wvHandleElement(wvParseStruct *ps,wvTag tag, void *props);
@@ -2777,6 +2791,8 @@ typedef struct _BKL
    } BKL;
 
 void wvGetBKL(BKL *item,FILE *fd);
+int wvGetBKL_PLCF(BKL **bkl,U32 **pos,U32 *nobkl,U32 offset,U32 len,FILE *fd);
+
 
 typedef struct _PGD
     {
@@ -2880,6 +2896,18 @@ int wvCellBgColor(int whichrow,int whichcell,int nocells,int norows,TLP *tlp);
 float wvRelativeWidth(S16 width,SEP *asep);
 
 int fieldCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype);
+
+#if 0
+typedef struct _wvStyle
+	{
+	XCHAR *xstzName;
+	char *characterstring;
+	char *parastring;
+	} wvStyle;
+#endif
+
+ATRD *wvGetCommentBounds(U32 *comment_cpFirst,U32 *comment_cpLim,U32 currentcp,ATRD *atrd,U32 *pos,U32 noatrd,
+STTBF *bookmarks,BKF *bkf,U32 *posBKF,U32 bkf_intervals,BKL *bkl,U32 *posBKL,U32 bkl_intervals);
 
 /*current addition position*/
 

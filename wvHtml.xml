@@ -76,16 +76,7 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 <end>&lt;/td&gt;</end>
 </cell>
 
-<text>
-<begin>
-&lt;div align=&quot;<just/>&quot;&gt;
-&lt;p&gt;
-</begin>
-<end>
-&lt;/p&gt;
-&lt;/div&gt;
-</end>
-</text>
+
 
 
 <paragraph>
@@ -189,7 +180,7 @@ and will be displayed with a note showing the change points.
 
 use either this line (which admit it a bit scary looking, but harmless)...
 --> 
-<PropRMark><begin>&lt;a href=&quot;#author<ibstPropRMark/>&quot;&gt;--&amp;gt;&lt;/a&gt;</begin><end>&lt;a href=&quot;#author<ibstPropRMark/>&quot;&gt;[Author ID<ibstPropRMark/>: at <dttmPropRMark/>]&lt;/a&gt;</end></PropRMark>
+<PropRMark><begin>&lt;a href=&quot;#author<ibstPropRMark/>&quot;&gt;-&#45;&amp;gt;&lt;/a&gt;</begin><end>&lt;a href=&quot;#author<ibstPropRMark/>&quot;&gt;[Author ID<ibstPropRMark/>: at <dttmPropRMark/>]&lt;/a&gt;</end></PropRMark>
 
 <!--
 or uncomment below to make the notes dissappear
@@ -258,17 +249,49 @@ or uncomment below to ignore it, the previous might even crash wv ?
 <end><ltgray.end/><dkgray.end/><dkyellow.end/><dkred.end/><dkmagenta.end/><dkgreen.end/><dkcyan.end/><dkblue.end/><white.end/><yellow.end/><red.end/><magenta.end/><green.end/><cyan.end/><blue.end/><black.end/>&lt;/font&gt;</end>
 </fontstr>
 
+<!--
 <character>
 <begin><PropRMark.begin/><DispFldRMark.begin/><animation.begin/><fontstr.begin/><bold.begin/><italic.begin/><strike.begin/><RMarkDel.begin/><outline.begin/><smallcaps.begin/><caps.begin/><vanish.begin/><RMark.begin/><shadow.begin/><lowercase.begin/><emboss.begin/><imprint.begin/><dstrike.begin/><super.begin/><sub.begin/><single.begin/><word.begin/><double.begin/><dotted.begin/><hidden.begin/><thick.begin/><dash.begin/><dot.begin/><dotdash.begin/><dotdotdash.begin/><wave.begin/></begin>
 <end><wave.end/><dotdotdash.end/><dotdash.end/><dot.end/><dash.end/><thick.end/><hidden.end/><dotted.end/><double.end/><word.end/><single.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/><animation.end/><DispFldRMark.end/><PropRMark.end/></end>
 </character>
 
-<!--
-<annolink>
-<begin><sup><annoabbrev/><annoindex/></sup></begin>
-<end><sup><annoabbrev/><annoindex/></sup></end>
-</annolink>
+<text>
+<begin>
+&lt;div align=&quot;<just/>&quot;&gt;
+&lt;p&gt;
+</begin>
+<end>
+&lt;/p&gt;
+&lt;/div&gt;
+</end>
+</text>
 -->
+
+<comment>
+<begin>
+&lt;a href=&quot;#comment<ibstAnno/> &quot;&gt;-&#45;&amp;gt;&lt;/a&gt;
+</begin>
+<end>&lt;a href=&quot;#comment<ibstAnno/> &quot;&gt;[Author:<xstUsrInitl/>]&lt;/a&gt;
+</end>
+</comment>
+
+<style name="Normal">
+<character>
+<begin><PropRMark.begin/><DispFldRMark.begin/><animation.begin/><fontstr.begin/><bold.begin/><italic.begin/><strike.begin/><RMarkDel.begin/><outline.begin/><smallcaps.begin/><caps.begin/><vanish.begin/><RMark.begin/><shadow.begin/><lowercase.begin/><emboss.begin/><imprint.begin/><dstrike.begin/><super.begin/><sub.begin/><single.begin/><word.begin/><double.begin/><dotted.begin/><hidden.begin/><thick.begin/><dash.begin/><dot.begin/><dotdash.begin/><dotdotdash.begin/><wave.begin/></begin>
+<end><wave.end/><dotdotdash.end/><dotdash.end/><dot.end/><dash.end/><thick.end/><hidden.end/><dotted.end/><double.end/><word.end/><single.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/><animation.end/><DispFldRMark.end/><PropRMark.end/></end>
+</character>
+
+<text>	
+<begin>
+&lt;div align=&quot;<just/>&quot;&gt;
+&lt;p&gt;
+</begin>
+<end>
+&lt;/p&gt;
+&lt;/div&gt;
+</end>
+</text>
+</style>
 
 <!--we need to be override the character properties-->
 <!--
@@ -286,6 +309,26 @@ or uncomment below to ignore it, the previous might even crash wv ?
 </begin>
 <end>
 &lt;/p&gt;
+&lt;/div&gt;
+</end>
+</text>
+
+</style>
+
+<style name="Heading 1">
+
+<character>
+<begin></begin>
+<end></end>
+</character>
+
+<text>	
+<begin>
+&lt;div align=&quot;<just/>&quot;&gt;
+&lt;H1&gt;
+</begin>
+<end>
+&lt;/H1&gt;
 &lt;/div&gt;
 </end>
 </text>

@@ -6,6 +6,7 @@
 extern TokenTable s_Tokens[];
 
 int (*charhandler)(wvParseStruct *ps,U16 eachchar,U8 chartype)=NULL;
+int (*scharhandler)(wvParseStruct *ps,U16 eachchar,CHP *achp)=NULL;
 int (*elehandler)(wvParseStruct *ps,wvTag tag, void *props)=NULL;
 int (*dochandler)(wvParseStruct *ps,wvTag tag)=NULL;
 
@@ -42,10 +43,22 @@ U16 wvLookupCharset(char *optarg)
     return(0xffff);
 	}
 
-int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStruct *ps)
+int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStruct *ps, CHP *achp)
 	{
-	if (charhandler)
-		return( (*charhandler)(ps,eachchar,chartype) );
+	/*
+	if the character is still one of the special ones then call this other handler 
+	instead
+	*/
+	if (achp->fSpec)
+		{
+		if (charhandler)
+			return( (*scharhandler)(ps,eachchar,achp) );
+		}	
+	else 
+		{
+		if (charhandler)
+			return( (*charhandler)(ps,eachchar,chartype) );
+		}
 
 	switch(eachchar)
 		{
@@ -132,6 +145,9 @@ thing and just put ... instead of this
 			return;
 		case 0x92:
 			printf("'");
+			return;
+		case 0x2013:
+		    printf("-");
 			return;
 		}
 
@@ -311,6 +327,37 @@ int wvIsEmptyPara(PAP *apap,expand_data *data)
 	return(0);
 	}
 	
+void wvBeginComment(expand_data *data)
+	{
+	if (data != NULL)
+		{
+		wvTrace(("comment beginning\n"));
+		if ( (data->sd != NULL) && (data->sd->elements[TT_COMMENT].str) && (data->sd->elements[TT_COMMENT].str[0] != NULL) )
+			{
+			wvExpand(data,data->sd->elements[TT_COMMENT].str[0],strlen(data->sd->elements[TT_COMMENT].str[0]));
+			if (data->retstring)
+				{
+				printf("%s",data->retstring);
+				wvFree(data->retstring);
+				}
+			}
+		}
+	}
+
+void wvEndComment(expand_data *data)
+	{
+	if ( (data->sd != NULL) && (data->sd->elements[TT_COMMENT].str) && (data->sd->elements[TT_COMMENT].str[1]!= NULL) )
+		{
+		wvTrace(("comment ending\n"));
+		wvExpand(data,data->sd->elements[TT_COMMENT].str[1],strlen(data->sd->elements[TT_COMMENT].str[1]));
+		if (data->retstring)
+			{
+			wvTrace(("comment end is now %s",data->retstring));
+			printf("%s",data->retstring);
+			wvFree(data->retstring);
+			}
+		}
+	}
 
 void wvBeginPara(expand_data *data)
 	{
@@ -319,6 +366,7 @@ void wvBeginPara(expand_data *data)
 
 	if (data != NULL)
 		{
+		wvTrace(("para of style %d beginning\n",((PAP *)(data->props))->istd ));
 		if ( (data->sd != NULL) && (data->sd->elements[TT_PARA].str) && (data->sd->elements[TT_PARA].str[0]!= NULL) )
 			{
 			wvExpand(data,data->sd->elements[TT_PARA].str[0],strlen(data->sd->elements[TT_PARA].str[0]));
@@ -409,6 +457,11 @@ void wvEndCharProp(expand_data *data)
 void wvSetCharHandler(int (*proc)(wvParseStruct *,U16,U8))
     {
 	charhandler = proc;
+	}
+
+void wvSetSpecialCharHandler(int (*proc)(wvParseStruct *,U16,CHP *))
+    {
+	scharhandler = proc;
 	}
 
 void wvSetElementHandler(int (*proc)(wvParseStruct *,wvTag , void *))

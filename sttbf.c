@@ -238,5 +238,40 @@ U16 *UssrStrBegin(STTBF *sttbf,int no)
 	}
 
 
+void wvGetGrpXst(STTBF *anS,U32 offset,U32 len,FILE *fd)
+	{
+	U16 slen,i;
+	U32 pos=0;
+
+	anS->extendedflag=1;
+	anS->nostrings=0;
+	anS->extradatalen=0;
+	anS->s8strings=NULL;
+	anS->u16strings=NULL;
+	anS->extradata=NULL;
+	if (len == 0)
+		return;
+	fseek(fd,offset,SEEK_SET);
+
+	while(pos < len)
+		{
+		slen = read_16ubit(fd);
+		pos+=2;
+		anS->nostrings++;
+		anS->u16strings = (U16 **)realloc(anS->u16strings,sizeof(U16 *)*anS->nostrings);
+		anS->u16strings[anS->nostrings-1] = (U16 *)malloc(sizeof(U16)*(slen+1));
+		for (i=0;i<slen;i++)
+			anS->u16strings[anS->nostrings-1][i] = read_16ubit(fd);
+		anS->u16strings[anS->nostrings-1][i] = 0;
+		pos+=(i*2);
+		}
+
+	}
+
+
+
+
+
+
 
 

@@ -58,6 +58,7 @@ int wvGetListEntryInfo(LVL **finallvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *ap
 	{
 	LST *alst=NULL;
 	U32 i,number=0;
+	S32 j;
 	U32 oldno;
 	U32 fakeid;
 
@@ -231,7 +232,7 @@ int wvGetListEntryInfo(LVL **finallvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *ap
 		/* no number */
 		return(0);
 		}
-	if (apap->ilfo > *nolfo) 
+	if (apap->ilfo > (S32)(*nolfo)) 
 		{
 		wvWarning("ilfo no %d, is greater than the number of existing lfo's (%d)\n",apap->ilfo,*nolfo);
 		return(1);
@@ -258,8 +259,8 @@ int wvGetListEntryInfo(LVL **finallvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *ap
 		there are some levels overridden, find out if the level being overridden
 		is the same as the level the paragraph wants
 		*/
-		for (i=0;i<apap->ilfo-1;i++)
-			number+=(*lfo)[i].clfolvl;
+		for (j=0;j<apap->ilfo-1;j++)
+			number+=(*lfo)[j].clfolvl;
 
 		for(i=0;i<(*lfo)[apap->ilfo-1].clfolvl;i++)
 			{

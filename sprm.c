@@ -1591,11 +1591,13 @@ void wvApplysprmCSizePos(CHP *achp,U8 *pointer,U16 *pos)
 
 	if (temp.hpsPos != 128)
 		achp->hpsPos = temp.hpsPos;
+#if 0
 	/*else ? who knows ?*/
 	if ((temp.fAdjust) && (temp.hpsPos != 128) && (temp.hpsPos != 0) && (achp->hpsPos == 0))
 		/*reduce level */;
 	if ((temp.fAdjust) && (temp.hpsPos == 0) && (achp->hpsPos != 0))
 		/*increase level*/;
+#endif
 
 	/*
 	This depends on an implementation of sprmCHpsInc, read wvApplysprmCHpsInc for
@@ -1689,10 +1691,12 @@ void wvApplysprmCHpsPosAdj(CHP *achp,U8 *pointer,U16 *pos)
 	please see wvApplysprmCHpsInc for why this is unfinished
 	*/
 
+#if 0
 	if ( (param != 0) && (achp->hpsPos == 0) )
 		/*decrease chp.hps*/;
 	else if ( (param == 0) && (achp->hpsPos != 0) )
 		/*increase chp.hps*/;
+#endif
 	
 	achp->hpsPos = param;
 

@@ -8,7 +8,18 @@ Changes to to 0.5.36
 	no comment and footnotes etc being put in when they shouldnt.
 	* made some headway into understanding undocumented version 
 	information. Theres 22 ununderstood bytes per version.
+	* added wvSetSpecialCharHandler, special chars now have their own
+	seperate callback which feeds you the char and the associated CHP,
+	this might require some more work.
+	* doh !, made silly mistake with ending the doc at the ccpText limit.
+	* added wvGetGrpXst converts strings groups to nice STTBF's
+	* added wvGetBKL_PLCF
+	* implemented the COMMENT BEGIN and END, and applied it to the "simple code",
+	the actual comment itself and so on is part of the subdocuments which are
+	not implemented yet, but will be soon.
 ALL TODO
+	* put code thats in both simple and complex together.
+
 	* title not being done in the correct charset
 
 	* style overrides for each word style, example idea in wvHtml.xml

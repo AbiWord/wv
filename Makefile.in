@@ -10,6 +10,9 @@ LIBS =  @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EX
 
 GETOPT = @LIBOBJS@
 
+#abi's picky warning checks
+#CC = @CC@ -Wall -W -ansi -pedantic
+
 CC = @CC@
 
 LEX = @LEX@

@@ -47,3 +47,45 @@ int wvGetATRD_PLCF(ATRD **atrd,U32 **pos,U32 *noatrd,U32 offset,U32 len,FILE *fd
         }
 	return(0);
 	}
+
+ATRD *wvGetCommentBounds(U32 *comment_cpFirst,U32 *comment_cpLim,U32 currentcp,ATRD *atrd,U32 *pos,U32 noatrd,
+STTBF *bookmarks,BKF *bkf,U32 *posBKF,U32 bkf_intervals,BKL *bkl,U32 *posBKL,U32 bkl_intervals)
+	{
+	U32 i,j;
+	S32 id;
+	
+	for(i=0;i<noatrd;i++)
+		{
+		if (pos[i] > currentcp)
+			{
+			/*
+			when not -1, this tag identifies the annotation bookmark that locates the
+			range of CPs in the main document which this annotation references.
+			*/
+			if (atrd[i].lTagBkmk != -1)
+				{
+				for(j=0;j<bookmarks->nostrings;j++)
+					{
+					id = (S32)sread_32ubit(bookmarks->extradata[j]+2);
+					if (id == atrd[i].lTagBkmk)
+						{
+						wvTrace(("bingo, index is %d!!\n",j));
+						*comment_cpFirst = posBKF[i];
+						*comment_cpLim = posBKL[bkf[i].ibkl];
+						wvTrace(("begin end are %d %d\n",*comment_cpFirst,*comment_cpLim));
+						return(&(atrd[i]));
+						}
+					}
+				}
+			
+			/* in case we find nothing, at least we won't blow up, we create a
+			point comment */
+			*comment_cpFirst = pos[i];
+			*comment_cpLim = pos[i]+1;
+			return(&(atrd[i]));
+			}
+		}
+	
+	*comment_cpLim = 0xfffffffeL;
+	return(NULL);
+	}

@@ -248,7 +248,7 @@ int wvGetComplexCharBounds(int version, CHPX_FKP *fkp, U32 *fcFirst,
 
 int wvGetComplexCharfcLim(int version, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, FILE *fd)
 	{
-	U32 fcTest/*,beginfc*/;
+	U32 fcTest;
 	/*
 	BTE entry;
 	*/
@@ -311,9 +311,10 @@ void wvDecodeComplex(wvParseStruct *ps)
 	U32 para_fcFirst,para_fcLim=0xffffffffL;
 	U32 char_fcFirst,char_fcLim=0xffffffffL;
 	U32 section_fcFirst,section_fcLim=0xffffffffL;
+	U32 comment_cpFirst=0xffffffffL,comment_cpLim=0xffffffffL;
 	BTE *btePapx=NULL, *bteChpx=NULL;
 	U32 *posPapx=NULL, *posChpx=NULL;
-	U32 para_intervals, char_intervals,section_intervals,atrd_internals;
+	U32 para_intervals, char_intervals,section_intervals,atrd_intervals;
 	U16 charset;
 	U8 state=0;
 	int cpiece=0;
@@ -321,12 +322,19 @@ void wvDecodeComplex(wvParseStruct *ps)
 	PAP apap;
 	CHPX_FKP char_fkp;
 	CHP achp;
-	int para_pendingclose=0, char_pendingclose=0,section_pendingclose=0;
+	int para_pendingclose=0, comment_pendingclose=0, char_pendingclose=0,section_pendingclose=0;
 	SED *sed;
 	SEP sep;
 	U32 *posSedx;
-	ATRD *atrd;
+	ATRD *atrd,*catrd=NULL;
 	U32 *posAtrd;
+	STTBF grpXstAtnOwners,SttbfAtnbkmk;
+	BKF *bkf;
+	U32 *posBKF;
+	U32 bkf_intervals;
+	BKL *bkl;
+	U32 *posBKL;
+	U32 bkl_intervals;
 
 #if 0	
 /* 
@@ -345,7 +353,12 @@ encoded into the first 22 bytes.
 		}
 #endif
 
-	wvGetATRD_PLCF(&atrd,&posAtrd,&atrd_internals,ps->fib.fcPlcfandRef,ps->fib.lcbPlcfandRef,ps->tablefd);
+	wvGetATRD_PLCF(&atrd,&posAtrd,&atrd_intervals,ps->fib.fcPlcfandRef,ps->fib.lcbPlcfandRef,ps->tablefd);
+	wvGetGrpXst(&grpXstAtnOwners,ps->fib.fcGrpXstAtnOwners,ps->fib.lcbGrpXstAtnOwners,ps->tablefd);
+	wvTrace(("offset is %x, len is %d\n",ps->fib.fcSttbfAtnbkmk,ps->fib.lcbSttbfAtnbkmk));
+	wvGetSTTBF(&SttbfAtnbkmk,ps->fib.fcSttbfAtnbkmk,ps->fib.lcbSttbfAtnbkmk,ps->tablefd);
+	wvGetBKF_PLCF(&bkf,&posBKF,&bkf_intervals,ps->fib.fcPlcfAtnbkf,ps->fib.lcbPlcfAtnbkf,ps->tablefd);
+	wvGetBKL_PLCF(&bkl,&posBKL,&bkl_intervals,ps->fib.fcPlcfAtnbkl,ps->fib.lcbPlcfAtnbkl,ps->tablefd);
 
 	/*we will need the stylesheet to do anything useful with layout and look*/
 	wvGetSTSH(&ps->stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
@@ -419,15 +432,22 @@ encoded into the first 22 bytes.
 	for (piececount=0;piececount<ps->clx.nopcd;piececount++)
 		{
 		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&ps->clx,piececount);
-		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
 		fseek(ps->mainfd,beginfc,SEEK_SET);
-		for (i=begincp,j=beginfc;i<endcp,i<ps->fib.ccpText;i++,j += wvIncFC(chartype))
+		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
+		for (i=begincp,j=beginfc;(i<endcp && i<ps->fib.ccpText);i++,j += wvIncFC(chartype))
 			{
 			/* character properties */
 			if (j == char_fcLim)
 				{
 				wvHandleElement(ps,CHARPROPEND, (void*)&achp);
 				char_pendingclose=0;
+				}
+
+			/* comment ending location */
+			if (i == comment_cpLim)
+				{
+				wvHandleElement(ps,COMMENTEND, (void*)catrd);
+				comment_pendingclose=0;
 				}
 
 			/* paragraph properties */
@@ -437,6 +457,7 @@ encoded into the first 22 bytes.
 				para_pendingclose=0;
 				}
 
+			/* section properties */
 			if (j == section_fcLim)
                 {
                 wvHandleElement(ps, SECTIONEND, (void*)&sep);
@@ -444,11 +465,7 @@ encoded into the first 22 bytes.
                 }
 
 			if ((section_fcLim == 0xffffffff) || (section_fcLim == j))
-                {
-                wvTrace(("j i is %x %d\n",j,i));
                 wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),&sep,&section_fcFirst,&section_fcLim, i,&ps->clx, sed, posSedx, section_intervals, &ps->stsh,ps->mainfd);
-                wvTrace(("section begins at %x ends %x\n", section_fcFirst, section_fcLim));
-                }
 
             if (j == section_fcFirst)
                 {
@@ -459,68 +476,53 @@ encoded into the first 22 bytes.
 
 			if ((para_fcLim == 0xffffffffL) || (para_fcLim == j))
 				{
-				wvTrace(("before tests j is %x, i is %d\n",j,i));
 				wvReleasePAPX_FKP(&para_fkp);
 				cpiece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,wvConvertCPToFC(i, &ps->clx),&ps->clx, btePapx, posPapx, para_intervals,piececount,ps->mainfd);
-				/*
-				cpiece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i,&ps->clx, btePapx, posPapx, para_intervals,piececount,ps->mainfd);
-				*/
-				wvTrace(("fcLim is %x, fcFirst is %x, j is %x\n",para_fcLim,para_fcFirst,j));
-				wvTrace(("the char before %x is at %x\n",para_fcLim,para_fcLim-wvIncFC(chartype)));
-				
 				}
 
 			if (j == para_fcFirst)
 				{
-				wvTrace(("|-->%x %x\n",para_fcFirst,para_fcLim));
 				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&ps->stsh);
-				wvTrace(("cpiece is %d, but full no is %d\n",cpiece,ps->clx.nopcd));
 				wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&ps->stsh,&ps->clx);
 
 				if ( (apap.fInTable) && (!apap.fTtp) )
 					{
-					wvTrace(("Id have to search for all table info %x %x\n",para_fcFirst,para_fcLim));
-					wvTrace(("phase 1\n"));
 					wvGetComplexFullTableInit(ps,para_intervals,btePapx,posPapx,piececount);
-					wvTrace(("phase 2\n"));
 					wvGetComplexRowTap(ps,&apap,para_intervals,btePapx,posPapx,piececount);
-					wvTrace(("phase 3\n"));
 					}
 				else if (apap.fInTable == 0)
 					ps->intable=0;
 
-				wvTrace(("Beginning Paragraph\n"));
 				wvHandleElement(ps,PARABEGIN, (void*)&apap);
 
-				/*testing the next line, to force the char run to begin after a new para*/
 				char_fcLim = j;
-				/*char_fcFirst = j;*/
-
 				para_pendingclose=1;
-				wvTrace(("pap istd is %d\n",apap.istd));
+				}
+
+
+			if ((comment_cpLim == 0xffffffffL) || (comment_cpLim == i))
+				{
+				wvTrace(("searching for the next comment begin cp is %d\n",i));
+				catrd = wvGetCommentBounds(&comment_cpFirst,&comment_cpLim,i,atrd,posAtrd,atrd_intervals,&SttbfAtnbkmk,
+				bkf,posBKF,bkf_intervals,bkl,posBKL,bkl_intervals);
+				wvTrace(("begin and end are %d %d\n",comment_cpFirst,comment_cpLim));
+				}
+
+			if (i == comment_cpFirst)
+				{
+				wvHandleElement(ps,COMMENTBEGIN, (void*)catrd);
+				comment_pendingclose=1;
 				}
 
 
 			if ((char_fcLim == 0xffffffffL) || (char_fcLim == j))
 				{
-				wvTrace(("before tests j is %x\n",j));
 				wvReleaseCHPX_FKP(&char_fkp);
-				wvTrace(("piece is %d\n",cpiece));
 				/*try this without using the piece of the end char for anything*/
-				/*cpiece = */wvGetComplexCharBounds(wvQuerySupported(&ps->fib,NULL),&char_fkp,&char_fcFirst,&char_fcLim,wvConvertCPToFC(i, &ps->clx),&ps->clx, bteChpx, posChpx, char_intervals,piececount,ps->mainfd);
-				wvTrace(("piece is now %d\n",cpiece));
-				wvTrace(("fcLim is %x, fcFirst is %x\n",char_fcLim,char_fcFirst));
+				wvGetComplexCharBounds(wvQuerySupported(&ps->fib,NULL),&char_fkp,&char_fcFirst,&char_fcLim,wvConvertCPToFC(i, &ps->clx),&ps->clx, bteChpx, posChpx, char_intervals,piececount,ps->mainfd);
 				if (char_fcLim == char_fcFirst)
 					wvError(("I believe that this is an error, and you might see incorrect character properties\n"));
-				/*
-				char_fcLim = 0xfffffffeL;
-				*/
 				char_fcFirst = j;	
-				/* 
-				temp test, maybe if (char_fcFirst < j) char_fcFirst = j;, the problem is that the
-				fcFirst is the original *unmodified* exception run, we sometimes have a modified one
-				*/
-				
 				}
 
 			if (j == char_fcFirst)
@@ -528,11 +530,7 @@ encoded into the first 22 bytes.
 				/* a CHP's base style is in the para style */
 				achp.istd = apap.istd;
 				wvAssembleSimpleCHP(&achp,char_fcLim,&char_fkp,&ps->stsh);
-				wvTrace(("cpiece is %d , but full no is %d\n",cpiece,ps->clx.nopcd));
-				wvTrace(("test is %d\n",achp.dxaSpace));
-				wvTrace(("underline bold is now %d %d, istd %d\n",achp.kul,achp.fBold,achp.istd));
 				wvAssembleComplexCHP(wvQuerySupported(&ps->fib,NULL),&achp,cpiece,&ps->stsh,&ps->clx);
-				wvTrace(("underline is now %d\n",achp.kul));
 				wvHandleElement(ps,CHARPROPBEGIN, (void*)&achp);
 				char_pendingclose=1;
 				}
@@ -548,13 +546,11 @@ encoded into the first 22 bytes.
 			use ps in this function
 			C.
 			*/
-			if ((eachchar == 0x01) && (achp.fSpec))
-				wvError(("picture here\n"));
-			else if ((eachchar == 0x07) && (!achp.fSpec))
+			if ((eachchar == 0x07) && (!achp.fSpec))
 				ps->endcell=1;
 		
 			ps->currentcp = i;
-			wvOutputTextChar(eachchar,chartype,charset,&state,ps);
+			wvOutputTextChar(eachchar,chartype,charset,&state,ps,&achp);
 			}
 
 		if (j == para_fcLim)
@@ -562,6 +558,13 @@ encoded into the first 22 bytes.
 			wvHandleElement(ps,PARAEND, (void*)&apap);
 			para_pendingclose=0;
 			para_fcLim = 0xffffffffL;
+			}
+
+		if (i == comment_cpLim)
+			{
+			wvHandleElement(ps,COMMENTEND, (void*)catrd);
+			comment_pendingclose=0;
+			comment_cpLim = 0xffffffffL;
 			}
 
 		if (j == char_fcLim)
@@ -590,21 +593,28 @@ encoded into the first 22 bytes.
 		wvInitCHP(&achp);
 		wvHandleElement(ps,CHARPROPEND, (void*)&achp);
 		}
+
+	if (comment_pendingclose)
+		wvHandleElement(ps,COMMENTEND, (void*)catrd);
+
 	if (para_pendingclose)
 		{
 		wvInitPAP(&apap);
 		wvHandleElement(ps,PARAEND, (void*)&apap);
 		}
+
 	if (section_pendingclose)
         wvHandleElement(ps, SECTIONEND, (void*)&sep);
 
+	wvFree(posBKL);
+	wvFree(bkl);
+	wvFree(posBKF);
+	wvFree(bkf);
 	wvFree(posAtrd);
 	wvFree(atrd);
 
-
 	wvReleasePAPX_FKP(&para_fkp);
 	wvReleaseCHPX_FKP(&char_fkp);
-	   
 
 	wvHandleDocument(ps,DOCEND);
 	wvFree(posSedx);
@@ -626,6 +636,8 @@ encoded into the first 22 bytes.
 	wvReleaseCLX(&ps->clx);
 	wvReleaseFFN_STTBF(&ps->fonts);
 	wvReleaseSTSH(&ps->stsh);
+	wvReleaseSTTBF(&SttbfAtnbkmk);
+	wvReleaseSTTBF(&grpXstAtnOwners);
 	if (ps->vmerges)
 		{
 		for(i=0;i<ps->norows;i++)
@@ -668,7 +680,6 @@ void wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 	else
 		{
 		index = clx->pcd[cpiece].prm.para.var2.igrpprl;
-		wvTrace(("index is %d, piece is %d\n",index,cpiece));
 		while (i < clx->cbGrpprl[index])   
 			{
 			if (version == 0)
@@ -707,7 +718,6 @@ void wvAssembleComplexCHP(int version,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 	else
 		{
 		index = clx->pcd[cpiece].prm.para.var2.igrpprl;
-		wvTrace(("index is %d, piece is %d\n",index,cpiece));
 		while (i < clx->cbGrpprl[index])   
 			{
 			wvTrace(("BYTE: %x\n",*(clx->grpprl[index]+i)));

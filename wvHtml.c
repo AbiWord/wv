@@ -24,6 +24,7 @@ returns 1 for not an ole doc
 int myelehandler(wvParseStruct *ps,wvTag tag, void *props);
 int mydochandler(wvParseStruct *ps,wvTag tag);
 int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype);
+int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp);
 
 FILE *wvOpenConfig(char *config);
 
@@ -140,6 +141,7 @@ int main(int argc,char **argv)
 	wvSetElementHandler(myelehandler);
 	wvSetDocumentHandler(mydochandler);
 	wvSetCharHandler(myCharProc);
+	wvSetSpecialCharHandler(mySpecCharProc);
 
 	wvInitStateData(&myhandle);
     myhandle.fp = wvOpenConfig(config);
@@ -222,6 +224,12 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
 		case SECTIONEND:
 			wvEndSection(data);
 			break;
+		case COMMENTBEGIN:
+			wvBeginComment(data);
+			break;
+		case COMMENTEND:
+			wvEndComment(data);
+			break;
         default:
             break;
         }
@@ -277,16 +285,29 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
     }
 
 
+int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
+	{
+	wvTrace(("special char %d in stream\n",eachchar));
+	switch(eachchar)
+		{
+		case 5:
+			/* this should be handled by the COMMENTBEGIN and COMMENTEND events */
+			return(0);
+			break;
+		case 1:
+			wvError(("picture here\n"));
+			printf(" [there should be a picture here] ");
+			return(0);
+		}
+	return(0);
+	}
+
+	
 int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype)
 	{
 	static int state,i;
 	switch(eachchar)
 		{
-		case 5:
-			/*expand_data()*/
-			printf("LM1");
-			return(0);
-			break;
 		case 19:
 			state=1;
 			i=0;

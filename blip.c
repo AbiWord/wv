@@ -56,7 +56,6 @@ void wvGetFIDCL(FIDCL *afidcl,FILE *infd)
 
 void wvGetFBSE(FBSE *afbse,FILE *infd)
 	{
-	static int id;
 	int i;
 	afbse->btWin32 = getc(infd);
 	afbse->btMacOS = getc(infd);
@@ -65,14 +64,11 @@ void wvGetFBSE(FBSE *afbse,FILE *infd)
 	afbse->tag = read_16ubit(infd);
 	afbse->size = read_32ubit(infd);
 	afbse->cRef = read_32ubit(infd);
-	if (afbse->cRef == 0)
-		wvTrace(("no file at all\n"));
 	afbse->foDelay = read_32ubit(infd);
 	afbse->usage = getc(infd);
 	afbse->cbName = getc(infd);
 	afbse->unused2 = getc(infd);
 	afbse->unused3 = getc(infd);
-	wvTrace(("this BSE id is %d\n",id++));
 	}
 
 int wvQueryDelayStream(FBSE *afbse)
@@ -263,8 +259,10 @@ U32 wvGetFOPTE(FOPTE *afopte,FILE *infd)
 		wvTrace(("1 complex len is %d (%x)\n",afopte->op,afopte->op));
 		ret = afopte->op;	
 		}
+#if 0
 	else if (afopte->fBid)
 		wvTrace(("great including graphic number %d %d\n",afopte->op,afopte->op));
+#endif
 	wvTrace(("orig %x,pid is %x, val is %x\n",dtemp,afopte->pid,afopte->op));
 	return(ret);
 	}
@@ -305,7 +303,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 	FILE *out = fopen("drawingtest","w+b");
 	*/
 	FILE *out = tmpfile();
-	long finish;
+	long finish,k;
 	int pid;
 	char *name;
 	long lastpos = ftell(mainfd);
@@ -446,7 +444,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 				if (ftell(out) != finish)
 					{
 					wvTrace(("file is out of sync, pos is %x ended at %x\n",ftell(out),finish));
-					for(i=ftell(out);i<finish;i++)
+					for(j=ftell(out);k<finish;k++)
 						getc(out);
 					}
 				break;

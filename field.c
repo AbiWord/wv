@@ -8,6 +8,7 @@
 
 int fieldCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype)
 	{
+	return(0);
 	}
 
 

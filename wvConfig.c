@@ -94,6 +94,10 @@ TokenTable s_Tokens[] =
     {   "rowspan",       TT_ROWSPAN      	},
     {   "cellbgcolor",   TT_CELLBGCOLOR     },
     {   "tablerelwidth", TT_TABLERELWIDTH	},
+	{	"style",		 TT_STYLE			},
+	{	"comment",		 TT_COMMENT			},
+	{	"ibstanno",		 TT_IBSTANNO		},
+	{	"xstUsrInitl",	 TT_xstUsrInitl		},
 
     {   "document",      TT_DOCUMENT     	},
 	 {   "section",       TT_SECTION     	},
@@ -1108,6 +1112,20 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				animation=0; 
 				}
 			break;
+
+		case TT_IBSTANNO:
+			sprintf(buffer,"%d",((ATRD*)(mydata->props))->ibst);
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+
+		case TT_xstUsrInitl:
+			str = wvWideStrToMB(((ATRD*)(mydata->props))->xstUsrInitl+1);
+			sprintf(buffer,"%s",str);
+			wvFree(str);
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
 			
 		case TT_ibstRMark:
 			sprintf(buffer,"%d",((CHP*)(mydata->props))->ibstRMark);
@@ -1252,8 +1270,15 @@ void exstartElement(void *userData, const char *name, const char **atts)
 
 void startElement(void *userData, const char *name, const char **atts)
 	{
+	int nAtts;
+	const XML_Char **p;
 	unsigned int tokenIndex,i;
 	state_data *mydata = (state_data *)userData;
+
+	p = atts;
+	while (*p)
+	++p;
+	nAtts = (p - atts) >> 1;
 
 	tokenIndex = s_mapNameToToken(name);
 	if (mydata->current != NULL)
@@ -1263,9 +1288,9 @@ void startElement(void *userData, const char *name, const char **atts)
 		{
 		case TT_DOCUMENT:
 		case TT_PARA:
+		case TT_COMMENT:
 		case TT_SECTION:
 		case TT_BOLD:
-		case TT_CHAR:
 		case TT_ITALIC:
 		case TT_STRIKE:
 		case TT_RMarkDel:
@@ -1331,6 +1356,14 @@ void startElement(void *userData, const char *name, const char **atts)
 				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
+		case TT_CHAR:
+			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*2);
+			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=2;
+			for(i=0;i<2;i++)
+				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
+			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
+			break;
+			break;
 		case TT_JUSTIFICATION:
 		case TT_numbering:
 			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*5);
@@ -1346,6 +1379,13 @@ void startElement(void *userData, const char *name, const char **atts)
 				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
+
+		case TT_STYLE:
+			wvTrace(("style element, no atts is %d\n",nAtts));
+			for(i=0;i<nAtts;i++)
+				wvTrace(("%s is %s\n",atts[i*2],atts[(i*2)+1]));
+			break;
+
 		case TT_BEGIN:
 		case TT_LEFT:
 		case TT_Arabic:
@@ -1799,6 +1839,15 @@ void startElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 
+		case TT_IBSTANNO:
+			wvAppendStr(mydata->current,"<ibstanno/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_xstUsrInitl:
+			wvAppendStr(mydata->current,"<xstUsrInitl/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+
 		case TT_ibstRMark:
 			wvAppendStr(mydata->current,"<ibstrmark/>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -2089,6 +2138,8 @@ void endElement(void *userData, const char *name)
 		case TT_FONTSTRE:
 		case TT_COLORB:
 		case TT_COLORE:
+		case TT_IBSTANNO:
+		case TT_xstUsrInitl:
 		case TT_ibstRMark:
 		case TT_ibstRMarkDel:
 		case TT_ibstDispFldRMark:
@@ -2130,6 +2181,8 @@ void endElement(void *userData, const char *name)
 		case TT_ROWE:
 		case TT_CELLB:
 		case TT_CELLE:
+
+		case TT_STYLE:
 			break;
 		default:
 			mydata->currentlen=0;

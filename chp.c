@@ -435,7 +435,7 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 		temp = wvEatSprm(sprm,pointer,&i);
 		pointer += temp;
 		i+=2;
-		if (test);
+		if (test)
 			len += temp+2;
 		}
 
@@ -453,7 +453,7 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 		wvTrace(("len of op is %d\n",temp));
 		pointer += temp;
 		wvTrace(("p dis is %d\n",pointer-src->upx.chpx.grpprl));
-		if (test);
+		if (test)
 			len += temp+2;
 		}
 
@@ -499,7 +499,7 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 		temp = wvEatSprm(sprm,pointer,&i);
 		pointer += temp;
 		i+=2;
-		if (test);
+		if (test)
 			len += temp+2;
 		}
 	}
