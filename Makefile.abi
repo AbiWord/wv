@@ -38,6 +38,9 @@ CSRCS=	lex.yy.c \
         formatting.c \
         references.c \
         gpprl.c \
+	graphics.c \
+	picf.c \
+	wvGraphicConvert.c \
         papchpsep.c \
         hyperlink.c \
         decompresswmf.c \
