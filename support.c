@@ -153,7 +153,7 @@ static size_t memorystream_read(MemoryStream *stream, void *buf, size_t count)
     {
       ret = stream->size - stream->current;
       memcpy(buf, stream->mem + stream->current, ret);
-      memset(buf + ret , 0, count - ret);
+      memset( (void *) ((size_t)buf + ret), 0, count - ret);
       stream->current = stream->size;
       wvTrace(("read out of bounds\n"));
     }
