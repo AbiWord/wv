@@ -32,7 +32,6 @@ CSRCS=	laolareplace.old.c \
 	sprm.c \
 	blip.c \
 	utf.c \
-	init_chp.c \
 	field.c \
 	formatting.c \
 	references.c \
@@ -43,7 +42,6 @@ CSRCS=	laolareplace.old.c \
 	annotations.c \
 	dop.c \
 	roman.c \
-	doc_limits.c \
 	fib.c \
 	frd.c \
 	atrd.c \
