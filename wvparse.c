@@ -89,9 +89,12 @@ wvInitParser (wvParseStruct * ps, char *path)
 }
 
 void
-wvSetPassword (char *password, wvParseStruct * ps)
+wvSetPassword (const char *pass, wvParseStruct * ps)
 {
     int i = 0, len;
+    
+    char * password = (char *)pass; /* causes no harm */
+
     /* at this stage we are passing in an utf-8 password and
        later converting it to unicode, we should use the generic
        available mb to wide char stuff, but that isnt very prevalent

@@ -112,6 +112,9 @@ static TokenTable s_Tokens[] = {
     {"mmParaLeft", TT_mmParaLeft},
     {"mmParaRight", TT_mmParaRight},
     {"mmParaLeft1", TT_mmParaLeft1},
+    /* >>---------- PATCH */
+    {"stylename", TT_stylename},
+    /* << ---------------- */
     {"bordertopstyle", TT_BORDERTopSTYLE},
     {"bordertopcolor", TT_BORDERTopCOLOR},
     {"borderleftstyle", TT_BORDERLeftSTYLE},
@@ -579,6 +582,13 @@ exstartElement (void *userData, const char *name, const char **atts)
     U32 k;
     int i, j;
 
+    /*
+    PATCH
+    */
+    PAP *pap;
+
+ /*   printf("exstart: %s \n",name);*/
+
     tokenIndex = s_mapNameToToken (name);
     switch (s_Tokens[tokenIndex].m_type)
       {
@@ -806,9 +816,11 @@ exstartElement (void *userData, const char *name, const char **atts)
 	  mydata->currentlen = strlen (mydata->retstring);
 	  break;
       case TT_PARAMARGIN:
+
+
 	  if (fintable)
 	    {
-		/* 
+		/*
 		   if there are any table overrides check to make sure all are filled in,
 		   and if all are set to 0
 		 */
@@ -2143,7 +2155,23 @@ exstartElement (void *userData, const char *name, const char **atts)
 	  wvAppendStr (&mydata->retstring, buffer);
 	  mydata->currentlen = strlen (mydata->retstring);
 	  break;
+	  /* 	>> PATCH -----------------------  */
+	case  TT_stylename:
+
+	 		pap=(PAP *)(mydata->props);
+
+ 		  wvAppendStr (&mydata->retstring, pap->stylename);
+	 	     mydata->currentlen = strlen (mydata->retstring);
+	  break;
+
+	  /*  	-------------------------<<   */
       case TT_mmParaRight:
+
+	/*  printf("name: %s \n",mydata->stsh->std[0].xstzName);*/
+/*pap=(PAP *)(mydata->props);
+	 printf("name: %s \n",(char *)(pap->stylename));*/
+
+
 	  if (fintable)
 	    {
 		if ((mydata->sd->elements[TT_TABLEOVERRIDES].str)
@@ -2221,6 +2249,8 @@ exstartElement (void *userData, const char *name, const char **atts)
 	  mydata->currentlen = strlen (mydata->retstring);
 	  break;
       case TT_mmPadRight:
+
+
 	  sprintf (buffer, "%.2fmm",
 		   (double) wvPointsToMM ( (S16) ((PAP *) (mydata->props))->brcRight.
 					  dptSpace));
@@ -2541,6 +2571,8 @@ startElement (void *userData, const char *name, const char **atts)
     nAtts = (p - atts) >> 1;
 
     tokenIndex = s_mapNameToToken (name);
+/*    printf("start: %s \n",name);*/
+
     wvTrace (("element %s started\n", name));
     switch (s_Tokens[tokenIndex].m_type)
       {
@@ -2620,6 +2652,8 @@ startElement (void *userData, const char *name, const char **atts)
       case TT_CHARENTITY:
       case TT_PMARGIN:
       case TT_PBORDER:
+
+
 	  mydata->elements[s_Tokens[tokenIndex].m_type].str =
 	      (char **) wvMalloc (sizeof (char *) * 1);
 	  mydata->elements[s_Tokens[tokenIndex].m_type].nostr = 1;
@@ -2671,8 +2705,11 @@ startElement (void *userData, const char *name, const char **atts)
 
       case TT_STYLE:
 	  wvTrace (("style element, no atts is %d\n", nAtts));
-	  for (i = 0; i < nAtts; i++)
+
+	  for (i = 0; i < nAtts; i++) {
 	      wvTrace (("%s is %s\n", atts[i * 2], atts[(i * 2) + 1]));
+	}
+
 	  break;
 
       case TT_BEGIN:
@@ -3261,6 +3298,13 @@ startElement (void *userData, const char *name, const char **atts)
 	  wvAppendStr (mydata->current, "<mmParaRight/>");
 	  mydata->currentlen = strlen (*(mydata->current));
 	  break;
+	  /* >>----------- PATCH */
+   	  case  TT_stylename:
+	  wvAppendStr (mydata->current, "<stylename/>");
+	  mydata->currentlen = strlen (*(mydata->current));
+	  break;
+	  /* --------------<< */
+
       case TT_mmParaLeft1:
 	  wvAppendStr (mydata->current, "<mmParaLeft1/>");
 	  mydata->currentlen = strlen (*(mydata->current));
@@ -3658,6 +3702,10 @@ endElement (void *userData, const char *name)
       case TT_mmParaAfter:
       case TT_mmParaLeft:
       case TT_mmParaRight:
+
+      /* >>----------- PATCH */
+      case TT_stylename:
+/* ------------------ << */
       case TT_mmParaLeft1:
       case TT_mmPadTop:
       case TT_mmPadRight:

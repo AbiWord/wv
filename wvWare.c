@@ -365,7 +365,7 @@ main (int argc, char **argv)
 
     if (ret)
       {
-	  wvError (("startup error\n"));
+	  wvError (("startup error #%d\n", ret));
 	  wvOLEFree ();
 	  return (-1);
       }

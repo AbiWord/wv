@@ -1526,7 +1526,9 @@ brc.dxpSpace should be set to 0.
 	S16 itbdMac;
 	S16 rgdxaTab[itbdMax];
 	TBD rgtbd[itbdMax];
-
+/* >>------------------PATCH */
+	char stylename[100];
+/* -----------------------<< */
       /* BiDi */
       U32 fBidi:1;
     } PAP;
@@ -1657,8 +1659,13 @@ to writing word files, when we'll make a distinction.
 	U32 reserved:14;	/* unused bits */
 
 	/* Variable length part of STD: */
-	XCHAR *xstzName;	/* sub-names are separated by chDelimStyle */
-	UPXF *grupxf;		/*was UPX *grupx in the spec, but for my 
+/*	XCHAR *xstzName;*/	/* sub-names are separated by chDelimStyle */
+/* Patch */
+char *xstzName;
+
+
+
+	UPXF *grupxf;		/*was UPX *grupx in the spec, but for my
 				   purposes its different */
 
 	/* the UPEs are not stored on the file; they are a cache of the based-on
@@ -1871,7 +1878,7 @@ that indicates their length.
     typedef enum _SprmName {
 	/*
 	   these ones are ones I made up entirely to match
-	   unnamed patterns in word 95 files, whose 
+	   unnamed patterns in word 95 files, whose
 	   purpose is currently unknown
 	 */
 	sprmTUNKNOWN1 = 0xD400,
@@ -1883,8 +1890,8 @@ that indicates their length.
 	sprmCUNKNOWN7 = 0x4802,	/* word 7 0x71 */
 
 
-	/* 
-	   these ones showed up in rgsprmPrm and are mostly 
+	/*
+	   these ones showed up in rgsprmPrm and are mostly
 	   out of date i reckon
 	 */
 	sprmNoop = 0x0000,	/* this makes sense */
@@ -1892,7 +1899,7 @@ that indicates their length.
 
 	/*
 	   this subset were not listed in word 8, but i recreated them
-	   from the word 8 guidelines and the original word 6, so 
+	   from the word 8 guidelines and the original word 6, so
 	   basically they will blow things up when ms decides to reuse them
 	   in word 2000 or later versions, but what the hell...
 	 */
@@ -1905,8 +1912,8 @@ that indicates their length.
 	   one of the sprm's that shows up in word 6 docs is "0", which
 	   appears to be either the pap.istd or just an index, seeing
 	   as the word 6 people didn't list it, lets just ignore it.
-	   as it only happens in word 6 docs, our code happens to 
-	   function fine in the current setup, but at some stage 
+	   as it only happens in word 6 docs, our code happens to
+	   function fine in the current setup, but at some stage
 	   im sure it will bite me hard
 	 */
 
@@ -2532,6 +2539,9 @@ that indicates their length.
 	TT_VertMergedCells,
 	TT_DIRECTION,
 	TT_DIR,
+/* >>---------- PATCH */
+	TT_stylename,
+/* << ---------------- */
 	TokenTableSize		/*must be last entry on pain of death */
     } TT;
 
@@ -2678,11 +2688,11 @@ that indicates their length.
 	U32 *liststartnos;
 	U8 *listnfcs;
 
-        int (*charhandler) (struct _wvParseStruct * ps, U16 eachchar, 
+        int (*charhandler) (struct _wvParseStruct * ps, U16 eachchar,
 			    U8 chartype, U16 lid);
-        int (*scharhandler) (struct _wvParseStruct * ps, U16 eachchar, 
+        int (*scharhandler) (struct _wvParseStruct * ps, U16 eachchar,
 			     CHP * achp);
-        int (*elehandler) (struct _wvParseStruct * ps, wvTag tag, void *props, 
+        int (*elehandler) (struct _wvParseStruct * ps, wvTag tag, void *props,
 			   int dirty);
         int (*dochandler) (struct _wvParseStruct * ps, wvTag tag);
 
@@ -2713,7 +2723,7 @@ that indicates their length.
 	char *dir;
     } wvParseStruct;
 
-    void wvSetPassword (char *password, wvParseStruct * ps);
+    void wvSetPassword (const char *password, wvParseStruct * ps);
     void wvSetTableInfo (wvParseStruct * ps, TAP * ptap, int no);
     int wvDecrypt95 (wvParseStruct * ps);
     int wvDecrypt97 (wvParseStruct * ps);
@@ -2765,7 +2775,7 @@ that indicates their length.
     } expand_data;
 
     void wvInitExpandData (expand_data * data);
-/* 
+/*
 returns the same as wvOLEDecode with the addition that
 4 means that it isnt a word document
 */
@@ -2805,7 +2815,7 @@ returns the same as wvOLEDecode with the addition that
 	cbPAP = 610,
 	cbPCD = 8,
 	/*
-	   cbPLC 
+	   cbPLC
 	 */
 	cbPRM = 2,
 	cbRS = 16,
@@ -2987,13 +2997,13 @@ returns the same as wvOLEDecode with the addition that
     wvSetSpecialCharHandler (wvParseStruct * ps,
 			     int (*proc) (wvParseStruct *, U16, CHP *));
     void
-    wvSetElementHandler (wvParseStruct * ps, 
+    wvSetElementHandler (wvParseStruct * ps,
 			 int (*proc) (wvParseStruct *, wvTag, void *, int));
     void
     wvSetDocumentHandler (wvParseStruct * ps,
 			  int (*proc) (wvParseStruct *, wvTag));
 
-    int wvHandleElement (wvParseStruct * ps, wvTag tag, void *props, 
+    int wvHandleElement (wvParseStruct * ps, wvTag tag, void *props,
 			 int dirty);
     int wvHandleDocument (wvParseStruct * ps, wvTag tag);
 
@@ -3156,7 +3166,9 @@ returns the same as wvOLEDecode with the addition that
 
 #if 0
     typedef struct _wvStyle {
-	XCHAR *xstzName;
+	 XCHAR *xstzName;
+/*		char *xstzName;*/
+
 	char *characterstring;
 	char *parastring;
     } wvStyle;
@@ -3294,7 +3306,7 @@ returns the same as wvOLEDecode with the addition that
 	U8 m_rgbUid[16];
 	/* The primary UID - this defaults to 0, in which case the primary ID is
 	   that of the internal data. NOTE!: The primary UID is only saved to disk
-	   if (blip_instance ^ blip_signature == 1). Blip_instance is MSOFBH.inst and 
+	   if (blip_instance ^ blip_signature == 1). Blip_instance is MSOFBH.inst and
 	   blip_signature is one of the values defined in MSOBI */
 	U8 m_rgbUidPrimary[16];	/* optional based on the above check */
 
@@ -3318,7 +3330,7 @@ returns the same as wvOLEDecode with the addition that
 	U8 m_rgbUid[16];
 	/* The primary UID - this defaults to 0, in which case the primary ID is
 	   that of the internal data. NOTE!: The primary UID is only saved to disk
-	   if (blip_instance ^ blip_signature == 1). Blip_instance is MSOFBH.finst and 
+	   if (blip_instance ^ blip_signature == 1). Blip_instance is MSOFBH.finst and
 	   blip_signature is one of the values defined in MSOBI */
 	U8 m_rgbUidPrimary[16];	/* optional based on the above check */
 	U8 m_bTag;
@@ -4214,7 +4226,7 @@ Property       PID            Type            Default        Description
     struct tlist_info {
 	/*
 	   now this is very hairy, i not sure how this is supposed to work
-	   so lists are a bit tentitive, basically theres no many things you 
+	   so lists are a bit tentitive, basically theres no many things you
 	   *can* do with lists, but hopefully this will sort out whether they
 	   are bulleted or enumerated, and ignore all sorts of shite like
 	   what kind of bullet were talking about, and whether some list
@@ -4428,7 +4440,7 @@ Property       PID            Type            Default        Description
 			  wvInternalStream inner);
     U32 wvStream_close (wvStream * stream);
 
-/* The above functions store all the streams we open in one of these, so that 
+/* The above functions store all the streams we open in one of these, so that
  * we can clean up nicely.
  */
     struct twvStream_list {
@@ -4645,11 +4657,11 @@ has got
 
     char *ms_strlower (char *in);
 
-/* returns 
+/* returns
 0 for no error
 1 for file doesn't exist
 2 if it isnt an ole file
-3 if its corrupt 
+3 if its corrupt
 */
     int wvOLEDecode (char *path, wvStream ** mafd, wvStream ** tablefd0,
 		     wvStream ** tablefd1, wvStream ** data,

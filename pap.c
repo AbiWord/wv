@@ -7,7 +7,7 @@
 #include "wv.h"
 
 /*
-To apply a UPX.papx to a UPE.pap, set UPE.pap.istd equal to UPX.papx.istd, and 
+To apply a UPX.papx to a UPE.pap, set UPE.pap.istd equal to UPX.papx.istd, and
 then apply the UPX.papx.grpprl to UPE.pap.
 */
 void
@@ -32,7 +32,7 @@ wvAddPAPXFromBucket (PAP * apap, UPXF * upxf, STSH * stsh, wvStream * data)
     i = 0;
 #endif
     /*
-       while (i < upxf->cbUPX-2)    
+       while (i < upxf->cbUPX-2)
      */
     while (i < upxf->cbUPX - 4)	/* the end of the list is at -2, but there has to be a full sprm of
 				   len 2 as well */
@@ -84,7 +84,7 @@ wvAddPAPXFromBucket6 (PAP * apap, UPXF * upxf, STSH * stsh)
 	  wvError (("pap word 6 sprm is converted to %x\n", sprm));
 #endif
 	  pointer = upxf->upx.papx.grpprl + i;
-	  /* hmm, maybe im wrong here, but there appears to be corrupt 
+	  /* hmm, maybe im wrong here, but there appears to be corrupt
 	   * word 6 sprm lists being stored in the file
 	   */
 	  if (i < upxf->cbUPX - 2)
@@ -118,6 +118,13 @@ wvInitPAPFromIstd (PAP * apap, U16 istdBase, STSH * stsh)
 		  }
 		else
 		    wvCopyPAP (apap, &(stsh->std[istdBase].grupe[0].apap));
+		    /*
+		   >> PATCH ---------------------------------------------
+		    */
+    strcpy(apap->stylename,stsh->std[istdBase].xstzName);
+
+/* << ----------------------------------------------
+*/
 	    }
       }
 }
@@ -228,23 +235,23 @@ wvInitPAP (PAP * item)
 
 /*
 1) Having found the index i of the FC in an FKP that marks the character stored
-in the file immediately after the paragraph's paragraph mark, 
+in the file immediately after the paragraph's paragraph mark,
 
 1 is done in Simple mode through wvGetSimpleParaBounds which places this index
 in fcLim by default
 
-2) it is necessary to use the word offset stored in the first byte of the 
-fkp.rgbx[i - 1] to find the PAPX for the paragraph. 
+2) it is necessary to use the word offset stored in the first byte of the
+fkp.rgbx[i - 1] to find the PAPX for the paragraph.
 
-3) Using papx.istd to index into the properties stored for the style sheet , 
+3) Using papx.istd to index into the properties stored for the style sheet ,
 
-4) the paragraph properties of the style are copied to a local PAP. 
+4) the paragraph properties of the style are copied to a local PAP.
 
-5) Then the grpprl stored in the PAPX is applied to the local PAP, 
+5) Then the grpprl stored in the PAPX is applied to the local PAP,
 
-6) and papx.istd along with fkp.rgbx.phe are moved into the local PAP. 
+6) and papx.istd along with fkp.rgbx.phe are moved into the local PAP.
 
-7) The process thus far has created a PAP that describes what the paragraph properties 
+7) The process thus far has created a PAP that describes what the paragraph properties
 of the paragraph were at the last full save.
 */
 
