@@ -22,6 +22,10 @@ dnl just uncomment AC_PROG_CC_NO_G and comment AC_PROG_CC to return to the origi
 dnl AC_PROG_CC_NO_G
 AC_PROG_CC
 
+if test "x$GCC" = "xyes"; then
+  CFLAGS="$CFLAGS -ansi -pedantic"
+fi
+
 dnl This is really a check for Mac OS X.1 (or darwin 1.4, whatever...)
 suppress_md=`cat /usr/share/man/man1/ld.1 2>&1 | grep multiply_defined`
 if test "x$suppress_md" != "x"; then
