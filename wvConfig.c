@@ -463,6 +463,8 @@ void tokenTreeFreeAll(void)
 	int i;
 	for (i = 0; i < tokenfreen; i++)
 		free(tokenfreearr[i]);
+	tokenfreen = 0;
+	tokenTreeRoot = NULL;
 	}
 
  /* this loop is called *a lot* so I've made it a binary search*/
