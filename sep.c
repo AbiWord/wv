@@ -126,6 +126,7 @@ wvInitSEP (SEP * item)
     item->fLayout = 0;
     item->reserved4 = 0;
     wvInitOLST (&item->olstAnm);
+	item->fBidi = 0;
 }
 
 void

@@ -843,8 +843,10 @@ wvApplySprmFromBucket (wvVersion ver, U16 sprm, PAP * apap, CHP * achp,
       case sprmSPropRMark:
 	  wvApplysprmSPropRMark (asep, pointer, pos);
 	  break;
-      case sprmSFBiDi:		/* ?????? , what the hell are these three */
-      case sprmSFFacingCol:
+      case sprmSFBiDi:
+	  asep->fBidi = bread_8ubit (pointer, pos);
+	  break;
+      case sprmSFFacingCol: /* ?????? , what the hell are these two */
       case sprmSFRTLGutter:
 	  bread_8ubit (pointer, pos);
 	  break;

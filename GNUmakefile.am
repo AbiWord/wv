@@ -149,7 +149,8 @@ libwv_la_SOURCES = \
 	escher.c \
 	bmptopng.c \
 	basename.c \
-	laolareplace.c
+	laolareplace.c \
+	isbidi.c
 
 OTHERHEADERS = \
 	bintree.h \

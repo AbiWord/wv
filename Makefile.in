@@ -195,7 +195,8 @@ MYOBJECTS =	\
 	escher.$(OBJEXT) \
 	bmptopng.$(OBJEXT) \
 	basename.$(OBJEXT) \
-	laolareplace.$(OBJEXT)
+	laolareplace.$(OBJEXT)\
+	isbidi.c.$(OBJEXT)
 
 # conditionally compile in the exporter
 ifdef EXPORTER

@@ -1849,6 +1849,7 @@ that indicates their length.
 	U8 fLayout;
 	S16 reserved4;
 	OLST olstAnm;
+	U8 fBidi;	
     } SEP;
 
     void wvInitSEP (SEP * item);
@@ -4747,6 +4748,7 @@ has got
 
     void wvSetEntityConverter (expand_data * data);
 
+	int wvIsBidiDocument(wvParseStruct * ps);
 /* & finally */
     extern const char* wv_version;
 
