@@ -212,7 +212,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	wvHandleDocument(ps,DOCEND);
 	wvFree(posSedx);
 	wvFree(sed);
-	wvReleaseLFO_records(&ps->lfo,&lfolvl,&lvl,nooflvl);
+	/*wvReleaseLFO_records(&ps->lfo,&lfolvl,&lvl,nooflvl);*/
 	wvReleaseSTTBF(&ps->anSttbfAssoc);
     wvFree(btePapx);
 	wvFree(posPapx);

@@ -399,7 +399,8 @@ void exstartElement(void *userData, const char *name, const char **atts)
 		case TT_ULISTB:
 		    wvTrace(("ilfo is %d\n",((PAP*)(mydata->props))->ilfo));
 			/*
-			U16 *wvGetListEntryInfo(PAP *apap, CHP *achp,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U32 noofLST,STSH *stsh);
+			U16 *wvGetListEntryInfo(PAP *apap, CHP *achp,LFO *lfo,LFOLVL *lfolvl,
+			LVL *lvl,U32 nolfo, LST *lst, U32 noofLST,STSH *stsh);
 			*/
 			if ( ((PAP*)(mydata->props))->ilfo )
 				{

@@ -166,6 +166,7 @@ void wvOutputFromCP1252(U16 eachchar,U8 outputtype)
 void wvOutputFromUnicode(U16 eachchar,U8 outputtype)
 	{
 	U16 temp16;
+	U8 temp8;
 	char *str;
 	switch (outputtype)
 		{
@@ -185,12 +186,13 @@ void wvOutputFromUnicode(U16 eachchar,U8 outputtype)
 			break;
 		case KOI8:
 			temp16 = wvConvertUnicodeToKOI8_R(eachchar);
-			if (temp16 = 0xffff)
+			if (temp16 == 0xffff)
 				{
 				printf("?");
 				return;
 				}
-			printf("%c",temp16);
+			temp8 = temp16;
+			printf("%c",temp8);
 			break;
 		/*add your own charset here*/
 		}

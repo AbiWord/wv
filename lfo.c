@@ -17,7 +17,7 @@ int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl
 
 	for (i=0;i<*nolfo;i++)
 		*nooflvl += (*lfo)[i].clfolvl;
-	wvTrace(("nolfo is %d nooflvl is %d\n",*nolfo,*nooflvl));
+	wvError(("nolfo is %d nooflvl is %d\n",*nolfo,*nooflvl));
 	wvTrace(("post postion is %x\n",ftell(fd)));
 
 	if (*nooflvl == 0)
@@ -35,7 +35,10 @@ int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl
 		{
 		wvGetLFOLVL(&((*lfolvl)[i]),fd);
 		if (wvInvalidLFOLVL(&((*lfolvl)[i])) )
+			{
+			i++;	/*temp */
 			continue;
+			}
 		if ((*lfolvl)[i].fFormatting)
 			{
 			fprintf(stderr,"formatting set\n");

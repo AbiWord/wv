@@ -10,7 +10,8 @@ Changes to to 0.5.25
 	be default announces this fact.
 	* added charset option to wvHtml, documented in new wvHtml.1 manpage
 	* added koi-8 from Sergey V. Udaltsov <svu@pop.convey.ru> and added
-	a howto in notes/Charsets-HOWTO
+	a howto in notes/internationalization/Charsets-HOWTO
+	* changed lists to be html 4 complient.
 ALL TODO
 	* continue with lists, maybe change struct to include chp and pap simultaneously
 	as i might need it for the lists, extract start value for html, and number nfc
