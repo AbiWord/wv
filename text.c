@@ -14,9 +14,9 @@ int (*dochandler)(wvParseStruct *ps,wvTag tag)=NULL;
 int (*wvConvertUnicodeToEntity)(U16 char16)=NULL;
 
 #if !defined(WIN32) || !defined(_WIN32)
-  #define wv_iconv(a,b,c,d,e) iconv(a, (const char**)b,c,d,e)
+  #define wv_iconv(a,b,c,d,e) iconv(a, (const char**)b,c,(char**)d,e)
 #else
-  #define wv_iconv(a,b,c,d,e) iconv(a,b,c,d,e)
+  #define wv_iconv(a,b,c,d,e) iconv(a,b,c,(char**)d,e)
 #endif
 
 int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps, CHP *achp)
