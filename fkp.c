@@ -34,8 +34,6 @@ already recorded.
 void wvGetPAPX_FKP(int version,PAPX_FKP *fkp,U32 pn,FILE *fd)
 	{
 	int i;
-	wvTrace(("papx fkp malloc\n"));
-
 	fseek(fd,pn*PAGESIZE+(PAGESIZE-1),SEEK_SET);
 	fkp->crun = getc(fd);
 	fkp->rgfc = (U32 *)malloc(sizeof(U32) * (fkp->crun+1));
@@ -125,7 +123,6 @@ U32 wvSearchNextSmallestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc)
 void wvReleasePAPX_FKP(PAPX_FKP *fkp)
 	{
 	int i;
-	wvTrace(("papx fkp b freeed\n"));
 	wvFree(fkp->rgfc);
 	fkp->rgfc=NULL;
 	wvFree(fkp->rgbx);
@@ -135,7 +132,6 @@ void wvReleasePAPX_FKP(PAPX_FKP *fkp)
 	fkp->crun=0;
 	wvFree(fkp->grppapx);
 	fkp->grppapx=NULL;
-	wvTrace(("papx fkp e freeed\n"));
 	}
 
 void wvInitPAPX_FKP(PAPX_FKP *fkp)

@@ -82,9 +82,14 @@ int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U
 	currentpos = ftell(fd);
 	/*The pagenumber of the FKP is entry.pn */
 
+	wvTrace(("the entry.pn is %d\n",entry.pn));
 	wvGetPAPX_FKP(version,fkp,entry.pn,fd);
 
 	wvGetComplexParafcFirst(version,fcFirst,currentfc,clx, bte, pos,nobte,piece,fkp,fd);
+
+	wvReleasePAPX_FKP(fkp);
+	wvGetPAPX_FKP(version,fkp,entry.pn,fd);
+
 	piece = wvGetComplexParafcLim(version,fcLim,currentfc,clx, bte, pos,nobte,piece,fkp,fd);
 
 	fseek(fd,currentpos,SEEK_SET);
@@ -219,7 +224,13 @@ int wvGetComplexCharBounds(int version, CHPX_FKP *fkp, U32 *fcFirst,
 	wvGetCHPX_FKP(version, fkp, entry.pn, fd);
 
 	wvGetComplexCharfcFirst(version, fcFirst, currentfc, clx, bte, pos, nobte, piece, fkp, fd);
+	wvTrace(("BEFORE PIECE is %d\n",piece));
+
+	wvReleaseCHPX_FKP(fkp);
+	wvGetCHPX_FKP(version,fkp,entry.pn,fd);
+	
 	piece = wvGetComplexCharfcLim(version, fcLim, currentfc, clx, bte, pos, nobte, piece, fkp, fd);
+	wvTrace(("AFTER PIECE is %d\n",piece));
 
 	fseek(fd,currentpos,SEEK_SET);
 	return(piece);
@@ -235,6 +246,14 @@ int wvGetComplexCharfcLim(int version, U32 *fcLim, U32 currentfc, CLX *clx, BTE 
 	fcTest = wvSearchNextSmallestFCPAPX_FKP((PAPX_FKP*)fkp, currentfc);
 
 	wvTrace(("fcTest is %x\n",fcTest));
+
+	/*
+	this single line replaces all the rest, is it conceivable that i overengineered,
+	careful rereading of the spec makes no mention of repeating the para process to
+	find the boundaries of the exception text runs
+	*/
+	*fcLim = fcTest;
+#if 0
 
 	if (fcTest <= wvGetEndFCPiece(piece,clx))
 		{
@@ -268,6 +287,7 @@ int wvGetComplexCharfcLim(int version, U32 *fcLim, U32 currentfc, CLX *clx, BTE 
 			piece++;
 			}
 		}
+#endif
 	wvTrace(("fcLim is %x\n",*fcLim));
 	if (piece == clx->nopcd)
 		return(clx->nopcd-1);	/* test using this */
@@ -398,6 +418,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 	else 
 		{
 		wvGetBTE_PLCF(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
+		wvListBTE_PLCF(&btePapx,&posPapx,&para_intervals);
 		wvGetBTE_PLCF(&bteChpx,&posChpx,&char_intervals,ps->fib.fcPlcfbteChpx,ps->fib.lcbPlcfbteChpx,ps->tablefd);
 		}
 
@@ -485,11 +506,22 @@ void wvDecodeComplex(wvParseStruct *ps)
 				{
 				wvTrace(("before tests j is %x\n",j));
 				wvReleaseCHPX_FKP(&char_fkp);
-				cpiece = wvGetComplexCharBounds(wvQuerySupported(&ps->fib,NULL),&char_fkp,&char_fcFirst,&char_fcLim,i,&ps->clx, bteChpx, posChpx, char_intervals,piececount,ps->mainfd);
+				wvTrace(("piece is %d\n",cpiece));
+				/*try this without using the piece of the end char for anything*/
+				/*cpiece = */wvGetComplexCharBounds(wvQuerySupported(&ps->fib,NULL),&char_fkp,&char_fcFirst,&char_fcLim,i,&ps->clx, bteChpx, posChpx, char_intervals,piececount,ps->mainfd);
+				wvTrace(("piece is now %d\n",cpiece));
 				wvTrace(("fcLim is %x, fcFirst is %x\n",char_fcLim,char_fcFirst));
+				if (char_fcLim == char_fcFirst)
+					wvError(("I believe that this is an error, and you might see incorrect character properties\n"));
 				/*
 				char_fcLim = 0xfffffffeL;
 				*/
+				char_fcFirst = j;	
+				/* 
+				temp test, maybe if (char_fcFirst < j) char_fcFirst = j;, the problem is that the
+				fcFirst is the original *unmodified* exception run, we sometimes have a modified one
+				*/
+				
 				}
 
 			if (j == char_fcFirst)
@@ -497,9 +529,11 @@ void wvDecodeComplex(wvParseStruct *ps)
 				/* a CHP's base style is in the para style */
 				achp.istd = apap.istd;
 				wvAssembleSimpleCHP(&achp,char_fcLim,&char_fkp,&stsh);
-				wvTrace(("cpiece is %d, but full no is %d\n",cpiece,ps->clx.nopcd));
+				wvTrace(("cpiece is %d , but full no is %d\n",cpiece,ps->clx.nopcd));
 				wvTrace(("test is %d\n",achp.dxaSpace));
+				wvTrace(("underline bold is now %d %d, istd %d\n",achp.kul,achp.fBold,achp.istd));
 				wvAssembleComplexCHP(wvQuerySupported(&ps->fib,NULL),&achp,cpiece,&stsh,&ps->clx);
+				wvTrace(("underline is now %d\n",achp.kul));
 				wvHandleElement(ps,CHARPROPBEGIN, (void*)&achp);
 				char_pendingclose=1;
 				}

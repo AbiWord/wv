@@ -21,6 +21,20 @@ void wvAddCHPXFromBucket(CHP *achp,UPXF *upxf,STSH *stsh)
 		}
 	}
 
+void wvApplyCHPXFromBucket(CHP *achp,CHPX *chpx,STSH *stsh)
+	{
+	U8 *pointer;
+	U16 i=0;
+	U16 sprm;
+	while (i < chpx->cbGrpprl)
+		{
+		sprm = bread_16ubit(chpx->grpprl+i,&i);
+		pointer = chpx->grpprl+i;
+		wvApplySprmFromBucket(0,sprm,NULL,achp,NULL,stsh,pointer,&i);
+		}
+	achp->istd = chpx->istd;
+	}
+
 void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
 	{
 	U8 *pointer;
@@ -53,6 +67,7 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
 
 void wvInitCHPFromIstd(CHP *achp,U16 istdBase,STSH *stsh)
 	{
+	wvTrace(("initing from %d\n",istdBase));
 	if (istdBase == istdNil)
         wvInitCHP(achp);
     else
@@ -71,7 +86,19 @@ void wvInitCHPFromIstd(CHP *achp,U16 istdBase,STSH *stsh)
 				wvInitCHP(achp);
 				}
 			else
-            	wvCopyCHP(achp,&(stsh->std[istdBase].grupe[1].achp));
+				{
+				wvTrace(("type is %d\n",stsh->std[istdBase].sgc));
+				switch (stsh->std[istdBase].sgc)
+					{
+					case sgcPara:
+						wvCopyCHP(achp,&(stsh->std[istdBase].grupe[1].achp));
+						break;
+					case sgcChp:
+						wvInitCHP(achp);
+						wvApplyCHPXFromBucket(achp,&(stsh->std[istdBase].grupe[0].chpx),stsh);
+						break;
+					}
+				}
 			}
         }
 
@@ -668,6 +695,7 @@ void wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
     * been set to the current paragraph properties' stylesheet */
    wvTrace(("istd index is %d\n", achp->istd));
    wvInitCHPFromIstd(achp, achp->istd, stsh);
+   wvTrace(("underline bold is now %d %d\n",achp->kul,achp->fBold));
 
    /*index is the i in the text above*/
    /* the PAPX version of the function only looks at rgfc's, which are

@@ -282,7 +282,9 @@ void wvEndSection(expand_data *data)
 void wvBeginCharProp(expand_data *data)
 	{
 	CHP *achp;
+	achp = (CHP*)data->props;
 	wvTrace(("beginning character run\n"));
+	if (achp->ico) { wvTrace(("color is %d\n",achp->ico)); }
 
 	if ( (data != NULL) &&  (data->sd != NULL) && (data->sd->elements[TT_CHAR].str[0]!= NULL) )
 		{
@@ -297,7 +299,6 @@ void wvBeginCharProp(expand_data *data)
 		}
    
 	/* some test examples */
-	achp = (CHP*)data->props;
 	if (achp->fBold) { wvTrace(("a BOLD character run\n")); }
 	if (achp->fItalic) { wvTrace(("an ITALIC character run\n")); }
 	if (achp->kul) { wvTrace(("some kind of UNDERLINED character run\n")); }
@@ -309,7 +310,7 @@ void wvEndCharProp(expand_data *data)
 	if ( (data->sd != NULL) && (data->sd->elements[TT_CHAR].str[1]!= NULL) )
 		{
 		wvExpand(data,data->sd->elements[TT_CHAR].str[1],
-		strlen(data->sd->elements[TT_CHAR].str[1]));
+			strlen(data->sd->elements[TT_CHAR].str[1]));
 		if (data->retstring)
 			{
 			wvTrace(("char end is now %s",data->retstring));

@@ -1,6 +1,33 @@
 Changes to to 0.5.22
 	* new development release
+	* added RMarkDel & strike & outline to wvHtml support, handle empty tags 
+	correctly now as well.
+	* added lowercase, shadow,vanish, rmark,caps, outline and smallcaps to
+	wvHtml, though many are empty and caps,smallcaps and lowercase need
+	further code to actually do the deed
+	* added includedir to mkinstalldir list, coz of (Marko Rauhamaa) 
+	<marko@tekelec.com>
+	* the toggle (cases 128 and 129 for fBold and loads of others), works by
+	taking a look at the original style that the current one is based on. It
+	was until now not actually looking at the original one at all, but the
+	current one, thats fixed now.
+	* another one was that if we were based upon a char style we weren't
+	getting initalized correctly at all, this too is fixed.
+	* changes have also been made to sprmCMajority and sprmCMajority50 along
+	a similiar line. These three or 4 changes together make a huge difference
+	to the output. So this should clear up a *mountain* of mismatched output,
+	i'm so proud, the best way to track down these differences is to take a
+	fastsaved file and save it as fullsave and compare wv output for the
+	two.
+	* colour in html output.
+	* hmm, real real stupid thing in fastsaved mode where i was completely
+	fecking up the fcLim by changing it in a subfunc and then thinking that
+	it was the original and using it as that again!
 ALL TODO
+
+
+	* what was i at with sprmCFtcDefault ????, fBold ??, what the...
+
 	* add the rest of the appropiate char props to decode_simple, repeat for
 	decode_complex
 	* search for more SEP sprm diffs between 6 and 8

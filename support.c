@@ -858,7 +858,7 @@ void convertwmf(char *filename)
     cstruct->preparse = 0;
     PlayMetaFile((void *)cstruct,file);
 
-	strcat(filename,".gif");
+	wvStrcat(filename,".gif");
 
     out = fopen(filename, "wb");
     if (out == NULL)

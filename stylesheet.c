@@ -305,6 +305,7 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 			{
 			word6 = wvGetSTD(&(item->std[i]),item->Stshi.cbSTDBaseInFile,fd);
 
+			wvTrace(("istdBase is %d, type is %d\n",item->std[i].istdBase,item->std[i].sgc));
 			/* 
 			at this stage we should create the UPE from the available
 			data
@@ -356,7 +357,7 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 
 					break;
 				case sgcChp:
-					/*wvTrace(("sgcChp style, len is %d %d\n",item->std[i].grupxf[0].cbUPX,item->std[i].grupe[0].chpx.cbGrpprl));*/
+					wvTrace(("sgcChp style, len is %d %d\n",item->std[i].grupxf[0].cbUPX,item->std[i].grupe[0].chpx.cbGrpprl));
 					wvInitCHPXFromIstd(&(item->std[i].grupe[0].chpx),item->std[i].istdBase,item);
 
 					if (word6)

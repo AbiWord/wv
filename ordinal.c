@@ -103,15 +103,15 @@ char *convert100(U16 x)
 	if (x > 20)
 		{
 		t = x / 10;
-		strcat(cvt100,cvtText[t + 18]);
-		strcat(cvt100," ");
+		wvStrcat(cvt100,cvtText[t + 18]);
+		wvStrcat(cvt100," ");
 		x = x - (t * 10);
 		}
 	
 	if (x > 0)
 		{
-		strcat(cvt100,cvtText[x]);
-		strcat(cvt100," ");
+		wvStrcat(cvt100,cvtText[x]);
+		wvStrcat(cvt100," ");
 		}
 	return(cvt100);
 	}
@@ -156,7 +156,7 @@ char *wvOrdinal(U32 x)
 		temp = convert100(t);
 		if (temp)
 			{
-			strcat(Cvt,temp);
+			wvStrcat(Cvt,temp);
 			wvFree(temp);
 			}
 		else
@@ -164,8 +164,8 @@ char *wvOrdinal(U32 x)
 			wvFree(Cvt);
 			return(NULL);
 			}
-		strcat(Cvt,cvtText[29]);
-		strcat(Cvt," ");
+		wvStrcat(Cvt,cvtText[29]);
+		wvStrcat(Cvt," ");
 		x = x - (t * 1000);
 		}
 	
@@ -174,7 +174,7 @@ char *wvOrdinal(U32 x)
 		temp = convert100(x);
 		if (temp)
 			{
-			strcat(Cvt,temp);
+			wvStrcat(Cvt,temp);
 			wvFree(temp);
 			}
 		else

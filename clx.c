@@ -191,6 +191,7 @@ U32 wvGetPieceFromCP(U32 currentcp,CLX *clx)
 	U32 i=0;
 	while(i<clx->nopcd)
 		{
+		wvTrace(("i %d: currentcp is %d, clx->pos[i] is %d, clx->pos[i+1] is %d\n",i,currentcp,clx->pos[i],clx->pos[i+1]));
 		if ( (currentcp >= clx->pos[i]) && (currentcp < clx->pos[i+1]) )
 			return(i);
 		i++;

@@ -83,6 +83,14 @@ int wvStrlen(const char *str)
 	return(strlen(str));
 	}
 
+char *wvStrcat(char *dest, const char *src)
+	{
+	if (src != NULL)
+		return(strcat(dest,src));
+	else
+		return(dest);
+	}
+
 void wvAppendStr(char **orig,const char *add)
 	{
 	int pos;
@@ -92,7 +100,7 @@ void wvAppendStr(char **orig,const char *add)
 	(*orig) = (char *)realloc(*orig,pos+wvStrlen(add)+1);
 	(*orig)[pos] = '\0';
 	wvTrace(("3 test str of %s\n",*orig));
-	strcat(*orig,add);
+	wvStrcat(*orig,add);
 	wvTrace(("3 test str of %s\n",*orig));
 	}
 

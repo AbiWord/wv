@@ -244,7 +244,8 @@ installdirs:
 	$(libdir)/wv/symbolfont \
 	$(libdir)/wv/wingdingfont \
 	$(libdir)/wv/patterns \
-	$(libdir)/wv/ttf
+	$(libdir)/wv/ttf \
+	$(includedir)
 	
 
 install: installdirs $(srcdir)/mswordview$(EXEEXT)

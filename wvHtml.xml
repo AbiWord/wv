@@ -39,13 +39,108 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 </end>
 </paragraph>
 
+<!-- these are all the character properties that can show up in word -->
 <bold><begin>&lt;b&gt;</begin><end>&lt;/b&gt;</end></bold> 
-
 <italic><begin>&lt;i&gt;</begin><end>&lt;/i&gt;</end></italic>
 
+<!--
+text that has been deleted and will be displayed with strikethrough when 
+revision marked text is to be displayed
+
+use either this line...
+-->
+<RMarkDel><begin>&lt;s&gt;</begin><end>&lt;/s&gt;</end></RMarkDel>
+
+<!--
+or uncomment below to make deleted text dissappear (well, become commented out)
+-->
+<!--
+<RMarkDel><begin>&lt;!-&#45;</begin><end>-&#45;&gt;</end></RMarkDel>
+-->
+
+<!-- I don't even know what outline means -->
+<outline><begin></begin><end></end></outline>
+<smallcaps><begin></begin><end></end></smallcaps>
+<caps><begin></begin><end></end></caps>
+<vanish><begin>&lt;!-&#45;</begin><end>-&#45;&gt;</end></vanish>
+
+<!--
+text that has been newly typed since the last time revision marks have been accepted 
+and will be displayed with underline when revision marked text is to be displayed
+
+use either this line...
+-->
+<RMark><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></RMark>
+
+<!--
+or uncomment below to make the underline dissappear
+-->
+<!--
+<RMark><begin></begin><end></end></RMark>
+-->
+
+<strike><begin>&lt;s&gt;</begin><end>&lt;/s&gt;</end></strike>
+<shadow><begin></begin><end></end></shadow>
+<lowercase><begin></begin><end></end></lowercase>
+<emboss><begin></begin><end></end></emboss>
+<imprint><begin></begin><end></end></imprint>
+<!--double strike-->
+<dstrike><begin>&lt;s&gt;</begin><end>&lt;/s&gt;</end></dstrike>
+
+<!--
+ftc's 
+&
+hps
+
+keep them for font face and do that later.
+-->
+
+<super><begin>&lt;sup&gt;</begin><end>&lt;/sup&gt;</end></super>
+<sub><begin>&lt;sub&gt;</begin><end>&lt;/sub&gt;</end></sub>
+
+<single><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></single>
+<word><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></word>
+<double><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></double>
+<dotted><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dotted>
+<hidden><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></hidden>
+<thick><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></thick>
+<dash><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dash>
+<dot><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dot>
+<dotdash><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dotdash>
+<dotdotdash><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dotdotdash>
+<wave><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></wave>
+
+<!--
+<color>
+-->
+<Black><begin>Black</begin><end></end></Black>
+<Blue><begin>Blue</begin><end></end></Blue>
+<Cyan><begin>Cyan</begin><end></end></Cyan>
+<Green><begin>Green</begin><end></end></Green>
+<Magenta><begin>Magenta</begin><end></end></Magenta>
+<Red><begin>Red</begin><end></end></Red>
+<Yellow><begin>Yellow</begin><end></end></Yellow>
+<White><begin>White</begin><end></end></White>
+<DkBlue><begin>DkBlue</begin><end></end></DkBlue>
+<DkCyan><begin>DkCyan</begin><end></end></DkCyan>
+<DkGreen><begin>DkGreen</begin><end></end></DkGreen>
+<DkMagenta><begin>DkMagenta</begin><end></end></DkMagenta>
+<DkRed><begin>DkRed</begin><end></end></DkRed>
+<DkYellow><begin>DkYellow</begin><end></end></DkYellow>
+<DkGray><begin>DkGray</begin><end></end></DkGray>
+<LtGray><begin>LtGray</begin><end></end></LtGray>
+<!--
+</color>
+-->
+
+<fontstr>
+<begin>&lt;font color="<black.begin/><blue.begin/><cyan.begin/><green.begin/><magenta.begin/><red.begin/><yellow.begin/><white.begin/><dkblue.begin/><dkcyan.begin/><dkgreen.begin/><dkmagenta.begin/><dkred.begin/><dkyellow.begin/><dkgray.begin/><ltgray.begin/>"&gt;</begin>
+<end><ltgray.end/><dkgray.end/><dkyellow.end/><dkred.end/><dkmagenta.end/><dkgreen.end/><dkcyan.end/><dkblue.end/><white.end/><yellow.end/><red.end/><magenta.end/><green.end/><cyan.end/><blue.end/><black.end/>&lt;/font&gt;</end>
+</fontstr>
+
 <character>
-<begin><bold.begin/><italic.begin/></begin>
-<end><italic.end/><bold.end/></end>
+<begin><fontstr.begin/><bold.begin/><italic.begin/><strike.begin/><RMarkDel.begin/><outline.begin/><smallcaps.begin/><caps.begin/><vanish.begin/><RMark.begin/><shadow.begin/><lowercase.begin/><emboss.begin/><imprint.begin/><dstrike.begin/><super.begin/><sub.begin/><single.begin/><word.begin/><double.begin/><dotted.begin/><hidden.begin/><thick.begin/><dash.begin/><dot.begin/><dotdash.begin/><dotdotdash.begin/><wave.begin/></begin>
+<end><wave.end/><dotdotdash.end/><dotdash.end/><dot.end/><dash.end/><thick.end/><hidden.end/><dotted.end/><double.end/><word.end/><single.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/></end>
 </character>
 
 </main>

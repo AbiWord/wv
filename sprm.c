@@ -6,6 +6,53 @@
 #include "wv.h"
 
 /*
+void wvToggle(int ret,CHP *in,STSH *stsh,U8 toggle,type)
+
+When the parameter of the sprm is set to 0 or 1, then
+the CHP property is set to the parameter value.
+
+*/
+
+/*
+When the parameter of the sprm is 128, then the CHP property is set to the
+value that is stored for the property in the style sheet. CHP When the
+parameter of the sprm is 129, the CHP property is set to the negation of the
+value that is stored for the property in the style sheet CHP.
+*/
+
+/*
+an argument might be made that instead of in being returned or negated that
+it should be the looked up in the original chp through the istd that should 
+be used, in which case this should be a macro that does the right thing. 
+but im uncertain as to which is the correct one to do, ideas on a postcard 
+to... etc etc
+
+This argument which i left as a comment to the original function has been
+bourne out in practice, so i converted this to a macro and did a lookup
+on the original unmodified chp in the stylesheet to check against
+*/
+
+#define wvTOGGLE(ret,in,stsh,toggle,type) \
+	{ \
+	CHP ctemp; \
+	if ((toggle == 0) || (toggle == 1))  \
+		ret = toggle; \
+	else \
+		{ \
+		\
+		wvInitCHPFromIstd(&ctemp,in->istd,stsh); \
+	\
+		if (toggle == 128) \
+			ret = ctemp.type; \
+		else if (toggle == 129) \
+			ret = !ctemp.type; \
+		else \
+			wvWarning("Strangle sprm toggle value, ignoring\n"); \
+		} \
+	}
+
+
+/*
  spra value operand size
  0          1 byte (operand affects 1 bit)
  1          1 byte
@@ -437,39 +484,41 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			break;
 		case sprmCFBold:
 			toggle = bgetc(pointer,pos);
-			achp->fBold = wvToggle(achp->fBold,toggle);
+			wvTOGGLE(achp->fBold,achp,stsh,toggle,fBold)
 			break;
 		case sprmCFItalic:
 			toggle = bgetc(pointer,pos);
-			achp->fItalic= wvToggle(achp->fItalic,toggle);
+			wvTrace(("Italic is %d, sprm val is %d\n",achp->fItalic,toggle));
+			wvTOGGLE(achp->fItalic,achp,stsh,toggle,fItalic)
+			wvTrace(("Italic is now %d\n",achp->fItalic));
 			break;
 		case sprmCFStrike:
 			toggle = bgetc(pointer,pos);
-			achp->fStrike= wvToggle(achp->fStrike,toggle);
+			wvTOGGLE(achp->fStrike,achp,stsh,toggle,fStrike)
 			break;
 		case sprmCFOutline:
 			toggle = bgetc(pointer,pos);
-			achp->fOutline= wvToggle(achp->fOutline,toggle);
+			wvTOGGLE(achp->fOutline,achp,stsh,toggle,fOutline)
 			break;
 		case sprmCFShadow:
 			toggle = bgetc(pointer,pos);
-			achp->fShadow= wvToggle(achp->fShadow,toggle);
+			wvTOGGLE(achp->fShadow,achp,stsh,toggle,fShadow)
 			break;
 		case sprmCFSmallCaps:
 			toggle = bgetc(pointer,pos);
-			achp->fSmallCaps= wvToggle(achp->fSmallCaps,toggle);
+			wvTOGGLE(achp->fSmallCaps,achp,stsh,toggle,fSmallCaps)
 			break;
 		case sprmCFCaps:
 			toggle = bgetc(pointer,pos);
-			achp->fCaps= wvToggle(achp->fCaps,toggle);
+			wvTOGGLE(achp->fCaps,achp,stsh,toggle,fCaps)
 			break;
 		case sprmCFVanish:
 			toggle = bgetc(pointer,pos);
-			achp->fVanish= wvToggle(achp->fVanish,toggle);
+			wvTOGGLE(achp->fVanish,achp,stsh,toggle,fVanish)
 			break;
 		case sprmCFtcDefault:
 			toggle = bgetc(pointer,pos);
-			achp->fBold = wvToggle(achp->fBold,toggle);
+			wvTOGGLE(achp->fBold,achp,stsh,toggle,fBold)
 			break;
 		case sprmCKul:
 			achp->kul = bgetc(pointer,pos);
@@ -2273,6 +2322,7 @@ void wvApplysprmCPlain(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	wvInitCHPFromIstd(achp,achp->istd,stsh);
 	}
 
+
 U8 wvToggle(U8 in,U8 toggle)
 	{
 	/*
@@ -2465,6 +2515,7 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	{
 	U16 i;
 	CHP base;
+	CHP orig;
 	UPXF upxf;
 	/*
 	Bytes 0 and 1 of
@@ -2498,41 +2549,45 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 		(*pos)++;
 		}
 
-	wvError(("achp istd is %d\n",achp->istd));
+	wvTrace(("achp istd is %d\n",achp->istd));
 	
 	wvAddCHPXFromBucket(&base,&upxf,stsh);
 
 	wvTrace(("achp istd is %d\n",achp->istd));
 
+	wvTrace(("my underline started as %d\n",achp->kul));
+
+	wvInitCHPFromIstd(&orig,achp->istd,stsh);
+
 	/* this might be a little wrong, review after doing dedicated CHP's*/
 	if (achp->fBold == base.fBold)
-		achp->fBold = stsh->std[achp->istd].grupe[0].achp.fBold;
+		achp->fBold = orig.fBold;
 	if (achp->fItalic == base.fItalic)
-		achp->fItalic = stsh->std[achp->istd].grupe[0].achp.fItalic;
+		achp->fItalic = orig.fItalic;
 	if (achp->fStrike == base.fStrike)
-		achp->fStrike = stsh->std[achp->istd].grupe[0].achp.fStrike;
+		achp->fStrike = orig.fStrike;
 	if (achp->fOutline == base.fOutline)
-		achp->fOutline = stsh->std[achp->istd].grupe[0].achp.fOutline;
+		achp->fOutline = orig.fOutline;
 	if (achp->fShadow == base.fShadow)
-		achp->fShadow = stsh->std[achp->istd].grupe[0].achp.fShadow;
+		achp->fShadow = orig.fShadow;
 	if (achp->fSmallCaps == base.fSmallCaps)
-		achp->fSmallCaps = stsh->std[achp->istd].grupe[0].achp.fSmallCaps;
+		achp->fSmallCaps = orig.fSmallCaps;
 	if (achp->fCaps == base.fCaps)
-		achp->fCaps = stsh->std[achp->istd].grupe[0].achp.fCaps;
+		achp->fCaps = orig.fCaps;
 	if (achp->ftc == base.ftc)
-		achp->ftc = stsh->std[achp->istd].grupe[0].achp.ftc;
+		achp->ftc = orig.ftc;
 	if (achp->hps == base.hps)
-		achp->hps = stsh->std[achp->istd].grupe[0].achp.hps;
+		achp->hps = orig.hps;
 	if (achp->hpsPos == base.hpsPos)
-		achp->hpsPos = stsh->std[achp->istd].grupe[0].achp.hpsPos;
+		achp->hpsPos = orig.hpsPos;
 	if (achp->kul == base.kul)
-		achp->kul = stsh->std[achp->istd].grupe[0].achp.kul;
+		achp->kul = orig.kul;
 	/* ???? 
 	if (achp->qpsSpace == base.qpsSpace)
-		achp->qpsSpace = stsh->std[achp->istd].grupe[0].achp.qpsSpace;
+		achp->qpsSpace = orig.qpsSpace;
 	*/
 	if (achp->ico == base.ico)
-		achp->ico = stsh->std[achp->istd].grupe[0].achp.ico;
+		achp->ico = orig.ico;
 
 	/* 
 	these ones are mentioned in a different part of the spec, that
@@ -2540,16 +2595,19 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	anyway
 	*/
 	if (achp->fVanish == base.fVanish)
-		achp->fVanish = stsh->std[achp->istd].grupe[0].achp.fVanish;
-	wvError(("%d\n",base.dxaSpace));
-	wvError(("%d\n",achp->dxaSpace));
+		achp->fVanish = orig.fVanish;
+	wvTrace(("%d\n",base.dxaSpace));
+	wvTrace(("%d\n",achp->dxaSpace));
 	if (achp->dxaSpace == base.dxaSpace)
-		achp->dxaSpace = stsh->std[achp->istd].grupe[0].achp.dxaSpace;
+		achp->dxaSpace = orig.dxaSpace;
 	if (achp->lidDefault == base.lidDefault)
-		achp->lidDefault = stsh->std[achp->istd].grupe[0].achp.lidDefault;
+		achp->lidDefault = orig.lidDefault;
 	if (achp->lidFE == base.lidFE)
-		achp->lidFE = stsh->std[achp->istd].grupe[0].achp.lidFE;
+		achp->lidFE = orig.lidFE;
 	wvFree(upxf.upx.chpx.grpprl);
+
+
+	wvTrace(("my underline ended as %d\n",achp->kul));
 	}
 
 void wvApplysprmCHpsInc1(CHP *achp,U8 *pointer,U16 *pos)
@@ -2575,6 +2633,7 @@ void wvApplysprmCMajority50(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	{
 	U16 i;
 	CHP base;
+	CHP orig;
 	UPXF upxf;
 	/*
 	Bytes 0 and 1 of
@@ -2610,32 +2669,34 @@ void wvApplysprmCMajority50(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	
 	wvAddCHPXFromBucket(&base,&upxf,stsh);
 
+	wvInitCHPFromIstd(&orig,achp->istd,stsh);
+
 	/* this might be a little wrong, review after doing dedicated CHP's*/
 	wvTrace(("istd is %d\n",achp->istd));
 	if (achp->fBold == base.fBold)
-		achp->fBold = stsh->std[achp->istd].grupe[0].achp.fBold;
+		achp->fBold = orig.fBold;
 	if (achp->fItalic == base.fItalic)
-		achp->fItalic = stsh->std[achp->istd].grupe[0].achp.fItalic;
+		achp->fItalic = orig.fItalic;
 	if (achp->fStrike == base.fStrike)
-		achp->fStrike = stsh->std[achp->istd].grupe[0].achp.fStrike;
+		achp->fStrike = orig.fStrike;
 	if (achp->fSmallCaps == base.fSmallCaps)
-		achp->fSmallCaps = stsh->std[achp->istd].grupe[0].achp.fSmallCaps;
+		achp->fSmallCaps = orig.fSmallCaps;
 	if (achp->fCaps == base.fCaps)
-		achp->fCaps = stsh->std[achp->istd].grupe[0].achp.fCaps;
+		achp->fCaps = orig.fCaps;
 	if (achp->ftc == base.ftc)
-		achp->ftc = stsh->std[achp->istd].grupe[0].achp.ftc;
+		achp->ftc = orig.ftc;
 	if (achp->hps == base.hps)
-		achp->hps = stsh->std[achp->istd].grupe[0].achp.hps;
+		achp->hps = orig.hps;
 	if (achp->hpsPos == base.hpsPos)
-		achp->hpsPos = stsh->std[achp->istd].grupe[0].achp.hpsPos;
+		achp->hpsPos = orig.hpsPos;
 	if (achp->kul == base.kul)
-		achp->kul = stsh->std[achp->istd].grupe[0].achp.kul;
+		achp->kul = orig.kul;
 	if (achp->ico == base.ico)
-		achp->ico = stsh->std[achp->istd].grupe[0].achp.ico;
+		achp->ico = orig.ico;
 	if (achp->fVanish == base.fVanish)
-		achp->fVanish = stsh->std[achp->istd].grupe[0].achp.fVanish;
+		achp->fVanish = orig.fVanish;
 	if (achp->dxaSpace == base.dxaSpace)
-		achp->dxaSpace = stsh->std[achp->istd].grupe[0].achp.dxaSpace;
+		achp->dxaSpace = orig.dxaSpace;
 	}
 
 void wvApplysprmCPropRMark(CHP *achp,U8 *pointer,U16 *pos)

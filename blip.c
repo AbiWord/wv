@@ -1132,10 +1132,10 @@ char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *infd)
 		{
 		decompressf = setdecom();
 		if (!(decompressf))
-			strcat(buffer,".lzed");
+			wvStrcat(buffer,".lzed");
 		}
 	else
-		strcat(buffer,".lzed");
+		wvStrcat(buffer,".lzed");
 
 	if (decompressf)
 		{

@@ -1502,6 +1502,7 @@ void wvInitCHPX(CHPX *item);
 void wvCopyCHPX(CHPX *dest, CHPX *src);
 void wvReleaseCHPX(CHPX *item);
 void wvGetCHPX(int version, CHPX *item, U32 offset, FILE *fd);
+
 	       
 typedef struct _CHPX_FKP
 	{
@@ -1624,6 +1625,8 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh);
 void wvInitCHPXFromIstd(CHPX *chpx,U16 istdBase,STSH *stsh);
 void wvMergeCHPXFromBucket(CHPX *dest,UPXF *upxf);
 void wvUpdateCHPXBucket(UPXF *src);
+
+void wvApplyCHPXFromBucket(CHP *achp,CHPX *chpx,STSH *stsh);
 
 typedef struct _ANLV
 	{
@@ -2093,31 +2096,164 @@ typedef enum
 
 
 
-#define TT_OTHER        	0
-#define TT_DOCUMENT     	1       
-#define TT_BEGIN			2       
-#define TT_END				3  	     
-#define TT_TITLE			4
-#define TT_PARA				5
-#define TT_CHARSET			6	
-#define TT_VERSION			7	
-#define TT_JUSTIFICATION 	8
-#define TT_JUST				9
-#define TT_LEFT				10	
-#define TT_RIGHT			11
-#define TT_CENTER			12
-#define TT_BLOCK			13
-#define TT_ASIAN			14
-#define TT_SECTION			15
-#define TT_BOLD				16
-#define TT_CHAR				17
-#define TT_BOLDB			18
-#define TT_BOLDE			19
-#define TT_ITALIC			20
-#define TT_ITALICB			21
-#define TT_ITALICE			22
+typedef enum _TT
+	{
+	TT_OTHER = 0,
+	TT_DOCUMENT,
+	TT_BEGIN,       
+	TT_END,
+	TT_TITLE,
+	TT_PARA,	
+	TT_CHARSET,
+	TT_VERSION,
+	TT_JUSTIFICATION,
+	TT_JUST,
+	TT_LEFT,
+	TT_RIGHT,
+	TT_CENTER,
+	TT_BLOCK,
+	TT_ASIAN,
+	TT_SECTION,
+	TT_BOLD,
+	TT_CHAR,
+	TT_BOLDB,
+	TT_BOLDE,
+	TT_ITALIC,
+	TT_ITALICB,
+	TT_ITALICE,
+	TT_STRIKE,
+	TT_STRIKEB,
+	TT_STRIKEE,
+	TT_RMarkDel,
+	TT_RMarkDelB,
+	TT_RMarkDelE,
+	TT_OUTLINE,
+	TT_OUTLINEB,
+	TT_OUTLINEE,
+	TT_SMALLCAPS,
+	TT_SMALLCAPSB,
+	TT_SMALLCAPSE,
+	TT_CAPS,
+	TT_CAPSB,
+	TT_CAPSE,
+	TT_VANISH,
+	TT_VANISHB,
+	TT_VANISHE,
+	TT_RMark,
+	TT_RMarkB,
+	TT_RMarkE,
+	TT_SHADOW,
+	TT_SHADOWB,
+	TT_SHADOWE,
+	TT_LOWERCASE,
+	TT_LOWERCASEB,
+	TT_LOWERCASEE,
+	TT_EMBOSS,
+	TT_EMBOSSB,
+	TT_EMBOSSE,
+	TT_IMPRINT,
+	TT_IMPRINTB,
+	TT_IMPRINTE,
+	TT_DSTRIKE,
+	TT_DSTRIKEB,
+	TT_DSTRIKEE,
+	TT_SUPER,
+	TT_SUPERB,
+	TT_SUPERE,
+	TT_SUB,
+	TT_SUBB,
+	TT_SUBE,
+	TT_SINGLE,
+	TT_SINGLEB,
+	TT_SINGLEE,
+	TT_WORD,
+	TT_WORDB,
+	TT_WORDE,
+	TT_DOUBLE,
+	TT_DOUBLEB,
+	TT_DOUBLEE,
+	TT_DOTTED,
+	TT_DOTTEDB,
+	TT_DOTTEDE,
+	TT_HIDDEN,
+	TT_HIDDENB,
+	TT_HIDDENE,
+	TT_THICK,
+	TT_THICKB,
+	TT_THICKE,
+	TT_DASH,
+	TT_DASHB,
+	TT_DASHE,
+	TT_DOT,
+	TT_DOTB,
+	TT_DOTE,
+	TT_DOTDASH,
+	TT_DOTDASHB,
+	TT_DOTDASHE,
+	TT_DOTDOTDASH,
+	TT_DOTDOTDASHB,
+	TT_DOTDOTDASHE,
+	TT_WAVE,
+	TT_WAVEB,
+	TT_WAVEE,
+	TT_BLACK,
+	TT_BLACKB,
+	TT_BLACKE,
+	TT_BLUE,
+	TT_BLUEB,
+	TT_BLUEE,
+	TT_CYAN,
+	TT_CYANB,
+	TT_CYANE,
+	TT_GREEN,
+	TT_GREENB,
+	TT_GREENE,
+	TT_MAGENTA,
+	TT_MAGENTAB,
+	TT_MAGENTAE,
+	TT_RED,
+	TT_REDB,
+	TT_REDE,
+	TT_YELLOW,
+	TT_YELLOWB,
+	TT_YELLOWE,
+	TT_WHITE,
+	TT_WHITEB,
+	TT_WHITEE,
+	TT_DKBLUE,
+	TT_DKBLUEB,
+	TT_DKBLUEE,
+	TT_DKCYAN,
+	TT_DKCYANB,
+	TT_DKCYANE,
+	TT_DKGREEN,
+	TT_DKGREENB,
+	TT_DKGREENE,
+	TT_DKMAGENTA,
+	TT_DKMAGENTAB,
+	TT_DKMAGENTAE,
+	TT_DKRED,
+	TT_DKREDB,
+	TT_DKREDE,
+	TT_DKYELLOW,
+	TT_DKYELLOWB,
+	TT_DKYELLOWE,
+	TT_DKGRAY,
+	TT_DKGRAYB,
+	TT_DKGRAYE,
+	TT_LTGRAY,
+	TT_LTGRAYB,
+	TT_LTGRAYE,
+	TT_FONTSTR,
+	TT_FONTSTRB,
+	TT_FONTSTRE,
+	TT_COLOR,
+	TT_COLORB,
+	TT_COLORE,
+	TokenTableSize
+	} TT;
 
-#define TokenTableSize 23
+
 
 typedef struct _TokenTable
 	{
@@ -2422,6 +2558,7 @@ void wvListStateData(state_data *data);
 
 int wvExpand(expand_data *myhandle,char *buf,int len);
 int wvStrlen(const char *str);
+char *wvStrcat(char *dest, const char *src);
 void wvReleaseStateData(state_data *data);
 
 U32 wvConvertCPToFC(U32 currentcp,CLX *clx);
