@@ -459,7 +459,7 @@ if [ test $search_for_libwmf != no ]; then
 	AC_CHECK_HEADER(libwmf/api.h,[
 		AC_CHECK_LIB(wmf,wmf_stream_create,have_libwmf=yes,[
 			AC_MSG_ERROR(* * * libwmf >= 0.2.1 required * * *)
-		])
+		],$libwmf_libs)
 		AC_CHECK_HEADER(libwmf/foreign.h,[
 			AC_DEFINE(HAVE_LIBWMF_FOREIGN_H,1,[Define if libwmf(2) has support for reading 'foreign' image formats])
 		],[	AC_MSG_WARN(* * * libwmf >= 0.2.2 recommended * * *)
