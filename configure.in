@@ -314,13 +314,32 @@ if test "$check_for_libiconv" = "yes"; then
     fi
 fi
 
-if test "$have_iconv" = "no"; then
-    AC_CHECK_FUNC(iconv,[
-        AC_DEFINE(USE_ICONV)
-        have_iconv=yes],[
-        ICONVOBJS="\$(RICONVOBJS)"
-        ICONV="BICONV"
-        AC_MSG_WARN(*** Get Iconv ***)])
+# use --with-peer-iconv to get libiconv from the peer directory
+AC_ARG_WITH(peer-iconv,
+[  --with-peer-iconv     use libiconv from peer directory ],[
+     if test "$withval" = "yes"; then
+	 use_peer_iconv=yes
+     elif test "$withval" = "no"; then
+         use_peer_iconv=no
+     else
+         use_peer_iconv=no
+     fi
+],use_peer_iconv=no)
+
+if test "$use_peer_iconv" = "yes"; then
+    basepath="../libiconv"
+    ICONV_LIBS="${basepath}/lib/.libs/libiconv.a"
+    ICONV_CFLAGS="-I${basepath}/include"
+    AC_MSG_RESULT(using supplied iconv library)
+else
+    if test "$have_iconv" = "no"; then
+	AC_CHECK_FUNC(iconv,[
+	    AC_DEFINE(USE_ICONV)
+	    have_iconv=yes],[
+	    ICONVOBJS="\$(RICONVOBJS)"
+	    ICONV="BICONV"
+	    AC_MSG_WARN(*** Get Iconv ***)])
+    fi
 fi
 
 AC_DEFUN(AC_SYS_ICONV_WIN_CP_SUPPORT,

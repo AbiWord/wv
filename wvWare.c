@@ -901,7 +901,7 @@ mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp)
 
 	      if (achp->fOle2)
 		  exit (139);
-#if 0
+#if 1
 	      wvStream_goto (ps->data, achp->fcPic_fcObj_lTagObj);
 	      wvGetPICF (wvQuerySupported (&ps->fib, NULL), &picf, ps->data);
 	      f = picf.rgb;
