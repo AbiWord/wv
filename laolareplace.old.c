@@ -125,12 +125,16 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
   	
   ungetc(c,input);
 
-
-  if(isprint(c)) {
-     wvError(("File looks like a plain text file.\n"));
-     return 2;
-  /* check for MS OLE wrapper */
-  } else if(c==0xd0) {
+#if 0
+  if(isprint(c)) 
+  		{
+		wvError(("File looks like a plain text file.\n"));
+		return 2;
+	/* check for MS OLE wrapper */
+		} 
+	else 
+#endif	
+	if(c==0xd0) {
      Block = (unsigned char *)malloc(512);
 	 if (Block == NULL)
 	 	{
@@ -409,6 +413,11 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
     return 0;
   } else {
     /* not a OLE file! */
+  if(isprint(c)) 
+  		{
+		wvError(("File looks like a plain text file.\n"));
+		return 2;
+		} 
     wvError(("7 ===========> Input file is not an OLE file\n"));
     return 2;
   }
