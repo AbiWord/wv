@@ -610,6 +610,8 @@ swap_iconv (U16 lid)
     strcpy (t_code, "UCS-2");
 
     handle = iconv_open (t_code, f_code);
+    if (handle == (iconv_t)-1)
+            return 0;
 
     buffer[0] = 0x20 & 0xff;
     buffer[1] = 0;
@@ -715,7 +717,7 @@ wvOutputFromUnicode (U16 eachchar, char *outputtype)
 
     if (!iconv_handle || strcmp (cached_outputtype, outputtype) != 0)
       {
-	  if (iconv_handle)
+	  if ((handle != (iconv_t)-1))
 	      iconv_close (iconv_handle);
 
 	  iconv_handle = iconv_open (outputtype, "UCS-2");
@@ -2164,7 +2166,7 @@ wvConvertStylename(char *stylename, char *outputtype)
     /* Destroy */
     if(!outputtype) 
     {
-	if (iconv_handle)
+	if ((handle != (iconv_t)-1))
 	    iconv_close(iconv_handle);
 	return NULL;
     }
@@ -2172,7 +2174,7 @@ wvConvertStylename(char *stylename, char *outputtype)
     /* Initialize */
     if(!iconv_handle || strcmp(cached_outputtype, outputtype))
     {
-	if (iconv_handle)
+	if ((handle != (iconv_t)-1))
 	    iconv_close(iconv_handle);
 
 	/**FIXME: don´t know if ISO-8859-1 is really the correct
