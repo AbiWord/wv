@@ -3891,33 +3891,12 @@ wvParseConfig (state_data * myhandle)
 	xmlSAXHandler hdl; /* flagrant copying from AbiWord */
 	xmlParserCtxtPtr ctxt;
 
-	hdl.internalSubset = NULL;
-	hdl.isStandalone = NULL;
-	hdl.hasInternalSubset = NULL;
-	hdl.hasExternalSubset = NULL;
-	hdl.resolveEntity = NULL;
+	memset(&hdl, 0, sizeof(hdl));
+
 	hdl.getEntity = _getEntity;
-	hdl.entityDecl = NULL;
-	hdl.notationDecl = NULL;
-	hdl.attributeDecl = NULL;
-	hdl.elementDecl = NULL;
-	hdl.unparsedEntityDecl = NULL;
-	hdl.setDocumentLocator = NULL;
-	hdl.startDocument = NULL;
-	hdl.endDocument = NULL;
 	hdl.startElement = startElement;
 	hdl.endElement = endElement;
-	hdl.reference = NULL;
 	hdl.characters = charData;
-	hdl.ignorableWhitespace = NULL;
-	hdl.processingInstruction = NULL;
-	hdl.comment = NULL;
-	hdl.warning = NULL;
-	hdl.error = NULL;
-	hdl.fatalError = NULL;
-	hdl.getParameterEntity = NULL;
-	hdl.cdataBlock = NULL;
-	hdl.externalSubset = NULL;
 
 	if (myhandle->fp)
 	{
