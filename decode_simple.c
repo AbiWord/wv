@@ -154,6 +154,8 @@ void wvDecodeSimple(wvParseStruct *ps)
 			if (j == char_fcFirst)
 				{
 				wvTrace("assembling CHP...\n");
+				// a CHP's base style is in the para style */
+				achp.istd = apap.istd;
 				wvAssembleSimpleCHP(&achp, char_fcLim, &char_fkp, &stsh);
 				wvTrace("CHP assembled.\n");
 				wvHandleElement(ps, CHARPROPBEGIN, (void*)&achp);

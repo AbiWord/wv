@@ -656,6 +656,21 @@ void wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
    CHPX *chpx;
    int index,i;
    UPXF upxf;
+   
+   /* initialize CHP to para's stylesheet character properties
+    * this should have resolved all the other stylesheet dependencies
+    * for us, when the stsh's were initialized. */
+
+   /* before this function was called, achp->istd should have
+    * been set to the current paragraph properties' stylesheet */
+   wvTrace("istd index is %d\n", achp->istd);
+   
+   /* make sure we have a semi-valid istd, though */
+   if (achp->istd < 0)
+     wvInitCHPFromIstd(achp, istdNil, stsh);
+   else 
+     wvInitCHPFromIstd(achp, achp->istd, stsh);
+
    /*index is the i in the text above*/
    /* the PAPX version of the function only looks at rgfc's, which are
     * the same for CHPX and PAPX FKPs, so we'll reuse the function */
@@ -663,17 +678,8 @@ void wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
    
    wvTrace("index is %d, using %d\n", index, index-1);
 
-   /* do we need to apply CHPXs from the current PAP's istd first? */
-
+   /* get CHPX */
    chpx = &(fkp->grpchpx[index-1]);
-   
-   if (chpx)
-     {
-	wvTrace("istd index is %d\n",chpx->istd);
-	wvInitCHPFromIstd(achp, chpx->istd, stsh);
-     }
-   else
-     wvInitCHPFromIstd(achp, istdNil, stsh);
 
    /* apply CHPX from FKP */
    if ((chpx) && (chpx->cbGrpprl > 0)) {
@@ -685,9 +691,6 @@ void wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
       upxf.upx.chpx.grpprl = chpx->grpprl;
       wvAddCHPXFromBucket(achp, &upxf, stsh);
    }
-   
-   if (chpx)
-     achp->istd = chpx->istd;
    
 }
 
