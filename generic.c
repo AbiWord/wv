@@ -80,7 +80,7 @@ wvMalloc (U32 size)
 	  exit (-1);
       }
 
-    // zero out the memory
+    /* zero out the memory */
     memset ( p, 0, size ) ;
 
     return p;
