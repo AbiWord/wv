@@ -175,13 +175,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
 	data->endcell = &ps->endcell;
 	data->vmerges = &ps->vmerges;
 	data->norows = &ps->norows;
-	if (i==0)
-		{
-		data->whichcell=0;
-		data->whichrow=0;
-		i++;
-		}
-
+	data->nextpap = &ps->nextpap;
 	data->charset = wvAutoCharset(&ps->clx);
 	data->props = props;
 
@@ -192,6 +186,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
 			break;
 		case PARAEND:
 			wvEndPara(data);
+			wvCopyPAP(&data->lastpap, (PAP*)(data->props));
 			break;
 		case SECTIONBEGIN:
 			wvBeginSection(data);

@@ -101,6 +101,19 @@ void wvInitBRC(BRC *abrc)
     abrc->reserved = 0;
     }
 
+int wvEqualBRC(BRC *a,BRC *b)
+    {
+    if (a->dptLineWidth == b->dptLineWidth)
+    	if (a->brcType == b->brcType)
+			if (a->ico == b->ico)
+			    if (a->dptSpace == b->dptSpace)
+				    if (a->fShadow == b->fShadow)
+				    	if (a->fFrame == b->fFrame)
+					    	if (a->reserved == b->reserved)
+								return(1);
+	return(0);
+    }
+
 void wvCopyBRC(BRC *dest, BRC *src)
     {
     dest->dptLineWidth = src->dptLineWidth;

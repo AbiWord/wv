@@ -32,7 +32,7 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 <left>left</left>
 <right>right</right>
 <center>center</center>
-<block>left</block>
+<block>justify</block>
 <asian>&lt;!--Could Someone who sees this tag tell me what was is this type of justification, asian languages only i thing--&gt;</asian>
 </justification>
 
@@ -43,6 +43,36 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 <UpperCaseN>type=&quot;A&quot;</UpperCaseN>
 <LowerCaseN>type=&quot;a&quot;</LowerCaseN>
 </numbering>
+
+<border>
+<noned>none</noned>
+<singled>solid</singled>
+<thickd>solid</thickd>
+<doubled>double</doubled>
+<number4d>double</number4d>
+<hairlined>solid</hairlined>
+<dotd>dotted</dotd>
+<dashlargegapd>dashed</dashlargegapd>
+<dotdashd>dotted</dotdashd>
+<dotdotdashd>dotted</dotdotdashd>
+<tripled>double</tripled>
+<thin-thicksmallgapd>dashed</thin-thicksmallgapd>
+<thick-thinsmallgapd>dashed</thick-thinsmallgapd>
+<thin-thick-thinsmallgapd>dashed</thin-thick-thinsmallgapd>
+<thin-thickmediumgapd>dashed</thin-thickmediumgapd>
+<thick-thinmediumgapd>dashed</thick-thinmediumgapd>
+<thin-thick-thinmediumgapd>dashed</thin-thick-thinmediumgapd>
+<thin-thicklargegapd>dashed</thin-thicklargegapd>
+<thick-thinlargegapd>dashed</thick-thinlargegapd>
+<thin-thick-thinlargegapd>dashed</thin-thick-thinlargegapd>
+<waved>solid</waved>
+<doublewaved>double</doublewaved>
+<dashsmallgapd>sashed</dashsmallgapd>
+<dashdotstrokedd>dashed</dashdotstrokedd>
+<emboss3Dd>ridge</emboss3Dd>
+<engrave3Dd>groove</engrave3Dd>
+<defaultd>ridge</defaultd>
+</border>
 
 <olist>
 <begin>&lt;ol <nfc/> start=&quot;<start/>&quot;&gt;
@@ -75,9 +105,6 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 <begin>&lt;td bgcolor=&quot;<cellbgcolor/>&quot; width=&quot;<cellwidth/>&quot; rowspan=&quot;<rowspan/>&quot; colspan=&quot;<colspan/>&quot;&gt;</begin>
 <end>&lt;/td&gt;</end>
 </cell>
-
-
-
 
 <paragraph>
 <begin>
@@ -162,17 +189,17 @@ keep them for font face and do that later.
 <super><begin>&lt;sup&gt;</begin><end>&lt;/sup&gt;</end></super>
 <sub><begin>&lt;sub&gt;</begin><end>&lt;/sub&gt;</end></sub>
 
-<single><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></single>
-<word><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></word>
-<double><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></double>
-<dotted><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dotted>
-<hidden><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></hidden>
-<thick><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></thick>
-<dash><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dash>
-<dot><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dot>
-<dotdash><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dotdash>
-<dotdotdash><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dotdotdash>
-<wave><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></wave>
+<singleu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></singleu>
+<wordu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></wordu>
+<doubleu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></doubleu>
+<dottedu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dottedu>
+<hiddenu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></hiddenu>
+<thicku><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></thicku>
+<dashu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dashu>
+<dotu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dotu>
+<dotdashu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dotdashu>
+<dotdotdashu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dotdotdashu>
+<waveu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></waveu>
 
 <!--
 text whose properties have been changed since the last time revision marks have been accepted
@@ -249,24 +276,6 @@ or uncomment below to ignore it, the previous might even crash wv ?
 <end><ltgray.end/><dkgray.end/><dkyellow.end/><dkred.end/><dkmagenta.end/><dkgreen.end/><dkcyan.end/><dkblue.end/><white.end/><yellow.end/><red.end/><magenta.end/><green.end/><cyan.end/><blue.end/><black.end/>&lt;/font&gt;</end>
 </fontstr>
 
-<!--
-<character>
-<begin><PropRMark.begin/><DispFldRMark.begin/><animation.begin/><fontstr.begin/><bold.begin/><italic.begin/><strike.begin/><RMarkDel.begin/><outline.begin/><smallcaps.begin/><caps.begin/><vanish.begin/><RMark.begin/><shadow.begin/><lowercase.begin/><emboss.begin/><imprint.begin/><dstrike.begin/><super.begin/><sub.begin/><single.begin/><word.begin/><double.begin/><dotted.begin/><hidden.begin/><thick.begin/><dash.begin/><dot.begin/><dotdash.begin/><dotdotdash.begin/><wave.begin/></begin>
-<end><wave.end/><dotdotdash.end/><dotdash.end/><dot.end/><dash.end/><thick.end/><hidden.end/><dotted.end/><double.end/><word.end/><single.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/><animation.end/><DispFldRMark.end/><PropRMark.end/></end>
-</character>
-
-<text>
-<begin>
-&lt;div align=&quot;<just/>&quot;&gt;
-&lt;p&gt;
-</begin>
-<end>
-&lt;/p&gt;
-&lt;/div&gt;
-</end>
-</text>
--->
-
 <comment>
 <begin>
 &lt;a href=&quot;#comment<ibstAnno/> &quot;&gt;-&#45;&amp;gt;&lt;/a&gt;
@@ -277,14 +286,29 @@ or uncomment below to ignore it, the previous might even crash wv ?
 
 <style name="Normal">
 <character>
-<begin><PropRMark.begin/><DispFldRMark.begin/><animation.begin/><fontstr.begin/><bold.begin/><italic.begin/><strike.begin/><RMarkDel.begin/><outline.begin/><smallcaps.begin/><caps.begin/><vanish.begin/><RMark.begin/><shadow.begin/><lowercase.begin/><emboss.begin/><imprint.begin/><dstrike.begin/><super.begin/><sub.begin/><single.begin/><word.begin/><double.begin/><dotted.begin/><hidden.begin/><thick.begin/><dash.begin/><dot.begin/><dotdash.begin/><dotdotdash.begin/><wave.begin/></begin>
-<end><wave.end/><dotdotdash.end/><dotdash.end/><dot.end/><dash.end/><thick.end/><hidden.end/><dotted.end/><double.end/><word.end/><single.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/><animation.end/><DispFldRMark.end/><PropRMark.end/></end>
+<begin><PropRMark.begin/><DispFldRMark.begin/><animation.begin/><fontstr.begin/><bold.begin/><italic.begin/><strike.begin/><RMarkDel.begin/><outline.begin/><smallcaps.begin/><caps.begin/><vanish.begin/><RMark.begin/><shadow.begin/><lowercase.begin/><emboss.begin/><imprint.begin/><dstrike.begin/><super.begin/><sub.begin/><singleu.begin/><wordu.begin/><doubleu.begin/><dottedu.begin/><hiddenu.begin/><thicku.begin/><dashu.begin/><dotu.begin/><dotdashu.begin/><dotdotdashu.begin/><waveu.begin/></begin>
+<end><waveu.end/><dotdotdashu.end/><dotdashu.end/><dotu.end/><dashu.end/><thicku.end/><hiddenu.end/><dottedu.end/><doubleu.end/><wordu.end/><singleu.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/><animation.end/><DispFldRMark.end/><PropRMark.end/></end>
 </character>
+
+<!-- Netscape does handle this correctly yet, here is how each different side of the border should work.
+border-top: thin <bordertopstyle/> <bordertopcolor/>;
+border-left: thin <borderleftstyle/> <borderleftcolor/>;
+border-right: thin <borderrightstyle/> <borderrightcolor/>;
+border-bottom: thin <borderbottomstyle/> <borderbottomcolor/>
+-->
 
 <text>	
 <begin>
-&lt;div align=&quot;<just/>&quot;&gt;
-&lt;p&gt;
+&lt;div style=&quot;margin: <mmParaBefore/> <mmParaRight/> <mmParaAfter/> <mmParaLeft/>;
+border: thin <borderleftstyle/> <borderleftcolor/>;
+<!--
+border-top: thin <bordertopstyle/> <bordertopcolor/>;
+border-left: thin <borderleftstyle/> <borderleftcolor/>;
+border-right: thin <borderrightstyle/> <borderrightcolor/>;
+border-bottom: thin <borderbottomstyle/> <borderbottomcolor/>
+-->
+padding: <mmPadTop/> <mmPadRight/> <mmPadBottom/> <mmPadLeft/>; &quot;&gt;
+&lt;p style=&quot;text-indent: <mmParaLeft1/>; text-align: <just/>; line-height: <mmLineHeight/>; color: <parafgcolor/>; background-color: <parabgcolor/>; &quot;&gt;
 </begin>
 <end>
 &lt;/p&gt;
@@ -296,10 +320,9 @@ or uncomment below to ignore it, the previous might even crash wv ?
 <!--we need to be override the character properties-->
 <!--
 <style name="Normal">
-
 <character>
-<begin><PropRMark.begin/><DispFldRMark.begin/><animation.begin/><fontstr.begin/><bold.begin/><italic.begin/><strike.begin/><RMarkDel.begin/><outline.begin/><smallcaps.begin/><caps.begin/><vanish.begin/><RMark.begin/><shadow.begin/><lowercase.begin/><emboss.begin/><imprint.begin/><dstrike.begin/><super.begin/><sub.begin/><single.begin/><word.begin/><double.begin/><dotted.begin/><hidden.begin/><thick.begin/><dash.begin/><dot.begin/><dotdash.begin/><dotdotdash.begin/><wave.begin/></begin>
-<end><wave.end/><dotdotdash.end/><dotdash.end/><dot.end/><dash.end/><thick.end/><hidden.end/><dotted.end/><double.end/><word.end/><single.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/><animation.end/><DispFldRMark.end/><PropRMark.end/></end>
+<begin><PropRMark.begin/><DispFldRMark.begin/><animation.begin/><fontstr.begin/><bold.begin/><italic.begin/><strike.begin/><RMarkDel.begin/><outline.begin/><smallcaps.begin/><caps.begin/><vanish.begin/><RMark.begin/><shadow.begin/><lowercase.begin/><emboss.begin/><imprint.begin/><dstrike.begin/><super.begin/><sub.begin/><singleu.begin/><wordu.begin/><doubleu.begin/><dottedu.begin/><hiddenu.begin/><thicku.begin/><dashu.begin/><dotu.begin/><dotdashu.begin/><dotdotdashu.begin/><waveu.begin/></begin>
+<end><waveu.end/><dotdotdashu.end/><dotdashu.end/><dotu.end/><dashu.end/><thicku.end/><hiddenu.end/><dottedu.end/><doubleu.end/><wordu.end/><singleu.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/><animation.end/><DispFldRMark.end/><PropRMark.end/></end>
 </character>
 
 <text>	

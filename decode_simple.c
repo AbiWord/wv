@@ -25,6 +25,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	U8 chartype;
 	U16 eachchar;
 	U32 para_fcFirst, para_fcLim=0xffffffff;
+	U32 dummy,nextpara_fcLim=0xffffffff;
 	U32 char_fcFirst, char_fcLim=0xffffffff;
 	U32 section_fcFirst, section_fcLim=0xffffffff;
 	U32 comment_cpFirst=0xffffffffL,comment_cpLim=0xffffffffL;
@@ -201,6 +202,13 @@ void wvDecodeSimple(wvParseStruct *ps)
 			if (j == para_fcFirst)
 				{
 				para_dirty = wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
+			
+				/* test section */
+				wvReleasePAPX_FKP(&para_fkp);
+				wvGetSimpleParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&dummy,&nextpara_fcLim,para_fcLim, btePapx, posPapx, para_intervals, ps->mainfd);
+				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&ps->nextpap, nextpara_fcLim, &para_fkp, &ps->stsh);
+				/* end test section */
+
 				if ( (apap.fInTable) && (!apap.fTtp) )
 					{
 					wvGetFullTableInit(ps,para_intervals,btePapx,posPapx);

@@ -381,3 +381,44 @@ void wvGetPAPX(int version,PAPX *item,U32 offset,FILE *fd)
 		wvTrace(("papx byte is %x\n",item->grpprl[i-2]));
 		}
 	}
+
+
+int isPAPConform(PAP *current,PAP *previous)
+	{
+	if ((current) && (previous))
+		if (wvEqualBRC(&current->brcLeft,&previous->brcLeft))
+			if (wvEqualBRC(&current->brcRight,&previous->brcRight))
+				if (current->dxaWidth == previous->dxaWidth)
+					if (current->fInTable == previous->fInTable)
+						return(1);
+	return(0);
+	}
+
+
+
+
+void wvCopyConformPAP(PAP *dest,PAP *src)
+	{
+	if (src)
+		{
+#ifdef PURIFY
+		wvInitPAP(dest);
+#endif
+		dest->brcLeft = src->brcLeft;
+		dest->brcRight = src->brcRight;
+		dest->dxaWidth = src->dxaWidth;
+		dest->fInTable = src->fInTable;
+		}
+	else
+		wvInitPAP(dest);
+	}
+
+
+
+
+
+
+
+
+
+

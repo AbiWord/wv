@@ -17,8 +17,13 @@ float wvRelativeWidth(S16 width,SEP *asep)
 	
 float wvRelativeHeight(S16 height,SEP *asep)
 	{
-	float fheight = (float)(asep->yaPage - asep->dyaTop - asep->dyaBottom);
+	float fheight;
+	if (asep == NULL)
+		return(100.00);
+	fheight = (float)(asep->yaPage - asep->dyaTop - asep->dyaBottom);
 	fheight = height/fheight*100;
+	if (fheight > 100.00)
+		fheight = 100.00;
 	return(fheight);
 	}
 

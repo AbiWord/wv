@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "wv.h"
 #include "wvinternal.h"
 #include "xmlparse.h"
@@ -93,11 +94,31 @@ TokenTable s_Tokens[] =
 	{	"cellwidth",	 TT_CELLWIDTH		},
     {   "rowspan",       TT_ROWSPAN      	},
     {   "cellbgcolor",   TT_CELLBGCOLOR     },
+    {   "parabgcolor",   TT_PARABGCOLOR     },
+    {   "parafgcolor",   TT_PARAFGCOLOR     },
     {   "tablerelwidth", TT_TABLERELWIDTH	},
 	{	"style",		 TT_STYLE			},
 	{	"comment",		 TT_COMMENT			},
 	{	"ibstanno",		 TT_IBSTANNO		},
 	{	"xstUsrInitl",	 TT_xstUsrInitl		},
+	{	"mmParaBefore",	 TT_mmParaBefore	},
+	{	"mmParaAfter",	 TT_mmParaAfter		},
+	{	"mmParaLeft",	 TT_mmParaLeft		},
+	{	"mmParaRight",	 TT_mmParaRight		},
+	{	"mmParaLeft1",	 TT_mmParaLeft1		},
+	{	"bordertopstyle",TT_BORDERTopSTYLE	},
+	{	"bordertopcolor",TT_BORDERTopCOLOR	},
+	{	"borderleftstyle",TT_BORDERLeftSTYLE	},
+	{	"borderleftcolor",TT_BORDERLeftCOLOR	},
+	{	"borderrightstyle",TT_BORDERRightSTYLE},
+	{	"borderrightcolor",TT_BORDERRightCOLOR},
+	{	"borderbottomstyle",TT_BORDERBottomSTYLE},
+	{	"borderbottomcolor",TT_BORDERBottomCOLOR},
+	{	"mmPadTop",			TT_mmPadTop		},
+	{	"mmPadRight",		TT_mmPadRight	},
+	{	"mmPadBottom",		TT_mmPadBottom	},
+	{	"mmPadLeft",		TT_mmPadLeft	},
+	{	"mmLineHeight",		TT_mmLineHeight},
 
     {   "document",      TT_DOCUMENT     	},
 	 {   "section",       TT_SECTION     	},
@@ -187,39 +208,39 @@ TokenTable s_Tokens[] =
 		{	"sub",	 	 	 TT_SUB,			},
 		 {	"sub.begin", 	 TT_SUBB,			},
 		 {	"sub.end", 	 	 TT_SUBE,			},
-		{	"single",	 	 TT_SINGLE,			},
-		 {	"single.begin",  TT_SINGLEB,		},
-		 {	"single.end", 	 TT_SINGLEE,		},
-		{	"word",	 	 	 TT_WORD,			},
-		 {	"word.begin", 	 TT_WORDB,			},
-		 {	"word.end", 	 TT_WORDE,			},
-		{	"double",	 	 TT_DOUBLE,			},
-		 {	"double.begin",  TT_DOUBLEB,		},
-		 {	"double.end", 	 TT_DOUBLEE,		},
-		{	"dotted",	 	 TT_DOTTED,			},
-		 {	"dotted.begin",  TT_DOTTEDB,		},
-		 {	"dotted.end", 	 TT_DOTTEDE,		},
-		{	"hidden",	 	 TT_HIDDEN,			},
-		 {	"hidden.begin",  TT_HIDDENB,		},
-		 {	"hidden.end", 	 TT_HIDDENE,		},
-		{	"thick",	 	 TT_THICK,			},
-		 {	"thick.begin", 	 TT_THICKB,			},
-		 {	"thick.end", 	 TT_THICKE,			},
-		{	"dash",	 	 	 TT_DASH,			},
-		 {	"dash.begin", 	 TT_DASHB,			},
-		 {	"dash.end", 	 TT_DASHE,			},
-		{	"dot",	 	 	 TT_DOT,			},
-		 {	"dot.begin", 	 TT_DOTB,			},
-		 {	"dot.end", 	 	 TT_DOTE,			},
-		{	"dotdash",	 	 TT_DOTDASH,		},
-		 {	"dotdash.begin", TT_DOTDASHB,		},
-		 {	"dotdash.end", 	 TT_DOTDASHE,		},
-		{	"dotdotdash",	 TT_DOTDOTDASH,		},
-		 {	"dotdotdash.begin",TT_DOTDOTDASHB,	},
-		 {	"dotdotdash.end",TT_DOTDOTDASHE,	},
-		{	"wave",	 	 	 TT_WAVE,			},
-		 {	"wave.begin", 	 TT_WAVEB,			},
-		 {	"wave.end", 	 TT_WAVEE,			},
+		{	"singleu",	 	 TT_SINGLEU,		},
+		 {	"singleu.begin", TT_SINGLEUB,		},
+		 {	"singleu.end", 	 TT_SINGLEUE,		},
+		{	"wordu",	 	 TT_WORDU,			},
+		 {	"wordu.begin", 	 TT_WORDUB,			},
+		 {	"wordu.end", 	 TT_WORDUE,			},
+		{	"doubleu",	 	 TT_DOUBLEU,			},
+		 {	"doubleu.begin", TT_DOUBLEUB,		},
+		 {	"doubleu.end", 	 TT_DOUBLEUE,		},
+		{	"dottedu",	 	 TT_DOTTEDU,			},
+		 {	"dottedu.begin", TT_DOTTEDUB,		},
+		 {	"dottedu.end", 	 TT_DOTTEDUE,		},
+		{	"hiddenu",	 	 TT_HIDDENU,			},
+		 {	"hiddenu.begin", TT_HIDDENUB,		},
+		 {	"hiddenu.end", 	 TT_HIDDENUE,		},
+		{	"thicku",	 	 TT_THICKU,			},
+		 {	"thicku.begin",  TT_THICKUB,			},
+		 {	"thicku.end", 	 TT_THICKUE,			},
+		{	"dashu",	 	 TT_DASHU,			},
+		 {	"dashu.begin", 	 TT_DASHUB,			},
+		 {	"dashu.end", 	 TT_DASHUE,			},
+		{	"dotu",	 	 	 TT_DOTU,			},
+		 {	"dotu.begin", 	 TT_DOTUB,			},
+		 {	"dotu.end", 	 TT_DOTUE,			},
+		{	"dotdashu",	 	 TT_DOTDASHU,		},
+		 {	"dotdashu.begin",TT_DOTDASHUB,		},
+		 {	"dotdashu.end",  TT_DOTDASHUE,		},
+		{	"dotdotdashu",	 TT_DOTDOTDASHU,		},
+		 {	"dotdotdashu.begin",TT_DOTDOTDASHUB,	},
+		 {	"dotdotdashu.end",TT_DOTDOTDASHUE,	},
+		{	"waveu",	 	 TT_WAVEU,			},
+		 {	"waveu.begin", 	 TT_WAVEUB,			},
+		 {	"waveu.end", 	 TT_WAVEUE,			},
 		{	"black",	 	 TT_BLACK,			},
 		 {	"black.begin", 	 TT_BLACKB,			},
 		 {	"black.end", 	 TT_BLACKE,			},
@@ -310,8 +331,34 @@ TokenTable s_Tokens[] =
 		{	"ibstDispFldRMark", TT_ibstDispFldRMark,},
 		{	"dttmDispFldRMark", TT_dttmDispFldRMark,},
 		{	"xstDispFldRMark",	TT_xstDispFldRMark,},
-
-
+		{	"border",			TT_BORDER,			},
+		{	"noned",			TT_NONED,			},
+		{	"singled",			TT_SINGLED,			},
+		{	"thickd",			TT_THICKD,			},
+		{	"doubled",			TT_DOUBLED,			},
+		{	"number4d",			TT_NUMBER4D,		},
+		{	"hairlined",		TT_HAIRLINED,		},
+		{	"dotd",				TT_DOTD,			},
+		{	"dashlargegapd",	TT_DASHLARGEGAPD,	},
+		{	"dotdashd",			TT_DOTDASHD,		},
+		{	"dotdotdashd",		TT_DOTDOTDASHD,		},
+		{	"tripled",			TT_TRIPLED,			},
+		{	"thin-thicksmallgapd",			TT_thin_thicksmallgapD,			},
+		{	"thick-thinsmallgapd",			TT_thick_thinsmallgapD,			},
+		{	"thin-thick-thinsmallgapd",		TT_thin_thick_thinsmallgapD,			},
+		{	"thin-thickmediumgapd",			TT_thin_thickmediumgapD,			},
+		{	"thick-thinmediumgapd",			TT_thick_thinmediumgapD,			},
+		{	"thin-thick-thinmediumgapd",	TT_thin_thick_thinmediumgapD,			},
+		{	"thin-thicklargegapd",			TT_thin_thicklargegapD,			},
+		{	"thick-thinlargegapd",			TT_thick_thinlargegapD,			},
+		{	"thin-thick-thinlargegapd",		TT_thin_thick_thinlargegapD,			},
+		{	"waved",			TT_WAVED,			},
+		{	"doublewaved",			TT_DOUBLEWAVED,			},
+		{	"dashsmallgapd",			TT_DASHSMALLGAPD,			},
+		{	"dashdotstrokedd",			TT_DASHDOTSTROKEDD,			},
+		{	"emboss3Dd",			TT_EMBOSS3DD,			},
+		{	"engrave3Dd",			TT_ENGRAVE3DD,			},
+		{	"defaultd",			TT_DEFAULTD,			},
     {   "*",             TT_OTHER        	} /* must be last */
 };
 
@@ -434,10 +481,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_CELLBGCOLOR:
 			k = wvCellBgColor(mydata->whichrow,mydata->whichcell,((PAP *)(mydata->props))->ptap.itcMac,*(mydata->norows),&(((PAP *)(mydata->props))->ptap.tlp)); 
-			if (k<1)
-				return;
-			wvTrace(("color is %s\n",mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0]));
-
+			if (k==0) k = 8;
 			text = (char *)malloc(strlen(mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0])+1); 
 			strcpy(text,mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0]); 
 			str = mydata->retstring; 
@@ -447,11 +491,32 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->retstring = str; 
 			wvFree(text); 
 			mydata->currentlen = strlen(mydata->retstring); 
-			/*	
-			sprintf(buffer,"%s","Green");
-			wvAppendStr(&mydata->retstring,buffer);
-			mydata->currentlen = strlen(mydata->retstring);
-			*/
+			break;
+		case TT_PARABGCOLOR:
+			k = ((PAP *)(mydata->props))->shd.icoBack;
+			if (k==0) k = 8;
+			text = (char *)malloc(strlen(mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0])+1); 
+			strcpy(text,mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0]); 
+			str = mydata->retstring; 
+			wvExpand(mydata,text,strlen(text)); 
+			wvAppendStr(&str,mydata->retstring); 
+			wvFree(mydata->retstring); 
+			mydata->retstring = str; 
+			wvFree(text); 
+			mydata->currentlen = strlen(mydata->retstring); 
+			break;
+		case TT_PARAFGCOLOR:
+			k = ((PAP *)(mydata->props))->shd.icoFore;
+			if (k==0) k = 1;
+			text = (char *)malloc(strlen(mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0])+1); 
+			strcpy(text,mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0]); 
+			str = mydata->retstring; 
+			wvExpand(mydata,text,strlen(text)); 
+			wvAppendStr(&str,mydata->retstring); 
+			wvFree(mydata->retstring); 
+			mydata->retstring = str; 
+			wvFree(text); 
+			mydata->currentlen = strlen(mydata->retstring); 
 			break;
 		case TT_CELLWIDTH:
 			{
@@ -524,6 +589,169 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			text = (char *)malloc(strlen(mydata->sd->elements[TT_JUSTIFICATION].str[((PAP*)(mydata->props))->jc])+1);
 			wvTrace(("the just is %d\n",((PAP*)(mydata->props))->jc));
 			strcpy(text,mydata->sd->elements[TT_JUSTIFICATION].str[((PAP*)(mydata->props))->jc]);
+			str = mydata->retstring;
+			wvExpand(mydata,text,strlen(text));
+			wvAppendStr(&str,mydata->retstring);
+			wvFree(mydata->retstring);
+			mydata->retstring = str;
+			wvFree(text);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_BORDERTopSTYLE:
+			if (isPAPConform(&mydata->lastpap,(PAP*)(mydata->props)))
+				{
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBetween.brcType])+1);
+				strcpy(text,mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBetween.brcType]);
+				}
+			else
+				{
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcTop.brcType])+1);
+				strcpy(text,mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcTop.brcType]);
+				}
+			str = mydata->retstring;
+			wvExpand(mydata,text,strlen(text));
+			wvAppendStr(&str,mydata->retstring);
+			wvFree(mydata->retstring);
+			mydata->retstring = str;
+			wvFree(text);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_BORDERLeftSTYLE:
+			text = (char *)malloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcLeft.brcType])+1);
+			strcpy(text,mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcLeft.brcType]);
+			str = mydata->retstring;
+			wvExpand(mydata,text,strlen(text));
+			wvAppendStr(&str,mydata->retstring);
+			wvFree(mydata->retstring);
+			mydata->retstring = str;
+			wvFree(text);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_BORDERRightSTYLE:
+			text = (char *)malloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcRight.brcType])+1);
+			strcpy(text,mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcRight.brcType]);
+			str = mydata->retstring;
+			wvExpand(mydata,text,strlen(text));
+			wvAppendStr(&str,mydata->retstring);
+			wvFree(mydata->retstring);
+			mydata->retstring = str;
+			wvFree(text);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_BORDERBottomSTYLE:
+			if (isPAPConform(mydata->nextpap,(PAP*)(mydata->props)))
+				{
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBetween.brcType])+1);
+				strcpy(text,mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBetween.brcType]);
+				}
+			else
+				{
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBottom.brcType])+1);
+				strcpy(text,mydata->sd->elements[TT_BORDER].str[((PAP*)(mydata->props))->brcBottom.brcType]);
+				}
+			str = mydata->retstring;
+			wvExpand(mydata,text,strlen(text));
+			wvAppendStr(&str,mydata->retstring);
+			wvFree(mydata->retstring);
+			mydata->retstring = str;
+			wvFree(text);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_BORDERTopCOLOR:
+			if (isPAPConform(&mydata->lastpap,(PAP*)(mydata->props)))
+				{
+				if (((PAP*)(mydata->props))->brcBetween.ico==0)
+					{
+					/* temp fix this in a while */
+					((PAP*)(mydata->props))->brcBetween.ico++;
+					}
+				text = (char *)malloc(strlen(
+				mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcBetween.ico-1)*3)].str[0]
+				)+1);
+				strcpy(text,mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcBetween.ico-1)*3)].str[0]);
+				}
+			else
+				{
+				if (((PAP*)(mydata->props))->brcTop.ico==0)
+					{
+					/* temp fix this in a while */
+					((PAP*)(mydata->props))->brcTop.ico++;
+					}
+				text = (char *)malloc(strlen(
+				mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcTop.ico-1)*3)].str[0]
+				)+1);
+				strcpy(text,mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcTop.ico-1)*3)].str[0]);
+				}
+			
+			str = mydata->retstring;
+			wvExpand(mydata,text,strlen(text));
+			wvAppendStr(&str,mydata->retstring);
+			wvFree(mydata->retstring);
+			mydata->retstring = str;
+			wvFree(text);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_BORDERLeftCOLOR:
+			if (((PAP*)(mydata->props))->brcLeft.ico==0)
+				{
+				/* temp fix this in a while */
+				((PAP*)(mydata->props))->brcLeft.ico++;
+				}
+			text = (char *)malloc(strlen(
+			mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcLeft.ico-1)*3)].str[0]
+			)+1);
+			strcpy(text,mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcLeft.ico-1)*3)].str[0]);
+			str = mydata->retstring;
+			wvExpand(mydata,text,strlen(text));
+			wvAppendStr(&str,mydata->retstring);
+			wvFree(mydata->retstring);
+			mydata->retstring = str;
+			wvFree(text);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_BORDERRightCOLOR:
+			if (((PAP*)(mydata->props))->brcRight.ico==0)
+				{
+				/* temp fix this in a while */
+				((PAP*)(mydata->props))->brcRight.ico++;
+				}
+			text = (char *)malloc(strlen(
+			mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcRight.ico-1)*3)].str[0]
+			)+1);
+			strcpy(text,mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcRight.ico-1)*3)].str[0]);
+			str = mydata->retstring;
+			wvExpand(mydata,text,strlen(text));
+			wvAppendStr(&str,mydata->retstring);
+			wvFree(mydata->retstring);
+			mydata->retstring = str;
+			wvFree(text);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_BORDERBottomCOLOR:
+			if (isPAPConform(mydata->nextpap,(PAP*)(mydata->props)))
+				{
+				if (((PAP*)(mydata->props))->brcBetween.ico==0)
+					{
+					/* temp fix this in a while */
+					((PAP*)(mydata->props))->brcBetween.ico++;
+					}
+				text = (char *)malloc(strlen(
+				mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcBetween.ico-1)*3)].str[0]
+				)+1);
+				strcpy(text,mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcBetween.ico-1)*3)].str[0]);
+				}
+			else
+				{
+				if (((PAP*)(mydata->props))->brcBottom.ico==0)
+					{
+					/* temp fix this in a while */
+					((PAP*)(mydata->props))->brcBottom.ico++;
+					}
+				text = (char *)malloc(strlen(
+				mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcBottom.ico-1)*3)].str[0]
+				)+1);
+				strcpy(text,mydata->sd->elements[TT_BLACK+((((PAP*)(mydata->props))->brcBottom.ico-1)*3)].str[0]);
+				}
 			str = mydata->retstring;
 			wvExpand(mydata,text,strlen(text));
 			wvAppendStr(&str,mydata->retstring);
@@ -956,18 +1184,18 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			HANDLE_E_CHAR_ELE(s_Tokens[tokenIndex].m_type-2,iss,iss,(s_Tokens[tokenIndex].m_type-TT_SUPERE)/3+1)
 			break;
 
-		case TT_SINGLEB:
-		case TT_WORDB:
-		case TT_DOUBLEB:
-		case TT_DOTTEDB:
-		case TT_HIDDENB:
-		case TT_THICKB:
-		case TT_DASHB:
-		case TT_DOTB:
-		case TT_DOTDASHB:
-		case TT_DOTDOTDASHB:
-		case TT_WAVEB:
-			HANDLE_B_CHAR_ELE(s_Tokens[tokenIndex].m_type-1,kul,kul,(s_Tokens[tokenIndex].m_type-TT_SINGLEB)/3+1)
+		case TT_SINGLEUB:
+		case TT_WORDUB:
+		case TT_DOUBLEUB:
+		case TT_DOTTEDUB:
+		case TT_HIDDENUB:
+		case TT_THICKUB:
+		case TT_DASHUB:
+		case TT_DOTUB:
+		case TT_DOTDASHUB:
+		case TT_DOTDOTDASHUB:
+		case TT_WAVEUB:
+			HANDLE_B_CHAR_ELE(s_Tokens[tokenIndex].m_type-1,kul,kul,(s_Tokens[tokenIndex].m_type-TT_SINGLEUB)/3+1)
 			break;
 
 		case TT_BLACKB:
@@ -990,18 +1218,18 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			break;
 
 
-		case TT_SINGLEE:
-		case TT_WORDE:
-		case TT_DOUBLEE:
-		case TT_DOTTEDE:
-		case TT_HIDDENE:
-		case TT_THICKE:
-		case TT_DASHE:
-		case TT_DOTE:
-		case TT_DOTDASHE:
-		case TT_DOTDOTDASHE:
-		case TT_WAVEE:
-			HANDLE_E_CHAR_ELE(s_Tokens[tokenIndex].m_type-2,kul,kul,(s_Tokens[tokenIndex].m_type-TT_SINGLEE)/3+1)
+		case TT_SINGLEUE:
+		case TT_WORDUE:
+		case TT_DOUBLEUE:
+		case TT_DOTTEDUE:
+		case TT_HIDDENUE:
+		case TT_THICKUE:
+		case TT_DASHUE:
+		case TT_DOTUE:
+		case TT_DOTDASHUE:
+		case TT_DOTDOTDASHUE:
+		case TT_WAVEUE:
+			HANDLE_E_CHAR_ELE(s_Tokens[tokenIndex].m_type-2,kul,kul,(s_Tokens[tokenIndex].m_type-TT_SINGLEUE)/3+1)
 			break;
 
 		case TT_BLACKE:
@@ -1126,7 +1354,70 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
-			
+		case TT_mmParaBefore:
+			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dyaBefore));
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_mmParaAfter:
+			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dyaAfter));
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_mmParaLeft:
+			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dxaLeft));
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_mmParaRight:
+			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dxaRight));
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_mmParaLeft1:
+			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dxaLeft1));
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_mmPadTop:
+			if (isPAPConform(&mydata->lastpap,(PAP*)(mydata->props)))
+				sprintf(buffer,"%.2fmm",wvPointsToMM(((PAP*)(mydata->props))->brcBetween.dptSpace));
+			else
+				sprintf(buffer,"%.2fmm",wvPointsToMM(((PAP*)(mydata->props))->brcTop.dptSpace));
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_mmPadRight:
+			sprintf(buffer,"%.2fmm",wvPointsToMM(((PAP*)(mydata->props))->brcRight.dptSpace));
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_mmPadBottom:
+			if (isPAPConform(mydata->nextpap,(PAP*)(mydata->props)))
+				sprintf(buffer,"%.2fmm",wvPointsToMM(((PAP*)(mydata->props))->brcBetween.dptSpace));
+			else
+				sprintf(buffer,"%.2fmm",wvPointsToMM(((PAP*)(mydata->props))->brcBottom.dptSpace));
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_mmPadLeft:
+			sprintf(buffer,"%.2fmm",wvPointsToMM(((PAP*)(mydata->props))->brcLeft.dptSpace));
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_mmLineHeight:
+			/*
+			((PAP*)(mydata->props))->lspd.dyaLine
+			((PAP*)(mydata->props))->lspd.fMultLinespace
+			*/
+
+			if (wvTwipsToMM(((PAP*)(mydata->props))->lspd.dyaLine))
+				sprintf(buffer,"%fmm",fabs(wvTwipsToMM(((PAP*)(mydata->props))->lspd.dyaLine)));
+			else
+				sprintf(buffer,"normal");
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			break;
 		case TT_ibstRMark:
 			sprintf(buffer,"%d",((CHP*)(mydata->props))->ibstRMark);
 			wvAppendStr(&mydata->retstring,buffer);
@@ -1306,17 +1597,17 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_DSTRIKE:
 		case TT_SUPER:
 		case TT_SUB:
-		case TT_SINGLE:
-		case TT_WORD:
-		case TT_DOUBLE:
-		case TT_DOTTED:
-		case TT_HIDDEN:
-		case TT_THICK:
-		case TT_DASH:
-		case TT_DOT:
-		case TT_DOTDASH:
-		case TT_DOTDOTDASH:
-		case TT_WAVE:
+		case TT_SINGLEU:
+		case TT_WORDU:
+		case TT_DOUBLEU:
+		case TT_DOTTEDU:
+		case TT_HIDDENU:
+		case TT_THICKU:
+		case TT_DASHU:
+		case TT_DOTU:
+		case TT_DOTDASHU:
+		case TT_DOTDOTDASHU:
+		case TT_WAVEU:
 		case TT_BLACK:
 		case TT_BLUE:
 		case TT_CYAN:
@@ -1379,6 +1670,13 @@ void startElement(void *userData, const char *name, const char **atts)
 				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
+		case TT_BORDER:
+			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*27);
+			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=27;
+			for(i=0;i<27;i++)
+				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
+			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
+			break;
 
 		case TT_STYLE:
 			wvTrace(("style element, no atts is %d\n",nAtts));
@@ -1389,6 +1687,7 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_BEGIN:
 		case TT_LEFT:
 		case TT_Arabic:
+		case TT_NONED:
 			mydata->current = &(mydata->currentele->str[0]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -1396,25 +1695,55 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_END:
 		case TT_CENTER:
 		case TT_UpperRoman:
+		case TT_SINGLED:
 			mydata->current = &(mydata->currentele->str[1]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_RIGHT:
 		case TT_LowerRoman:
+		case TT_THICKD:
 			mydata->current = &(mydata->currentele->str[2]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_BLOCK:
 		case TT_UpperCaseN:
+		case TT_DOUBLED:
 			mydata->current = &(mydata->currentele->str[3]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_ASIAN:
 		case TT_LowerCaseN:
+		case TT_NUMBER4D:
 			mydata->current = &(mydata->currentele->str[4]);
+			wvAppendStr(mydata->current,"<begin>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_HAIRLINED:
+		case TT_DOTD:
+		case TT_DASHLARGEGAPD:
+		case TT_DOTDASHD:
+		case TT_DOTDOTDASHD:
+		case TT_TRIPLED:
+		case TT_thin_thicksmallgapD:
+		case TT_thick_thinsmallgapD:
+		case TT_thin_thick_thinsmallgapD:
+		case TT_thin_thickmediumgapD:
+		case TT_thick_thinmediumgapD:
+		case TT_thin_thick_thinmediumgapD:
+		case TT_thin_thicklargegapD:
+		case TT_thick_thinlargegapD:
+		case TT_thin_thick_thinlargegapD:
+		case TT_WAVED:
+		case TT_DOUBLEWAVED:
+		case TT_DASHSMALLGAPD:
+		case TT_DASHDOTSTROKEDD:
+		case TT_EMBOSS3DD:
+		case TT_ENGRAVE3DD:
+		case TT_DEFAULTD:
+			mydata->current = &(mydata->currentele->str[5+(s_Tokens[tokenIndex].m_type-TT_HAIRLINED)]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
@@ -1440,6 +1769,14 @@ void startElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_CELLBGCOLOR:
 			wvAppendStr(mydata->current,"<cellbgcolor/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_PARABGCOLOR:
+			wvAppendStr(mydata->current,"<parabgcolor/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_PARAFGCOLOR:
+			wvAppendStr(mydata->current,"<parafgcolor/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_ROWSPAN:
@@ -1590,6 +1927,38 @@ void startElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(mydata->current,"<just/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
+		case TT_BORDERTopSTYLE:
+			wvAppendStr(mydata->current,"<bordertopstyle/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_BORDERTopCOLOR:
+			wvAppendStr(mydata->current,"<bordertopcolor/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_BORDERLeftSTYLE:
+			wvAppendStr(mydata->current,"<borderleftstyle/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_BORDERLeftCOLOR:
+			wvAppendStr(mydata->current,"<borderleftcolor/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_BORDERRightSTYLE:
+			wvAppendStr(mydata->current,"<borderrightstyle/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_BORDERRightCOLOR:
+			wvAppendStr(mydata->current,"<borderrightcolor/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_BORDERBottomSTYLE:
+			wvAppendStr(mydata->current,"<borderbottomstyle/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_BORDERBottomCOLOR:
+			wvAppendStr(mydata->current,"<borderbottomcolor/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
 		case TT_nfc:
 			wvAppendStr(mydata->current,"<nfc/>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -1602,92 +1971,93 @@ void startElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(mydata->current,"<color.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_SINGLEB:
-			wvAppendStr(mydata->current,"<single.begin/>");
+
+		case TT_SINGLEUB:
+			wvAppendStr(mydata->current,"<singleu.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_WORDB:
-			wvAppendStr(mydata->current,"<word.begin/>");
+		case TT_WORDUB:
+			wvAppendStr(mydata->current,"<wordu.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_DOUBLEB:
-			wvAppendStr(mydata->current,"<double.begin/>");
+		case TT_DOUBLEUB:
+			wvAppendStr(mydata->current,"<doubleu.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_DOTTEDB:
-			wvAppendStr(mydata->current,"<dotted.begin/>");
+		case TT_DOTTEDUB:
+			wvAppendStr(mydata->current,"<dottedu.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_HIDDENB:
-			wvAppendStr(mydata->current,"<hidden.begin/>");
+		case TT_HIDDENUB:
+			wvAppendStr(mydata->current,"<hiddenu.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_THICKB:
-			wvAppendStr(mydata->current,"<thick.begin/>");
+		case TT_THICKUB:
+			wvAppendStr(mydata->current,"<thicku.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_DASHB:
-			wvAppendStr(mydata->current,"<dash.begin/>");
+		case TT_DASHUB:
+			wvAppendStr(mydata->current,"<dashu.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_DOTB:
-			wvAppendStr(mydata->current,"<dot.begin/>");
+		case TT_DOTUB:
+			wvAppendStr(mydata->current,"<dotu.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_DOTDASHB:
-			wvAppendStr(mydata->current,"<dotdash.begin/>");
+		case TT_DOTDASHUB:
+			wvAppendStr(mydata->current,"<dotdashu.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_DOTDOTDASHB:
-			wvAppendStr(mydata->current,"<dotdotdash.begin/>");
+		case TT_DOTDOTDASHUB:
+			wvAppendStr(mydata->current,"<dotdotdashu.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_WAVEB:
-			wvAppendStr(mydata->current,"<wave.begin/>");
+		case TT_WAVEUB:
+			wvAppendStr(mydata->current,"<waveu.begin/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_SINGLEE:
-			wvAppendStr(mydata->current,"<single.end/>");
+		case TT_SINGLEUE:
+			wvAppendStr(mydata->current,"<singleu.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_WORDE:
-			wvAppendStr(mydata->current,"<word.end/>");
+		case TT_WORDUE:
+			wvAppendStr(mydata->current,"<wordu.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_DOUBLEE:
-			wvAppendStr(mydata->current,"<double.end/>");
+		case TT_DOUBLEUE:
+			wvAppendStr(mydata->current,"<doubleu.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_DOTTEDE:
-			wvAppendStr(mydata->current,"<dotted.end/>");
+		case TT_DOTTEDUE:
+			wvAppendStr(mydata->current,"<dottedu.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_HIDDENE:
-			wvAppendStr(mydata->current,"<hidden.end/>");
+		case TT_HIDDENUE:
+			wvAppendStr(mydata->current,"<hiddenu.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_THICKE:
-			wvAppendStr(mydata->current,"<thick.end/>");
+		case TT_THICKUE:
+			wvAppendStr(mydata->current,"<thicku.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_DASHE:
-			wvAppendStr(mydata->current,"<dash.end/>");
+		case TT_DASHUE:
+			wvAppendStr(mydata->current,"<dashu.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_DOTE:
-			wvAppendStr(mydata->current,"<dot.end/>");
+		case TT_DOTUE:
+			wvAppendStr(mydata->current,"<dotu.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_DOTDASHE:
-			wvAppendStr(mydata->current,"<dotdash.end/>");
+		case TT_DOTDASHUE:
+			wvAppendStr(mydata->current,"<dotdashu.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_DOTDOTDASHE:
-			wvAppendStr(mydata->current,"<dotdotdash.end/>");
+		case TT_DOTDOTDASHUE:
+			wvAppendStr(mydata->current,"<dotdotdashu.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
-		case TT_WAVEE:
-			wvAppendStr(mydata->current,"<wave.end/>");
+		case TT_WAVEUE:
+			wvAppendStr(mydata->current,"<waveu.end/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 
@@ -1847,6 +2217,48 @@ void startElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(mydata->current,"<xstUsrInitl/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
+		case TT_mmParaBefore:
+			wvAppendStr(mydata->current,"<mmParaBefore/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_mmParaAfter:
+			wvAppendStr(mydata->current,"<mmParaAfter/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_mmParaLeft:
+			wvAppendStr(mydata->current,"<mmParaLeft/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_mmParaRight:
+			wvAppendStr(mydata->current,"<mmParaRight/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_mmParaLeft1:
+			wvAppendStr(mydata->current,"<mmParaLeft1/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_mmPadTop:
+			wvAppendStr(mydata->current,"<mmPadTop/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_mmPadRight:
+			wvAppendStr(mydata->current,"<mmPadRight/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_mmPadBottom:
+			wvAppendStr(mydata->current,"<mmPadBottom/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_mmPadLeft:
+			wvAppendStr(mydata->current,"<mmPadLeft/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_mmLineHeight:
+			wvAppendStr(mydata->current,"<mmLineHeight/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+			
+			
 
 		case TT_ibstRMark:
 			wvAppendStr(mydata->current,"<ibstrmark/>");
@@ -2032,6 +2444,33 @@ void endElement(void *userData, const char *name)
 		case TT_LowerRoman:
 		case TT_UpperCaseN:
 		case TT_LowerCaseN:
+		case TT_NONED:
+		case TT_SINGLED:
+		case TT_THICKD:
+		case TT_DOUBLED:
+		case TT_NUMBER4D:
+		case TT_HAIRLINED:
+		case TT_DOTD:
+		case TT_DASHLARGEGAPD:
+		case TT_DOTDASHD:
+		case TT_DOTDOTDASHD:
+		case TT_TRIPLED:
+		case TT_thin_thicksmallgapD:
+		case TT_thick_thinsmallgapD:
+		case TT_thin_thick_thinsmallgapD:
+		case TT_thin_thickmediumgapD:
+		case TT_thick_thinmediumgapD:
+		case TT_thin_thick_thinmediumgapD:
+		case TT_thin_thicklargegapD:
+		case TT_thick_thinlargegapD:
+		case TT_thin_thick_thinlargegapD:
+		case TT_WAVED:
+		case TT_DOUBLEWAVED:
+		case TT_DASHSMALLGAPD:
+		case TT_DASHDOTSTROKEDD:
+		case TT_EMBOSS3DD:
+		case TT_ENGRAVE3DD:
+		case TT_DEFAULTD:
 			wvAppendStr(mydata->current,"</begin>");
 			wvTrace(("When we finish the str is %s\n",*(mydata->current)));
 			mydata->currentlen=0;
@@ -2043,9 +2482,19 @@ void endElement(void *userData, const char *name)
 		case TT_CELLWIDTH:
 		case TT_ROWSPAN:
 		case TT_CELLBGCOLOR:
+		case TT_PARABGCOLOR:
+		case TT_PARAFGCOLOR:
 		case TT_TABLERELWIDTH:
 		case TT_VERSION:
 		case TT_JUST:
+		case TT_BORDERTopSTYLE:
+		case TT_BORDERTopCOLOR:
+		case TT_BORDERLeftSTYLE:
+		case TT_BORDERLeftCOLOR:
+		case TT_BORDERRightSTYLE:
+		case TT_BORDERRightCOLOR:
+		case TT_BORDERBottomSTYLE:
+		case TT_BORDERBottomCOLOR:
 		case TT_nfc:
 		case TT_START:
 		case TT_BOLDB:
@@ -2080,28 +2529,30 @@ void endElement(void *userData, const char *name)
 		case TT_SUPERE:
 		case TT_SUBB:
 		case TT_SUBE:
-		case TT_SINGLEB:
-		case TT_WORDB:
-		case TT_DOUBLEB:
-		case TT_DOTTEDB:
-		case TT_HIDDENB:
-		case TT_THICKB:
-		case TT_DASHB:
-		case TT_DOTB:
-		case TT_DOTDASHB:
-		case TT_DOTDOTDASHB:
-		case TT_WAVEB:
-		case TT_SINGLEE:
-		case TT_WORDE:
-		case TT_DOUBLEE:
-		case TT_DOTTEDE:
-		case TT_HIDDENE:
-		case TT_THICKE:
-		case TT_DASHE:
-		case TT_DOTE:
-		case TT_DOTDASHE:
-		case TT_DOTDOTDASHE:
-		case TT_WAVEE:
+
+		case TT_SINGLEUB:
+		case TT_WORDUB:
+		case TT_DOUBLEUB:
+		case TT_DOTTEDUB:
+		case TT_HIDDENUB:
+		case TT_THICKUB:
+		case TT_DASHUB:
+		case TT_DOTUB:
+		case TT_DOTDASHUB:
+		case TT_DOTDOTDASHUB:
+		case TT_WAVEUB:
+		case TT_SINGLEUE:
+		case TT_WORDUE:
+		case TT_DOUBLEUE:
+		case TT_DOTTEDUE:
+		case TT_HIDDENUE:
+		case TT_THICKUE:
+		case TT_DASHUE:
+		case TT_DOTUE:
+		case TT_DOTDASHUE:
+		case TT_DOTDOTDASHUE:
+		case TT_WAVEUE:
+
 		case TT_BLACKB:
 		case TT_BLUEB:
 		case TT_CYANB:
@@ -2140,6 +2591,16 @@ void endElement(void *userData, const char *name)
 		case TT_COLORE:
 		case TT_IBSTANNO:
 		case TT_xstUsrInitl:
+		case TT_mmParaBefore:
+		case TT_mmParaAfter:
+		case TT_mmParaLeft:
+		case TT_mmParaRight:
+		case TT_mmParaLeft1:
+		case TT_mmPadTop:
+		case TT_mmPadRight:
+		case TT_mmPadBottom:
+		case TT_mmPadLeft:
+		case TT_mmLineHeight:
 		case TT_ibstRMark:
 		case TT_ibstRMarkDel:
 		case TT_ibstDispFldRMark:
@@ -2207,6 +2668,8 @@ void exendElement(void *userData, const char *name)
 		case TT_COLSPAN:
 		case TT_ROWSPAN:
 		case TT_CELLBGCOLOR:
+		case TT_PARABGCOLOR:
+		case TT_PARAFGCOLOR:
 		case TT_TABLERELWIDTH:
 		case TT_CELLWIDTH:
 		case TT_VERSION:

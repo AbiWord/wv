@@ -193,9 +193,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
 	data->endcell = &ps->endcell;
 	data->vmerges = &ps->vmerges;
 	data->norows = &ps->norows;
-
-
-
+	data->nextpap = &ps->nextpap;
 	if (charset == 0xffff)
     	data->charset = wvAutoCharset(&ps->clx);
 	else
@@ -205,16 +203,16 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
     switch (tag)
         {
         case PARABEGIN:
-			if (dirty) wvTrace(("unclean para\n"));
 			ppap = (PAP *)data->props;
+			wvTrace(("fore back is %d %d\n",((PAP *)(data->props))->shd.icoFore,((PAP *)(data->props))->shd.icoBack));
             wvBeginPara(data);
             break;
         case PARAEND:
             wvEndCharProp(data);	/* danger will break in the future */
             wvEndPara(data);
+			wvCopyPAP(&data->lastpap,(PAP*)(data->props));
             break;
         case CHARPROPBEGIN:
-			if (dirty) wvTrace(("unclean char\n"));
             wvBeginCharProp(data,ppap);
             break;
         case CHARPROPEND:
@@ -265,6 +263,8 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 		data->whichrow=0;
 		data->asep = NULL;
 		i++;
+		wvInitPAP(&data->lastpap);
+		data->nextpap=NULL;
 		}
 
 	if (charset == 0xffff)

@@ -184,7 +184,7 @@ int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc)
 	 Formatted Disk Page for PAPXs, somehow the currentfc sent in was wrong
 	 or my understanding is !
 	 */
-	wvError(("Shite, fix me %x %x\n",currentfc,fkp->rgfc[0]));
+	wvTrace(("Shite, fix me %x %x\n",currentfc,fkp->rgfc[0]));
 	/*return 1 to make things continue on their merry way*/
 	return(1);
 	}

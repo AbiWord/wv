@@ -1038,6 +1038,8 @@ void wvGetBRC(int version,BRC *abrc,FILE *infd);
 int wvGetBRCFromBucket(int version,BRC *abrc,U8 *pointer);
 void wvInitBRC(BRC *abrc);
 void wvCopyBRC(BRC *dest, BRC *src);
+int wvEqualBRC(BRC *a,BRC *b);
+
 
 typedef struct _BRC10
 	{
@@ -1457,8 +1459,10 @@ typedef struct _PAP
 #define istdNil 4095
 
 void wvCopyPAP(PAP *dest,PAP *src);
+void wvCopyConformPAP(PAP *dest,PAP *src);
 void wvInitPAP(PAP *item);
 int wvIsListEntry(PAP *apap,int version);
+int isPAPConform(PAP *current,PAP *previous);
 
 
 typedef U16 BF;
@@ -2197,39 +2201,39 @@ typedef enum _TT
 	TT_SUB,
 	TT_SUBB,
 	TT_SUBE,
-	TT_SINGLE,
-	TT_SINGLEB,
-	TT_SINGLEE,
-	TT_WORD,
-	TT_WORDB,
-	TT_WORDE,
-	TT_DOUBLE,
-	TT_DOUBLEB,
-	TT_DOUBLEE,
-	TT_DOTTED,
-	TT_DOTTEDB,
-	TT_DOTTEDE,
-	TT_HIDDEN,
-	TT_HIDDENB,
-	TT_HIDDENE,
-	TT_THICK,
-	TT_THICKB,
-	TT_THICKE,
-	TT_DASH,
-	TT_DASHB,
-	TT_DASHE,
-	TT_DOT,
-	TT_DOTB,
-	TT_DOTE,
-	TT_DOTDASH,
-	TT_DOTDASHB,
-	TT_DOTDASHE,
-	TT_DOTDOTDASH,
-	TT_DOTDOTDASHB,
-	TT_DOTDOTDASHE,
-	TT_WAVE,
-	TT_WAVEB,
-	TT_WAVEE,
+	TT_SINGLEU,
+	TT_SINGLEUB,
+	TT_SINGLEUE,
+	TT_WORDU,
+	TT_WORDUB,
+	TT_WORDUE,
+	TT_DOUBLEU,
+	TT_DOUBLEUB,
+	TT_DOUBLEUE,
+	TT_DOTTEDU,
+	TT_DOTTEDUB,
+	TT_DOTTEDUE,
+	TT_HIDDENU,
+	TT_HIDDENUB,
+	TT_HIDDENUE,
+	TT_THICKU,
+	TT_THICKUB,
+	TT_THICKUE,
+	TT_DASHU,
+	TT_DASHUB,
+	TT_DASHUE,
+	TT_DOTU,
+	TT_DOTUB,
+	TT_DOTUE,
+	TT_DOTDASHU,
+	TT_DOTDASHUB,
+	TT_DOTDASHUE,
+	TT_DOTDOTDASHU,
+	TT_DOTDOTDASHUB,
+	TT_DOTDOTDASHUE,
+	TT_WAVEU,
+	TT_WAVEUB,
+	TT_WAVEUE,
 	TT_BLACK,
 	TT_BLACKB,
 	TT_BLACKE,
@@ -2358,6 +2362,55 @@ typedef enum _TT
 	TT_COMMENT,
 	TT_IBSTANNO,
 	TT_xstUsrInitl,
+	TT_mmParaBefore,
+	TT_mmParaAfter,
+	TT_mmParaLeft,
+	TT_mmParaRight,
+	TT_mmParaLeft1,
+
+	TT_BORDER,
+	TT_NONED,
+	TT_SINGLED,
+	TT_THICKD,
+	TT_DOUBLED,
+	TT_NUMBER4D,
+	TT_HAIRLINED,
+	TT_DOTD,
+	TT_DASHLARGEGAPD,
+	TT_DOTDASHD,
+	TT_DOTDOTDASHD,
+	TT_TRIPLED,
+	TT_thin_thicksmallgapD,
+	TT_thick_thinsmallgapD,
+	TT_thin_thick_thinsmallgapD,
+	TT_thin_thickmediumgapD,
+	TT_thick_thinmediumgapD,
+	TT_thin_thick_thinmediumgapD,
+	TT_thin_thicklargegapD,
+	TT_thick_thinlargegapD,
+	TT_thin_thick_thinlargegapD,
+	TT_WAVED,
+	TT_DOUBLEWAVED,
+	TT_DASHSMALLGAPD,
+	TT_DASHDOTSTROKEDD,
+	TT_EMBOSS3DD,
+	TT_ENGRAVE3DD,
+	TT_DEFAULTD,
+	TT_BORDERTopSTYLE,
+	TT_BORDERTopCOLOR,
+	TT_BORDERLeftSTYLE,
+	TT_BORDERLeftCOLOR,
+	TT_BORDERRightSTYLE,
+	TT_BORDERRightCOLOR,
+	TT_BORDERBottomSTYLE,
+	TT_BORDERBottomCOLOR,
+	TT_mmPadTop,
+	TT_mmPadRight,
+	TT_mmPadBottom,
+	TT_mmPadLeft,
+	TT_mmLineHeight,
+	TT_PARABGCOLOR,
+	TT_PARAFGCOLOR,
 	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 
@@ -2421,6 +2474,8 @@ typedef struct _expand_data
 	U32 currentlen;
 	state_data *sd;
 	SEP *asep;
+	PAP *nextpap;
+	PAP lastpap;
 	} expand_data;
 
 void wvInitExpandData(expand_data *data);
@@ -2519,6 +2574,7 @@ typedef struct _wvParseStruct
 	U16 norows;
 	U8 endcell;
 	U32 currentcp;
+	PAP nextpap;
 	}wvParseStruct;
 
 void wvSetPassword(char *password,wvParseStruct *ps);
@@ -2885,6 +2941,8 @@ int wvGetListEntryInfo(LVL **rlvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,L
 
 void wvSetPixelsPerInch(S16 pixels);
 float wvTwipsToPixels(S16 twips);
+float wvTwipsToMM(S16 twips);
+float wvPointsToMM(S16 points);
 
 int wvCellBgColor(int whichrow,int whichcell,int nocells,int norows,TLP *tlp);
 

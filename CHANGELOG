@@ -1,35 +1,26 @@
-Changes to to 0.5.36
-	* mem leaks plugged, word 6 and 7 section sprms added correctly.
-	* crushed a few out by ones, twos and threes :-), flattened a few
-	more pesky buglets and leaks.
-	* purify now reports no problems of any kind with any of the examples
-	and feature-examples.
-	* modified simple and complex saves to only do the *main* body text,
-	no comment and footnotes etc being put in when they shouldnt.
-	* made some headway into understanding undocumented version 
-	information. Theres 22 ununderstood bytes per version.
-	* added wvSetSpecialCharHandler, special chars now have their own
-	seperate callback which feeds you the char and the associated CHP,
-	this might require some more work.
-	* doh !, made silly mistake with ending the doc at the ccpText limit.
-	* added wvGetGrpXst converts strings groups to nice STTBF's
-	* added wvGetBKL_PLCF
-	* implemented the COMMENT BEGIN and END, and applied it to the "simple code",
-	the actual comment itself and so on is part of the subdocuments which are
-	not implemented yet, but will be soon.
-	* overlooked complex sep properties, added them in.
-	* added dirty tag to the elehandler, 1 means that the property might (more than
-	likely it is) be modified from the original style as indicated by the istd, this
-	is implemented in simple and complex for PAP,CHP and SEP.
+Changes to to 0.5.37
+	* para indentation, first line indentation, top bottom left and right margins
+	* border code started, mountain of tags included.
+	* border color added for paragraphs
+	* we can handle individual sides to the border rather than just taking the top for all
+	sides.
+	* supporting brcBetween required that we repeat the table style lookahead
+	for brc's as well, this is very annoying, and seeing as netscape doesnt even allow
+	margin support correctly I hate putting it in as noone can use it, makes me feel
+	more complete to support it myself though, maybe mozilla will sort this out.
 ALL TODO
 	* break stylesheet into too, first read all the poxy little sprms into one location
 	and afterwards do the pap and chp generation.
+
+	* need to add a color Auto thing that figures out what color goes against what fore
+	or back ground.
+	* multiple columns are part of section code, how to support this in html without 
+	brain failure.
 
 	* put the default text and char stuff into one single "style", and then try and
 	figure out a way to save arbitrary no of styles into some nice structure for
 	later seaching and stylesheet implementation.
 
-	* put code thats in both simple and complex together.
 
 	* title not being done in the correct charset
 
@@ -56,37 +47,19 @@ ALL TODO
 	strike and revision deleted ?, what if a mad user created his own collisions. 
 	In the future there will be problems with links being broken by references, 
 	this is a similar problem.
-	
 	* what was i at with sprmCFtcDefault ????, fBold ??, what the...
-
-	* add the rest of the appropiate char props to decode_simple, repeat for
-	decode_complex
-	* search for more SEP sprm diffs between 6 and 8
-	* add in the list extraction code ?
-
-
 	* install cygwin thingy at home and test configure mechanism for searching and
 	installing strcasecmp/rint.
-
 	* i figured out what the story is with ole embedded files, ill have to modify
 	my ole code so as to be able in the future to parse embedded docs and splice
 	them together, which could be a wee bit of a challenge.
-
 	* modify configure script so its possible to link against a different expat
 	lib, or to disable it or something.
 	* add errors via numbered errors to wvInitParser.
-
 	* additional code checks for conversion of codepage whatever to iso for
 	ancillary strings that might be stored in that format.
-	* modify complex code to stop at end of main text
-
-	* i have Plcfbte's marked as generic empty structures in the old code, which 
-	is technically incorrect but works the way i've set up the code to handle it.
 	* the old ffffffff list problem still exists with the new interface, i must 
 	finally kill that issue once and for all
-	* colspan support, find the smallest common unit, and restart the
-	table handling.
-	* rowspan support
 
 	* implement whatever special drawing format there is.
 	* patch thai handling back in.
@@ -98,13 +71,6 @@ ALL TODO
 	* bookmarks embedded in html tags break them, constructs such as e.g
 	<A href="stuff">stuf<a name="here">f</a></A> are being output even though
 	thats well wrong in html.
-	* allow the various colors that im using to specifiy different attributes to
-	be modified by the user.
-	* hmm, with bookmarks implemented, it might not be too hard to do 
-	the toc
-	* optional html correct handling of lists.
-	* place all wingding and symbolfont names directly in the makefile for
-	make install.
 	* convert the cross-referenced "above/below", into hyperlinked above and 
 	below.
 	* optional support for specifying special fonts, not recommended for use
@@ -112,19 +78,38 @@ ALL TODO
 	of you who have done the funky chicken dance with unix netscape to work 
 	with ms winding etc fonts or are using ie/netscape on windows.
 	* all the fields, document background colour.
-	* it might be possible to support right indentation, if its simultaneous
-	with equal left indentation by using <blockquote> instead of <dir>, but
-	i dont see that as essential.
-	* inside/outside page numbering doesnt work, dont know where its set, one
-	of the DOP fields ?
 	* gnome canvas wysiwyg viewer, output to ps from this
 	* use incremental zlib functions to do decompressing rather than use mmap,
 	someone who doesnt have mmap on their system can send me a patch for this one
 	;-)
 	* doesnt compile under neXt & needs to use gcc for hpux 10.20 ?
+	* put code thats in both simple and complex together.
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.36
+	* mem leaks plugged, word 6 and 7 section sprms added correctly.
+	* crushed a few out by ones, twos and threes :-), flattened a few
+	more pesky buglets and leaks.
+	* purify now reports no problems of any kind with any of the examples
+	and feature-examples.
+	* modified simple and complex saves to only do the *main* body text,
+	no comment and footnotes etc being put in when they shouldnt.
+	* made some headway into understanding undocumented version 
+	information. Theres 22 ununderstood bytes per version.
+	* added wvSetSpecialCharHandler, special chars now have their own
+	seperate callback which feeds you the char and the associated CHP,
+	this might require some more work.
+	* doh !, made silly mistake with ending the doc at the ccpText limit.
+	* added wvGetGrpXst converts strings groups to nice STTBF's
+	* added wvGetBKL_PLCF
+	* implemented the COMMENT BEGIN and END, and applied it to the "simple code",
+	the actual comment itself and so on is part of the subdocuments which are
+	not implemented yet, but will be soon.
+	* overlooked complex sep properties, added them in.
+	* added dirty tag to the elehandler, 1 means that the property might (more than
+	likely it is) be modified from the original style as indicated by the istd, this
+	is implemented in simple and complex for PAP,CHP and SEP.
 Changes to to 0.5.35
 	* tables.
 	* wvToggle was still in todo, it was fixed a while ago

@@ -143,7 +143,7 @@ int wvGetComplexParafcLim(int version,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bt
 	wvTrace(("fcLim is %x\n",*fcLim));
 	if (piece == clx->nopcd)
 		{
-		wvError(("failed to find a solution to end of paragraph\n"));
+		wvTrace(("failed to find a solution to end of paragraph\n"));
 		return(clx->nopcd-1);	/* test using this */
 		}
 	return(piece);
@@ -309,6 +309,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 	U8 chartype;
 	U16 eachchar;
 	U32 para_fcFirst,para_fcLim=0xffffffffL;
+	U32 dummy,nextpara_fcLim=0xffffffffL;
 	U32 char_fcFirst,char_fcLim=0xffffffffL;
 	U32 section_fcFirst,section_fcLim=0xffffffffL;
 	U32 comment_cpFirst=0xffffffffL,comment_cpLim=0xffffffffL;
@@ -317,7 +318,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 	U32 para_intervals, char_intervals,section_intervals,atrd_intervals;
 	U16 charset;
 	U8 state=0;
-	int cpiece=0;
+	int cpiece=0,npiece=0;
 	PAPX_FKP para_fkp;
 	PAP apap;
 	CHPX_FKP char_fkp;
@@ -488,6 +489,13 @@ encoded into the first 22 bytes.
 				{
 				para_dirty = wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&ps->stsh);
 				para_dirty = (wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&ps->stsh,&ps->clx) ? 1 : para_dirty);
+
+				/* test section */
+				wvReleasePAPX_FKP(&para_fkp);
+				npiece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&dummy,&nextpara_fcLim,para_fcLim,&ps->clx, btePapx, posPapx, para_intervals,piececount,ps->mainfd);
+				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&ps->nextpap,nextpara_fcLim,&para_fkp,&ps->stsh);
+				wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&ps->nextpap,npiece,&ps->stsh,&ps->clx);
+				/* end test section */
 
 				if ( (apap.fInTable) && (!apap.fTtp) )
 					{
