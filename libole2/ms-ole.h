@@ -23,9 +23,13 @@ extern "C" {
 # include <fcntl.h>       /* for mode_t */
 #else
 # include <stdlib.h>
+#ifdef __MINGW32__
+# include <sys/types.h>
+#else
 	typedef unsigned long mode_t;
-	typedef size_t ssize_t;
 	typedef long off_t;
+#endif
+	typedef size_t ssize_t;
 	typedef long caddr_t;
 #endif
 
