@@ -276,6 +276,37 @@ ms_ole_get_default_fs (void)
 	return &ms_ole_default_wrappers;
 }
 
+gint ms_ole_stream_read_copy   (MsOleStream *stream,
+				guint8 *ptr,
+				MsOlePos length)
+{
+	return stream->read_copy(stream, ptr, length);
+}
+
+guint8 * ms_ole_stream_read_ptr     (MsOleStream *stream,
+				     MsOlePos length)
+{
+	return stream->read_ptr(stream, length);
+}
+
+MsOleSPos ms_ole_stream_lseek        (MsOleStream *stream,
+				      MsOleSPos bytes,
+				      MsOleSeek type)
+{
+	return stream->lseek (stream, bytes, type);
+}
+
+MsOlePos  ms_ole_stream_tell         (MsOleStream *stream)
+{
+	return stream->tell(stream);
+}
+
+MsOlePos  ms_ole_stream_write       (MsOleStream *stream,
+				     guint8 *ptr,
+				     MsOlePos length)
+{
+	return stream->write(stream, ptr, length);
+}
 
 /*
  * A global variable to enable calles to check_stream,

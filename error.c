@@ -6,14 +6,15 @@
 #endif
 #include "wv.h"
 
-#define wverror stderr
 
 #ifdef DEBUG
 #define wvwarn  NULL /* stderr */
 #define wvtrace NULL /* stderr */
+#define wverror NULL /* stderr */
 #else
 #define wvwarn  NULL
 #define wvtrace NULL
+#define wverror NULL
 #endif
 
 void

@@ -184,6 +184,26 @@ extern MsOleErr		ms_ole_stream_duplicate	(MsOleStream ** const stream_copy,
 						 const MsOleStream *
 						 const stream);
 
+
+extern gint ms_ole_stream_read_copy   (MsOleStream *stream,
+                                       guint8 *ptr,
+                                       MsOlePos length);
+
+extern guint8 * ms_ole_stream_read_ptr     (MsOleStream *stream,
+					     MsOlePos length);
+
+extern MsOleSPos ms_ole_stream_lseek        (MsOleStream *stream,
+					     MsOleSPos bytes,
+					     MsOleSeek type);
+
+extern MsOlePos  ms_ole_stream_tell         (MsOleStream *stream);
+
+extern MsOlePos  ms_ole_stream_write       (MsOleStream *stream,
+					    guint8 *ptr,
+					    MsOlePos length);
+
+
+
 extern void		ms_ole_dump		(guint8 const *ptr,
 						 guint32 len);
 
