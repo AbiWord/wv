@@ -102,6 +102,31 @@ wvInitParser (wvParseStruct * ps, char *path)
 
     ps->tablefd = wvWhichTableStream (&ps->fib, ps);
 
+    /* Check the validity of the table stream. */
+    if (ps->tablefd == NULL)
+      {
+	wvOLEFree(ps);
+	wvError(("Data Stream Corrupt or Not Readable\n"));
+	return (-1);
+      }
+    
+    /* When the data stream is null, it is highly probable
+       that the document is corrupt */
+    if (ps->data == NULL)
+      {
+	/* checking for the validity of the Clx data
+	   from the table stream */
+	if (wvStream_goto(ps->tablefd, ps->fib.fcClx)==-1)
+	  {
+	    wvOLEFree(ps);
+	    wvError(("Data Stream Corrupt or Not Readable\n"));
+	    return (-1);
+	  }
+
+	/* Reset the stream to the begining */
+	wvStream_rewind(ps->tablefd);
+      }
+
     ret = wvQuerySupported (&ps->fib, &reason);
 
     if ((ret & 0x7fff) != WORD8)
