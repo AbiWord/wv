@@ -1,4 +1,4 @@
-/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 8; tab-width: 8 -*- */
+/* vim: set sw=8: -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /**
  * ms-ole.c: MS Office OLE support for Gnumeric
  *
@@ -10,31 +10,10 @@
  * Copyright 1998-2000 Helix Code, Inc., Arturo Tena
  **/
 
-#include <stdio.h>
-
-/* BSDs require unistd.h before including stat.h */
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#include <sys/stat.h>	/* for struct stat */
-#include <fcntl.h>
-
-#include <assert.h>
-#include <ctype.h>
-#include <glib.h>
-#include <string.h>
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
+#include <libole2-config.h>
 #include <libole2/ms-ole.h>
 
-#ifdef HAVE_MMAP
-#include <sys/mman.h>
-#endif
-
+/* BSDs require unistd.h before including stat.h */
 #ifdef HAVE_UNISTD_H
 #	include <unistd.h>
 #else
@@ -45,6 +24,16 @@
 #	define _S_ISREG(m) (((m)&0170000) == 0100000)
 #	define S_ISREG(m) _S_ISREG(m)
 #	define O_NONBLOCK 0x4000
+#endif
+
+#include <sys/stat.h>	/* for struct stat */
+#include <fcntl.h>
+#include <stdio.h>
+#include <assert.h>
+#include <ctype.h>
+#include <string.h>
+#ifdef HAVE_MMAP
+#include <sys/mman.h>
 #endif
 
 #ifndef PROT_READ
@@ -108,7 +97,7 @@ struct _MsOle {
 	guint8           *mem;
 	guint32           length;
 	MsOleSysWrappers *syswrap;
-	
+
 	char              mode;
 	MsOleHandleType   file_des;
 	int               dirty;
@@ -224,7 +213,7 @@ static MsOleSysWrappers ms_ole_default_wrappers = {
 	close_wrap,
 	write_wrap,
 	lseek_wrap,
-	isregfile_wrap,	
+	isregfile_wrap,
 	getfilesize_wrap,
 
 #if defined(HAVE_MMAP)
@@ -404,7 +393,7 @@ write_cache_block (MsOle *f, BBBlkAttr *attr)
 	g_return_if_fail (f);
 	g_return_if_fail (attr);
 	g_return_if_fail (attr->data);
-	
+
 	offset = (attr->blk+1)*BB_BLOCK_SIZE;
 	if (f->syswrap->lseek (f->file_des, offset, SEEK_SET, f->syswrap->closure) == (off_t)-1 ||
 	    f->syswrap->write (f->file_des, attr->data, BB_BLOCK_SIZE, f->syswrap->closure) == -1)
@@ -412,7 +401,7 @@ write_cache_block (MsOle *f, BBBlkAttr *attr)
 #if OLE_DEBUG > 2
 	g_print ("Writing cache block %d to offset %d\n",
 		 attr->blk, offset);
-#endif	
+#endif
 	attr->dirty = FALSE;
 }
 
@@ -468,7 +457,7 @@ get_block_ptr (MsOle *f, BLP b, gboolean forwrite)
 		min->usage  = 0;
 	} else
 		attr->data = g_new (guint8, BB_BLOCK_SIZE);
-	
+
 	offset = (b+1)*BB_BLOCK_SIZE;
 	f->syswrap->lseek (f->file_des, offset, SEEK_SET, f->syswrap->closure);
 	f->syswrap->read (f->file_des, attr->data, BB_BLOCK_SIZE, f->syswrap->closure);
@@ -481,7 +470,7 @@ get_block_ptr (MsOle *f, BLP b, gboolean forwrite)
 
 /* This is a list of big blocks which contain a flat description of all blocks
    in the file. Effectively inside these blocks is a FAT of chains of other BBs,
-   so the theoretical max size = 128 BB Fat blocks, thus = 128*512*512/4 blocks 
+   so the theoretical max size = 128 BB Fat blocks, thus = 128*512*512/4 blocks
    ~= 8.4MBytes */
 /* FIXME tenix the max size would actually be 109*512*512/4 + 512 blocks ~=
    7MBytes if we don't take in count the additional Big Block Depot lists.
@@ -551,7 +540,7 @@ pps_get_text (guint8 *ptr, int length)
 	char *ans;
 	guint16 c;
 	guint8 *inb;
-	
+
 	length = (length+1)/2;
 
 	if (length <= 0 ||
@@ -561,9 +550,9 @@ pps_get_text (guint8 *ptr, int length)
 #endif
 		return 0;
 	}
-	
+
 	ans = (char *) g_malloc (sizeof (char) * length + 1);
-	
+
 	inb = ptr;
 	for (lp = 0; lp < length; lp++) {
 		c = MS_OLE_GET_GUINT16 (inb);
@@ -667,13 +656,13 @@ dump_allocation (MsOle *f)
 			 g_array_index (f->bb, BLP, lp),
 			 blktype);
 	}
-	
+
 	if (f->pps) {
-		g_print ("Root blocks : %d\n", f->num_pps); 
+		g_print ("Root blocks : %d\n", f->num_pps);
 		dump_tree (f->pps, 0);
 	} else
 		g_print ("No root yet\n");
-/*	
+/*
 	printf ("sbd blocks : %d\n", h->sbd_list->len);
 	for (lp = 0;lp<h->sbd_list->len;lp++)
 	printf ("sbd_list[%d] = %d\n", lp, (int)ms_array_index (h->sbd_list, SBPtr, lp));*/
@@ -708,7 +697,7 @@ ms_ole_debug (MsOle *fs, int magic)
  * get_next_block:
  * @f:   the file handle
  * @blk: an index into the big block fat
- * 
+ *
  * Return value: the block index of the BBD block.
  */
 static BLP
@@ -721,7 +710,7 @@ get_next_block (MsOle *f, BLP blk, gboolean *err)
 		return 0;
 	} else
 		*err = FALSE;
-	
+
 	return MS_OLE_GET_GUINT32 (BB_R_PTR (f, bbd) +
 				   4 * (blk % (BB_BLOCK_SIZE / 4)));
 }
@@ -756,12 +745,12 @@ read_bb (MsOle *f)
 	}
  */
 	/* FIXME tenix check if size is small, there's no add bbd lists */
-	
+
 	/* Add BBD's that live in the BBD list */
 	for (lp = 0; (lp < BLOCK_COUNT (f) - 1) &&
 		     (lp < MAX_SIZE_BBD_LIST * BB_BLOCK_SIZE / 4); lp++) {
 		gboolean err;
- 
+
 		tmp = get_next_block (f, lp, &err);
 		if (err)
 			return 0;
@@ -870,7 +859,7 @@ remap_file (MsOle *f, guint blocks)
 	memset (zeroblock, zero, BB_BLOCK_SIZE);
 	g_assert (f);
 	file = f->file_des;
-		
+
 	g_assert (f->syswrap->munmap (f->mem, f->length, f->syswrap->closure) != -1);
 
 	/* Extend that file by blocks */
@@ -918,7 +907,7 @@ remap_file (MsOle *f, guint blocks)
 	if (newptr != f->mem)
 		g_print ("Memory map moved from %p to %p\n",
 			 f->mem, newptr);
-		
+
 #endif /* OLE_DEBUG */
 
 	if (newptr == MAP_FAILED) {
@@ -938,13 +927,13 @@ extend_file (MsOle *f, guint blocks)
 	} else {
 		BBBlkAttr *s;
 		guint32 blkidx, i;
-		
+
 		if (f->bbattr->len) {
 			s = g_ptr_array_index (f->bbattr, f->bbattr->len-1);
 			blkidx = s->blk+1;
 		} else
 			blkidx = 0;
-		
+
 		for (i = 0; i < blocks; i++) {
 			g_ptr_array_add (f->bbattr, bb_blk_attr_new (blkidx++));
 			f->length += BB_BLOCK_SIZE;
@@ -956,7 +945,7 @@ static BLP
 next_free_bb (MsOle *f)
 {
 	BLP blk, tblk;
-  
+
 	g_assert (f);
 
 	blk = 0;
@@ -964,7 +953,7 @@ next_free_bb (MsOle *f)
 	while (blk < f->bb->len)
 		if (g_array_index (f->bb, BLP, blk) == UNUSED_BLOCK)
 			return blk;
-	        else 
+	        else
 			blk++;
 
 	extend_file (f, 1);
@@ -1019,33 +1008,33 @@ static BLP
 next_free_sb (MsOle *f)
 {
 	BLP blk, tblk;
-  
+
 	g_assert (f);
 
 	blk = 0;
 	while (blk < f->sb->len)
 		if (g_array_index (f->sb, BLP, blk) == UNUSED_BLOCK)
 			return blk;
-	        else 
+	        else
 			blk++;
-	
+
 	tblk = UNUSED_BLOCK;
 	g_array_append_val (f->sb, tblk);
 	g_assert ((g_array_index (f->sb, BLP, blk) == UNUSED_BLOCK));
 	g_assert (blk < f->sb->len);
 
-	if ((f->sb->len + (BB_BLOCK_SIZE/SB_BLOCK_SIZE) - 1) / 
+	if ((f->sb->len + (BB_BLOCK_SIZE/SB_BLOCK_SIZE) - 1) /
 	    (BB_BLOCK_SIZE/SB_BLOCK_SIZE) >= f->sbf->len) {
 	/* Create an extra big block on the small block stream */
 		BLP new_sbf = next_free_bb(f);
 		if (f->sbf->len > 0)
-			g_array_index (f->bb, BLP, 
+			g_array_index (f->bb, BLP,
 				       g_array_index (f->sbf, BLP, f->sbf->len-1)) = new_sbf;
 		g_array_append_val (f->sbf, new_sbf);
 		g_array_index (f->bb, BLP, new_sbf) = END_OF_CHAIN;
 	}
 
-	g_assert ((f->sb->len + (BB_BLOCK_SIZE/SB_BLOCK_SIZE) - 1) / 
+	g_assert ((f->sb->len + (BB_BLOCK_SIZE/SB_BLOCK_SIZE) - 1) /
 		  (BB_BLOCK_SIZE/SB_BLOCK_SIZE) <= f->sbf->len);
 
 	return blk;
@@ -1089,7 +1078,7 @@ pps_compare_func (PPS *a, PPS *b)
 	g_return_val_if_fail (b, 0);
 	g_return_val_if_fail (a->name, 0);
 	g_return_val_if_fail (b->name, 0);
-	
+
 	return g_strcasecmp (b->name, a->name);
 }
 
@@ -1098,7 +1087,7 @@ pps_decode_tree (MsOle *f, PPS_IDX p, PPS *parent)
 {
 	PPS    *pps;
 	guint8 *mem;
-       
+
 	if (p == PPS_END_OF_CHAIN)
 		return;
 
@@ -1126,7 +1115,7 @@ pps_decode_tree (MsOle *f, PPS_IDX p, PPS *parent)
 	}
 
 	f->num_pps++;
-	
+
 	if (parent) {
 #if OLE_DEBUG > 0
 		g_print ("Inserting '%s' into '%s'\n", pps->name, parent->name);
@@ -1143,7 +1132,7 @@ pps_decode_tree (MsOle *f, PPS_IDX p, PPS *parent)
 
 	if (PPS_GET_NEXT(mem) != PPS_END_OF_CHAIN)
 		pps_decode_tree (f, PPS_GET_NEXT(mem), parent);
-		
+
 	if (PPS_GET_PREV(mem) != PPS_END_OF_CHAIN)
 		pps_decode_tree (f, PPS_GET_PREV(mem), parent);
 
@@ -1151,7 +1140,7 @@ pps_decode_tree (MsOle *f, PPS_IDX p, PPS *parent)
 		pps_decode_tree (f, PPS_GET_DIR(mem), pps);
 
 	pps->start   = PPS_GET_STARTBLOCK (mem);
-	
+
 #if OLE_DEBUG > 1
         g_print ("PPS decode : '%s'\n", pps->name?pps->name:"Null");
 	ms_ole_dump (mem, PPS_BLOCK_SIZE);
@@ -1193,7 +1182,7 @@ read_pps (MsOle *f)
 			g_array_index (f->bb, BLP, last) = UNUSED_BLOCK;
 		}
 	}
-	
+
 	if (!f->pps) {
 		g_warning ("Root directory too small\n");
 		return 0;
@@ -1213,7 +1202,7 @@ pps_encode_tree_initial (MsOle *f, GList *list, PPS_IDX *p)
 
 	g_return_if_fail (list);
 	g_return_if_fail (list->data);
-	
+
 	pps = list->data;
 	pps->idx = *p;
 	(*p)++;
@@ -1240,7 +1229,7 @@ pps_encode_tree_initial (MsOle *f, GList *list, PPS_IDX *p)
 		max = -1;
 	}
 	PPS_SET_NAME_LEN (mem, (max + 1)*2);
-	
+
 	/* Magic numbers */
 	if (pps->idx == PPS_ROOT_INDEX) { /* Only Root */
 		MS_OLE_SET_GUINT32  (mem + 0x50, 0x00020900);
@@ -1448,7 +1437,7 @@ read_sb (MsOle *f)
 
 	f->sbf = g_array_new (FALSE, FALSE, sizeof(BLP));
 	f->sb  = g_array_new (FALSE, FALSE, sizeof(BLP));
-	
+
 	/* List of big blocks in SB file */
 	ptr = root->start;
 #if OLE_DEBUG > 0
@@ -1491,7 +1480,7 @@ read_sb (MsOle *f)
 		for (lp = 0;lp<BB_BLOCK_SIZE/4;lp++) {
 			BLP p = MS_OLE_GET_GUINT32 (BB_R_PTR(f, ptr) + lp*4);
 			g_array_append_val (f->sb, p);
-			
+
 			if (p != UNUSED_BLOCK)
 				lastidx = idx;
 			idx++;
@@ -1500,7 +1489,7 @@ read_sb (MsOle *f)
 	}
 	if (lastidx>0)
 		g_array_set_size (f->sb, lastidx+1);
-	
+
 	if (f->sbf->len * BB_BLOCK_SIZE < f->sb->len*SB_BLOCK_SIZE) {
 		g_warning ("Not enough small block file for descriptors\n"
 			   "sbf->len == %d, sb->len == %d\n", f->sbf->len,
@@ -1590,14 +1579,14 @@ ms_ole_setup (MsOle *f)
 		for (i = 0; i < BLOCK_COUNT (f); i++)
 			g_ptr_array_add (f->bbattr, bb_blk_attr_new (i));
 	}
-	
+
 	if (read_bb  (f) &&
 	    read_pps (f) &&
 	    read_sb  (f)) {
 #if OLE_DEBUG > 1
 		g_print ("Just read header of\n");
 		dump_header (f);
-#endif		
+#endif
 		return 1;
 	}
 	return 0;
@@ -1641,7 +1630,7 @@ ms_ole_new ()
 /**
  * ms_ole_ref:
  * @fs: filesystem object.
- * 
+ *
  * Increment by one the count of references to the filesystem.
  **/
 void
@@ -1655,7 +1644,7 @@ ms_ole_ref (MsOle *fs)
 /**
  * ms_ole_unref:
  * @fs: filesystem object.
- * 
+ *
  * Decrement by one the count of references to the filesystem.
  **/
 void
@@ -1673,13 +1662,13 @@ ms_ole_unref (MsOle *fs)
  * @try_mmap: TRUE if try to mmap(2) the filesystem-in-a-file,
  *            instead of opening.
  * @wrappers: system functions wrappers, %NULL if standard functions are used.
- * 
+ *
  * Opens the filesystem-in-the-file @path and creates the filesystem object @fs.
- * 
+ *
  * Return value: a #MsOleErr code.
  **/
 MsOleErr
-ms_ole_open_vfs (MsOle **fs, const char *name, 
+ms_ole_open_vfs (MsOle **fs, const char *name,
 		 gboolean try_mmap,
 		 MsOleSysWrappers *wrappers)
 {
@@ -1751,7 +1740,7 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 		f->mem = g_new (guint8, BB_BLOCK_SIZE);
 
 		if (!f->mem ||
-		    f->syswrap->read (file, f->mem, (BB_BLOCK_SIZE == -1), 
+		    f->syswrap->read (file, f->mem, (BB_BLOCK_SIZE == -1),
 				      f->syswrap->closure)) {
 			g_warning ("Error reading header\n");
 			f->syswrap->close (file, f->syswrap->closure) ;
@@ -1809,7 +1798,7 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
  * @try_mmap: TRUE if try to mmap(2) the filesystem-in-a-file,
  *            instead of opening.
  * @wrappers: system functions wrappers, %NULL if standard functions are used.
- * 
+ *
  * Creates the filesystem-in-the-file @path and creates the filesystem @fs.
  *
  * Return value: a #MsOleErr code.
@@ -1892,10 +1881,10 @@ ms_ole_create_vfs (MsOle **fs, const char *name, gboolean try_mmap,
 	/* More magic numbers */
 	MS_OLE_SET_GUINT32 (f->mem + 0x18, 0x0003003e);
 	MS_OLE_SET_GUINT32 (f->mem + 0x1c, 0x0009fffe);
-	MS_OLE_SET_GUINT32 (f->mem + 0x20, 0x6); 
-	MS_OLE_SET_GUINT32 (f->mem + 0x38, 0x00001000); 
+	MS_OLE_SET_GUINT32 (f->mem + 0x20, 0x6);
+	MS_OLE_SET_GUINT32 (f->mem + 0x38, 0x00001000);
 /*	MS_OLE_SET_GUINT32 (f->mem + 0x40, 0x1);  */
-	MS_OLE_SET_GUINT32 (f->mem + 0x44, 0xfffffffe); 
+	MS_OLE_SET_GUINT32 (f->mem + 0x44, 0xfffffffe);
 
 	SET_NUM_BBD_BLOCKS  (f, 0);
 	SET_ROOT_STARTBLOCK (f, END_OF_CHAIN);
@@ -1933,7 +1922,7 @@ ms_ole_create_vfs (MsOle **fs, const char *name, gboolean try_mmap,
 /**
  * ms_ole_destroy:
  * @fs: filesystem object.
- * 
+ *
  * Closes the filesystem @fs and truncates any free blocks.
  **/
 void
@@ -1977,7 +1966,7 @@ ms_ole_destroy (MsOle **ptr)
 				f->syswrap->lseek (f->file_des, 0, SEEK_SET,
 						   f->syswrap->closure);
 				f->syswrap->write (f->file_des, f->mem,
-						   BB_BLOCK_SIZE, 
+						   BB_BLOCK_SIZE,
 						   f->syswrap->closure);
 			}
 			g_free (f->mem);
@@ -2001,7 +1990,7 @@ ms_ole_destroy (MsOle **ptr)
  * ms_ole_dump:
  * @ptr: memory area to be dumped.
  * @len: how many bytes will be dumped.
- * 
+ *
  * Dump @len bytes from the memory location given by @ptr.
  **/
 void
@@ -2092,7 +2081,7 @@ free_allocation (MsOle *f, guint32 startblock, gboolean is_big_block_stream)
         g_print ("Free allocation %d : (%d)\n", startblock,
 		 is_big_block_stream);
 #endif
-       
+
 	if (is_big_block_stream)
 	{
 		BLP p = startblock;
@@ -2150,7 +2139,7 @@ free_allocation (MsOle *f, guint32 startblock, gboolean is_big_block_stream)
 
 				if (sbf_needed == f->sbf->len)
 					return;
-				
+
 				for (lp=sbf_needed;lp<f->sbf->len;lp++) {
 					BLP sbfd = g_array_index (f->sbf, BLP, lp);
 					g_array_index (f->bb, BLP, sbfd) = UNUSED_BLOCK;
@@ -2168,9 +2157,9 @@ free_allocation (MsOle *f, guint32 startblock, gboolean is_big_block_stream)
  * @s: stream object.
  * @bytes: number of bytes to set the stream pointer.
  * @type: relative from where the stream pointer will be set.
- * 
+ *
  * Set the stream pointer for @s as many as @bytes bytes according to @type.
- * 
+ *
  * Return value: the new position of the stream pointer.
  **/
 static MsOleSPos
@@ -2327,13 +2316,13 @@ ms_ole_read_copy_bb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 		g_assert (blkidx < (int) s->blocks->len);
 		block = ms_array_index (s->blocks, BLP, blkidx);
 		src = BB_R_PTR (s->file, block) + offset;
-		
+
 		memcpy (ptr, src, cpylen);
 		ptr    += cpylen;
 		length -= cpylen;
-		
+
 		offset = 0;
-		
+
 		blkidx++;
 		s->position+=cpylen;
 	}
@@ -2382,11 +2371,11 @@ ms_ole_read_copy_sb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 		g_assert (blkidx < (int) s->blocks->len);
 		block = ms_array_index (s->blocks, BLP, blkidx);
 		src = GET_SB_R_PTR (s->file, block) + offset;
-				
+
 		memcpy (ptr, src, cpylen);
 		ptr += cpylen;
 		length -= cpylen;
-		
+
 		offset = 0;
 
 		blkidx++;
@@ -2475,20 +2464,20 @@ ms_ole_write_bb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 	guint32  bytes   = length;
 	int      offset  = s->position%BB_BLOCK_SIZE;
 	guint32  blkidx  = s->position/BB_BLOCK_SIZE;
-	
+
 	s->file->dirty = 1;
 	while (bytes > 0) {
 		BLP block;
 		int cpylen = BB_BLOCK_SIZE - offset;
 		if (cpylen > (int) bytes)
 			cpylen = bytes;
-		
+
 		if (!s->blocks || blkidx >= s->blocks->len)
 			ms_ole_append_block (s);
 
 		g_assert (blkidx < s->blocks->len);
 		block = ms_array_index (s->blocks, BLP, blkidx);
-		
+
 		dest = BB_W_PTR(s->file, block) + offset;
 
 #if OLE_DEBUG > 1
@@ -2497,7 +2486,7 @@ ms_ole_write_bb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 		memcpy (dest, ptr, cpylen);
 		ptr   += cpylen;
 		bytes -= cpylen;
-		
+
 		offset = 0;
 		blkidx++;
 	}
@@ -2524,7 +2513,7 @@ ms_ole_write_sb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 	guint32 blkidx  = s->position/SB_BLOCK_SIZE;
 	guint32 bytes   = length;
 	gint32  lengthen;
-	
+
 	s->file->dirty = 1;
 	while (bytes > 0) {
 		BLP block;
@@ -2532,16 +2521,16 @@ ms_ole_write_sb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 
 		if (cpylen > (int) bytes)
 			cpylen = bytes;
-		
+
 		if (!s->blocks || blkidx >= s->blocks->len)
 			ms_ole_append_block (s);
 		g_assert (s->blocks);
 
 		g_assert (blkidx < s->blocks->len);
 		block = ms_array_index (s->blocks, BLP, blkidx);
-		
+
 		dest = GET_SB_W_PTR(s->file, block) + offset;
-		
+
 		g_assert (cpylen >= 0);
 
 		memcpy (dest, ptr, cpylen);
@@ -2551,7 +2540,7 @@ ms_ole_write_sb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 		lengthen = s->position + length - bytes - s->size;
 		if (lengthen > 0)
 			s->size += lengthen;
-		
+
 		/* Must be exactly filling the block */
 		if (s->size >= BB_THRESHOLD)
 		{
@@ -2595,7 +2584,7 @@ ms_ole_write_sb (MsOleStream *s, guint8 *ptr, MsOlePos length)
 			g_free (buffer);
 			return length;
 		}
-		
+
 		offset = 0;
 		blkidx++;
 
@@ -2615,9 +2604,9 @@ ms_ole_write_sb (MsOleStream *s, guint8 *ptr, MsOlePos length)
  * @parent: parent pps.
  * @name: its name.
  * @type: the type.
- * 
+ *
  * Creates a storage or stream.
- * 
+ *
  * Return value: error status.
  **/
 static MsOleErr
@@ -2634,7 +2623,7 @@ pps_create (MsOle *f, GList **p, GList *parent, const char *name,
 	pps  = g_new (PPS, 1);
 	if (!pps)
 		return MS_OLE_ERR_MEM;
-	
+
 	pps->sig      = PPS_SIG;
 	pps->name     = g_strdup (name);
 	pps->type     = type;
@@ -2642,7 +2631,7 @@ pps_create (MsOle *f, GList **p, GList *parent, const char *name,
 	pps->start    = END_OF_CHAIN;
 	pps->children = NULL;
 	pps->parent   = parent->data;
-	
+
 	par = (PPS *)parent->data;
 	par->children = g_list_insert_sorted (par->children, pps,
 					      (GCompareFunc)pps_compare_func);
@@ -2656,10 +2645,10 @@ pps_create (MsOle *f, GList **p, GList *parent, const char *name,
 /**
  * find_in_pps:
  * @l: the parent storage chain element.
- * 
+ *
  * Find the right Stream ... John 4:13-14 ...
  * in a storage
- * 
+ *
  * Return value: %NULL if not found or pointer to the child list
  **/
 static GList *
@@ -2672,7 +2661,7 @@ find_in_pps (GList *l, const char *name)
 	g_return_val_if_fail (l->data != NULL, NULL);
 	pps = l->data;
 	g_return_val_if_fail (IS_PPS (pps), NULL);
-	
+
 	if (pps->type == MsOleStorageT ||
 	    pps->type == MsOleRootT)
 		cur = pps->children;
@@ -2681,14 +2670,14 @@ find_in_pps (GList *l, const char *name)
 			   pps->name?pps->name:"no name");
 		return NULL;
 	}
-	
+
 	for ( ;cur ; cur = g_list_next (cur)) {
 		PPS *pps = cur->data;
 		g_return_val_if_fail (IS_PPS (pps), NULL);
-		
+
 		if (!pps->name)
 			continue;
-		
+
 		if (!g_strcasecmp (pps->name, name))
 			return cur;
 	}
@@ -2703,9 +2692,9 @@ find_in_pps (GList *l, const char *name)
  * @path: path to find.
  * @file: file to find in path.
  * @create_if_not_found: create the pps with the given path if not found.
- * 
+ *
  * Locates a stream or storage with the given path.
- * 
+ *
  * Return value: a #MsOleErr code.
  **/
 static MsOleErr
@@ -2719,7 +2708,7 @@ path_to_pps (PPS **pps, MsOle *f, const char *path,
 
 	g_return_val_if_fail (f != NULL, MS_OLE_ERR_BADARG);
 	g_return_val_if_fail (path != NULL, MS_OLE_ERR_BADARG);
-	
+
 	dirs = g_strsplit (path, "/", -1);
 	g_return_val_if_fail (dirs != NULL, MS_OLE_ERR_BADARG);
 
@@ -2734,7 +2723,7 @@ path_to_pps (PPS **pps, MsOle *f, const char *path,
 		parent = cur;
 
 		cur = find_in_pps (parent, dirs[lp]);
-		
+
 		if (!cur && create_if_not_found &&
 		    pps_create (f, &cur, parent, dirs[lp], MsOleStorageT) !=
 		    MS_OLE_ERR_OK)
@@ -2834,7 +2823,7 @@ ms_ole_directory (char ***names, MsOle *f, const char *path)
 
 	l   = pps->children;
 	ans = g_new (char *, g_list_length (l) + 1);
-	
+
 	lp = 0;
 	for (; l; l = g_list_next (l)) {
 		pps = (PPS *)l->data;
@@ -2897,7 +2886,7 @@ ms_ole_stat (MsOleStat *stat, MsOle *f, const char *path,
  * @dirpath: directory of the stream.
  * @name: stream name.
  * @mode: mode of opening stream.
- * 
+ *
  * Opens the stream in @dirpath with the name @name and creates the stream
  * object @stream. If @mode is '%r' it opens read only, and if it is '%w'
  * it opens for write only.
@@ -3054,39 +3043,11 @@ ms_ole_stream_open (MsOleStream ** const stream, MsOle *f,
 
 
 /**
- * ms_ole_stream_duplicate:
- * @stream_copy: stream object copy.
- * @stream: stream object to be duplicated.
- * 
- * Duplicates the stream object @stream.
- * 
- * Return value: a #MsOleErr code.
- **/
-MsOleErr
-ms_ole_stream_duplicate (MsOleStream ** const s, const MsOleStream * const stream)
-{
-	if (!s || !stream)
-		return MS_OLE_ERR_BADARG;
-
-	/* Lets face it having two pointers to the same file is a nightmare anyway :-) */
-	g_warning ("Do NOT use this function, it is unsafe with the blocks array");
-
-	if (!(*s = g_new (MsOleStream, 1)))
-		return MS_OLE_ERR_MEM;
-
-	memcpy (*s, stream, sizeof (MsOleStream));
-	ms_ole_ref (stream->file);
-
-	return MS_OLE_ERR_OK;
-}
-
-
-/**
  * ms_ole_stream_close:
  * @stream: stream object to be closed.
- * 
+ *
  * Closes the @stream.
- * 
+ *
  * Return value: a #MsOleErr code.
  **/
 MsOleErr

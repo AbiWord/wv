@@ -1,3 +1,4 @@
+/* vim: set sw=8: -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /**
  * ms-ole-vba.c: MS Office VBA support
  *
@@ -7,12 +8,10 @@
  * Copyright 2000 Helix Code, Inc.
  **/
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#include <stdio.h>
-
+#include <libole2-config.h>
 #include <libole2/ms-ole-vba.h>
+
+#include <stdio.h>
 
 #undef VBA_DEBUG
 
@@ -50,7 +49,7 @@ static void
 print_bin (guint16 dt)
 {
 	int i;
-	
+
 	printf ("|");
 	for (i = 15; i >= 0; i--) {
 		if (dt & (1 << i))
@@ -106,7 +105,7 @@ decompress_vba (MsOleVba *vba, guint8 *data, guint8 *eos)
 
 	while (ptr < eos) {
 #if VBA_DEBUG > 0
-		printf ("My compressed stream (addr=%#x, len = %#x (%d)):\n", 
+		printf ("My compressed stream (addr=%#x, len = %#x (%d)):\n",
 		        ptr - data, len, len);
 		ms_ole_dump (ptr, len);
 #endif
@@ -189,13 +188,13 @@ decompress_vba (MsOleVba *vba, guint8 *data, guint8 *eos)
  					/* Perhaps dt & SHIFT = dist. to end of run */
 					print_bin (dt);
 					printf ("\n");
-#endif				
+#endif
 					for (i = 0; i < clen; i++) {
 						guint8	 c;
 
-						guint32	 srcpos = (BUF_SIZE + (pos%BUF_SIZE)) - 
+						guint32	 srcpos = (BUF_SIZE + (pos%BUF_SIZE)) -
 								   back;
-						
+
 						if (srcpos >= BUF_SIZE)
 							srcpos-= BUF_SIZE;
 
@@ -249,7 +248,7 @@ decompress_vba (MsOleVba *vba, guint8 *data, guint8 *eos)
 		}
 
 	}  /* while (ptr < eos) */
-	
+
 	{
 		char c;
 
@@ -290,7 +289,7 @@ find_compressed_vba (guint8 *data, MsOlePos len)
 	guint8	*sig;
 	guint32  offset;
 	guint32  offpos;
-		
+
 	if (!(sig = seek_sig (data, len))) {
 		g_warning ("No VBA kludge signature");
 		return NULL;
@@ -320,10 +319,10 @@ find_compressed_vba (guint8 *data, MsOlePos len)
 /**
  * ms_ole_vba_open:
  * @s: the stream pointer.
- * 
+ *
  * Attempt to open a stream as a VBA stream, and commence
  * decompression of it.
- * 
+ *
  * Return value: NULL if not a VBA stream or fails.
  **/
 MsOleVba *
@@ -337,6 +336,7 @@ ms_ole_vba_open (MsOleStream *s)
 	guint8      *data, *vba_data;
 	guint8       sig [16];
 	MsOleVba    *vba;
+
 
 	g_return_val_if_fail (s != NULL, NULL);
 
@@ -362,7 +362,7 @@ ms_ole_vba_open (MsOleStream *s)
 	s->lseek (s, 0, MsOleSeekSet);
 	if (!s->read_copy (s, data, s->size)) {
 		g_warning ("Strange: failed read");
-		g_free (data);		
+		g_free (data);
 		return NULL;
 	}
 
@@ -380,14 +380,14 @@ ms_ole_vba_open (MsOleStream *s)
 
 	decompress_vba (vba, vba_data, data + s->size);
 	g_free (data);
-	
+
 	return vba;
 }
 
 /**
  * me_ols_vba_close:
- * @vba: 
- * 
+ * @vba:
+ *
  *   Free the resources associated with this vba
  * stream.
  **/
@@ -401,4 +401,3 @@ ms_ole_vba_close (MsOleVba *vba)
 		g_free (vba);
 	}
 }
-

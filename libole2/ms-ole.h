@@ -18,9 +18,9 @@ extern "C" {
 /* This should be done in glib */
 #if !defined(_WIN32) || defined(__CYGWIN__)
 #if defined(__QNXNTO__)
-#		include <sys/types.h>	
+# include <sys/types.h>	
 #endif
-#      include <fcntl.h>       /* for mode_t */
+# include <fcntl.h>       /* for mode_t */
 #else
 	typedef unsigned long mode_t;
 	typedef size_t ssize_t;

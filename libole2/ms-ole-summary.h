@@ -7,6 +7,8 @@
  *    Caolan McNamara (Caolan.McNamara@ul.ie)
  * Built on work by:
  *    Somar Software's CPPSUM (http://www.somar.com)
+ *
+ * Copyright 1998-2000 Helix Code, Inc., Frank Chiulli, and others.
  **/
 
 #ifndef MS_OLE_SUMMARY_H
@@ -14,6 +16,11 @@
 
 #include <time.h>
 #include <libole2/ms-ole.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * MS Ole Property Set IDs
  * The SummaryInformation stream contains the SummaryInformation property set.
@@ -195,6 +202,10 @@ void			ms_ole_summary_set_preview	(MsOleSummary *si,
 							 const
 							 MsOleSummaryPreview *
 							 preview);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* MS_OLE_SUMMARY_H */
 
