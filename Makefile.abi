@@ -177,7 +177,7 @@ CSRCS= \
 	exporter/sed.c \
 	exporter/sep.c \
 	exporter/shd.c \
-	exporter/stylesheet.c \
+#	exporter/stylesheet.c \
 	exporter/summary.c \
 	exporter/support.c \
 	exporter/tbd.c \
