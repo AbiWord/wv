@@ -1,0 +1,1 @@
+pkgdata_DATA = wvText.xml wvHtml.xml wvLaTeX.xml wvAbw.xml wvWml.xml wvCleanLaTeX.xml wvConfig.xml

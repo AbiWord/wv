@@ -1,0 +1,3 @@
+ptndir = $(pkgdatadir)/patterns
+
+ptn_DATA = *.gif *.jpg

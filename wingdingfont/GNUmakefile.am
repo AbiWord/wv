@@ -1,0 +1,3 @@
+wdfdir = $(pkgdatadir)/wingdingfont
+
+wdf_DATA = *.gif

@@ -1,0 +1,12 @@
+INCLUDES = -I. -I$(top_builddir) -I$(srcdir)
+
+noinst_LTLIBRARIES = libglib.la
+
+libglib_la_SOURCES = \
+	garray.c \
+	gmem.c \
+	gslist.c \
+	gtree.c \
+	glist.c \
+	gmessages.c \
+	gstrfuncs.c

@@ -1,0 +1,7 @@
+INCEXPAT = -I$(top_srcdir)/expat/xmlparse
+
+INCLUDES = -I. -I$(top_builddir) -I$(srcdir) 
+
+noinst_LTLIBRARIES = libxmltok.la
+
+libxmltok_la_SOURCES = xmltok.c xmlrole.c
