@@ -1530,7 +1530,10 @@ read_sb (MsOle *f)
 		g_warning ("Not enough small block file for descriptors\n"
 			   "sbf->len == %d, sb->len == %d\n", f->sbf->len,
 			f->sb->len);
-		return 0;
+		/* some files have broken SBAT but all
+                   streams in BAT. To process them we have to 
+                   return success here */
+		return 1;
 	}
 
 	return 1;
