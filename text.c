@@ -21,11 +21,27 @@ int (*wvConvertUnicodeToEntity)(U16 char16)=NULL;
 
 int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps, CHP *achp)
         {
-        U16 lid;
+        U16 lid = 0;
+
+	version v = wvQuerySupported(&ps->fib, NULL);
+
         /* testing adding a language */
-        lid = achp->lidDefault;
+
+       /* For version <= WORD7, The charset used could
+        * depend on the font's charset.
+        */
+       if((v <= WORD7) && (!ps->fib.fFarEast))
+       {
+               FFN currentfont;
+               currentfont = ps->fonts.ffn[achp->ftc];
+               /* Return 0 if no match */
+               lid = wvnLocaleToLIDConverter(currentfont.chs);
+       }
+       if(!lid)
+               lid = achp->lidDefault;
+
+
         /* No lidDefault for ver < WORD6 */
-        /* Should try achp->lid first? */
         if (lid == 0x400 || lid == 0)
                 lid = ps->fib.lid;
 
@@ -46,7 +62,6 @@ int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps, CHP *achp)
         /* Most Chars go through this baby */
                 if (charhandler)
                        {
-			 version v = wvQuerySupported(&ps->fib, NULL);
 			 if(!((v == WORD7 || v == WORD6) && ps->fib.fFarEast))
 			   if (v <= WORD7)
 			     {
@@ -192,6 +207,22 @@ char *wvLIDToCodePageConverter(U16 lid)
         return("CP1252");
         }
 
+U16 wvnLocaleToLIDConverter(U8 nLocale)
+{
+       switch(nLocale)
+       {
+               case 134:       /* Chinese Simplified */
+                       return (0x804);
+               case 136:       /* Chinese Traditional */
+                       return (0x404);
+
+               /* Add Japanese, Korean and whatever nLocale you see fit. */
+               default:
+                       return (0x0);
+       }
+       return (0x0);
+}
+
 static 
 U32 swap_iconv(U16 lid)
 {
@@ -232,7 +263,7 @@ U32 swap_iconv(U16 lid)
 
   ibuflen = obuflen = 2;
 
-  iconv(handle, &ibuf, &ibuflen, &obuf, &obuflen);
+  wv_iconv(handle, &ibuf, &ibuflen, &obuf, &obuflen);
 
   iconv_close(handle);
 

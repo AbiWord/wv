@@ -3194,6 +3194,7 @@ int cellCompLT(void *a,void *b);
 typedef size_t (*wvConvertToUnicode)(const char **, size_t *, char **, size_t *);
 
 char *wvLIDToCodePageConverter(U16 lid);
+U16 wvnLocaleToLIDConverter(U8 nLocale);
 
 typedef struct _MSOFBH
 	{
