@@ -552,6 +552,19 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 
 	if ( (char16 >= 0xa0) && (char16 <= 0xff) ) 
 	{
+	switch(char16)
+		{
+		/* Fix up these as math characters: */
+		case 0xb2:
+			printf("$\\mathtwosuperior$");
+			return(1);
+		case 0xb3:
+			printf("$\\maththreesuperior$");
+			return(1);
+		case 0xb9:
+			printf("$\\mathonesuperior$");
+			return(1);
+		}
 		printf("%c", char16);
 		return(1);
 	}
