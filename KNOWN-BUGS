@@ -1,0 +1,14 @@
+1) Paragraphs that start with a dropped cap letter i.e. something
+that looks sort of like this...
+
+---his is a paragraph
+ | with a big T at 
+ | the beginning
+
+are stored in word as two seperate paragraphs, one with just a T
+and then the rest of it, so in the html conversion you get two
+seperate paragraphs with quite a bit of whitespace between them.
+I haven't found a way to recognize this occuring or a way to fix
+it, but it is pretty uncommon.
+
+2) .... to be filled in ....
