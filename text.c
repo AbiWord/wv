@@ -574,7 +574,7 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 			printf("\"");
 			return(1);
 		case 38:
-			printf("&");
+			printf("\\&"); /* MV 1.7.2000 */
 			return(1);
 		case 60:
 			printf("<");
@@ -582,12 +582,209 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 62:
 			printf(">");
 			return(1);
-        case 0xdc:
-            printf("\\\"U");
-            return(1);
-        case 0xfc:
-            printf("\\\"u");
-            return(1);
+
+        /* 
+	   german and scandinavian characters, MV 1.7.2000 
+	   See man iso_8859_1
+	*/
+		case 0xc4:
+			printf("\\\"A");
+			return(1);
+		case 0xe4:
+			printf("\\\"a");
+			return(1);
+		case 0xdc:
+			printf("\\\"U");
+			return(1);
+		case 0xfc:
+			printf("\\\"u");
+			return(1);
+		case 0xd6:
+			printf("\\\"O"); 
+			return(1);
+		case 0xf6:
+			printf("\\\"o");
+			return(1);
+		case 0xdf:
+			printf("\\ss{}");  /* German ss */
+			return(1);
+		case 0xc5:
+			printf("\\AA{}");
+			return(1);
+		case 0xe5:
+			printf("\\aa{}");
+			return(1);
+		case 0xc6:
+			printf("\\AE{}");
+			return(1);
+		case 0xe6:
+			printf("\\ae{}");
+			return(1);
+		case 0xd8:
+			printf("\\O{}");   /* Danish O-slash */
+			return(1);
+		case 0xf8:
+			printf("\\o{}");
+			return(1);
+
+	/* Some more iso-8859-1, not properly tested */
+
+		case 0xb1:
+			printf("\\pm{}"); /* plusminus */
+			return(1);
+		case 0xab:
+			printf("\\flqq{}"); /* french quotes << */
+			return(1);
+		case 0xbb:
+			printf("\\frqq{}"); /* french quotes >> */
+			return(1);
+		case 0xa1:
+			printf("!`"); /* Spanish ! */
+			return(1);
+		case 0xbf:
+			printf("?`"); /* Spanish ? */
+			return(1);
+		case 0xc0:
+			printf("\\`A");
+			return(1);
+		case 0xc1:
+			printf("\\'A");
+			return(1);
+		case 0xc2:
+			printf("\\^A");
+			return(1);
+		case 0xc3:
+			printf("\\~A");
+			return(1);
+		case 0xc7:
+			printf("\\c C"); /* C cedilla */
+			return(1);
+		case 0xc8:
+			printf("\\`E");
+			return(1);
+		case 0xc9:
+			printf("\\'E");
+			return(1);
+		case 0xca:
+			printf("\\^E");
+			return(1);
+		case 0xcb:
+			printf("\\\"E");
+			return(1);
+		case 0xcc:
+			printf("\\`I");
+			return(1);
+		case 0xce:
+			printf("\\^I");
+			return(1);
+		case 0xcf:
+			printf("\\\"I");
+			return(1);
+		case 0xd1:
+			printf("\\~N");
+			return(1);
+		case 0xd2:
+			printf("\\`O");
+			return(1);
+		case 0xd3:
+			printf("\\'O");
+			return(1);
+		case 0xd4:
+			printf("\\^O");
+			return(1);
+		case 0xd5:
+			printf("\\~O");
+			return(1);
+		case 0xd9:
+			printf("\\`U");
+			return(1);
+		case 0xda:
+			printf("\\'U");
+			return(1);
+		case 0xdb:
+			printf("\\^U");
+			return(1);
+		case 0xdd:
+			printf("\\'Y");
+			return(1);
+
+		case 0xe0:
+			printf("\\`a");
+			return(1);
+		case 0xe1:
+			printf("\\'a");
+			return(1);
+		case 0xe2:
+			printf("\\^a");
+			return(1);
+		case 0xe3:
+			printf("\\~a");
+			return(1);
+		case 0xe7:
+			printf("\\c c");
+			return(1);
+		case 0xe8:
+			printf("\\`e");
+			return(1);
+		case 0xe9:
+			printf("\\'e");
+			return(1);
+		case 0xea:
+			printf("\\^e");
+			return(1);
+		case 0xeb:
+			printf("\\\"e");
+			return(1);
+		case 0xec:
+			printf("\\`i");
+			return(1);
+		case 0xed:
+			printf("\\'i");
+			return(1);
+		case 0xee:
+			printf("\\^i");
+			return(1);
+		case 0xef:
+			printf("\\\"i");
+			return(1);
+		case 0xf1:
+			printf("\\~n");
+			return(1);
+		case 0xf2:
+			printf("\\`o");
+			return(1);
+		case 0xf3:
+			printf("\\'o");
+			return(1);
+		case 0xf4:
+			printf("\\^o");
+			return(1);
+		case 0xf5:
+			printf("\\~o");
+			return(1);
+		case 0xf9:
+			printf("\\`u");
+			return(1);
+		case 0xfa:
+			printf("\\'u");
+			return(1);
+		case 0xfb:
+			printf("\\^u");
+			return(1);
+		case 0xfd:
+			printf("\\'y");
+			return(1);
+		case 0xff:
+			printf("\\\"y");
+			return(1);
+
+		case 0xf0:
+			printf("?"); /* Icelandic eth? */
+			return(1);
+
+
+	/* End iso-8859-1 */
+
 		case 0x2019:
 			printf("'");
 			return(1);
