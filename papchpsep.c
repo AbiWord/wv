@@ -357,7 +357,7 @@ U32 find_FC_sepx(U32 cp,U32 *sepcp,textportions *portions)
 		j++;
 		}
 	error(erroroutput,"no sep FC found\n");
-	return(-1);
+	return(0xffffffffL);
 	}
 
 int find_FKPno_papx(U32 fc,U32 *plcfbtePapx,U32 intervals)
@@ -407,11 +407,11 @@ U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, FILE *in, U16 *loc
 	U8 crun;
 	int i;
 	U32 *rgfc;
-	U32 rval=-1;
+	U32 rval=0xffffffffL;
 	if (pos != NULL)
 		*pos = ftell(in);
 
-	if (pageindex != -1)
+	if (pageindex != 0xffffffffL)
 		{
 		error(erroroutput,"smallest seek to %x\n",(512*pageindex)+511);
 		if ((mainend < (512*pageindex)+511) || (0 != fseek(in,(512*pageindex)+511,SEEK_SET)))
@@ -462,11 +462,11 @@ U32 find_next_biggest_fc(U32 charindex,U32 pageindex, FILE *in, U16 *location,lo
 	U8 crun;
 	int i;
 	U32 *rgfc;
-	U32 rval=-1;
+	U32 rval=0xffffffffL;
 	if (pos != NULL)
 		*pos = ftell(in);
 
-	if (pageindex != -1)
+	if (pageindex != 0xffffffffL)
 		{
 		error(erroroutput,"smallest seek to %x\n",(512*pageindex)+511);
 		if ((mainend < (512*pageindex)+511) || (0 != fseek(in,(512*pageindex)+511,SEEK_SET)))
@@ -516,14 +516,14 @@ U32 find_next_smallest_fc(U32 charindex,U32 pageindex, FILE *in, S16 *location,l
 	{
 	U8 crun,i;
 	U32 *rgfc;
-	U32 rval=-1;
+	U32 rval=0xffffffffL;
 	if (pos != NULL)
 		*pos = ftell(in);
 
 	*location=-1; /*guilty until declared innocent*/
 
 
-	if (pageindex != -1)
+	if (pageindex != 0xffffffffL)
 		{
 		error(erroroutput,"smallest seek to %x\n",(512*pageindex)+511);
 		if ((mainend < (512*pageindex)+511) || (0 != fseek(in,(512*pageindex)+511,SEEK_SET)))

@@ -93,7 +93,7 @@ unsigned int s_mapNameToToken(const char* name)
 void exstartElement(void *userData, const char *name, const char **atts)
 	{
 	unsigned int tokenIndex;
-	expand_data *mydata = userData;
+	expand_data *mydata = (expand_data *)userData;
 	char *text,*str;
 	const char *ctext;
 
@@ -119,7 +119,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_JUST:
 			wvTrace("the just is %d\n",mydata->apap->jc);
-			text = malloc(strlen(mydata->sd->elements[TT_JUSTIFICATION].str[mydata->apap->jc])+1);
+			text = (char *)malloc(strlen(mydata->sd->elements[TT_JUSTIFICATION].str[mydata->apap->jc])+1);
 			strcpy(text,mydata->sd->elements[TT_JUSTIFICATION].str[mydata->apap->jc]);
 			str = mydata->retstring;
 			wvExpand(mydata,text,strlen(text));
@@ -135,7 +135,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 void startElement(void *userData, const char *name, const char **atts)
 	{
 	unsigned int tokenIndex,i;
-	state_data *mydata = userData;
+	state_data *mydata = (state_data *)userData;
 
 	tokenIndex = s_mapNameToToken(name);
 	if (mydata->current != NULL)
@@ -205,7 +205,7 @@ void startElement(void *userData, const char *name, const char **atts)
 
 void endElement(void *userData, const char *name)
 	{
-	state_data *mydata = userData;
+	state_data *mydata = (state_data *)userData;
 	unsigned int tokenIndex;
 
 	tokenIndex = s_mapNameToToken(name);
@@ -237,7 +237,7 @@ void endElement(void *userData, const char *name)
 
 void exendElement(void *userData, const char *name)
 	{
-	expand_data *mydata = userData;
+	expand_data *mydata = (expand_data *)userData;
 	unsigned int tokenIndex;
 
 	tokenIndex = s_mapNameToToken(name);
@@ -257,7 +257,7 @@ void charData(void* userData, const XML_Char *s, int len)
 	{
 	int i;
 
-	state_data *mydata = userData;
+	state_data *mydata = (state_data *)userData;
 	if ((len > 0) && (mydata->current != NULL))
 		*(mydata->current) = (char *)realloc(*(mydata->current),len+mydata->currentlen+1);
 	else
@@ -303,7 +303,7 @@ void excharData(void* userData, const XML_Char *s, int len)
 	{
 	int i;
 
-	expand_data *mydata = userData;
+	expand_data *mydata = (expand_data *)userData;
 	if (len > 0) 
 		mydata->retstring = (char *)realloc(mydata->retstring,len+mydata->currentlen+1);
 	else

@@ -28,7 +28,7 @@
 #endif
 
 #ifndef S8
-#define S8 unsigned char
+#define S8 char
 #endif
 
 #define UBit unsigned
@@ -1154,7 +1154,7 @@ typedef struct _CHP
 	U32 fEmboss:1;
 	U32 fImprint:1;
 	U32 fDStrike:1;
-	U32 fUsePgsuSettings:1;
+	S32 fUsePgsuSettings:1;		/*??*/
 	U32 reserved1:12;
 	U32 reserved2;
 
@@ -2256,6 +2256,8 @@ int wvQuerySupported(FIB *fib,int *reason);
 
 const char *wvReason(int reason);
 
+void wvSetCharHandler(wvParseStruct *ps);
+
 /*current addition position*/
 
 typedef struct _MSOFBH
@@ -2512,7 +2514,7 @@ typedef struct _PICF
 	S16 dxaOrigin;
 	S16 dyaOrigin;
 	S16 cProps;
-	U8 *rgb;
+	S8 *rgb;
 	} PICF;
 
 void wvGetPICF(PICF *apicf,FILE *infd,U32 offset);
@@ -2871,7 +2873,7 @@ struct tlist_info
 
 	U8 *lstarray;
 	int lstcount;
-	int nooflfos;
+	U32 nooflfos;
 	U32 *lst_ids;
 	list_def *a_list_def;
 	int *overridecount;
@@ -2881,9 +2883,9 @@ struct tlist_info
 	temp placed here, will eventually replace the other rubbish
 	*/
 	LFO *lfo;
-	int nolfo;	
+	U32 nolfo;	
 	LFOLVL *lfolvl;
-	int nooflvl;
+	U32 nooflvl;
 	LVL *lvl;
 
 	LST *lst;

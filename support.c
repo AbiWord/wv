@@ -362,7 +362,7 @@ char *get_image_prefix(void)
 	char *imageprefix;
 	if (imagesdir == NULL)
         {
-        imageprefix = malloc(strlen(outputfilename)+1);
+        imageprefix = (char *)malloc(strlen(outputfilename)+1);
         if (imageprefix == NULL)
             {
             fprintf(erroroutput,"arrgh, no mem\n");
@@ -372,7 +372,7 @@ char *get_image_prefix(void)
         }
     else
         {
-        imageprefix = malloc(strlen(imagesdir)+2+strlen(ms_basename(outputfilename)));
+        imageprefix = (char *)malloc(strlen(imagesdir)+2+strlen(ms_basename(outputfilename)));
         if (imageprefix == NULL)
             {
             fprintf(erroroutput,"arrgh, no mem\n");
@@ -573,20 +573,6 @@ RETSIGTYPE timeingout(int ignored)
 	exit(-1);
     }
 
-#if defined (HAVE_POSIX_SIGNALS)
-void signal_handle (int sig, SigHandler * handler)
-    {
-    struct sigaction act, oact;
-
-    act.sa_handler = handler;
-    act.sa_flags = 0 | SA_NOCLDSTOP | SA_RESTART;
-    sigemptyset (&act.sa_mask);
-    sigemptyset (&oact.sa_mask);
-    sigaction (sig, &act, &oact);
-    }
-#endif
-
-
 int setdecom(void)
 	{
 #ifdef SYSTEM_ZLIB
@@ -707,7 +693,7 @@ U32 decode_b_bookmark(bookmark_limits *l_bookmarks, STTBF *bookmarks)
 				}
 			fprintf(outputfile,"\">");
 			if (i == l_bookmarks->bookmark_b_no-1)
-				return(-1);
+				return(0xffffffff);
 			else
 				return(l_bookmarks->bookmark_b_cps[i+1]);
 			}
@@ -725,7 +711,7 @@ U32 decode_b_bookmark(bookmark_limits *l_bookmarks, STTBF *bookmarks)
 	if ((l_bookmarks->bookmark_b_no) > 0)
 		return(l_bookmarks->bookmark_b_cps[0]);
 		
-	return(-1);
+	return(0xffffffff);
 	}
 
 U32 decode_e_bookmark(bookmark_limits *l_bookmarks)
@@ -739,7 +725,7 @@ U32 decode_e_bookmark(bookmark_limits *l_bookmarks)
 			l_bookmarks->bookmark_e_cps[i] = 0xffff;		/*mark it off the list*/
 			fprintf(outputfile,"</A>");
 			if (i == l_bookmarks->bookmark_e_no-1)
-				return(-1);
+				return(0xffffffff);
 			else
 				return(l_bookmarks->bookmark_e_cps[i+1]);
 			}
@@ -757,7 +743,7 @@ U32 decode_e_bookmark(bookmark_limits *l_bookmarks)
 	if ((l_bookmarks->bookmark_e_no) > 0)
 		return(l_bookmarks->bookmark_e_cps[0]);
 		
-	return(-1);
+	return(0xffffffff);
 	}
 
 char *notoday(int no)

@@ -3,43 +3,18 @@ Changes to to 0.5.19
 	* this version probably doesnt work, and almost certainly doesnt do
 	what it says on the tin, dont use this until i get to at least the next
 	version, this is basically a cvs test.
-	* added this as a test of the commit stuff
-	* and this is another test.
-Changes to to 0.5.18
-	* made a release to show off the devel version to the abiword folk.
-	* modified xml code to unexpand &lt; etc etc, so that i can defer
-	processessing of some of the tags until later, im probably making a 
-	complete arse of the whole thing, but at least it gives me something
-	to do, and keeps me out of trouble neh ?
-	* created a variable expansion mechanism using xml parser, seems ok.
-	* make wvHtml load up wvHtml.xml and confirm that document begin works
-	completely fine, and that the title is being expanded.
-	* do end as well
-	* attempt the paragraph stuff, and call wvHtml a basic wrap
-	* so now we can output simple files in very basic html with para noted
-	correcly, and the title supported, we can do the same for abiword with
-	document begin/end and para begin/end
-	* charset supported as well.
-	* variables (?!) are now <charset/> & <title/>
-	* right aligned some #defines
-	* finish adding version var, use purify to find problems with adding entries
-	to TT table (debug only i believe)
-	* modify justification so as to call wvExpand again to get the full string
-	* create an abiword config, got document start and finish and paragraph start 
-	and finish working as well.
-	* we can now output good html and abiword format docs with basic paragraph
-	alignment, yippee.
-	* converted most of the U8 name:s to U32 name:s (non critical), i never knew that 
-	using anything less that an int was not technically correct, well what d'ya
-	know, some other minor stylistic changes.
-	* wrote tiny stub of an abiword importer.
-	* modify OLEdecode to take a FILE * rather than a filename,
-	* standardized ret codes from OLEdecode.
-	* added an error explanation table.
+	* use
+	./configure --without-zlib --without-ttf --without-xpm --without-wmf --without-x
+	change gcc to g++ in Makefile
+	and make a libwv.a suitable for abiword, (yeah i know i know, but im working on it)
+	to get a simple -lwv
 ALL TODO
-	* finish creating the simple wvPrint mechanism with the hooks to intercept 
-	the chars as they come out of the respective engines so as to redirect them
-	for your own purposes.
+	* modify configure script so its possible to link against a different expat
+	lib, or to disable it or something.
+	* compile with g++ and get rid of the problems that show up there, libwv will
+	compile mostly ok, so focus on that.
+
+	* create the hook into the getting the charcode in wvOutputText for abiword.
 
 	* add errors via numbered errors to wvInitParser.
 
@@ -140,6 +115,38 @@ ALL TODO
 	* doesnt compile under neXt & needs to use gcc for hpux 10.20 ?
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* where did my word5 copy go ?
+Changes to to 0.5.18
+	* made a release to show off the devel version to the abiword folk.
+	* modified xml code to unexpand &lt; etc etc, so that i can defer
+	processessing of some of the tags until later, im probably making a 
+	complete arse of the whole thing, but at least it gives me something
+	to do, and keeps me out of trouble neh ?
+	* created a variable expansion mechanism using xml parser, seems ok.
+	* make wvHtml load up wvHtml.xml and confirm that document begin works
+	completely fine, and that the title is being expanded.
+	* do end as well
+	* attempt the paragraph stuff, and call wvHtml a basic wrap
+	* so now we can output simple files in very basic html with para noted
+	correcly, and the title supported, we can do the same for abiword with
+	document begin/end and para begin/end
+	* charset supported as well.
+	* variables (?!) are now <charset/> & <title/>
+	* right aligned some #defines
+	* finish adding version var, use purify to find problems with adding entries
+	to TT table (debug only i believe)
+	* modify justification so as to call wvExpand again to get the full string
+	* create an abiword config, got document start and finish and paragraph start 
+	and finish working as well.
+	* we can now output good html and abiword format docs with basic paragraph
+	alignment, yippee.
+	* converted most of the U8 name:s to U32 name:s (non critical), i never knew that 
+	using anything less that an int was not technically correct, well what d'ya
+	know, some other minor stylistic changes.
+	* wrote tiny stub of an abiword importer.
+	* modify OLEdecode to take a FILE * rather than a filename,
+	* standardized ret codes from OLEdecode.
+	* added an error explanation table.
+
 Changes to to 0.5.17
 	* added clx.c, pcd.c, prm.c
 	* clx.c is the successor to piecetable.c,

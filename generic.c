@@ -89,7 +89,7 @@ void wvAppendStr(char **orig,const char *add)
 	wvTrace("got this far\n");
 	pos = wvStrlen(*orig);
 	wvTrace("len is %d %d\n",pos,wvStrlen(add));
-	(*orig) = realloc(*orig,pos+wvStrlen(add)+1);
+	(*orig) = (char *)realloc(*orig,pos+wvStrlen(add)+1);
 	(*orig)[pos] = '\0';
 	wvTrace("3 test str of %s\n",*orig);
 	strcat(*orig,add);

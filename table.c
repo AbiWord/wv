@@ -384,7 +384,7 @@ int do_tablelooks(pap *apap)
 
 void output_tablebg(pap *apap)
 	{
-	int shademodifier = 100;
+	float shademodifier = 100;
 	int foreground;
 
 	if (apap->ourtap.tlp.itl)

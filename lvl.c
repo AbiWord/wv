@@ -31,7 +31,7 @@ void wvCopyLVL(LVL *dest,LVL *src)
 	else
 		{
 		len = src->numbertext[0];
-		dest->numbertext = malloc(sizeof(U16)*(len +2));
+		dest->numbertext = (U16 *)malloc(sizeof(U16)*(len +2));
 		dest->numbertext[0] = len;
 		for(i=1;i<len+1;i++)
 			dest->numbertext[i] = src->numbertext[i];
@@ -62,7 +62,7 @@ void wvGetLVL(LVL *lvl,FILE *fd)
 	len = read_16ubit(fd);
 	if (len > 0)
 		{
-		lvl->numbertext = malloc(sizeof(U16)*(len +2));
+		lvl->numbertext = (U16 *)malloc(sizeof(U16)*(len +2));
 		lvl->numbertext[0] = len;
 		for(i=1;i<len+1;i++)
 			lvl->numbertext[i] = read_16ubit(fd);

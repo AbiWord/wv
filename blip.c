@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <unistd.h>
 #include "wv.h"
 
 extern FILE *outputfile;
@@ -102,7 +103,7 @@ obj_by_spid * get_blips(U32 fcDggInfo,U32 lcbDggInfo,FILE *tablefd,FILE *mainfd,
 
 	if (imagesdir == NULL)
 		{
-		imageprefix = malloc(strlen(outputfilename)+1);
+		imageprefix = (char *)malloc(strlen(outputfilename)+1);
 		if (imageprefix == NULL)
 			{
 			fprintf(erroroutput,"arrgh, no mem\n");
@@ -112,7 +113,7 @@ obj_by_spid * get_blips(U32 fcDggInfo,U32 lcbDggInfo,FILE *tablefd,FILE *mainfd,
 		}
 	else
 		{
-		imageprefix = malloc(strlen(imagesdir)+2+strlen(ms_basename(outputfilename)));
+		imageprefix = (char *)malloc(strlen(imagesdir)+2+strlen(ms_basename(outputfilename)));
 		if (imageprefix == NULL)
 			{
 			fprintf(erroroutput,"arrgh, no mem\n");
@@ -257,7 +258,7 @@ obj_by_spid * get_blips(U32 fcDggInfo,U32 lcbDggInfo,FILE *tablefd,FILE *mainfd,
 							read_32ubit(tablefd);
 							full00len+=4;
 
-							buffer = malloc(strlen("-graphic100-mswv.tiff")+80+strlen(imageprefix));
+							buffer = (char *)malloc(strlen("-graphic100-mswv.tiff")+80+strlen(imageprefix));
 							if (buffer==NULL)
 								{
 								fprintf(erroroutput,"no mem\n");
@@ -608,7 +609,7 @@ obj_by_spid * get_blips(U32 fcDggInfo,U32 lcbDggInfo,FILE *tablefd,FILE *mainfd,
 				read_32ubit(tablefd);
 				fulllen+=4;
 
-				buffer = malloc(strlen("-graphic100-mswv.tiff")+80+strlen(imageprefix));
+				buffer = (char *)malloc(strlen("-graphic100-mswv.tiff")+80+strlen(imageprefix));
 				if (buffer==NULL)
 					{
 					fprintf(erroroutput,"no mem\n");
@@ -1026,7 +1027,7 @@ char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,FILE *infd)
 	for (i=0;i<16;i++)
 		abm->m_rgbUid[i] = getc(infd);
 
-	buffer = malloc(4096);
+	buffer = (char *)malloc(4096);
 	count+=i;
 	abm->m_rgbUidPrimary[0] = 0;
 
@@ -1085,7 +1086,7 @@ char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *infd)
 	amf->m_rgbUidPrimary[0] = 0;
 
 	aimage = get_image_prefix();
-	buffer = malloc(4096);
+	buffer = (char *)malloc(4096);
 	switch (amsofbh->fbt-msofbtBlipFirst)
 		{
 		case msoblipEMF:
@@ -1496,7 +1497,7 @@ U32 wvGetSPIDfromCP(U32 cp,textportions *portions)
 	for (i=0;i<portions->noofficedraw;i++)
         if (cp == portions->officedrawcps[i])
             return(portions->fspas[i].spid);
-	return(-1);
+	return(0xffffffffL);
 	}
 
 void wvGetBITMAP(BITMAP *bmp,FILE *infd)
@@ -1595,7 +1596,7 @@ void wvGetPICF(PICF *apicf,FILE *infd,U32 offset)
 		{
 		if (pic_list->filename[0] != '\0')
 			error(erroroutput,"filename is now %s\n",pic_list->filename);
-		apicf->rgb = (U8 *)malloc(strlen(pic_list->filename)+1);
+		apicf->rgb = (S8 *)malloc(strlen(pic_list->filename)+1);
 		strcpy(apicf->rgb,pic_list->filename);
 		}
 

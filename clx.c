@@ -170,5 +170,5 @@ U32 wvGetPieceFromCP(U32 currentcp,CLX *clx)
 		i++;
 		}
 	wvError("cp was not in any piece ! \n",currentcp);
-	return(-1);
+	return(0xffffffffL);
 	}

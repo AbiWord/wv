@@ -184,6 +184,12 @@ AC_PATH_XTRA
 
 dnl CFLAGS="$CFLAGS $X_CFLAGS"
 
+if test [ "$no_x" = yes ]; then
+X11=""
+else
+X11="-lX11" 
+fi
+
 dnl LIBS="$X_LIBS $LIBS -lX11 $X_EXTRA_LIBS"
 
 
@@ -547,8 +553,15 @@ AC_SUBST(TTF_CFLAGS)
 AC_SUBST(XPM_LIBS)
 AC_SUBST(WMF_LIBS)
 AC_SUBST(WMF_CFLAGS)
+
+if [ test "$XPM_LIBS" != "" ]; then
+AC_DEFINE(USE_X)
+AC_SUBST(X11)
 AC_SUBST(X_LIBS)
 AC_SUBST(X_EXTRA_LIBS)
+fi
+
+
 
 dnl check for getopt
 AC_CHECK_FUNC(getopt_long, , [LIBOBJS="$LIBOBJS getopt1.o getopt.o"])

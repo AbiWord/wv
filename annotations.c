@@ -148,7 +148,7 @@ U32 decode_b_annotation(bookmark_limits *l_bookmarks, STTBF *bookmarks)
 			fprintf(outputfile,"\">");
 			fprintf(outputfile,"<img src=\"%s/doccommentb.jpg\">",patterndir());
 			if (i == l_bookmarks->bookmark_b_no-1)
-				return(-1);
+				return(0xffffffffL);
 			else
 				return(l_bookmarks->bookmark_b_cps[i+1]);
 			}
@@ -166,7 +166,7 @@ U32 decode_b_annotation(bookmark_limits *l_bookmarks, STTBF *bookmarks)
 	if ((l_bookmarks->bookmark_b_no) > 0)
 		return(l_bookmarks->bookmark_b_cps[0]);
 		
-	return(-1);
+	return(0xffffffffL);
 	}
 
 U32 decode_e_annotation(bookmark_limits *l_bookmarks)
@@ -181,7 +181,7 @@ U32 decode_e_annotation(bookmark_limits *l_bookmarks)
 			fprintf(outputfile,"</A>");
 			fprintf(outputfile,"<img src=\"%s/doccommente.jpg\">",patterndir());
 			if (i == l_bookmarks->bookmark_e_no-1)
-				return(-1);
+				return(0xffffffffL);
 			else
 				return(l_bookmarks->bookmark_e_cps[i+1]);
 			}
@@ -199,5 +199,5 @@ U32 decode_e_annotation(bookmark_limits *l_bookmarks)
 	if ((l_bookmarks->bookmark_e_no) > 0)
 		return(l_bookmarks->bookmark_e_cps[0]);
 		
-	return(-1);
+	return(0xffffffffL);
 	}

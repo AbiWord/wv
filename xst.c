@@ -50,7 +50,7 @@ void wvGetXst(Xst **xst,U32 offset,U32 len,FILE *fd)
         {
         clen = read_16ubit(fd);
         count+=2;
-        current->u16string = malloc((clen+1) * sizeof(U16));
+        current->u16string = (U16 *)malloc((clen+1) * sizeof(U16));
         authorlist->noofstrings++;
         if (current->u16string == NULL)
             {

@@ -199,11 +199,11 @@ void wvGetListInfo(pap *apap, chp *achp,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U32 nol
 U16 *wvListString(int ilfo,int ilvl,LST *alst)
 	{
 	U16 *u16str;
-	U8 *u8str,*u8str2;
+	S8 *s8str,*s8str2;
 	int spos,dpos;
 	int lno,i;
 
-	u16str = malloc(4096);
+	u16str = (U16 *)malloc(4096*sizeof(U16));
 	if (u16str == NULL)
 		return(NULL);
 	u16str[0] = 0;
@@ -244,19 +244,18 @@ U16 *wvListString(int ilfo,int ilvl,LST *alst)
 
 					dpos += alst->lvl[ilvl].lvlf.rgbxchNums[i]-spos;
 					
-					u8str = wvGenerateNFC(alst->current_no[ilvl],
-						alst->lvl[ilvl].lvlf.nfc);
+					s8str = wvGenerateNFC(alst->current_no[ilvl], alst->lvl[ilvl].lvlf.nfc);
 					alst->current_no[ilvl]++;
 
-					if (u8str != NULL)
+					if (s8str != NULL)
 						{
-						u8str2 = u8str;
-						while(*u8str2 != '\0')
+						s8str2 = s8str;
+						while(*s8str2 != '\0')
 							{
-							*(u16str+dpos) = *u8str2++;
+							*(u16str+dpos) = *s8str2++;
 							dpos++;
 							}
-						wvFree(u8str);
+						wvFree(s8str);
 						}
 
 					spos = alst->lvl[ilvl].lvlf.rgbxchNums[i]+1;

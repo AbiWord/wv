@@ -268,7 +268,7 @@ int wvGetProperty(PropValue *Prop, SummaryInfo *si, U32 pid)
 						Prop->vtValue.vtBSTR.ch=NULL;
 						break;
 						}
-					Prop->vtValue.vtBSTR.ch = (U8 *)malloc(Prop->vtValue.vtBSTR.cBytes);
+					Prop->vtValue.vtBSTR.ch = (char *)malloc(Prop->vtValue.vtBSTR.cBytes);
 					for (j=0;j<Prop->vtValue.vtBSTR.cBytes;j++)
 						Prop->vtValue.vtBSTR.ch[j] = *t++;
 					break;

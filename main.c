@@ -243,7 +243,7 @@ int main(int argc,char **argv)
 			case 'o':
 				if (optarg)
 					{
-					outputfilename = malloc(strlen(optarg)+1);
+					outputfilename = (char *)malloc(strlen(optarg)+1);
 					if (outputfilename == NULL)
 						{
 						fprintf(erroroutput,"no mem\n");
@@ -259,7 +259,7 @@ int main(int argc,char **argv)
 			case 'g':
 				if (optarg)
 					{
-					errorfilename = malloc(strlen(optarg)+1);
+					errorfilename = (char *)malloc(strlen(optarg)+1);
 					if (errorfilename == NULL)
 						{
 						fprintf(erroroutput,"no mem\n");
@@ -275,7 +275,7 @@ int main(int argc,char **argv)
 			case 'j':
 				if (optarg)
 					{
-					imagesurl = malloc(strlen(optarg)+1);
+					imagesurl = (char *)malloc(strlen(optarg)+1);
 					if (imagesurl == NULL)
 						{
 						fprintf(erroroutput,"no mem\n");
@@ -289,7 +289,7 @@ int main(int argc,char **argv)
 			case 'i':
 				if (optarg)
 					{
-					imagesdir = malloc(strlen(optarg)+1);
+					imagesdir = (char *)malloc(strlen(optarg)+1);
 					if (imagesdir == NULL)
 						{
 						fprintf(erroroutput,"no mem\n");
@@ -303,7 +303,7 @@ int main(int argc,char **argv)
 			case 's':
 				if (optarg)
 					{
-					symbolurl = malloc(strlen(optarg)+1);
+					symbolurl = (char *)malloc(strlen(optarg)+1);
 					if (symbolurl == NULL)
 						{
 						fprintf(erroroutput,"no mem\n");
@@ -317,7 +317,7 @@ int main(int argc,char **argv)
 			case 'p':
 				if (optarg)
 					{
-					patternurl = malloc(strlen(optarg)+1);
+					patternurl = (char *)malloc(strlen(optarg)+1);
 					if (patternurl == NULL)
 						{
 						fprintf(erroroutput,"no mem\n");
@@ -331,7 +331,7 @@ int main(int argc,char **argv)
 			case 'd':
 				if (optarg)
 					{
-					wingdingurl = malloc(strlen(optarg)+1);
+					wingdingurl = (char *)malloc(strlen(optarg)+1);
 					if (wingdingurl == NULL)
 						{
 						fprintf(erroroutput,"no mem\n");
@@ -345,7 +345,7 @@ int main(int argc,char **argv)
 			case 'x':
 				if (optarg)
 					{
-					truetypedir = malloc(strlen(optarg)+1);
+					truetypedir = (char *)malloc(strlen(optarg)+1);
 					if (truetypedir == NULL)
 						{
 						fprintf(erroroutput,"no mem\n");
@@ -359,7 +359,7 @@ int main(int argc,char **argv)
 			case 'z':
 				if (optarg)
 					{
-					configfile = malloc(strlen(optarg)+1);
+					configfile = (char *)malloc(strlen(optarg)+1);
 					if (configfile == NULL)
 						{
 						fprintf(erroroutput,"no mem\n");
@@ -550,3 +550,18 @@ int main(int argc,char **argv)
 		ret=0;
 	return(ret);
 	}
+
+
+
+#if defined (HAVE_POSIX_SIGNALS)
+void signal_handle (int sig, SigHandler * handler)
+    {
+    struct sigaction act, oact;
+
+    act.sa_handler = handler;
+    act.sa_flags = 0 | SA_NOCLDSTOP | SA_RESTART;
+    sigemptyset (&act.sa_mask);
+    sigemptyset (&oact.sa_mask);
+    sigaction (sig, &act, &oact);
+    }
+#endif

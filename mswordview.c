@@ -264,7 +264,7 @@ int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
 
 	if (outputfilename == NULL)
 		{
-		outputfilename = malloc(strlen(filename) + strlen(".html") + 1);
+		outputfilename = (char *)malloc(strlen(filename) + strlen(".html") + 1);
 		if (outputfilename == NULL)
 			{
 			fprintf(erroroutput,"no mem\n");
@@ -544,7 +544,7 @@ int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
 	if (portions.headercpno > 0)
 		{
 		error(erroroutput,"head no is %d\n",portions.headercpno);
-		portions.headercplist = malloc(sizeof(U32) * portions.headercpno);
+		portions.headercplist = (U32 *)malloc(sizeof(U32) * portions.headercpno);
 		if (portions.headercplist == NULL)
 			{
 			error(erroroutput,"feck no mem\n");
@@ -1505,8 +1505,8 @@ void decode_simple(FILE *mainfd,FILE *tablefd,FILE *data,U32 fcclx,U32 fcmin,U32
 
 	if  ( (flag < 2) && (flag >0) )
 		{
-		untilfc=-1;  /*max it out for header/footers and rely on doubled 0x0d's*/
-		limitcp=-1;
+		untilfc=0xffffffffL;  /*max it out for header/footers and rely on doubled 0x0d's*/
+		limitcp=0xffffffffL;
 		}
 	else
 		limitcp=portions->ccpText;
@@ -1865,8 +1865,8 @@ void decode_header(U32 *begin,U32 *len,textportions *portions,sep *asep)
 	docs seem to be a bit dodgy*/
 	int odd;
 	int val,tval;
-	*begin = -1;
-	*len= -1;
+	*begin = 0xffffffffL;
+	*len= 0xffffffffL;
 
 
 	/*is this the first page of a section*/
@@ -1962,8 +1962,8 @@ void decode_header2(U32 *begin,U32 *len,textportions *portions)
 
 	/*i dont know how these fields are working as of yet, the
 	docs seem to be a bit dodgy*/
-	*begin = -1;
-	*len= -1;
+	*begin = 0xffffffffL;
+	*len= 0xffffffffL;
 
 	/*is this the first page of a section*/
 	if (sectionpagenumber==1)
@@ -2011,8 +2011,8 @@ void decode_footer(U32 *begin,U32 *len,textportions *portions,sep *asep)
 	docs seem to be a bit dodgy*/
 	int odd;
 	int val,tval;
-	*begin = -1;
-	*len= -1;
+	*begin = 0xffffffffL;
+	*len= 0xffffffffL;
 	
 	error(erroroutput,"pagenumber is %d,sectionpagenumber is %d, pgnStart is %d, title is %d\n",pagenumber, sectionpagenumber,asep->pgnStart,asep->fTitlePage);
 
@@ -2622,9 +2622,9 @@ int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fi
 	{
 	int ret=0;
 	int i=0,j;
-	static U8 fieldwas=-1;
+	static U8 fieldwas=0xff;
 	static int fieldeater=0;
-	static long int swallowcp1=-1,swallowcp2=-1;
+	static long int swallowcp1=0xffffffffL,swallowcp2=0xffffffffL;
 	static int spacecount;
 	static int tabstop;
 	static int silent=0;
@@ -3095,12 +3095,12 @@ int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fi
 					switch (fieldwas)
 						{
 						case 37:
-							if ((swallowcp1 != -1) && (swallowcp2 != -1))
+							if ((swallowcp1 != 0xffffffffL) && (swallowcp2 != 0xffffffffL))
 								fieldparse=37;
 							silent=1;
 							break;
 						case 88:
-							if ((swallowcp1 != -1) && (swallowcp2 != -1))
+							if ((swallowcp1 != 0xffffffffL) && (swallowcp2 != 0xffffffffL))
 								fieldparse=88;
 							break;
 						default:
@@ -3279,7 +3279,7 @@ int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fi
 						}
 					else 
 						{
-						temp2 = (8-((tabbing - (tabstop/8))*8))+1;
+						temp2 = (int)((8-((tabbing - (tabstop/8))*8))+1);
 					    error(erroroutput,"temp2 is %d\n",temp2);
 						if ( (padding == 1) || (padding == 4))
 							{
@@ -3291,7 +3291,7 @@ int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fi
 							fprintf(outputfile,"<img height=1 width=%d src=\"%s/clear.gif\">",(int)(temp2*tabsize),patterndir());
 						else if ((padding == 5) || (padding == 2))
 							oprintf(silent," ");
-						tabstop = tabstop+(8-(tabbing - (tabstop/8))*8);
+						tabstop = (int)(tabstop+(8-(tabbing - (tabstop/8))*8));
 						}
 					/*oprintf(silent,"<TAB>");*/
 					break;
@@ -3304,11 +3304,11 @@ int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fi
 					switch (fieldwas)
 						{
 						case 37:
-							if ((swallowcp1 != -1) && (swallowcp2 != -1))
+							if ((swallowcp1 != 0xffffffffL) && (swallowcp2 != 0xffffffffL))
 								fieldparse=37;
 							break;
 						case 88:
-							if ((swallowcp1 != -1) && (swallowcp2 != -1))
+							if ((swallowcp1 != 0xffffffffL) && (swallowcp2 != 0xffffffffL))
 								fieldparse=88;
 							break;
 						default:
@@ -3377,7 +3377,7 @@ int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fi
 					else
 						{
 						wvFree(fontname);
-						fontname = malloc(strlen("Symbol")+1);
+						fontname = (char *)malloc(strlen("Symbol")+1);
 						strcpy(fontname,"Symbol");
 						letter = 0xf0bc;
 						/*156.gif*/
@@ -5350,4 +5350,5 @@ void chpson()
 	error(erroroutput,"chps turned on\n");
 	chps=0;
 	}
+
 

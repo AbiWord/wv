@@ -67,7 +67,7 @@ return sread_32ubit(array);
 }
 
 pps_entry **pps_list=NULL;
-char *SDepot=NULL;
+unsigned char *SDepot=NULL;
 
 /* recurse to follow forward/backward list of root pps's */
 void unravel(pps_entry *pps_node)
@@ -96,8 +96,9 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
 #endif
   int BlockSize=0,Offset=0;
   int c,i,j,len,bytes;
-  char *s,*p,*t;
-  char *Block,*BDepot,*Depot,*Root;
+  char *p;
+  unsigned char *s,*t;
+  unsigned char *Block,*BDepot,*Depot,*Root;
   U32 depot_len;
   
   char Main[]="WordDocument";
@@ -138,7 +139,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
      return 2;
   /* check for MS OLE wrapper */
   } else if(c==0xd0) {
-     Block = malloc(512);
+     Block = (unsigned char *)malloc(512);
 	 if (Block == NULL)
 	 	{
        	wvError("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",512);
@@ -155,7 +156,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
        	wvError("2 ===========> Input file has ridiculous bbd, mem for the depot was %d\n",512*num_bbd_blocks);
 		return(3);
 		}
-     BDepot = malloc(512*num_bbd_blocks);
+     BDepot = (unsigned char *)malloc(512*num_bbd_blocks);
 	 if (BDepot == NULL)
 	 	{
        	wvError("2 ===========> couldnt alloc ole mem for the depot of %d\n",512*num_bbd_blocks);
@@ -205,7 +206,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
 			}
 		if(sbd_list[len]==-2) break;
      	}
-     SDepot = malloc(512*len);
+     SDepot = (unsigned char *)malloc(512*len);
 	 if (SDepot== NULL)
 	 	{
        	wvError("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",512*len);
@@ -233,7 +234,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
 		root_list[len] = LongInt(BDepot+(root_list[len-1]*4));
 		if(root_list[len]==-2) break;
 		}
-     Root = malloc(512*len);
+     Root = (unsigned char *)malloc(512*len);
 	 if (Root == NULL)
 	 	{
        	wvError("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",512*len);
@@ -252,7 +253,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
      }
 
      /* assign space for pps list */
-     pps_list = malloc(len*4*sizeof(pps_entry *));
+     pps_list = (pps_entry **)malloc(len*4*sizeof(pps_entry *));
 	 if (pps_list == NULL)
 	 	{
        	wvError("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",len*4*sizeof(pps_entry *));
@@ -260,7 +261,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
 		}
      for(j=0;j<len*4;j++) 
 	 	{
-	 	pps_list[j] = malloc(sizeof(pps_entry));
+	 	pps_list[j] = (pps_entry *)malloc(sizeof(pps_entry));
 		if (pps_list[j] == NULL)
 			{
 			wvError("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",sizeof(pps_entry));

@@ -132,7 +132,7 @@ void wvGetSTD(STD *item,FILE *fd)
 
 	len = read_16ubit(fd);
 	wvTrace("doing a std, str len is %d\n",len+1);
-	item->xstzName = malloc((len+1) * sizeof(XCHAR));
+	item->xstzName = (U16 *)malloc((len+1) * sizeof(XCHAR));
 	pos+=2;
 
 	for(i=0;i<len+1;i++)

@@ -157,7 +157,7 @@ void init_chp(chp * achp)
     achp->color[0]='\0';
     achp->underline=0;
     achp->idctHint=0;
-	achp->fcPic=-1;
+	achp->fcPic=0xffffffffL;
 
 	achp->ibstRMark=0;
 	achp->ibstRMarkDel=0;

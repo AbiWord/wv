@@ -24,6 +24,10 @@ const char *wvGetCharset(U16 charset)
 
 void wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state)
 	{
+	/*
+	if (charhandler)
+		(*charhandler)(U16 eachchar,U8 chartype);
+	*/
 	switch(eachchar)
 		{
 		case 11:
@@ -110,7 +114,7 @@ void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype)
 void wvOutputFromCP1252(U16 eachchar,U8 outputtype)
 	{
 	U16 temp16;
-	U8 *str;
+	char *str;
 	switch(outputtype)
 		{
 		case UTF8:
@@ -141,7 +145,7 @@ void wvOutputFromCP1252(U16 eachchar,U8 outputtype)
 void wvOutputFromUnicode(U16 eachchar,U8 outputtype)
 	{
 	U16 temp16;
-	U8 *str;
+	char *str;
 	switch (outputtype)
 		{
 		case UTF8:
@@ -225,12 +229,12 @@ void wvEndPara(expand_data *data)
 	}
 
 
-/*
 
-void wvSetCharHandler()
+void wvSetCharHandler(wvParseStruct *ps)
     {
 	}
 
+/*
 
 void wvPrint(char *fmt, ...)
 	{

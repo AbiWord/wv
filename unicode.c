@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "wv.h"
+#include "utf.h"
 
 
 char *wvWideStrToMB(U16 *str)
@@ -17,7 +18,7 @@ char *wvWideStrToMB(U16 *str)
 	while(*str != 0)
 		{
 		len = our_wctomb(target,*str);	
-		utf8 = (U8 *)realloc(utf8,len2+len+1);
+		utf8 = (char *)realloc(utf8,len2+len+1);
 		for(j=0;j<len;j++)
 			utf8[len2+j] = target[j];
 		len2 +=len;
@@ -38,7 +39,7 @@ char *wvWideCharToMB(U16 char16)
 					but you never know :-)
 					*/
 	len = our_wctomb(target,char16);	
-	utf8 = (U8 *)realloc(utf8,len2+len+1);
+	utf8 = (char *)realloc(utf8,len2+len+1);
 	for(j=0;j<len;j++)
 		utf8[len2+j] = target[j];
 	len2 +=len;
