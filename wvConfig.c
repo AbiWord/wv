@@ -5,7 +5,7 @@
 #include <ctype.h>
 #include "wv.h"
 #include "wvinternal.h"
-#ifdef HAVE_GNOME_XML2
+#ifdef HAVE_LIBXML2
 #include <libxml/parser.h>
 #define XML_Char xmlChar
 #else
@@ -1993,7 +1993,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 static void startElement(void *userData, const char *name, const char **atts)
 	{
 	unsigned int nAtts;
-#ifdef HAVE_GNOME
+#ifdef HAVE_LIBXML2
 	const char **p;
 #else
 	const XML_Char **p;
@@ -3275,7 +3275,7 @@ static void excharData(void* userData, const XML_Char *s, int len)
 		}
 	}
 
-#ifdef HAVE_GNOME
+#ifdef HAVE_LIBXML2
 /* GNOME_XML_NOT_YET */
 int wvParseConfig(state_data *myhandle)
 {
@@ -3331,7 +3331,7 @@ void wvInitExpandData(expand_data *data)
 	data->currentlen=0;
 	}
 
-#ifdef HAVE_GNOME
+#ifdef HAVE_LIBXML2
 /* GNOME_XML_NOT_YET */
 int wvExpand(expand_data *myhandle,char *buf,int len)
 {
