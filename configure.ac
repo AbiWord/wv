@@ -54,6 +54,13 @@ AH_TOP([
 dnl Checks for programs.
 
 AC_PROG_CC
+if test "x$GCC" = "xyes"; then
+	ANSI_CFLAGS="-ansi"
+else
+	ANSI_CFLAGS=""
+fi
+AC_SUBST(ANSI_CFLAGS)
+
 AC_PROG_CPP
 AC_PROG_AWK
 AC_PROG_INSTALL

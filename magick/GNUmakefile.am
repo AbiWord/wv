@@ -17,3 +17,19 @@ libmagick_la_SOURCES = \
 	png.c \
 	bmp.c \
 	signature.c
+
+OTHERHEADERS = \
+	api.h \
+	blob.h \
+	classify.h \
+	compress.h \
+	defines.h \
+	error.h \
+	image.h \
+	magick.h \
+	memory.h \
+	mng.h \
+	quantize.h \
+	utility.h
+
+EXTRA_DIST = $(OTHERHEADERS)

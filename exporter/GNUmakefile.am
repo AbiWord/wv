@@ -65,3 +65,7 @@ libexporter_la_SOURCES = \
 	tlp.c \
 	wkb.c \
 	wvexporter.c
+
+OTHERHEADERS = wvexporter-priv.h
+
+EXTRA_DIST = $(OTHERHEADERS)

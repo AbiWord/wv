@@ -10,3 +10,7 @@ libglib_la_SOURCES = \
 	glist.c \
 	gmessages.c \
 	gstrfuncs.c
+
+OTHERHEADERS = glib.h
+
+EXTRA_DIST = $(OTHERHEADERS)

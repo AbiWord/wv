@@ -19,3 +19,11 @@ endif
 COMMONSOURCES = ms-ole.c ms-ole-summary.c
 
 libole2_la_SOURCES = $(COMMONSOURCES) $(VFSSOURCES)
+
+OTHERHEADERS = \
+	ms-ole-gnomevfs.h \
+	ms-ole-summary.h \
+	ms-ole-vba.h \
+	ms-ole.h
+
+EXTRA_DIST = $(OTHERHEADERS)

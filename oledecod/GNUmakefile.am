@@ -11,3 +11,9 @@ CPPFLAGS = @CPPFLAGS@ @GLIB_CFLAGS@ @ICONV_CFLAGS@ @ZLIB_CFLAGS@
 noinst_LTLIBRARIES = liboledecod.la
 
 liboledecod_la_SOURCES = oledecod.c
+
+OTHERHEADERS = \
+	oledecod.h \
+	support.h
+
+EXTRA_DIST = $(OTHERHEADERS)

@@ -35,6 +35,8 @@ DEFS = @DEFS@ -DVERSION=\"@VERSION@\" -DXMLCONFIG=\"$(pkgdatadir)/wvConfig.xml\"
 INCLUDES = -I. -I$(top_builddir) -I$(srcdir) \
 	-I$(srcdir)/magick -I$(srcdir)/libole2 -I$(srcdir)/oledecod $(INCGLIB) $(INCEXPAT)
 
+CFLAGS = @CFLAGS@ @ANSI_CFLAGS@
+
 CPPFLAGS = @CPPFLAGS@ @WMF_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @ICONV_CFLAGS@ @PNG_CFLAGS@ @ZLIB_CFLAGS@
 
 WVLIBS = @WMF_LIBS@ @XML_LIBS@ @GLIB_LIBS@ @ICONV_LIBS@ @PNG_LIBS@ @ZLIB_LIBS@ @LIBS@ -lm
@@ -154,3 +156,19 @@ libwv_la_SOURCES = \
 	bmptopng.c \
 	basename.c \
 	laolareplace.c
+
+OTHERHEADERS = \
+	bintree.h \
+	crc32.h \
+	getopt.h \
+	hdr.h \
+	md5.h \
+	plan9.h \
+	rc4.h \
+	roman.h \
+	utf.h \
+	wvinternal.h
+
+OTHERSCRIPTS = wvMime
+
+EXTRA_DIST = autogen.sh $(OTHERHEADERS) $(OTHERSCRIPTS)
