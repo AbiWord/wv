@@ -21,6 +21,9 @@
 ABI_ROOT:=$(shell pwd)/../abi
 ABI_PEER:=/wv
 
+# awkward work-around to avoid system-installed libole2 headers
+INCLUDES= -I.
+
 include $(ABI_ROOT)/src/config/abi_defs.mk
 
 CSRCS= \
