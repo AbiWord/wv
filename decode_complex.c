@@ -338,9 +338,10 @@ void wvDecodeComplex(wvParseStruct *ps)
 	U16 eachchar;
 	U32 para_fcFirst=0,para_fcLim=0xffffffffL;
 	U32 char_fcFirst=0,char_fcLim=0xffffffffL;
+	U32 section_fcFirst=0,section_fcLim=0xffffffffL;
 	BTE *btePapx=NULL, *bteChpx=NULL;
 	U32 *posPapx=NULL, *posChpx=NULL;
-	U32 para_intervals, char_intervals;
+	U32 para_intervals, char_intervals,section_intervals;
 	U16 charset;
 	U8 state=0;
 	int cpiece=0;
@@ -349,7 +350,10 @@ void wvDecodeComplex(wvParseStruct *ps)
 	PAP apap;
 	CHPX_FKP char_fkp;
 	CHP achp;
-	int para_pendingclose=0, char_pendingclose=0;
+	int para_pendingclose=0, char_pendingclose=0,section_pendingclose=0;
+	SED *sed;
+	SEP sep;
+	U32 *posSedx;
 
 	/*we will need the stylesheet to do anything useful with layout and look*/
 	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
@@ -369,17 +373,21 @@ void wvDecodeComplex(wvParseStruct *ps)
 	to where a table begins and ends
 	*/
 	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3) )
-	    {
-	       wvGetBTE_PLCF6(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
-	       wvListBTE_PLCF(&btePapx,&posPapx,&para_intervals);
-	       wvGetBTE_PLCF6(&bteChpx,&posChpx,&char_intervals,ps->fib.fcPlcfbteChpx, ps->fib.lcbPlcfbteChpx,ps->tablefd);
-	       wvListBTE_PLCF(&bteChpx,&posChpx,&char_intervals);
-	    }
+		{
+		wvGetBTE_PLCF6(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
+		wvListBTE_PLCF(&btePapx,&posPapx,&para_intervals);
+		wvGetBTE_PLCF6(&bteChpx,&posChpx,&char_intervals,ps->fib.fcPlcfbteChpx, ps->fib.lcbPlcfbteChpx,ps->tablefd);
+		wvListBTE_PLCF(&bteChpx,&posChpx,&char_intervals);
+		}
 	else 
-	     {
+		{
 		wvGetBTE_PLCF(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
 		wvGetBTE_PLCF(&bteChpx,&posChpx,&char_intervals,ps->fib.fcPlcfbteChpx,ps->fib.lcbPlcfbteChpx,ps->tablefd);
-	     }
+		}
+
+	wvGetSED_PLCF(&sed,&posSedx,&section_intervals,ps->fib.fcPlcfsed,ps->fib.lcbPlcfsed,ps->tablefd);
+	wvTrace(("section_intervals is %d\n",section_intervals));
+
 	charset = wvAutoCharset(&ps->clx);
 
 	wvInitPAPX_FKP(&para_fkp);
@@ -412,6 +420,26 @@ void wvDecodeComplex(wvParseStruct *ps)
 				wvHandleElement(ps,PARAEND, (void*)&apap);
 				para_pendingclose=0;
 				}
+
+			if (j == section_fcLim)
+                {
+                wvHandleElement(ps, SECTIONEND, (void*)&sep);
+                section_pendingclose = 0;
+                }
+
+			if ((section_fcLim == 0xffffffff) || (section_fcLim == j))
+                {
+                wvTrace(("j i is %x %d\n",j,i));
+                wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),&sep,&section_fcFirst,&section_fcLim, i,&ps->clx, sed, posSedx, section_intervals, &stsh,ps->mainfd);
+                wvTrace(("section begins at %x ends %x\n", section_fcFirst, section_fcLim));
+                }
+
+            if (j == section_fcFirst)
+                {
+                wvHandleElement(ps, SECTIONBEGIN, (void*)&sep);
+                section_pendingclose = 1;
+                }
+
 
 			if ((para_fcLim == 0xffffffffL) || (para_fcLim == j))
 				{
@@ -472,17 +500,25 @@ void wvDecodeComplex(wvParseStruct *ps)
 			wvHandleElement(ps,CHARPROPEND, (void*)&achp);
 			char_pendingclose=0;
 			}
+		/*	
+		I might have to rethink this closing tag enforcer for complex mode, have to think the
+		flow out a bit more, this section one is plain wrong, im leaving it here so i won't
+		forget and be tempted to put it back in :-)
+		if (j == section_fcLim)
+			{
+        	wvHandleElement(ps, SECTIONEND, (void*)&sep);
+			section_pendingclose=0;
+			}
+		*/
 		}
 
 	if (char_pendingclose)
-		{
 		wvHandleElement(ps,CHARPROPEND, (void*)&achp);
-		}
-
 	if (para_pendingclose)
-		{
 		wvHandleElement(ps,PARAEND, (void*)&apap);
-		}
+	if (section_pendingclose)
+        wvHandleElement(ps, SECTIONEND, (void*)&sep);
+
 
 	wvReleasePAPX_FKP(&para_fkp);
 	wvReleaseCHPX_FKP(&char_fkp);
@@ -571,6 +607,13 @@ void wvAssembleComplexCHP(int version,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 		{
 		index = clx->pcd[cpiece].prm.para.var2.igrpprl;
 		wvTrace(("index is %d, piece is %d\n",index,cpiece));
+		while (i < clx->cbGrpprl[index])   
+			{
+			wvTrace(("BYTE: %x\n",*(clx->grpprl[index]+i)));
+			i++;
+			}
+
+		i=0;
 		while (i < clx->cbGrpprl[index])   
 			{
 			if (version == 0)

@@ -60,7 +60,7 @@ void wvGetPAPX_FKP(int version,PAPX_FKP *fkp,U32 pn,FILE *fd)
 		{
 		if (fkp->rgbx[i].offset == 0)
 			{
-			wvTrace(("i is %d, using clear papx\n"));
+			wvTrace(("i is %d, using clear papx\n",i));
 			wvInitPAPX(&(fkp->grppapx[i]));
 			}
 		else
@@ -201,7 +201,7 @@ void wvGetCHPX_FKP(int version, CHPX_FKP *fkp, U32 pn, FILE *fd)
 		{
 		if (fkp->rgb[i] == 0)
 		     {
-			wvTrace(("i is %d, using clear chpx\n"));
+			wvTrace(("i is %d, using clear chpx\n",i));
 			wvInitCHPX(&(fkp->grpchpx[i]));
 		     }
 		else

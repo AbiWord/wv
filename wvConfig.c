@@ -22,6 +22,7 @@ TokenTable s_Tokens[] =
     {   "center",        TT_CENTER     	 },
     {   "block",       	 TT_BLOCK     	 },
     {   "asian",       	 TT_ASIAN     	 },
+    {   "section",       TT_SECTION     	 },
     {   "*",             TT_OTHER        } /* must be last */
 };
 
@@ -150,6 +151,7 @@ void startElement(void *userData, const char *name, const char **atts)
 		{
 		case TT_DOCUMENT:
 		case TT_PARA:
+		case TT_SECTION:
 			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*2);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=2;
 			for(i=0;i<2;i++)

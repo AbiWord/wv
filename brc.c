@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "wv.h"
+#include "wvinternal.h"
 
 void wvGetBRC_internal(BRC *abrc,FILE *infd,U8 *pointer)
     {

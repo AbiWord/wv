@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "wv.h"
+#include "wvinternal.h"
 
 void wvInitTBD(TBD *item)
 	{

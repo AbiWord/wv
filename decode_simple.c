@@ -306,34 +306,47 @@ int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *rgfc, U32 
 	return(0);
 	}
 
+/*
+it is necessary to use the CP of the character to search the
+plcfsed for the index i of the largest CP that is less than or equal to the
+character's CP. 
 
+plcfsed.rgcp[i] is the CP of the first character of the
+section and plcfsed.rgcp[i+1] is the CP of the character following the
+section mark that terminates the section (call it cpLim). 
+
+Then retrieve plcfsed.rgsed[i]. The FC in this SED gives the location where the SEPX for
+the section is stored. 
+
+Then create a local SEP with default section properties. If the 
+sed.fc != 0xFFFFFFFF, then the sprms within the SEPX that is stored at offset 
+sed.fc must be applied to the local SEP. The process thus far has created a 
+SEP that describes what the section properties of the section at the last 
+full save. 
+*/
 int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd)
 	{
 	U32 i=0;
 	SEPX sepx;
 	long pos = ftell(fd);
-	*fcFirst = 0xffffffffL;
+	U32 cpTest=0,j=section_intervals-1;
+
+	if (cp == 0) j=0;
 	while (i<section_intervals)
 		{
 		wvTrace(("searching for sep %d %d\n",posSedx[i],cp));
-		if (posSedx[i] == cp)
+		if ( (posSedx[i] <= cp) && (posSedx[i] > cpTest) )
 			{
-			wvTrace(("found at %d %d\n",posSedx[i],posSedx[i+1]));
-			*fcFirst = wvConvertCPToFC(posSedx[i], clx);
-			*fcLim = wvConvertCPToFC(posSedx[i+1], clx);
-			wvTrace(("found at %x %x\n",*fcFirst,*fcLim));
-			break;
+			cpTest = posSedx[i];
+			j = i;
 			}
 		i++;
 		}
 
-	if (*fcFirst == 0xffffffff)
-		{
-		*fcFirst = wvConvertCPToFC(posSedx[section_intervals-1], clx);
-		*fcLim = wvConvertCPToFC(posSedx[section_intervals], clx);
-		wvError(("I'd rather not see this happen at all :-)\n"));
-		i--;
-		}
+	wvTrace(("found at %d %d\n",posSedx[j],posSedx[j+1]));
+	*fcFirst = wvConvertCPToFC(posSedx[j], clx);
+	*fcLim = wvConvertCPToFC(posSedx[j+1], clx);
+	wvTrace(("found at %x %x\n",*fcFirst,*fcLim));
 
 	wvInitSEP(sep);
 

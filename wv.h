@@ -1018,7 +1018,6 @@ void wvGetBRC(int version,BRC *abrc,FILE *infd);
 int wvGetBRCFromBucket(int version,BRC *abrc,U8 *pointer);
 void wvInitBRC(BRC *abrc);
 void wvCopyBRC(BRC *dest, BRC *src);
-void wvGetBRC_internal6(BRC *abrc,FILE *infd,U8 *pointer);
 
 typedef struct _BRC10
 	{
@@ -1346,7 +1345,6 @@ void wvInitTBD(TBD *item);
 void wvCopyTBD(TBD *dest,TBD *src);
 void wvGetTBD(TBD *item,FILE *fd);
 void wvGetTBDFromBucket(TBD *item,U8 *pointer);
-void wvGetTBD_internal(TBD *item,FILE *fd,U8 *pointer);
 
 
 
@@ -1653,6 +1651,10 @@ typedef struct _ANLV
 
 void wvInitANLV(ANLV *item);
 
+void wvGetANLV(ANLV *item,FILE *fd);
+void wvGetANLVFromBucket(ANLV *item,U8 *pointer);
+
+
 
 typedef struct _OLST
 	{
@@ -1661,10 +1663,13 @@ typedef struct _OLST
  	U8 fSpareOlst2;
  	U8 fSpareOlst3;
  	U8 fSpareOlst4;
- 	XCHAR rgxch[32];
+ 	XCHAR rgxch[64];
 	} OLST;
 
 void wvInitOLST(OLST *);
+void wvGetOLST(int version,OLST *item,FILE *fd);
+void wvGetOLSTFromBucket(int version,OLST *item,U8 *pointer);
+
 
 typedef struct _SEP
 	{
@@ -1722,7 +1727,7 @@ typedef struct _SEP
  	U32 dzaGutter;
  	U32 dyaHdrTop;
  	U32 dyaHdrBottom;
- 	S32 ccolM1;
+ 	S16 ccolM1;
  	S8 fEvenlySpaced;
  	S8 reserved3;
  	S32 dxaColumns;
@@ -2064,6 +2069,11 @@ void wvApplysprmCHpsInc1(CHP *achp,U8 *pointer,U16 *pos);
 void wvApplysprmCPropRMark(CHP *achp,U8 *pointer,U16 *pos);
 void wvApplysprmCDispFldRMark(CHP *achp,U8 *pointer,U16 *pos);
 
+void wvApplysprmSOlstAnm(int version,SEP *asep,U8 *pointer,U16 *pos);
+void wvApplysprmSPropRMark(SEP *asep,U8 *pointer,U16 *pos);
+
+
+
 U8 wvToggle(U8 in,U8 toggle);
 
 typedef enum
@@ -2091,8 +2101,9 @@ typedef enum
 #define TT_CENTER			12
 #define TT_BLOCK			13
 #define TT_ASIAN			14
+#define TT_SECTION			15
 
-#define TokenTableSize 15
+#define TokenTableSize 16
 
 typedef struct _TokenTable
 	{
@@ -2405,6 +2416,9 @@ void wvEndPara(expand_data *data);
 
 void wvBeginCharProp(expand_data *data);
 void wvEndCharProp(expand_data *data);
+
+void wvBeginSection(expand_data *data);
+void wvEndSection(expand_data *data);
    
 int wvGetComplexParafcLim(int first,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd);
 

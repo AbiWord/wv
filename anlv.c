@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "wv.h"
+#include "wvinternal.h"
 
 void wvInitANLV(ANLV *item)
 	{
@@ -30,3 +31,48 @@ void wvInitANLV(ANLV *item)
 	item->dxaIndent=0;
 	item->dxaSpace=0;
 	} 
+
+void wvGetANLV_internal(ANLV *item,FILE *fd,U8 *pointer)
+	{
+	U8 temp8;
+	item->nfc = dgetc(fd,&pointer);
+ 	item->cxchTextBefore = dgetc(fd,&pointer);
+	item->cxchTextAfter = dgetc(fd,&pointer);
+	temp8 = dgetc(fd,&pointer);
+ 	item->jc = temp8 & 0x03;
+	item->fPrev = (temp8 & 0x04) >> 2;
+	item->fHang = (temp8 & 0x08) >> 3;
+	item->fSetBold = (temp8 & 0x10) >> 4;
+	item->fSetItalic = (temp8 & 0x20) >> 5;
+	item->fSetSmallCaps = (temp8 & 0x40) >> 6;
+	item->fSetCaps = (temp8 & 0x80) >> 7;
+	temp8 = dgetc(fd,&pointer);
+ 	item->fSetStrike = temp8 & 0x01;
+	item->fSetKul = (temp8 & 0x02) >> 1;
+	item->fPrevSpace = (temp8 & 0x04) >> 2;
+	item->fBold = (temp8 & 0x08) >> 3;
+	item->fItalic = (temp8 & 0x10) >> 4;
+	item->fSmallCaps = (temp8 & 0x20) >>5;
+	item->fCaps = (temp8 & 0x40) >> 6;
+	item->fStrike = (temp8 & 0x80) >>7;
+	temp8 = dgetc(fd,&pointer);
+	item->kul = temp8 & 0x07;
+	item->ico = (temp8 & 0xF1) >>3;
+	item->ftc = (S16)dread_16ubit(fd,&pointer);
+	item->hps = dread_16ubit(fd,&pointer);
+	item->iStartAt = dread_16ubit(fd,&pointer);
+	item->dxaIndent = dread_16ubit(fd,&pointer);
+	item->dxaSpace = (S16)dread_16ubit(fd,&pointer);
+	}
+
+
+void wvGetANLV(ANLV *item,FILE *fd)
+	{
+	wvGetANLV_internal(item,fd,NULL);
+	}
+
+void wvGetANLVFromBucket(ANLV *item,U8 *pointer)
+	{
+	wvGetANLV_internal(item,NULL,pointer);
+	}
+

@@ -219,6 +219,20 @@ int wvHandleDocument(wvParseStruct *ps,wvTag tag)
 	return(0);
 	}
 
+void wvBeginSection(expand_data *data)
+	{
+	if ( (data != NULL) &&  (data->sd != NULL) && (data->sd->elements[TT_SECTION].str[0]!= NULL) )
+		{
+		wvExpand(data,data->sd->elements[TT_SECTION].str[0],
+		strlen(data->sd->elements[TT_SECTION].str[0]));
+		if (data->retstring)
+			{
+			wvTrace(("para begin is now %s",data->retstring));
+			printf("%s",data->retstring);
+			wvFree(data->retstring);
+			}
+		}
+	}
 
 void wvBeginPara(expand_data *data)
 	{
@@ -241,6 +255,21 @@ void wvEndPara(expand_data *data)
 		{
 		wvExpand(data,data->sd->elements[TT_PARA].str[1],
 		strlen(data->sd->elements[TT_PARA].str[1]));
+		if (data->retstring)
+			{
+			wvTrace(("para end is now %s",data->retstring));
+			printf("%s",data->retstring);
+			wvFree(data->retstring);
+			}
+		}
+	}
+
+void wvEndSection(expand_data *data)
+	{
+	if ( (data->sd != NULL) && (data->sd->elements[TT_SECTION].str[1]!= NULL) )
+		{
+		wvExpand(data,data->sd->elements[TT_SECTION].str[1],
+		strlen(data->sd->elements[TT_SECTION].str[1]));
 		if (data->retstring)
 			{
 			wvTrace(("para end is now %s",data->retstring));

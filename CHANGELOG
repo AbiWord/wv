@@ -36,11 +36,18 @@ Changes to to 0.5.21
 	* added simple file support for Section begins and ends, moved the
 	char handling code around a slight bit so as to be in a nice looking order
 	to me.
+	* continued sections in complex mode, brought my standalone abiword converter up
+	to speed with sections.
+	* implemented all of the SEP sprms, word 6 conflicts not fully checked yet.
+	* Jeff@abisource made it more portable by modifying the wvError/wvTrace macros
+	and putting in defs for rint and strcasecmp.
 ALL TODO
+	* search for SEP sprm diffs between 6 and 8
 
-	* continue sections in complex mode, bring my standalone abiword converter up
-	to speed with sections, and char props, and do the same for the html converter.
-	looking good :-)
+	* install cygwin thingy at home and test configure mechanism for searching and
+	installing strcasecmp/rint.
+
+	* handle char props in the abi and html standalone converters
 
 	* table properties & lists to be done
 

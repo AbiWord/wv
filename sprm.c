@@ -105,9 +105,7 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 	/*bullet proofing*/
 	if (apap == NULL)
 		{
-#ifdef PURIFY
 		wvInitPAP(&temppap);
-#endif
 		apap = &temppap;
 		}
 	if (achp == NULL)
@@ -116,7 +114,12 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		achp = &tempchp;
 		}
 	if (asep == NULL)
+		{
+#ifdef PURIFY
+		wvInitSEP(&tempsep);
+#endif
 		asep = &tempsep;
+		}
 
 	wvTrace(("sprm is %x\n",sprm));
 
@@ -340,7 +343,7 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			break;
 		case sprmPFBiDi:
 			/* ???? */
-			(*pos)++;
+			bgetc(pointer,pos);
 			break;
 		case sprmPFNumRMIns:
 			apap->fNumRMIns = bgetc(pointer,pos);
@@ -596,7 +599,169 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 								*/
 			achp->lid = bread_16ubit(pointer,pos);
 			break;
-		/* End of CHP*/
+		/* End of CHP */
+
+
+		/* Begin of SEP */
+		case sprmScnsPgn:
+			asep->cnsPgn = bgetc(pointer,pos);
+			break;
+		case sprmSiHeadingPgn:
+			asep->iHeadingPgn = bgetc(pointer,pos);
+			break;
+		case sprmSOlstAnm:
+			wvApplysprmSOlstAnm(version,asep,pointer,pos);
+			break;
+		case sprmSDxaColWidth:
+		case sprmSDxaColSpacing:
+			/* well then no one has docs for these two , they're 3 long
+			but affects (i guess by name) a 89 long array so who
+			knows
+			*/
+			bgetc(pointer,pos);
+			bgetc(pointer,pos);
+			bgetc(pointer,pos);
+			break;
+		case sprmSFEvenlySpaced:
+			asep->fEvenlySpaced = bgetc(pointer,pos);
+			break;
+		case sprmSFProtected:
+			asep->fUnlocked = bgetc(pointer,pos);
+			break;
+		case sprmSDmBinFirst:
+			asep->dmBinFirst = bread_16ubit(pointer,pos);
+			break;
+		case sprmSDmBinOther:
+			asep->dmBinFirst = bread_16ubit(pointer,pos);
+			break;
+		case sprmSBkc:
+			asep->bkc = bgetc(pointer,pos);
+			break;
+		case sprmSFTitlePage:
+			asep->fTitlePage = bgetc(pointer,pos);
+			break;
+		case sprmSCcolumns:
+			asep->ccolM1 = bread_16ubit(pointer,pos);
+			break;
+		case sprmSDxaColumns:
+			asep->dxaColumns = (S16)bread_16ubit(pointer,pos);
+			break;
+		case sprmSFAutoPgn:
+			asep->fAutoPgn = bgetc(pointer,pos);
+			break;
+		case sprmSNfcPgn:
+			asep->nfcPgn = bgetc(pointer,pos);
+			break;
+		case sprmSDyaPgn:
+			asep->dyaPgn = (S16)bread_16ubit(pointer,pos);
+			break;
+		case sprmSDxaPgn:
+			asep->dxaPgn = (S16)bread_16ubit(pointer,pos);
+			break;
+		case sprmSFPgnRestart:
+			asep->fPgnRestart = bgetc(pointer,pos);
+			break;
+		case sprmSFEndnote:
+			asep->fEndNote = bgetc(pointer,pos);
+			break;
+		case sprmSLnc:
+			asep->lnc = bgetc(pointer,pos);
+			break;
+		case sprmSGprfIhdt:
+			asep->grpfIhdt = bgetc(pointer,pos);
+			break;
+		case sprmSNLnnMod:
+			asep->nLnnMod = bread_16ubit(pointer,pos);
+			break;
+		case sprmSDxaLnn:
+			asep->dxaLnn = (S16) bread_16ubit(pointer,pos);
+			break;
+		case sprmSDyaHdrTop:
+			asep->dyaHdrTop = bread_16ubit(pointer,pos);
+			break;
+		case sprmSDyaHdrBottom:
+			asep->dyaHdrBottom = bread_16ubit(pointer,pos);
+			break;
+		case sprmSLBetween:
+			asep->fLBetween = bgetc(pointer,pos);
+			break;
+		case sprmSVjc:
+			asep->fLBetween = bgetc(pointer,pos);
+			break;
+		case sprmSLnnMin:
+			asep->lnnMin = (S16) bread_16ubit(pointer,pos);
+			break;
+		case sprmSPgnStart:
+			asep->pgnStart = bread_16ubit(pointer,pos);
+			break;
+		case sprmSBOrientation:
+			asep->dmOrientPage = bgetc(pointer,pos);
+			break;
+		case sprmSBCustomize:
+			/*noone knows what this is*/
+			bgetc(pointer,pos);
+			break;
+		case sprmSXaPage:
+			asep->xaPage = bread_16ubit(pointer,pos);
+			break;
+		case sprmSYaPage:
+			asep->yaPage = bread_16ubit(pointer,pos);
+			break;
+		case sprmSDxaLeft:
+			asep->dxaLeft = bread_16ubit(pointer,pos);
+			break;
+		case sprmSDxaRight:
+			asep->dxaRight = bread_16ubit(pointer,pos);
+			break;
+		case sprmSDyaTop:
+			asep->dyaTop = (S16)bread_16ubit(pointer,pos);
+			break;
+		case sprmSDyaBottom:
+			asep->dyaBottom = (S16)bread_16ubit(pointer,pos);
+			break;
+		case sprmSDzaGutter:
+			asep->dzaGutter = bread_16ubit(pointer,pos);
+			break;
+		case sprmSDmPaperReq:
+			asep->dmPaperReq = bread_16ubit(pointer,pos);
+			break;
+		case sprmSPropRMark:
+			wvApplysprmSPropRMark(asep,pointer,pos);
+			break;
+		case sprmSFBiDi:	/* ?????? , what the hell are these three*/
+		case sprmSFFacingCol:
+		case sprmSFRTLGutter:
+			bgetc(pointer,pos);
+			break;
+		case sprmSBrcTop:
+			(*pos)+=wvGetBRCFromBucket(version,&asep->brcTop,pointer);
+			break;
+		case sprmSBrcLeft:
+			(*pos)+=wvGetBRCFromBucket(version,&asep->brcLeft,pointer);
+			break;
+		case sprmSBrcBottom:	
+			(*pos)+=wvGetBRCFromBucket(version,&asep->brcBottom,pointer);
+			break;
+		case sprmSBrcRight:
+			(*pos)+=wvGetBRCFromBucket(version,&asep->brcRight,pointer);
+			break;
+		case sprmSPgbProp:
+			asep->pgbProp = (S16)bread_16ubit(pointer,pos);
+			break;
+		case sprmSDxtCharSpace:
+			asep->dxtCharSpace = (S32)bread_32ubit(pointer,pos);
+			break;
+		case sprmSDyaLinePitch:
+			asep->dyaLinePitch = (S32)bread_32ubit(pointer,pos);
+			break;
+		case sprmSClm:
+			/* who knows */
+			bread_16ubit(pointer,pos);
+			break;
+		case sprmSTextFlow:
+			asep->wTextFlow = (S16)bread_16ubit(pointer,pos);
+			break;
+		/* End of SEP */
 
 		/* Place Holders for TAP, need to be implemented */
 		case sprmTTableBorders:
@@ -1795,6 +1960,7 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 		rgdxaClose = NULL;
 		}
 	itbdAddMax = dgetc(NULL,&pointer);
+	wvTrace(("itbdAddMax is %d\n",itbdAddMax));
 	(*pos)++;
 	if (itbdAddMax != 0)
 		{
@@ -1844,6 +2010,7 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 		return(cch);
 		}
 
+	wvTrace(("here %d\n",apap->itbdMac));
 	for(j=0;j<apap->itbdMac;j++)
 		{
 		for(i=0;i<itbdDelMax;i++)
@@ -1853,13 +2020,12 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 				{
 				temp_rgdxaTab[k] = apap->rgdxaTab[j];
 				wvCopyTBD(&temp_rgtbd[k++],&apap->rgtbd[j]);
-				/*
-				temp_rgtbd[k++] = apap->rgtbd[j];
-				*/
 				}
 			}
 		}
 	apap->itbdMac = k;
+	wvTrace("here\n");
+	return(cch);
 
 	k=0;
 	j=0;
@@ -1870,34 +2036,27 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 			{
 			apap->rgdxaTab[k] = temp_rgdxaTab[j];
 			wvCopyTBD(&apap->rgtbd[k++],&temp_rgtbd[j++]);
-			/*
-			apap->rgtbd[k++] = temp_rgtbd[j++];
-			*/
 			}
 		else if ((j<apap->itbdMac) && (temp_rgdxaTab[j] == rgdxaAdd[i]))
 			{
 			apap->rgdxaTab[k] = rgdxaAdd[i];
 			wvCopyTBD(&apap->rgtbd[k++],&rgtbdAdd[i++]);
-			/*
-			apap->rgtbd[k++] = rgtbdAdd[i++];
-			*/
 			j++;
 			}
 		else /*if (i < itbdAddMax)*/
 			{
 			apap->rgdxaTab[k] = rgdxaAdd[i];
 			wvCopyTBD(&apap->rgtbd[k++],&rgtbdAdd[i++]);
-			/*
-			apap->rgtbd[k++] = rgtbdAdd[i++];
-			*/
 			}
 		}
 
+	wvTrace("here\n");
 	apap->itbdMac = k;
 	wvFree(rgdxaDel);
 	wvFree(rgtbdAdd);
 	wvFree(rgdxaAdd);
 	wvFree(rgdxaClose);
+	wvTrace("Exiting Successfully\n");
 
 	return(cch);
 	}
@@ -1954,6 +2113,7 @@ void wvApplysprmPAnld(int version,PAP *apap,U8 *pointer, U16 *pos)
 
 void wvApplysprmPPropRMark(PAP *apap,U8 *pointer,U16 *pos)
 	{
+	dgetc(NULL,&pointer);
 	/*
 	sprmPPropRMark is interpreted by moving the first parameter
 	byte to pap.fPropRMark, the next two bytes to pap.ibstPropRMark, and the
@@ -2511,6 +2671,33 @@ void wvApplysprmCDispFldRMark(CHP *achp,U8 *pointer,U16 *pos)
 		(*pos)+=2;
 		}
 	}
+
+
+void wvApplysprmSOlstAnm(int version,SEP *asep,U8 *pointer,U16 *pos)
+	{
+	U8 len = dgetc(NULL,&pointer);
+	wvGetOLSTFromBucket(version,&asep->olstAnm,pointer);
+	if (len != cbOLST)
+		wvError(("OLST len is different from expected\n"));
+	(*pos)+=len;
+	}
+
+void wvApplysprmSPropRMark(SEP *asep,U8 *pointer,U16 *pos)
+	{
+	dgetc(NULL,&pointer);
+	/*
+	sprmPPropRMark is interpreted by moving the first parameter
+	byte to pap.fPropRMark, the next two bytes to pap.ibstPropRMark, and the
+	remaining four bytes to pap.dttmPropRMark.
+	*/
+	asep->fPropRMark = dgetc(NULL,&pointer);
+	(*pos)++;
+	asep->ibstPropRMark = dread_16ubit(NULL,&pointer);
+	(*pos)+=2;
+	wvGetDTTMFromBucket(&asep->dttmPropRMark,pointer);
+	(*pos)+=4;
+	}
+
 
 SprmName rgsprmPrm[0x80] = 
 {sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmPIncLvl, sprmPJc,
