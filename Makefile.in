@@ -350,7 +350,7 @@ libwv.a:$(MYOBJECTS) $(EXPORTER_OBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE
 	$(RANLIB) $@
 
 libwv.dylib:$(MYOBJECTS) $(EXPORTER_OBJECTS) $(MAGICKOBJS) $(OLE)
-	cc -dynamiclib -o libwv.dylib -install_name @executable_path/../Frameworks/libwv-@VERSION@.dylib \
+	cc -dynamiclib -o libwv.dylib -install_name @executable_path/../Frameworks/libwv.dylib \
 	 $(MYOBJECTS) $(EXPORTER_OBJECTS) $(MAGICKOBJS) $(OLE) \
 	 $(LDFLAGS) $(LIBS)
 
@@ -437,7 +437,7 @@ realcleansub:
 	@(cd exporter && $(MAKE) realclean) || exit 1
 
 installdylib:libwv.dylib
-	$(MKINSTALLDIRS) $(libdir) && $(INSTALL) libwv.dylib $(libdir)/libwv-@VERSION@.dylib
+	$(MKINSTALLDIRS) $(libdir) && $(INSTALL) libwv.dylib $(libdir)/libwv.dylib
 
 installdirs:
 	$(MKINSTALLDIRS) $(bindir) \
