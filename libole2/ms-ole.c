@@ -64,6 +64,11 @@
 #	define MAP_FAILED ((void *)-1)
 #endif
 
+#if !defined(MAP_SHARED) || !defined(HAVE_MMAP)
+/* Only define this where mmap() is not supported */
+#       define MAP_SHARED 0
+#endif
+
 /* Implementational detail - not for global header */
 #define OLE_DEBUG 0
 
@@ -1583,9 +1588,8 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 		 gboolean try_mmap,
 		 MsOleSysWrappers *wrappers)
 {
-#ifdef HAVE_MMAP   
 	int prot = PROT_READ | PROT_WRITE;
-#endif /* HAVE_MMAP */
+
 	MsOle *f;
 	int file;
 
@@ -1606,9 +1610,7 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 	if (file == -1) {
 		f->file_des = file = f->syswrap->open2 (name, O_RDONLY);
 		f->mode = 'r';
-#ifdef HAVE_MMAP
 		prot &= ~PROT_WRITE;
-#endif /* HAVE_MMAP */
 	}
 
 	if ((file == -1) || !(f->syswrap->isregfile (file))) {
