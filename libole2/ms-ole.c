@@ -1752,7 +1752,7 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 
 		if (!f->mem ||
 		    f->syswrap->read (file, f->mem, BB_BLOCK_SIZE,
-				      f->syswrap->closure)) {
+				      f->syswrap->closure) == -1) {
 			g_warning ("Error reading header\n");
 			f->syswrap->close (file, f->syswrap->closure) ;
 			g_free (f);
