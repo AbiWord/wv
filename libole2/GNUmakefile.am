@@ -1,0 +1,23 @@
+if BUILD_GLIB
+INCGLIB = -I$(top_srcdir)/glib-wv
+else
+INCGLIB = 
+endif
+
+INCLUDES = -I. -I$(top_builddir) -I$(srcdir) -I$(top_srcdir)/libole2 -I$(top_srcdir)/oledecod $(INCGLIB)
+
+CPPFLAGS = @CPPFLAGS@ @GLIB_CFLAGS@ @ICONV_CFLAGS@ @ZLIB_CFLAGS@
+
+noinst_LTLIBRARIES = libole2.la
+
+COMMONSOURCES = ms-ole.c ms-ole-summary.c
+
+libole2_la_SOURCES = $(COMMONSOURCES) $(VFSSOURCES)
+
+OTHERHEADERS = \
+	ms-ole-gnomevfs.h \
+	ms-ole-summary.h \
+	ms-ole-vba.h \
+	ms-ole.h
+
+EXTRA_DIST = $(OTHERHEADERS)
