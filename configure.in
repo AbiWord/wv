@@ -61,9 +61,9 @@ AC_PROG_INSTALL
 AC_PROG_RANLIB
 
 AC_HEADER_STDC
-AC_HEADER_SYS_WAIT
-AC_TYPE_SIGNAL
-AC_FUNC_WAIT3
+dnl AC_HEADER_SYS_WAIT
+dnl AC_TYPE_SIGNAL
+dnl AC_FUNC_WAIT3
 
 AC_CHECK_HEADERS(fcntl.h sys/file.h sys/ioctl.h unistd.h)
 CFLAGS="$CFLAGS $X_CFLAGS"
@@ -72,7 +72,7 @@ CFLAGS="$CFLAGS $X_CFLAGS"
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 
-AC_TYPE_PID_T
+dnl AC_TYPE_PID_T
 
 dnl Check type of signal routines (posix, 4.2bsd, 4.1bsd or v7)
 AC_DEFUN(BASH_SIGNAL_CHECK,
@@ -528,7 +528,8 @@ dnl end of libwmf
 dnl ===We dont actually need this at all, and its causing problems for everyone===
 dnl BASH_REINSTALL_SIGHANDLERS
 
-BASH_SIGNAL_CHECK
+dnl ===We dont actually need this at all, and its causing problems for some people===
+dnl BASH_SIGNAL_CHECK
 
 if test "x$no_wmf" = xyes; then
 	AC_MSG_WARN(Could not find gdwmf library or some of its components: \nmswordview will not have wmf to gif support: see README)
@@ -567,7 +568,7 @@ dnl check for getopt
 AC_CHECK_FUNC(getopt_long, , [LIBOBJS="$LIBOBJS getopt1.o getopt.o"])
 AC_CHECK_FUNC(strerror, , [LIBOBJS="$LIBOBJS strerror.o"])
 AC_CHECK_FUNC(strcasecmp, , [LIBOBJS="$LIBOBJS strcasecmp.o"])
-AC_CHECK_FUNCS(waitpid)
+dnl AC_CHECK_FUNCS(waitpid)
 AC_SUBST(LIBOBJS)
 AC_SUBST(ZLIB_CFLAGS)
 AC_SUBST(ZLIB_LIBS)

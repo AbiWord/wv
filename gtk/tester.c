@@ -332,7 +332,7 @@ void file_show_info(GtkWidget *widget, gpointer cbdata)
 		{
 		if (mfilename)
 			{
-			wvError("going in %s\n",mfilename);
+			wvError(("going in %s\n",mfilename));
 			statret = stat(mfilename, &buf);
 			}
 		
@@ -343,7 +343,7 @@ void file_show_info(GtkWidget *widget, gpointer cbdata)
 		}
 	else
 		{
-		wvError("no input\n");
+		wvError(("no input\n"));
 		}
 
 	for (i=0; i < 3; i++) 
@@ -398,7 +398,7 @@ void file_show_info(GtkWidget *widget, gpointer cbdata)
 					case 1:
 						if (statret != 0)
 							{
-							wvError("shite\n");
+							wvError(("shite\n"));
 							break;
 							}
 						switch (row)
@@ -568,7 +568,7 @@ static void doc_open_filesel(GtkWidget *wgt, gpointer cbdata)
 	ret = wvInitParser(&ps,input);
 	if (ret)
 		{
-		wvError("startup error with file %s\n",gtk_file_selection_get_filename (GTK_FILE_SELECTION (fs)));
+		wvError(("startup error with file %s\n",gtk_file_selection_get_filename (GTK_FILE_SELECTION (fs))));
 		wvOLEFree();
 		input=NULL;
 		}

@@ -2346,6 +2346,7 @@ typedef enum _TT
 	TT_TEXTE,
 	TT_CELLWIDTH,
 	TT_CELLBGCOLOR,
+	TT_TABLERELWIDTH,
 	TokenTableSize	/*must be last entry on pain of death*/
 	} TT;
 
@@ -2397,6 +2398,8 @@ typedef struct _expand_data
 
 	U32 **liststartnos;
 	LVL **finallvl;
+	U16 *norows;
+
 
 	FIB *fib;
 
@@ -2406,6 +2409,7 @@ typedef struct _expand_data
 	char *retstring;
 	U32 currentlen;
 	state_data *sd;
+	SEP *asep;
 	} expand_data;
 
 void wvInitExpandData(expand_data *data);
@@ -2501,6 +2505,7 @@ typedef struct _wvParseStruct
 	U8 intable;
 	S16 cellbounds[itcMax+1];
 	S16 **vmerges;
+	U16 norows;
 	U8 endcell;
 	}wvParseStruct;
 
@@ -2649,7 +2654,7 @@ U16 wvConvertUnicodeToKOI8_R(U16 char16);
 int wvConvert1252ToHtml(U8 char8);
 
 void wvDecodeComplex(wvParseStruct *ps);
-int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,FILE *fd);
+int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,FILE *fd);
 U32 wvSearchNextLargestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc);
 U32 wvSearchNextLargestFCCHPX_FKP(CHPX_FKP *fkp,U32 currentfc);
 int wvQuerySamePiece(U32 fcTest,CLX *clx,U32 piece);
@@ -2700,10 +2705,11 @@ void wvReleaseStateData(state_data *data);
 
 U32 wvConvertCPToFC(U32 currentcp,CLX *clx);
 
+int wvIsEmptyPara(PAP *apap,expand_data *data);
 void wvBeginPara(expand_data *data);
 void wvEndPara(expand_data *data);
 
-void wvBeginCharProp(expand_data *data);
+void wvBeginCharProp(expand_data *data,PAP *apap);
 void wvEndCharProp(expand_data *data);
 
 void wvBeginSection(expand_data *data);
@@ -2857,6 +2863,15 @@ void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype);
 
 int wvGetListEntryInfo(LVL **rlvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST *lst, U32 noofLST,int version);
 
+
+void wvSetPixelsPerInch(S16 pixels);
+float wvTwipsToPixels(S16 twips);
+
+int wvCellBgColor(int whichrow,int whichcell,int nocells,int norows,TLP *tlp);
+
+#define isodd(a)  ((a/2) != ((a+1)/2))
+
+float wvRelativeWidth(S16 width,SEP *asep);
 
 
 /*current addition position*/
@@ -3226,7 +3241,9 @@ int wvSumInfoGetTime(U16 *yr, U16 *mon, U16 *day, U16 *hr, U16 *min, U16 *sec, U
 int wvSumInfoGetPreview(char *lpStr, U16 cbStr, U32 pid, SummaryInfo *si);
 
 void wvGetRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32 *posPapx);
+void wvGetComplexRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piececount);
 void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx);
+void wvGetFullComplexTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piececount);
 
 
 /*end of clean interface*/
@@ -3763,8 +3780,6 @@ void do_indent(pap *apap);
 U32 get_fc_from_cp(U32 acp,U32 *rgfc,U32 *avalrgfc,int nopieces);
 
 void end_para(pap *apap, pap *newpap);
-
-int isodd(int i);
 
 /*
 returns slot to use in index array which keeps track of how far each list

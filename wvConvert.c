@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "config.h"
 #include "wv.h"
-#include "wvinternal.h"
 /*
 Released under GPL, written by Caolan.McNamara@ul.ie.
 
@@ -23,29 +23,102 @@ returns 1 for not an ole doc
 
 int myelehandler(wvParseStruct *ps,wvTag tag, void *props);
 int mydochandler(wvParseStruct *ps,wvTag tag);
+FILE *wvOpenConfig(char *config);
 
-void Usage(void)
+void usage(void)
 	{
-	printf("Usage: wvConvert [-c config.xml] filename.doc\n");
+	printf("Usage: wvConvert [--config config.xml] [--password password] filename.doc\n");
+	exit(-1);
 	}
 
 int main(int argc,char **argv)
 	{
+	char *config=NULL;
+	char *password=NULL;
 	FILE *input;
 	int ret;
     state_data myhandle;
 	expand_data expandhandle;
 	wvParseStruct ps;
+	int c,index=0;
+	static struct option long_options[] =
+        {
+        { "config",1,0,'x'},
+        { "password",1,0,'p'},
+        { 0,      0, 0, '0' },
+        };
+
+	wvInitError();
 
 	if (argc < 2) 
+		usage();
+
+	while(1)
 		{
-		Usage();
-		return(-1);
+		c = getopt_long (argc, argv, "x:p:", long_options, &index);
+		if (c == -1)
+			break;
+		switch(c)
+			{
+			case 'x':
+				if (optarg)
+					config = optarg;
+				else
+					wvError(("No config file given to config option"));
+				break;
+			case 'p':
+                if (optarg)
+                    password = optarg;
+                else
+                    wvError(("No password given to password option"));
+                break;
+			default:
+                usage();
+                break;
+			}
 		}
 	
-	input = fopen(argv[1],"rb");
+	input = fopen(argv[optind],"rb");
 
 	ret = wvInitParser(&ps,input);
+
+	if (ret == 4)
+        {
+        ret = 0;
+        if (password == NULL)
+            {
+            wvError(("Password required, this is an encrypted document\n"));
+            return(-1);
+            }
+        else
+            {
+            wvSetPassword(password,&ps);
+            if (wvDecrypt97(&ps))
+                {
+                wvError(("Incorrect Password\n"));
+                return(-1);
+                }
+            }
+        }
+    else if (ret == 7)
+        {
+        ret=0;
+        if (password == NULL)
+            {
+            wvError(("Password required, this is an encrypted document\n"));
+            return(-1);
+            }
+        else
+            {
+            wvSetPassword(password,&ps);
+            if (wvDecrypt95(&ps))
+                {
+                wvError(("Incorrect Password\n"));
+                return(-1);
+                }
+            }
+        }
+
 	if (ret)
 		{
 		wvError(("startup error with file %s\n",argv[1]));
@@ -57,7 +130,9 @@ int main(int argc,char **argv)
 	wvSetDocumentHandler(mydochandler);
     
     wvInitStateData(&myhandle);
-	myhandle.fp= fopen("wvConfig.xml","rb");
+
+	myhandle.fp = wvOpenConfig(config);
+
 	if (myhandle.fp== NULL)
 		wvError(("config file not found\n"));
 	else
@@ -99,6 +174,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
 	data->cellbounds = &ps->cellbounds;
 	data->endcell = &ps->endcell;
 	data->vmerges = &ps->vmerges;
+	data->norows = &ps->norows;
 	if (i==0)
 		{
 		data->whichcell=0;
@@ -124,7 +200,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
 			wvEndSection(data);
 			break;
 		case CHARPROPBEGIN:
-			wvBeginCharProp(data);
+			wvBeginCharProp(data,NULL);
 		    break;
 		case CHARPROPEND:
 			wvEndCharProp(data);
@@ -154,6 +230,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 	data->cellbounds = &ps->cellbounds;
 	data->endcell = &ps->endcell;
 	data->vmerges = &ps->vmerges;
+	data->norows = &ps->norows;
 
 	data->charset = wvAutoCharset(&ps->clx);
 
@@ -170,3 +247,22 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 		}
 	return(0);
 	}
+
+FILE *wvOpenConfig(char *config)
+    {
+    FILE *tmp;
+    int i=0;
+    if (config == NULL)
+        config = "wvConfig.xml";
+    else
+        i=1;
+    tmp = fopen(config,"rb");
+    if (tmp == NULL)
+        {
+        if (i) wvError(("Attempt to open %s failed, using %s\n",config,HTMLCONFIG));
+        config = XMLCONFIG;
+        tmp = fopen(config,"rb");
+        }
+    return(tmp);
+    }
+

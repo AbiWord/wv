@@ -255,7 +255,10 @@ int wvHandleDocument(wvParseStruct *ps,wvTag tag)
 
 void wvBeginSection(expand_data *data)
 	{
-	if ( (data != NULL) &&  (data->sd != NULL) && (data->sd->elements[TT_SECTION].str[0]!= NULL) )
+	if (data != NULL)
+		data->asep = (SEP *)data->props;
+	
+	if ( (data != NULL) &&  (data->sd != NULL) && (data->sd->elements[TT_SECTION].str != NULL) && (data->sd->elements[TT_SECTION].str[0]!= NULL) )
 		{
 		wvExpand(data,data->sd->elements[TT_SECTION].str[0],
 		strlen(data->sd->elements[TT_SECTION].str[0]));
@@ -268,32 +271,45 @@ void wvBeginSection(expand_data *data)
 		}
 	}
 
-void wvBeginPara(expand_data *data)
+
+int wvIsEmptyPara(PAP *apap,expand_data *data)
 	{
 	/* 
 	if we are a end of table para then i consist of nothing that is of
 	any use for beginning of a para
 	*/
-	if (((PAP*)(data->props))->fTtp == 1) return;
+	if (apap == NULL)
+		return(0);
+	
+	if (apap->fTtp == 1) 
+		return(1);
 
 	/* 
 	if i consist of a vertically merged cell that is not the top one, then
 	also i am of no use
 	*/
-	if ( ((PAP*)(data->props))->fInTable == 1) 
+	if (apap->fInTable == 1) 
 		{
 		wvTrace(("This Para is in cell %d %d %d\n",data->whichrow,data->whichcell,(*data->vmerges)[data->whichrow][data->whichcell]));
 		if ((*data->vmerges)[data->whichrow][data->whichcell] == 0)
 			{
 			wvTrace(("Skipping the next paragraph\n"));
 			data->whichcell++;
-			return;
+			return(1);
 			}
 		}
+	return(0);
+	}
+	
+
+void wvBeginPara(expand_data *data)
+	{
+	if (wvIsEmptyPara((PAP *)data->props,data))
+		return;
 
 	if (data != NULL)
 		{
-		if ( (data->sd != NULL) && (data->sd->elements[TT_PARA].str[0]!= NULL) )
+		if ( (data->sd != NULL) && (data->sd->elements[TT_PARA].str) && (data->sd->elements[TT_PARA].str[0]!= NULL) )
 			{
 			wvExpand(data,data->sd->elements[TT_PARA].str[0],strlen(data->sd->elements[TT_PARA].str[0]));
 			if (data->retstring)
@@ -308,7 +324,7 @@ void wvBeginPara(expand_data *data)
 
 void wvEndPara(expand_data *data)
 	{
-	if ( (data->sd != NULL) && (data->sd->elements[TT_PARA].str[1]!= NULL) )
+	if ( (data->sd != NULL) && (data->sd->elements[TT_PARA].str) && (data->sd->elements[TT_PARA].str[1]!= NULL) )
 		{
 		wvExpand(data,data->sd->elements[TT_PARA].str[1],strlen(data->sd->elements[TT_PARA].str[1]));
 		if (data->retstring)
@@ -322,7 +338,7 @@ void wvEndPara(expand_data *data)
 
 void wvEndSection(expand_data *data)
 	{
-	if ( (data->sd != NULL) && (data->sd->elements[TT_SECTION].str[1]!= NULL) )
+	if ( (data != NULL) && (data->sd != NULL) && (data->sd->elements[TT_SECTION].str != NULL) && (data->sd->elements[TT_SECTION].str[1]!= NULL) )
 		{
 		wvExpand(data,data->sd->elements[TT_SECTION].str[1],
 		strlen(data->sd->elements[TT_SECTION].str[1]));
@@ -335,14 +351,18 @@ void wvEndSection(expand_data *data)
 		}
 	}
 
-void wvBeginCharProp(expand_data *data)
+void wvBeginCharProp(expand_data *data,PAP *apap)
 	{
 	CHP *achp;
+
+	if (wvIsEmptyPara(apap,data))
+		return;
+	
 	achp = (CHP*)data->props;
 	wvTrace(("beginning character run\n"));
 	if (achp->ico) { wvTrace(("color is %d\n",achp->ico)); }
 
-	if ( (data != NULL) &&  (data->sd != NULL) && (data->sd->elements[TT_CHAR].str[0]!= NULL) )
+	if ( (data != NULL) &&  (data->sd != NULL) &&  (data->sd->elements[TT_CHAR].str) && (data->sd->elements[TT_CHAR].str[0]!= NULL) )
 		{
 		wvExpand(data,data->sd->elements[TT_CHAR].str[0],
 		strlen(data->sd->elements[TT_CHAR].str[0]));
@@ -363,7 +383,7 @@ void wvBeginCharProp(expand_data *data)
 void wvEndCharProp(expand_data *data)
 	{
 	wvTrace(("ending character run\n"));
-	if ( (data->sd != NULL) && (data->sd->elements[TT_CHAR].str[1]!= NULL) )
+	if ( (data->sd != NULL) && (data->sd->elements[TT_CHAR].str) && (data->sd->elements[TT_CHAR].str[1]!= NULL) )
 		{
 		wvExpand(data,data->sd->elements[TT_CHAR].str[1],
 			strlen(data->sd->elements[TT_CHAR].str[1]));

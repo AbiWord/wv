@@ -47,46 +47,6 @@
 /* Define if you have freetype*/
 #undef HAVE_TTF
 
-#if defined(HAVE_SYS_WAIT_H)
-#include <sys/wait.h>
-#endif
-
-
-#if defined (ultrix) && defined (mips) && defined (_POSIX_VERSION)
-#  define WAITPID(pid, statusp, options) \
-wait3 ((union wait *)statusp, options, (struct rusage *)0)
-#else
-#  if defined (_POSIX_VERSION) || defined (HAVE_WAITPID)
-#    define WAITPID(pid, statusp, options) \
-waitpid ((pid_t)pid, statusp, options)
-#  else
-#    if defined (HAVE_WAIT3)
-#      define WAITPID(pid, statusp, options) \
-wait3 (statusp, options, (struct rusage *)0)
-#    else
-#      define WAITPID(pid, statusp, options) \
-wait3 (statusp, options, (int *)0)
-#    endif /* HAVE_WAIT3 */
-#  endif /* !_POSIX_VERSION && !HAVE_WAITPID*/
-#endif /* !(Ultrix && mips && _POSIX_VERSION) */
-
-
-/*signal things*/
-#include <signal.h>
-
-typedef RETSIGTYPE SigHandler (int);
-
-#if !defined (HAVE_POSIX_SIGNALS)
-#  define signal_handle(sig, handler) signal (sig, handler)
-#else
-extern void signal_handle (int, SigHandler * );
-#if !defined (SA_RESTART)
-#  define SA_RESTART 0
-#endif
-#endif /* _POSIX_VERSION */
-
-
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif

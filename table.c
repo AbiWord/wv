@@ -107,6 +107,7 @@ void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *p
 
 	wvSetTableInfo(ps,test,j);
 	ps->intable=1;
+	ps->norows=j;
 	wvFree(test);
 	}
 
@@ -165,8 +166,7 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
         }
 
 
-	if (ps->vmerges)
-		wvFree(ps->vmerges);
+	if (ps->vmerges) wvFree(ps->vmerges);
 	ps->vmerges = (S16 **)malloc(sizeof(S16 *) * no);
 	for(i=0;i<no;i++)
 		{
@@ -216,3 +216,467 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
 			wvTrace(("rowspan numbers are %d\n",ps->vmerges[i][j]));
 	}
 
+
+
+
+
+/*	table backgrounds */
+/*
+ 0  1  2  3		first row 	
+ 4  5  6  7		even row 	
+ 8  9 10 11		odd row 	
+12 13 14 15 	last row 	
+
+ F  E  O  L 
+ i  v  d  a
+ r  e  d  s
+ s  n     t
+ t     C 
+    C  o  C
+ C  o  l  o
+ o  l  u  l
+ l  u  m  u
+ u  m  n  m
+ m  n     n
+ n
+*/
+	
+static int cellbgcolors[40][4][4] = {
+
+	/*0*/
+	{
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+	
+	/*1*/
+	{
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*2*/
+	{
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*3*/
+	{
+	{1, 1, 1, 1},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*4*/
+	{
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*5*/
+	{
+	{12, 12, 12, 12},
+	{16, 8, 8, 8},
+	{16, 8, 8, 8},
+	{16, 8, 8, 8}
+	},
+
+	/*6*/
+	{
+	{9, 9, 9, 9},
+	{16, 16, 16, 16},
+	{16, 16, 16, 16},
+	{8, 8, 8, 8}
+	},
+
+	/*7*/
+	{
+	{2, 2, 2, 2},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{15, 15, 15, 15}
+	},
+
+	/*8*/
+	{
+	{1, 1, 1, 1},
+	{9, 11, 11, 11},
+	{9, 11, 11, 11},
+	{9, 11, 11, 11}
+	},
+
+	/*9*/
+	{
+	{6, 6, 6, 6},
+	{7, 7, 7, 16},
+	{7, 7, 7, 16},
+	{7, 7, 7, 16}
+	},
+	
+	/*10*/
+	{
+	{1, 11, 11, 11},
+	{11, 3, 3, 3},
+	{11, 3, 3, 3},
+	{11, 3, 3, 3}
+	},
+
+	/*11*/
+	{
+	{16, 16, 7, 16},
+	{16, 16, 7, 16},
+	{16, 16, 7, 16},
+	{16, 16, 7, 16}
+	},
+
+	/*12*/
+	{
+	{9, 9, 9, 9},
+	{16, 16, 4, 16},
+	{16, 16, 4, 16},
+	{16, 16, 4, 16}
+	},
+
+	/*13*/
+	{
+	{9, 9, 9, 9},
+	{15, 15, 16, 15},
+	{15, 15, 16, 15},
+	{15, 15, 16, 15}
+	},
+
+	/*14*/
+	{
+	{1, 1, 1, 1},
+	{3, 3, 16, 3},
+	{3, 3, 16, 3},
+	{3, 3, 16, 3}
+	},
+
+	/*15*/
+	{
+	{15, 15, 8, 15},
+	{15, 15, 8, 15},
+	{15, 15, 8, 15},
+	{15, 15, 8, 15}
+	},
+
+	/*16*/
+	{
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+	
+	/*17*/
+	{
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*18*/
+	{
+	{7, 7, 7, 7},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*19*/
+	{
+	{7, 7, 7, 7},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{7, 7, 7, 7}
+	},
+
+	/*20*/
+	{
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*21*/
+	{
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*22*/
+	{
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*23*/
+	{
+	{9, 9, 9, 9},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*24*/
+	{
+	{16, 16, 16, 16},
+	{8, 8, 8, 8},
+	{16, 16, 16, 16},
+	{8, 8, 8, 8}
+	},
+
+	/*25*/
+	{
+	{11, 11, 11, 11},
+	{8, 8, 8, 8},
+	{4, 4, 4, 4},
+	{8, 8, 8, 8}
+	},
+
+	/*26*/
+	{
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*27*/
+	{
+	{15, 15, 15, 15},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*28*/
+	{
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*29*/
+	{
+	{15, 15, 15, 15},
+	{15, 15, 15, 15},
+	{16, 16, 16, 16},
+	{15, 15, 15, 15}
+	},
+
+	/*30*/
+	{
+	{16, 16, 16, 16},
+	{7, 7, 7, 7},
+	{16, 16, 16, 16},
+	{8, 8, 8, 8}
+	},
+
+	/*31*/
+	{
+	{7, 7, 7, 7},
+	{6, 6, 6, 6},
+	{14, 14, 14, 14},
+	{6, 6, 6, 6}
+	},
+
+	/*32*/
+	{
+	{15, 15, 15, 15},
+	{15, 15, 15, 15},
+	{15, 15, 15, 15},
+	{15, 15, 15, 15}
+	},
+
+	/*33*/
+	{
+	{15, 15, 15, 15},
+	{15, 15, 15, 15},
+	{15, 15, 15, 15},
+	{15, 15, 15, 15}
+	},
+
+	/*34*/
+	{
+	{15, 15, 16, 15},
+	{15, 15, 16, 15},
+	{15, 15, 16, 15},
+	{15, 15, 16, 15}
+	},
+
+	/*35*/
+	{
+	{15, 15, 15, 15},
+	{15, 15, 15, 15},
+	{16, 16, 16, 16},
+	{15, 15, 15, 15}
+	},
+
+	/*36*/
+	{
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*37*/
+	{
+	{1, 1, 1, 1},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{8, 8, 8, 8}
+	},
+
+	/*38*/
+	{
+	{8, 8, 8, 8},
+	{8, 8, 8, 8},
+	{10, 10, 10, 10},
+	{5, 5, 5, 5}
+	},
+
+	/*39*/
+	{
+	{8, 8, 8, 8},
+	{4, 8, 8, 10},
+	{4, 8, 8, 10},
+	{4, 8, 8, 10}
+	}
+	
+	};
+		
+
+/* 
+determine where we should be in the grid, 
+if we do not want the special end cases, and we are
+one of them, then shift into a new location in
+the grid, and output the color sitting there
+*/
+
+int wvCellBgColor(int whichrow,int whichcell,int nocells,int norows,TLP *tlp)
+	{
+	if (whichrow == norows-1)
+		whichrow=3;
+	else if (whichrow > 0)
+		{
+		if (isodd(whichrow)) 
+			whichrow=2;
+		else
+			whichrow=1;
+		}
+
+	if (whichcell == nocells-1)
+		whichcell=3;
+	else if (whichcell > 0)
+		{
+		if (isodd(whichcell)) 
+			whichcell=2;
+		else
+			whichcell=1;
+		}
+
+	wvTrace(("the cell index and bgcolor is %d %d %d,%d (last cell and row are %d %d)\n",tlp->itl,whichrow,whichcell,cellbgcolors[tlp->itl][whichrow][whichcell],nocells,norows));
+	return(cellbgcolors[tlp->itl][whichrow][whichcell]);
+	}
+
+
+void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piece)	
+	{
+	PAPX_FKP para_fkp;
+	U32 para_fcFirst, para_fcLim=0xffffffff;
+	PAP apap;
+	U32 i,j=0;
+	TAP *test=NULL;
+
+	if (ps->intable) return;
+
+	wvInitPAPX_FKP(&para_fkp);
+
+	i = ftell(ps->mainfd);
+	do
+		{
+		wvTrace(("cycle again\n"));
+		wvReleasePAPX_FKP(&para_fkp);		
+
+		piece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i,&ps->clx, btePapx, posPapx, para_intervals,piece,ps->mainfd);
+		wvTrace(("-->%x %x\n",para_fcFirst,para_fcLim));
+		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
+		wvTrace(("para from %x to %x\n",para_fcFirst,para_fcLim));
+		wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,piece,&ps->stsh,&ps->clx);
+		
+		wvTrace(("para from %x to %x\n",para_fcFirst,para_fcLim));
+		i=para_fcLim;
+
+		/* ignore the row end markers */
+		if (apap.ptap.itcMac)
+			{
+			test = (TAP *)realloc(test,sizeof(TAP)*(j+1));
+			wvCopyTAP(&(test[j]),&apap.ptap);
+			j++;
+			}
+
+		}
+	while(apap.fInTable);
+
+	wvReleasePAPX_FKP(&para_fkp);
+
+	wvSetTableInfo(ps,test,j);
+	ps->intable=1;
+	ps->norows=j;
+	wvFree(test);
+	}
+
+void wvGetComplexRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piececount)	
+	{
+	PAPX_FKP para_fkp;
+	U32 para_fcFirst, para_fcLim=0xffffffff;
+	PAP apap;
+	U32 i,j=0,cpiece;
+
+	wvCopyPAP(&apap,dpap);
+
+	wvInitPAPX_FKP(&para_fkp);
+
+	i=ftell(ps->mainfd);
+	do
+		{
+		wvReleasePAPX_FKP(&para_fkp);		
+		
+		cpiece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i,&ps->clx, btePapx, posPapx, para_intervals,piececount,ps->mainfd);
+
+		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh);
+        wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&ps->stsh,&ps->clx);
+	
+		wvTrace(("para from %x to %x\n",para_fcFirst,para_fcLim));
+		i=para_fcLim;
+		}
+	while(apap.fTtp == 0);
+
+	wvTrace(("fTtp is %d\n",apap.fTtp));
+
+	wvReleasePAPX_FKP(&para_fkp);
+	wvCopyTAP(&(dpap->ptap),&apap.ptap);
+
+	for (j=0;j<apap.ptap.itcMac+1;j++)
+		wvTrace(("This Row-->%d\n",apap.ptap.rgdxaCenter[j]));
+	}

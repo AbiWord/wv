@@ -62,7 +62,7 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 </entry>
 
 <table>
-<begin>&lt;table width=&quot;100%&quot; border=&quot;1&quot;&gt;</begin>
+<begin>&lt;table width=&quot;<tablerelwidth/>&quot; border=&quot;1&quot;&gt;</begin>
 <end>&lt;/table&gt;</end>
 </table>
 
@@ -209,9 +209,9 @@ or uncomment below to make the notes dissappear
 <DkGreen><begin>DarkGreen</begin><end></end></DkGreen>
 <DkMagenta><begin>DarkMagenta</begin><end></end></DkMagenta>
 <DkRed><begin>DarkRed</begin><end></end></DkRed>
-<DkYellow><begin>DarkYellow</begin><end></end></DkYellow>
+<DkYellow><begin>#8b8b00</begin><end></end></DkYellow>
 <DkGray><begin>DarkGray</begin><end></end></DkGray>
-<LtGray><begin>LightGray</begin><end></end></LtGray>
+<LtGray><begin>LightGrey</begin><end></end></LtGray>
 <!--
 </color>
 -->

@@ -38,7 +38,7 @@ PERL = @PERL@
 
 VPATH = @srcdir@
 
-CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I$(srcdir)/expat/xmlparse -I$(srcdir)/oledecod -I$(srcdir)/ @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DCONFIGFILE=\"$(libdir)/wv/config-mswordview\" -DPATTERNDIR=\"file:$(libdir)/wv/patterns\" -DSYMBOLFONTDIR=\"file:$(libdir)/wv/symbolfont\" -DWINGDINGFONTDIR=\"file:$(libdir)/wv/wingdingfont\"
+CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I$(srcdir)/expat/xmlparse -I$(srcdir)/oledecod -I$(srcdir)/ @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DXMLCONFIG=\"$(libdir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(libdir)/wv/wvHtml.xml\" 
 
 MKINSTALLDIRS = $(srcdir)/mkinstalldirs
 
@@ -258,6 +258,8 @@ install: installdirs all
 	$(INSTALL_DATA) $(srcdir)/wvHtml.1 $(mandir)/man1/
 	$(INSTALL_DATA) wv.h $(includedir)/wv.h
 	$(INSTALL_DATA) $(srcdir)/libwv.a $(libdir)/libwv.a
+	$(INSTALL_DATA) $(srcdir)/wvHtml.xml $(libdir)/wv/wvHtml.xml
+	$(INSTALL_DATA) $(srcdir)/wvConfig.xml $(libdir)/wv/wvConfig.xml
 	for filename in symbolfont/*.gif; do \
 		$(INSTALL_DATA) $$filename $(libdir)/wv/symbolfont; \
 	done

@@ -48,12 +48,6 @@ extern int list;
 #endif
 
 #if 0
-RETSIGTYPE reaper(int);
-void signal_handle (int sig, SigHandler * handler);
-#endif
-RETSIGTYPE timeingout(int );
-
-#if 0
 int wvDecrypt(FILE *mainfd,char *password,U32 lKey)
 	{
 	long end,pos;

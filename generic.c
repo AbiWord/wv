@@ -104,9 +104,3 @@ void wvAppendStr(char **orig,const char *add)
 	wvTrace(("3 test str of %s\n",*orig));
 	}
 
-
-
-
-
-
-	

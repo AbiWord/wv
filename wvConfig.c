@@ -92,6 +92,7 @@ TokenTable s_Tokens[] =
 	{	"cellwidth",	 TT_CELLWIDTH		},
     {   "rowspan",       TT_ROWSPAN      	},
     {   "cellbgcolor",   TT_CELLBGCOLOR     },
+    {   "tablerelwidth", TT_TABLERELWIDTH	},
 
     {   "document",      TT_DOCUMENT     	},
 	 {   "section",       TT_SECTION     	},
@@ -416,10 +417,35 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
+		case TT_TABLERELWIDTH:
+			{
+			int width = ((PAP *)(mydata->props))->ptap.rgdxaCenter[((PAP *)(mydata->props))->ptap.itcMac] -
+			((PAP *)(mydata->props))->ptap.rgdxaCenter[0];
+			sprintf(buffer,"%.2f%%",wvRelativeWidth(width,mydata->asep));
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			}
+			break;
 		case TT_CELLBGCOLOR:
+			i = wvCellBgColor(mydata->whichrow,mydata->whichcell,((PAP *)(mydata->props))->ptap.itcMac,*(mydata->norows),&(((PAP *)(mydata->props))->ptap.tlp)); 
+			if (i<1)
+				return;
+			wvTrace(("color is %s\n",mydata->sd->elements[TT_BLACK+((i-1)*3)].str[0]));
+
+			text = (char *)malloc(strlen(mydata->sd->elements[TT_BLACK+((i-1)*3)].str[0])+1); 
+			strcpy(text,mydata->sd->elements[TT_BLACK+((i-1)*3)].str[0]); 
+			str = mydata->retstring; 
+			wvExpand(mydata,text,strlen(text)); 
+			wvAppendStr(&str,mydata->retstring); 
+			wvFree(mydata->retstring); 
+			mydata->retstring = str; 
+			wvFree(text); 
+			mydata->currentlen = strlen(mydata->retstring); 
+			/*	
 			sprintf(buffer,"%s","Green");
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
+			*/
 			break;
 		case TT_CELLWIDTH:
 			{
@@ -1366,6 +1392,10 @@ void startElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(mydata->current,"<cellwidth/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
+		case TT_TABLERELWIDTH:
+			wvAppendStr(mydata->current,"<tablerelwidth/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
 		case TT_CELLBGCOLOR:
 			wvAppendStr(mydata->current,"<cellbgcolor/>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -1962,6 +1992,7 @@ void endElement(void *userData, const char *name)
 		case TT_CELLWIDTH:
 		case TT_ROWSPAN:
 		case TT_CELLBGCOLOR:
+		case TT_TABLERELWIDTH:
 		case TT_VERSION:
 		case TT_JUST:
 		case TT_nfc:
@@ -2121,6 +2152,7 @@ void exendElement(void *userData, const char *name)
 		case TT_COLSPAN:
 		case TT_ROWSPAN:
 		case TT_CELLBGCOLOR:
+		case TT_TABLERELWIDTH:
 		case TT_CELLWIDTH:
 		case TT_VERSION:
 			break;

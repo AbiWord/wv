@@ -57,16 +57,20 @@ If the FC found is less than or equal to the limit FC of the
 piece, then the character that ends the paragraph is the character
 immediately before the FKP FC.
 */
-int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,FILE *fd)
+int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,FILE *fd)
 	{
+	/*
 	U32 currentfc;
+	*/
 	BTE entry;
 	long currentpos;
+	/*
 	currentfc = wvConvertCPToFC(currentcp,clx);
 
 	wvTrace(("current cp is %x\n",currentcp));
 	wvTrace(("current fc is %x\n",currentfc));
 	wvTrace(("piece is %d, should be %d\n",piece,wvGetPieceFromCP(currentcp,clx)));
+	*/
 
 	if (currentfc==0xffffffffL)
 		{
@@ -119,9 +123,6 @@ int wvGetComplexParafcLim(int version,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bt
 			{
 			wvTrace(("piece is %d\n",piece));
 			beginfc = wvNormFC(clx->pcd[piece].fc,NULL);
-			/*
-			if (0 != wvGetBTE_FromFC(&entry,currentfc, bte,pos,nobte))
-			*/
 			if (0 != wvGetBTE_FromFC(&entry,beginfc, bte,pos,nobte))
 				{
 				wvError(("BTE not found !\n"));
@@ -208,13 +209,11 @@ int wvGetComplexParafcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
  * abstract the necessary functions to avoid duplicating them... */
 
 int wvGetComplexCharBounds(int version, CHPX_FKP *fkp, U32 *fcFirst, 
-			   U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, 
+			   U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, 
 			   U32 *pos, int nobte, U32 piece, FILE *fd)
 	{
-	U32 currentfc;
 	BTE entry;
 	long currentpos;
-	currentfc = wvConvertCPToFC(currentcp, clx);
 
 	wvTrace(("current fc is %x\n", currentfc));
 
@@ -266,41 +265,6 @@ int wvGetComplexCharfcLim(int version, U32 *fcLim, U32 currentfc, CLX *clx, BTE 
 	find the boundaries of the exception text runs
 	*/
 	*fcLim = fcTest;
-#if 0
-
-	if (fcTest <= wvGetEndFCPiece(piece,clx))
-		{
-		*fcLim = fcTest/*-1*/;
-		}
-	else
-		{
-		wvTrace(("piece is %d\n",piece));
-		/*get end fc of previous piece*/
-		while (piece < clx->nopcd) 
-			{
-			beginfc = wvNormFC(clx->pcd[piece].fc,NULL);
-			/*
-			if (0 != wvGetBTE_FromFC(&entry,currentfc, bte,pos,nobte))
-			*/
-			if (0 != wvGetBTE_FromFC(&entry,beginfc, bte,pos,nobte))
-				{
-				wvError(("BTE not found !\n"));
-				return(-1);
-				}
-			wvReleaseCHPX_FKP(fkp);
-			wvGetCHPX_FKP(version,fkp,entry.pn,fd);
-			/* this only works with the initial rgfc array, which is the
-			 * same for both CHPX and PAPX FKPs */
-			fcTest = wvSearchNextSmallestFCPAPX_FKP((PAPX_FKP*)fkp,beginfc);
-			if (fcTest <= wvGetEndFCPiece(piece,clx))
-				{
-				*fcLim = fcTest/*-1*/;
-				break;
-				}
-			piece++;
-			}
-		}
-#endif
 	wvTrace(("fcLim is %x\n",*fcLim));
 	if (piece == clx->nopcd)
 		return(clx->nopcd-1);	/* test using this */
@@ -323,52 +287,6 @@ int wvGetComplexCharfcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
 	find the boundaries of the exception text runs
 	*/
 	*fcFirst = fcTest;
-#if 0
-
-	if (wvQuerySamePiece(fcTest-1,clx,piece))
-		{
-		wvTrace(("same piece\n"));
-		*fcFirst = fcTest-1;
-		}
-	else
-		{
-		wvTrace(("piece is %d\n",piece));
-		/*
-		get end fc of previous piece ??, or use the end of the current piece
-		*/
-		piece--;
-		while (piece != 0xffffffffL) 
-			{
-			/*
-			endfc = wvNormFC(clx->pcd[piece+1].fc,NULL);
-			*/
-			endfc = wvGetEndFCPiece(piece,clx);
-			if (0 != wvGetBTE_FromFC(&entry,endfc, bte,pos,nobte))
-				{
-				wvError(("BTE not found !\n"));
-				return(-1);
-				}
-			wvReleaseCHPX_FKP(fkp);
-			wvGetCHPX_FKP(version,fkp,entry.pn,fd);
-			/* this only works with the initial rgfc array, which is the
-			 * same for both CHPX and PAPX FKPs */
-			fcTest = wvSearchNextLargestFCCHPX_FKP(fkp,endfc);
-			if (wvQuerySamePiece(fcTest-1,clx,piece))
-				{
-				*fcFirst = fcTest-1;
-				break;
-				}
-			piece--;
-			}
-		
-		}
-
-	if (piece == 0xffffffffL)
-        {
-        wvError(("failed to find a solution to the beginning of the exception run\n"));
-        *fcFirst = currentfc;
-        }
-#endif 
 	return(0);
 	}
 
@@ -399,7 +317,6 @@ void wvDecodeComplex(wvParseStruct *ps)
 	U16 charset;
 	U8 state=0;
 	int cpiece=0;
-	STSH stsh;
 	PAPX_FKP para_fkp;
 	PAP apap;
 	CHPX_FKP char_fkp;
@@ -410,7 +327,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 	U32 *posSedx;
 
 	/*we will need the stylesheet to do anything useful with layout and look*/
-	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
+	wvGetSTSH(&ps->stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
 
         /* get font list */
 	if ( (wvQuerySupported(&ps->fib,NULL) == 2) || (wvQuerySupported(&ps->fib,NULL) == 3) )
@@ -517,7 +434,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 			if ((section_fcLim == 0xffffffff) || (section_fcLim == j))
                 {
                 wvTrace(("j i is %x %d\n",j,i));
-                wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),&sep,&section_fcFirst,&section_fcLim, i,&ps->clx, sed, posSedx, section_intervals, &stsh,ps->mainfd);
+                wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),&sep,&section_fcFirst,&section_fcLim, i,&ps->clx, sed, posSedx, section_intervals, &ps->stsh,ps->mainfd);
                 wvTrace(("section begins at %x ends %x\n", section_fcFirst, section_fcLim));
                 }
 
@@ -532,7 +449,10 @@ void wvDecodeComplex(wvParseStruct *ps)
 				{
 				wvTrace(("before tests j is %x, i is %d\n",j,i));
 				wvReleasePAPX_FKP(&para_fkp);
+				cpiece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,wvConvertCPToFC(i, &ps->clx),&ps->clx, btePapx, posPapx, para_intervals,piececount,ps->mainfd);
+				/*
 				cpiece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i,&ps->clx, btePapx, posPapx, para_intervals,piececount,ps->mainfd);
+				*/
 				wvTrace(("fcLim is %x, fcFirst is %x, j is %x\n",para_fcLim,para_fcFirst,j));
 				wvTrace(("the char before %x is at %x\n",para_fcLim,para_fcLim-wvIncFC(chartype)));
 				
@@ -540,10 +460,23 @@ void wvDecodeComplex(wvParseStruct *ps)
 
 			if (j == para_fcFirst)
 				{
-				wvTrace(("getting PAP\n"));
-				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&stsh);
+				wvTrace(("|-->%x %x\n",para_fcFirst,para_fcLim));
+				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&ps->stsh);
 				wvTrace(("cpiece is %d, but full no is %d\n",cpiece,ps->clx.nopcd));
-				wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&stsh,&ps->clx);
+				wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&ps->stsh,&ps->clx);
+
+				if ( (apap.fInTable) && (!apap.fTtp) )
+					{
+					wvTrace(("Id have to search for all table info %x %x\n",para_fcFirst,para_fcLim));
+					wvTrace(("phase 1\n"));
+					wvGetComplexFullTableInit(ps,para_intervals,btePapx,posPapx,piececount);
+					wvTrace(("phase 2\n"));
+					wvGetComplexRowTap(ps,&apap,para_intervals,btePapx,posPapx,piececount);
+					wvTrace(("phase 3\n"));
+					}
+				else if (apap.fInTable == 0)
+					ps->intable=0;
+
 				wvTrace(("Beginning Paragraph\n"));
 				wvHandleElement(ps,PARABEGIN, (void*)&apap);
 
@@ -562,7 +495,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 				wvReleaseCHPX_FKP(&char_fkp);
 				wvTrace(("piece is %d\n",cpiece));
 				/*try this without using the piece of the end char for anything*/
-				/*cpiece = */wvGetComplexCharBounds(wvQuerySupported(&ps->fib,NULL),&char_fkp,&char_fcFirst,&char_fcLim,i,&ps->clx, bteChpx, posChpx, char_intervals,piececount,ps->mainfd);
+				/*cpiece = */wvGetComplexCharBounds(wvQuerySupported(&ps->fib,NULL),&char_fkp,&char_fcFirst,&char_fcLim,wvConvertCPToFC(i, &ps->clx),&ps->clx, bteChpx, posChpx, char_intervals,piececount,ps->mainfd);
 				wvTrace(("piece is now %d\n",cpiece));
 				wvTrace(("fcLim is %x, fcFirst is %x\n",char_fcLim,char_fcFirst));
 				if (char_fcLim == char_fcFirst)
@@ -582,11 +515,11 @@ void wvDecodeComplex(wvParseStruct *ps)
 				{
 				/* a CHP's base style is in the para style */
 				achp.istd = apap.istd;
-				wvAssembleSimpleCHP(&achp,char_fcLim,&char_fkp,&stsh);
+				wvAssembleSimpleCHP(&achp,char_fcLim,&char_fkp,&ps->stsh);
 				wvTrace(("cpiece is %d , but full no is %d\n",cpiece,ps->clx.nopcd));
 				wvTrace(("test is %d\n",achp.dxaSpace));
 				wvTrace(("underline bold is now %d %d, istd %d\n",achp.kul,achp.fBold,achp.istd));
-				wvAssembleComplexCHP(wvQuerySupported(&ps->fib,NULL),&achp,cpiece,&stsh,&ps->clx);
+				wvAssembleComplexCHP(wvQuerySupported(&ps->fib,NULL),&achp,cpiece,&ps->stsh,&ps->clx);
 				wvTrace(("underline is now %d\n",achp.kul));
 				wvHandleElement(ps,CHARPROPBEGIN, (void*)&achp);
 				char_pendingclose=1;
@@ -605,6 +538,8 @@ void wvDecodeComplex(wvParseStruct *ps)
 			*/
 			if ((eachchar == 0x01) && (achp.fSpec))
 				wvError(("picture here\n"));
+			else if ((eachchar == 0x07) && (!achp.fSpec))
+				ps->endcell=1;
 			
 			wvOutputTextChar(eachchar,chartype,charset,&state,ps);
 			}
@@ -660,8 +595,8 @@ void wvDecodeComplex(wvParseStruct *ps)
 	wvFree(posSedx);
 	wvReleaseSTTBF(&ps->anSttbfAssoc);
 	wvReleaseCLX(&ps->clx);
-	   wvReleaseFFN_STTBF(&ps->fonts);
-	   wvReleaseSTSH(&stsh);
+	wvReleaseFFN_STTBF(&ps->fonts);
+	wvReleaseSTSH(&ps->stsh);
 	wvFree(btePapx);
 	wvFree(posPapx);
 	wvFree(bteChpx);

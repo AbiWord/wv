@@ -4,7 +4,7 @@
 wvHtml \- convert msword documents to html
 .SH SYNOPSIS
 .ll +8
-.B wvHtml [-c charset] [--charset charset] filename
+.B wvHtml [-c charset] [--charset charset] [-p password] [--password password] [-x config.xml] [--config config.xml] filename
 .ll -8
 .br
 .SH DESCRIPTION
@@ -26,6 +26,15 @@ for output are
 utf-8
 iso-5589-15
 koi-8
+.TP
+.I "\-c password, \-\-password password"
+Due to heroic work done by a great team or workers, the wv library can decrypt password protected
+word 97 and older versions of word documents given the correct password.
+.TP
+.I "\-c config.xml, \-\-config config.xml"
+Use this to give the location of the config file, if not used the config file is searched for
+by first checking the current directory, and then by looking in the install location, by
+default its /usr/local/lib/wv/wvHtml.xml
 .SH MORE INFORMATION
 http://www.csn.ul.ie/~caolan/docs/MSWordView.html
 .SH "SEE ALSO"

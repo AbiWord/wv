@@ -2,6 +2,25 @@
 #include <stdio.h>
 #include "wv.h"
 
+
+float wvRelativeWidth(S16 width,SEP *asep)
+	{
+	float fwidth;
+	if (asep == NULL)
+		return(100.00);
+	fwidth = asep->xaPage - asep->dxaLeft - asep->dxaRight;
+	fwidth = width/fwidth*100;
+	if (fwidth > 100.00) 
+		fwidth = 100.00;
+	return(fwidth);
+	}
+	
+float wvRelativeHeight(S16 height,SEP *asep)
+	{
+	float fheight = asep->yaPage - asep->dyaTop - asep->dyaBottom;
+	fheight = height/fheight*100;
+	}
+
 /*
 The standard SEP is all zeros except as follows:
  bkc           2 (new page)

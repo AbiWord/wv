@@ -25,9 +25,11 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props);
 int mydochandler(wvParseStruct *ps,wvTag tag);
 int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype);
 
+FILE *wvOpenConfig(char *config);
+
 void usage( void )
 	{
-	printf("Usage: wvHtml [--charset charset] [--password password] filename.doc\n");
+	printf("Usage: wvHtml [--config config.xml] [--charset charset] [--password password] filename.doc\n");
 	exit(-1);
 	}
 
@@ -37,6 +39,7 @@ int main(int argc,char **argv)
 	{
 	FILE *input;
 	char *password=NULL;
+	char *config=NULL;
 	int ret;
 	state_data myhandle;
 	expand_data expandhandle;
@@ -45,6 +48,7 @@ int main(int argc,char **argv)
 	static struct option long_options[] =
         {
         { "charset",1,0,'c'},
+        { "config",1,0,'x'},
         { "password",1,0,'p'},
         { 0,      0, 0, '0' },
         };
@@ -56,7 +60,7 @@ int main(int argc,char **argv)
 
 	 while (1)
         { 
-        c = getopt_long (argc, argv, "c:", long_options, &index);
+        c = getopt_long (argc, argv, "c:x:p:", long_options, &index);
         if (c == -1)
             break;
 		switch(c)
@@ -66,6 +70,12 @@ int main(int argc,char **argv)
 					charset = wvLookupCharset(optarg);
 				else
 					wvError(("No argument given to charset"));
+				break;
+			case 'x':
+				if (optarg)
+					config = optarg;
+				else
+					wvError(("No config file given to config option"));
 				break;
 			case 'p':
 				if (optarg)
@@ -123,6 +133,7 @@ int main(int argc,char **argv)
 	if (ret)
 		{
 		wvError(("startup error\n"));
+		wvOLEFree();
 		return(-1);
 		}
 
@@ -131,9 +142,12 @@ int main(int argc,char **argv)
 	wvSetCharHandler(myCharProc);
 
 	wvInitStateData(&myhandle);
-    myhandle.fp = fopen("wvHtml.xml","rb");
+    myhandle.fp = wvOpenConfig(config);
     if (myhandle.fp == NULL)
+		{
         wvError(("config file not found\n"));
+		return(-1);
+		}
     else
 		{
 		wvTrace(("x for FILE is %x\n",myhandle.fp));
@@ -158,6 +172,7 @@ int main(int argc,char **argv)
 
 int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
     {
+	static PAP *ppap;
     expand_data *data = (expand_data *)ps->userData;
     data->anSttbfAssoc = &ps->anSttbfAssoc;
 	data->lfo = &ps->lfo;
@@ -175,6 +190,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
 	data->cellbounds = &ps->cellbounds;
 	data->endcell = &ps->endcell;
 	data->vmerges = &ps->vmerges;
+	data->norows = &ps->norows;
 
 
 
@@ -187,6 +203,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
     switch (tag)
         {
         case PARABEGIN:
+			ppap = (PAP *)data->props;
             wvBeginPara(data);
             break;
         case PARAEND:
@@ -194,14 +211,16 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
             wvEndPara(data);
             break;
         case CHARPROPBEGIN:
-            wvBeginCharProp(data);
+            wvBeginCharProp(data,ppap);
             break;
         case CHARPROPEND:
             wvEndCharProp(data);
             break;
 		case SECTIONBEGIN:
+			wvBeginSection(data);
 			break;
 		case SECTIONEND:
+			wvEndSection(data);
 			break;
         default:
             break;
@@ -229,10 +248,12 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 	data->cellbounds = &ps->cellbounds;
 	data->endcell = &ps->endcell;
 	data->vmerges = &ps->vmerges;
+	data->norows = &ps->norows;
 	if (i==0)
 		{
 		data->whichcell=0;
 		data->whichrow=0;
+		data->asep = NULL;
 		i++;
 		}
 
@@ -285,4 +306,23 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype)
 	else
 		wvOutputHtmlChar(eachchar,chartype,wvAutoCharset(&ps->clx));
 	return(0);
+	}
+
+
+FILE *wvOpenConfig(char *config)
+	{
+	FILE *tmp;
+	int i=0;
+	if (config == NULL)
+		config = "wvHtml.xml";
+	else
+		i=1;
+    tmp = fopen(config,"rb");
+	if (tmp == NULL)
+		{
+		if (i) wvError(("Attempt to open %s failed, using %s\n",config,HTMLCONFIG));
+		config = HTMLCONFIG;
+	    tmp = fopen(config,"rb");
+		}
+	return(tmp);
 	}

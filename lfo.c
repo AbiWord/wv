@@ -41,7 +41,7 @@ int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl
 			continue;
 		if ((*lfolvl)[i].fFormatting)
 			{
-			fprintf(stderr,"formatting set\n");
+			wvTrace(("formatting set\n"));
 			wvGetLVL(&((*lvl)[i]),fd);
 			}
 		i++;

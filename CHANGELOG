@@ -1,25 +1,34 @@
-Changes to to 0.5.34
-	* added cellwidth percentage as well to wvHtml.xml to make the cells the
-	same ratio width in html as in the original word.
-	* changed Dk Colors to Dark Colors in wvHtml.xml to get the right colors
-	* tested rowspan lots and lots on examples.
-	* tested colspan. 
-	* wow my god !, there can be either no tc's in sprmTDefTable, word 6 ones,
-	or word 8 ones, you have to work it out depending on the length of the 
-	parameter.
-	* small doc addition by Karl F. Larsen <k5di@totacc.com>
-ALL TODO
-	* add two options for table width, i.e. tableabswidth & tablerelwidth
-	* add background color for cells
-	* implement the x number of table looks.
-	
+Changes to to 0.5.35
+	* tables.
+	* wvToggle was still in todo, it was fixed a while ago
+	* made decode_complex stsh into a ps->stsh, I obviously missed
+	it before, this is the problem with having both decode_complex and
+	decode_simple with unshared components, gagh!
+	* complex mode tables might even work now.
+	* table relative widths now in as well, percentage of screen, uses
+	the sep, so sep has been put into the expand_data struct, which needs
+	to be cleaned up, i propose putting chp pap and sep into wvParseStruct
+	rather than props, and making expand_data have a pointer to wvparsestruct 
+	* fixed section code begin and end crash.
 	* complex mode colspan and rowspan, and various support functions.
+	* wvHtml can find the config file on its own, and has a command line
+	option (-x) to find it.
+	* some fixes to wvConvert which I havnt looked at in a while, so as
+	to get it to work, and to include the password and other changes that
+	made their way into wvHtml.
+ALL TODO
+	* fully implement tablelooks, the flags in particular, and maybe the 
+	colors for the bg should be farmed out to sperate config options rather
+	than piggy backing on the other colors, also why did one of the text
+	foregrounds not work on its own, while the others did, and is there
+	one of two cases where our grid will not handle every case ?
+	
 
 	* title not being done in the correct charset
+	* add another option for table width, i.e. tableabswidth.
 	* we need character formatting for the <li> itself, we can do this I 
 	suppose, but i'll hold off on that for a while.
 
-	* tables.
 	* fontface and size for char runs..
 
 	* what about a collision between underline and revision added ? and also the 
@@ -38,8 +47,6 @@ ALL TODO
 	* install cygwin thingy at home and test configure mechanism for searching and
 	installing strcasecmp/rint.
 
-	* table properties & lists to be done
-
 	* i figured out what the story is with ole embedded files, ill have to modify
 	my ole code so as to be able in the future to parse embedded docs and splice
 	them together, which could be a wee bit of a challenge.
@@ -48,15 +55,12 @@ ALL TODO
 	lib, or to disable it or something.
 	* add errors via numbered errors to wvInitParser.
 
-	* harden wvConfig against bad pointers, and incomplete sections e.g justification
-	* make wvConvert read config from commandline, and 
 	* additional code checks for conversion of codepage whatever to iso for
 	ancillary strings that might be stored in that format.
 	* modify complex code to stop at end of main text
 
 	* i have Plcfbte's marked as generic empty structures in the old code, which 
 	is technically incorrect but works the way i've set up the code to handle it.
-	* wvToggle is wrong im sure.
 	* the old ffffffff list problem still exists with the new interface, i must 
 	finally kill that issue once and for all
 	* colspan support, find the smallest common unit, and restart the
@@ -69,9 +73,6 @@ ALL TODO
 	other things like that do what i think they should do.
 	* placement of footnotes, what does "treat like endnotes" really mean ?
 	* make sure captions are alright, especially formatting.
-	* must implement fully handling for 16bit chars, taking into account 
-	conversion from cp1252. two modes, one where we are in isowhatever mode
-	and one where we are in unicode/utf-8 mode.
 	* bits for anld are wrong
 	* bookmarks embedded in html tags break them, constructs such as e.g
 	<A href="stuff">stuf<a name="here">f</a></A> are being output even though
@@ -103,6 +104,24 @@ ALL TODO
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.34
+	* added cellwidth percentage as well to wvHtml.xml to make the cells the
+	same ratio width in html as in the original word.
+	* changed Dk Colors to Dark Colors in wvHtml.xml to get the right colors
+	* tested rowspan lots and lots on examples.
+	* tested colspan. 
+	* wow my god !, there can be either no tc's in sprmTDefTable, word 6 ones,
+	or word 8 ones, you have to work it out depending on the length of the 
+	parameter.
+	* small doc addition by Karl F. Larsen <k5di@totacc.com>
+	* tweaked wvCharBegin to ignore empty rowend paragraphs, squeaks us past
+	the html validation service :-)
+	* basic tablelooks implemented, and basic background color for cells
+	* changed a few more colours in wvHtml.xml to get ones that work in
+	netscape, must change them all to #?????? values.
+	* removed signal and wait stuff from configure
+	* added searching for wvHtml.xml, i also install it, so you can wrap 
+	this in a rpm and it will work fine for the average user.
 Changes to to 0.5.33
 	* tested row and col span with fullsave and fixed many
 	many bugs, sprmTDefTable is not as simple as it looks.

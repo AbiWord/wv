@@ -174,7 +174,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 				{
 				wvTrace(("j i is %x %d\n",j,i));
 				wvReleasePAPX_FKP(&para_fkp);
-				wvGetSimpleParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,wvConvertCPToFC(i,&ps->clx),/*&ps->clx,*/ btePapx, posPapx, para_intervals, ps->mainfd);
+				wvGetSimpleParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,wvConvertCPToFC(i,&ps->clx), btePapx, posPapx, para_intervals, ps->mainfd);
 				wvTrace(("para begins at %x ends %x\n", para_fcFirst, para_fcLim));
 				}
 
@@ -294,7 +294,7 @@ Every character greater than or equal to fcFirst and less than fcLim is part of
 the containing paragraph.
 
 */
-int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,/*CLX *clx,*/ BTE *bte, U32 *pos,int nobte,FILE *fd)
+int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc, BTE *bte, U32 *pos,int nobte,FILE *fd)
 	{
 	BTE entry;
 	long currentpos;
