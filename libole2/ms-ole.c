@@ -50,7 +50,7 @@
 #define PROT_WRITE 0x2
 #endif
 
-#ifndef MAP_FAILED
+#if !defined(MAP_FAILED) || defined(__osf__)
 /* Someone needs their head examining - BSD ? */
 #	define MAP_FAILED ((void *)-1)
 #endif

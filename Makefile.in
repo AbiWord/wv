@@ -440,6 +440,7 @@ install: installdirs all
 	$(INSTALL) $(srcdir)/wvVersion$(EXEEXT) $(bindir)/wvVersion$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvConvert$(EXEEXT) $(bindir)/wvConvert$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvWare$(EXEEXT) $(bindir)/wvWare$(EXEEXT)
+	$(INSTALL) $(srcdir)/wvRTF$(EXEEXT) $(bindir)/wvRTF$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvCleanLatex $(bindir)/wvCleanLatex
 	$(INSTALL) $(srcdir)/wvHtml $(bindir)/wvHtml
 	$(INSTALL) $(srcdir)/wvAbw $(bindir)/wvAbw

@@ -231,11 +231,11 @@ fill_rtfUserData(rtfUserData *ud, CHP *chp, wvParseStruct *ps)
 static void
 handleImage(Blip * b, long width, long height)
 {
-#if 0
 
   /* TODO: image support */
   FILE *fd = NULL;
   int data = 0;
+  int cnt = 0;
   int tag = time(NULL);
 
   /* short-circuit this method if we don't support
@@ -260,11 +260,13 @@ handleImage(Blip * b, long width, long height)
   
   fd = (FILE*)(b->blip.bitmap.m_pvBits);
   while (EOF != (data = getc(fd)))
-    rtf_output("%02x", data);
+    {
+      if (cnt++ % 64 == 0)
+	rtf_output_char('\n');
+      rtf_output("%02x", data);
+    }
 
   rtf_output_char('}');
-
-#endif
 }
 
 static int 

@@ -188,14 +188,14 @@ U32 wvEatOldGraphicHeader(wvStream *fd,U32 len)
 						pad = test;
 						test = read_32ubit(fd);	/*0x00cc0020*/
 						if (test != 0x00cc0020)
-							wvError(("Old Graphic\n"));
+							wvTrace(("Old Graphic\n"));
 						count+=4;
 
 						if (pad == 0x0f43)
 							{
 							test = read_16ubit(fd); /*0x0000*/
 							if (test != 0x0000)
-								wvError(("Old Graphic\n"));
+								wvTrace(("Old Graphic\n"));
 							count+=2;
 							}
 						
@@ -205,7 +205,7 @@ U32 wvEatOldGraphicHeader(wvStream *fd,U32 len)
 						count+=2;
 						test = read_32ubit(fd);	/*0x00000000L*/
 						if (test != 0x00000000L)
-							wvError(("Old Graphic\n"));
+							wvTrace(("Old Graphic\n"));
 						count+=4;
 						read_16ubit(fd);	/*width*/
 						count+=2;
@@ -213,7 +213,7 @@ U32 wvEatOldGraphicHeader(wvStream *fd,U32 len)
 						count+=2;
 						test = read_32ubit(fd);	/*0x00000000L*/
 						if (test != 0x00000000L)
-							wvError(("Old Graphic\n"));
+							wvTrace(("Old Graphic\n"));
 						count+=4;
 						return(count);
 						}

@@ -100,9 +100,15 @@ char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
 			fd = (FILE *)(blip->blip.bitmap.m_pvBits);
 			test[2] = '\0';
 			test[0] = getc(fd);
+#if 1
 			test[1] = getc(fd);
 			rewind(fd);
 			if (!(strcmp(test,"BM")))
+#else
+			test[1] = '\0';
+			ungetc(test[1], fd);
+			if (!(strcmp(test,"B")))
+#endif
 				{
 				wvAppendStr(&name,".bmp");
 				if (0 != HandleBitmap(name,&blip->blip.bitmap))
@@ -150,7 +156,6 @@ char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
             break;
         }
 	return(name);
-printf("<%s>\n", name);
 	}
 
 
@@ -637,8 +642,10 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			char *name;
 			long p = wvStream_tell(ps->data);
 			wvError(("picture 0x01 here, at offset %x in Data Stream, obj is %d, ole is %d\n",achp->fcPic_fcObj_lTagObj,achp->fObj,achp->fOle2));
+
 			if (achp->fOle2)
 				exit(139);
+#if 0
 			wvStream_goto(ps->data,achp->fcPic_fcObj_lTagObj);
 			wvGetPICF(wvQuerySupported(&ps->fib,NULL),&picf,ps->data);
 			f = picf.rgb;
@@ -654,6 +661,9 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 				}
 			else
 				wvStrangeNoGraphicData(config, 0x01);
+#else
+			wvError (("0x01 graphics not supported at the moment\n"));
+#endif
 			wvStream_goto(ps->data,p);
 			return(0);
 			}

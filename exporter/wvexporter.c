@@ -15,8 +15,13 @@
 #include "wvexporter-priv.h"
 #include "ms-ole-summary.h"
 
-  /* the temporary storage struct for our summay data */
+  /* the temporary storage struct for our summay data 
+   * for important reasons, this gets written out
+   * at the end of the export, after the other streams
+   * are closed
+   */
   typedef struct _OleSummaryData OleSummaryData;
+
   struct _OleSummaryData {
     char *  title;
     char *  subject;
@@ -97,7 +102,9 @@ static void write_ole_summary(OleSummaryData * data, MsOleSummary * strm);
 
 
 /**
- * Returns 1 if we can export to version # @v
+ * wvExporter_queryVerionSupported
+ *
+ * @returns 1 if we can export to version # @v
  * Of the MSWord format or 0 if not
  *
  * Currently Supported Versions: WORD8
@@ -118,6 +125,8 @@ wvExporter_queryVersionSupported(wvVersion v)
 /**
  * wvExporter_getVersion
  *
+ * @exp - a valid exporter created by wvExporter_create
+ *
  * @returns the version type of the wvExporter @exp, 0 on error
  */
 wvVersion
@@ -132,14 +141,18 @@ wvExporter_getVersion(wvExporter *exp)
 }
 
 /**
+ * wvExporter_create_version
+ *
  * Creates a MSWord exporter object, with the version @v
- * If version @v isn't supported, return NULL
+ * If version @v isn't supported, return NULL. Call
+ * <code>wvExporter_queryVersionSupported(@v)</code> to see
+ * If @v is a supported version
  *
  * @filename - file on disk to create 
  * @v - version of Word Format to create. Only valid for
  *      versions where wvExporter_queryVersionSupporter (@v) == 1
  *
- * @returns <code>NULL</code> on error, valid wvExporter on success
+ * @returns <code>NULL</code> on error, or a valid wvExporter on success
  */
 wvExporter *
 wvExporter_create_version(const char *filename, wvVersion v)
@@ -177,6 +190,8 @@ wvExporter_create(const char *filename)
 }
 
 /**
+ * wvExporter_close
+ *
  * Closes and saves the MSWord document
  *
  * @exp - an exporter created by wvExporter_create()
@@ -336,11 +351,12 @@ wvExporter_summaryPutTime(wvExporter *exp, U32 field, time_t t)
  * If you're worried, use wvExporter_writeBytes instead.
  *
  * Writes the string @chars to the Word document @exp
+ * You should be passing UTF8 here
  *
  * @returns number of chars written
  */
 size_t
-wvExporter_writeChars(wvExporter *exp, const char *chars)
+wvExporter_writeChars(wvExporter *exp, const U8 *chars)
 {
   if(exp == NULL) {
     wvError(("Exporter can't be NULL\n"));
@@ -351,7 +367,7 @@ wvExporter_writeChars(wvExporter *exp, const char *chars)
     return 0;
   }
 
-  return wvExporter_writeBytes(exp, sizeof(char), strlen(chars), 
+  return wvExporter_writeBytes(exp, sizeof(U8), strlen(chars), 
 			       (const void *)chars);
 }
 
@@ -403,6 +419,8 @@ wvExporter_writeBytes(wvExporter *exp, size_t sz, size_t nmemb,
  *
  * Flushes any data possibly stored in the exporter's
  * Internal buffers.
+ *
+ * @exp - an exporter created by wvExporter_create
  */
 void
 wvExporter_flush(wvExporter *exp)
@@ -603,7 +621,8 @@ exporter_create_word8(const char *filename)
    */
   wvInitFIBForExport(&(exp->fib));
   wvPutFIB(&(exp->fib), exp->documentStream);
-  wvTrace(("Initial FIB inserted\n"));
+  wvTrace(("Initial FIB inserted at: %d (%d)\n", wvStream_tell(exp->documentStream), 
+	   (wvStream_tell(exp->documentStream) - sizeof(FIB))));
     
   /* in all of the document's i've run into, the fcMin == 1024 */
   exp->fib.fcMin = wvStream_tell(exp->documentStream);
@@ -628,7 +647,8 @@ exporter_close_word8(wvExporter *exp)
 
   wvStream_rewind(exp->documentStream);
   wvPutFIB(&(exp->fib), exp->documentStream);
-  wvTrace(("Re-inserted FIB into document\n"));
+  wvTrace(("Re-inserted FIB into document at: %d\n", 
+	   wvStream_tell(exp->documentStream)));
 
   /*
    * Close all of the streams

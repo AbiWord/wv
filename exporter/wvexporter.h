@@ -41,7 +41,7 @@ extern "C" {
   /* Writing streams of text to a Word DOC */
 
   size_t            wvExporter_writeChars (wvExporter *exp, 
-					   const char *chars);
+					   const U8 *chars);
   size_t            wvExporter_writeBytes (wvExporter *exp, 
 					   size_t sz, 
 					   size_t nmemb,
