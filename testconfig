@@ -1,8 +1,0 @@
-Style "Heading \" 3"
-	{
-	PreSpace " "
-	Start <h3>
-	Default Off
-	End </h3>
-	PostSpace " "
-	}
