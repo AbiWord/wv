@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "wv.h"
 
 void wvGetPICF(PICF *apicf,FILE *infd,U32 offset)

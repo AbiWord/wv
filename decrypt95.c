@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "wv.h"
 
 /* ROTATE_LEFT rotates x left n bits , with a bitlen of b*/
