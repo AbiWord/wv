@@ -517,7 +517,7 @@ verbosePPSTree (U32 start_entry, int level)
 }
 
 
-#define freeNoNULL(x) { if ((x) != NULL) free (x); }
+#define freeNoNULL(x) { if ((x) != NULL) free (x); (x) = NULL; }
 
 void
 closeOLEtreefiles (pps_entry * tree, U32 root)

@@ -466,6 +466,8 @@ void tokenTreeFreeAll(void)
 	for (i = 0; i < tokenfreen; i++)
 		free(tokenfreearr[i]);
 	tokenfreen = 0;
+	tokenbufn = 0;
+	tokenbuf = NULL;
 	tokenTreeRoot = NULL;
 	}
 
