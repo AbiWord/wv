@@ -234,8 +234,7 @@ wvEatOldGraphicHeader (wvStream * fd, U32 len)
 		}
 		break;
 	    }
-      }
-    while (count + 1 < len);
+      } while (count + 2 < len);
     wvTrace (("Entry is %x %x, %d\n", entry, wvStream_tell (fd), count));
     return (count);
 }
