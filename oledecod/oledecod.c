@@ -368,7 +368,7 @@ OLEdecode (FILE *input, pps_entry ** stream_list, U32 * root, U16 max_level)
 	  {
 	    assert (i == *root);
 	    assert (i == 0);
-	    mkstemp (sbfilename);
+	    tmpnam (sbfilename);
 	    test (sbfilename[0], 7, ends ());
 	    sbfile = OLEfile = fopen (sbfilename, "wb+");
 	    test (OLEfile != NULL, 7, ends ());
@@ -377,7 +377,7 @@ OLEdecode (FILE *input, pps_entry ** stream_list, U32 * root, U16 max_level)
 	else
 	  /* other entry, save in a file */
 	  {
-	    mkstemp (pps_list[i].filename);
+	    tmpnam (pps_list[i].filename);
 	    test (pps_list[i].filename[0], 7, ends ());
 	    verbose (pps_list[i].name);
 	    OLEfile = fopen (pps_list[i].filename, "wb");

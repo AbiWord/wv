@@ -133,7 +133,7 @@ Export void TemporaryFilename(char *filename)
 #if defined(macintosh)
     (void) getcwd(filename,MaxTextExtent >> 1);
 #endif
-    (void) mkstemp(filename+strlen(filename));
+    (void) tmpnam(filename+strlen(filename));
 #endif
 #endif
     if ((strchr(filename,'%') == (char *) NULL) &&
