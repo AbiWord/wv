@@ -238,8 +238,6 @@ static U16 try_UToC(U16 c, iconv_t iconv_handle)
                 ibuf[1] = b1;
         }
         donecnt = wv_iconv(iconv_handle,(&iptr),&ibuflen,&optr,&obuflen);
-        /* reset state */
-        wv_iconv(iconv_handle,NULL,NULL,NULL,NULL);
         if (donecnt!=(size_t)-1 && ibuflen==0) 
         {
                 int len = sizeof(obuf) - obuflen;
