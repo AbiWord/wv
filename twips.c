@@ -49,7 +49,7 @@ float wvTwipsToMM(S16 twips)
 	{
 	float ret;
 	ret = ((float)twips)/TWIPS_PER_INCH;
-	ret = ret*25.0;
+	ret = ret*(float)25.0;
 	return(ret);
 	}
 

@@ -8,7 +8,6 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include <sys/mman.h>
 #include <sys/stat.h>	/* for struct stat */
 #include <sys/types.h>
 #include <fcntl.h>
@@ -20,6 +19,10 @@
 
 #include <libole2/ms-ole.h>
 #include "config.h"
+
+#ifdef HAVE_MMAP
+#include <sys/mman.h>
+#endif
 
 #ifndef MAP_FAILED
 /* Someone needs their head examining - BSD ? */

@@ -66,12 +66,16 @@ void wvOLEFree(void)
 
 void wvStream_FILE_create(wvStream** in, FILE* inner)
 	{
-	wvStream_create(in, FILE_STREAM, (wvInternalStream)inner);
+	wvInternalStream str;
+	str.file_stream=inner;
+	wvStream_create(in, FILE_STREAM, str);
 	}
 
 void wvStream_libole2_create(wvStream** in, MsOleStream* inner)
 	{
-	wvStream_create(in, LIBOLE_STREAM, (wvInternalStream)inner);
+	wvInternalStream str;
+	str.libole_stream=inner;
+	wvStream_create(in, LIBOLE_STREAM, str);
 	}
 
 void wvStream_create(wvStream** in, wvStreamKind kind, wvInternalStream inner)
@@ -238,8 +242,11 @@ U32 wvStream_close(wvStream *in)
 		}
 	else
 		{
+		U32 ret;
 		assert(in->kind==FILE_STREAM);
-		return((U32)fclose(in->stream.file_stream));
+		ret=(U32)fclose(in->stream.file_stream);
+		free(in);
+		return(ret);
 		}
 	}
 
