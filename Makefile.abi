@@ -30,18 +30,12 @@ CSRCS= \
 	mtextra.c \
 	support.c \
 	list.c \
-	piecetable.c \
 	stylesheet.c \
 	sprm.c \
 	blip.c \
 	utf.c \
 	field.c \
-	references.c \
-	gpprl.c \
-	papchpsep.c \
-	hyperlink.c \
 	decompresswmf.c \
-	annotations.c \
 	dop.c \
 	roman.c \
 	fib.c \
