@@ -11,8 +11,8 @@ bkl.c				Done
 blip.c				**TODO**
 brc.c				Done
 bte.c				Done
-bx.c				**TODO**
-chp.c				**TODO**
+bx.c				Doesn't need to be done
+chp.c				Doesn't need to be done
 clx.c				**TODO**
 dcs.c				Done
 dogrid.c			Done
@@ -23,7 +23,7 @@ escher.c			**TODO**
 fbse.c				**TODO: needs more work**
 fdoa.c				Done
 ffn.c				Done
-fib.c				**TODO: code wvPutFib6()**
+fib.c				Done (don't care about wvPutFIB6)
 filetime.c			Done
 fkp.c				**TODO**
 fld.c				Done
@@ -41,7 +41,7 @@ numrm.c				Done
 olst.c				Done
 pcd.c				Done
 pgd.c				Done
-phe.c				**TODO: Done??**
+phe.c				Done
 picf.c				**TODO: need for embedded graphics**
 prm.c				Done
 rr.c				Done
@@ -57,4 +57,4 @@ tbd.c				Done
 tc.c				Done
 tlp.c				Done
 wkb.c				Done
-xst.c				**TODO**
+xst.c				Doesn't need to be done
