@@ -19,36 +19,14 @@
 #ifdef HAVE_UNISTD_H 
 #	include <unistd.h>
 #else
-
-#ifndef S_IRUSR
 #	define S_IRUSR 0000400
-#endif
-
-#ifndef S_IWUSR
 #	define S_IWUSR 0000200
-#endif
-
-#ifndef S_IRGRP
 #	define S_IRGRP 0000040
-#endif
-
-#ifndef S_IWGRP
 #	define S_IWGRP 0000020
-#endif
-
-#ifndef _S_ISREG
 #	define _S_ISREG(m) (((m)&0170000) == 0100000)
-#endif
-
-#ifndef S_ISREG(m)
 #	define S_ISREG(m) _S_ISREG(m)
-#endif
-
-#ifndef O_NONBLOCK
 #	define O_NONBLOCK 0x4000
 #endif
-
-#endif /* HAVE_UNISTD_H */
 
 #include <sys/stat.h>	/* for struct stat */
 #include <fcntl.h>

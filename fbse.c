@@ -170,15 +170,19 @@ wvGetBitmap (BitmapBlip * abm, MSOFBH * amsofbh, wvStream * fd)
       }
 
     abm->m_bTag = read_8ubit (fd);
-    count++;
     abm->m_pvBits = NULL;
+
+    count++;
     tmp = tmpfile ();
+
     for (i = count; i < amsofbh->cbLength; i++)
 	fputc (read_8ubit (fd), tmp);
+    fflush (tmp);
     rewind (tmp);
     abm->m_pvBits = (void *) tmp;
+
     count += i;
-    return (count);
+    return count;
 }
 
 void

@@ -123,6 +123,64 @@ wvOutputHtmlChar (U16 eachchar, U8 chartype, char *outputtype, U16 lid)
 }
 
 char *
+wvLIDToLangConverter (U16 lid)
+{
+  switch (lid)
+    {
+    case 0x0405: 
+      return "cs-CZ";
+
+    case 0x0406:  
+      return "da-DK";
+
+    case 0x0807: /* swiss german */
+    case 0x0407: /* german */
+      return "de-DE";
+
+    case 0x0809: /* british english */
+      return "en-GB";
+    case 0x0c09:
+      return "en-AU";
+
+    case 0x0413: /* dutch */
+      return "da-NL"; /* netherlands */
+
+    case 0x040a: /* castillian */
+		    case 0x080a: /* mexican */ 
+      return "es-ES";
+
+    case 0x040b:
+      return "fi-FI";
+
+    case 0x040c:
+      return "fr-FR";
+
+    case 0x0410:
+      return "it-IT";
+
+    case 0x040d: /* hebrew */
+      return "iw-IL";
+
+    case 0x0416: /* brazilian */
+    case 0x0816: /* portugese */
+      return "pt-PT";
+
+    case 0x0419:
+      return "ru-RU";
+
+    case 0x041d:
+      return "sv-SE";
+
+    case 0x0400:
+      return "-none-";
+
+    case 0x0409:
+    default:
+      return "en-US";
+    }
+}
+
+char *
 wvLIDToCodePageConverter (U16 lid)
 {
     switch (lid)

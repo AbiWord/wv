@@ -9,8 +9,8 @@
 #define wverror stderr
 
 #ifdef DEBUG
-#define wvwarn  stderr
-#define wvtrace stderr
+#define wvwarn  NULL /* stderr */
+#define wvtrace NULL /* stderr */
 #else
 #define wvwarn  NULL
 #define wvtrace NULL
@@ -40,7 +40,7 @@ wvRealError (char *file, int line, char *msg)
 {
     if (wverror == NULL)
 	return;
-    fprintf (wverror, "wvError: (%s:%d) %s ", file, line, msg);
+    fprintf (wverror, "Diagnostic: (%s:%d) %s ", file, line, msg);
     fflush (wverror);
 }
 
@@ -50,7 +50,7 @@ wvWarning (char *fmt, ...)
     va_list argp;
     if (wvwarn == NULL)
 	return;
-    fprintf (wvwarn, "wvWarning: ");
+    fprintf (wvwarn, "Trace: ");
     va_start (argp, fmt);
     vfprintf (wvwarn, fmt, argp);
     va_end (argp);
@@ -62,7 +62,7 @@ wvRealTrace (char *file, int line, char *msg)
 {
     if (wvtrace == NULL)
 	return;
-    fprintf (wvtrace, "wvTrace: (%s:%d) %s ", file, line, msg);
+    fprintf (wvtrace, "Trace: (%s:%d) %s ", file, line, msg);
     fflush (wvtrace);
 }
 
