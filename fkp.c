@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include "wv.h"
 
 void internal_wvReleasePAPX_FKP(PAPX_FKP *fkp)
