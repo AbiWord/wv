@@ -1,7 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "wv.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include <string.h>
+#include "wv.h"
 
 /*
 http://216.46.233.38/code/functions/convert_numbers_to_words/index.htm
@@ -23,30 +26,32 @@ Caolan.McNamara@ul.ie
 */
 
 char *cvtText[31];
-void cvtInit(void);
-char *convert100(U16 x);
-char *wvOrdinal(U32 x);
+void cvtInit (void);
+char *convert100 (U32 x);
+char *wvOrdinal (U32 x);
 
 #if 0
-int main(void)
-	{
-	char *temp;
-	temp = wvOrdinal(500);
-	if (temp)
-		{
-		printf("%s\n",temp);
-		wvFree(temp);
-		return(0);
-		}
-	fprintf(stderr,"Memory Allocation Problems\n");
-	return(1);
-	}
+int
+main (void)
+{
+    char *temp;
+    temp = wvOrdinal (500);
+    if (temp)
+      {
+	  printf ("%s\n", temp);
+	  wvFree (temp);
+	  return (0);
+      }
+    fprintf (stderr, "Memory Allocation Problems\n");
+    return (1);
+}
 #endif
 
-void cvtInit(void)
-	{
-	cvtText[0] = "--";
-	cvtText[1] = "One";
+void
+cvtInit (void)
+{
+    cvtText[0] = "--";
+    cvtText[1] = "One";
     cvtText[2] = "Two";
     cvtText[3] = "Three";
     cvtText[4] = "Four";
@@ -76,112 +81,114 @@ void cvtInit(void)
     cvtText[28] = "Hundred";
     cvtText[29] = "Thousand";
     cvtText[30] = "Million";
-	}
+}
 
-char *convert100(U16 x)
-	{
-	U16 t;
-	char *cvt100;
-	
-	cvt100=(char *)malloc(4096);
-	if (cvt100 == NULL)
-		return(NULL);
-	
-	if (x > 999)
-		{
-		strcpy(cvt100,"Error 100");
-		return(cvt100);
-		}
-	
-	if (x > 99)
-		{
-		t = x / 100;
-		sprintf(cvt100,"%s %s ",cvtText[t],cvtText[28]);
-		x = x - (t * 100);
-		}
-	
-	if (x > 20)
-		{
-		t = x / 10;
-		strcat(cvt100,cvtText[t + 18]);
-		strcat(cvt100," ");
-		x = x - (t * 10);
-		}
-	
-	if (x > 0)
-		{
-		strcat(cvt100,cvtText[x]);
-		strcat(cvt100," ");
-		}
-	return(cvt100);
-	}
+char *
+convert100 (U32 x)
+{
+    U16 t;
+    char *cvt100;
 
-char *wvOrdinal(U32 x)
-	{
-	U32 t;
-	char *Cvt;
-	char *temp;
-	
-	Cvt=(char *)malloc(4096);
-	if (Cvt == NULL)
-		return(NULL);
-	cvtInit();
-	
-	if (x > 999999999) 
-		{
-		strcpy(Cvt,"Number too large");
-		return(Cvt);
-		}
-	
-	if (x > 999999)
-		{
-		t = x / 1000000;
-		temp = convert100(t);
-		if (temp)
-			{
-			sprintf(Cvt,"%s%s ",temp,cvtText[30]);
-			wvFree(temp);
-			}
-		else
-			{
-			wvFree(Cvt);
-			return(NULL);
-			}
-		x = x - (t * 1000000);
-		}
-	
-	if (x > 999)
-		{
-		t = x / 1000;
-		temp = convert100(t);
-		if (temp)
-			{
-			strcat(Cvt,temp);
-			wvFree(temp);
-			}
-		else
-			{
-			wvFree(Cvt);
-			return(NULL);
-			}
-		strcat(Cvt,cvtText[29]);
-		strcat(Cvt," ");
-		x = x - (t * 1000);
-		}
-	
-	if (x > 0)
-		{
-		temp = convert100(x);
-		if (temp)
-			{
-			strcat(Cvt,temp);
-			wvFree(temp);
-			}
-		else
-			{
-			wvFree(Cvt);
-			return(NULL);
-			}
-		}
-	return(Cvt);
-	}
+    cvt100 = (char *) wvMalloc (4096);
+    if (cvt100 == NULL)
+	return (NULL);
+
+    if (x > 999)
+      {
+	  strcpy (cvt100, "Error 100");
+	  return (cvt100);
+      }
+
+    if (x > 99)
+      {
+	  t = x / 100;
+	  sprintf (cvt100, "%s %s ", cvtText[t], cvtText[28]);
+	  x = x - (t * 100);
+      }
+
+    if (x > 20)
+      {
+	  t = x / 10;
+	  wvStrcat (cvt100, cvtText[t + 18]);
+	  wvStrcat (cvt100, " ");
+	  x = x - (t * 10);
+      }
+
+    if (x > 0)
+      {
+	  wvStrcat (cvt100, cvtText[x]);
+	  wvStrcat (cvt100, " ");
+      }
+    return (cvt100);
+}
+
+char *
+wvOrdinal (U32 x)
+{
+    U32 t;
+    char *Cvt;
+    char *temp;
+
+    Cvt = (char *) wvMalloc (4096);
+    if (Cvt == NULL)
+	return (NULL);
+    cvtInit ();
+
+    if (x > 999999999)
+      {
+	  strcpy (Cvt, "Number too large");
+	  return (Cvt);
+      }
+
+    if (x > 999999)
+      {
+	  t = x / 1000000;
+	  temp = convert100 (t);
+	  if (temp)
+	    {
+		sprintf (Cvt, "%s%s ", temp, cvtText[30]);
+		wvFree (temp);
+	    }
+	  else
+	    {
+		wvFree (Cvt);
+		return (NULL);
+	    }
+	  x = x - (t * 1000000);
+      }
+
+    if (x > 999)
+      {
+	  t = x / 1000;
+	  temp = convert100 (t);
+	  if (temp)
+	    {
+		wvStrcat (Cvt, temp);
+		wvFree (temp);
+	    }
+	  else
+	    {
+		wvFree (Cvt);
+		return (NULL);
+	    }
+	  wvStrcat (Cvt, cvtText[29]);
+	  wvStrcat (Cvt, " ");
+	  x = x - (t * 1000);
+      }
+
+    if (x > 0)
+      {
+	  temp = convert100 (x);
+	  if (temp)
+	    {
+		wvStrcat (Cvt, temp);
+		wvFree (temp);
+	    }
+	  else
+	    {
+		wvFree (Cvt);
+		return (NULL);
+	    }
+      }
+    return (Cvt);
+}

@@ -1,0 +1,14 @@
+BIG kudos to
+* Fauzan Mirza <fauzan@dcs.rhbnc.ac.uk> was incredibly helpful in making sense
+of what we've got here, and completely rewrote what I originally had
+* johnk@crak.com has a website at http://www.crak.com with some information
+which allowed me to see what the steps should be.
+* Dmitry Sumin <sumin@lostpassword.com> who told me that the page number of
+each chunk was fed into the setup of the rc4 prepare_key function
+
+HUGE kudos to 
+* (Vesselin Bontchev) <bontchev@complex.is> provided the initial base which
+was written (by an obviously god like being) by Peter Ferrie, who both work
+at F-Prot the virus people.
+* Dieter Spaar <spaar@mirider.augusta.de>, who provided the missing link which
+extented the decryption of the first 512 bytes to the entire document
