@@ -257,6 +257,8 @@ U16 wvLangToLIDConverter ( const char * lang )
     return 0x041f;
   else if(!strcmp(lang, "vi-VN"))
     return 0x042a;
+  else if(!strcmp(lang, "lt-LT"))
+    return 0x0427;
   else if(!strcmp(lang, "-none-"))
     return 0x0400;
   else
@@ -476,10 +478,12 @@ wvLIDToLangConverter (U16 lid)
     case 0x0412: /* Korean */
       return "ko-KR";
 
-#if 0
-    case 0x0426: /* Latvian */
     case 0x0827: /* Lithuanian (Classic) */
     case 0x0427: /* Lithuanian */
+      return "lt-LT";
+
+#if 0
+    case 0x0426: /* Latvian */
     case 0x042f: /* Macedonian */
     case 0x083e: /* Malay (Brunei Darussalam) */
     case 0x043e: /* Malay (Malaysian) */

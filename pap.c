@@ -117,14 +117,10 @@ wvInitPAPFromIstd (PAP * apap, U16 istdBase, STSH * stsh)
 		      wvInitPAP (apap);
 		  }
 		else
+		  {
 		    wvCopyPAP (apap, &(stsh->std[istdBase].grupe[0].apap));
-		    /*
-		   >> PATCH ---------------------------------------------
-		    */
-    strcpy(apap->stylename,stsh->std[istdBase].xstzName);
-
-/* << ----------------------------------------------
-*/
+		    strcpy(apap->stylename,stsh->std[istdBase].xstzName);
+		  }
 	    }
       }
 }
