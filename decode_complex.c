@@ -581,6 +581,8 @@ void wvDecodeComplex(wvParseStruct *ps)
 			use ps in this function
 			C.
 			*/
+			if ((eachchar == 0x01) && (achp.fSpec))
+				wvError(("picture here\n"));
 			
 			wvOutputTextChar(eachchar,chartype,charset,&state,ps);
 			}

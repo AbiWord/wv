@@ -2812,7 +2812,7 @@ int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fi
 						{
 						error(erroroutput,"0x01 handle picture\n");
 						error(erroroutput,"IN THIS CASE data offset is %x, ole2 is %x\n",achp->fcPic,achp->fOle2);
-						wvGetPICF(&apicf,data,achp->fcPic);
+						oldwvGetPICF(&apicf,data,achp->fcPic);
 						if (apicf.rgb != NULL)
 							{
 							outputimgsrc(apicf.rgb,apicf.dxaGoal,apicf.dyaGoal);

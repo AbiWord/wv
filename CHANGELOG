@@ -1,18 +1,8 @@
-Changes to to 0.5.25
-	* added date and author id to revisions, found bug in DTTM. added
-	wvDTTMtoUnix to dttm.c
-	* added animations to config file as blink (hur hur)
-	* i added (even though i have no idea what it is) DispFldRMark to everywhere
-	relevent.
-	* that basically completes everything in the chp that makes any kind of sense
-	in html except for font face and size.
-	* well seeing as the output passes the w3c validator test, the html output
-	be default announces this fact.
-	* added charset option to wvHtml, documented in new wvHtml.1 manpage
-	* added koi-8 from Sergey V. Udaltsov <svu@pop.convey.ru> and added
-	a howto in notes/internationalization/Charsets-HOWTO
-	* changed lists to be html 4 complient.
+Changes to to 0.5.26
+	* some checking showed that I had the wrong name for the koi encoding,
+	koi8-r is the correct name, and ive changed it to that.
 ALL TODO
+	* get list info extracted, make ul vs ol descision, get entry begin
 	* continue with lists, maybe change struct to include chp and pap simultaneously
 	as i might need it for the lists, extract start value for html, and number nfc
 	to use as well, for the case of symbols (nfc tells me i think ?) swap to ul
@@ -124,6 +114,20 @@ ALL TODO
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.25
+	* added date and author id to revisions, found bug in DTTM. added
+	wvDTTMtoUnix to dttm.c
+	* added animations to config file as blink (hur hur)
+	* i added (even though i have no idea what it is) DispFldRMark to everywhere
+	relevent.
+	* that basically completes everything in the chp that makes any kind of sense
+	in html except for font face and size.
+	* well seeing as the output passes the w3c validator test, the html output
+	be default announces this fact.
+	* added charset option to wvHtml, documented in new wvHtml.1 manpage
+	* added koi-8 from Sergey V. Udaltsov <svu@pop.convey.ru> and added
+	a howto in notes/internationalization/Charsets-HOWTO
+	* changed lists to be html 4 complient.
 Changes to to 0.5.24
 	* righteo, I made some (hopefully) final changes to fast saved handling, and
 	it looks a lot better now. Char attributes are correct, and the issue

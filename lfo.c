@@ -13,12 +13,13 @@ int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl
 	{
 	U32 i;
 	*nooflvl=0;
+	wvTrace(("lfo begins at %x len %d\n",offset,len));
 	wvGetLFO_PLF(lfo,nolfo,offset,len,fd);
 
 	for (i=0;i<*nolfo;i++)
 		*nooflvl += (*lfo)[i].clfolvl;
-	wvError(("nolfo is %d nooflvl is %d\n",*nolfo,*nooflvl));
-	wvTrace(("post postion is %x\n",ftell(fd)));
+	wvTrace(("pos %x %d\n",ftell(fd),*nooflvl));
+	wvTrace(("nolfo is %d nooflvl is %d\n",*nolfo,*nooflvl));
 
 	if (*nooflvl == 0)
 		{
@@ -33,12 +34,10 @@ int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl
 	i=0;
 	while (i<*nooflvl)
 		{
+		wvTrace(("pos now %x %d\n",ftell(fd),*nooflvl));
 		wvGetLFOLVL(&((*lfolvl)[i]),fd);
 		if (wvInvalidLFOLVL(&((*lfolvl)[i])) )
-			{
-			i++;	/*temp */
 			continue;
-			}
 		if ((*lfolvl)[i].fFormatting)
 			{
 			fprintf(stderr,"formatting set\n");
@@ -87,7 +86,6 @@ void wvGetLFO(LFO *item,FILE *fd)
 
 void wvGetLFOLVL(LFOLVL *item,FILE *fd)
 	{
-	
 	U8 temp8;
 	item->iStartAt = read_32ubit(fd);
 	temp8 = getc(fd);
@@ -105,6 +103,11 @@ int wvInvalidLFOLVL(LFOLVL *item)
 	
 	if (item->iStartAt != 0xffffffff)
 		return(0);
+#if 0	
+	/* 
+	a bloody russian doc, from Sergey V. Udaltsov <svu@pop.convey.ru> caused 
+	the removal of this section 
+	*/
     if (item->ilvl != 0xf)
 		return(0);
     if (item->fStartAt != 1)
@@ -119,7 +122,8 @@ int wvInvalidLFOLVL(LFOLVL *item)
 		return(0);
     if (item->reserved4 != 0xff) 
 		return(0);
-	fprintf(stderr,"invalid\n");
+#endif
+	wvWarning(("invalid list entry, trucking along happily anyway\n"));
 	return(1);
 	}
 

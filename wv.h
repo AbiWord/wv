@@ -2775,6 +2775,7 @@ U16 *wvGetListEntryInfo(PAP *apap, CHP *achp,LFO *lfo,LFOLVL *lfolvl,LVL *lvl,U3
 
 /*current addition position*/
 
+
 typedef struct _MSOFBH
 	{
 	U32 ver : 4;
@@ -3770,6 +3771,8 @@ int allowedfont(style *sheet,U16 istd);
 
 /*interim*/
 U32 wvGetSPIDfromCP(U32 cp,textportions *portions);
+void wvDumpPicture(U32 pos,FILE *fd);
+void oldwvGetPICF(PICF *apicf,FILE *infd,U32 offset);
 
 /* have to have pap replaced with PAP, and change the text output code to the new ones, whenever they are ready*/
 void wvGetListInfo(pap *apap, chp *achp,LFO *lfo, LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U32 noofLST,style *sheet,FFN_STTBF *ffn_sttbf);

@@ -135,7 +135,9 @@ MYOBJECTS =	\
 	rr.o \
 	tbd.o \
 	ftxbxs.o \
-	wkb.o
+	wkb.o \
+	graphics.o \
+	picf.o
 
 
 #XML = -Lexpat/lib -lxmlparse -lxmltok
@@ -149,25 +151,28 @@ OLE = oledecod/oledecod.o
 
 CRYPT = crypt/rc4.o crypt/md5.o
 
-all: mswordview$(EXEEXT) wvSummary$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSimpleCLX$(EXEEXT) wv-libconfig wv-incconfig
+all: mswordview$(EXEEXT) wvSummary$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) wv-libconfig wv-incconfig
 
 mswordview$(EXEEXT):  main.o $(GETOPT) OLEDECODE libwv.a
-	 $(CC)  -o $@ main.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+	$(CC)  -o $@ main.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wvSummary$(EXEEXT): wvSummary.o $(GETOPT) OLEDECODE libwv.a
-	 $(CC)  -o $@ wvSummary.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+	$(CC)  -o $@ wvSummary.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wvSimpleCLX$(EXEEXT): wvSimpleCLX.o $(GETOPT) OLEDECODE libwv.a
-	 $(CC)  -o $@ wvSimpleCLX.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+	$(CC)  -o $@ wvSimpleCLX.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wvConvert$(EXEEXT): wvConvert.o $(GETOPT) OLEDECODE libwv.a
-	 $(CC)  -o $@ wvConvert.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+	$(CC)  -o $@ wvConvert.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wvText$(EXEEXT): wvConvert$(EXEEXT)
-	 $(LN) -s wvConvert$(EXEEXT) wvText$(EXEEXT)
+	$(LN) -s wvConvert$(EXEEXT) wvText$(EXEEXT)
 
 wvHtml$(EXEEXT): wvHtml.o $(GETOPT) OLEDECODE libwv.a
-	 $(CC)  -o $@ wvHtml.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+	$(CC)  -o $@ wvHtml.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
+
+wvGraphicConvert$(EXEEXT): wvGraphicConvert.o $(GETOPT) OLEDECODE libwv.a
+	$(CC)  -o $@ wvGraphicConvert.o $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wv-libconfig: Makefile
 	rm -f wv-libconfig
@@ -220,10 +225,10 @@ cleansub:
 	@(cd crypt && $(MAKE) clean) || exit 1
 
 clean: cleansub
-	rm -rf *.o $(GETOPT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) mswordview$(EXEEXT) wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) core a.out *.a
+	rm -rf *.o $(GETOPT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) mswordview$(EXEEXT) wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) core a.out *.a
 
 distclean: realcleansub
-	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.o wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) mswordview$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) core out* analyze/* .pure
+	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.o wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvSimpleCLX$(EXEEXT) mswordview$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvGraphicConvert$(EXEEXT) core out* analyze/* .pure
 
 realclean: distclean
 	rm -rf lex.yy.c

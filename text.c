@@ -14,7 +14,7 @@ CharsetTable c_Tokens[] =
     { "utf-8",UTF8 },
     { "iso-5589-15",ISO_5589_15 },
     { "cp-1252",CP1252 },
-    { "koi-8",KOI8 }
+    { "koi8-r",KOI8 }
 	/* add your charset here */
 };
 
@@ -37,6 +37,7 @@ U16 wvLookupCharset(char *optarg)
         if (0 == strcasecmp(c_Tokens[k].m_name,optarg))
             return(c_Tokens[k].m_type);
         }
+	wvError(("Unrecognized charset %s, resetting to defaults\n",optarg));
     return(0xffff);
 	}
 

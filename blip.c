@@ -1250,10 +1250,10 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 
 	/* must begin with msofbtDggContainer*/
 	wvGetMSOFBH(&rmsofbh,out);	
-	error(erroroutput,"the id here is %x, loc %x, ends at %x\n",rmsofbh.fbt,ftell(out),ftell(out)+rmsofbh.cbLength);
+	wvTrace(("the id here is %x, loc %x, ends at %x\n",rmsofbh.fbt,ftell(out),ftell(out)+rmsofbh.cbLength));
 	if (rmsofbh.fbt != msofbtDggContainer)
 		{
-		error(erroroutput,"possible problem %x\n",rmsofbh.fbt);
+		wvTrace(("possible problem %x\n",rmsofbh.fbt));
 		dodgyhack=0;
 		}
 
@@ -1261,19 +1261,19 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 		{
 		if ((dodgyhack) && (ftell(out) == rmsofbh.cbLength+8))
 			{
-			error(erroroutput,"come to the end of the root wrapper\n");
-			error(erroroutput,"magin no is (%x)\n",getc(out));
+			wvTrace(("come to the end of the root wrapper\n"));
+			wvTrace(("magin no is (%x)\n",getc(out)));
 			}
 	
 		
 		wvGetMSOFBH(&amsofbh,out);	
-		error(erroroutput,"the id here is %x, loc %x, ends at %x\n",amsofbh.fbt,ftell(out),ftell(out)+amsofbh.cbLength);
+		wvTrace(("the id here is %x, loc %x, ends at %x\n",amsofbh.fbt,ftell(out),ftell(out)+amsofbh.cbLength));
 		switch(amsofbh.fbt)
 			{
 			case msofbtDgg:
 				wvGetFDGG(&afdgg,out);
 				afidcl = (FIDCL *)malloc(sizeof(FIDCL) * afdgg.cdgSaved);
-				error(erroroutput,"no of FIDCL is %d\n",afdgg.cdgSaved);
+				wvTrace(("no of FIDCL is %d\n",afdgg.cdgSaved));
 				j=16;
 				for(i=0;i<afdgg.cdgSaved;i++)
 					{
@@ -1304,21 +1304,21 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 
 				if (pfbse_list->afbse.cbName != 0)
 					while(read_16ubit(out) != 0)
-						error(erroroutput,"blip name char\n");
-				error(erroroutput,"the offset is %x\n",pfbse_list->afbse.foDelay);
+						wvTrace(("blip name char\n"));
+				wvTrace(("the offset is %x\n",pfbse_list->afbse.foDelay));
 
 				if (wvQueryDelayStream(&(pfbse_list->afbse)))
 					{
 					if (pfbse_list->afbse.foDelay == 0xffffffff)
 						{
-						error(erroroutput,"invalid blip aborting\n");
+						wvTrace(("invalid blip aborting\n"));
 						break;
 						}
 					temp = out;
 					out = mainfd;
 					if (pfbse_list->afbse.cRef)
 						{
-						error(erroroutput,"looking in mainfd\n");
+						wvTrace(("looking in mainfd\n"));
 						fseek(out,0,SEEK_END);
 						dtest = ftell(out);
 						if (pfbse_list->afbse.foDelay <  dtest) 
@@ -1338,7 +1338,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 					dtest = 0;
 
 				if (dtest == 1)
-					error(erroroutput,"bad offset for blip\n");
+					wvTrace(("bad offset for blip\n"));
 				else
 					{
 					wvGetMSOFBH(&amsofbh,out);
@@ -1374,7 +1374,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 				/*sync the file*/
 				if (ftell(out) != finish)
 					{
-					error(erroroutput,"file is out of sync, pos is %x ended at %x\n",ftell(out),finish);
+					wvTrace(("file is out of sync, pos is %x ended at %x\n",ftell(out),finish));
 					for(i=ftell(out);i<finish;i++)
 						getc(out);
 					}
@@ -1394,7 +1394,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 					}
 				wvGetFSP(&(pfsp_list->afsp),out);
 				pfsp_list->afopte_list=NULL;
-				error(erroroutput,"yes, spid id no %x was found\n",pfsp_list->afsp.spid);
+				wvTrace(("yes, spid id no %x was found\n",pfsp_list->afsp.spid));
 				break;
 			case msofbtDg:
 				wvGetFDG(&afdg,out);
@@ -1412,7 +1412,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 						{
 						if (pfsp_list == NULL)
 							{
-							error(erroroutput,"must be a top level property list\n");
+							wvTrace(("must be a top level property list\n"));
 							pfsp_list = (fsp_list *)malloc(sizeof(fsp_list));
 							}
 						pfsp_list->afopte_list = (fopte_list *)malloc(sizeof(fopte_list));
@@ -1435,7 +1435,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 					getc(out);
 				break;
 			default:
-				error(erroroutput,"the ver was %x\n",amsofbh.ver);
+				wvTrace(("the ver was %x\n",amsofbh.ver));
 				if (amsofbh.ver != 0xf)
 					for(i=0;i<amsofbh.cbLength;i++)
 						getc(out);
@@ -1450,7 +1450,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 	i=0;
 	while (pfbse_list != NULL)
 		{
-		error(erroroutput,"graphic name is %s, bse no is %d\n",pfbse_list->filename,++i);
+		wvTrace(("graphic name is %s, bse no is %d\n",pfbse_list->filename,++i));
 		pfbse_list = pfbse_list->next;
 		}
 	*pic_list = afbse_list;
@@ -1467,7 +1467,7 @@ fbse_list *wvGetSPID(U32 spid,fsp_list *afsp_list,fbse_list *afbse_list)
 		{
 		if (afsp_list->afsp.spid == spid)
 			{
-			error(erroroutput,"found the correct spid\n");
+			wvTrace(("found the correct spid\n"));
 			temp = afsp_list->afopte_list;
 			while (temp != NULL)
 				{
@@ -1511,112 +1511,4 @@ void wvGetrc(rc *arc,FILE *infd)
 	int i;
 	for (i=0;i<14;i++)
 		arc->bm[i] = getc(infd);
-	}
-
-void wvGetPICF(PICF *apicf,FILE *infd,U32 offset)
-	{
-	int count=0;
-	U8 temp;
-	FILE *out;
-	fbse_list *pic_list;
-	fbse_list *tpic_list;
-	fsp_list *afsp_list;
-	fsp_list *tfsp_list;
-	fopte_list *tfopte_list;
-
-	fseek(infd,offset,SEEK_SET);
-
-	apicf->lcb = read_32ubit(infd);
-	apicf->cbHeader = read_16ubit(infd);
-	apicf->mfp_mm = (S16)read_16ubit(infd);
-	apicf->mfp_xExt = (S16)read_16ubit(infd);
-	apicf->mfp_yExt = (S16)read_16ubit(infd);
-	apicf->mfp_hMF = (S16)read_16ubit(infd);
-	error(erroroutput,"0x01 type is %d\n",apicf->mfp_mm);
-	if (apicf->mfp_mm == 99)
-		wvGetBITMAP(&(apicf->obj.bitmap),infd);
-	else 
-		wvGetrc(&(apicf->obj.arc),infd);
-	apicf->dxaGoal = (S16)read_16ubit(infd);
-	apicf->dyaGoal = (S16)read_16ubit(infd);
-	apicf->mx = (S16)read_16ubit(infd);
-	apicf->my = (S16)read_16ubit(infd);
-	apicf->dxaCropLeft = (S16)read_16ubit(infd);
-	apicf->dyaCropTop = (S16)read_16ubit(infd);
-	apicf->dxaCropRight = (S16)read_16ubit(infd);
-	apicf->dyaCropBottom = (S16)read_16ubit(infd);
-	temp = getc(infd);
-
-#ifdef PURIFY
-	apicf->brcl = 0;
-	apicf->fFrameEmpty = 0;
-	apicf->fBitmap = 0;
-	apicf->fDrawHatch = 0;
-	apicf->fError = 0;
-#endif
-
-	apicf->brcl = temp & 0x0F;
-	apicf->fFrameEmpty = (temp & 0x10)>>4;
-	apicf->fBitmap = (temp&0x20)>>5;
-	apicf->fDrawHatch = (temp&0x40)>>6;
-	apicf->fError = (temp&0x80)>>7;
-
-	apicf->bpp = getc(infd);
-	wvGetBRC(0,&(apicf->brcTop),infd);
-	wvGetBRC(0,&(apicf->brcLeft),infd);
-	wvGetBRC(0,&(apicf->brcBottom),infd);
-	wvGetBRC(0,&(apicf->brcRight),infd);
-	apicf->dxaOrigin = (S16)read_16ubit(infd);
-	apicf->dyaOrigin = (S16)read_16ubit(infd);
-	apicf->cProps = (S16)read_16ubit(infd);
-	/*
-	apicf->rgb = "/tmp/wvscratch2";
-	*/
-	count+=68;
-	/*
-	out = fopen(apicf->rgb,"w+b");
-	*/
-	out = tmpfile();
-	for (;count<apicf->lcb;count++)
-		fputc(getc(infd),out);
-	rewind(out);
-
-	external_knowledge_0x01 = 1;	/*no delay streams in use*/
-	afsp_list = wvParseEscher(&pic_list,0,(apicf->lcb)-68,out,out);
-	external_knowledge_0x01 = 0;	/*reenable delay streams (not necessary)*/
-
-	fclose(out);
-
-	apicf->rgb = NULL;
-
-	if (pic_list == NULL)
-		error(erroroutput,"rats\n");
-	else
-		{
-		if (pic_list->filename[0] != '\0')
-			error(erroroutput,"filename is now %s\n",pic_list->filename);
-		apicf->rgb = (S8 *)malloc(strlen(pic_list->filename)+1);
-		strcpy(apicf->rgb,pic_list->filename);
-		}
-
-	while (afsp_list != NULL)
-		{
-		while (afsp_list->afopte_list != NULL)
-			{
-			tfopte_list = afsp_list->afopte_list;
-			afsp_list->afopte_list = afsp_list->afopte_list->next;
-			free(tfopte_list);
-			}
-		tfsp_list = afsp_list;
-		afsp_list = afsp_list->next;
-		free(tfsp_list);
-		}
-
-	while (pic_list != NULL)
-		{
-		tpic_list = pic_list;
-		pic_list = pic_list->next;
-		free(tpic_list);
-		}
-
 	}

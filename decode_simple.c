@@ -196,6 +196,11 @@ void wvDecodeSimple(wvParseStruct *ps)
 
 			eachchar = wvGetChar(ps->mainfd, chartype);
 
+			if ((eachchar == 0x01) && (achp.fSpec))
+				{
+				wvError(("picture here offset %x\n",ftell(ps->mainfd)));
+				wvDumpPicture(achp.fcPic_fcObj_lTagObj,ps->data);
+				}
 			wvOutputTextChar(eachchar, chartype, charset, &state, ps);
 			}
 		}
