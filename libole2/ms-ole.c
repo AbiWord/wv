@@ -2112,36 +2112,56 @@ ms_ole_destroy (MsOle **ptr)
 #endif
 		} else {
 			guint32 i;
+
+			/* This we added, it currently gets cleaned up 
+			   in write_bb(), but for us it's never called */
+			if (f->bb) {
+				g_array_free (f->bb, TRUE);
+				f->bb = NULL;
+			}
+
+			/* This we added, it currently gets cleaned up 
+			   in write_sb(), but again our application does 
+			   call it */
+			if (f->sb) {
+				g_array_free (f->sb, TRUE);
+				f->sb = NULL;
+			}
+
+			/* Ditto, for this one */
+			if (f->sbf) {
+				g_array_free (f->sbf, TRUE);
+				f->sbf = NULL;
+			}
+
 			for (i = 0; (f->bbattr) && (i < f->bbattr->len); i++) {
 				BBBlkAttr *attr = g_ptr_array_index (f->bbattr, i);
 				if (f->dirty && attr->dirty)
 					write_cache_block (f, attr);
 				g_free (attr->data);
 				attr->data = NULL;
+				g_free (attr); 
+				/* This we added, I didn't
+				   find getting called anywhere */
 			}
+			g_ptr_array_free (f->bbattr, TRUE);     /* And this */
 			f->bbattr = NULL;
+			
 			if (f->dirty) {
 				f->syswrap->lseek (f->file_des, 0, SEEK_SET);
 				f->syswrap->write (f->file_des, f->mem,
 						   BB_BLOCK_SIZE);
 			}
+			
 			g_free (f->mem);
 			f->mem = NULL;
-		}
-
-		destroy_pps (f->pps);
-		f->pps = NULL;
-
-		f->syswrap->close (f->file_des);
-		g_free (f);
-
+		}			
 #if OLE_DEBUG > 0
 		g_print ("Closing OLE file\n");
 #endif
 	}
 	*ptr = NULL;
 }
-
 
 /**
  * ms_ole_dump:
