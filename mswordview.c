@@ -188,9 +188,8 @@ void cleanupglobals(void)
 		free(key_atrd);
 	}
 
-int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
+int decode_word8(wvParseStruct *ps,int core)
 	{
-	FIB fib;
 	U32 i,j,k;
 	
 	int ret;
@@ -231,8 +230,6 @@ int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
 	list_info a_list_info;
 	style *masterstylesheet=NULL;
 
-	FILE *tablefd;
-
 	/*begin config stuff*/
 	FILE *in=NULL;
 	config_style *in_style=NULL;
@@ -254,13 +251,6 @@ int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
 		if (in == NULL)
 			fprintf(erroroutput,"Sorry, couldn't open config file %s\nnot a problem using internal defaults.\n",CONFIGFILE);
 		}
-
-	if (mainfd == NULL)
-		{
-		fprintf(erroroutput,"There was no document stream, this is probably not a word file at all\n");
-		return(10);
-		}
-
 
 	if (outputfilename == NULL)
 		{
@@ -287,18 +277,9 @@ int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
 	
 	
 	
-	fseek(mainfd,0,SEEK_END);
-	mainend = ftell(mainfd);
-	error(erroroutput,"the end of the stream is %x\n",mainend);
-	fseek(mainfd,0,SEEK_SET);
-	wvGetFIB(&fib,mainfd);
-	
-	ret = wvQuerySupported(&fib,&reason);
-	if (ret) 
-		{
-		wvError("%s",wvReason(reason));
-		return(ret);
-		}
+	fseek(ps->mainfd,0,SEEK_END);
+	mainend = ftell(ps->mainfd);
+	fseek(ps->mainfd,0,SEEK_SET);
 
 	/*do config file*/
 	ele_style[BOLD].begin = "<b>";
@@ -311,128 +292,95 @@ int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
 		Parse(in,&in_style,&doc_style,ele_style);
 	/*end do config file*/
 
-	tablefd = wvWhichTableStream(&fib,tablefd0,tablefd1);
+	wvTrace("first char is at %ld (%x)\n",ps->fib.fcMin,ps->fib.fcMin);
+	wvTrace("last char is at %ld (%x)\n",ps->fib.fcMac,ps->fib.fcMac);
+	portions.fcMin = ps->fib.fcMin;
+	portions.fcMac = ps->fib.fcMac;
 
-	error(erroroutput,"first char is at %ld (%x)\n",fib.fcMin,fib.fcMin);
-	error(erroroutput,"last char is at %ld (%x)\n",fib.fcMac,fib.fcMac);
-	portions.fcMin = fib.fcMin;
-	portions.fcMac = fib.fcMac;
-
-	portions.ccpText = fib.ccpText;
-	error(erroroutput,"the main doc text is of size %ld\n",portions.ccpText);
-	portions.ccpFtn = fib.ccpFtn;
-	error(erroroutput,"the footer text is of size %ld\n",portions.ccpFtn);
-	portions.ccpHdd = fib.ccpHdd;
-	error(erroroutput,"the header text is of size %ld\n",portions.ccpHdd);
-	portions.ccpAtn = fib.ccpAtn;
-	error(erroroutput,"the annotation text is size %ld\n",portions.ccpAtn);
-	portions.ccpEdn = fib.ccpEdn;
+	portions.ccpText = ps->fib.ccpText;
+	wvTrace("the main doc text is of size %ld\n",portions.ccpText);
+	portions.ccpFtn = ps->fib.ccpFtn;
+	wvTrace("the footer text is of size %ld\n",portions.ccpFtn);
+	portions.ccpHdd = ps->fib.ccpHdd;
+	wvTrace("the header text is of size %ld\n",portions.ccpHdd);
+	portions.ccpAtn = ps->fib.ccpAtn;
+	wvTrace("the annotation text is size %ld\n",portions.ccpAtn);
+	portions.ccpEdn = ps->fib.ccpEdn;
 	
 	/*attempt to list all paragraph bounds*/
 
-	error(erroroutput,"\n page of first different char type %d\nnumber of different character types %d\n",fib.pnChpFirst,fib.cpnBteChp);
-	error(erroroutput,"\n page of first different para type %d\nnumber of different para types %d\n",fib.pnPapFirst,fib.cpnBtePap);
-	error(erroroutput,"\n page of first different lvc type %d\nnumber of different lvc types %d\n",fib.pnLvcFirst,fib.cpnBteLvc);
-	error(erroroutput,"the new stsh is (%x), len (%x)\n",fib.fcStshf,fib.lcbStshf);
-
-	masterstylesheet = decode_stylesheet(tablefd,fib.fcStshf,fib.lcbStshf,in_style);
-
-	error(erroroutput,"footnote: table offset of frd thingies (%x) of len %d\n",fib.fcPlcffndRef,fib.lcbPlcffndRef);
-	error(erroroutput,"there are %d footnotes\n",(fib.lcbPlcffndRef-4)/6);
-	error(erroroutput,"footnote: table offset for footnote text (%x) of len %d\n",fib.fcPlcffndTxt,fib.lcbPlcffndTxt);
+	masterstylesheet = decode_stylesheet(ps->tablefd,ps->fib.fcStshf,ps->fib.lcbStshf,in_style);
 
 	portions.list_foot_no = 0;
 	portions.auto_foot=1;
 	portions.last_foot=0;
 
-	if (0 != wvGetFRD_PLCF(&portions.fndFRD,&portions.fndRef,&portions.fndref_no,fib.fcPlcffndRef,fib.lcbPlcffndRef,tablefd))
+	if (0 != wvGetFRD_PLCF(&portions.fndFRD,&portions.fndRef,&portions.fndref_no,ps->fib.fcPlcffndRef,ps->fib.lcbPlcffndRef,ps->tablefd))
 		return(-1);
 
-	if (0 != wvGetEmpty_PLCF(&portions.fndTxt,&portions.fndtxt_no,fib.fcPlcffndTxt,fib.lcbPlcffndTxt,tablefd))
+	if (0 != wvGetEmpty_PLCF(&portions.fndTxt,&portions.fndtxt_no,ps->fib.fcPlcffndTxt,ps->fib.lcbPlcffndTxt,ps->tablefd))
 		return(-1);
 
 	portions.list_anno_no = 0;
 	portions.last_anno=0;
 
-	error(erroroutput,"annotation offset is %x, len is %d\n",fib.fcPlcfandRef,fib.lcbPlcfandRef);
 
-	if (0 != wvGetATRD_PLCF(&portions.the_atrd,&portions.andRef,&portions.andref_no,fib.fcPlcfandRef,fib.lcbPlcfandRef,tablefd))
+	if (0 != wvGetATRD_PLCF(&portions.the_atrd,&portions.andRef,&portions.andref_no,ps->fib.fcPlcfandRef,ps->fib.lcbPlcfandRef,ps->tablefd))
 		return(-1);
 
-	if (0 != wvGetEmpty_PLCF(&portions.andTxt,&portions.andtxt_no,fib.fcPlcfandTxt,fib.lcbPlcfandTxt,tablefd))
+	if (0 != wvGetEmpty_PLCF(&portions.andTxt,&portions.andtxt_no,ps->fib.fcPlcfandTxt,ps->fib.lcbPlcfandTxt,ps->tablefd))
 		return(-1);
 
-	error(erroroutput,"section: table offset for section table (%x) of len %d\n",fib.fcPlcfsed,fib.lcbPlcfsed);
 
-	if (0 != wvGetSED_PLCF(&portions.section_fcs,&portions.section_cps,&portions.section_nos,fib.fcPlcfsed,fib.lcbPlcfsed,tablefd))
+	if (0 != wvGetSED_PLCF(&portions.section_fcs,&portions.section_cps,&portions.section_nos,ps->fib.fcPlcfsed,ps->fib.lcbPlcfsed,ps->tablefd))
 			return(-1);
 	
-	portions.fcPlcfhdd = fib.fcPlcfhdd;
-	portions.lcbPlcfhdd = fib.lcbPlcfhdd;
+	portions.fcPlcfhdd = ps->fib.fcPlcfhdd;
+	portions.lcbPlcfhdd = ps->fib.lcbPlcfhdd;
 	/*these point to the header/footer information thing*/
 
-	error(erroroutput,"header in table offset of (%x), len is %d\n",portions.fcPlcfhdd,portions.lcbPlcfhdd);
-	error(erroroutput,"\nlocation of char description in table stream is %x\nsize is %ld\n",fib.fcPlcfbteChpx,fib.lcbPlcfbteChpx);
 	
 	/*
-	if (0 != wvGetBTE_PLCF(&RplcfbteChpx,&plcfbteChpx,&chpintervals,fib.fcPlcfbteChpx,fib.lcbPlcfbteChpx,tablefd))
+	if (0 != wvGetBTE_PLCF(&RplcfbteChpx,&plcfbteChpx,&chpintervals,ps->fib.fcPlcfbteChpx,ps->fib.lcbPlcfbteChpx,ps->tablefd))
 	*/
-	if (0 != wvGetEmpty_PLCF(&plcfbteChpx,&chpintervals,fib.fcPlcfbteChpx,fib.lcbPlcfbteChpx,tablefd))
+	if (0 != wvGetEmpty_PLCF(&plcfbteChpx,&chpintervals,ps->fib.fcPlcfbteChpx,ps->fib.lcbPlcfbteChpx,ps->tablefd))
 		return(-1);
 	chpintervals = (chpintervals-1)/2;
 	
-	error(erroroutput,"there are %d charrun intervals ? ending at ",chpintervals);
-	for (i=1;i<chpintervals+1;i++)
-		error(erroroutput,"%d (%d)", plcfbteChpx[i],plcfbteChpx[i+chpintervals]);
-	error(erroroutput,"\n");
-
-
-	error(erroroutput,"\nlocation of para description in table stream is %ld\nsize is %ld\n",fib.fcPlcfbtePapx,fib.lcbPlcfbtePapx);
 	/*go to location in table stream, */
 	/*i believe that this is just an array of longs(4 bytes blocks)
 	 */
 	 /*
-	if (0 != wvGetBTE_PLCF(&RplcfbtePapx,&plcfbtePapx,&intervals,fib.fcPlcfbtePapx,fib.lcbPlcfbtePapx,tablefd))
+	if (0 != wvGetBTE_PLCF(&RplcfbtePapx,&plcfbtePapx,&intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd))
 	*/
-	if (0 != wvGetEmpty_PLCF(&plcfbtePapx,&intervals,fib.fcPlcfbtePapx,fib.lcbPlcfbtePapx,tablefd))
+	if (0 != wvGetEmpty_PLCF(&plcfbtePapx,&intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd))
 		return(-1);
 	intervals = (intervals-1)/2;
 
-	error(erroroutput,"there are %d pragraph intervals ? ending at ",intervals);
-	for (i=1;i<intervals+1;i++)
-		error(erroroutput,"%d %x (%d)", plcfbtePapx[i], plcfbtePapx[i],plcfbtePapx[i+intervals]);
-	error(erroroutput,"\n");
-
-	wvGetFFN_STTBF(&ffn_sttbf,fib.fcSttbfffn,fib.lcbSttbfffn,tablefd);
+	wvGetFFN_STTBF(&ffn_sttbf,ps->fib.fcSttbfffn,ps->fib.lcbSttbfffn,ps->tablefd);
 
 	/*determine field plc*/
-	error(erroroutput,"in table stream field plc is %ld, and len is %ld\n",fib.fcPlcffldMom,fib.lcbPlcffldMom);
-
-	if (0 != wvGetFLD_PLCF(&main_fields.flds,&main_fields.cps,&main_fields.no,fib.fcPlcffldMom,fib.lcbPlcffldMom,tablefd))
+	if (0 != wvGetFLD_PLCF(&main_fields.flds,&main_fields.cps,&main_fields.no,ps->fib.fcPlcffldMom,ps->fib.lcbPlcffldMom,ps->tablefd))
 			return(-1);
 
-	error(erroroutput,"in table stream field header plc is (%x), and len is %ld\n",fib.fcPlcffldHdr,fib.lcbPlcffldHdr);
 
-	if (0 != wvGetFLD_PLCF(&header_fields.flds,&header_fields.cps,&header_fields.no,fib.fcPlcffldHdr,fib.lcbPlcffldHdr,tablefd))
+	if (0 != wvGetFLD_PLCF(&header_fields.flds,&header_fields.cps,&header_fields.no,ps->fib.fcPlcffldHdr,ps->fib.lcbPlcffldHdr,ps->tablefd))
             return(-1);
 
-	error(erroroutput,"in table stream field footnote plc is (%x), and len is %ld\n",fib.fcPlcffldFtn,fib.lcbPlcffldFtn);
-	error(erroroutput,"in table stream field annotation plc is (%x), and len is %ld\n",fib.fcPlcffldAtn,fib.lcbPlcffldAtn);
 
-	if (0 != wvGetFLD_PLCF(&footnote_fields.flds,&footnote_fields.cps,&footnote_fields.no,fib.fcPlcffldFtn,fib.lcbPlcffldFtn,tablefd))
+	if (0 != wvGetFLD_PLCF(&footnote_fields.flds,&footnote_fields.cps,&footnote_fields.no,ps->fib.fcPlcffldFtn,ps->fib.lcbPlcffldFtn,ps->tablefd))
             return(-1);
 
-	if (0 != wvGetFLD_PLCF(&annotation_fields.flds,&annotation_fields.cps,&annotation_fields.no,fib.fcPlcffldAtn,fib.lcbPlcffldAtn,tablefd))
+	if (0 != wvGetFLD_PLCF(&annotation_fields.flds,&annotation_fields.cps,&annotation_fields.no,ps->fib.fcPlcffldAtn,ps->fib.lcbPlcffldAtn,ps->tablefd))
             return(-1);
 
-	wvGetSTTBF(&portions.bookmarks,fib.fcSttbfbkmk,fib.lcbSttbfbkmk,tablefd);
-	wvGetBKF_PLCF(&portions.l_bookmarks.bookmark_b_bkfs,&portions.l_bookmarks.bookmark_b_cps,&portions.l_bookmarks.bookmark_b_no,fib.fcPlcfbkl,fib.lcbPlcfbkl,tablefd);
-	wvGetEmpty_PLCF(&portions.l_bookmarks.bookmark_e_cps,&portions.l_bookmarks.bookmark_e_no,fib.fcPlcfbkl,fib.lcbPlcfbkl,tablefd);
+	wvGetSTTBF(&portions.bookmarks,ps->fib.fcSttbfbkmk,ps->fib.lcbSttbfbkmk,ps->tablefd);
+	wvGetBKF_PLCF(&portions.l_bookmarks.bookmark_b_bkfs,&portions.l_bookmarks.bookmark_b_cps,&portions.l_bookmarks.bookmark_b_no,ps->fib.fcPlcfbkl,ps->fib.lcbPlcfbkl,ps->tablefd);
+	wvGetEmpty_PLCF(&portions.l_bookmarks.bookmark_e_cps,&portions.l_bookmarks.bookmark_e_no,ps->fib.fcPlcfbkl,ps->fib.lcbPlcfbkl,ps->tablefd);
 
-	wvGetDOP(&dop,fib.fcDop,fib.lcbDop,tablefd);	/*reference dop through the dop_ functions*/
-	error(erroroutput,"dop fc is %x, len is %d\n",fib.fcDop,fib.lcbDop);
+	wvGetDOP(&dop,ps->fib.fcDop,ps->fib.lcbDop,ps->tablefd);	/*reference dop through the dop_ functions*/
 
-	wvGetSTTBF(&anSttbfAssoc,fib.fcSttbfAssoc,fib.lcbSttbfAssoc,tablefd);
+	wvGetSTTBF(&anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
 
 	title = wvGetTitle(&anSttbfAssoc);
 	fprintf(stderr,"title is %s\n",title);
@@ -462,13 +410,11 @@ int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
 		}
 #endif
 	/*complex info bit*/
-	error(erroroutput,"complex bit begins at %X, and it %d long",fib.fcClx,fib.lcbClx);
-	error(erroroutput,"fcGrpXstAtnOwners %x, lcbGrpXstAtnOwners %d\n",fib.fcGrpXstAtnOwners,fib.lcbGrpXstAtnOwners);
 
-	wvGetXst(&portions.authors,fib.fcGrpXstAtnOwners,fib.lcbGrpXstAtnOwners,tablefd);
-	wvGetSTTBF(&portions.annotations,fib.fcSttbfAtnbkmk,fib.lcbSttbfAtnbkmk,tablefd);
-	wvGetBKF_PLCF(&portions.a_bookmarks.bookmark_b_bkfs,&portions.a_bookmarks.bookmark_b_cps,&portions.a_bookmarks.bookmark_b_no,fib.fcPlcfbkl,fib.lcbPlcfbkl,tablefd);
-	wvGetEmpty_PLCF(&portions.a_bookmarks.bookmark_e_cps,&portions.a_bookmarks.bookmark_e_no,fib.fcPlcfbkl,fib.lcbPlcfbkl,tablefd);
+	wvGetXst(&portions.authors,ps->fib.fcGrpXstAtnOwners,ps->fib.lcbGrpXstAtnOwners,ps->tablefd);
+	wvGetSTTBF(&portions.annotations,ps->fib.fcSttbfAtnbkmk,ps->fib.lcbSttbfAtnbkmk,ps->tablefd);
+	wvGetBKF_PLCF(&portions.a_bookmarks.bookmark_b_bkfs,&portions.a_bookmarks.bookmark_b_cps,&portions.a_bookmarks.bookmark_b_no,ps->fib.fcPlcfbkl,ps->fib.lcbPlcfbkl,ps->tablefd);
+	wvGetEmpty_PLCF(&portions.a_bookmarks.bookmark_e_cps,&portions.a_bookmarks.bookmark_e_no,ps->fib.fcPlcfbkl,ps->fib.lcbPlcfbkl,ps->tablefd);
 	if (portions.authors != NULL)
         {
         key_atrd = (ATRD *) malloc(sizeof(ATRD) * portions.authors->noofstrings);
@@ -484,16 +430,14 @@ int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
             }
         }
 
-	error(erroroutput,"error: pictures offset %x len %d\n",fib.fcPlcspaMom,fib.lcbPlcspaMom);
 
-	wvGetFSPA_PLCF(&portions.fspas,&portions.officedrawcps,&portions.noofficedraw,fib.fcPlcspaMom,fib.lcbPlcspaMom,tablefd);
+	wvGetFSPA_PLCF(&portions.fspas,&portions.officedrawcps,&portions.noofficedraw,ps->fib.fcPlcspaMom,ps->fib.lcbPlcspaMom,ps->tablefd);
 
-	error(erroroutput,"endnote: table offset of frd thingies (%x) of len %d\n",fib.fcPlcfendRef,fib.lcbPlcfendRef);
 
 	portions.list_end_no = 0;
 	portions.auto_end=1;
 
-	if (0 != wvGetFRD_PLCF(&portions.endFRD,&portions.endRef,&portions.endref_no,fib.fcPlcfendRef,fib.lcbPlcfendRef,tablefd))
+	if (0 != wvGetFRD_PLCF(&portions.endFRD,&portions.endRef,&portions.endref_no,ps->fib.fcPlcfendRef,ps->fib.lcbPlcfendRef,ps->tablefd))
 		return(-1);
 	if (portions.endref_no > 0)
 		{
@@ -504,11 +448,10 @@ int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
 	else
 		portions.endTrueFRD = NULL;
 
-	error(erroroutput,"endnote: table offset for endnote text (%x) of len %d\n",fib.fcPlcfendTxt,fib.lcbPlcfendTxt);
 
-	wvGetEmpty_PLCF(&portions.endTxt ,&portions.endtxt_no,fib.fcPlcfendTxt,fib.lcbPlcfendTxt,tablefd);
+	wvGetEmpty_PLCF(&portions.endTxt ,&portions.endtxt_no,ps->fib.fcPlcfendTxt,ps->fib.lcbPlcfendTxt,ps->tablefd);
 
-	if (0 != wvGetFLD_PLCF(&endnote_fields.flds,&endnote_fields.cps,&endnote_fields.no,fib.fcPlcffldEdn,fib.lcbPlcffldEdn,tablefd))
+	if (0 != wvGetFLD_PLCF(&endnote_fields.flds,&endnote_fields.cps,&endnote_fields.no,ps->fib.fcPlcffldEdn,ps->fib.lcbPlcffldEdn,ps->tablefd))
    		return(-1);
 
 	/*end endnote*/
@@ -519,31 +462,27 @@ int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
 	all_fields[3] = &annotation_fields;
 	all_fields[4] = &endnote_fields;
 	
-	error(erroroutput,"fcDggInfo is %x and len is %x\n",fib.fcDggInfo,fib.lcbDggInfo);
 
 	portions.ablipdata = NULL;
 
-	afsp_list = wvParseEscher(&afbse_list,fib.fcDggInfo,fib.lcbDggInfo,tablefd,mainfd);
+	afsp_list = wvParseEscher(&afbse_list,ps->fib.fcDggInfo,ps->fib.lcbDggInfo,ps->tablefd,ps->mainfd);
 
 	/*begin revision authors tables*/
-	wvGetSTTBF(&revisions,fib.fcSttbfRMark,fib.lcbSttbfRMark,tablefd);
+	wvGetSTTBF(&revisions,ps->fib.fcSttbfRMark,ps->fib.lcbSttbfRMark,ps->tablefd);
 	/*end revision authors tables*/
 
-	get_table_info(tablefd,&a_list_info,fib.fcSttbFnm,fib.lcbSttbFnm,fib.fcPlcfLst,fib.lcbPlcfLst,fib.fcPlfLfo,fib.lcbPlfLfo,masterstylesheet);
+	get_table_info(ps->tablefd,&a_list_info,ps->fib.fcSttbFnm,ps->fib.lcbSttbFnm,ps->fib.fcPlcfLst,ps->fib.lcbPlcfLst,ps->fib.fcPlfLfo,ps->fib.lcbPlfLfo,masterstylesheet);
 
-	error(erroroutput,"\n-----text------ %x\n",1024);
 	if ((core) && ((doc_style == NULL) || (doc_style->begin == NULL)))
 		fprintf(outputfile,"<html>\n");
 
-	error(erroroutput,"endpoint for standard is %ld\n",fib.fcMac);
 
 
-	fseek(tablefd,portions.fcPlcfhdd,SEEK_SET);
+	fseek(ps->tablefd,portions.fcPlcfhdd,SEEK_SET);
 	portions.headercpno = portions.lcbPlcfhdd/4;
 	portions.headercplist = NULL;
 	if (portions.headercpno > 0)
 		{
-		error(erroroutput,"head no is %d\n",portions.headercpno);
 		portions.headercplist = (U32 *)malloc(sizeof(U32) * portions.headercpno);
 		if (portions.headercplist == NULL)
 			{
@@ -553,8 +492,7 @@ int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
 
 		for (i=0;i<portions.headercpno;i++)
 			{
-			portions.headercplist[i]= read_32ubit(tablefd);
-			error(erroroutput,"header fc ? is %x -> %x  %d",portions.headercplist[i],portions.fcMin+portions.ccpText+portions.ccpFtn+portions.headercplist[i],i);
+			portions.headercplist[i]= read_32ubit(ps->tablefd);
 			switch (i)
 				{
 				case 6:
@@ -589,26 +527,25 @@ int decode_word8(FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data,int core)
 		}
 
 	
-	if (fib.fComplex)
+	if (ps->fib.fComplex)
 		{
-		error(erroroutput,"complex writing complex table looking in %ld (len %ld)\n",fib.fcClx,fib.lcbClx);
 		/*i believe that the intervals and plcfbtePapx are valid entities for
 		fastsaved docs as well (i bloody hope so)*/
 		fprintf(outputfile,"<!--complex document-->\n");
 		error(erroroutput,"main ends at %x\n",portions.ccpText);
-		wvDecodeComplex(&fib,mainfd,tablefd,data);
+		wvDecodeComplex(&ps->fib,ps->mainfd,ps->tablefd,ps->data);
 
-		fseek(mainfd,1024,SEEK_SET);
-		decode_clx(0,0,portions.ccpText,tablefd,mainfd,data,fib.fcClx,fib.lcbClx,intervals,chpintervals,plcfbtePapx,plcfbteChpx,all_fields,&a_list_info,masterstylesheet,&portions,&ffn_sttbf,0);
+		fseek(ps->mainfd,1024,SEEK_SET);
+		decode_clx(0,0,portions.ccpText,ps->tablefd,ps->mainfd,ps->data,ps->fib.fcClx,ps->fib.lcbClx,intervals,chpintervals,plcfbtePapx,plcfbteChpx,all_fields,&a_list_info,masterstylesheet,&portions,&ffn_sttbf,0);
 		}
 	else
 		{
 		error(erroroutput,"decoding simple\n");
 		fprintf(outputfile,"<!--noncomplex document-->\n");
-		wvDecodeSimple(&fib,NULL,mainfd,tablefd,data);
+		wvDecodeSimple(NULL,ps);
 
-		fseek(mainfd,1024,SEEK_SET);
-		decode_simple(mainfd,tablefd,data,fib.fcClx,fib.fcMin,fib.fcMac,intervals,chpintervals,plcfbtePapx,plcfbteChpx,all_fields,&a_list_info,masterstylesheet,&portions,&ffn_sttbf,0);
+		fseek(ps->mainfd,1024,SEEK_SET);
+		decode_simple(ps->mainfd,ps->tablefd,ps->data,ps->fib.fcClx,ps->fib.fcMin,ps->fib.fcMac,intervals,chpintervals,plcfbtePapx,plcfbteChpx,all_fields,&a_list_info,masterstylesheet,&portions,&ffn_sttbf,0);
 		}
 
 

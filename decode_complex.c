@@ -85,7 +85,7 @@ void wvDecodeComplex(FIB *fib,FILE *mainfd,FILE *tablefd,FILE *data)
 
 			eachchar = wvGetChar(mainfd,chartype);
 
-			wvOutputTextChar(eachchar,chartype,charset,&state);
+			wvOutputTextChar(eachchar,chartype,charset,&state,NULL);
 			/*
 			wvOutputHtml4(eachchar,chartype,charset);
 			*/

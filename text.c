@@ -24,11 +24,11 @@ const char *wvGetCharset(U16 charset)
     return(NULL);
     }
 
-void wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state)
+void wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStruct *ps)
 	{
 	if (charhandler)
 		{
-		(*charhandler)(NULL,eachchar,chartype);
+		(*charhandler)(ps,eachchar,chartype);
 		return;
 		}
 
@@ -238,27 +238,3 @@ void wvSetCharHandler(void (*proc)(wvParseStruct *,U16,U8))
     {
 	charhandler = proc;
 	}
-
-/*
-
-void wvPrint(char *fmt, ...)
-	{
-	char buffer[5];
-	if (magic == NULL)
-		wvRealPrint(fmt,...);
-	else
-		{
-		sprintf(buffer,fmt,...);
-		magic(buffer);
-		}
-	}
-
-void wvRealPrint(char *fmt, ...)
-    {
-    va_list argp;
-    va_start(argp, fmt);
-    vfprintf(wvwarn, fmt, argp);
-    va_end(argp);
-    }
-
-*/

@@ -9,10 +9,14 @@ Changes to to 0.5.19
 	and make a libwv.a suitable for abiword, (yeah i know i know, but im working on it)
 	to get a simple -lwv
 	* whoppee, nearly working fine as an abiword filter..
+	* moved fib into the parsestruct, changed over existing programs to use
+	wvInitParse rather then handcode for each one.
+	* mad mods to make it compile cleanly under c++
+	* changed over the simple decodation to use the parsestruct and 
+	propugated the changes throughout the system
+	* right, use wvSetCharHandler to set what function will be called with
+	each character of document text.
 ALL TODO
-	* change over interface to use the parsestruct, propugate changes throughout
-	the system this is a plus so we can swap and change the ole streaming code.
-	
 	* modify configure script so its possible to link against a different expat
 	lib, or to disable it or something.
 	* compile with g++ and get rid of the problems that show up there, libwv will

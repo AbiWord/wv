@@ -2015,7 +2015,30 @@ typedef struct _expand_data
 void wvInitExpandData(expand_data *data);
 
 
-void wvDecodeSimple(FIB *fib,state_data *myhandle,FILE *mainfd,FILE *tablefd,FILE *data);
+typedef struct _wvParseStruct
+	{
+	/*public*/
+	void *userData;
+
+	/*protected*/
+	FILE *mainfd;
+	FILE *tablefd;
+	FILE *data;
+	FILE *summary;
+	FIB fib;
+
+	/*private*/
+	FILE *tablefd0;
+	FILE *tablefd1;
+	}wvParseStruct;
+
+/* 
+returns the same as wvOLEDecode with the addition that
+4 means that it isnt a word document
+*/
+int wvInitParser(wvParseStruct *ps,FILE *fp);
+
+void wvDecodeSimple(state_data *myhandle,wvParseStruct *ps);
 
 typedef enum
 	{
@@ -2169,7 +2192,7 @@ int wvIncFC(int chartype);
 
 int wvGetSimpleParaBounds(PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte, FILE *fd);
 
-void wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state);
+void wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStruct *ps);
 void wvOutputFromCP1252(U16 eachchar,U8 outputtype);
 void wvOutputFromUnicode(U16 eachchar,U8 outputtype);
 
@@ -2195,8 +2218,8 @@ void wvOLEFree(void);
 
 
 
-int wvText(state_data *myhandle,FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data);
-int wvHtml(state_data *myhandle,FILE *mainfd,FILE *tablefd0,FILE *tablefd1,FILE *data);
+int wvText(state_data *myhandle,wvParseStruct *ps);
+int wvHtml(state_data *myhandle,wvParseStruct *ps);
 
 /*
 if you use these you have to close the FILE stream yourself
@@ -2236,20 +2259,6 @@ void wvEndPara(expand_data *data);
 int wvGetComplexParafcLim(U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd);
 
 
-typedef struct _wvParseStruct
-	{
-	FILE *mainfd;
-	FILE *tablefd0;
-	FILE *tablefd1;
-	FILE *data;
-	FILE *summary;
-	}wvParseStruct;
-
-/* 
-returns the same as wvOLEDecode with the addition that
-4 means that it isnt a word document
-*/
-int wvInitParser(wvParseStruct *ps,FILE *fp);
 
 int wvQuerySupported(FIB *fib,int *reason);
 
@@ -3067,7 +3076,7 @@ U8 bgetc(U8 *in,U16 *pos);
 
 void cleanupstreams(char *analyze,char *slashtmp);
 olestream * divide_streams(char *filename,char **analyze,char **slashtmp, char *argv0);
-int decode_word8(FILE *mainfd, FILE *tablefd0,FILE *tablefd1,FILE *data,int core);
+int decode_word8(wvParseStruct *ps,int core);
 void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSttbFnm,U32 fcPlcfLst,U32 lcbPlcfLst,U32 fcPlfLfo,U32 lcbPlfLfo,style *sheet);
 
 pap *get_pap(U32 pageindex,FILE *in,U32 charindex, U32 *nextfc,style *sheet,list_info *a_list_info);

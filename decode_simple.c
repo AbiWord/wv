@@ -13,7 +13,7 @@ the table tells us to go.
 there are special cases for coming to the end of a section, and for the beginning and ends of
 pages. for the purposes of headers and footers etc.
 */
-void wvDecodeSimple(FIB *fib,state_data *myhandle,FILE *mainfd,FILE *tablefd,FILE *data)
+void wvDecodeSimple(state_data *myhandle,wvParseStruct *ps)
 	{
 	STSH stsh;
 	CLX clx;
@@ -35,10 +35,10 @@ void wvDecodeSimple(FIB *fib,state_data *myhandle,FILE *mainfd,FILE *tablefd,FIL
 	expandhandle.sd = myhandle;
 
 	/*we will need the stylesheet to do anything useful with layout and look*/
-	wvGetSTSH(&stsh,fib->fcStshf,fib->lcbStshf,tablefd);
+	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
 
 	/*we will need the table of names to answer questions like the name of the doc*/
-	wvGetSTTBF(&anSttbfAssoc,fib->fcSttbfAssoc,fib->lcbSttbfAssoc,tablefd);
+	wvGetSTTBF(&anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
 
 	expandhandle.anSttbfAssoc = &anSttbfAssoc;
 
@@ -48,18 +48,18 @@ void wvDecodeSimple(FIB *fib,state_data *myhandle,FILE *mainfd,FILE *tablefd,FIL
 	chars in one part, and 16bit chars in another, so you have to watch out for
 	that
 	*/
-	wvGetCLX(&clx,fib->fcClx,fib->lcbClx,tablefd);
+	wvGetCLX(&clx,ps->fib.fcClx,ps->fib.lcbClx,ps->tablefd);
 
 	/*
 	we will need the paragraph bounds table to make decisions as to where a piece
 	begins and ends
 	*/
-    wvGetBTE_PLCF(&btePapx,&posPapx,&intervals,fib->fcPlcfbtePapx,fib->lcbPlcfbtePapx,tablefd);
+    wvGetBTE_PLCF(&btePapx,&posPapx,&intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
 
 	/*
 	The text of the file starts at fib.fcMin, but we will use the piecetable 
 	records rather than this.
-	fseek(mainfd,fib->fcMin,SEEK_SET);
+	fseek(ps->mainfd,ps->fib.fcMin,SEEK_SET);
 	*/
 
 	/*
@@ -67,8 +67,8 @@ void wvDecodeSimple(FIB *fib,state_data *myhandle,FILE *mainfd,FILE *tablefd,FIL
 	beginning at fib.fcMin up to (but not including) fib.fcMac.
 	*/
 
-	if (fib->fcMac != (S32)(wvNormFC(clx.pcd[clx.nopcd-1].fc,NULL)+clx.pos[clx.nopcd]))
-		wvError("fcMac is not the same as the piecetable %x %x!\n",fib->fcMac,wvNormFC(clx.pcd[clx.nopcd-1].fc,NULL)+clx.pos[clx.nopcd]);
+	if (ps->fib.fcMac != (S32)(wvNormFC(clx.pcd[clx.nopcd-1].fc,NULL)+clx.pos[clx.nopcd]))
+		wvError("fcMac is not the same as the piecetable %x %x!\n",ps->fib.fcMac,wvNormFC(clx.pcd[clx.nopcd-1].fc,NULL)+clx.pos[clx.nopcd]);
 
 	expandhandle.charset = wvAutoCharset(&clx);
 
@@ -80,7 +80,7 @@ void wvDecodeSimple(FIB *fib,state_data *myhandle,FILE *mainfd,FILE *tablefd,FIL
 	for (piececount=0;piececount<clx.nopcd;piececount++)
 		{
 		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&clx,piececount);
-		fseek(mainfd,beginfc,SEEK_SET);
+		fseek(ps->mainfd,beginfc,SEEK_SET);
 		wvGetPieceBoundsCP(&begincp,&endcp,&clx,piececount);
 		for (i=begincp,j=beginfc;i<endcp;i++,j += wvIncFC(chartype))
 			{
@@ -91,7 +91,7 @@ void wvDecodeSimple(FIB *fib,state_data *myhandle,FILE *mainfd,FILE *tablefd,FIL
 				{
 				wvTrace("j i is %x %d\n",j,i);
 				wvReleasePAPX_FKP(&fkp);
-				wvGetSimpleParaBounds(&fkp,&fcFirst,&fcLim,i,&clx, btePapx, posPapx,intervals,mainfd);
+				wvGetSimpleParaBounds(&fkp,&fcFirst,&fcLim,i,&clx, btePapx, posPapx,intervals,ps->mainfd);
 				wvTrace("para beings at %x ends %x\n",fcFirst,fcLim);
 				}
 
@@ -102,9 +102,9 @@ void wvDecodeSimple(FIB *fib,state_data *myhandle,FILE *mainfd,FILE *tablefd,FIL
 				wvBeginPara(&expandhandle);
 				}
 
-			eachchar = wvGetChar(mainfd,chartype);
+			eachchar = wvGetChar(ps->mainfd,chartype);
 
-			wvOutputTextChar(eachchar,chartype,expandhandle.charset,&state);
+			wvOutputTextChar(eachchar,chartype,expandhandle.charset,&state,ps);
 			/*
 			wvOutputHtml4(eachchar,chartype,expandhandle.charset);
 			*/
@@ -122,7 +122,7 @@ void wvDecodeSimple(FIB *fib,state_data *myhandle,FILE *mainfd,FILE *tablefd,FIL
 	wvReleaseSTTBF(&anSttbfAssoc);
     wvFree(btePapx);
 	wvFree(posPapx);
-	if (fib->fcMac != ftell(mainfd))
+	if (ps->fib.fcMac != ftell(ps->mainfd))
 		wvError("fcMac did not match end of input !\n");
 	wvReleaseCLX(&clx);
 	wvReleaseSTSH(&stsh);

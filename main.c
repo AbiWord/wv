@@ -107,12 +107,7 @@ int main(int argc,char **argv)
 	
 	FILE *filein;
 	FILE *input;
-
-	FILE *mainfd=NULL;
-	FILE *tablefd0=NULL;
-	FILE *tablefd1=NULL;
-	FILE *data=NULL;
-	FILE *summary=NULL;
+	wvParseStruct ps;
 
 	int c;
 	int tail=1;
@@ -474,32 +469,14 @@ int main(int argc,char **argv)
 	revisions.nostrings=0;	/*messy as hell*/
 
 	input = fopen(filename,"rb");
-	ret = wvOLEDecode(input,&mainfd,&tablefd0,&tablefd1,&data,&summary);
+	ret = wvInitParser(&ps,input);
 	if (ret)
 		{
-		fprintf(erroroutput,"Sorry main document stream couldnt be found in doc \n%s\n",filename);
-		fprintf(erroroutput,"if this *is* a word 8 file, it appears to be corrupt\n");
-		fprintf(erroroutput,"remember, mswordview cannot handle rtf,word 6 or word 7 etc\n");
+		wvError("startup error\n");
+		return(-1);
+		}
 
-		buffer = (char *) malloc(strlen(filename) +3 + strlen("file "));
-		sprintf(buffer,"file \"%s\"",filename);
-		filein = popen(buffer,"r");
-		if (filein != NULL)
-			{
-			fprintf(erroroutput,"for your information, the utility \n\"file %s\" reports ...\n\n",filename);
-			while (fgets(fileinbuf,1024,filein) != NULL)
-				fprintf(erroroutput,"%s",fileinbuf);
-			}
-		free(buffer);
-		ret=10;
-		if (riskbadole) 
-			ret = decode_word8(mainfd,tablefd0,tablefd1,data,core);
-		}
-	else
-		{
-		ret = decode_word8(mainfd,tablefd0,tablefd1,data,core);
-		wvOLEFree();
-		}
+	ret = decode_word8(&ps,core);
 
 	if ((ret != -1) && (ret != 10))
 		{
