@@ -472,6 +472,10 @@ void wvDecodeComplex(wvParseStruct *ps)
 				wvTrace(("cpiece is %d, but full no is %d\n",cpiece,ps->clx.nopcd));
 				wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&stsh,&ps->clx);
 				wvHandleElement(ps,PARABEGIN, (void*)&apap);
+
+				/*testing the next line, to force the char run to begin after a new para*/
+				char_fcFirst = j;
+
 				para_pendingclose=1;
 				wvTrace(("pap istd is %d\n",apap.istd));
 				}

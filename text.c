@@ -280,19 +280,44 @@ void wvEndSection(expand_data *data)
 	}
 
 void wvBeginCharProp(expand_data *data)
-{
-   CHP *achp = (CHP*)data->props;
-   wvTrace(("beginning character run\n"));
-   /* some test examples */
-   if (achp->fBold) { wvTrace(("a BOLD character run\n")); }
-   if (achp->fItalic) { wvTrace(("an ITALIC character run\n")); }
-   if (achp->kul) { wvTrace(("some kind of UNDERLINED character run\n")); }
-}
+	{
+	CHP *achp;
+	wvTrace(("beginning character run\n"));
+
+	if ( (data != NULL) &&  (data->sd != NULL) && (data->sd->elements[TT_CHAR].str[0]!= NULL) )
+		{
+		wvExpand(data,data->sd->elements[TT_CHAR].str[0],
+		strlen(data->sd->elements[TT_CHAR].str[0]));
+		if (data->retstring)
+			{
+			wvTrace(("char begin is now %s",data->retstring));
+			printf("%s",data->retstring);
+			wvFree(data->retstring);
+			}
+		}
+   
+	/* some test examples */
+	achp = (CHP*)data->props;
+	if (achp->fBold) { wvTrace(("a BOLD character run\n")); }
+	if (achp->fItalic) { wvTrace(("an ITALIC character run\n")); }
+	if (achp->kul) { wvTrace(("some kind of UNDERLINED character run\n")); }
+	}
 
 void wvEndCharProp(expand_data *data)
-{
-   wvTrace(("ending character run\n"));
-}
+	{
+	wvTrace(("ending character run\n"));
+	if ( (data->sd != NULL) && (data->sd->elements[TT_CHAR].str[1]!= NULL) )
+		{
+		wvExpand(data,data->sd->elements[TT_CHAR].str[1],
+		strlen(data->sd->elements[TT_CHAR].str[1]));
+		if (data->retstring)
+			{
+			wvTrace(("char end is now %s",data->retstring));
+			printf("%s",data->retstring);
+			wvFree(data->retstring);
+			}
+		}
+	}
 
 void wvSetCharHandler(int (*proc)(wvParseStruct *,U16,U8))
     {

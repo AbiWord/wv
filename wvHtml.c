@@ -88,8 +88,12 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
         {
         case PARABEGIN:
             wvBeginPara(data);
+#if 0 
+			wvBeginCharProp(data);	/* danger will break in the future */
+#endif
             break;
         case PARAEND:
+            wvEndCharProp(data);	/* danger will break in the future */
             wvEndPara(data);
             break;
         case CHARPROPBEGIN:

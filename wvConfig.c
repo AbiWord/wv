@@ -8,22 +8,29 @@ extern char *wv_version;
 
 TokenTable s_Tokens[] =
 {
-    {   "document",      TT_DOCUMENT     },
-    {   "begin",         TT_BEGIN        },
-    {   "end",           TT_END          },
-    {   "title",         TT_TITLE        },
-    {   "paragraph",     TT_PARA         },
-    {   "charset",       TT_CHARSET      },
-    {   "version",       TT_VERSION      },
-    {   "justification", TT_JUSTIFICATION},
-    {   "just",       	 TT_JUST     	 },
-    {   "left",       	 TT_LEFT     	 },
-    {   "right",       	 TT_RIGHT     	 },
-    {   "center",        TT_CENTER     	 },
-    {   "block",       	 TT_BLOCK     	 },
-    {   "asian",       	 TT_ASIAN     	 },
-    {   "section",       TT_SECTION     	 },
-    {   "*",             TT_OTHER        } /* must be last */
+    {   "document",      TT_DOCUMENT     	},
+    {   "begin",         TT_BEGIN        	},
+    {   "end",           TT_END          	},
+    {   "title",         TT_TITLE        	},
+    {   "paragraph",     TT_PARA         	},
+    {   "charset",       TT_CHARSET      	},
+    {   "version",       TT_VERSION      	},
+    {   "justification", TT_JUSTIFICATION	},
+    {   "just",       	 TT_JUST     	 	},
+    {   "left",       	 TT_LEFT     	 	},
+    {   "right",       	 TT_RIGHT     	 	},
+    {   "center",        TT_CENTER     	 	},
+    {   "block",       	 TT_BLOCK     	 	},
+    {   "asian",       	 TT_ASIAN     	 	},
+    {   "section",       TT_SECTION     	},
+	{	"bold",			 TT_BOLD			},
+	{	"character",	 TT_CHAR			},
+	{	"bold.begin",	 TT_BOLDB			},
+	{	"bold.end",	   	 TT_BOLDE			},
+	{	"italic",		 TT_ITALIC			},
+	{	"italic.begin",	 TT_ITALICB			},
+	{	"italic.end",	 TT_ITALICE,		},
+    {   "*",             TT_OTHER        	} /* must be last */
 };
 
 #if 0
@@ -98,6 +105,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	expand_data *mydata = (expand_data *)userData;
 	char *text,*str;
 	const char *ctext;
+	static int bold,italic;
 
 	tokenIndex = s_mapNameToToken(name);
 	wvTrace(("name = %s tokenIndex = %d\n", name, tokenIndex));
@@ -121,7 +129,6 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_JUST:
-			if (mydata) wvTrace(("1"));
 		    wvTrace(("just is %d\n",((PAP*)(mydata->props))->jc));
 			wvTrace(("str is %s\n",mydata->sd->elements[TT_JUSTIFICATION].str[0]));
 			text = (char *)malloc(strlen(mydata->sd->elements[TT_JUSTIFICATION].str[((PAP*)(mydata->props))->jc])+1);
@@ -134,6 +141,80 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->retstring = str;
 			wvFree(text);
 			mydata->currentlen = strlen(mydata->retstring);
+			break;
+		case TT_BOLDB:
+		    wvTrace(("bold is %d\n",((CHP*)(mydata->props))->fBold));
+			wvTrace(("str is %s\n",mydata->sd->elements[TT_BOLD].str[0]));
+			if ( (((CHP*)(mydata->props))->fBold) && (bold == 0) )
+				{
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_BOLD].str[0])+1);
+				strcpy(text,mydata->sd->elements[TT_BOLD].str[0]);
+				str = mydata->retstring;
+				wvExpand(mydata,text,strlen(text));
+				wvAppendStr(&str,mydata->retstring);
+				wvFree(mydata->retstring);
+				mydata->retstring = str;
+				wvFree(text);
+				mydata->currentlen = strlen(mydata->retstring);
+				bold=1;
+				}
+			break;
+		case TT_ITALICB:
+		    wvTrace(("italic is %d\n",((CHP*)(mydata->props))->fItalic));
+			wvTrace(("str is %s\n",mydata->sd->elements[TT_ITALIC].str[0]));
+			if ( (((CHP*)(mydata->props))->fItalic) && (italic == 0) )
+				{
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_ITALIC].str[0])+1);
+				strcpy(text,mydata->sd->elements[TT_ITALIC].str[0]);
+				str = mydata->retstring;
+				wvExpand(mydata,text,strlen(text));
+				wvAppendStr(&str,mydata->retstring);
+				wvFree(mydata->retstring);
+				mydata->retstring = str;
+				wvFree(text);
+				mydata->currentlen = strlen(mydata->retstring);
+				italic=1;
+				}
+			break;
+		case TT_ITALICE:
+		    wvTrace(("italic is %d\n",((CHP*)(mydata->props))->fItalic));
+			wvTrace(("str is %s\n",mydata->sd->elements[TT_ITALIC].str[0]));
+			/*
+			if ( (!((CHP*)(mydata->props))->fItalic) && (italic == 1) )
+			*/
+			if (italic == 1)
+				{
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_ITALIC].str[1])+1);
+				strcpy(text,mydata->sd->elements[TT_ITALIC].str[1]);
+				str = mydata->retstring;
+				wvExpand(mydata,text,strlen(text));
+				wvAppendStr(&str,mydata->retstring);
+				wvFree(mydata->retstring);
+				mydata->retstring = str;
+				wvFree(text);
+				mydata->currentlen = strlen(mydata->retstring);
+				italic=0;
+				}
+			break;
+		case TT_BOLDE:
+		    wvTrace(("bold is %d\n",((CHP*)(mydata->props))->fBold));
+			wvTrace(("str is %s\n",mydata->sd->elements[TT_BOLD].str[0]));
+			/*
+			if ( (!((CHP*)(mydata->props))->fBold) && (bold == 1) )
+			*/
+			if (bold == 1)
+				{
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_BOLD].str[1])+1);
+				strcpy(text,mydata->sd->elements[TT_BOLD].str[1]);
+				str = mydata->retstring;
+				wvExpand(mydata,text,strlen(text));
+				wvAppendStr(&str,mydata->retstring);
+				wvFree(mydata->retstring);
+				mydata->retstring = str;
+				wvFree(text);
+				mydata->currentlen = strlen(mydata->retstring);
+				bold=0;
+				}
 			break;
 		}
 	}
@@ -152,6 +233,9 @@ void startElement(void *userData, const char *name, const char **atts)
 		case TT_DOCUMENT:
 		case TT_PARA:
 		case TT_SECTION:
+		case TT_BOLD:
+		case TT_CHAR:
+		case TT_ITALIC:
 			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*2);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=2;
 			for(i=0;i<2;i++)
@@ -207,6 +291,26 @@ void startElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(*(mydata->current));
 			wvTrace(("At this other other point the string is %s\n",*(mydata->current)));
 			break;
+		case TT_ITALICB:
+			wvAppendStr(mydata->current,"<italic.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			wvTrace(("At this other other point the string is %s\n",*(mydata->current)));
+			break;
+		case TT_ITALICE:
+			wvAppendStr(mydata->current,"<italic.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			wvTrace(("At this other other point the string is %s\n",*(mydata->current)));
+			break;
+		case TT_BOLDB:
+			wvAppendStr(mydata->current,"<bold.begin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			wvTrace(("At this other other point the string is %s\n",*(mydata->current)));
+			break;
+		case TT_BOLDE:
+			wvAppendStr(mydata->current,"<bold.end/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			wvTrace(("At this other other point the string is %s\n",*(mydata->current)));
+			break;
 		case TT_JUST:
 			wvAppendStr(mydata->current,"<just/>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -239,6 +343,10 @@ void endElement(void *userData, const char *name)
 		case TT_CHARSET:
 		case TT_VERSION:
 		case TT_JUST:
+		case TT_BOLDB:
+		case TT_BOLDE:
+		case TT_ITALICB:
+		case TT_ITALICE:
 			break;
 		default:
 			mydata->currentlen=0;

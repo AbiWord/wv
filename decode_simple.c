@@ -161,6 +161,10 @@ void wvDecodeSimple(wvParseStruct *ps)
 				{
 				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &stsh);
 				wvHandleElement(ps, PARABEGIN, (void*)&apap);
+
+				/*testing the next line, to force the char run to begin after a new para*/
+				char_fcFirst = j;
+
 				para_pendingclose = 1;
 				}
 

@@ -1,3 +1,82 @@
+Changes to to 0.5.22
+	* new development release
+ALL TODO
+	* add the rest of the appropiate char props to decode_simple, repeat for
+	decode_complex
+	* search for more SEP sprm diffs between 6 and 8
+	* add in the list extraction code ?
+
+	* maybe someday we should use #pragme pack(1) if we are being compiled
+	with gcc under a little endian platform. That might gain a speed up ?
+
+	* install cygwin thingy at home and test configure mechanism for searching and
+	installing strcasecmp/rint.
+
+	* table properties & lists to be done
+
+	* i figured out what the story is with ole embedded files, ill have to modify
+	my ole code so as to be able in the future to parse embedded docs and splice
+	them together, which could be a wee bit of a challenge.
+
+	* modify configure script so its possible to link against a different expat
+	lib, or to disable it or something.
+	* add errors via numbered errors to wvInitParser.
+
+	* harden wvConfig against bad pointers, and incomplete sections e.g justification
+	* make wvConvert read config from commandline, and 
+	* additional code checks for conversion of codepage whatever to iso for
+	ancillary strings that might be stored in that format.
+	* modify complex code to stop at end of main text
+
+	* i have Plcfbte's marked as generic empty structures in the old code, which 
+	is technically incorrect but works the way i've set up the code to handle it.
+	* wvToggle is wrong im sure.
+	* the old ffffffff list problem still exists with the new interface, i must 
+	finally kill that issue once and for all
+	* colspan support, find the smallest common unit, and restart the
+	table handling.
+	* rowspan support
+
+	* implement whatever special drawing format there is.
+	* patch thai handling back in.
+	* test that continous sections and endnotes at the end of section, and
+	other things like that do what i think they should do.
+	* placement of footnotes, what does "treat like endnotes" really mean ?
+	* make sure captions are alright, especially formatting.
+	* must implement fully handling for 16bit chars, taking into account 
+	conversion from cp1252. two modes, one where we are in isowhatever mode
+	and one where we are in unicode/utf-8 mode.
+	* bits for anld are wrong
+	* bookmarks embedded in html tags break them, constructs such as e.g
+	<A href="stuff">stuf<a name="here">f</a></A> are being output even though
+	thats well wrong in html.
+	* allow the various colors that im using to specifiy different attributes to
+	be modified by the user.
+	* hmm, with bookmarks implemented, it might not be too hard to do 
+	the toc
+	* optional html correct handling of lists.
+	* place all wingding and symbolfont names directly in the makefile for
+	make install.
+	* convert the cross-referenced "above/below", into hyperlinked above and 
+	below.
+	* optional support for specifying special fonts, not recommended for use
+	on publishing for internet sites, but useful for internal use for those 
+	of you who have done the funky chicken dance with unix netscape to work 
+	with ms winding etc fonts or are using ie/netscape on windows.
+	* all the fields, document background colour.
+	* it might be possible to support right indentation, if its simultaneous
+	with equal left indentation by using <blockquote> instead of <dir>, but
+	i dont see that as essential.
+	* inside/outside page numbering doesnt work, dont know where its set, one
+	of the DOP fields ?
+	* two pass parser for finding best fit html tables for word tables.
+	* gtk+dps wysiwyg viewer, output to ps from this
+	* use incremental zlib functions to do decompressing rather than use mmap,
+	someone who doesnt have mmap on their system can send me a patch for this one
+	;-)
+	* hyperlink sequence fields ?
+	* doesnt compile under neXt & needs to use gcc for hpux 10.20 ?
+	* do an autoconf check for mman.h and dont do compression if not there.
 Changes to to 0.5.21
 	* fix for bad sprm handlers so font changes now occur.
 	* fix for having no summary stream in wvSummary.
@@ -51,91 +130,8 @@ Changes to to 0.5.21
 	complex files and incorrect para fcLims. This one was driving me completely mad,
 	i don't know if i have fixed it fully correct though, but i think so..
 	* changed laolareplace.old.c to put isprint test at the end.
-ALL TODO
-	* fix files in broken
-	* search for SEP sprm diffs between 6 and 8
-	* add in the list extraction code ?
-
-	* install cygwin thingy at home and test configure mechanism for searching and
-	installing strcasecmp/rint.
-
-	* handle char props in the abi and html standalone converters
-
-	* table properties & lists to be done
-
-	* i figured out what the story is with ole embedded files, ill have to modify
-	my ole code so as to be able in the future to parse embedded docs and splice
-	them together, which could be a wee bit of a challenge.
-	
-
-	* modify configure script so its possible to link against a different expat
-	lib, or to disable it or something.
-	* add errors via numbered errors to wvInitParser.
-
-	* harden wvConfig against bad pointers, and incomplete sections e.g justification
-	* make wvConvert read config from commandline, and 
-	* additional code checks for conversion of codepage whatever to iso for
-	ancillary strings that might be stored in that format.
-	* modify complex code to stop at end of main text
-	* do sep and anlv
-
-	* i have Plcfbte's marked as generic empty structures in the old code, which 
-	is technically incorrect but works the way i've set up the code to handle it.
-	* wvToggle is wrong im sure.
-	* the old ffffffff list problem still exists with the new interface, i must 
-	finally kill that issue once and for all
-	* colspan support, find the smallest common unit, and restart the
-	table handling.
-	* rowspan support
-	* add a fudge factor to the gcf part so as to fudge out insignificent
-	twip differences
-
-	4 table rowspan/colspan support
-
-	* use twips from config file throughout mswordview
-	I want...
-	
-	* dont parse a $ with a \ before it.
-	* implement whatever special drawing format there is.
-	* patch thai handling back in.
-	* test that continous sections and endnotes at the end of section, and
-	other things like that do what i think they should do.
-	* placement of footnotes, what does "treat like endnotes" really mean ?
-	* make sure captions are alright, especially formatting.
-	* must implement fully handling for 16bit chars, taking into account 
-	conversion from cp1252. two modes, one where we are in isowhatever mode
-	and one where we are in unicode/utf-8 mode.
-	* bits for anld are wrong
-	* bookmarks embedded in html tags break them, constructs such as e.g
-	<A href="stuff">stuf<a name="here">f</a></A> are being output even though
-	thats well wrong in html.
-	* allow the various colors that im using to specifiy different attributes to
-	be modified by the user.
-	* hmm, with bookmarks implemented, it might not be too hard to do 
-	the toc
-	* optional html correct handling of lists.
-	* place all wingding and symbolfont names directly in the makefile for
-	make install.
-	* convert the cross-referenced "above/below", into hyperlinked above and 
-	below.
-	* optional support for specifying special fonts, not recommended for use
-	on publishing for internet sites, but useful for internal use for those 
-	of you who have done the funky chicken dance with unix netscape to work 
-	with ms winding etc fonts or are using ie/netscape on windows.
-	* all the fields, document background colour.
-	* it might be possible to support right indentation, if its simultaneous
-	with equal left indentation by using <blockquote> instead of <dir>, but
-	i dont see that as essential.
-	* inside/outside page numbering doesnt work, dont know where its set, one
-	of the DOP fields ?
-	* two pass parser for finding best fit html tables for word tables.
-	* gtk+dps wysiwyg viewer, output to ps from this
-	* use incremental zlib functions to do decompressing rather than use mmap,
-	someone who doesnt have mmap on their system can send me a patch for this one
-	;-)
-	* hyperlink sequence fields ?
-	* doesnt compile under neXt & needs to use gcc for hpux 10.20 ?
-	* do an autoconf check for mman.h and dont do compression if not there.
+	* added bold and italic char prop handling to simple mode wvHtml
+	* added bold and italic char prop handling to complex mode wvHtml
 Changes to to 0.5.20
 	* the checking for end of a piece was all wrong, i was looking
 	at the beginning of the next piece for that information which while

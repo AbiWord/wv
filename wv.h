@@ -2109,8 +2109,15 @@ typedef enum
 #define TT_BLOCK			13
 #define TT_ASIAN			14
 #define TT_SECTION			15
+#define TT_BOLD				16
+#define TT_CHAR				17
+#define TT_BOLDB			18
+#define TT_BOLDE			19
+#define TT_ITALIC			20
+#define TT_ITALICB			21
+#define TT_ITALICE			22
 
-#define TokenTableSize 16
+#define TokenTableSize 23
 
 typedef struct _TokenTable
 	{

@@ -39,5 +39,13 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 </end>
 </paragraph>
 
+<bold><begin>&lt;b&gt;</begin><end>&lt;/b&gt;</end></bold> 
+
+<italic><begin>&lt;i&gt;</begin><end>&lt;/i&gt;</end></italic>
+
+<character>
+<begin><bold.begin/><italic.begin/></begin>
+<end><italic.end/><bold.end/></end>
+</character>
 
 </main>
