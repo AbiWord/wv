@@ -4,6 +4,7 @@
 #include "config.h"
 #endif
 #include "wv.h"
+#include "wvinternal.h"
 
 /*
 how this works,

@@ -2,6 +2,9 @@
 #define WV_INTERNAL
 unsigned int wvMapNameToTokenType (const char * name);
 
+void internal_wvReleasePAPX_FKP (PAPX_FKP * fkp);
+void internal_wvReleaseCHPX_FKP (CHPX_FKP * fkp);
+
 void wvGetBRC_internal (BRC * abrc, wvStream * infd, U8 * pointer);
 void wvGetBRC10_internal (BRC10 * item, wvStream * infd, U8 * pointer);
 void wvGetDCS_internal (DCS * item, wvStream * fd, U8 * pointer);

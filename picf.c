@@ -190,7 +190,7 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 	fclose(f);
 */	
 
-    wvStream_memory_create(&apicf->rgb, buf, size); 
+    wvStream_memory_create(&apicf->rgb, (char*)buf, size); 
     return 1;
 }
 
@@ -355,7 +355,7 @@ U32 PutWord8Structs(MSOFBH *bse_pic_amsofbh, U8* buf, size_t size)
     if(buf){
 		fd = &OutStream;
 		int_buf = wvMalloc(size);
-		wvStream_memory_create(&fd, int_buf, size); 
+		wvStream_memory_create(&fd, (char*)int_buf, size); 
 	}
 	else
 		fd = 0;
