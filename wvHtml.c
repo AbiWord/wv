@@ -2,11 +2,10 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
 #include "config.h"
 #include "wv.h"
-#include "oledecod.h"
 
-pps_entry *wvFindObject(S32 id);
 
 /*
 Released under GPL, written by Caolan.McNamara@ul.ie.
@@ -32,7 +31,136 @@ int mydochandler(wvParseStruct *ps,wvTag tag);
 int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid);
 int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp);
 
-wvStream *wvOpenConfig(char *config);
+FILE *wvOpenConfig(char *config);
+
+
+int HandleBitmap(char *name,BitmapBlip *bitmap);
+int HandleMetafile(char *name,MetaFileBlip *bitmap);
+
+char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
+	{
+	static int i;
+	char buffer[10];
+	char *name;
+	FILE *fd;
+	char test[3];
+	sprintf(buffer,"%d",i++);
+	name = strdup(ps->filename);
+	wvTrace(("name is %s\n",name));
+	remove_suffix (name, ".doc");
+	if (ps->dir != NULL)
+		{
+		char *tempa,*tempb;
+		tempb = strdup(ps->dir);
+		tempa = base_name(name);
+		wvAppendStr(&tempb,"/");
+		wvAppendStr(&tempb,tempa);
+		wvFree(name);
+		name = tempb;
+		}
+
+	wvAppendStr(&name,buffer);
+	/* 
+	temp hack to test older included bmps in word 6 and 7,
+	should be wrapped in a modern escher strucure before getting
+	to here, and then handled as normal
+	*/
+	wvTrace(("type is %d\n",blip->type));
+	switch(blip->type)
+		{
+		case msoblipJPEG:
+        case msoblipDIB:
+        case msoblipPNG:
+			fd = (FILE *)(blip->blip.bitmap.m_pvBits);
+			test[2] = '\0';
+			test[0] = getc(fd);
+			test[1] = getc(fd);
+			rewind(fd);
+			if (!(strcmp(test,"BM")))
+				{
+				wvAppendStr(&name,".bmp");
+				if (0 != HandleBitmap(name,&blip->blip.bitmap))
+					return(NULL);
+				remove_suffix (name, ".bmp");
+				bmptopng(name);
+				wvAppendStr(&name,".png");
+				return(name);
+				}
+		default:
+			break;
+		}
+
+	switch(blip->type)
+        {
+        case msoblipWMF:
+			wvAppendStr(&name,".wmf");
+			if (0 != HandleMetafile(name,&blip->blip.metafile))
+				return(NULL);
+			break;
+        case msoblipEMF:
+			wvAppendStr(&name,".emf");
+			if (0 != HandleMetafile(name,&blip->blip.metafile))
+				return(NULL);
+			break;
+        case msoblipPICT:
+			wvAppendStr(&name,".pict");
+			if (0 != HandleMetafile(name,&blip->blip.metafile))
+				return(NULL);
+            break;
+        case msoblipJPEG:
+			wvAppendStr(&name,".jpg");
+			if (0 != HandleBitmap(name,&blip->blip.bitmap))
+				return(NULL);
+			break;
+        case msoblipDIB:
+			wvAppendStr(&name,".dib");
+			if (0 != HandleBitmap(name,&blip->blip.bitmap))
+				return(NULL);
+			break;
+        case msoblipPNG:
+			wvAppendStr(&name,".png");
+			if (0 != HandleBitmap(name,&blip->blip.bitmap))
+				return(NULL);
+            break;
+        }
+	return(name);
+	}
+
+
+int HandleBitmap(char *name,BitmapBlip *bitmap)
+	{
+	int c;
+	FILE *fd;
+	fd = fopen(name,"wb");
+	if (fd == NULL)
+		{
+		wvError(("Cannot open %s for writing:%s\n",name,strerror(errno)));
+		return(-1);
+		}
+	while (EOF != (c = getc((FILE *)(bitmap->m_pvBits))))
+		fputc(c,fd);
+	fclose(fd);
+	wvTrace(("Name is %s\n",name));
+	return(0);
+	}
+
+
+int HandleMetafile(char *name,MetaFileBlip *bitmap)
+	{
+	int c;
+	FILE *fd;
+	fd = fopen(name,"wb");
+	if (fd == NULL)
+		{
+		wvError(("Cannot open %s for writing:%s\n",name,strerror(errno)));
+		return(-1);
+		}
+	while (EOF != (c = getc((FILE *)(bitmap->m_pvBits))))
+		fputc(c,fd);
+	fclose(fd);
+	wvTrace(("Name is %s\n",name));
+	return(0);
+	}
 
 void usage( void )
 	{
@@ -44,7 +172,7 @@ char *charset=NULL;
 
 int main(int argc,char **argv)
 	{
-	wvStream *input;
+	FILE *input;
 	char *password=NULL;
 	char *config=NULL;
 	char *dir=NULL;
@@ -116,8 +244,9 @@ int main(int argc,char **argv)
 		fprintf(stderr,"Failed to open %s: %s\n",argv[optind],strerror(errno));
 		return(-1);
 		}
+	fclose(input);
 
-	ret = wvInitParser(&ps,input);
+	ret = wvInitParser(&ps,argv[optind]);
 	ps.filename = argv[optind];
 	ps.dir = dir;
 
@@ -376,12 +505,12 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			wvTrace(("field middle\n"));
 			if (achp->fOle2)
 				{
-				pps_entry *test;
+				/*pps_entry *test;*/
 				wvError(("this field has an associated embedded object of id %x\n",achp->fcPic_fcObj_lTagObj));
-				test = wvFindObject(achp->fcPic_fcObj_lTagObj);
+				/*test = wvFindObject(achp->fcPic_fcObj_lTagObj);
 				if (test)
 					wvError(("data can be found in object entry named %s\n",test->name));
-				}
+				*/}
 			fieldCharProc(ps,eachchar,0,0x400);	/* temp */
 			ps->fieldmiddle=1;
 			return(0);
@@ -412,13 +541,13 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			wvStream *f;
 			Blip blip;
 			char *name;
-			long p = ftell(ps->data);
+			long p = wvStream_tell(ps->data);
 			wvError(("picture 0x01 here, at offset %x in Data Stream, obj is %d, ole is %d\n",achp->fcPic_fcObj_lTagObj,achp->fObj,achp->fOle2));
 			if (achp->fOle2)
 				exit(139);
-			fseek(ps->data,achp->fcPic_fcObj_lTagObj,SEEK_SET);
+			wvStream_goto(ps->data,achp->fcPic_fcObj_lTagObj);
 			wvGetPICF(wvQuerySupported(&ps->fib,NULL),&picf,ps->data);
-			f = (wvStream *)picf.rgb;
+			f = picf.rgb;
 			if (wv0x01(&blip,f,picf.lcb-picf.cbHeader))
 				{
 				wvTrace(("Here\n"));
@@ -431,7 +560,7 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 				wvError(("Strange No Graphic Data in the 0x01 graphic\n"));
 				printf("<img alt=\"0x08 graphic\" src=\"%s\"><br>","StrangeNoGraphicData");
 				}
-			fseek(ps->data,p,SEEK_SET);
+			wvStream_goto(ps->data,p);
 			return(0);
 			}
 		case 0x08:
@@ -440,21 +569,28 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			char *name;
 			if (wvQuerySupported(&ps->fib,NULL) == WORD8)
 				{
-				fspa = wvGetFSPAFromCP(ps->currentcp,ps->fspa,ps->fspapos,ps->nooffspa);
-				data->props = fspa;
-				if (wv0x08(&blip,fspa->spid,ps))
+				if(ps->nooffspa>0) 
 					{
-					wvTrace(("Here\n"));
-					name = wvHtmlGraphic(ps,&blip);
-					printf("<img width=\"%d\" height=\"%d\" alt=\"0x08 graphic\" src=\"%s\"><br>",
-					(int)wvTwipsToHPixels(fspa->xaRight-fspa->xaLeft),(int)wvTwipsToVPixels(fspa->yaBottom-fspa->yaTop),
-					name);
-					wvFree(name);
+					fspa = wvGetFSPAFromCP(ps->currentcp,ps->fspa,ps->fspapos,ps->nooffspa);
+					data->props = fspa;
+					if (wv0x08(&blip,fspa->spid,ps))
+						{
+						wvTrace(("Here\n"));
+						name = wvHtmlGraphic(ps,&blip);
+						printf("<img width=\"%d\" height=\"%d\" alt=\"0x08 graphic\" src=\"%s\"><br>",
+						(int)wvTwipsToHPixels(fspa->xaRight-fspa->xaLeft),(int)wvTwipsToVPixels(fspa->yaBottom-fspa->yaTop),
+						name);
+						wvFree(name);
+						}
+					else
+						{
+						wvError(("Strange No Graphic Data in the 0x01 graphic\n"));
+						printf("<img alt=\"0x08 graphic\" src=\"%s\"><br>","StrangeNoGraphicData");
+						}
 					}
 				else
 					{
-					wvError(("Strange No Graphic Data in the 0x01 graphic\n"));
-					printf("<img alt=\"0x08 graphic\" src=\"%s\"><br>","StrangeNoGraphicData");
+					wvError(("nooffspa was <=0!  Ignoring.\n"));
 					}
 				}
 			else
@@ -580,9 +716,9 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 	}
 
 
-wvStream *wvOpenConfig(char *config)
+FILE *wvOpenConfig(char *config)
 	{
-	wvStream *tmp;
+	FILE *tmp;
 	int i=0;
 	if (config == NULL)
 		config = "wvHtml.xml";
@@ -597,132 +733,3 @@ wvStream *wvOpenConfig(char *config)
 		}
 	return(tmp);
 	}
-
-
-int HandleBitmap(char *name,BitmapBlip *bitmap);
-int HandleMetafile(char *name,MetaFileBlip *bitmap);
-
-char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
-{
-   static int i;
-   char buffer[10];
-   char *name;
-   wvStream *fd;
-   char test[3];
-   sprintf(buffer,"%d",i++);
-   name = strdup(ps->filename);
-   wvTrace(("name is %s\n",name));
-   remove_suffix (name, ".doc");
-   if (ps->dir != NULL)
-     {
-	char *tempa,*tempb;
-	tempb = strdup(ps->dir);
-	tempa = base_name(name);
-	wvAppendStr(&tempb,"/");
-	wvAppendStr(&tempb,tempa);
-	wvFree(name);
-	name = tempb;
-     }
-   
-   wvAppendStr(&name,buffer);
-   /* 
-    *         temp hack to test older included bmps in word 6 and 7,
-    *         should be wrapped in a modern escher strucure before getting
-    *         to here, and then handled as normal
-    *         */
-   wvTrace(("type is %d\n",blip->type));
-   switch(blip->type)
-     {
-      case msoblipJPEG:
-      case msoblipDIB:
-      case msoblipPNG:
-	fd = (wvStream *)(blip->blip.bitmap.m_pvBits);
-	test[2] = '\0';
-	test[0] = getc(fd);
-	test[1] = getc(fd);
-	rewind(fd);
-	if (!(strcmp(test,"BM")))
-	  {
-	     wvAppendStr(&name,".bmp");
-	     if (0 != HandleBitmap(name,&blip->blip.bitmap))
-	       return(NULL);
-	     remove_suffix (name, ".bmp");
-	     bmptopng(name);
-	     wvAppendStr(&name,".png");
-	     return(name);
-	  }
-      default:
-	break;
-     }
-   
-   switch(blip->type)
-     {
-      case msoblipWMF:
-	wvAppendStr(&name,".wmf");
-	if (0 != HandleMetafile(name,&blip->blip.metafile))
-	  return(NULL);
-	break;
-      case msoblipEMF:
-	wvAppendStr(&name,".emf");
-	if (0 != HandleMetafile(name,&blip->blip.metafile))
-	  return(NULL);
-	break;
-      case msoblipPICT:
-	wvAppendStr(&name,".pict");
-	if (0 != HandleMetafile(name,&blip->blip.metafile))
-	  return(NULL);
-	break;
-      case msoblipJPEG:
-	wvAppendStr(&name,".jpg");
-	if (0 != HandleBitmap(name,&blip->blip.bitmap))
-	  return(NULL);
-	break;
-      case msoblipDIB:
-	wvAppendStr(&name,".dib");
-	if (0 != HandleBitmap(name,&blip->blip.bitmap))
-	  return(NULL);
-	break;
-      case msoblipPNG:
-	wvAppendStr(&name,".png");
-	if (0 != HandleBitmap(name,&blip->blip.bitmap))
-	  return(NULL);
-	break;
-     }
-   return(name);
-}
-
-
-int HandleBitmap(char *name,BitmapBlip *bitmap)
-{
-   int c;
-   wvStream *fd;
-   fd = fopen(name,"wb");
-   if (fd == NULL)
-     {
-	wvError(("Cannot open %s for writing:%s\n",name,strerror(errno)));
-	return(-1);
-     }
-   while (EOF != (c = getc((wvStream *)(bitmap->m_pvBits))))
-     fputc(c,fd);
-   fclose(fd);
-   wvTrace(("Name is %s\n",name));
-   return(0);
-}
-
-
-int HandleMetafile(char *name,MetaFileBlip *bitmap)
-{
-   int c;
-   wvStream *fd;
-   fd = fopen(name,"wb");
-   if (fd == NULL)
-     {
-	wvError(("Cannot open %s for writing:%s\n",name,strerror(errno)));
-	return(-1);
-     }
-   while (EOF != (c = getc((wvStream *)(bitmap->m_pvBits))))
-     fputc(c,fd);
-   fclose(fd);
-   wvTrace(("Name is %s\n",name));
-   return(0);
-}

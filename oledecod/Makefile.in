@@ -9,7 +9,7 @@ SHELL=/bin/sh
 
 srcdir=@srcdir@
 
-CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/..  @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/mswordview/ttf\"
+CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/..  @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/mswordview/ttf\" -I$(srcdir)/../libole2 -I$(srcdir)/../glib-wv
 
 SHELL = /bin/sh
 

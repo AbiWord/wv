@@ -53,7 +53,7 @@ void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,wvStream *fd)
 	int i;
 	U8 page[WV_PAGESIZE];
 	U16 pos=0;
-	size_t bytes_read;
+	/*size_t bytes_read;*/
 
 	/* brian.ewins@bt.com */
 	/* there seem to be a lot of repeat calls... */
@@ -66,7 +66,7 @@ void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,wvStream *fd)
 
 	wvTrace(("seeking to %x to get crun\n",pn*WV_PAGESIZE+(WV_PAGESIZE-1)));
 	wvStream_goto(fd,pn*WV_PAGESIZE);
-	bytes_read=wvStream_read(page,WV_PAGESIZE,1,fd);
+	/*bytes_read=*/wvStream_read(page,WV_PAGESIZE,1,fd);
 	fkp->crun = (U8)page[WV_PAGESIZE-1];
 	fkp->rgfc = (U32 *)malloc(sizeof(U32) * (fkp->crun+1));
 	fkp->rgbx = (BX *)malloc(sizeof(BX) * (fkp->crun));
@@ -247,7 +247,7 @@ void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, wvStream *fd)
 	int i;
 	U8 page[WV_PAGESIZE];
 	U16 pos=0;
-	size_t bytes_read;
+	/*size_t bytes_read;*/
 
 	/* brian.ewins@bt.com */
 	/* there seem to be a lot of repeat calls... */
@@ -258,7 +258,7 @@ void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, wvStream *fd)
 		return;
 		}
 	wvStream_goto(fd,pn*WV_PAGESIZE);
-	bytes_read=wvStream_read(page,WV_PAGESIZE,1,fd);
+	/*bytes_read=*/wvStream_read(page,WV_PAGESIZE,1,fd);
 	fkp->crun = (U8)page[WV_PAGESIZE-1];
 	wvTrace(("chpx fkp gone to %x\n",pn*WV_PAGESIZE+(WV_PAGESIZE-1)));
 	wvTrace(("crun is %d\n",fkp->crun));

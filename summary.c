@@ -363,10 +363,8 @@ int wvSumInfoOpenStream(SummaryInfo *si,wvStream *stream)
 int wvOLESummaryStream(char *filename,wvStream **summary)
 	{
 	int ret;
-    FILE *input;
 	wvStream *mainfd,*tablefd0,*tablefd1,*data;
-    input = fopen(filename,"rb");
-    ret = wvOLEDecode(input,&mainfd,&tablefd0,&tablefd1,&data,summary);
+    ret = wvOLEDecode(filename,&mainfd,&tablefd0,&tablefd1,&data,summary);
     return(ret);
 	}
 

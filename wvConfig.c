@@ -533,7 +533,7 @@ void wvListStateData(state_data *data)
 void wvReleaseStateData(state_data *data)
 	{
 	int i,k;
-	if (data->fp) wvStream_close(data->fp);
+	if (data->fp) fclose(data->fp);
 	for(i=0;i<TokenTableSize;i++)
 	    {
 		for(k=0;k<data->elements[i].nostr;k++)
@@ -3269,6 +3269,7 @@ void excharData(void* userData, const XML_Char *s, int len)
 int wvParseConfig(state_data *myhandle)
 	{
 	char buf[BUFSIZ];
+			
 	XML_Parser parser = XML_ParserCreate(NULL);
 	int done;
 	size_t len;
@@ -3285,7 +3286,7 @@ int wvParseConfig(state_data *myhandle)
 
 	do {
 		wvTrace(("loop in\n"));
-		len = wvStream_read(buf, 1, sizeof(buf), myhandle->fp);
+		len = fread(buf, 1, sizeof(buf), myhandle->fp);
 		wvTrace(("loop out\n"));
 		done = len < sizeof(buf);
 		if (!XML_Parse(parser, buf, len, done)) 

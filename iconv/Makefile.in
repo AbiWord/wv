@@ -21,6 +21,12 @@ VPATH = @srcdir@
 
 CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/../
 
+ifeq (@LIBOLE2@, 1)
+CFLAGS += \
+        -I$(srcdir)/../libole2/ \
+        -I$(srcdir)/../glib-wv/
+endif
+              
 SHELL = /bin/sh
 
 .SUFFIXES: .C .$(OBJEXT)

@@ -15,12 +15,33 @@ int getopt(int argc, char * const argv[], const char *optstring);
 /* end redefs */
 
 #include <time.h>
+#include <config.h>
 
-typedef union {
-	FILE file;
-} wvStream;	/* Could use typedef FILE wvStream, but this gives better
-		   	   warnings if 'wvStream *' is used  instead of
-			   'wvStream *' (but should still work) :-) */
+#include "ms-ole.h"
+
+/* The structure below is used to refer to a wvStream.  Usually,
+ * kind = LIBOLE_STREAM,
+ * but if we can't open a file using LibOLE, we fall back to the old file-based
+ * routines, in which case kind == FILE_STREAM.
+ */
+typedef enum
+	{
+	LIBOLE_STREAM,
+	FILE_STREAM
+	} wvStreamKind;
+		
+typedef union 
+	{
+	FILE* file_stream;
+	MsOleStream* libole_stream;
+	} wvInternalStream;
+	
+typedef struct 
+	{
+	wvStreamKind kind;
+	wvInternalStream stream;
+	}wvStream;
+
 
 #ifndef PATH_MAX
 #define PATH_MAX 1024 /*seems a reasonable figure*/
@@ -2545,7 +2566,7 @@ typedef struct _state_data
 	wvEle *currentele;
 	char **current;
 	U32 currentlen;
-	wvStream *fp;
+	FILE *fp;
 	} state_data;
 
 
@@ -2730,9 +2751,9 @@ void wvInitExpandData(expand_data *data);
 returns the same as wvOLEDecode with the addition that
 4 means that it isnt a word document
 */
-int wvInitParser(wvParseStruct *ps,FILE *fp);
+int wvInitParser(wvParseStruct *ps,char *path);
 
-int wvOpenPreOLE(FILE **input, wvStream **mafd, wvStream **tablefd0, wvStream **tablefd1,wvStream **data, wvStream **summary);
+int wvOpenPreOLE(char* path, wvStream **mafd, wvStream **tablefd0, wvStream **tablefd1,wvStream **data, wvStream **summary);
 
 void wvDecodeSimple(wvParseStruct *ps,subdocument whichdoc);
 U32 wvGetBeginFC(wvParseStruct *ps,subdocument whichdoc);
@@ -3431,7 +3452,7 @@ typedef struct _PICF
 	S16 dxaOrigin;
 	S16 dyaOrigin;
 	S16 cProps;
-	void *rgb;
+	wvStream *rgb;
 	} PICF;
 
 int wvGetPICF(version ver,PICF *apicf,wvStream *fd);
@@ -4409,13 +4430,28 @@ U16 bread_16ubit(U8 *in,U16 *pos);
 U8 bread_8ubit(U8 *in,U16 *pos);
 
 /* Perform file-I/O-like operations on wvStreams. */
-size_t wvStream_read(void *ptr, size_t size, size_t nmemb, wvStream *stream);
+U32 wvStream_read(void *ptr, size_t size, size_t nmemb, wvStream *stream);
 void wvStream_rewind(wvStream *stream);
-int wvStream_goto(wvStream *stream, long position);
-int wvStream_offset(wvStream *stream, long offset);
-int wvStream_offset_from_end(wvStream *stream, long offset);
-long wvStream_tell(wvStream *stream);
-int wvStream_close(wvStream *stream);
+U32 wvStream_goto(wvStream *stream, long position);
+U32 wvStream_offset(wvStream *stream, long offset);
+U32 wvStream_offset_from_end(wvStream *stream, long offset);
+U32 wvStream_tell(wvStream *stream);
+
+/* These functions take care of memory/file management for wvStreams */
+void wvStream_FILE_create(wvStream** in, FILE* inner);
+void wvStream_libole2_create(wvStream** in, MsOleStream* inner);
+void wvStream_create(wvStream** in, wvStreamKind kind, wvInternalStream inner);
+U32 wvStream_close(wvStream *stream);
+
+/* The above functions store all the streams we open in one of these, so that 
+ * we can clean up nicely.
+ */
+struct twvStream_list
+	{
+	wvStream* stream;
+	struct twvStream_list* next;
+	};
+typedef struct twvStream_list wvStream_list;
 
 void cleanupstreams(char *analyze,char *slashtmp);
 olestream * divide_streams(char *filename,char **analyze,char **slashtmp, char *argv0);
@@ -4538,7 +4574,7 @@ char *ms_strlower(char *in);
 2 if it isnt an ole file
 3 if its corrupt 
 */
-int wvOLEDecode(FILE *input, wvStream **mafd, wvStream **tablefd0,wvStream **tablefd1,wvStream **data,wvStream **summary);
+int wvOLEDecode(char *path, wvStream **mafd, wvStream **tablefd0,wvStream **tablefd1,wvStream **data,wvStream **summary);
 int wvOLESummaryStream(char *filename,wvStream **summary);
 
 long get_picture_header(U32 fcPic,wvStream *data,U32 *len,U16 *datatype);

@@ -141,10 +141,11 @@ int wvDecrypt95(wvParseStruct *ps)
     if (ps->tablefd1)
         wvStream_close(ps->tablefd1);
     wvStream_close(ps->mainfd);
-    ps->tablefd = (wvStream*)mainfd;
-    ps->tablefd0 = (wvStream*)mainfd;
-    ps->tablefd1 = (wvStream*)mainfd;
-    ps->mainfd = (wvStream*)mainfd;
+
+    wvStream_FILE_create(&ps->tablefd, mainfd);
+    wvStream_FILE_create(&ps->tablefd0, mainfd);
+    wvStream_FILE_create(&ps->tablefd1, mainfd);
+    wvStream_FILE_create(&ps->mainfd, mainfd);
     wvStream_rewind(ps->tablefd);
     wvStream_rewind(ps->mainfd);
     ps->fib.fEncrypted=0;

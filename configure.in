@@ -777,9 +777,12 @@ if [ test "$SYSTEM_ZLIB" != "" ]; then
 	AC_DEFINE(SYSTEM_ZLIB)
 fi
 
+
 AC_OUTPUT(
 Makefile 
 oledecod/Makefile 
+libole2/Makefile 
+glib-wv/Makefile 
 expat/Makefile 
 expat/xmltok/Makefile 
 expat/xmlparse/Makefile

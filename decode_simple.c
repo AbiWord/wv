@@ -327,7 +327,7 @@ void wvDecodeSimple(wvParseStruct *ps,subdocument whichdoc)
 				wvTrace(("CHP assembled.\n"));
 				wvTrace(("font is %d\n",achp.ftcAscii));
 				wvTrace(("char spec is %d\n",achp.ftcSym));
-				wvHandleElement(ps, CHARPROPBEGIN, (void*)&achp,char_dirty);
+				wvHandleElement(ps, CHARPROPBEGIN, (void*)&achp, char_dirty);
 				wvTrace(("char lid is %x\n",achp.lidDefault));
 				char_pendingclose = 1; 
 				}

@@ -555,7 +555,7 @@ wvStream *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
 			ret = ps->tablefd1;
 			if (ret == NULL)
 				{
-				wvError(("!!, the FIB lied to us, making a heroic effort to use the other table stream, hold on tight\n"));
+				wvError(("!!, the FIB lied to us, (told us to use the 1Table) making a heroic effort to use the other table stream, hold on tight\n"));
 				ret = ps->tablefd0;
 				}
 			}
@@ -565,12 +565,12 @@ wvStream *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
 			ret = ps->tablefd0;
 			if (ret == NULL)
 				{
-				wvError(("!!, the FIB lied to us, making a heroic effort to use the other table stream, hold on tight\n"));
+				wvError(("!!, the FIB lied to us, (told us to use the 0Table) making a heroic effort to use the other table stream, hold on tight\n"));
 				ret = ps->tablefd1;
 				}
 			}
 		}
-	else										/* word 7-*/
+	else									/* word 7-*/
 		ret = ps->mainfd;
     return(ret);
     }
@@ -597,10 +597,12 @@ version wvQuerySupported(FIB *fib,int *reason)
 				case 101:
 					if (reason) *reason=2;
 					ret = WORD6;
+					break;  /* I'm pretty sure we should break here, Jamie. */
 				case 103:
 				case 104:
 					if (reason) *reason=3;
 					ret = WORD7;
+					break;  /* I'm pretty sure we should break here, Jamie. */
 				default:
 					break;
 				}

@@ -460,7 +460,7 @@ static void MNGCoalesce(Image *image)
     return;
   delay=(long)image->delay;
   CoalesceImages(p);
-  p->file=(wvStream *) NULL;
+  p->file=(FILE *) NULL;
   p->orphan=False;
   DestroyImage(p);
   image->delay=delay;
@@ -2511,7 +2511,7 @@ Export Image *ReadPNGImage(const ImageInfo *image_info)
               {
                 if (m->verbose)
                   printf("Copied image to object buffer[%d]\n",object_id);
-                m->ob[object_id]->image->file=(wvStream *)NULL;
+                m->ob[object_id]->image->file=(FILE *)NULL;
               }
             png_get_IHDR(ping,ping_info,&width,&height,&bit_depth,&color_type,
               &interlace_method,&compression_method,&filter_method);
@@ -2632,8 +2632,8 @@ Export Image *ReadPNGImage(const ImageInfo *image_info)
                       FreeMemory((char *) image->packed_pixels);
                     image->packed_pixels = p->packed_pixels;
                     p->packed_pixels=(unsigned char *)NULL;
-                    p->orphan=True;  /* don't mess up links or close wvStream */
-                    p->file=(wvStream *)NULL;
+                    p->orphan=True;  /* don't mess up links or close FILE */
+                    p->file=(FILE *)NULL;
                     DestroyImage(p);
                     FormatString(page_geometry,"%lux%lu%+ld%+ld",
                       image->columns, image->rows,crop_box.left,crop_box.top);

@@ -76,7 +76,13 @@ PERL = @PERL@
 
 VPATH = @srcdir@
 
-CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I. -I./ -I$(srcdir)/ -I$(srcdir)/iconv/ -I$(srcdir)/magick/ -I$(srcdir)/expat/xmlparse/ -I$(srcdir)/oledecod/  @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DXMLCONFIG=\"$(libdir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(libdir)/wv/wvHtml.xml\" 
+CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I. -I./ -I$(srcdir)/ -I$(srcdir)/iconv/ -I$(srcdir)/magick/ -I$(srcdir)/expat/xmlparse/ @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DXMLCONFIG=\"$(libdir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(libdir)/wv/wvHtml.xml\" 
+
+CFLAGS += \
+	-I$(srcdir)/libole2/ \
+	-I$(srcdir)/glib-wv/ \
+	-I$(srcdir)/oledecod/ 
+	
 
 MKINSTALLDIRS = $(srcdir)/mkinstalldirs
 
@@ -85,7 +91,6 @@ SHELL = /bin/sh
 .SUFFIXES: .C .$(OBJEXT)
 
 MYOBJECTS =	\
-	laolareplace.$(OBJEXT) \
 	support.$(OBJEXT) \
 	list.$(OBJEXT) \
 	piecetable.$(OBJEXT) \
@@ -182,7 +187,20 @@ MYOBJECTS =	\
 	fbse.$(OBJEXT) \
 	escher.$(OBJEXT) \
 	bmptopng.$(OBJEXT) \
-	basename.$(OBJEXT)
+	basename.$(OBJEXT) \
+	laolareplace.$(OBJEXT) 
+	
+OLE = \
+	libole2/ms-ole.$(OBJEXT) \
+	glib-wv/garray.$(OBJEXT) \
+	glib-wv/gmem.$(OBJEXT) \
+	glib-wv/gslist.$(OBJEXT) \
+	glib-wv/gtree.$(OBJEXT) \
+	glib-wv/glist.$(OBJEXT) \
+	glib-wv/gmessages.$(OBJEXT) \
+	glib-wv/gstrfuncs.$(OBJEXT) \
+	oledecod/oledecod.$(OBJEXT)
+	
 
 #XML = -Lexpat/lib -lxmlparse -lxmltok
 XML = 	expat/xmlparse/xmlparse.$(OBJEXT) \
@@ -190,29 +208,28 @@ XML = 	expat/xmlparse/xmlparse.$(OBJEXT) \
 		expat/xmltok/xmltok.$(OBJEXT) \
     	expat/xmltok/xmlrole.$(OBJEXT)
 
-OLE = oledecod/oledecod.$(OBJEXT)
 
 all: wvSummary$(EXEEXT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSimpleCLX$(EXEEXT) wvVersion$(EXEEXT) wv-libconfig wv-incconfig
 
-wvSummary$(EXEEXT): wvSummary.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a 
+wvSummary$(EXEEXT): wvSummary.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a 
 	$(CC)  -o $@ wvSummary.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvSimpleCLX$(EXEEXT): wvSimpleCLX.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+wvSimpleCLX$(EXEEXT): wvSimpleCLX.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
 	$(CC)  -o $@ wvSimpleCLX.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvVersion$(EXEEXT): wvVersion.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+wvVersion$(EXEEXT): wvVersion.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
 	$(CC)  -o $@ wvVersion.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvConvert$(EXEEXT): wvConvert.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+wvConvert$(EXEEXT): wvConvert.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
 	$(CC)  -o $@ wvConvert.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wvText$(EXEEXT): wvConvert$(EXEEXT)
 	$(LN) -s wvConvert$(EXEEXT) wvText$(EXEEXT)
 
-wvHtml$(EXEEXT): wvHtml.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+wvHtml$(EXEEXT): wvHtml.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
 	$(CC)  -o $@ wvHtml.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvGraphicConvert$(EXEEXT): wvGraphicConvert.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+wvGraphicConvert$(EXEEXT): wvGraphicConvert.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
 	$(CC)  -o $@ wvGraphicConvert.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wv-libconfig: Makefile
@@ -228,7 +245,7 @@ wv-incconfig: Makefile
 lex.yy.c: parser.lex
 	$(LEX) parser.lex
 
-testparse$(EXEEXT):  testparse.$(OBJEXT) $(GETOPT) OLEDECODE libwv.a
+testparse$(EXEEXT):  testparse.$(OBJEXT) $(GETOPT) OLEDECODE LIBOLE2 libwv.a
 	$(CC)  -o $@ testparse.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS)  $(LDFLAGS)
 
 error.$(OBJEXT): $(srcdir)/error.c Makefile
@@ -237,7 +254,7 @@ error.$(OBJEXT): $(srcdir)/error.c Makefile
 laolareplace.$(OBJEXT): $(srcdir)/laolareplace.c 
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
-libwv.a:	$(MYOBJECTS) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE
+libwv.a:	$(MYOBJECTS) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE LIBOLE2
 	$(AR) rc $@ $(MYOBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE)
 	$(RANLIB) $@
 
@@ -249,13 +266,23 @@ MAGICK:
 	@echo making magick in magick  
 	@(cd magick && $(MAKE)) || exit 1
 
+
 OLEDECODE:
 	@echo making oledecod in oledecod
 	@(cd oledecod && $(MAKE)) || exit 1
 
+
 XMLPARSER:
 	@echo making expat in expat
 	@(cd expat && $(MAKE)) || exit 1
+
+LIBOLE2:	GLIB-WV
+	@echo making libole2 in libole2
+	@(cd libole2 && $(MAKE)) || exit 1
+	
+GLIB-WV:
+	@echo making glib-wv in glib-wv
+	@(cd glib-wv && $(MAKE)) || exit 1
 
 %.$(OBJEXT): $(srcdir)/%.c 
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
@@ -269,7 +296,11 @@ cleansub:
 	@(cd iconv && $(MAKE) clean) || exit 1
 	@echo cleaning magick in magick
 	@(cd magick && $(MAKE) clean) || exit 1
-
+	@echo cleaning libole2 in libole2
+	@(cd libole2 && $(MAKE) clean) || exit 1
+	@echo cleaning glib-wv in glib-wv
+	@(cd glib-wv && $(MAKE) clean) || exit 1
+	
 clean: cleansub
 	rm -rf *.$(OBJEXT) $(GETOPT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) core a.$(OBJEXT)ut *.a
 
@@ -287,6 +318,10 @@ realcleansub:
 	@(cd iconv && $(MAKE) realclean) || exit 1
 	@echo real cleaning magick in magick
 	@(cd magick && $(MAKE) realclean) || exit 1
+	@echo real cleaning libole2 in libole2
+	@(cd libole2 && $(MAKE) realclean) || exit 1
+	@echo real cleaning gilb-wv in glib-wv
+	@(cd glib-wv && $(MAKE) realclean) || exit 1
 
 installdirs:
 	$(MKINSTALLDIRS) $(bindir) \

@@ -15,7 +15,7 @@ int main(int argc,char **argv)
 	{
 	int ret;
 	FIB fib;
-	wvStream *input,*mainfd,*tablefd0,*tablefd1,*data,*summary;
+	wvStream *mainfd,*tablefd0,*tablefd1,*data,*summary;
 
 	if (argc < 2)
 		{
@@ -23,8 +23,7 @@ int main(int argc,char **argv)
 		return(1);
 		}
 
-	input = fopen(argv[1],"rb");
-	ret = wvOLEDecode(input,&mainfd,&tablefd0,&tablefd1,&data,&summary);
+	ret = wvOLEDecode(argv[1],&mainfd,&tablefd0,&tablefd1,&data,&summary);
 	if (ret)
 		{
 		wvError(("sorry problem with getting ole streams from %s\n",argv[1]));

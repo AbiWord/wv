@@ -57,7 +57,7 @@ extern Export unsigned int
     const double);
 
 extern Export unsigned long
-  GetNumberColors(const Image *,wvStream *);
+  GetNumberColors(const Image *,FILE *);
 
 extern Export void
   DestroyQuantizeInfo(QuantizeInfo *),

@@ -6258,6 +6258,7 @@ EOF
 
 fi
 
+
 trap '' 1 2 15
 cat > confcache <<\EOF
 # This file is a shell script that caches the results of configure
@@ -6361,6 +6362,8 @@ ac_given_INSTALL="$INSTALL"
 
 trap 'rm -fr `echo "Makefile 
 oledecod/Makefile 
+libole2/Makefile 
+glib-wv/Makefile 
 expat/Makefile 
 expat/xmltok/Makefile 
 expat/xmlparse/Makefile
@@ -6487,6 +6490,8 @@ cat >> $CONFIG_STATUS <<EOF
 
 CONFIG_FILES=\${CONFIG_FILES-"Makefile 
 oledecod/Makefile 
+libole2/Makefile 
+glib-wv/Makefile 
 expat/Makefile 
 expat/xmltok/Makefile 
 expat/xmlparse/Makefile

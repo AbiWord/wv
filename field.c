@@ -265,7 +265,7 @@ int wvHandleCommandField(char *command)
 				break;
 			case FC_TOC_FROM_RANGE:
 				token = strtok(NULL,"\"\" ");
-#if DEBUG
+#ifdef DEBUG
 				if (token)
 					wvTrace(("toc range is %s\n",token));
 #endif

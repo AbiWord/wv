@@ -122,8 +122,9 @@ int wvGetPICF(version ver,PICF *apicf,wvStream *fd)
 
 	for(;i<apicf->lcb-apicf->cbHeader;i++)
 		fputc(read_8ubit(fd),f);
+
 	rewind(f);
-	apicf->rgb = (void *)f;
+	wvStream_FILE_create(&apicf->rgb, f);
 	return(ret);
 	}
 

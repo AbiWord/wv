@@ -31,7 +31,7 @@ void usage( void )
 
 int main(int argc,char **argv)
 	{
-	wvStream *input;
+	FILE *input;
 	int ret;
 	wvParseStruct ps;
 
@@ -46,8 +46,9 @@ int main(int argc,char **argv)
 		fprintf(stderr,"Failed to open %s: %s\n",argv[1],strerror(errno));
 		return(-1);
 		}
+	fclose(input);
 
-	ret = wvInitParser(&ps,input);
+	ret = wvInitParser(&ps,argv[1]);
 
 	if (ret == -1)
 		{

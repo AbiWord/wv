@@ -1,74 +1,191 @@
-/*
-The interface to wvOLEDecode now has
-  int OLEdecode(char *filename, wvStream **mainfd, FILE **tablefd0, FILE 
-**tablefd1,wvStream **data,FILE **summary)	
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "config.h"
 #include "wv.h"
+#include "ms-ole.h"
 #include "oledecod.h"
 
-extern FILE*erroroutput;
-
 pps_entry *stream_tree;
-U32 root_stream;
+MsOle *ole_file;
 
-void wvOLEFree(void)
-	{
-	/* need to free all the allocated memory */
-	freeOLEtree (stream_tree);
-	}
-
-
-int wvOLEDecode(FILE *input, wvStream **mainfd, wvStream **tablefd0, wvStream **tablefd1,wvStream **data,wvStream **summary)
+int wvOLEDecode(char *path, wvStream **mainfd, wvStream **tablefd0, wvStream **tablefd1, wvStream **data, wvStream **summary)
 	{
 	int result;
-	U32 stream;
-
-	result = OLEdecode (input, &stream_tree, &root_stream, 1);
-	if (result == 0)
+	
+	if(ms_ole_open(&ole_file, path) == MS_OLE_ERR_OK)
 		{
-		for (stream = stream_tree[root_stream].dir; stream != 0xffffffff; stream = stream_tree[stream].next)
+		MsOleStream** temp_stream;
+		temp_stream=(MsOleStream**)malloc(sizeof(MsOleStream*));
+		
+		wvTrace(("Opened VFS\n"));
+		if(ms_ole_stream_open(temp_stream, ole_file, "/", "WordDocument", 'r')!=MS_OLE_ERR_OK) 
 			{
-			if (stream_tree[stream].type != 1 && stream_tree[stream].level == 1)
+			*mainfd=NULL;
+			wvTrace(("Opening \"WordDocument\" stream\n"));
+			}
+		else 
+			{
+			wvTrace(("Opened \"WordDocument\" stream\n"));
+			wvStream_libole2_create(mainfd, *temp_stream);
+			}
+		if(ms_ole_stream_open(temp_stream, ole_file, "/", "1Table", 'r')!=MS_OLE_ERR_OK)
+			{
+			*tablefd1=NULL;
+			wvTrace(("Opening \"1Table\" stream\n"));
+			}
+		else 
+			{
+			wvTrace(("Opened \"1Table\" stream\n"));
+			wvStream_libole2_create(tablefd1, *temp_stream);
+			}
+		if(ms_ole_stream_open(temp_stream, ole_file, "/", "0Table", 'r')!=MS_OLE_ERR_OK)
+			{
+			*tablefd0=NULL;
+			wvTrace(("Opening \"0Table\" stream\n"));
+			}
+		else 
+			{
+			wvTrace(("Opened \"0Table\" stream\n"));
+			wvStream_libole2_create(tablefd0, *temp_stream);
+			}
+		if(ms_ole_stream_open(temp_stream, ole_file, "/", "Data", 'r')!=MS_OLE_ERR_OK)
+			{
+			*data=NULL;
+			wvTrace(("Opening \"Data\" stream\n"));
+			}
+		else 
+			{
+			wvTrace(("Opened \"Data\" stream\n"));
+			wvStream_libole2_create(data, *temp_stream);
+			}
+		if(ms_ole_stream_open(temp_stream, ole_file, "/", "\005SummaryInformation", 'r')!=MS_OLE_ERR_OK)
+			{
+			*summary=NULL;
+			wvTrace(("Opening \"\\005SummaryInformation\" stream\n"));
+			}
+		else 
+			{
+			wvTrace(("Opened \"\\005SummaryInformation\" stream\n"));
+			wvStream_libole2_create(summary, *temp_stream);
+			}
+		free(temp_stream);
+		result=0;	
+		}	
+	else
+		{
+			
+		/* We haven't managed to get LibOLE2 to open the file, so we'll try the
+		 * old routines (it may be a pre-OLE document).
+		 */
+		U32 stream;
+		U32 root_stream;
+		FILE* input;
+		input=fopen(path, "rb");
+	
+		wvTrace(("LibOLE2 failed to open VFS, falling back on 'old' FILE* methods.\n"));
+		
+		if(input==NULL) {
+			wvTrace(("Cannot open file!\n"));
+			return 1;
+		}
+		
+		result = OLEdecode (input, &stream_tree, &root_stream, 1);
+		if (result == 0)
+			{
+			FILE* temp_file;
+			for (stream = stream_tree[root_stream].dir; stream != 0xffffffff; stream = stream_tree[stream].next)
 				{
-				if (!(strcmp(stream_tree[stream].name,"WordDocument")))
+				if (stream_tree[stream].type != 1 && stream_tree[stream].level == 1)
 					{
-					*mainfd = (wvStream *)fopen(stream_tree[stream].filename,"rb");
-					}
-				else if (!(strcmp(stream_tree[stream].name,"1Table")))
-					{
-					*tablefd1 = (wvStream *)fopen(stream_tree[stream].filename,"rb");
-					}
-				else if (!(strcmp(stream_tree[stream].name,"0Table")))
-					{
-					*tablefd0 = (wvStream *)fopen(stream_tree[stream].filename,"rb");
-					}
-				else if (!(strcmp(stream_tree[stream].name,"Data")))
-					{
-					*data = (wvStream *)fopen(stream_tree[stream].filename,"rb");
-					}
-				else if (!(strcmp(stream_tree[stream].name,"\005SummaryInformation")))
-					{
-					*summary = (wvStream *)fopen(stream_tree[stream].filename,"rb");
+					if (!(strcmp(stream_tree[stream].name,"WordDocument")))
+						{
+						temp_file = fopen(stream_tree[stream].filename,"rb");
+						if(temp_file==NULL)
+							{
+							*mainfd=NULL;
+							wvTrace(("Opening \"WordDocument\" stream\n"));
+							}
+						else
+							{
+							wvTrace(("Opened \"WordDocument\" stream\n"));
+							wvStream_FILE_create(mainfd, temp_file);
+							}
+						}
+					else if (!(strcmp(stream_tree[stream].name,"1Table")))
+						{
+						temp_file = fopen(stream_tree[stream].filename,"rb");
+						if(temp_file==NULL)
+							{
+							*tablefd1=NULL;
+							wvTrace(("Opening \"1Table\" stream\n"));
+							}
+						else
+							{
+							wvTrace(("Opened \"1Table\" stream\n"));
+							wvStream_FILE_create(tablefd1, temp_file);
+							}
+						}
+					else if (!(strcmp(stream_tree[stream].name,"0Table")))
+						{
+						temp_file = fopen(stream_tree[stream].filename,"rb");
+						if(temp_file==NULL)
+							{
+							*tablefd0=NULL;
+							wvTrace(("Opening \"0Table\" stream\n"));
+							}
+						else
+							{
+							wvTrace(("Opened \"0Table\" stream\n"));
+							wvStream_FILE_create(tablefd0, temp_file);
+							}
+						}
+					else if (!(strcmp(stream_tree[stream].name,"Data")))
+						{
+						temp_file = fopen(stream_tree[stream].filename,"rb");
+						if(temp_file==NULL)
+							{
+							*data=NULL;
+							wvTrace(("Opening \"Data\" stream\n"));
+							}
+						else
+							{
+							wvTrace(("Opened \"Data\" stream\n"));
+							wvStream_FILE_create(data, temp_file);
+							}
+						}
+					else if (!(strcmp(stream_tree[stream].name,"\005SummaryInformation")))
+						{
+						temp_file = fopen(stream_tree[stream].filename,"rb");
+						if(temp_file==NULL)
+							{
+							*summary=NULL;
+							wvTrace(("Opening \"\\005SummaryInformation\" stream\n"));
+							}
+						else
+							{
+							wvTrace(("Opened \"\\005SummaryInformation\" stream\n"));
+							wvStream_FILE_create(summary, temp_file);
+							}
+						}
 					}
 				}
 			}
-		}
-	switch(result)
-		{
-		case 5:
-			wvError(("OLE file appears to be corrupt, unable to extract streams\n"));
-			break;
+		switch(result)
+			{
+			case 5:
+				wvTrace(("File appears to be corrupt, unable to extract streams\n"));
+				break;
+			}
 		}
 
 	return(result);
 	}
 
-
+	
+/* TODO: Fix up the routines below - at the moment, they work /only/ with the old 
+ * TODO: style streams.
+ */
 pps_entry *myfind(char *idname,U32 start_entry)
 	{
 	pps_entry *ret=NULL;

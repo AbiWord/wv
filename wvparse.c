@@ -3,9 +3,10 @@
 #include "wv.h"
 #include "utf.h"
 
-int wvInitParser(wvParseStruct *ps,FILE *fp)
+int wvInitParser(wvParseStruct *ps,char *path)
 	{
 	int ret=0,reason=0;
+	
 	ps->userData=NULL;
 	ps->lst = NULL;
 	ps->intable=0;
@@ -22,7 +23,7 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 	/* set up the token table tree for faster lookups */
 	tokenTreeInit();
 
-	ret = wvOLEDecode(fp,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
+	ret = wvOLEDecode(path,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
 		&ps->data,&ps->summary);
 
 	switch(ret)
@@ -30,7 +31,7 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 		case 0:
 			break;
 		case 2:
-			ret = wvOpenPreOLE(&fp,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
+			ret = wvOpenPreOLE(path ,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
 					&ps->data,&ps->summary);
 			if (ret)
 				return(ret);
@@ -92,31 +93,37 @@ void wvSetPassword(char *password,wvParseStruct *ps)
 	ps->password[i]=0;
 	}
 
-int wvOpenPreOLE(FILE **input, wvStream **mainfd, wvStream **tablefd0, wvStream **tablefd1,wvStream **data, wvStream **summary)
+int wvOpenPreOLE(char *path, wvStream **mainfd, wvStream **tablefd0, wvStream **tablefd1,wvStream **data, wvStream **summary)
 	{
 	int ret=-1;
 	U16 magic;
+	FILE *input;
+		
+	input=fopen(path, "rb");
+	if(input==NULL) 
+		{
+		wvError(("Cannot open file $s\n", path));
+		return(-1);
+		}
+		
+	wvStream_FILE_create(mainfd, input);
 
-	*mainfd=(wvStream *)*input;
-	*tablefd0=(wvStream *)*input;
-	*tablefd1=(wvStream *)*input;
-	*data=(wvStream *)*input;
-	*summary=(wvStream *)NULL;
+	*tablefd0=*mainfd;
+	*tablefd1=*mainfd;
+	*data=*mainfd;
+	*summary=*mainfd;
 
-	if (*input)
-		wvStream_rewind(*mainfd);
-	else
-		return(ret);
+
 	magic = read_16ubit(*mainfd);
 	if (0xa5db == magic)
 		{
-		wvError(("Theres a good change that this is a word 2 doc of nFib %d\n",read_16ubit(*mainfd)));
+		wvError(("Theres a good chance that this is a word 2 doc of nFib %d\n",read_16ubit(*mainfd)));
 		wvStream_rewind(*mainfd);
 		return(-1);
 		}
 	else if (0x37fe == magic)
 		{
-		wvError(("Theres a good change that this is a word 5 doc of nFib %d\n",read_16ubit(*mainfd)));
+		wvError(("Theres a good chance that this is a word 5 doc of nFib %d\n",read_16ubit(*mainfd)));
 		wvStream_rewind(*mainfd);
 		return(0);
 		}

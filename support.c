@@ -28,8 +28,10 @@ indentation.
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include <assert.h>
 #include "config.h"
 #include "wv.h"
+#include "oledecod.h"
 
 #ifdef HAVE_WMF
 #	include "gdwmfapi.h"
@@ -38,8 +40,52 @@ indentation.
 	extern int list;
 */
 #endif
+	
+extern pps_entry *stream_tree;
+extern MsOle *ole_file;
+wvStream_list* streams=NULL;
 		
+void wvOLEFree(void)
+	{
+	wvStream_list* tempList;	
+	freeOLEtree(stream_tree);	/* Does internal checking, so it doesn't matter
+								 * we just call it with NULL.
+								 */
+	while(streams!=NULL) {
+		wvStream_close(streams->stream);
+		tempList=streams->next;
+		free(streams);
+		streams=tempList;
+	}
+	if(ole_file!=NULL)
+		{
+		ms_ole_destroy(&ole_file);
+		}
+	}
+	
 
+void wvStream_FILE_create(wvStream** in, FILE* inner)
+	{
+	wvStream_create(in, FILE_STREAM, (wvInternalStream)inner);
+	}
+
+void wvStream_libole2_create(wvStream** in, MsOleStream* inner)
+	{
+	wvStream_create(in, LIBOLE_STREAM, (wvInternalStream)inner);
+	}
+
+void wvStream_create(wvStream** in, wvStreamKind kind, wvInternalStream inner)
+	{
+	wvStream_list* listEntry;
+	*in=(wvStream*)malloc(sizeof(wvStream));
+	(*in)->kind=kind;
+	(*in)->stream=inner;
+	listEntry=malloc(sizeof(wvStream_list));
+	listEntry->stream=(*in);
+	listEntry->next=streams;
+	streams=listEntry;
+	}
+			
 U32 read_32ubit(wvStream *in)
 	{
 	U32 ret;
@@ -51,11 +97,155 @@ U32 read_32ubit(wvStream *in)
 	ret = ret << 16;
 	ret += temp1;
 #else
-	fread(&ret,sizeof(U8),4, (FILE *)in);
+	if(in->kind==LIBOLE_STREAM)
+		{
+		in->stream.libole_stream->read_copy(in->stream.libole_stream, (guint8 *)&ret, 4);
+		}
+	else
+		{
+		assert(in->kind==FILE_STREAM);
+		fread(&ret,sizeof(U8),4, in->stream.file_stream);
+		}
 #endif
 	return(ret);
 	}
 
+U16 read_16ubit(wvStream *in)
+	{
+	U16 ret;
+#if defined(WORDS_BIGENDIAN) || !defined(MATCHED_TYPE)
+	U8 temp1,temp2;
+	temp1 = read_8ubit(in);
+	temp2 = read_8ubit(in);
+	ret = temp2;
+	ret = ret << 8;
+	ret += temp1;
+#else
+	if(in->kind==LIBOLE_STREAM)
+		{
+		in->stream.libole_stream->read_copy(in->stream.libole_stream, (guint8 *)&ret, 2);
+		}
+	else
+		{
+		assert(in->kind==FILE_STREAM);
+		fread(&ret,sizeof(U8),2, in->stream.file_stream);
+		}
+#endif
+	return(ret);
+	}
+
+U8 read_8ubit(wvStream* in)
+	{
+	if(in->kind==LIBOLE_STREAM)
+		{	
+		U8 ret;
+		in->stream.libole_stream->read_copy(in->stream.libole_stream, (guint8 *)&ret, 1);
+		return(ret);
+		}
+	else
+		{
+		assert(in->kind==FILE_STREAM);
+		return(getc(in->stream.file_stream));
+		}
+	}
+
+U32 wvStream_read(void *ptr, size_t size, size_t nmemb, wvStream *in)
+	{
+	if(in->kind==LIBOLE_STREAM)
+		{
+		return((U32)in->stream.libole_stream->read_copy(in->stream.libole_stream, ptr, size * nmemb));
+		}
+	else
+		{
+		assert(in->kind==FILE_STREAM);
+		return(fread(ptr, size, nmemb, in->stream.file_stream));
+		}
+	}
+
+void wvStream_rewind(wvStream *in) 
+	{
+	if(in->kind==LIBOLE_STREAM)
+		{
+		in->stream.libole_stream->lseek(in->stream.libole_stream, 0, MsOleSeekSet);
+		}
+	else
+		{
+		assert(in->kind==FILE_STREAM);
+		rewind(in->stream.file_stream);
+		}
+	}	
+
+U32 wvStream_goto(wvStream *in, long position)
+	{
+	if(in->kind==LIBOLE_STREAM)
+		{
+		return((U32)in->stream.libole_stream->lseek(in->stream.libole_stream, position, MsOleSeekSet));
+		}
+	else
+		{
+		assert(in->kind==FILE_STREAM);
+		return((U32)fseek(in->stream.file_stream, position, SEEK_SET));
+		}
+	}
+
+U32 wvStream_offset(wvStream *in, long offset)
+	{
+	if(in->kind==LIBOLE_STREAM)
+		{
+		return((U32)in->stream.libole_stream->lseek(in->stream.libole_stream, offset, MsOleSeekCur));
+		}
+	else
+		{
+		assert(in->kind==FILE_STREAM);
+		return((U32)fseek(in->stream.file_stream, offset, SEEK_CUR));
+		}
+	}
+
+U32 wvStream_offset_from_end(wvStream *in, long offset)
+	{
+	if(in->kind==LIBOLE_STREAM)
+		{
+		return((U32)in->stream.libole_stream->lseek(in->stream.libole_stream, offset, MsOleSeekEnd));
+		}
+	else
+		{
+		assert(in->kind==FILE_STREAM);
+		return((U32)fseek(in->stream.file_stream, offset, SEEK_END));
+		}
+	}
+	
+U32 wvStream_tell(wvStream *in) 
+	{
+	if(in->kind==LIBOLE_STREAM)
+		{
+		return((U32)in->stream.libole_stream->tell(in->stream.libole_stream));
+		}
+	else
+		{
+		assert(in->kind==FILE_STREAM);
+		return((U32)ftell(in->stream.file_stream));
+		}
+	}
+	
+	
+U32 wvStream_close(wvStream *in) 
+	{
+	if(in->kind==LIBOLE_STREAM)
+		{
+		U32 ret=(U32)ms_ole_stream_close(&in->stream.libole_stream);
+		free(in);
+		return(ret);
+		}
+	else
+		{
+		assert(in->kind==FILE_STREAM);
+		return((U32)fclose(in->stream.file_stream));
+		}
+	}
+
+
+/* wvStream-kind-independent functions below */
+		
 U32 sread_32ubit(const U8 *in)
 	{
 	U16 temp1,temp2;
@@ -81,23 +271,21 @@ U32 bread_32ubit(U8 *in,U16 *pos)
 	return(ret);
 	}
 
-U16 read_16ubit(wvStream *in)
+U32 dread_32ubit(wvStream *in,U8 **list)
 	{
-	U16 ret;
-#if defined(WORDS_BIGENDIAN) || !defined(MATCHED_TYPE)
-	U8 temp1,temp2;
-	temp1 = read_8ubit(in);
-	temp2 = read_8ubit(in);
-	ret = temp2;
-	ret = ret << 8;
-	ret += temp1;
-#else
-	fread(&ret,sizeof(U8),2, (FILE *)in);
-#endif
-	return(ret);
+	U8 *temp;
+	U32 ret;
+	if (in != NULL)
+		return(read_32ubit(in));
+	else
+		{
+		temp = *list;
+		(*list)+=4;
+		ret = sread_32ubit(temp);
+		return(ret);
+		}
 	}
-
-
+	
 U16 sread_16ubit(const U8 *in)
 	{
 	U8 temp1,temp2;
@@ -123,21 +311,6 @@ U16 bread_16ubit(U8 *in,U16 *pos)
 	return(ret);
 	}
 
-U32 dread_32ubit(wvStream *in,U8 **list)
-	{
-	U8 *temp;
-	U32 ret;
-	if (in != NULL)
-		return(read_32ubit(in));
-	else
-		{
-		temp = *list;
-		(*list)+=4;
-		ret = sread_32ubit(temp);
-		return(ret);
-		}
-	}
-
 U16 dread_16ubit(wvStream *in,U8 **list)
 	{
 	U8 *temp;
@@ -152,10 +325,16 @@ U16 dread_16ubit(wvStream *in,U8 **list)
 		return(ret);
 		}
 	}
-
-U8 read_8ubit(wvStream* in)
+	
+U8 sread_8ubit(const U8 *in)
 	{
-	return(getc((FILE *)in));
+	return(*in);
+	}
+
+U8 bread_8ubit(U8 *in,U16 *pos)
+	{
+	(*pos)++;
+	return(*in);
 	}
 
 U8 dread_8ubit(wvStream *in,U8 **list)
@@ -169,51 +348,4 @@ U8 dread_8ubit(wvStream *in,U8 **list)
 		(*list)++;
 		return(sread_8ubit(temp));
 		}
-	}
-
-U8 sread_8ubit(const U8 *in)
-	{
-	return(*in);
-	}
-
-U8 bread_8ubit(U8 *in,U16 *pos)
-	{
-	(*pos)++;
-	return(*in);
-	}
-	
-	
-size_t wvStream_read(void *ptr, size_t size, size_t nmemb, wvStream *stream)
-	{
-		return(fread(ptr, size, nmemb, (FILE *)stream));
-	}
-
-void wvStream_rewind(wvStream *stream) 
-	{
-	rewind((FILE *) stream);
 	}	
-
-int wvStream_goto(wvStream *stream, long position)
-	{
-	return(fseek((FILE *)stream, position, SEEK_SET));
-	}
-
-int wvStream_offset(wvStream *stream, long offset)
-	{
-	return(fseek((FILE *)stream, offset, SEEK_CUR));
-	}
-
-int wvStream_offset_from_end(wvStream *stream, long offset)
-	{
-	return(fseek((FILE *)stream, offset, SEEK_END));
-	}
-	
-long wvStream_tell(wvStream *stream) 
-	{
-	return(ftell((FILE *)stream));
-	}
-	
-int wvStream_close(wvStream *stream) 
-	{
-	return(fclose((FILE *)stream));
-	}

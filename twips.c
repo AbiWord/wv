@@ -34,14 +34,14 @@ void wvSetPixelsPerInch(S16 hpixels,S16 vpixels)
 float wvTwipsToHPixels(S16 twips)
 	{
 	float ret = ((float)(pperhi*twips))/TWIPS_PER_INCH;
-	wvError(("ret is %f\n",ret));
+	wvTrace(("ret is %f\n",ret));
 	return(ret);
 	}
 
 float wvTwipsToVPixels(S16 twips)
 	{
 	float ret = ((float)(ppervi*twips))/TWIPS_PER_INCH;
-	wvError(("ret is %f\n",ret));
+	wvTrace(("ret is %f\n",ret));
 	return(ret);
 	}
 

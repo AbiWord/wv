@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include "config.h"
 #include "wv.h"
 /*
@@ -23,7 +24,7 @@ returns 1 for not an ole doc
 
 int myelehandler(wvParseStruct *ps,wvTag tag, void *props,int dirty);
 int mydochandler(wvParseStruct *ps,wvTag tag);
-wvStream *wvOpenConfig(char *config);
+FILE *wvOpenConfig(char *config);
 
 void usage(void)
 	{
@@ -35,7 +36,7 @@ int main(int argc,char **argv)
 	{
 	char *config=NULL;
 	char *password=NULL;
-	wvStream *input;
+
 	int ret;
     state_data myhandle;
 	expand_data expandhandle;
@@ -78,9 +79,7 @@ int main(int argc,char **argv)
 			}
 		}
 	
-	input = fopen(argv[optind],"rb");
-
-	ret = wvInitParser(&ps,input);
+	ret = wvInitParser(&ps, argv[optind]);
 	ps.filename = argv[optind];
 
 	if (ret == 4)
@@ -249,9 +248,9 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 	return(0);
 	}
 
-wvStream *wvOpenConfig(char *config)
+FILE *wvOpenConfig(char *config)
     {
-    wvStream *tmp;
+    FILE *tmp;
     int i=0;
     if (config == NULL)
         config = "wvConfig.xml";

@@ -4,6 +4,7 @@
 #include <errno.h>
 #include "wv.h"
 
+
 void wvReleaseEscher(escherstruct *item)
 	{
 	wvReleaseDggContainer(&item->dggcontainer);
@@ -188,7 +189,7 @@ FSPContainer *wvFindSPID(SpgrContainer *item,S32 spid)
 	for(i=0;i<item->no_spcontainer;i++)
 		{
 		/* FIXME: Cast below is to avoid compiler warnings, but having
-				  to have it couls be a sign of something wrong. */
+				  to have it could be a sign of something wrong. */
 		if (item->spcontainer[i].fsp.spid == (U32)spid)
 			{
 			wvTrace(("FOUND IT\n"));
