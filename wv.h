@@ -3036,8 +3036,8 @@ returns the same as wvOLEDecode with the addition that
     } BKL;
 
     void wvGetBKL (BKL * item, wvStream * fd);
-    int wvGetBKL_PLCF (BKL ** bkl, U32 ** pos, U32 * nobkl, U32 offset, U32 len,
-		       wvStream * fd);
+    int wvGetBKL_PLCF (BKL ** bkl, U32 ** pos, U32 * nobkl, U32 bkloffset, U32 bkllen,
+               U32 bkfoffset, U32 bkflen, wvStream * fd);
 
 
     typedef struct _PGD {

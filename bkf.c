@@ -59,7 +59,7 @@ wvGetBKF_PLCF (BKF ** bkf, U32 ** pos, U32 * nobkf, U32 offset, U32 len,
 		wvError (
 			 ("NO MEM 1, failed to alloc %d bytes\n",
 			  *nobkf * sizeof (BKF)));
-		wvFree (pos);
+        wvFree (*pos);
 		return (1);
 	    }
 	  wvStream_goto (fd, offset);

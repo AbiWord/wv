@@ -217,10 +217,12 @@ wvGetSTTBF6 (STTBF * anS, U32 offset, U32 len, wvStream * fd)
 {
     int i, j;
     U16 slen;
+    U32 table_len = 0;
 
     anS->s8strings = NULL;
     anS->u16strings = NULL;
     anS->extradata = NULL;
+    anS->nostrings = 0;
 
     wvTrace (("word 6 sttbf offset is %x,len %d\n", offset, len));
     if (len == 0)
@@ -229,14 +231,38 @@ wvGetSTTBF6 (STTBF * anS, U32 offset, U32 len, wvStream * fd)
 	  return;
       }
     wvStream_goto (fd, offset);
-    anS->nostrings = ibstAssocMaxWord6;
-    anS->extendedflag = ibstAssocMaxWord6;	/*just for the sake of it */
+    /* this is very bad, since there can be many more strings in a table than
+       17 !!! We have to do two passes over the string table
+    anS->nostrings = ibstAssocMaxWord6; */
+#ifdef DEBUG
+    /* the table len is a 16 bit, not 8-bit value */
+    if (len != (U32) read_16ubit (fd))
+	wvTrace (("word 6 sttbf len does not match up correctly, strange\n"));
+#else
+    /* whether debugging or not, have to get over the table length value !!! */
+    read_16ubit (fd);
+#endif
+
+    while(table_len < len)
+    {
+       slen = read_8ubit (fd);
+       table_len++;
+       if(slen > 0)
+       {
+           anS->nostrings++;
+           for(i = 0; i < slen; i++)
+               read_8ubit(fd);
+           table_len += slen;
+       }
+    }
+
+    anS->extendedflag = ibstAssocMaxWord6;  /*just for the sake of it */
     anS->extradatalen = 0;
     anS->s8strings = (S8 **) wvMalloc (sizeof (S8 *) * anS->nostrings);
-#ifdef DEBUG
-    if (len != (U32) read_8ubit (fd))
-	wvTrace (("word 6 sttbf len does not match up correctly, strange\n"));
-#endif
+
+    /* now go back to the strings table */
+    wvStream_goto (fd, offset + 2);
+
     for (i = 0; i < anS->nostrings; i++)
       {
 	  slen = read_8ubit (fd);

@@ -402,7 +402,8 @@ encoded into the first 22 bytes.
     wvGetBKF_PLCF (&bkf, &posBKF, &bkf_intervals, ps->fib.fcPlcfAtnbkf,
 		   ps->fib.lcbPlcfAtnbkf, ps->tablefd);
     wvGetBKL_PLCF (&bkl, &posBKL, &bkl_intervals, ps->fib.fcPlcfAtnbkl,
-		   ps->fib.lcbPlcfAtnbkl, ps->tablefd);
+           ps->fib.lcbPlcfAtnbkl, ps->fib.fcPlcfAtnbkf, ps->fib.lcbPlcfAtnbkf,
+           ps->tablefd);
 
     /*we will need the stylesheet to do anything useful with layout and look */
     wvGetSTSH (&ps->stsh, ps->fib.fcStshf, ps->fib.lcbStshf, ps->tablefd);

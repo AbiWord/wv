@@ -106,7 +106,8 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
     wvGetBKF_PLCF (&bkf, &posBKF, &bkf_intervals, ps->fib.fcPlcfAtnbkf,
 		   ps->fib.lcbPlcfAtnbkf, ps->tablefd);
     wvGetBKL_PLCF (&bkl, &posBKL, &bkl_intervals, ps->fib.fcPlcfAtnbkl,
-		   ps->fib.lcbPlcfAtnbkl, ps->tablefd);
+           ps->fib.lcbPlcfAtnbkl,ps->fib.fcPlcfAtnbkf, ps->fib.lcbPlcfAtnbkf,
+           ps->tablefd);
 
 
     /* get font list */
