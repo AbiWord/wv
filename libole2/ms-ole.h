@@ -25,8 +25,8 @@ extern "C" {
 # include <stdlib.h>
 	typedef unsigned long mode_t;
 	typedef size_t ssize_t;
-	typedef /* signed */ long off_t;
-	typedef /* unsigned */ long caddr_t;
+	typedef long off_t;
+	typedef long caddr_t;
 #endif
 
 #include <glib.h>
