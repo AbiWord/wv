@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetANLD(ANLD *item,FILE *fd)
+void wvGetANLD(int version,ANLD *item,FILE *fd)
 	{
 	U8 temp8;
 	int i;
@@ -39,10 +39,16 @@ void wvGetANLD(ANLD *item,FILE *fd)
     item->fRestartHdn = getc(fd);
     item->fSpareX = getc(fd);
 	for (i=0;i<32;i++)
-    	item->rgxch[i] = read_16ubit(fd);
+		{
+		if (version == 0)
+    		item->rgxch[i] = read_16ubit(fd);
+		else
+    		item->rgxch[i] = getc(fd);
+		}
+				
 	}
 
-void wvGetANLD_FromBucket(ANLD *item,U8 *pointer8)
+void wvGetANLD_FromBucket(int version,ANLD *item,U8 *pointer8)
 	{
 	U8 temp8;
 	int i;
@@ -79,7 +85,12 @@ void wvGetANLD_FromBucket(ANLD *item,U8 *pointer8)
     item->fRestartHdn = dgetc(NULL,&pointer8);
     item->fSpareX = dgetc(NULL,&pointer8);
 	for (i=0;i<32;i++)
-    	item->rgxch[i] = dread_16ubit(NULL,&pointer8);
+		{
+		if (version == 0)
+    		item->rgxch[i] = dread_16ubit(NULL,&pointer8);
+		else
+    		item->rgxch[i] = dgetc(NULL,&pointer8);
+		}
 	}
 
 void wvCopyANLD(ANLD *dest, ANLD *src)

@@ -17,7 +17,7 @@ void wvAddCHPXFromBucket(CHP *achp,UPXF *upxf,STSH *stsh)
 		{
 		sprm = bread_16ubit(upxf->upx.chpx.grpprl+i,&i);
 		pointer = upxf->upx.chpx.grpprl+i;
-		wvApplySprmFromBucket(sprm,NULL,achp,NULL,stsh,pointer,&i);
+		wvApplySprmFromBucket(0,sprm,NULL,achp,NULL,stsh,pointer,&i);
 		}
 	}
 
@@ -26,6 +26,7 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
 	U8 *pointer;
 	U16 i=0;
 	U16 sprm;
+	wvTrace("cbUPX word 6 is %d\n",upxf->cbUPX);
 	while (i < upxf->cbUPX)
 		{
 		sprm = bgetc(upxf->upx.chpx.grpprl+i,&i);
@@ -35,7 +36,7 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
 		wvTrace("chp word 6 sprm is converted to %x\n",sprm);
 		
 		pointer = upxf->upx.chpx.grpprl+i;
-		wvApplySprmFromBucket(sprm,NULL,achp,NULL,stsh,pointer,&i);
+		wvApplySprmFromBucket(1,sprm,NULL,achp,NULL,stsh,pointer,&i);
 		}
 	}
 
@@ -524,7 +525,7 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 	i=0;
 	while(i<src->cbUPX)
 		{
-		wvTrace("gotcha 2 the sprm is %x\n",*((U16 *)pointer));
+		/*wvTrace("gotcha 2 the sprm is %x\n",*((U16 *)pointer));*/
 		test = InsertNode(&tree,(void *)pointer);
 		sprm = dread_16ubit(NULL,&pointer);
 		i+=2;
@@ -537,7 +538,11 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 			len += temp+2;
 		}
 
-	if (len != 0) grpprl = (U8 *)malloc(len);
+	if (len != 0) 
+		grpprl = (U8 *)malloc(len);
+	else
+		return;
+	
 
 	dpointer = grpprl;
 	
@@ -580,3 +585,66 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 		}
 	}
 
+
+void wvUpdateCHPXBucket(UPXF *src)
+	{
+	U16 i=0,j;
+	U16 sprm;
+	U16 len=0;
+	int temp;
+
+	U8 *pointer,*dpointer;
+	U8 *grpprl=NULL;
+
+	i=0;
+	if (src->cbUPX == 0) return;
+	pointer = src->upx.chpx.grpprl;
+	wvTrace("Msrc->cbUPX len is %d\n",src->cbUPX);
+	for(i=0;i<src->cbUPX;i++)
+		wvTrace("%x\n",src->upx.chpx.grpprl[i]);
+	wvTrace("Mend\n");
+	i=0;
+	len=0;
+	while(i<src->cbUPX)
+		{
+		sprm = dgetc(NULL,&pointer);
+		wvTrace("Mpre the sprm is %x\n",sprm);
+		sprm = wvGetrgsprmWord6(sprm);
+		wvTrace("Mpost the sprm is %x\n",sprm);
+		i++;
+		len+=2;
+		temp = wvEatSprm(sprm,pointer,&i);
+		wvTrace("Mlen of op is %d\n",temp);
+		pointer += temp;
+		wvTrace("Mp dis is %d\n",pointer-src->upx.chpx.grpprl);
+		len += temp;
+		}
+	wvTrace("Mlen ends up as %d\n",len);
+
+	if (len == 0) 
+		return;
+
+	grpprl = (U8 *)malloc(len);
+
+	dpointer = grpprl;
+
+	i=0;
+	pointer = src->upx.chpx.grpprl;
+	while(i<src->cbUPX)
+		{
+		sprm = dgetc(NULL,&pointer);
+		sprm = wvGetrgsprmWord6(sprm);
+		i++;
+		*dpointer++ = (sprm&0x00FF);
+		*dpointer++ = (sprm&0xff00)>>8;
+		temp = wvEatSprm(sprm,pointer,&i);
+		for (j=0;j<temp;j++)
+			*dpointer++ = *pointer++;
+		wvTrace("Mlen of op is %d\n",temp);
+		}
+	wvFree(src->upx.chpx.grpprl);
+	src->upx.chpx.grpprl = grpprl;
+	src->cbUPX = len;
+	for (i=0;i<src->cbUPX;i++)
+		wvTrace("%x\n",src->upx.chpx.grpprl[i]);
+	}

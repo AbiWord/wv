@@ -335,7 +335,7 @@ void wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 		{
 		val = clx->pcd[cpiece].prm.para.var1.val;
 		pointer = &val;
-		wvApplySprmFromBucket(wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
+		wvApplySprmFromBucket(version,wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
 		apap,NULL, NULL,stsh,pointer,&pos);
 		}
 	else
@@ -354,7 +354,7 @@ void wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 				}
 			wvTrace("sprm is %x\n",sprm);
 			pointer = clx->grpprl[index]+i;
-			wvApplySprmFromBucket(sprm,apap,NULL,NULL,stsh,pointer,&i);
+			wvApplySprmFromBucket(version,sprm,apap,NULL,NULL,stsh,pointer,&i);
 			}
 		}
 	}

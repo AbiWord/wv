@@ -191,10 +191,10 @@ int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U3
 int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *rgfc, U32 nopos)
 	{
 	U32 i=0;
-	while(i<nopos)
+	while(i<nopos-1)
 		{
 		wvTrace("searching...%x %x %x\n",currentfc,wvNormFC(rgfc[i],NULL),wvNormFC(rgfc[i+1],NULL));
-		if ( (wvNormFC(rgfc[i],NULL) >= currentfc) && (currentfc < wvNormFC(rgfc[i+1],NULL)) )
+		if ( (wvNormFC(rgfc[i],NULL) >= currentfc) && (currentfc <= wvNormFC(rgfc[i+1],NULL)) )
 			{
 			*fcFirst = wvNormFC(rgfc[i],NULL);
 			*fcLim = wvNormFC(rgfc[i+1],NULL);
@@ -202,5 +202,8 @@ int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *rgfc, U32 
 			}
 		i++;
 		}
-	return(1);
+	*fcFirst = wvNormFC(rgfc[nopos-2],NULL);
+	*fcLim = wvNormFC(rgfc[nopos-1],NULL);
+	wvTrace("I'd rather not see this happen at all :-)\n");
+	return(0);
 	}

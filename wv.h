@@ -1145,8 +1145,8 @@ typedef struct _ANLD
     XCHAR rgxch[32];
     } ANLD;
 
-void wvGetANLD(ANLD *item,FILE *fd);
-void wvGetANLD_FromBucket(ANLD *item,U8 *pointer8);
+void wvGetANL(int version,ANLD *item,FILE *fd);
+void wvGetANLD_FromBucket(int version,ANLD *item,U8 *pointer8);
 void wvCopyANLD(ANLD *dest, ANLD *src);
 void wvInitANLD(ANLD *item);
 
@@ -1572,6 +1572,7 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh);
 
 void wvInitCHPXFromIstd(CHPX *chpx,U16 istdBase,STSH *stsh);
 void wvMergeCHPXFromBucket(CHPX *dest,UPXF *upxf);
+void wvUpdateCHPXBucket(UPXF *src);
 
 typedef S32 ASUMY;
 
@@ -1684,7 +1685,7 @@ typedef struct _SEP
  	OLST olstAnm;
 	} SEP;
 
-void wvApplySprmFromBucket(U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos);
+void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos);
 
 typedef struct _Sprm
     {
@@ -1725,7 +1726,7 @@ typedef enum _SprmName
 	*/
 	sprmCFStrikeRM		  = 0x0841 ,
 	sprmPNLvlAnm		  = 0x240D ,
-	sprmCFtc			  = 0x685D ,
+	sprmCFtc			  = 0x483D ,
 	/*end subset*/
 
 	/*
@@ -1981,7 +1982,7 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos);
 int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *len);
 void wvApplysprmPPc(PAP *apap,U8 *pointer,U16 *len);
 void wvApplysprmPFrameTextFlow(PAP *apap,U8 *pointer,U16 *pos);
-void wvApplysprmPAnld(PAP *apap,U8 *pointer, U16 *pos);
+void wvApplysprmPAnld(int version,PAP *apap,U8 *pointer, U16 *pos);
 void wvApplysprmPPropRMark(PAP *apap,U8 *pointer,U16 *pos);
 void wvApplysprmPNumRM(PAP *apap,U8 *pointer, U16 *pos);
 void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos);		/*unfinished*/
@@ -2205,7 +2206,8 @@ typedef enum
 	{
 	cb6BTE = 2, 
 	cb6FIB = 682, 
-	cb6PHE = 6
+	cb6PHE = 6,
+	cb6ANLD = 52
 	} cb6Struct;
 
 U32 wvNormFC(U32 fc,int *flag);

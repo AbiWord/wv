@@ -33,6 +33,10 @@ Changes to to 0.5.20
 	(i think)
 	* basically brought fastsaved up to fullsave quality, though im not 100
 	happy with them.
+	* some more purify found problems.
+	* implemented chpx in stylesheet for word 6.
+	* did some nasty hackery to munge word 6 chp sprms in word 8 ones, appears
+	to work.
 ALL TODO
 	* add char properties
 	* give abiword folk new alpha filter code for themselves to play with.

@@ -92,7 +92,7 @@ int wvEatSprm(U16 sprm,U8 *pointer, U16 *pos)
 	return(len);
 	}
 
-void wvApplySprmFromBucket(U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos)
+void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos)
 	{
 	BRC10 tempBRC10;
 	U16 temp16;
@@ -333,7 +333,7 @@ void wvApplySprmFromBucket(U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8
 			(*pos)++;
 			break;
 		case sprmPAnld:
-			wvApplysprmPAnld(apap,pointer,pos);
+			wvApplysprmPAnld(version,apap,pointer,pos);
 			break;
 		case sprmPPropRMark:
 			wvApplysprmPPropRMark(apap,pointer,pos);
@@ -733,9 +733,9 @@ void decode_sprm(FILE* in,U16 clist,pap *retpap,chp *retchp,sep *retsep,U16 *l,U
 			len = dgetc(in,list);
 			(*l)++;
 			if (list == NULL)
-				wvGetANLD(&retpap->anld,in);
+				wvGetANLD(0,&retpap->anld,in);
 			else
-				wvGetANLD_FromBucket(&retpap->anld,*list);
+				wvGetANLD_FromBucket(0,&retpap->anld,*list);
 #if 0
 			retpap->anld.nfc = dgetc(in,list);
 			retpap->anld.cxchTextBefore = dgetc(in,list);
@@ -1737,8 +1737,10 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 			}
 		}
 	else
+		{
 		rgdxaDel = NULL;
 		rgdxaClose = NULL;
+		}
 	itbdAddMax = dgetc(NULL,&pointer);
 	(*pos)++;
 	if (itbdAddMax != 0)
@@ -1871,11 +1873,11 @@ void wvApplysprmPFrameTextFlow(PAP *apap,U8 *pointer,U16 *pos)
 	apap->fRotateFont = (temp16 & 0x0004) >> 2;
 	}
 
-void wvApplysprmPAnld(PAP *apap,U8 *pointer, U16 *pos)
+void wvApplysprmPAnld(int version,PAP *apap,U8 *pointer, U16 *pos)
 	{
 	dgetc(NULL,&pointer);
 	(*pos)++;
-	wvGetANLD_FromBucket(&apap->anld,pointer);
+	wvGetANLD_FromBucket(version,&apap->anld,pointer);
 	(*pos)+=84;
 	}
 
@@ -2312,6 +2314,7 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 		achp->lidDefault = stsh->std[achp->istd].grupe[0].achp.lidDefault;
 	if (achp->lidFE == base.lidFE)
 		achp->lidFE = stsh->std[achp->istd].grupe[0].achp.lidFE;
+	wvFree(upxf.upx.chpx.grpprl);
 	}
 
 void wvApplysprmCHpsInc1(CHP *achp,U8 *pointer,U16 *pos)

@@ -20,7 +20,7 @@ void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh)
 		sprm = bread_16ubit(upxf->upx.papx.grpprl+i,&i);
 		wvTrace("sprm is %x\n",sprm);
 		pointer = upxf->upx.papx.grpprl+i;
-		wvApplySprmFromBucket(sprm,apap,NULL,NULL,stsh,pointer,&i);
+		wvApplySprmFromBucket(0,sprm,apap,NULL,NULL,stsh,pointer,&i);
 		}
 	}
 
@@ -40,7 +40,7 @@ void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh)
 		sprm = wvGetrgsprmWord6(sprm);
 		wvTrace("pap word 6 sprm is converted to %x\n",sprm);
 		pointer = upxf->upx.papx.grpprl+i;
-		wvApplySprmFromBucket(sprm,apap,NULL,NULL,stsh,pointer,&i);
+		wvApplySprmFromBucket(1,sprm,apap,NULL,NULL,stsh,pointer,&i);
 		}
 	}
 
