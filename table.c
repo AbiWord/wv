@@ -736,7 +736,7 @@ void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx
 		i=para_fcLim;
 
 		/* ignore the row end markers */
-		if (apap.ptap.itcMac)
+		if ((apap.ptap.itcMac) && (apap.fTtp))
 			{
 			test = (TAP *)realloc(test,sizeof(TAP)*(j+1));
 			wvCopyTAP(&(test[j]),&apap.ptap);

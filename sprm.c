@@ -2486,7 +2486,7 @@ void wvApplysprmTDelete(TAP *tap,U8 *pointer,U16 *pos)
 	int i;
 	(*pos)+=2;
 
-	for (i=itcLim;i<=tap->itcMac+1;i++)
+	for (i=itcLim;i<tap->itcMac+1;i++)
 		{
 		tap->rgdxaCenter[i-(itcLim - itcFirst)] = tap->rgdxaCenter[i];
 		wvCopyTC( &(tap->rgtc[i-(itcLim - itcFirst)]),&(tap->rgtc[i]) );
@@ -2514,7 +2514,7 @@ void wvApplysprmTDxaCol(TAP *tap,U8 *pointer,U16 *pos)
 	S16 diff=0;
 	int i;
 	(*pos)+=4;
-	for (i=itcFirst;i<itcLim;i++);
+	for (i=itcFirst;i<itcLim;i++)
 		{
 		diff += tap->rgdxaCenter[i+1]-(tap->rgdxaCenter[i] + dxaCol);
 		tap->rgdxaCenter[i+1] = tap->rgdxaCenter[i] + dxaCol;

@@ -2,6 +2,7 @@ Andrew Scriven <andy.scriven@research.natpower.co.uk>, originator of ole code
 Arturo Tena <arturo@directmail.org> <filters@centauri.lci.ulsa.mx>, ole changes
 Brian.Ewins <brian.ewins@bt.com>, much needed speed ups 
 Claude Marinier <claude.marinier@dreo.dnd.ca>, small Makefile patch
+Dave Coffin <dcoffin@wildfire.com>, noticed unfixed 5589 to 8859 dyslexia
 diakka <diakka@staff.sinanet.com>, a make patch
 Ferdinand Gassauer <f.gassauer@aon.at>, for kde link files, to integrate wv
 into the kde desktop in a nice way.

@@ -595,7 +595,7 @@ encoded into the first 22 bytes.
                     */
                     if (j != char_fcFirst)
                         {
-                        wvWarning(("There is no character run due to open but one should be, plugging the gap.\n"));
+                        wvTrace(("There is no character run due to open but one should be, plugging the gap.\n"));
                         char_fcFirst = j;
                         }
 

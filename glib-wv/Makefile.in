@@ -7,7 +7,7 @@ SHELL=/bin/sh
 
 srcdir=@srcdir@
 
-CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/
+CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/..
 
 SHELL = /bin/sh
 
