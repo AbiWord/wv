@@ -108,7 +108,11 @@ LEX=			flex
 
 include $(ABI_ROOT)/src/config/abi_rules.mk
 
-parser_lex:
+lex.yy.c:
+	ls -Flags l*
 	$(LEX) parser.lex
+	ls -Flags l*
 
-build:: parser_lex $(TARGETS)
+
+build:: lex.yy.c $(TARGETS)
+
