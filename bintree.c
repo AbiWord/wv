@@ -11,10 +11,7 @@
 #include "config.h"
 #endif
 #include "bintree.h"
-
-/* instead of just #including wv.h */
-extern void *wvMalloc (unsigned int);
-extern void wvFree (void *);
+#include "wv.h"
 
 void
 InitBintree (BintreeInfo * tree, int (*func1) (void *, void *),

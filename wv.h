@@ -171,7 +171,9 @@ extern "C" {
     void wvRealTrace (char *file, int line, char *msg);
 #define wvError( args ) wvRealError(__FILE__,__LINE__, wvFmtMsg args )
     void wvWarning (char *fmt, ...);
-    void wvFree (void *ptr);
+
+/** void wvFree (void *ptr); **/
+#define wvFree(P) do { if (P) { free((void *)(P)); (P)=NULL; } } while (0)
 
     char *wvWideStrToMB (U16 * str);
     char *wvWideCharToMB (U16 char16);

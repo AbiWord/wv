@@ -660,7 +660,7 @@ wvAssembleSimpleCHP (wvVersion ver, CHP * achp, U32 fc, CHPX_FKP * fkp,
 		     STSH * stsh)
 {
     CHPX *chpx;
-    int index, i;
+    int index;
     UPXF upxf;
     int ret = 0;
     U16 tistd;

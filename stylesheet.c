@@ -223,6 +223,7 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 		    sizeof (UPXF) * item->cupx));
 	  return (0);
       }
+    memset (item->grupxf, 0, sizeof (UPXF) * item->cupx);
 
     item->grupe = (UPE *) wvMalloc (sizeof (UPE) * item->cupx);
     if (item->grupe == NULL)
@@ -232,6 +233,7 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 		    sizeof (UPE) * item->cupx));
 	  return (0);
       }
+    memset (item->grupe, 0, sizeof (UPE) * item->cupx);
 
     for (i = 0; i < item->cupx; i++)
       {

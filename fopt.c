@@ -85,6 +85,7 @@ wvGetFOPTE (FOPTE * afopte, wvStream * fd)
     afopte->fComplex = 0;
 #endif
     afopte->pid = (dtemp & 0x3fff);
+    afopte->entry = 0;
     afopte->fBid = ((dtemp & 0x4000) >> 14);
     afopte->fComplex = ((dtemp & 0x8000) >> 15);
     afopte->op = read_32ubit (fd);

@@ -42,16 +42,6 @@ wvGetEmpty_PLCF (U32 ** cps, U32 * nocps, U32 offset, U32 len, wvStream * fd)
     return (0);
 }
 
-void
-wvFree (void *ptr)
-{
-    if (ptr != NULL)
-      {
-	free (ptr);
-	ptr = NULL;
-      }
-}
-
 /**
  * Very simple malloc wrapper
  */

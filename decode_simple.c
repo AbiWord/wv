@@ -223,6 +223,13 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 		/* Formatting still lacking. This is just a start. */
 	    }
 	  wvHandleDocument (ps, DOCEND);
+	  wvReleaseSTTBF (&ps->anSttbfAssoc);
+	  wvReleaseSTTBF (&ps->Sttbfbkmk);
+	  wvFree (posChpx);
+	  wvFree (bteChpx);
+	  wvFree (btePapx);
+	  wvReleaseCLX (&ps->clx);
+	  wvReleaseSTSH (&ps->stsh);
 	  return;
       }
 
@@ -563,10 +570,15 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
     wvReleaseLST (&ps->lst, ps->noofLST);
     wvReleaseLFO_records (&ps->lfo, &ps->lfolvl, &ps->lvl, ps->nooflvl);
     wvReleaseSTTBF (&ps->anSttbfAssoc);
+    wvReleaseSTTBF (&ps->Sttbfbkmk);
     wvFree (btePapx);
     wvFree (posPapx);
     wvFree (bteChpx);
     wvFree (posChpx);
+    wvFree (bkd);
+    wvFree (posBKD);
+    wvFree (txbxTxt);
+    wvFree (ftxbx);
 #if 0
     /* 
        so what, this is meaningless 

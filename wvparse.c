@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 /* Don't use GNOMEVFS unless it is requested via config.h
  */
 #ifdef HAVE_GNOMEVFS
