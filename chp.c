@@ -145,6 +145,7 @@ wvInitCHPFromIstd (CHP * achp, U16 istdBase, STSH * stsh)
 			    wvApplyCHPXFromBucket (achp,
 						   &(stsh->std[istdBase].
 						     grupe[0].chpx), stsh);
+				strncpy(achp->stylename,stsh->std[istdBase].xstzName, sizeof(achp->stylename));
 			    break;
 			}
 		  }
@@ -272,6 +273,8 @@ wvInitCHP (CHP * item)
     item->hpsBidi = 0;
     item->icoBidi = 0;
     item->lidBidi = 0;
+
+	item->stylename[0] = 0;
 }
 
 void
@@ -379,7 +382,9 @@ wvCopyCHP (CHP * dest, CHP * src)
     dest->ftcBidi = src->ftcBidi;
     dest->hpsBidi = src->hpsBidi;
     dest->icoBidi = src->icoBidi;
-    dest->lidBidi = src->lidBidi; 
+    dest->lidBidi = src->lidBidi;
+
+	strcpy(dest->stylename,src->stylename);
 }
 
 /*

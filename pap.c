@@ -227,6 +227,7 @@ wvInitPAP (PAP * item)
 	wvInitTBD (&item->rgtbd[i]);
 
     item->fBidi = 0;
+	item->stylename[0] = 0;
 }
 
 /*

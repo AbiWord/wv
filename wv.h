@@ -1360,6 +1360,8 @@ brc.dxpSpace should be set to 0.
       U8  icoBidi;
       LID lidBidi;
 
+	  char stylename[100];
+		
     } CHP;
 
     void wvInitCHP (CHP * item);
