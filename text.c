@@ -28,8 +28,8 @@ int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps, CHP *achp)
         /* Should try achp->lid first? */
         if (lid == 0x400 || lid == 0)
                 lid = ps->fib.lid;
-        /* end testing adding a language */
 
+        /* end testing adding a language */
         
         if (achp->fSpec)
                 {
@@ -46,11 +46,16 @@ int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps, CHP *achp)
         /* Most Chars go through this baby */
                 if (charhandler)
                        {
-                       if (wvQuerySupported(&ps->fib,NULL) <= WORD6)
-                               {
-                               chartype = 1;   /* WORD6 do not use unicode */
-                               }
-                        return( (*charhandler)(ps,eachchar,chartype,lid) );
+			 version v = wvQuerySupported(&ps->fib, NULL);
+			 if(!((v == WORD7 || v == WORD6) && ps->fib.fFarEast))
+			   if (v <= WORD7)
+			     {
+			       /* versions <= 7 do not use unicode. versions >= 8 always do */
+			       /* versions 7 and 6 use unicode iff the far-east flag is set */
+                               chartype = 1;
+			     }
+
+			 return( (*charhandler)(ps,eachchar,chartype,lid) );
                        }
                 }
         wvError(("No CharHandler registered, programmer error\n"));
@@ -187,6 +192,54 @@ char *wvLIDToCodePageConverter(U16 lid)
         return("CP1252");
         }
 
+static 
+U32 swap_iconv(U16 lid)
+{
+  iconv_t handle = NULL;
+  char f_code[33];            /* From CCSID                           */
+  char t_code[33];            /* To CCSID                             */
+  char *codepage = NULL;
+  size_t ibuflen, obuflen;
+
+  U8 buffer[2];
+  U8 buffer2[2];
+
+  U8 *ibuf, *obuf;
+
+  static U16 lastlid = -1;
+  static U32 ret = -1;
+
+  /* shortcut */
+  if(ret != -1 && lastlid == lid)
+    return ret;
+
+  ibuf = buffer;
+  obuf = buffer2;
+
+  lastlid = lid;
+  codepage = wvLIDToCodePageConverter(lid);
+
+  memset(f_code, '\0', 33);
+  memset(t_code, '\0', 33);
+
+  strcpy(f_code, codepage);
+  strcpy(t_code, "UCS-2");
+  
+  handle = iconv_open(t_code,f_code);
+
+  buffer[0] = 0x20 & 0xff;
+  buffer[1] = 0;
+
+  ibuflen = obuflen = 2;
+
+  iconv(handle, &ibuf, &ibuflen, &obuf, &obuflen);
+
+  iconv_close(handle);
+
+  ret = *(U16*)buffer2 != 0x20;
+  return ret;
+}
+
 U16 wvHandleCodePage(U16 eachchar, U16 lid)
         {
 	char f_code[33];            /* From CCSID                           */
@@ -202,6 +255,8 @@ U16 wvHandleCodePage(U16 eachchar, U16 lid)
         U8 *p;
         U8 buffer[2];
         U8 buffer2[2];
+
+	U16 t1, t2;
 
        if(eachchar > 0xff)
                {
@@ -235,17 +290,25 @@ U16 wvHandleCodePage(U16 eachchar, U16 lid)
                 return('?');
                 }
 
-	wvTrace(("DOM: iconv opened %s to %s\n", f_code, t_code));
-
-        ibuflen = 2;
-        obuflen = 2;
+        ibuflen = obuflen = 2;
         p = obuf;
 
 	wv_iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
-	/* obuf = buffer2; */
 	
-	/* legal because 2 * sizeof(U8) == sizeof(U16) */
-	eachchar = *(U16*)obuf;
+	/* We might have double byte char here. */
+	
+	t1 = (U16)buffer2[0] << 8;
+	t1 |=(U16)buffer2[1];
+
+	t2 = *(U16*)buffer2;
+	
+	if(swap_iconv(lid))
+	  eachchar = t1;
+	else
+	  eachchar = t2;
+
+	wvTrace(("DOM: t1:%x t2:%x\n", t1, t2));
+
 	iconv_close(iconv_handle);
 
 	return(eachchar);
