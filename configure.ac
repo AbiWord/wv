@@ -488,9 +488,10 @@ check_for_libiconv=yes
 default_to_libiconv=yes
 
 AC_ARG_WITH(libiconv,[  --with-libiconv[=DIR]   use libiconv [in DIR]],[
-	if [ test "$withval" = "no" ]; then
+	if test "$withval" = "no"; then
 		check_for_libiconv=no
-	elif [ test "$withval" != "yes" ]; then
+		default_to_libiconv=no
+	elif test "$withval" != "yes"; then
 		check_for_libiconv=yes
 		LIBICONV_DIR=$withval
 	fi
@@ -501,7 +502,7 @@ dnl
 AC_ARG_WITH(peer-iconv,[  --with-peer-iconv       use libiconv from peer directory ],[
 	if test "$withval" != "no"; then
 		use_peer_libiconv=$withval
-		if [ test -d $srcdir/../libiconv ]; then
+		if test -d $srcdir/../libiconv; then
 			check_for_libiconv=yes
 			default_to_libiconv=yes
 			LIBICONV_DIR="$srcdir/../libiconv"
@@ -511,21 +512,21 @@ AC_ARG_WITH(peer-iconv,[  --with-peer-iconv       use libiconv from peer directo
 
 dnl first search for system iconv
 dnl 
-if [ test "$default_to_libiconv" = "no" ]; then
+if test "$default_to_libiconv" = "no"; then
 	AC_CHECK_FUNC(iconv,[
 		AC_CHECK_HEADER(iconv.h,[
 			have_iconv=sys
 			check_for_libiconv=no
-		],[	AC_MSG_ERROR(* * * I found system iconv but can't find iconv.h header! * * *)
+		],[	AC_MSG_ERROR([* * * I found system iconv but can't find iconv.h header! * * *])
 		])
 	])
 fi
 
 dnl then search for libiconv
 dnl 
-if [ test "$check_for_libiconv" = "yes" ]; then
-	if [ test "x$LIBICONV_DIR" != "x" ]; then
-		if [ test "$use_peer_libiconv" != "no" ]; then
+if test "$check_for_libiconv" = "yes"; then
+	if test "x$LIBICONV_DIR" != "x"; then
+		if test "$use_peer_libiconv" != "no"; then
 			ICONV_CFLAGS="-I\$(top_builddir)/../libiconv/include"
 			ICONV_LIBS="-L\$(top_builddir)/../libiconv/lib/.libs -liconv"
 			CPPFLAGS="$CPPFLAGS -I../libiconv/include"
@@ -542,7 +543,7 @@ if [ test "$check_for_libiconv" = "yes" ]; then
 		LDFLAGS="$LDFLAGS $ICONV_LIBS"
 	fi
 
-	if [ test "$use_peer_libiconv" = "abi" ]; then
+	if test "$use_peer_libiconv" = "abi"; then
 		dnl if configure is called with --with-peer-iconv=abi
 		dnl then assume that iconv exists and will be linked eventually
 		dnl 
@@ -553,15 +554,15 @@ if [ test "$check_for_libiconv" = "yes" ]; then
 				have_iconv=iconv
 			],[	AC_CHECK_LIB(iconv,libiconv_open,[
 					have_iconv=libiconv
-				],[	AC_MSG_ERROR(* * * I found iconv.h header but no working library! * * *)
+				],[	AC_MSG_ERROR([* * * I found iconv.h header but no working library! * * *])
 				])
 			])
 		])
 	fi	
 fi
 
-if [ test "$have_iconv" = "no" ]; then
-	AC_MSG_ERROR(* * * iconv is required: ftp://ftp.gnu.org/pub/gnu/libiconv * * *)
+if test "$have_iconv" = "no"; then
+	AC_MSG_ERROR([* * * iconv is required: ftp://ftp.gnu.org/pub/gnu/libiconv * * *])
 fi
 
 dnl Apparently this trick fails on RedHat 6.2 (and presumably earlier RedHats & other
