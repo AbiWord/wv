@@ -10,7 +10,7 @@
  * Copyright 1998-2000 Helix Code, Inc., Arturo Tena
  **/
 
-#include <libole2-config.h>
+/* #include <libole2-config.h> */
 #include <libole2/ms-ole.h>
 
 /* BSDs require unistd.h before including stat.h */

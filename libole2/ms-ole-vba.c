@@ -8,7 +8,7 @@
  * Copyright 2000 Helix Code, Inc.
  **/
 
-#include <libole2-config.h>
+/* #include <libole2-config.h> */
 #include <libole2/ms-ole-vba.h>
 
 #include <stdio.h>
