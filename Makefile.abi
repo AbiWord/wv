@@ -1,0 +1,114 @@
+#! gmake
+
+## AbiSource Program Utilities, libwv wrapper
+## Copyright (C) 1998 AbiSource, Inc.
+##
+## This program is free software; you can redistribute it and/or
+## modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2
+## of the License, or (at your option) any later version.
+## 
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+## 
+## You should have received a copy of the GNU General Public License
+## along with this program; if not, write to the Free Software
+## Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  
+## 02111-1307, USA.
+
+ABI_ROOT:=$(shell pwd)/../abi
+
+include $(ABI_ROOT)/src/config/abi_defs.mk
+
+CSRCS=	main.c \
+	mswordview.c \
+	laolareplace.old.c \
+	support.c \
+	list.c  \
+	piecetable.c \
+	stylesheet.c \
+        sprm.c \
+        blip.c \
+        utf.c \
+        init_chp.c \
+        field.c \
+        formatting.c \
+        references.c \
+        gpprl.c \
+        papchpsep.c \
+        hyperlink.c \
+        decompresswmf.c \
+        table.c \
+        annotations.c \
+        dop.c \
+        roman.c \
+        doc_limits.c \
+        fib.c \
+        frd.c \
+        atrd.c \
+        sed.c \
+        font.c \
+        ffn.c \
+	fld.c \
+        bkf.c \
+        dttm.c \
+        generic.c \
+        error.c \
+        unicode.c \
+        sttbf.c \
+        xst.c \
+        fspa.c \
+        lst.c \
+        lvl.c \
+        lfo.c \
+        nfc.c \
+        ordinal.c \
+        summary.c \
+        filetime.c \
+        chp.c \
+        brc.c \
+        anld.c \
+        shd.c \
+        dcs.c \
+        numrm.c \
+        asumyi.c \
+        version.c \
+        lex.yy.c \
+        lspd.c \
+        phe.c \
+        tlp.c \
+        tc.c \
+        tap.c \
+        pap.c \
+        bintree.c \
+        decode_simple.c \
+        pcd.c \
+        prm.c \
+        clx.c \
+        bte.c \
+        bx.c \
+        fkp.c \
+        codepage-1252.c \
+        iso-5589-15.c \
+        text.c \
+        decode_complex.c \
+        wvTextEngine.c \
+        wvHtmlEngine.c \
+        wvConfig.c \
+        wvparse.c \
+        reasons.c
+
+CFLAGS+=		-I. -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
+LIBRARY_NAME=		Abi_libwv
+LIBRARY_VERSION=	$(ABI_VERSION)
+TARGETS=		$(LIBRARY)
+LEX=			flex
+
+include $(ABI_ROOT)/src/config/abi_rules.mk
+
+parser_lex::
+	$(LEX) parser.lex
+
+build:: parser_lex $(TARGETS)
