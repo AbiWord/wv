@@ -189,6 +189,7 @@ HandleMetafile (wvParseStruct * ps, char *name, MetaFileBlip * bitmap)
     wvStream * pwv = bitmap->m_pvBits;
     FILE *fd = NULL;
     size_t size = 0, i;
+    U8 decompressf = 0;
 
     if (ps->dir) chdir (ps->dir);
     fd = fopen (name, "wb");
@@ -201,8 +202,35 @@ HandleMetafile (wvParseStruct * ps, char *name, MetaFileBlip * bitmap)
     size = wvStream_size (pwv);
     wvStream_rewind(pwv);
 
-    for (i = 0; i < size; i++)
-      fputc (read_8ubit(pwv), fd);
+    if (bitmap->m_fCompression == msocompressionDeflate)
+	decompressf = setdecom ();
+
+    if ( !decompressf)
+      {
+	for (i = 0; i < size; i++)
+	  fputc (read_8ubit(pwv), fd);
+      }
+    else /* decompress here */
+      {
+	  FILE *tmp = tmpfile ();
+	  FILE *out = tmpfile ();
+
+	  for (i = 0; i < size; i++)
+	    fputc (read_8ubit(pwv), tmp);
+
+	  rewind (tmp);
+	  decompress (tmp, out, bitmap->m_cbSave, bitmap->m_cb);
+	  fclose (tmp);
+
+	  rewind(out);
+
+	  for (i = 0; i < bitmap->m_cb; i++)
+	    fputc ( fgetc(out), fd);
+
+	  fclose(out);
+
+      }
+
     fclose (fd);
     wvTrace (("Name is %s\n", name));
     return (0);

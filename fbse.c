@@ -211,9 +211,8 @@ wvGetMetafile (MetaFileBlip * amf, MSOFBH * amsofbh, wvStream * fd)
 {
     char extra = 0;
     U32 i, count;
-    FILE *tmp;
     wvStream * stm = 0;
-    U8 decompressf = 0;
+    char *buf, *p;
 
     for (i = 0; i < 16; i++)
 	amf->m_rgbUid[i] = read_8ubit (fd);
@@ -270,40 +269,14 @@ wvGetMetafile (MetaFileBlip * amf, MSOFBH * amsofbh, wvStream * fd)
     amf->m_pvBits = NULL;
     count += 34;
 
-
-    if (amf->m_fCompression == msocompressionDeflate)
-	decompressf = setdecom ();
-
-    tmp = tmpfile ();
+    buf = malloc(amsofbh->cbLength);
+    p = buf;
 
     for (i = count; i < amsofbh->cbLength; i++)
-	fputc (read_8ubit (fd), tmp);
+	*p++ = read_8ubit (fd);
     count += i;
 
-    if (decompressf)
-      {
-	  /*
-	     FILE *final = fopen("/tmp/test.wmf","w+b");
-	   */
-	  FILE *final = tmpfile ();
-	  rewind (tmp);
-	  decompress (tmp, final, amf->m_cbSave, amf->m_cb);
-	  fclose (tmp);
-	  tmp = final;
-	  rewind (tmp);
-      }
-    
-   { 
-      long size;
-      char *buf;
-      fseek(tmp,0,SEEK_END);
-      size = ftell(tmp);
-      buf  = malloc(size);
-      rewind (tmp);
-      fread(buf,size,1,tmp);
-      fclose(tmp);
-      wvStream_memory_create (&stm, buf, size);
-    }
+    wvStream_memory_create (&stm, buf, amsofbh->cbLength);
 
     amf->m_pvBits = stm; 
 
