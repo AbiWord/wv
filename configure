@@ -2072,7 +2072,7 @@ EOF
 
 	INCLUDED_EXPAT=0
 	HAVE_LIBXML2=0
-	XML_CFLAGS="-I../expat/lib"
+	XML_CFLAGS="-I\$(top_builddir)/../expat/lib"
 	XML_LIBS=""
 else
 	{ echo "configure: error: * * * Glitch! Unexpected value. * * *" 1>&2; exit 1; }
@@ -2741,10 +2741,10 @@ if test "${with_peer_iconv+set}" = set; then
   
 	if test "$withval" != "no"; then
 		use_peer_libiconv=$withval
-		if  test -d ../libiconv ; then
+		if  test -d $srcdir/../libiconv ; then
 			check_for_libiconv=yes
 			default_to_libiconv=yes
-			LIBICONV_DIR="../libiconv"
+			LIBICONV_DIR="$srcdir/../libiconv"
 		fi
 	fi
 
@@ -2844,8 +2844,8 @@ fi
 if  test "$check_for_libiconv" = "yes" ; then
 	if  test "x$LIBICONV_DIR" != "x" ; then
 		if  test "$use_peer_libiconv" != "no" ; then
-			ICONV_CFLAGS="-I$LIBICONV_DIR/include"
-			ICONV_LIBS="-L$LIBICONV_DIR/lib/.libs -liconv"
+			ICONV_CFLAGS="-I\$(top_builddir)/../libiconv/include"
+			ICONV_LIBS="-L\$(top_builddir)/../libiconv/lib/.libs -liconv"
 		else
 			ICONV_CFLAGS="-I$LIBICONV_DIR/include"
 			ICONV_LIBS="-L$LIBICONV_DIR/lib -liconv"
