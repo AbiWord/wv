@@ -925,7 +925,7 @@ fi
 
 suppress_md=`cat /usr/share/man/man1/ld.1 2>&1 | grep multiply_defined`
 if test "x$suppress_md" != "x"; then
-  CFLAGS="$CFLAGS -Wno-long-long"
+  CFLAGS="$CFLAGS -Wno-long-long -no-cpp-precomp"
   LDFLAGS="$LDFLAGS -Wl,-multiply_defined -Wl,suppress"
 fi
 
