@@ -6,7 +6,7 @@
 
 
 U16 wvConvertUnicodeToKOI8_R(U16 char16)
-	{
+{
 	/*wvError(("character is %d\n",char16));*/
 	switch (char16)
 		{
@@ -138,6 +138,19 @@ U16 wvConvertUnicodeToKOI8_R(U16 char16)
 		case 1065: return 253;
 		case 1063: return 254;
 		case 1066: return 255;
+/* long and short '-' - just transfer to '-'. */
+		case 8212: return 45;
+		case 8211: return 45;
+/* another '>>' */
+		case 8221: return 187;
+/* another '<<' */
+		case 8220: return 171;
+/* russian '#' - like 'N' */
+		case 8470: return 78;
+/* another '''  */
+		case 8217: return 39;
+/* another '`' */
+		case 8216: return 96;
 		default:
 			if (char16 <= 0xFF)
 				return(char16);

@@ -377,9 +377,8 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			(*pos)++;
 			break;
 		case sprmPNLvlAnm:
-			/*obsolete: not applicable in Word97 and alter version*/
+			/*obsolete: not applicable in Word97 and later version*/
 			apap->nLvlAnm = bgetc(pointer,pos);
-			wvError(("Here %d\n",apap->nLvlAnm));
 			break;
 		case sprmPAnld:
 			wvApplysprmPAnld(version,apap,pointer,pos);

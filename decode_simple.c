@@ -60,7 +60,11 @@ void wvDecodeSimple(wvParseStruct *ps)
 		{
 		ps->liststartnos = (U32 *)malloc(9 * ps->nolfo * sizeof(U32));
 		ps->finallvl = (LVL *)malloc(9 * ps->nolfo * sizeof(LVL));
-		for (i=0;i<9 * ps->nolfo;i++) ps->liststartnos[i] = 0xffffffffL;
+		for (i=0;i<9 * ps->nolfo;i++) 
+				{
+				ps->liststartnos[i] = 0xffffffffL;
+				wvInitLVL(&(ps->finallvl[i]));
+				}
 		}
 	else 
 		{
@@ -216,19 +220,32 @@ void wvDecodeSimple(wvParseStruct *ps)
 		}
 	
 	if (char_pendingclose)
+		{
+		wvInitCHP(&achp);
 		wvHandleElement(ps, CHARPROPEND, (void*)&achp);
+		}
 	if (para_pendingclose)
+		{
+		wvInitPAP(&apap);
 		wvHandleElement(ps, PARAEND, (void*)&apap);
+		}
 	if (section_pendingclose)
+		{
 		wvHandleElement(ps, SECTIONEND, (void*)&sep);
+		}
 
 	wvReleasePAPX_FKP(&para_fkp);
 	wvReleaseCHPX_FKP(&char_fkp);
 	wvHandleDocument(ps,DOCEND);
 	wvFree(posSedx);
 	wvFree(sed);
+
 	wvFree(ps->liststartnos);
+	for (i=0;i<9 * ps->nolfo;i++)
+		wvReleaseLVL(&(ps->finallvl[i]));
 	wvFree(ps->finallvl);
+
+	wvReleaseLST(&ps->lst,ps->noofLST);
 	wvReleaseLFO_records(&ps->lfo,&ps->lfolvl,&ps->lvl,ps->nooflvl);
 	wvReleaseSTTBF(&ps->anSttbfAssoc);
     wvFree(btePapx);

@@ -6,6 +6,7 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 	{
 	int ret=0,reason=0;
 	ps->userData=NULL;
+	ps->lst = NULL;
 
 	wvInitError();
 

@@ -83,16 +83,16 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
 	{
 	expand_data *data = (expand_data *)ps->userData;
 	data->anSttbfAssoc = &ps->anSttbfAssoc;
-	data->lfo = ps->lfo;
+	data->lfo = &ps->lfo;
     data->lfolvl = ps->lfolvl;
     data->lvl = ps->lvl;
-    data->nolfo = ps->nolfo;
-    data->nooflvl = ps->nooflvl;
+    data->nolfo = &ps->nolfo;
+    data->nooflvl = &ps->nooflvl;
 	data->stsh = &ps->stsh;
 	data->lst = ps->lst;
-	data->noofLST = ps->noofLST;
-	data->liststartnos = ps->liststartnos;
-	data->finallvl = ps->finallvl;
+	data->noofLST = &ps->noofLST;
+	data->liststartnos = &ps->liststartnos;
+	data->finallvl = &ps->finallvl;
     data->fib = &ps->fib;
 
 	data->charset = wvAutoCharset(&ps->clx);
@@ -128,16 +128,16 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 	{
 	expand_data *data = (expand_data *)ps->userData;
 	data->anSttbfAssoc = &ps->anSttbfAssoc;
-	data->lfo = ps->lfo;
+	data->lfo = &ps->lfo;
     data->lfolvl = ps->lfolvl;
     data->lvl = ps->lvl;
-    data->nolfo = ps->nolfo;
-    data->nooflvl = ps->nooflvl;
+    data->nolfo = &ps->nolfo;
+    data->nooflvl = &ps->nooflvl;
 	data->stsh = &ps->stsh;
 	data->lst = ps->lst;
-	data->noofLST = ps->noofLST;
-	data->liststartnos = ps->liststartnos;
-	data->finallvl = ps->finallvl;
+	data->noofLST = &ps->noofLST;
+	data->liststartnos = &ps->liststartnos;
+	data->finallvl = &ps->finallvl;
     data->fib = &ps->fib;
 	
 	data->charset = wvAutoCharset(&ps->clx);

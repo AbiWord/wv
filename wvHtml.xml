@@ -71,19 +71,20 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 &lt;/p&gt;
 &lt;/div&gt;
 <entry.end/>
+<olist.end/>
 </end>
 </paragraph>
 
 <!-- these are all the character properties that can show up in word -->
-<bold><begin>&lt;b&gt;</begin><end>&lt;/b&gt;</end></bold> 
+<bold><begin>&lt;b&gt;</begin><end>&lt;/b&gt;</end></bold>
 <italic><begin>&lt;i&gt;</begin><end>&lt;/i&gt;</end></italic>
 
 <!--
-text that has been deleted and will be displayed with strikethrough when 
+text that has been deleted and will be displayed with strikethrough when
 revision marked text is to be displayed
 
 use either this line...
--->
+--> 
 <RMarkDel><begin>&lt;s&gt;</begin><end>&lt;/s&gt;&lt;a href=&quot;#author<ibstRMarkDel/>&quot;&gt;[Author ID<ibstRMarkDel/>: at <dttmRMarkDel/> ]&lt;/a&gt;</end></RMarkDel>
 
 <!--
@@ -100,7 +101,7 @@ or uncomment below to make deleted text dissappear (well, become commented out)
 <vanish><begin>&lt;!-&#45;</begin><end>-&#45;&gt;</end></vanish>
 
 <!--
-text that has been newly typed since the last time revision marks have been accepted 
+text that has been newly typed since the last time revision marks have been accepted
 and will be displayed with underline when revision marked text is to be displayed
 
 use either this line...
@@ -114,6 +115,7 @@ or uncomment below to make the underline dissappear
 <RMark><begin></begin><end></end></RMark>
 -->
 
+
 <strike><begin>&lt;s&gt;</begin><end>&lt;/s&gt;</end></strike>
 <shadow><begin></begin><end></end></shadow>
 <lowercase><begin></begin><end></end></lowercase>
@@ -123,7 +125,7 @@ or uncomment below to make the underline dissappear
 <dstrike><begin>&lt;s&gt;</begin><end>&lt;/s&gt;</end></dstrike>
 
 <!--
-ftc's 
+ftc's
 &
 hps
 
@@ -146,11 +148,11 @@ keep them for font face and do that later.
 <wave><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></wave>
 
 <!--
-text whose properties have been changed since the last time revision marks have been accepted 
+text whose properties have been changed since the last time revision marks have been accepted
 and will be displayed with a note showing the change points.
 
 use either this line (which admit it a bit scary looking, but harmless)...
--->
+--> 
 <PropRMark><begin>&lt;a href=&quot;#author<ibstPropRMark/>&quot;&gt;--&amp;gt;&lt;/a&gt;</begin><end>&lt;a href=&quot;#author<ibstPropRMark/>&quot;&gt;[Author ID<ibstPropRMark/>: at <dttmPropRMark/>]&lt;/a&gt;</end></PropRMark>
 
 <!--
@@ -216,7 +218,7 @@ or uncomment below to ignore it, the previous might even crash wv ?
 </animation>
 
 <fontstr>
-<begin>&lt;font color="<black.begin/><blue.begin/><cyan.begin/><green.begin/><magenta.begin/><red.begin/><yellow.begin/><white.begin/><dkblue.begin/><dkcyan.begin/><dkgreen.begin/><dkmagenta.begin/><dkred.begin/><dkyellow.begin/><dkgray.begin/><ltgray.begin/>"&gt;</begin>
+<begin>&lt;font color=&quot;<black.begin/><blue.begin/><cyan.begin/><green.begin/><magenta.begin/><red.begin/><yellow.begin/><white.begin/><dkblue.begin/><dkcyan.begin/><dkgreen.begin/><dkmagenta.begin/><dkred.begin/><dkyellow.begin/><dkgray.begin/><ltgray.begin/>&quot;&gt;</begin>
 <end><ltgray.end/><dkgray.end/><dkyellow.end/><dkred.end/><dkmagenta.end/><dkgreen.end/><dkcyan.end/><dkblue.end/><white.end/><yellow.end/><red.end/><magenta.end/><green.end/><cyan.end/><blue.end/><black.end/>&lt;/font&gt;</end>
 </fontstr>
 
@@ -224,5 +226,6 @@ or uncomment below to ignore it, the previous might even crash wv ?
 <begin><PropRMark.begin/><DispFldRMark.begin/><animation.begin/><fontstr.begin/><bold.begin/><italic.begin/><strike.begin/><RMarkDel.begin/><outline.begin/><smallcaps.begin/><caps.begin/><vanish.begin/><RMark.begin/><shadow.begin/><lowercase.begin/><emboss.begin/><imprint.begin/><dstrike.begin/><super.begin/><sub.begin/><single.begin/><word.begin/><double.begin/><dotted.begin/><hidden.begin/><thick.begin/><dash.begin/><dot.begin/><dotdash.begin/><dotdotdash.begin/><wave.begin/></begin>
 <end><wave.end/><dotdotdash.end/><dotdash.end/><dot.end/><dash.end/><thick.end/><hidden.end/><dotted.end/><double.end/><word.end/><single.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/><animation.end/><DispFldRMark.end/><PropRMark.end/></end>
 </character>
+
 
 </main>

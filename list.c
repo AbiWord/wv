@@ -17,7 +17,7 @@ int wvIsListEntry(PAP *apap,int version)
 		{
 		if (apap->nLvlAnm)
 			{
-			wvError(("old style pap, thats a list\n"));
+			wvTrace(("old style pap, thats a list\n"));
 			return(1);
 			}
 		else
@@ -54,14 +54,15 @@ followed to find out the paragraph's list information:
      text, and grpprlChpx, to determine the appearance of the actual
      paragraph number text.
 */
-int wvGetListEntryInfo(U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST *lst, U32 noofLST,int version)
+int wvGetListEntryInfo(LVL **finallvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST *lst, U32 noofLST,int version)
 	{
 	LST *alst=NULL;
 	int i,number=0;
+	U32 oldno;
+	U32 fakeid;
 
 	if ( (apap->ilfo == 2047) || (version != 0) )
 		{
-		/*word 6 anld, parse that instead*/
 		retlvl->lvlf.iStartAt = apap->anld.iStartAt;
 		retlvl->lvlf.nfc = apap->anld.nfc;
 		retlvl->lvlf.jc = apap->anld.jc;
@@ -80,16 +81,63 @@ int wvGetListEntryInfo(U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LF
 		retlvl->lvlf.reserved2 = 0;
 		retlvl->grpprlChpx = NULL;	/* wrong */
 		retlvl->grpprlPapx = NULL;	/* wrong */
-		retlvl->numbertext = NULL;	/* wrong */
+
+		/* wrong: begin of numbertext twiddling */
+		wvTrace(("before len %d\n",apap->anld.cxchTextBefore));
+		wvTrace(("after len %d\n",apap->anld.cxchTextAfter));
+		retlvl->numbertext = (XCHAR *)malloc(sizeof(XCHAR) * 64);
+		i=0;
+		for (;i<apap->anld.cxchTextBefore;i++)
+			retlvl->numbertext[i] = apap->anld.rgxch[i];
+			
+		retlvl->numbertext[i] = 2;
+
+		for (i=apap->anld.cxchTextBefore;i<apap->anld.cxchTextAfter;i++)
+			retlvl->numbertext[i+1] = apap->anld.rgxch[i];
+
+		retlvl->numbertext[i+1] = '\0';
+		/* end of numbertext twiddling */
+
+		
+		/*word 6 anld, parse that instead*/
+		fakeid = wvCheckSumANLD(&apap->anld);
+		for (i=0;i<*nolfo;i++)
+			{
+			if ( fakeid == (*lfo)[i].lsid )
+				{
+				wvTrace(("This is not the first time we've seen this list\n"));
+				apap->ilfo = i+1;
+				apap->ilvl = 0;
+				return(0);
+				}
+			}
+
+		wvTrace(("This is the first time we've seen this list\n"));
+
+
+
+		oldno = *nolfo;
+		(*nolfo)++;
 
 		/*
 		realloc the lfo list to be one bigger, 
 		*/
-		*nolfo++;
 		*lfo = (LFO *)realloc(*lfo,sizeof(LFO) * (*nolfo));
 		*nos = (U32 *)realloc(*nos,sizeof(U32) * 9 * (*nolfo));
+		wvTrace(("nos is now %d long\n",9 * (*nolfo)));
+		*finallvl = (LVL *)realloc(*finallvl,9 * (*nolfo) * sizeof(LVL));
+				
 		apap->ilfo = *nolfo;
+		wvTrace(("ilfo set to %d\n",apap->ilfo));
+		(*lfo)[apap->ilfo-1].lsid = fakeid;	/*how about this?*/
 		*retlfo = &((*lfo)[apap->ilfo-1]);
+		for (i=0;i<9;i++)
+			{
+			(*nos)[(apap->ilfo-1)*9+i] = 0xffffffffL;
+			wvInitLVL(&((*finallvl)[(apap->ilfo-1)*9+i]));
+			wvCopyLVL(&((*finallvl)[(apap->ilfo-1)*9+i]),retlvl);
+			}
+
 		apap->ilvl = 0;	/* i dunno yet */
 
 		/*
@@ -172,7 +220,6 @@ int wvGetListEntryInfo(U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LF
 		if there no overridden levels i assume that we 
 		search for the appropiate LST 
 		*/
-		wvTrace(("no overridden levels, searching using val %d %x\n",apap->ilfo-1,(*lfo)[apap->ilfo-1].lsid));
 		alst = wvSearchLST((*lfo)[apap->ilfo-1].lsid,lst,noofLST);
 		wvCopyLVL(retlvl,&(alst->lvl[apap->ilvl]));
 		wvTrace(("string len is %d",retlvl->numbertext[0]));

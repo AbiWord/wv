@@ -863,6 +863,7 @@ typedef struct _LSTF
     } LSTF;
 
 void wvGetLSTF(LSTF *item,FILE *fd);
+void wvInitLSTF(LSTF *item);
 int wvGetLSTF_PLCF(LSTF **lstf,U32 **pos,U32 *nolst,U32 offset,U32 len,FILE *fd);
 
 typedef struct _LVLF
@@ -887,6 +888,7 @@ typedef struct _LVLF
     }LVLF;
 
 void wvGetLVLF(LVLF *item,FILE *fd);
+void wvInitLVLF(LVLF *item);
 void wvCopyLVLF(LVLF *dest,LVLF *src);
 
 
@@ -1173,6 +1175,7 @@ void wvGetANLD(int version,ANLD *item,FILE *fd);
 void wvGetANLD_FromBucket(int version,ANLD *item,U8 *pointer8);
 void wvCopyANLD(ANLD *dest, ANLD *src);
 void wvInitANLD(ANLD *item);
+U32 wvCheckSumANLD(ANLD *item);
 
 #define istdNormalChar 10
 
@@ -2345,16 +2348,16 @@ typedef struct _expand_data
 	{
 	STTBF *anSttbfAssoc;	/* associated strings */
 	STSH *stsh;
-	LFO *lfo;				/* list tables */
+	LFO **lfo;				/* list tables */
 	LFOLVL *lfolvl;
 	LVL *lvl;
-	U32 nolfo;
-	U32 nooflvl;
+	U32 *nolfo;
+	U32 *nooflvl;
 	LST *lst;
-	U16 noofLST;
+	U16 *noofLST;
 
-	U32 *liststartnos;
-	LVL *finallvl;
+	U32 **liststartnos;
+	LVL **finallvl;
 
 	FIB *fib;
 
@@ -2804,7 +2807,7 @@ int wvGetComplexCharfcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
 
 void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype);
 
-int wvGetListEntryInfo(U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST *lst, U32 noofLST,int version);
+int wvGetListEntryInfo(LVL **rlvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST *lst, U32 noofLST,int version);
 
 
 

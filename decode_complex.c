@@ -634,9 +634,15 @@ void wvDecodeComplex(wvParseStruct *ps)
 		}
 
 	if (char_pendingclose)
+		{
+		wvInitCHP(&achp);
 		wvHandleElement(ps,CHARPROPEND, (void*)&achp);
+		}
 	if (para_pendingclose)
+		{
+		wvInitPAP(&apap);
 		wvHandleElement(ps,PARAEND, (void*)&apap);
+		}
 	if (section_pendingclose)
         wvHandleElement(ps, SECTIONEND, (void*)&sep);
 

@@ -14,6 +14,7 @@ int wvGetLST(LST **lst,U16 *noofLST,U32 offset,U32 len,FILE *fd)
 	{
 	U16 i,j;
 	*lst = NULL;
+	*noofLST = 0;
 
 	if (len == 0)
 		return(0);
@@ -73,6 +74,9 @@ void wvGetLSTF(LSTF *item,FILE *fd)
 	{
 	int i;
 	U8 temp8;
+#ifdef PURIFY
+	wvInitLSTF(item);
+#endif
     item->lsid = read_32ubit(fd);
 	wvTrace(("lsid is %x\n",item->lsid));
 	item->tplc = read_32ubit(fd);
@@ -83,6 +87,19 @@ void wvGetLSTF(LSTF *item,FILE *fd)
     item->fRestartHdn = (temp8 & 0x02)>>1;
     item->reserved1 = (temp8 & 0xFC)>>2;
     item->reserved2 = getc(fd);
+	}
+
+void wvInitLSTF(LSTF *item)
+	{
+	int i;
+    item->lsid = 0;
+	item->tplc = 0;
+    for (i=0;i<9;i++)
+		item->rgistd[i]  = 0;
+	item->fSimpleList = 0;
+    item->fRestartHdn = 0;
+    item->reserved1 = 0;
+    item->reserved2 = 0;
 	}
 
 
@@ -125,7 +142,7 @@ int wvGetLSTF_PLCF(LSTF **lstf,U32 **pos,U32 *nolstf,U32 offset,U32 len,FILE *fd
 void wvReleaseLST(LST **lst,U16 noofLST)
 	{
 	int i,j;
-	if ((lst == NULL) && (*lst == NULL))
+	if ((lst == NULL) || (*lst == NULL))
 		return;
 	for (i=0;i<noofLST;i++)
 		{
@@ -135,6 +152,7 @@ void wvReleaseLST(LST **lst,U16 noofLST)
 			for (j=0;j<9;j++)
 				wvReleaseLVL(&((*lst)[i].lvl[j]));
 		wvFree((*lst)[i].current_no);
+		wvFree((*lst)[i].lvl);
 		}
 	wvFree(*lst);
 	}

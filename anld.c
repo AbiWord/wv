@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "wv.h"
+#include "crc32.h"
 
 void wvGetANLD(int version,ANLD *item,FILE *fd)
 	{
@@ -169,4 +170,9 @@ void wvInitANLD(ANLD *item)
     item->fSpareX = 0;
 	for (i=0;i<32;i++)
     	item->rgxch[i] = 0;
+	}
+
+U32 wvCheckSumANLD(ANLD *item)
+	{
+	return(CalcCRC32( (unsigned char *)item, cbANLD, cbANLD, 0));
 	}

@@ -1,15 +1,19 @@
 Changes to to 0.5.29
-ALL TODO
-	* word 6 and 95 lists are different, and there is supposedly cases there the
-	word 97 can use word 6 style lists, though its supposedly unlikely.
-	* remove all the lex rubbish, and take mswordview itself out of the default
+	* more koi8.c changes from Sergey V. Udaltsov <svu@pop.convey.ru>
+	* removed all the lex rubbish, and took mswordview itself out of the default
 	Makefile dammit.
-	* we need character formatting for the <li> itself, we can do this I 
-	suppose, but i'll hold off on that for a while.
-
-	* tables.
-	* fontface and size for char runs..
-
+	* some changes to semisupport word 95/6 lists, it does appear that word 95
+	lists are the exact same as word 6 lists.
+	* word 6 and 95 lists were different, and there is supposedly cases there the
+	word 97 can use word 6 style lists, though its supposedly unlikely.
+	* We have a problem with word6/95 lists, while we have the information about
+	each list entry, i cannot figure out how to tell if one particular entry
+	belongs to a particular list, i.e. I can quite happily pump out lists where
+	every entry is a seperate list consisting of a single entry, this is very
+	annoying. As a temporary measure I have done a checksum on the list information
+	and if the checksum is the same as another entry, then I assume that it is a
+	member of the same list, it works so far on very very simple lists, and I
+	imagine that it will explode when i investigate more complex word6/95 lists.
 	* now lists... 
 		lists come with number information and also with character formatting
 		which applies to the number text itself, and paragraph information
@@ -29,8 +33,14 @@ ALL TODO
 
 		We can apply the para stuff to the actual paragraph and some 
 		checking shows that a div is a valid element to put in a list
-		so thats what I will do
+		so thats what I have done
+ALL TODO
+	* title not being done in the correct charset
+	* we need character formatting for the <li> itself, we can do this I 
+	suppose, but i'll hold off on that for a while.
 
+	* tables.
+	* fontface and size for char runs..
 
 	* what about a collision between underline and revision added ? and also the 
 	strike and revision deleted ?, what if a mad user created his own collisions. 

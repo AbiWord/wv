@@ -7,13 +7,17 @@ void wvInitLVL(LVL *lvl)
 	lvl->grpprlPapx=NULL;
 	lvl->grpprlChpx=NULL;
 	lvl->numbertext=NULL;
+	wvInitLVLF(&(lvl->lvlf));
 	}
 
 void wvCopyLVL(LVL *dest,LVL *src)
 	{
 	int len,i;
+	wvReleaseLVL(dest);
+	wvInitLVL(dest);
 
 	wvCopyLVLF(&(dest->lvlf),&(src->lvlf));
+
 
 	if (src->lvlf.cbGrpprlPapx > 0)
 		{
@@ -114,6 +118,9 @@ void wvGetLVLF(LVLF *item,FILE *fd)
 	{
 	U8 temp8;
 	int i;
+#ifdef PURIFY
+	wvInitLVLF(item);
+#endif
 	item->iStartAt = read_32ubit(fd);
     item->nfc = getc(fd);
 	temp8 = getc(fd);
@@ -134,3 +141,25 @@ void wvGetLVLF(LVLF *item,FILE *fd)
     item->reserved2 = read_16ubit(fd);;  
 	}
 
+
+void wvInitLVLF(LVLF *item)
+	{
+	int i;
+	item->iStartAt = 0;
+    item->nfc = 0;
+    item->jc = 0;
+   	item->fLegal = 0;
+    item->fNoRestart = 0;
+    item->fPrev = 0;
+    item->fPrevSpace = 0;
+    item->fWord6 = 0;
+    item->reserved1 = 0;
+	for (i=0;i<9;i++)
+    	item->rgbxchNums[i] = 0;
+    item->ixchFollow = 0;
+    item->dxaSpace = 0;
+    item->dxaIndent = 0;
+    item->cbGrpprlChpx = 0;
+    item->cbGrpprlPapx = 0;
+    item->reserved2 = 0;
+	}
