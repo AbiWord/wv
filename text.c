@@ -162,6 +162,10 @@ thing and just put ... instead of this
 		case 0xF8E7:	/* without this, things should work in theory, but not for me */
 			printf("_");
 			return;
+		case 0x91:
+		case 0x2018:
+			printf("`");
+			return;
 		}
 
 	

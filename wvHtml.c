@@ -216,14 +216,38 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
     switch (tag)
         {
         case PARABEGIN:
+			{
+            S16 tilfo=0;
+            /* test begin */
+            if (*(data->endcell))
+                {
+                tilfo = ((PAP *)(data->props))->ilfo;
+                ((PAP *)(data->props))->ilfo=0;
+                }
+            /* test end */
 			ppap = (PAP *)data->props;
 			wvTrace(("fore back is %d %d\n",((PAP *)(data->props))->shd.icoFore,((PAP *)(data->props))->shd.icoBack));
             wvBeginPara(data);
+			if (tilfo)
+                ((PAP *)(data->props))->ilfo=tilfo;
+            }
             break;
         case PARAEND:
+			{
+			S16 tilfo=0;
+            /* test begin */
+            if (*(data->endcell))
+                {
+                tilfo = ((PAP *)(data->props))->ilfo;
+                ((PAP *)(data->props))->ilfo=0;
+                }
+            /* test end */
             wvEndCharProp(data);	/* danger will break in the future */
             wvEndPara(data);
+			if (tilfo)
+                ((PAP *)(data->props))->ilfo=tilfo;
 			wvCopyPAP(&data->lastpap,(PAP*)(data->props));
+			}
             break;
         case CHARPROPBEGIN:
             wvBeginCharProp(data,ppap);
@@ -280,6 +304,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 		i++;
 		wvInitPAP(&data->lastpap);
 		data->nextpap=NULL;
+		data->ps=ps;
 		}
 
 	if (charset == 0xffff)
@@ -305,7 +330,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 	{
 	static int message,state;
-	/*PICF picf;*/
+	PICF picf;
 	FSPA *fspa;
     expand_data *data = (expand_data *)ps->userData;
 
@@ -331,12 +356,10 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			return(0);
 			break;
 		case 0x01:
-			wvError(("picture 0x01 here\n"));
-			/*
+			wvError(("picture 0x01 here, at offset %x in Data Stream\n",achp->fcPic_fcObj_lTagObj));
 			fseek(ps->data,achp->fcPic_fcObj_lTagObj,SEEK_SET);
 			wvGetPICF(&picf,ps->data);
-			*/
-			printf("<img src=\"placeholder.png\"><br>");
+			printf("<img alt=\"placeholder\" src=\"placeholder.png\"><br>");
 			return(0);
 		case 0x08:
 			fspa = wvGetFSPAFromCP(ps->currentcp,ps->fspa,ps->fspapos,ps->nooffspa);

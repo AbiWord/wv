@@ -1,21 +1,20 @@
-Changes to to 0.5.39
-	* made a new wvHtml conversion page, looks nice to me, online bug listing, 
-	its hardly a bugzilla bug it serves better for my needs.
-	* added placeholder.png and wvOnline.xml to cvs, neither of which are of
-	any real importance except for the interim.
-	* added <filename/> variable, handy for the online converter.
-	* added three sprms of (now) known length and unknown purpose to word7
-	sprm list.
-	* NONE of the word documents that I have (4747 of them, 556Megs) now crash
-	with the current version, this is not to say there there are not serious
-	crashable bugs, or that the output is sane, just that it is now quite
-	reliable.
-	* versioning enum extended and renumbered to handle all word formats in
-	the future, hardcoded 0 and 1 changed to WORD8 and WORD6.
-	* finally hacked in preliminary stylesheet code to get the dependancies
-	in the correct order, its a bit crufty (!), but it does the trick for
-	now.
+Changes to to 0.5.40
+	* output title in the same output charset as the rest of the document.
+	* inserted a hack to force lists to end before </td>, rather than
+	after the </td>
+	* made a fix to setting the chp istd correctly after an initialization
+	* the style 10 (Normal) is Generated first if possible, as other styles
+	(illegally i think) depend on it in the style generation code.
+	* tables and list were interacting badly with eachother to create invalid
+	html and incorrect numbering, fixed this.
+	* doubled up the alignment tag with div align as well as the style 
+	assignment as netscape is having problems with short paragraph alignment.
 ALL TODO
+	* support 0x01 graphics ala broken/001-TETMEI.doc
+	
+	* rationalize the char codes, put unicode and cp conversion to
+	html seperately from eachother, and try that before doing any
+	output conversion.
 	* Got to think of some way to keep the list stuff in sync with the margins 
 	of the enclosed paragraphs in html output.
 
@@ -92,6 +91,23 @@ ALL TODO
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.39
+	* made a new wvHtml conversion page, looks nice to me, online bug listing, 
+	its hardly a bugzilla bug it serves better for my needs.
+	* added placeholder.png and wvOnline.xml to cvs, neither of which are of
+	any real importance except for the interim.
+	* added <filename/> variable, handy for the online converter.
+	* added three sprms of (now) known length and unknown purpose to word7
+	sprm list.
+	* NONE of the word documents that I have (4747 of them, 556Megs) now crash
+	with the current version, this is not to say there there are not serious
+	crashable bugs, or that the output is sane, just that it is now quite
+	reliable.
+	* versioning enum extended and renumbered to handle all word formats in
+	the future, hardcoded 0 and 1 changed to WORD8 and WORD6.
+	* finally hacked in preliminary stylesheet code to get the dependancies
+	in the correct order, its a bit crufty (!), but it does the trick for
+	now.
 Changes to to 0.5.38
 	* added the symbol mapping to unicode as best as I could, I made one or two 
 	mods from the proper unicode so as to get a few more to work with the 

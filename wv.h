@@ -515,8 +515,8 @@ void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,FILE *fd);
 void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,FILE *fd);
 void wvListSTTBF(STTBF *item);
 void wvReleaseSTTBF(STTBF *item);
-char *wvGetTitle(STTBF *item);
 void wvGetGrpXst(STTBF *anS,U32 offset,U32 len,FILE *fd);
+
 
 U16 *UssrStrBegin(STTBF *sttbf,int no);
 
@@ -2485,44 +2485,7 @@ typedef struct _state_data
 	FILE *fp;
 	} state_data;
 
-typedef struct _expand_data
-	{
-	STTBF *anSttbfAssoc;	/* associated strings */
-	STSH *stsh;
-	LFO **lfo;				/* list tables */
-	LFOLVL *lfolvl;
-	LVL *lvl;
-	U32 *nolfo;
-	U32 *nooflvl;
-	LST **lst;
-	U16 *noofLST;
-	U8 *intable;
-	U8 *endcell;
-	S16 **cellbounds;
-	int *nocellbounds;
-	S16 ***vmerges;
-	int whichcell;
-	int whichrow;
 
-	U32 **liststartnos;
-	LVL **finallvl;
-	U16 *norows;
-
-	FIB *fib;
-
-	void *props; /* holds PAP/CHP/etc */
-	U16 charset;
-	
-	char *retstring;
-	U32 currentlen;
-	state_data *sd;
-	SEP *asep;
-	PAP *nextpap;
-	PAP lastpap;
-	char *filename;
-	} expand_data;
-
-void wvInitExpandData(expand_data *data);
 
 typedef struct _PRM
 	{
@@ -2634,8 +2597,51 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no);
 int wvDecrypt95(wvParseStruct *ps);
 int wvDecrypt97(wvParseStruct *ps);
 
+void wvPrintTitle(wvParseStruct *ps,STTBF *item,U16 charset);
+
 FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps);
 
+
+typedef struct _expand_data
+	{
+	STTBF *anSttbfAssoc;	/* associated strings */
+	STSH *stsh;
+	LFO **lfo;				/* list tables */
+	LFOLVL *lfolvl;
+	LVL *lvl;
+	U32 *nolfo;
+	U32 *nooflvl;
+	LST **lst;
+	U16 *noofLST;
+	U8 *intable;
+	U8 *endcell;
+	S16 **cellbounds;
+	int *nocellbounds;
+	S16 ***vmerges;
+	int whichcell;
+	int whichrow;
+
+	U32 **liststartnos;
+	LVL **finallvl;
+	U16 *norows;
+
+	FIB *fib;
+
+	void *props; /* holds PAP/CHP/etc */
+	U16 charset;
+	
+	char *retstring;
+	U32 currentlen;
+	state_data *sd;
+	SEP *asep;
+	PAP *nextpap;
+	PAP lastpap;
+	char *filename;
+
+	wvParseStruct *ps;
+	} expand_data;
+
+void wvInitExpandData(expand_data *data);
 /* 
 returns the same as wvOLEDecode with the addition that
 4 means that it isnt a word document

@@ -453,11 +453,15 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	switch (s_Tokens[tokenIndex].m_type)
 		{
 		case TT_TITLE:
-			text = wvGetTitle(mydata->anSttbfAssoc);
-			wvAppendStr(&mydata->retstring,text);
-			wvFree(text);
-			mydata->currentlen = strlen(mydata->retstring);
-			break;
+		   if (mydata->retstring)
+                {
+                printf("%s",mydata->retstring);
+                wvFree(mydata->retstring);
+                mydata->retstring = NULL;
+                mydata->currentlen = 0;
+                }
+            wvPrintTitle(mydata->ps,mydata->anSttbfAssoc,mydata->charset);
+            break;
 		case TT_CHARSET:
 			wvTrace(("the charset is %d\n",mydata->charset));
 			ctext = wvGetCharset(mydata->charset);
@@ -1600,18 +1604,18 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				default:
 				case 1:
 				case 3:
-					sprintf(buffer,"none");
+					buffer[0]='\0';
 					break;
 				case 0:
 				case 5:
-					sprintf(buffer,"left");
+					sprintf(buffer,"align=\"left\"");
 					break;
 				case 2:
 				case 4:
 					if (fspa->wrk == 1)
-						sprintf(buffer,"right");
+						sprintf(buffer,"align=\"right\"");
 					else
-						sprintf(buffer,"left");
+						sprintf(buffer,"align=\"left\"");
 					break;
 				}
 			wvAppendStr(&mydata->retstring,buffer);

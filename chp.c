@@ -609,7 +609,7 @@ int wvAssembleSimpleCHP(version ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh
 	int index,i;
 	UPXF upxf;
 	int ret=0;
-
+	U16 tistd;
 	
 	/* initialize CHP to para's stylesheet character properties
 		* this should have resolved all the other stylesheet dependencies
@@ -617,8 +617,9 @@ int wvAssembleSimpleCHP(version ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh
 
 	/* before this function was called, achp->istd should have
 		* been set to the current paragraph properties' stylesheet */
-		
+	tistd=achp->istd;		
 	wvInitCHPFromIstd(achp, achp->istd, stsh);
+	achp->istd = tistd;
 
 	/*index is the i in the text above*/
 	/* the PAPX version of the function only looks at rgfc's, which are

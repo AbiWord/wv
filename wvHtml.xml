@@ -315,7 +315,7 @@ these tags in tables, which I find is necessary for at least netscape
 
 <text>	
 <begin>
-&lt;div style=&quot;<paramargin/> border: thin <borderleftstyle/> <borderleftcolor/>;
+&lt;div align=&quot;<just/>&quot; style=&quot;<paramargin/> border: thin <borderleftstyle/> <borderleftcolor/>;
 <!--
 border-top: thin <bordertopstyle/> <bordertopcolor/>;
 border-left: thin <borderleftstyle/> <borderleftcolor/>;
@@ -333,7 +333,7 @@ padding: <mmPadTop/> <mmPadRight/> <mmPadBottom/> <mmPadLeft/>; &quot;&gt;
 
 <picture>
 <begin>
-&lt;img align=&quot;<htmlAlignGuess/>&quot; width=&quot;<pixPicWidth/>&quot; height=&quot;<pixPicHeight/>&quot; src=&quot;placeholder.png&quot;&gt;<htmlNextLineGuess/>
+&lt;img <htmlAlignGuess/> width=&quot;<pixPicWidth/>&quot; height=&quot;<pixPicHeight/>&quot; src=&quot;placeholder.png&quot;&gt;<htmlNextLineGuess/>
 </begin>
 </picture>
 

@@ -166,30 +166,37 @@ void wvListSTTBF(STTBF *item)
     }
 
 
-char *wvGetTitle(STTBF *item)
-	{
-	char *title = NULL;
+void wvPrintTitle(wvParseStruct *ps,STTBF *item,U16 charset)
+    {
+    int i=0;
+    U8 dummy;
+    CHP achp;
+    wvInitCHP(&achp);
 
-	if ((item) && (item->nostrings >= 3))
+    if ((item) && (item->nostrings >= 3))
         {
         if (item->extendedflag == 0xFFFF)
-			title = wvWideStrToMB(item->u16strings[ibstAssocTitle]);
+            {
+            if (item->u16strings[ibstAssocTitle] != NULL)
+                {
+                while(item->u16strings[ibstAssocTitle][i])
+                    wvOutputTextChar(item->u16strings[ibstAssocTitle][i++], 0, charset, &dummy, ps,&achp);
+                return;
+                }
+            }
         else
             {
             if (item->s8strings[ibstAssocTitle] != NULL)
-				{
-				title = (char *)malloc(strlen(item->s8strings[ibstAssocTitle])+1);
-                strcpy(title,(char *)item->s8strings[ibstAssocTitle]);
-				}
+                {
+                while(item->s8strings[ibstAssocTitle][i])
+                    wvOutputTextChar(item->s8strings[ibstAssocTitle][i++], 1, charset, &dummy, ps,&achp);
+                return;
+                }
             }
         }
-	if (title == NULL)
-		{
-		title = (char *)malloc(strlen("Untitled")+1);
-		strcpy(title,"Untitled");
-		}
-	return(title);
-	}
+    printf("Untitled");
+    }
+
 
 void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,FILE *fd)
 	{
