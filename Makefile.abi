@@ -26,6 +26,7 @@ include $(ABI_ROOT)/src/config/abi_defs.mk
 CSRCS=	laolareplace.c \
 	oledecod/oledecod.c \
 	twips.c \
+	escher.c \
 	symbol.c \
 	support.c \
 	list.c \
@@ -45,6 +46,7 @@ CSRCS=	laolareplace.c \
 	roman.c \
 	fib.c \
 	fdoa.c \
+	fopt.c \
 	frd.c \
 	atrd.c \
 	sed.c \
@@ -59,6 +61,7 @@ CSRCS=	laolareplace.c \
 	sttbf.c \
 	xst.c \
 	fspa.c \
+	fbse.c \
 	lst.c \
 	lvl.c \
 	lfo.c \
@@ -130,8 +133,7 @@ CSRCS=	laolareplace.c \
 	iconv/iso-8859-15.c \
 	iconv/tis-620.c \
 	iconv/utf-8.c \
-	iconv/iconv.c \
-	fdoa.c
+	iconv/iconv.c
 
 CFLAGS+=		-I. -I./iconv -I./oledecod -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
 LIBRARY_NAME=		Abi_libwv
