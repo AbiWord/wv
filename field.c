@@ -9,7 +9,7 @@
 #endif
 #include "wv.h"
 
-extern char *xml_slash;
+char *xml_slash = "";
 
 
 

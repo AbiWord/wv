@@ -38,7 +38,7 @@ char *config = "wvHtml.xml";
 
 /* flags for -X / --xml option */
 int   xml_output = 0;
-char *xml_slash  = "";
+extern char *xml_slash;
 
 /* flag for disabling graphics */
 int   no_graphics = 0;
