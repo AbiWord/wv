@@ -30,7 +30,8 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 	ret = wvQuerySupported(&ps->fib,&reason);
     if ( (ret > 1) && (ret != 2) && (ret != 3) )
 		{
-		if (ret != 4) wvError(("%s\n",wvReason(reason)));
+		if ((ret != 4) && (ret != 7))
+			wvError(("%s\n",wvReason(reason)));
 		return(ret);
 		}
 	ret = 0;

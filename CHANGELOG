@@ -1,18 +1,12 @@
-Changes to to 0.5.30
-	* removed crypt dir and references to it.
-	* removed crypt from configure script
-	* made check so as not to close NULL FILE * in decrypt.c
-	* modified decrypt.c to be big endian safe, in this vein
-	and in an attempt to make it more readable I have used the
-	standard md5 code snarfed from the rfc instead of the
-	original md5 code, its all the same in function, just endian
-	safe.
-	* modified the SetPassword and password string promotion to
-	be a utf-8 to unicode conversion, this of course will only
-	work if the input, like an xterm, supports utf-8, in any
-	other case its exactly the same as an ascii to unicode, so
-	its the same as ever, except I feel a lot better at least
-	in theory supporting the full unicode suite.
+Changes to to 0.5.31
+	* wvSummary bug fix.
+	* word 95 decrypting from the password added as well !, theres no
+	stopping me somedays :-). Though I have to verify that, as its a
+	bit messy and some bits of it might be unnecessary, and i have no
+	idea how nonenglish languages might affect it. And maybe its 
+	based on the percularities of one particular word95 program that
+	I have. Also it would be reasonably easy to make a password cracker
+	for word95 instead of requiring a password to be added in.
 ALL TODO
 	* multilevel word6/95 lists.
 
@@ -104,6 +98,21 @@ ALL TODO
 	* do an autoconf check for mman.h and dont do compression if not there.
 	* maybe someday we should use #pragme pack(1) if we are being compiled
 	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.30
+	* removed crypt dir and references to it.
+	* removed crypt from configure script
+	* made check so as not to close NULL FILE * in decrypt.c
+	* modified decrypt.c to be big endian safe, in this vein
+	and in an attempt to make it more readable I have used the
+	standard md5 code snarfed from the rfc instead of the
+	original md5 code, its all the same in function, just endian
+	safe.
+	* modified the SetPassword and password string promotion to
+	be a utf-8 to unicode conversion, this of course will only
+	work if the input, like an xterm, supports utf-8, in any
+	other case its exactly the same as an ascii to unicode, so
+	its the same as ever, except I feel a lot better at least
+	in theory supporting the full unicode suite.
 Changes to to 0.5.29
 	* NUMBER 1 CHANGE: we now have the ability to decrypt word 97 documents, yippee!!
 

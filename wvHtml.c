@@ -101,6 +101,24 @@ int main(int argc,char **argv)
 				}
 			}
 		}
+	else if (ret == 7)
+		{
+		ret=0;
+		if (password == NULL)
+			{
+			wvError(("Password required, this is an encrypted document\n"));
+			return(-1);
+			}
+		else
+			{
+			wvSetPassword(password,&ps);
+			if (wvDecrypt95(&ps))
+				{
+				wvError(("Incorrect Password\n"));
+				return(-1);
+				}
+			}
+		}
 
 	if (ret)
 		{

@@ -421,8 +421,6 @@ void wvInitFIB(FIB *item);
 
 int wvGetEmpty_PLCF(U32 **cp,U32 *nocps,U32 offset,U32 len,FILE *fd);
 
-int wvDecrypt(FILE *mainfd,char *,U32 lKey);
-
 typedef struct _FRD
 	{
 	S16 frd;

@@ -140,7 +140,8 @@ MYOBJECTS =	\
 	crc32.o \
 	md5.o \
 	rc4.o \
-	decrypt.o
+	decrypt.o \
+	decrypt95.o
 
 #XML = -Lexpat/lib -lxmlparse -lxmltok
 XML = 	expat/xmlparse/xmlparse.o \
@@ -244,8 +245,7 @@ installdirs:
 	$(includedir)
 	
 
-install: installdirs $(srcdir)/mswordview$(EXEEXT)
-	$(INSTALL) $(srcdir)/mswordview$(EXEEXT) $(bindir)/mswordview$(EXEEXT)
+install: installdirs all
 	$(INSTALL) $(srcdir)/wvSummary$(EXEEXT) $(bindir)/wvSummary$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvSimpleCLX$(EXEEXT) $(bindir)/wvSimpleCLX$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvConvert$(EXEEXT) $(bindir)/wvConvert$(EXEEXT)
@@ -254,9 +254,7 @@ install: installdirs $(srcdir)/mswordview$(EXEEXT)
 	$(INSTALL) $(srcdir)/wvHtml$(EXEEXT) $(bindir)/wvHtml$(EXEEXT)
 	$(INSTALL) $(srcdir)/wv-libconfig $(bindir)/wv-libconfig
 	$(INSTALL) $(srcdir)/wv-incconfig $(bindir)/wv-incconfig
-	$(INSTALL_DATA) $(srcdir)/mswordview.1 $(mandir)/man1/
 	$(INSTALL_DATA) $(srcdir)/wvHtml.1 $(mandir)/man1/
-	$(INSTALL_DATA) $(srcdir)/config-mswordview $(libdir)/wv/config-mswordview
 	$(INSTALL_DATA) wv.h $(includedir)/wv.h
 	$(INSTALL_DATA) $(srcdir)/libwv.a $(libdir)/libwv.a
 	for filename in symbolfont/*.gif; do \
