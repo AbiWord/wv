@@ -14,5 +14,5 @@ How would you have done it?
 #endif
 
 /*** Manually update this from configure files (VERSION) before any release!!! ***/
-const char* wv_version = "wvWare version 0.7.4";
+const char* wv_version = "wvWare version 0.7.5";
 
