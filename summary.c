@@ -90,7 +90,7 @@ int wvSumInfoForceString(char *lpStr, U16 cbStr, U32 pid, SummaryInfo *si)
 		return(1);
 
     if (Prop.vtType == VT_I4) 
-		sprintf(lpStr,"%ld",Prop.vtValue.vtLong);
+		sprintf(lpStr,"%d",Prop.vtValue.vtLong);
 	else if (Prop.vtType == VT_LPSTR)
 		{
 		len = (int) Prop.vtValue.vtBSTR.cBytes;

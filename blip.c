@@ -1562,10 +1562,10 @@ void wvGetPICF(PICF *apicf,FILE *infd,U32 offset)
 	apicf->fError = (temp&0x80)>>7;
 
 	apicf->bpp = getc(infd);
-	wvGetBRC(&(apicf->brcTop),infd);
-	wvGetBRC(&(apicf->brcLeft),infd);
-	wvGetBRC(&(apicf->brcBottom),infd);
-	wvGetBRC(&(apicf->brcRight),infd);
+	wvGetBRC(0,&(apicf->brcTop),infd);
+	wvGetBRC(0,&(apicf->brcLeft),infd);
+	wvGetBRC(0,&(apicf->brcBottom),infd);
+	wvGetBRC(0,&(apicf->brcRight),infd);
 	apicf->dxaOrigin = (S16)read_16ubit(infd);
 	apicf->dyaOrigin = (S16)read_16ubit(infd);
 	apicf->cProps = (S16)read_16ubit(infd);

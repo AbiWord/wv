@@ -27,6 +27,16 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
 	U16 i=0;
 	U16 sprm;
 	wvTrace("cbUPX word 6 is %d\n",upxf->cbUPX);
+
+
+	while (i < upxf->cbUPX)
+		{
+		wvTrace("%x (%d)\n",*(upxf->upx.chpx.grpprl+i),*(upxf->upx.chpx.grpprl+i));
+		i++;
+		}
+
+   i=0;
+
 	while (i < upxf->cbUPX)
 		{
 		sprm = bgetc(upxf->upx.chpx.grpprl+i,&i);
@@ -443,11 +453,7 @@ int wvCompLT(void *a,void *b)
 	b2 = (U8 *)b;
 	sprm1 = sread_16ubit(a2);
 	sprm2 = sread_16ubit(b2);
-
     return( sprm1 < sprm2);
-	/*
-    return( *((U8 *)a) < *((U8 *)b) );
-	*/
     }
 
 int wvCompEQ(void *a,void *b)
@@ -459,9 +465,6 @@ int wvCompEQ(void *a,void *b)
 	sprm1 = sread_16ubit(a2);
 	sprm2 = sread_16ubit(b2);
 	return(sprm1 == sprm2);
-	/*
-    return( *((U8 *)a) == *((U8 *)b) );
-	*/
     }
 
 
@@ -691,20 +694,20 @@ void wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
 
 
 void wvGetCHPX(int version, CHPX *item, U32 offset, FILE *fd)
-{
-   U8 cb,i;
-   fseek(fd, offset, SEEK_SET);
-   item->cbGrpprl = getc(fd);
-   if (item->cbGrpprl > 0)
-     item->grpprl = (U8 *)malloc(item->cbGrpprl);
-   else
-     item->grpprl = NULL;
+	{
+	U8 i;
+	fseek(fd, offset, SEEK_SET);
+	item->cbGrpprl = getc(fd);
+	if (item->cbGrpprl > 0)
+		item->grpprl = (U8 *)malloc(item->cbGrpprl);
+	else
+		item->grpprl = NULL;
    
-   item->istd = 0; /* I have no idea what to set this to... */
+	item->istd = 0; /* I have no idea what to set this to... */
    
-    for (i=0;i<item->cbGrpprl;i++)
-     {
-	item->grpprl[i] = getc(fd);
-	wvTrace("chpx byte is %x\n",item->grpprl[i]);
-     }
+	for (i=0;i<item->cbGrpprl;i++)
+		{
+		item->grpprl[i] = getc(fd);
+		wvTrace("chpx byte is %x\n",item->grpprl[i]);
+		}
 }

@@ -8,9 +8,46 @@ Changes to to 0.5.21
 	ok.
 	* I have added a sample import filter for abiword in the abi dir, basically
 	it's up to the abi folk to integrate that in at their leisure.
+	* added contents to sep.c anlv.c & olst.c 
+	* fixed the length of sprmTDefTable, solves some word6 crashes.
+	* finally noticed that the BRC is of a different len and layout with word 6
+	* note to self, the EatSprm only works for true word97 features, ones that d
+	in word6 and 95 have to implemented or things will crash, this is not a real
+	problem as all these sprms should be implemented one by one.
+	* found two TAP sprm's that differ from 6 to 8 and have updated.
+	* implemented sprmCLid which doesnt exist in word97 but does on older vers
+	* added ole code to viewer.
+	* the program named mswordview is depreciated, it still does far more than
+	wvHtml but this is a warning that wvHtml is the new html converter for
+	msword docs. wvConvert is a generic converter that currently defaults
+	to abiword xml so that i can examine a richer set of properties, I wonder
+	how generic i have actually made it, a tex converter would be nice
+	wouldn't it.
+	* wvHtml now uses html output so < & > will work now, i had overlooked
+	that aspect (whops), my focus was on other types of properties,
+	wvHtmlOutputChar might need more work, keep an eye on it.
+	* stuck a stack of structs that i havn't used yet into the header files,
+	and some implementations of readers that i might need someday :-)
+	* added char properties (Justin did all of this one, and good stuff it is too)
+	* merged together two vers
+	* finish SEP, and friends, added a mountain of structs, the remainer of
+	what was not already in the header file, and added some stub files for
+	them all.
+	* added simple file support for Section begins and ends, moved the
+	char handling code around a slight bit so as to be in a nice looking order
+	to me.
 ALL TODO
-	* add char properties
-	* give abiword folk new alpha filter code for themselves to play with.
+
+	* continue sections in complex mode, bring my standalone abiword converter up
+	to speed with sections, and char props, and do the same for the html converter.
+	looking good :-)
+
+	* table properties & lists to be done
+
+	* i figured out what the story is with ole embedded files, ill have to modify
+	my ole code so as to be able in the future to parse embedded docs and splice
+	them together, which could be a wee bit of a challenge.
+	
 
 	* modify configure script so its possible to link against a different expat
 	lib, or to disable it or something.
@@ -26,11 +63,6 @@ ALL TODO
 	* i have Plcfbte's marked as generic empty structures in the old code, which 
 	is technically incorrect but works the way i've set up the code to handle it.
 	* wvToggle is wrong im sure.
-	* i should create a lex headerfile to Init,Copy,Read from File, and Read
-	from Bucket, so as to retain my sanity.
-	* convert stylesheet to correct stylesheet.
-	* convert chp to CHP.
-	* convert pap to PAP.
 	* the old ffffffff list problem still exists with the new interface, i must 
 	finally kill that issue once and for all
 	* colspan support, find the smallest common unit, and restart the
@@ -43,16 +75,10 @@ ALL TODO
 
 	* use twips from config file throughout mswordview
 	I want...
-	* save word 6 and word 2 in similar format to auto fib grabber.
 	
 	* dont parse a $ with a \ before it.
 	* implement whatever special drawing format there is.
 	* patch thai handling back in.
-	* look at the complex code and try and pare it down to
-	readable size. also do the same to the decode_letter thing
-	as well, so as to make that simpler.
-	* its too complex, im going to strip out everything from decode_simple
-	and start going through it again simpler.
 	* test that continous sections and endnotes at the end of section, and
 	other things like that do what i think they should do.
 	* placement of footnotes, what does "treat like endnotes" really mean ?
@@ -85,8 +111,6 @@ ALL TODO
 	of the DOP fields ?
 	* two pass parser for finding best fit html tables for word tables.
 	* gtk+dps wysiwyg viewer, output to ps from this
-	* --> xml support ??, im told that xml is the way to go, i dont know a thing
-	about it yet, so the next task is to learn it.
 	* use incremental zlib functions to do decompressing rather than use mmap,
 	someone who doesnt have mmap on their system can send me a patch for this one
 	;-)

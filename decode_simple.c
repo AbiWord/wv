@@ -19,7 +19,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	PAPX_FKP para_fkp;
 	CHPX_FKP char_fkp;
 	PAP apap;
-        CHP achp;
+    CHP achp;
 	U32 piececount=0,i,j=0;
 	U32 beginfc,endfc;
 	U32 begincp,endcp;
@@ -27,12 +27,16 @@ void wvDecodeSimple(wvParseStruct *ps)
 	U16 eachchar;
 	U32 para_fcFirst, para_fcLim=0xffffffff;
 	U32 char_fcFirst, char_fcLim=0xffffffff;
+	U32 section_fcFirst, section_fcLim=0xffffffff;
 	BTE *btePapx, *bteChpx;
 	U32 *posPapx, *posChpx;
-	U32 para_intervals, char_intervals;
+	U32 para_intervals, char_intervals, section_intervals;
 	U16 charset;
 	U8 state=0;
-	int para_pendingclose=0,char_pendingclose=0;
+	int para_pendingclose=0,char_pendingclose=0,section_pendingclose=0;
+	SED *sed;
+	SEP sep;
+	U32 *posSedx;
 
 	/*we will need the stylesheet to do anything useful with layout and look*/
 	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
@@ -64,10 +68,13 @@ void wvDecodeSimple(wvParseStruct *ps)
     	wvListBTE_PLCF(&bteChpx,&posChpx,&char_intervals);
 		}
 	else	/* word 97 */
-	     {
-	wvGetBTE_PLCF(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
+		{
+		wvGetBTE_PLCF(&btePapx,&posPapx,&para_intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
     	wvGetBTE_PLCF(&bteChpx,&posChpx,&char_intervals,ps->fib.fcPlcfbteChpx,ps->fib.lcbPlcfbteChpx,ps->tablefd);
-	     }
+		}
+
+	wvGetSED_PLCF(&sed,&posSedx,&section_intervals,ps->fib.fcPlcfsed,ps->fib.lcbPlcfsed,ps->tablefd);
+	wvTrace("section_intervals is %d\n",section_intervals);
 
 	/*
 	The text of the file starts at fib.fcMin, but we will use the piecetable 
@@ -84,7 +91,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	if (ps->fib.fcMac != (S32)(wvNormFC(ps->clx.pcd[ps->clx.nopcd-1].fc,NULL)+ps->clx.pos[ps->clx.nopcd]))
 	*/
 	if ( ps->fib.fcMac != wvGetEndFCPiece(ps->clx.nopcd-1,&ps->clx) )
-		wvError("fcMac is not the same as the piecetable %x %x!\n",ps->fib.fcMac,wvGetEndFCPiece(ps->clx.nopcd-1,&ps->clx));
+		wvTrace("fcMac is not the same as the piecetable %x %x!\n",ps->fib.fcMac,wvGetEndFCPiece(ps->clx.nopcd-1,&ps->clx));
 
 	charset = wvAutoCharset(&ps->clx);
 
@@ -103,11 +110,37 @@ void wvDecodeSimple(wvParseStruct *ps)
 		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
 		for (i=begincp,j=beginfc;i<endcp;i++,j += wvIncFC(chartype))
 			{
+			/* character properties */
+			if (j == char_fcLim)
+				{
+				wvHandleElement(ps, CHARPROPEND, (void*)&achp);
+				char_pendingclose = 0;
+				}
+			
 			/* paragraph properties */
 			if (j == para_fcLim)
 				{
 				wvHandleElement(ps, PARAEND, (void*)&apap);
 				para_pendingclose = 0;
+				}
+			
+			if (j == section_fcLim)
+				{
+				wvHandleElement(ps, SECTIONEND, (void*)&sep);
+				section_pendingclose = 0;
+				}
+
+			if ((section_fcLim == 0xffffffff) || (section_fcLim == j))
+				{
+				wvTrace("j i is %x %d\n",j,i);
+				wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),&sep,&section_fcFirst,&section_fcLim, i,&ps->clx, sed, posSedx, section_intervals, &stsh,ps->mainfd);
+				wvTrace("section begins at %x ends %x\n", section_fcFirst, section_fcLim);
+				}
+
+			if (j == section_fcFirst)
+				{
+				wvHandleElement(ps, SECTIONBEGIN, (void*)&sep);
+				section_pendingclose = 1;
 				}
 			
 			if ((para_fcLim == 0xffffffff) || (para_fcLim == j))
@@ -120,26 +153,16 @@ void wvDecodeSimple(wvParseStruct *ps)
 
 			if (j == para_fcFirst)
 				{
-				wvAssembleSimplePAP(&apap, para_fcLim, &para_fkp, &stsh);
+				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &stsh);
 				wvHandleElement(ps, PARABEGIN, (void*)&apap);
 				para_pendingclose = 1;
 				}
 
-			/* character properties */
-			if (j == char_fcLim)
-				{
-				wvHandleElement(ps, CHARPROPEND, (void*)&achp);
-				char_pendingclose = 0;
-				}
-			
 			if ((char_fcLim == 0xffffffff) || (char_fcLim == j))
 				{
 				wvTrace("j i is %x %d\n", j, i);
 				wvReleaseCHPX_FKP(&char_fkp);
-				wvGetSimpleCharBounds(wvQuerySupported(&ps->fib, NULL),
-						      &char_fkp, &char_fcFirst, &char_fcLim,
-						      i, &ps->clx, bteChpx, posChpx,
-						      char_intervals, ps->mainfd);
+				wvGetSimpleCharBounds(wvQuerySupported(&ps->fib, NULL), &char_fkp, &char_fcFirst, &char_fcLim, i, &ps->clx, bteChpx, posChpx, char_intervals, ps->mainfd);
 				wvTrace("char begins at %x ends %x\n", char_fcFirst, char_fcLim);
 				}
 
@@ -164,6 +187,8 @@ void wvDecodeSimple(wvParseStruct *ps)
 		wvHandleElement(ps, CHARPROPEND, (void*)&achp);
 	if (para_pendingclose)
 		wvHandleElement(ps, PARAEND, (void*)&apap);
+	if (section_pendingclose)
+		wvHandleElement(ps, SECTIONEND, (void*)&sep);
 
 	wvReleasePAPX_FKP(&para_fkp);
 	wvReleaseCHPX_FKP(&char_fkp);
@@ -230,9 +255,7 @@ int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U3
 	return(wvGetIntervalBounds(fcFirst,fcLim,currentfc,fkp->rgfc,fkp->crun+1));
 	}
 
-int wvGetSimpleCharBounds(int version, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, 
-			  U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte,
-			  FILE *fd)
+int wvGetSimpleCharBounds(int version, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, FILE *fd)
 	{
 	U32 currentfc;
 	BTE entry;
@@ -280,5 +303,47 @@ int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *rgfc, U32 
 	*fcFirst = wvNormFC(rgfc[nopos-2],NULL);
 	*fcLim = wvNormFC(rgfc[nopos-1],NULL);
 	wvTrace("I'd rather not see this happen at all :-)\n");
+	return(0);
+	}
+
+
+int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd)
+	{
+	U32 i=0;
+	SEPX sepx;
+	long pos = ftell(fd);
+	*fcFirst = 0xffffffffL;
+	while (i<section_intervals)
+		{
+		wvTrace("searching for sep %d %d\n",posSedx[i],cp);
+		if (posSedx[i] == cp)
+			{
+			wvTrace("found at %d %d\n",posSedx[i],posSedx[i+1]);
+			*fcFirst = wvConvertCPToFC(posSedx[i], clx);
+			*fcLim = wvConvertCPToFC(posSedx[i+1], clx);
+			wvTrace("found at %x %x\n",*fcFirst,*fcLim);
+			break;
+			}
+		i++;
+		}
+
+	if (*fcFirst == 0xffffffff)
+		{
+		*fcFirst = wvConvertCPToFC(posSedx[section_intervals-1], clx);
+		*fcLim = wvConvertCPToFC(posSedx[section_intervals], clx);
+		wvError("I'd rather not see this happen at all :-)\n");
+		i--;
+		}
+
+	wvInitSEP(sep);
+
+	if (sed[i].fcSepx != 0xffffffffL)
+		{
+		fseek(fd,wvNormFC(sed[i].fcSepx,NULL),SEEK_SET);
+		wvGetSEPX(&sepx,fd);
+		wvAddSEPXFromBucket(sep,&sepx,stsh);
+		}
+
+	fseek(fd,pos,SEEK_SET);
 	return(0);
 	}

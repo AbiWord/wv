@@ -1,28 +1,32 @@
-typedef struct _ANLV
+#include <stdlib.h>
+#include <stdio.h>
+#include "wv.h"
+
+void wvInitANLV(ANLV *item)
 	{
-	U8 nfc;
- 	U8 cxchTextBefore;
-	U8 cxchTextAfter;
- 	U8 jc:2;
-	U8 fPrev:1;
-	U8 fHang:1;
-	U8 fSetBold:1;
-	U8 fSetItalic:1;
-	U8 fSetSmallCaps:1;
-	U8 fSetCaps:1;
- 	U8 fSetStrike:1;
-	U8 fSetKul:1;
-	U8 fPrevSpace:1;
-	U8 fBold:1;
-	U8 FItalic:1;
-	U8 fSmallCaps:1;
-	U8 fCaps:1;
-	U8 fStrike:1;
-	U8 kul:3;
-	U8 ico:5;
-	S16 ftc;
-	U16 hps;
-	U16 iStartAt;
-	U16 dxaIndent;
-	U16 dxaSpace;
-	} ANLV;
+	item->nfc=0;
+ 	item->cxchTextBefore=0;
+	item->cxchTextAfter=0;
+ 	item->jc=0;
+	item->fPrev=0;
+	item->fHang=0;
+	item->fSetBold=0;
+	item->fSetItalic=0;
+	item->fSetSmallCaps=0;
+	item->fSetCaps=0;
+ 	item->fSetStrike=0;
+	item->fSetKul=0;
+	item->fPrevSpace=0;
+	item->fBold=0;
+	item->fItalic=0;
+	item->fSmallCaps=0;
+	item->fCaps=0;
+	item->fStrike=0;
+	item->kul=0;
+	item->ico=0;
+	item->ftc=0;
+	item->hps=0;
+	item->iStartAt=0;
+	item->dxaIndent=0;
+	item->dxaSpace=0;
+	} 

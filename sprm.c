@@ -76,7 +76,7 @@ int wvEatSprm(U16 sprm,U8 *pointer, U16 *pos)
 		{
 		wvTrace("sprmTDefTable\\sprmTDefTable10\n");
 		len = bread_16ubit(pointer,pos);
-		len++;
+		len--;
 		}
 	else
 		{
@@ -253,28 +253,22 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			apap->wr = bgetc(pointer,pos);
 			break;
 		case sprmPBrcTop:
-			wvGetBRCFromBucket(&apap->brcTop,pointer);
-			(*pos)+=4;
+			(*pos)+=wvGetBRCFromBucket(version,&apap->brcTop,pointer);
 			break;
 		case sprmPBrcLeft:
-			wvGetBRCFromBucket(&apap->brcLeft,pointer);
-			(*pos)+=4;
+			(*pos)+=wvGetBRCFromBucket(version,&apap->brcLeft,pointer);
 			break;
 		case sprmPBrcBottom:
-			wvGetBRCFromBucket(&apap->brcBottom,pointer);
-			(*pos)+=4;
+			(*pos)+=wvGetBRCFromBucket(version,&apap->brcBottom,pointer);
 			break;
 		case sprmPBrcRight:
-			wvGetBRCFromBucket(&apap->brcRight,pointer);
-			(*pos)+=4;
+			(*pos)+=wvGetBRCFromBucket(version,&apap->brcRight,pointer);
 			break;
 		case sprmPBrcBetween:
-			wvGetBRCFromBucket(&apap->brcBetween,pointer);
-			(*pos)+=4;
+			(*pos)+=wvGetBRCFromBucket(version,&apap->brcBetween,pointer);
 			break;
 		case sprmPBrcBar:
-			wvGetBRCFromBucket(&apap->brcBar,pointer);
-			(*pos)+=4;
+			(*pos)+=wvGetBRCFromBucket(version,&apap->brcBar,pointer);
 			break;
 		case sprmPFNoAutoHyph:
 			apap->fNoAutoHyph = bgetc(pointer,pos);
@@ -569,8 +563,7 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			(*pos)+=4;
 			break;
 		case sprmCBrc:
-			wvGetBRCFromBucket(&achp->brc,pointer);
-			(*pos)+=4;
+			(*pos)+=wvGetBRCFromBucket(version,&achp->brc,pointer);
 			break;
 		case sprmCShd:
 			wvGetSHDFromBucket(&apap->shd,pointer);
@@ -597,7 +590,41 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		case sprmCCpg:			/* not fully mentioned in spec*/
 			achp->cpg = bread_16ubit(pointer,pos);
 			break;
+		case sprmCLid:			/* 
+								only used internally, never stored ( word 97 )
+								but exists in earlier versions so...
+								*/
+			achp->lid = bread_16ubit(pointer,pos);
+			break;
 		/* End of CHP*/
+
+		/* Place Holders for TAP, need to be implemented */
+		case sprmTTableBorders:
+			for (temp8=0;temp8<12;temp8++)
+				{
+				if (version == 0)
+					bread_16ubit(pointer,pos);
+				else
+					bgetc(pointer,pos);
+				}
+			break;
+		case sprmTSetBrc:
+			if (version == 0)
+				{
+				int len;
+				len = bgetc(pointer,pos);
+				for (temp8=0;temp8<len;temp8++)
+					bgetc(pointer,pos);
+				}
+			else
+				{
+				bgetc(pointer,pos);
+				bgetc(pointer,pos);
+				bgetc(pointer,pos);
+				(*pos)+=wvGetBRCFromBucket(version,&achp->brc,pointer);
+				}
+			break;
+		/* end of TAP */
 
 			/*
 		case sprmPicBrcl
@@ -613,7 +640,6 @@ void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		case sprmCHpsBi:		/* ???? */
 		case sprmPRuler:		/* ???? */
 		case sprmCIdCharType:	/* obsolete*/
-		case sprmCLid:			/* only used internally, never stored */
 		case sprmCKcd: 			/* ???? */
 		case sprmCCharScale:	/* ???? */
 		case sprmNoop:			/* no operand */
@@ -1410,7 +1436,7 @@ void decode_sprm(FILE* in,U16 clist,pap *retpap,chp *retchp,sep *retsep,U16 *l,U
 			break;
 		case 0x080A:
 			retchp->fOle2=dgetc(in,list);
-			error(erroroutput,"is an ole2 %d\n",retchp->fOle2);
+			fprintf(stderr,"is an ole2 %d\n",retchp->fOle2);
 			(*l)++;
 			break;
 			break;
@@ -1590,13 +1616,19 @@ void wvApplysprmPIncLvl(PAP *apap,U8 *pointer,U16 *pos)
 void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	{
 	S16 temp_rgdxaTab[itbdMax];
+	/*
 	S8 temp_rgtbd[itbdMax];
+	*/
+	TBD temp_rgtbd[itbdMax];
 	int i,j,k=0,oldpos;
 	U8 cch,itbdDelMax;
 	S16 *rgdxaDel;
 	U8 itbdAddMax;
 	S16 *rgdxaAdd;
+	/*
 	S8 *rgtbdAdd;
+	*/
+	TBD *rgtbdAdd;
 
 	oldpos = *pos;
 	cch = dgetc(NULL,&pointer);
@@ -1624,10 +1656,16 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 			rgdxaAdd[i] = dread_16ubit(NULL,&pointer);
 			(*pos)+=2;
 			}
+		/*
 		rgtbdAdd = (S8 *)malloc(itbdAddMax);
+		*/
+		rgtbdAdd = (TBD *)malloc(itbdAddMax*sizeof(TBD));
 		for(i=0;i<itbdAddMax;i++)
 			{
+			wvGetTBDFromBucket(&rgtbdAdd[i],pointer);
+			/*
 			rgtbdAdd[i] = dgetc(NULL,&pointer);
+			*/
 			(*pos)++;
 			}
 		}
@@ -1658,7 +1696,10 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 			if (rgdxaDel[i] != apap->rgdxaTab[j])
 				{
 				temp_rgdxaTab[k] = apap->rgdxaTab[j];
+				wvCopyTBD(&temp_rgtbd[k++],&apap->rgtbd[j]);
+				/*
 				temp_rgtbd[k++] = apap->rgtbd[j];
+				*/
 				}
 			}
 		}
@@ -1674,18 +1715,27 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 		if ( (j<apap->itbdMac) && (temp_rgdxaTab[j] < rgdxaAdd[i]) )
 			{
 			apap->rgdxaTab[k] = temp_rgdxaTab[j];
+			wvCopyTBD(&apap->rgtbd[k++],&temp_rgtbd[j++]);
+			/*
 			apap->rgtbd[k++] = temp_rgtbd[j++];
+			*/
 			}
 		else if ((j<apap->itbdMac) && (temp_rgdxaTab[j] == rgdxaAdd[i]))
 			{
 			apap->rgdxaTab[k] = rgdxaAdd[i];
+			wvCopyTBD(&apap->rgtbd[k++],&rgtbdAdd[i++]);
+			/*
 			apap->rgtbd[k++] = rgtbdAdd[i++];
+			*/
 			j++;
 			}
 		else /*if (i < itbdAddMax)*/
 			{
 			apap->rgdxaTab[k] = rgdxaAdd[i];
+			wvCopyTBD(&apap->rgtbd[k++],&rgtbdAdd[i++]);
+			/*
 			apap->rgtbd[k++] = rgtbdAdd[i++];
+			*/
 			}
 		}
 
@@ -1698,16 +1748,17 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 	{
 	S16 temp_rgdxaTab[itbdMax];
-	S8 temp_rgtbd[itbdMax];
+	TBD temp_rgtbd[itbdMax];
 	U8 cch;
  	U8 itbdDelMax;
  	S16 *rgdxaDel;
  	S16 *rgdxaClose;
  	U8 itbdAddMax;
  	S16 *rgdxaAdd;
- 	U8 *rgtbdAdd;
+ 	TBD *rgtbdAdd;
 	U8 i,j,k=0;
 
+	wvTrace("entering wvApplysprmPChgTabs\n");
 	/*
 	itbdDelMax and itbdAddMax are defined to be equal to 50. This means that the
 	largest possible instance of sprmPChgTabs is 354. When the length of the
@@ -1717,6 +1768,7 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 	*/
 
 	cch = dgetc(NULL,&pointer);
+	wvTrace("cch is %d\n",cch);
 	(*pos)++;
 	itbdDelMax = dgetc(NULL,&pointer);
 	(*pos)++;
@@ -1747,7 +1799,7 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 	if (itbdAddMax != 0)
 		{
 		rgdxaAdd = (S16*)malloc(sizeof(S16) * itbdAddMax);
-		rgtbdAdd = (U8*)malloc(itbdAddMax);
+		rgtbdAdd = (TBD*)malloc(itbdAddMax*sizeof(TBD));
 		for (i=0;i<itbdAddMax;i++)
 			{
 			rgdxaAdd[i] = dread_16ubit(NULL,&pointer);
@@ -1755,7 +1807,10 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 			}
 		for (i=0;i<itbdAddMax;i++)
 			{
+			/*
 			rgtbdAdd[i] = dgetc(NULL,&pointer);
+			*/
+			wvGetTBDFromBucket(&rgtbdAdd[i],pointer);
 			(*pos)++;
 			}
 		}
@@ -1797,7 +1852,10 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 				|| (apap->rgdxaTab[j] < rgdxaDel[i] + rgdxaClose[i]) )
 				{
 				temp_rgdxaTab[k] = apap->rgdxaTab[j];
+				wvCopyTBD(&temp_rgtbd[k++],&apap->rgtbd[j]);
+				/*
 				temp_rgtbd[k++] = apap->rgtbd[j];
+				*/
 				}
 			}
 		}
@@ -1811,18 +1869,27 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 		if ( (j<apap->itbdMac) && (temp_rgdxaTab[j] < rgdxaAdd[i]) )
 			{
 			apap->rgdxaTab[k] = temp_rgdxaTab[j];
+			wvCopyTBD(&apap->rgtbd[k++],&temp_rgtbd[j++]);
+			/*
 			apap->rgtbd[k++] = temp_rgtbd[j++];
+			*/
 			}
 		else if ((j<apap->itbdMac) && (temp_rgdxaTab[j] == rgdxaAdd[i]))
 			{
 			apap->rgdxaTab[k] = rgdxaAdd[i];
+			wvCopyTBD(&apap->rgtbd[k++],&rgtbdAdd[i++]);
+			/*
 			apap->rgtbd[k++] = rgtbdAdd[i++];
+			*/
 			j++;
 			}
 		else /*if (i < itbdAddMax)*/
 			{
 			apap->rgdxaTab[k] = rgdxaAdd[i];
+			wvCopyTBD(&apap->rgtbd[k++],&rgtbdAdd[i++]);
+			/*
 			apap->rgtbd[k++] = rgtbdAdd[i++];
+			*/
 			}
 		}
 
@@ -1879,7 +1946,10 @@ void wvApplysprmPAnld(int version,PAP *apap,U8 *pointer, U16 *pos)
 	dgetc(NULL,&pointer);
 	(*pos)++;
 	wvGetANLD_FromBucket(version,&apap->anld,pointer);
-	(*pos)+=84;
+	if (version == 0)
+		(*pos)+=cbANLD;
+	else
+		(*pos)+=cb6ANLD;
 	}
 
 void wvApplysprmPPropRMark(PAP *apap,U8 *pointer,U16 *pos)

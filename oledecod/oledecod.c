@@ -46,7 +46,6 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
 #include <ctype.h>
 #include <sys/types.h>
 #include <assert.h>

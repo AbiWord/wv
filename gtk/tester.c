@@ -1,5 +1,13 @@
 #include <gnome.h>
 #include <gtk/gtk.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <limits.h>
+
+#ifndef MAXPATH
+#define MAXPATH         255
+#endif
+
 
 char *gwordviewversion="0.0.1";
 
@@ -18,8 +26,12 @@ gint delete (GtkWidget *widget, GtkWidget *event, gpointer cbdata);
 
 void create_menus (GnomeApp *app);
 
+
+char * ttoa(time_t curtime, int append_nl);
+
 #include "wv.h"
-FILE *input;
+FILE *input=NULL;
+char *mfilename=NULL;
 wvParseStruct ps;
 
 
@@ -272,15 +284,15 @@ void file_show_info(GtkWidget *widget, gpointer cbdata)
 		},
 		{
 		"Pathname", "Inode", "Mode", "No of Links", "UID", "GID", "Last Accessed",
-		"Last Modified", "Last Status Change", "Size", "File Block Size"
+		"Last Modified", "Last Status Change", "Size", "File Block Size", "No Of Blocks"
 		},
 		{
-		"Version","Complex", "Encrypted", "Contains Macros", "Last Saved on a", "Template", "Title", "Subject", "Keywords", "Comments",
+		"Version","Complex (Fastsaved)", "Encrypted", "Has Macro Allocation", "Last Saved under", "Template", "Title", "Subject", "Keywords", "Comments",
 		"Author", "Last Revised By", "Data document filename", "Header document filename"
 		}
 	};
 
-	char lens[3] = {18,11,14};
+	char lens[3] = {18,12,14};
 	char *bufferl;
 
 	GtkWidget *window;
@@ -295,9 +307,14 @@ void file_show_info(GtkWidget *widget, gpointer cbdata)
 	GtkWidget *pixmapwid;
 	GdkPixmap *my_pix;
 	GtkStyle *style;
-	int row,col,ret,test;
+	int row,col,ret=1,test;
 	SummaryInfo si;
 	char szTemp[256];
+	char *str;
+	struct stat buf;
+	int statret=-1;
+
+
 
 	
 	window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
@@ -313,18 +330,16 @@ void file_show_info(GtkWidget *widget, gpointer cbdata)
 
 	if (input)
 		{
+		if (mfilename)
+			{
+			wvError("going in %s\n",mfilename);
+			statret = stat(mfilename, &buf);
+			}
+		
 		ret = wvSumInfoOpenStream(&si,ps.summary);
+
 		if (ret)
 			fprintf(stderr,"open stream failed\n");
-		else
-			{
-			ret = wvSumInfoGetString(szTemp, 256, PID_TITLE, &si);
-			if (!ret)
-				fprintf(stderr,"The title is %s\n",szTemp);
-			else
-				fprintf(stderr,"no title found\n");
-
-			}
 		}
 	else
 		{
@@ -338,6 +353,12 @@ void file_show_info(GtkWidget *widget, gpointer cbdata)
 
 		tmptable = gtk_table_new(2,18,FALSE);
 
+		/*we will need the table of names to answer questions like the name of the doc*/
+		if ( (wvQuerySupported(&ps.fib,NULL) == 2) || (wvQuerySupported(&ps.fib,NULL) == 3) )
+			wvGetSTTBF6(&ps.anSttbfAssoc,ps.fib.fcSttbfAssoc,ps.fib.lcbSttbfAssoc,ps.tablefd);
+		else /*word 97*/
+			wvGetSTTBF(&ps.anSttbfAssoc,ps.fib.fcSttbfAssoc,ps.fib.lcbSttbfAssoc,ps.tablefd);
+
 		for (row=0;row<lens[i];row++)
 			{
 			for (col=0;col<1;col++)
@@ -346,27 +367,146 @@ void file_show_info(GtkWidget *widget, gpointer cbdata)
 				gtk_table_attach_defaults(GTK_TABLE(tmptable), label, col,col+1,row,row+1);
 				gtk_widget_show(label);
 				}
-			for (col=1;col<2;col++)
+			if (ret == 0)
 				{
-				test = wvSumInfoForceString(szTemp, 256, row+2, &si);
-				if (test == -1)
+				switch (i)
 					{
-					style = gtk_widget_get_style(window);
-					my_pix = gdk_pixmap_create_from_xpm(window->window, &mask,
-					&style->bg[GTK_STATE_NORMAL], "test.xpm");
+					case 0:
+						for (col=1;col<2;col++)
+							{
+							test = wvSumInfoForceString(szTemp, 256, row+2, &si);
+							if (test == -1)
+								{
+								style = gtk_widget_get_style(window);
+								my_pix = gdk_pixmap_create_from_xpm(window->window, &mask,
+								&style->bg[GTK_STATE_NORMAL], "test.xpm");
 
-					pixmapwid = gtk_pixmap_new( my_pix, mask );
-					gtk_widget_show( pixmapwid );
+								pixmapwid = gtk_pixmap_new( my_pix, mask );
+								gtk_widget_show( pixmapwid );
 
-					label = gtk_button_new();
-					gtk_container_add( GTK_CONTAINER(button), pixmapwid );
+								label = gtk_button_new();
+								gtk_container_add( GTK_CONTAINER(button), pixmapwid );
+								}
+							else if (test != 1)
+								{
+								label = gtk_label_new (szTemp);
+								gtk_table_attach_defaults(GTK_TABLE(tmptable), label, col,col+1,row,row+1);
+								}
+							gtk_widget_show(label);
+							}
+						break;
+					case 1:
+						if (statret != 0)
+							{
+							wvError("shite\n");
+							break;
+							}
+						switch (row)
+							{
+							case 0:
+								label = gtk_label_new (mfilename);
+								break;
+							case 1:
+								sprintf(szTemp,"%d",buf.st_ino);
+								label = gtk_label_new (szTemp);
+								break;
+							case 2:
+								sprintf(szTemp,"%c%c%c%c%c%c%c%c%c",
+								(buf.st_mode & S_IRUSR) ? 'r' : '-',
+								(buf.st_mode & S_IWUSR) ? 'w' : '-',
+								(buf.st_mode & S_IXUSR) ? 'x' : '-',
+								(buf.st_mode & S_IRGRP) ? 'r' : '-',
+								(buf.st_mode & S_IWGRP) ? 'w' : '-',
+								(buf.st_mode & S_IXGRP) ? 'x' : '-',
+								(buf.st_mode & S_IROTH) ? 'r' : '-',
+								(buf.st_mode & S_IWOTH) ? 'w' : '-',
+								(buf.st_mode & S_IXOTH) ? 'x' : '-'
+								);
+								label = gtk_label_new (szTemp);
+								break;
+							case 3:
+								sprintf(szTemp,"%d",buf.st_nlink);
+                                label = gtk_label_new (szTemp);
+                                break;
+							case 4:
+								sprintf(szTemp,"%d",buf.st_uid);
+                                label = gtk_label_new (szTemp);
+                                break;
+							case 5:
+								sprintf(szTemp,"%d",buf.st_gid);
+                                label = gtk_label_new (szTemp);
+                                break;
+							case 6:
+                                label = gtk_label_new (ttoa(buf.st_atime, FALSE));
+                                break;
+							case 7:
+                                label = gtk_label_new (ttoa(buf.st_mtime, FALSE));
+                                break;
+							case 8:
+                                label = gtk_label_new (ttoa(buf.st_ctime, FALSE));
+                                break;
+							case 9:
+								sprintf(szTemp,"%d",buf.st_size);
+                                label = gtk_label_new (szTemp);
+                                break;
+							case 10:
+								sprintf(szTemp,"%ld",buf.st_blksize);
+                                label = gtk_label_new (szTemp);
+                                break;
+							case 11:
+								sprintf(szTemp,"%ld",buf.st_blocks);
+                                label = gtk_label_new (szTemp);
+                                break;
+							}
+						gtk_table_attach_defaults(GTK_TABLE(tmptable), label, col,col+1,row,row+1);
+						gtk_widget_show(label);
+						break;
+					case 2:
+						switch (row)
+							{
+							case 1:
+								if (ps.fib.fComplex)
+									label = gtk_label_new ("Yes");
+								else
+									label = gtk_label_new ("No");
+								break;
+							case 2:
+								if (ps.fib.fEncrypted)
+									label = gtk_label_new ("Yes");
+								else
+									label = gtk_label_new ("No");
+								break;
+							case 3:
+								if (ps.fib.lcbCmds)
+									label = gtk_label_new ("Yes");
+								else
+									label = gtk_label_new ("No");
+								break;
+							case 4:
+								if (ps.fib.fMac)
+									label = gtk_label_new ("MacOS");
+								else
+									label = gtk_label_new ("Windows");
+								break;
+							default:
+								label = gtk_label_new ("not imp");
+								break;
+							}
+						if ( (row >4) && (row < 4+ps.anSttbfAssoc.nostrings) )
+							{
+							if (ps.anSttbfAssoc.extendedflag == 0xFFFF)
+								{
+								str = wvWideStrToMB(ps.anSttbfAssoc.u16strings[row-4]);
+								label = gtk_label_new (str);
+								wvFree(str);
+								}
+							else
+								label = gtk_label_new (ps.anSttbfAssoc.s8strings[row-4]);
+							}
+							gtk_table_attach_defaults(GTK_TABLE(tmptable), label, col,col+1,row,row+1);
+							gtk_widget_show(label);
+						break;
 					}
-				else if (test != 1)
-					{
-					label = gtk_label_new (szTemp);
-					gtk_table_attach_defaults(GTK_TABLE(tmptable), label, col,col+1,row,row+1);
-					}
-				gtk_widget_show(label);
 				}
 			}
 
@@ -422,6 +562,7 @@ static void doc_open_filesel(GtkWidget *wgt, gpointer cbdata)
 	int ret;
 
 	g_print ("%s\n", gtk_file_selection_get_filename (GTK_FILE_SELECTION (fs)));
+	mfilename = strdup(gtk_file_selection_get_filename (GTK_FILE_SELECTION (fs)));
 	input = fopen(gtk_file_selection_get_filename (GTK_FILE_SELECTION (fs)) ,"rb");
 
 	ret = wvInitParser(&ps,input);
@@ -443,4 +584,60 @@ static void doc_open_filesel_destroy(GtkWidget *wgt, gpointer cbdata)
 	gtk_widget_destroy(w);
 	w = NULL;
 	} 
+
+
+/*
+ * PUBLIC: file_full_pathname_make
+ *
+ * given a filename, tries to construct the full pathname to the file.  if
+ * successfuly, returns a newly allocated buffer with the full pathname.
+ * if the filename is already a full pathname, the pointer to the filename
+ * is returned as is (so no new buffer is allocated).
+ */
+/*nicked from gnotepad C. */
+char *file_full_pathname_make(char *fname)
+{
+        char *full, *cwd;
+        int len;
+
+        if (fname[0] == '/')
+                return g_strdup(fname);
+
+        if ((cwd = getcwd(NULL, MAXPATH)) == NULL)
+                return g_strdup(fname);
+
+        if (cwd[strlen(cwd) - 1] == '/')
+                cwd[strlen(cwd) - 1] = '\0';
+
+        len = strlen(cwd) + strlen(fname) + 2;
+        full = (char *)g_malloc(len);
+        if ((strlen(fname) > 2) && fname[0] == '.' && fname[1] == '/')
+                g_snprintf(full, len, "%s/%s", cwd, fname + 2);
+        else
+                g_snprintf(full, len, "%s/%s", cwd, fname);
+        g_free(cwd);
+
+        return full;
+} /* file_full_pathname_make */
+
+
+/*
+ * PUBLIC: ttoa
+ *
+ * converts time_t to an ascii string.  non-reentrant because ctime() is
+ * non-reentrant.
+ */
+/*nicked from gnotepad C. */
+char * ttoa(time_t curtime, int append_nl)
+	{
+	char *timestr;
+
+	timestr = ctime(&curtime);
+	if (!append_nl) {
+			if (timestr[strlen(timestr) - 1] == '\n')
+					timestr[strlen(timestr) - 1] = '\0';
+	}
+
+	return timestr;
+	} /* ttoa */
 

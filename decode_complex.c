@@ -213,18 +213,14 @@ int wvGetComplexCharBounds(int version, CHPX_FKP *fkp, U32 *fcFirst,
 
 	wvGetCHPX_FKP(version, fkp, entry.pn, fd);
 
-	wvGetComplexCharfcFirst(version, fcFirst, currentfc, clx, bte, pos,
-				nobte, piece, fkp, fd);
-	piece = wvGetComplexCharfcLim(version, fcLim, currentfc, clx, bte, 
-				      pos, nobte, piece, fkp, fd);
+	wvGetComplexCharfcFirst(version, fcFirst, currentfc, clx, bte, pos, nobte, piece, fkp, fd);
+	piece = wvGetComplexCharfcLim(version, fcLim, currentfc, clx, bte, pos, nobte, piece, fkp, fd);
 
 	fseek(fd,currentpos,SEEK_SET);
 	return(piece);
 	}
 
-int wvGetComplexCharfcLim(int version, U32 *fcLim, U32 currentfc, CLX *clx, 
-			  BTE *bte, U32 *pos, int nobte, U32 piece, 
-			  CHPX_FKP *fkp, FILE *fd)
+int wvGetComplexCharfcLim(int version, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, FILE *fd)
 	{
 	U32 fcTest,beginfc;
 	BTE entry;
@@ -271,8 +267,7 @@ int wvGetComplexCharfcLim(int version, U32 *fcLim, U32 currentfc, CLX *clx,
 	}
 
 
-int wvGetComplexCharfcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, 
-			    BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, FILE *fd)
+int wvGetComplexCharfcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, FILE *fd)
 	{
 	U32 fcTest,endfc;
 	BTE entry;
@@ -336,13 +331,13 @@ pages. for the purposes of headers and footers etc.
 */
 void wvDecodeComplex(wvParseStruct *ps)
 	{
-	U32 piececount=0,i,j,temppiece;
-	U32 beginfc,endfc,discard;
+	U32 piececount=0,i,j;
+	U32 beginfc,endfc;
 	U32 begincp,endcp;
 	int chartype;
 	U16 eachchar;
-	U32 para_fcFirst=0,para_fcLim=0xffffffffL,para_tfcLim=0xffffffffL;
-	U32 char_fcFirst=0,char_fcLim=0xffffffffL,char_tfcLim=0xffffffffL;
+	U32 para_fcFirst=0,para_fcLim=0xffffffffL;
+	U32 char_fcFirst=0,char_fcLim=0xffffffffL;
 	BTE *btePapx=NULL, *bteChpx=NULL;
 	U32 *posPapx=NULL, *posChpx=NULL;
 	U32 para_intervals, char_intervals;
@@ -404,6 +399,12 @@ void wvDecodeComplex(wvParseStruct *ps)
 		fseek(ps->mainfd,beginfc,SEEK_SET);
 		for (i=begincp,j=beginfc;i<endcp;i++,j += wvIncFC(chartype))
 			{
+			/* character properties */
+			if (j == char_fcLim)
+				{
+				wvHandleElement(ps,CHARPROPEND, (void*)&achp);
+				char_pendingclose=0;
+				}
 
 			/* paragraph properties */
 			if (j == para_fcLim)
@@ -422,23 +423,16 @@ void wvDecodeComplex(wvParseStruct *ps)
 				para_fcLim = 0xfffffffeL;
 				*/
 				}
-	
 
 			if (j == para_fcFirst)
 				{
-				wvAssembleSimplePAP(&apap,para_fcLim,&para_fkp,&stsh);
+				wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&stsh);
 				wvTrace("cpiece is %d, but full no is %d\n",cpiece,ps->clx.nopcd);
 				wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&stsh,&ps->clx);
 				wvHandleElement(ps,PARABEGIN, (void*)&apap);
 				para_pendingclose=1;
 				}
 
-			/* character properties */
-			if (j == char_fcLim)
-				{
-				wvHandleElement(ps,CHARPROPEND, (void*)&achp);
-				char_pendingclose=0;
-				}
 
 			if ((char_fcLim == 0xffffffffL) || (char_fcLim == j))
 				{
@@ -450,7 +444,6 @@ void wvDecodeComplex(wvParseStruct *ps)
 				char_fcLim = 0xfffffffeL;
 				*/
 				}
-	
 
 			if (j == char_fcFirst)
 				{

@@ -121,12 +121,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_JUST:
 			if (mydata) wvTrace("1");
-			if (mydata->sd) wvTrace("2");
-			{
-			wvEle t = mydata->sd->elements[TT_JUSTIFICATION];
-			}
-		   
-		        wvTrace("just is %d\n",((PAP*)(mydata->props))->jc);
+		    wvTrace("just is %d\n",((PAP*)(mydata->props))->jc);
 			wvTrace("str is %s\n",mydata->sd->elements[TT_JUSTIFICATION].str[0]);
 			text = (char *)malloc(strlen(mydata->sd->elements[TT_JUSTIFICATION].str[((PAP*)(mydata->props))->jc])+1);
 			wvTrace("the just is %d\n",((PAP*)(mydata->props))->jc);

@@ -22,6 +22,7 @@ returns 1 for not an ole doc
 
 int myelehandler(wvParseStruct *ps,wvTag tag, void *props);
 int mydochandler(wvParseStruct *ps,wvTag tag);
+int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype);
 
 int main(int argc,char **argv)
 	{
@@ -47,7 +48,8 @@ int main(int argc,char **argv)
 		}
 
 	wvSetElementHandler(myelehandler);
-        wvSetDocumentHandler(mydochandler);
+	wvSetDocumentHandler(mydochandler);
+	wvSetCharHandler(myCharProc);
 
 	wvInitStateData(&myhandle);
     myhandle.fp = fopen("wvHtml.xml","rb");
@@ -96,6 +98,10 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
         case CHARPROPEND:
             wvEndCharProp(data);
             break;
+		case SECTIONBEGIN:
+			break;
+		case SECTIONEND:
+			break;
         default:
             break;
         }
@@ -122,3 +128,9 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
     return(0);
     }
 
+
+int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype)
+   {
+   wvOutputHtmlChar(eachchar,chartype,wvAutoCharset(&ps->clx));
+   return(0);
+   }

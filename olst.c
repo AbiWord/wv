@@ -1,9 +1,18 @@
-typedef struct _OLST
+#include <stdlib.h>
+#include <stdio.h>
+#include "wv.h"
+
+void wvInitOLST(OLST *item)
 	{
- 	ANLV rganlv[9];
- 	U8 fRestartHdr;
- 	U8 fSpareOlst2;
- 	U8 fSpareOlst3;
- 	U8 fSpareOlst4;
- 	XCHAR rgxch[32];
-	} OLST;
+	U8 i;
+	for (i=0;i<9;i++)
+		wvInitANLV(&item->rganlv[i]);
+ 	item->fRestartHdr=0;
+ 	item->fSpareOlst2=0;
+ 	item->fSpareOlst3=0;
+ 	item->fSpareOlst4=0;
+	for (i=0;i<32;i++)
+ 		item->rgxch[i]=0;
+	} 
+
+

@@ -15,6 +15,14 @@ void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh)
 	if (upxf->cbUPX <= 2)
 		return;
 	wvTrace("no is %d\n",upxf->cbUPX);
+	
+	while (i < upxf->cbUPX-2)
+		{
+		wvTrace("%x (%d)\n",*(upxf->upx.papx.grpprl+i),*(upxf->upx.papx.grpprl+i));
+		i++;
+		}
+	i=0;
+
 	while (i < upxf->cbUPX-2)	/*-2 because the istd takes up the first two bytes*/
 		{
 		sprm = bread_16ubit(upxf->upx.papx.grpprl+i,&i);
@@ -158,7 +166,7 @@ void wvCopyPAP(PAP *dest,PAP *src)
 	for (i=0;i<itbdMax;i++)
 		dest->rgdxaTab[i] = src->rgdxaTab[i];
 	for (i=0;i<itbdMax;i++)
-		dest->rgtbd[i] = src->rgtbd[i];;
+		wvCopyTBD(&dest->rgtbd[i],&src->rgtbd[i]);
 	}
 
 
@@ -250,7 +258,7 @@ void wvInitPAP(PAP *item)
 	for (i=0;i<itbdMax;i++)
 		item->rgdxaTab[i] = 0;
 	for (i=0;i<itbdMax;i++)
-		item->rgtbd[i] = 0;
+		wvInitTBD(&item->rgtbd[i]);
 	}
 
 /*
@@ -275,7 +283,7 @@ fkp.rgbx[i - 1] to find the PAPX for the paragraph.
 of the paragraph were at the last full save.
 */
 
-void wvAssembleSimplePAP(PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
+void wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 	{
 	PAPX *papx;
 	int index,i;
@@ -303,7 +311,10 @@ void wvAssembleSimplePAP(PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 		upxf.cbUPX = papx->cb-1;
 		upxf.upx.papx.istd = papx->istd;
 		upxf.upx.papx.grpprl = papx->grpprl;
-		wvAddPAPXFromBucket(apap,&upxf,stsh);
+		if (version == 0)
+			wvAddPAPXFromBucket(apap,&upxf,stsh);
+		else
+			wvAddPAPXFromBucket6(apap,&upxf,stsh);
 		wvTrace("apap jc is now %d\n",apap->jc);
 		}
 

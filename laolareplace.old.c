@@ -25,7 +25,6 @@ The interface to OLEdecode now has
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
 #include <ctype.h>
 #include <sys/types.h>
 #include <assert.h>
@@ -88,12 +87,6 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
   FILE *OLEfile=NULL;
   FILE *sbfile=NULL;
   FILE *infile=NULL;
-  
-#ifdef DEBUG
-  int debug=1;
-#else
-  int debug=0;
-#endif
   int BlockSize=0,Offset=0;
   int c,i,j,len,bytes;
   char *p;
@@ -115,8 +108,6 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
   S32 fullen;
   S32 temppos;
   
-
-
   *mainfd = NULL;
   *tablefd0 = NULL;
   *tablefd1 = NULL;
@@ -133,6 +124,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
 	}
   	
   ungetc(c,input);
+
 
   if(isprint(c)) {
      wvError("File looks like a plain text file.\n");
@@ -165,7 +157,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
      s = BDepot;
      root_list[0]=LongInt(Block+0x30);
      sbd_list[0]=(S16)LongInt(Block+0x3c);
-    if(debug) wvTrace("num_bbd_blocks %d, root start %d, sbd start %d\n",num_bbd_blocks,root_list[0],sbd_list[0]);
+    wvTrace("num_bbd_blocks %d, root start %d, sbd start %d\n",num_bbd_blocks,root_list[0],sbd_list[0]);
 	temppos = ftell(input);
 	fseek(input,0,SEEK_END);
 	fullen = ftell(input);
@@ -185,10 +177,14 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
 			wvError("2.2 ===========> Input file has faulty bbd\n");
 			return 3;
 			}
-       	fseek(input,FilePos,SEEK_SET);
-       	if(fread(s,512,1,input)!=1) 
+       	if (-1 == fseek(input,FilePos,SEEK_SET))
 			{
 			wvError("2.3 ===========> Input file has faulty bbd\n");
+			return(3);
+			}
+       	if(fread(s,512,1,input)!=1) 
+			{
+			wvError("2.4 ===========> Input file has faulty bbd\n");
 			return 3;
 			}
        	s += 0x200;
@@ -320,32 +316,32 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
        if(pps_list[j]->type==5) {  /* Root entry */
          OLEfile = tmpfile();
          sbfile = OLEfile;
-         if(debug) wvTrace("Reading sbFile %d\n",pps_start);
+         wvTrace("Reading sbFile %d\n",pps_start);
        }
        else if(!strcmp(pps_list[j]->name,Main)) {
          OLEfile = tmpfile();
          *mainfd = OLEfile;
-         if(debug) wvTrace("Reading Main %d\n",pps_start);
+         wvTrace("Reading Main %d\n",pps_start);
        }
        else if(!strcmp(pps_list[j]->name,Table0)) {
          OLEfile = tmpfile();
          *tablefd0 = OLEfile;
-         if(debug) wvTrace("Reading Table0 %d\n",pps_start);
+         wvTrace("Reading Table0 %d\n",pps_start);
        }
        else if(!strcmp(pps_list[j]->name,Table1)) {
          OLEfile = tmpfile();
          *tablefd1 = OLEfile;
-         if(debug) wvTrace("Reading Table1 %d\n",pps_start);
+         wvTrace("Reading Table1 %d\n",pps_start);
        }
        else if(!strcmp(pps_list[j]->name,Data)) {
          OLEfile = tmpfile();
          *data = OLEfile;
-         if(debug) wvTrace("Reading Data %d\n",pps_start);
+         wvTrace("Reading Data %d\n",pps_start);
        }
        else if(!strcmp(pps_list[j]->name,Summary)) {
          OLEfile = tmpfile();
          *summary= OLEfile;
-         if(debug) wvTrace("Reading Summary%d\n",pps_start);
+         wvTrace("Reading Summary%d\n",pps_start);
        }
 	   	
        if(pps_size<=0) OLEfile = NULL;
@@ -368,7 +364,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
   		 depot_len= 512*len;
        }
        while(pps_start != -2) {
-         if(debug) wvTrace("Reading block %d, Offset %x\n",pps_start,Offset);
+         wvTrace("Reading block %d, Offset %x\n",pps_start,Offset);
          FilePos = (pps_start+Offset)* BlockSize;
          bytes = THEMIN(BlockSize,pps_size);
          if (fseek(infile,FilePos,SEEK_SET) != 0) {

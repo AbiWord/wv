@@ -5,7 +5,6 @@
 void wvGetPHE6(PHE *dest,FILE *fd)
 	{
 	U8 temp8;
-	U32 temp32;
 
 #ifdef PURIFY
 	wvInitPHE(dest,0);

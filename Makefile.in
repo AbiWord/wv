@@ -120,7 +120,21 @@ MYOBJECTS =	\
 	wvHtmlEngine.o \
 	wvConfig.o \
 	wvparse.o \
-	reasons.o
+	reasons.o \
+	sep.o \
+	anlv.o \
+	olst.o \
+	asumy.o \
+	bkd.o \
+	bkl.o \
+	dogrid.o \
+	doptypography.o \
+	pgd.o \
+	rs.o \
+	rr.o \
+	tbd.o \
+	ftxbxs.o \
+	wkb.o
 
 
 #XML = -Lexpat/lib -lxmlparse -lxmltok

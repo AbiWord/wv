@@ -616,6 +616,12 @@ typedef struct _DOGRID
 	U32 fFollowMargins:1;
 	} DOGRID;
 
+typedef struct _ASUMY
+	{
+	S32 lLevel;
+	} ASUMY;
+
+
 void wvGetDOGRID(DOGRID *dogrid,FILE *fd);
 
 typedef struct _ASUMYI
@@ -1001,10 +1007,11 @@ typedef struct _BRC
 	U32 reserved:1;
 	} BRC;
 
-void wvGetBRC(BRC *abrc,FILE *infd);
-void wvGetBRCFromBucket(BRC *abrc,U8 *pointer);
+void wvGetBRC(int version,BRC *abrc,FILE *infd);
+int wvGetBRCFromBucket(int version,BRC *abrc,U8 *pointer);
 void wvInitBRC(BRC *abrc);
 void wvCopyBRC(BRC *dest, BRC *src);
+void wvGetBRC_internal6(BRC *abrc,FILE *infd,U8 *pointer);
 
 typedef struct _BRC10
 	{
@@ -1145,7 +1152,7 @@ typedef struct _ANLD
     XCHAR rgxch[32];
     } ANLD;
 
-void wvGetANL(int version,ANLD *item,FILE *fd);
+void wvGetANLD(int version,ANLD *item,FILE *fd);
 void wvGetANLD_FromBucket(int version,ANLD *item,U8 *pointer8);
 void wvCopyANLD(ANLD *dest, ANLD *src);
 void wvInitANLD(ANLD *item);
@@ -1321,6 +1328,21 @@ typedef struct _TAP
 void wvCopyTAP(TAP *dest,TAP *src);
 void wvInitTAP(TAP *item);
 
+typedef struct _TBD	/* 8 bits */
+	{
+	U32 jc:3;
+	U32 tlc:3;
+	U32 reserved:2;
+	} TBD;
+
+void wvInitTBD(TBD *item);
+void wvCopyTBD(TBD *dest,TBD *src);
+void wvGetTBD(TBD *item,FILE *fd);
+void wvGetTBDFromBucket(TBD *item,U8 *pointer);
+void wvGetTBD_internal(TBD *item,FILE *fd,U8 *pointer);
+
+
+
 typedef struct _PAP
 	{
 	U16 istd ;		
@@ -1402,7 +1424,7 @@ typedef struct _PAP
 	NUMRM numrm ;		
 	S16 itbdMac ;		
 	S16 rgdxaTab[itbdMax] ;	
-	S8 rgtbd[itbdMax] ;		
+	TBD rgtbd[itbdMax] ;		
 	} PAP;
 
 #define istdNil 4095
@@ -1478,8 +1500,11 @@ typedef struct _CHPX_FKP
 	} CHPX_FKP;
 
 void wvGetCHPX_FKP(int version, CHPX_FKP *fkp, U32 pn, FILE *fd);
-void wvReleaseCHX_FKP(CHPX_FKP *fkp);
+void wvReleaseCHPX_FKP(CHPX_FKP *fkp);
 void wvInitCHPX_FKP(CHPX_FKP *fkp);
+
+
+
 
 
 typedef union _UPD
@@ -1578,6 +1603,7 @@ void wvReleaseSTSH(STSH *item);
 
 void wvInitPAPFromIstd(PAP *apap,U16 istdBase,STSH *stsh);
 void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh);
+void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh);
 
 void wvInitCHPFromIstd(CHP *achp,U16 istdBase,STSH *stsh);
 void wvAddCHPXFromBucket(CHP *achp,UPXF *upxf,STSH *stsh);
@@ -1586,8 +1612,6 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh);
 void wvInitCHPXFromIstd(CHPX *chpx,U16 istdBase,STSH *stsh);
 void wvMergeCHPXFromBucket(CHPX *dest,UPXF *upxf);
 void wvUpdateCHPXBucket(UPXF *src);
-
-typedef S32 ASUMY;
 
 typedef struct _ANLV
 	{
@@ -1606,7 +1630,7 @@ typedef struct _ANLV
 	U32 fSetKul:1;
 	U32 fPrevSpace:1;
 	U32 fBold:1;
-	U32 FItalic:1;
+	U32 fItalic:1;
 	U32 fSmallCaps:1;
 	U32 fCaps:1;
 	U32 fStrike:1;
@@ -1620,6 +1644,9 @@ typedef struct _ANLV
 	U16 dxaSpace;
 	} ANLV;
 
+void wvInitANLV(ANLV *item);
+
+
 typedef struct _OLST
 	{
  	ANLV rganlv[9];
@@ -1629,6 +1656,8 @@ typedef struct _OLST
  	U8 fSpareOlst4;
  	XCHAR rgxch[32];
 	} OLST;
+
+void wvInitOLST(OLST *);
 
 typedef struct _SEP
 	{
@@ -1697,6 +1726,20 @@ typedef struct _SEP
  	S16 reserved4;
  	OLST olstAnm;
 	} SEP;
+
+void wvInitSEP(SEP *item);
+
+typedef struct _SEPX
+	{
+	U16 cb;
+	U8 *grpprl;
+	} SEPX;
+
+void wvGetSEPX(SEPX *item,FILE *fd);
+void wvReleaseSEPX(SEPX *item);
+void wvAddSEPXFromBucket(SEP *asep,SEPX *item,STSH *stsh);
+
+
 
 void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos);
 
@@ -2217,10 +2260,15 @@ typedef enum
 
 typedef enum
 	{
-	cb6BTE = 2, 
-	cb6FIB = 682, 
+	cb6BTE = 2,
+	cb6FIB = 682,
 	cb6PHE = 6,
-	cb6ANLD = 52
+	cb6ANLD = 52,
+	cb6BRC = 2,
+	cb6DOP = 84,
+	cb6PGD = 6,
+	cb6TC = 10,
+	cb6CHP = 42
 	} cb6Struct;
 
 U32 wvNormFC(U32 fc,int *flag);
@@ -2326,7 +2374,9 @@ void wvRealTrace(char *file, int line,char *fmt, ...);
 #define wvTrace(fmt, args...)
 #endif
 
-void wvAssembleSimplePAP(PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh);
+void wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh);
+
+void wvAssembleComplexCHP(int version,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx);
 
 void wvAppendStr(char **orig,const char *add);
 int wvParseConfig(state_data *myhandle);
@@ -2363,6 +2413,8 @@ typedef enum
 	{
 	DOCBEGIN,
 	DOCEND,
+	SECTIONBEGIN,
+	SECTIONEND,
 	PARABEGIN,
 	PARAEND,
 	CHARPROPBEGIN,
@@ -2378,6 +2430,120 @@ SprmName wvGetrgsprmPrm(U16 in);
 void wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx);
 U32 wvGetEndFCPiece(U32 piece,CLX *clx);
 void wvInitSprm(Sprm *Sprm);
+
+void wvInitError(void);
+
+typedef struct _BKD
+    {
+    S16 ipgd_itxbxs;
+    S32 dcpDepend:16;
+    U32 icol:8;
+    U32 fTableBreak:1;
+    U32 fColumnBreak:1;
+    U32 fMarked:1;
+    U32 fUnk:1;
+    U32 fTextOverflow:1;
+    U32 reserved1:3;
+    } BKD;
+
+void wvGetBKD(BKD *item,FILE *fd);
+
+
+typedef struct _BKL
+   {
+   S16 ibkf;
+   } BKL;
+
+void wvGetBKL(BKL *item,FILE *fd);
+
+typedef struct _PGD
+    {
+    U32 fContinue:1;
+    U32 fUnk:1;
+    U32 fRight:1;
+    U32 fPgnRestart:1;
+
+    /*
+    U32 fGhost:2;   fGhost is fEmptyPage && fAllFtn, and is unioned (sort of with them
+                   in word 97) its existance serves no bloody purpose. The word 6
+                   spec has a different location for fGhost, but i reckon the word97
+                   is right for word 6 as well, but its not like i intend to use
+                   this anyway :-)
+    */
+    U32 fEmptyPage:1;
+    U32 fAllFtn:1;
+
+    U32 fColOnly:1;   /* unused in word 97, but ive retained the name */
+    U32 fTableBreaks:1;
+    U32 fMarked:1;
+    U32 fColumnBreaks:1;
+    U32 fTableHeader:1;
+    U32 fNewPage:1;
+    U32 bkc:4;
+
+    U32 lnn:16;
+    U16 pgn;
+    S32 dym;
+    } PGD;
+
+
+void wvGetPGD(int version,PGD *item,FILE *fd);
+
+
+typedef struct _RS
+    {
+    S16 fRouted;
+    S16 fReturnOrig;
+    S16 fTrackStatus;
+    S16 fDirty;
+    S16 nProtect;
+    S16 iStage;
+    S16 delOption;
+    S16 cRecip;
+    } RS;
+
+void wvGetRS(RS *item,FILE *fd);
+
+typedef struct _RR
+    {
+    S16 cb;
+    S16 cbSzRecip;
+    } RR;
+
+void wvGetRR(RR *item,FILE *fd);
+
+typedef struct _FTXBXS
+    {
+    S32 cTxbx_iNextReuse;
+    S32 cReusable;
+    S16 fReusable;
+    S32 reserved;
+    S32 lid;
+    S32 txidUndo;
+    } FTXBXS;
+
+void wvGetFTXBXS(FTXBXS *item,FILE *fd);
+
+typedef struct _WKB
+    {
+    S16 fn;
+    U16 grfwkb;
+    S32 lvl:16;
+    U32 fnpt:4;
+    U32 fnpd:12;
+    S32 doc;
+    } WKB;
+
+void wvGetWKB(WKB *item,FILE *fd);
+
+int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd);
+
+int wvGetSimpleCharBounds(int version, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, FILE *fd);
+void wvAssembleSimpleCHP(CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh);
+int wvGetComplexCharfcLim(int version, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, FILE *fd);
+int wvGetComplexCharfcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, FILE *fd);
+
+void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype);
 
 
 /*current addition position*/

@@ -94,11 +94,18 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
 		case PARAEND:
 			wvEndPara(data);
 			break;
+		case SECTIONBEGIN:
+			printf("Section begin\n");
+			break;
+		case SECTIONEND:
+			printf("Section end\n");
+			break;
 		case CHARPROPBEGIN:
-		        wvBeginCharProp(data);
-		        break;
+			wvBeginCharProp(data);
+		    break;
 		case CHARPROPEND:
-		        wvEndCharProp(data);
+			wvEndCharProp(data);
+			break;
 		default:
 			break;
 		}

@@ -248,5 +248,14 @@ U32 wvConvertCPToFC(U32 currentcp,CLX *clx)
             }
         i++;
         }
+
+	if (currentfc == 0xffffffffL)
+		{
+		i--;
+		currentfc = wvNormFC(clx->pcd[i].fc,&flag);
+		if (flag) currentfc+=(currentcp-clx->pos[i]);
+		else currentfc+=((currentcp-clx->pos[i])*2);
+		}
+
 	return(currentfc);
 	}

@@ -6,6 +6,9 @@ void wvGetANLD(int version,ANLD *item,FILE *fd)
 	{
 	U8 temp8;
 	int i;
+#ifdef PURIFY
+	wvInitANLD(item);
+#endif
     item->nfc = getc(fd);
     item->cxchTextBefore = getc(fd);
     item->cxchTextAfter = getc(fd);
@@ -52,6 +55,9 @@ void wvGetANLD_FromBucket(int version,ANLD *item,U8 *pointer8)
 	{
 	U8 temp8;
 	int i;
+#ifdef PURIFY
+	wvInitANLD(item);
+#endif
     item->nfc = dgetc(NULL,&pointer8);
     item->cxchTextBefore = dgetc(NULL,&pointer8);
     item->cxchTextAfter = dgetc(NULL,&pointer8);

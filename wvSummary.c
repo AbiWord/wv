@@ -19,6 +19,8 @@ int main(int argc,char **argv)
 	U32 along;
 	FILE *s;
 
+	wvInitError();
+
 	if (argc < 2)
 		{
 		fprintf(stderr,"Usage: wvSummary oledocument\n");
