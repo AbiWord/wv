@@ -102,6 +102,27 @@ wvOLEFree (wvParseStruct * ps)
 				 */
 }
 
+wvStream *
+wvStream_TMP_create (size_t size)
+{
+  FILE * fp;
+  wvStream * stm = NULL;
+
+  fp = tmpfile ();
+  
+  if (fp) {
+    wvStream_FILE_create (&stm, fp);
+  } else {
+    char * buf;
+    
+    buf = malloc(size);
+    
+    if (buf)
+      wvStream_memory_create (&stm, buf, size);
+  }
+
+  return stm;
+}
 
 void
 wvStream_FILE_create (wvStream ** in, FILE * inner)
