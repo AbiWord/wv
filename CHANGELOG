@@ -4,6 +4,7 @@ Changes to to 0.5.19
 	what it says on the tin, dont use this until i get to at least the next
 	version, this is basically a cvs test.
 	* added this as a test of the commit stuff
+	* and this is another test.
 Changes to to 0.5.18
 	* made a release to show off the devel version to the abiword folk.
 	* modified xml code to unexpand &lt; etc etc, so that i can defer
