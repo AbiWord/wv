@@ -121,6 +121,18 @@ void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,wvStream *fd)
 						clx->pcd[i].fc |= 0x40000000UL;
 						}
 				}
+			if (ver == WORD6)
+				{
+				/* Copy the above ;-) MV 27.8.2000 
+				Note: worth trying for WORD2 etc. also (?)
+				*/
+				if (fExtChar == 0)
+					for (i=0;i<clx->nopcd;i++)
+						{
+						clx->pcd[i].fc *= 2;
+						clx->pcd[i].fc |= 0x40000000UL;
+						}
+				}
 			}
 		else
 			{

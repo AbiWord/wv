@@ -564,6 +564,9 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0xb3:
 			printf("$\\maththreesuperior$");
 			return(1);
+		case 0xb5:
+			printf("$\\mu$");
+			return(1);
 		case 0xb9:
 			printf("$\\mathonesuperior$");
 			return(1);

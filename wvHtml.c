@@ -26,7 +26,7 @@ returns 1 for not an ole doc
 0 on success
 */
 
-char *config=NULL;
+char *config="wvHtml.xml";
 
 int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty);
 int mydochandler(wvParseStruct *ps,wvTag tag);
@@ -487,9 +487,10 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 
 void wvStrangeNoGraphicData(char *config, int graphicstype)
 	{
-	wvError(("Strange No Graphic Data in the 0x01 graphic\n"));
+	wvError(("Strange No Graphic Data in the 0x01/0x08 graphic\n"));
 
-	if (strcmp(config, "wvLaTeX.xml") == 0)
+	if ( (strcmp(config, "wvLaTeX.xml") == 0) 
+	  || (strcmp(config, "wvCleanLaTeX.xml") == 0) )
 		printf("\n\\resizebox*{\\baselineskip}{!}{\\includegraphics{placeholder.eps}}\
  		  \n-- %#.2x graphic: StrangeNoGraphicData --", 
 			graphicstype);
@@ -500,13 +501,17 @@ void wvStrangeNoGraphicData(char *config, int graphicstype)
 	}
 
 void wvPrintGraphics(char *config, int graphicstype, int width, int height,
-		char* source)
+		char *source)
 	{
-	if (strcmp(config, "wvLaTeX.xml") == 0)
+	if ( (strcmp(config, "wvLaTeX.xml") == 0) 
+	  || (strcmp(config, "wvCleanLaTeX.xml") == 0) )
+		/* Output to real file name. Conversion to .eps must 
+		be done manually for now (until libwmf supports .eps)
+		but it's a start */
 		printf("\n\\resizebox{%dpt}{%dpt}\
-		  {\\includegraphics{placeholder.eps}}\
-		  \n-- %#.2x graphic %s -- \n",
-			width, height, graphicstype, source);
+		  {\\includegraphics{%s}}\
+		  \n-- %#.2x graphic -- \n",
+			width, height, source, graphicstype);
 	else
 		printf("<img width=\"%d\" height=\"%d\" alt=\"%#.2x graphic\" src=\"%s\"><br>",
 		width, height, graphicstype, source);
