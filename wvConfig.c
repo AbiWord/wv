@@ -98,7 +98,6 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	char *text,*str;
 	const char *ctext;
 
-
 	tokenIndex = s_mapNameToToken(name);
 	wvTrace("name = %s tokenIndex = %d\n", name, tokenIndex);
 	switch (s_Tokens[tokenIndex].m_type)
@@ -126,11 +125,12 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			{
 			wvEle t = mydata->sd->elements[TT_JUSTIFICATION];
 			}
-			wvTrace("just is %d\n",mydata->apap->jc);
+		   
+		        wvTrace("just is %d\n",((PAP*)(mydata->props))->jc);
 			wvTrace("str is %s\n",mydata->sd->elements[TT_JUSTIFICATION].str[0]);
-			text = (char *)malloc(strlen(mydata->sd->elements[TT_JUSTIFICATION].str[mydata->apap->jc])+1);
-			wvTrace("the just is %d\n",mydata->apap->jc);
-			strcpy(text,mydata->sd->elements[TT_JUSTIFICATION].str[mydata->apap->jc]);
+			text = (char *)malloc(strlen(mydata->sd->elements[TT_JUSTIFICATION].str[((PAP*)(mydata->props))->jc])+1);
+			wvTrace("the just is %d\n",((PAP*)(mydata->props))->jc);
+			strcpy(text,mydata->sd->elements[TT_JUSTIFICATION].str[((PAP*)(mydata->props))->jc]);
 			str = mydata->retstring;
 			wvExpand(mydata,text,strlen(text));
 			wvAppendStr(&str,mydata->retstring);

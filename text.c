@@ -5,8 +5,7 @@
 extern TokenTable s_Tokens[];
 
 int (*charhandler)(wvParseStruct *ps,U16 eachchar,U8 chartype)=NULL;
-int (*elehandler)(wvParseStruct *ps,wvTag tag,PAP *apap)=NULL;
-int (*charprophandler)(wvParseStruct *ps,wvTag tag,CHP *apap)=NULL;
+int (*elehandler)(wvParseStruct *ps,wvTag tag, void *props)=NULL;
 int (*dochandler)(wvParseStruct *ps,wvTag tag)=NULL;
 
 
@@ -204,18 +203,10 @@ void wvEndDocument(expand_data *data)
 		}
 	}
 
-int wvHandleElement(wvParseStruct *ps,wvTag tag, PAP *apap)
+int wvHandleElement(wvParseStruct *ps,wvTag tag, void *props)
 	{
 	if (elehandler)
-		return( (*elehandler)(ps, tag, apap) );
-	wvError("unimplemented tag %d\n",tag);
-	return(0);
-	}
-
-int wvHandleCharProp(wvParseStruct *ps,wvTag tag, CHP *achp)
-	{
-	if (charprophandler)
-		return( (*charprophandler)(ps, tag, achp) );
+		return( (*elehandler)(ps, tag, props) );
 	wvError("unimplemented tag %d\n",tag);
 	return(0);
 	}
@@ -261,12 +252,12 @@ void wvEndPara(expand_data *data)
 
 void wvBeginCharProp(expand_data *data)
 {
-   wvTrace("beginning character run");
+   wvTrace("beginning character run\n");
 }
 
 void wvEndCharProp(expand_data *data)
 {
-   wvTrace("ending character run");
+   wvTrace("ending character run\n");
 }
 
 void wvSetCharHandler(int (*proc)(wvParseStruct *,U16,U8))
@@ -274,15 +265,10 @@ void wvSetCharHandler(int (*proc)(wvParseStruct *,U16,U8))
 	charhandler = proc;
 	}
 
-void wvSetElementHandler(int (*proc)(wvParseStruct *,wvTag ,PAP *))
+void wvSetElementHandler(int (*proc)(wvParseStruct *,wvTag , void *))
     {
 	elehandler = proc;
 	}
-
-void wvSetCharPropHandler(int (*proc)(wvParseStruct *, wvTag, CHP *))
-    {
-	charprophandler = proc;
-    }
 
 void wvSetDocumentHandler(int (*proc)(wvParseStruct *,wvTag))
 	{

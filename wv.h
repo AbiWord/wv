@@ -2073,8 +2073,7 @@ typedef struct _state_data
 typedef struct _expand_data
 	{
 	STTBF *anSttbfAssoc;
-	PAP *apap;
-	CHP *achp;
+	void *props; /* holds PAP/CHP/etc */
 	U16 charset;
 	
 	char *retstring;
@@ -2370,10 +2369,8 @@ typedef enum
 	CHARPROPEND
 	} wvTag;
 
-int wvHandleElement(wvParseStruct *ps,wvTag tag, PAP *apap);
-void wvSetElementHandler(int (*proc)(wvParseStruct *,wvTag, PAP *apap));
-int wvHandleCharProp(wvParseStruct *ps,wvTag tag, CHP *achp);
-void wvSetCharPropHandler(int (*proc)(wvParseStruct *,wvTag, CHP *achp));
+int wvHandleElement(wvParseStruct *ps,wvTag tag, void *props);
+void wvSetElementHandler(int (*proc)(wvParseStruct *,wvTag, void *props));
 int wvHandleDocument(wvParseStruct *ps,wvTag tag);
 void wvSetDocumentHandler(int (*proc)(wvParseStruct *,wvTag));
 

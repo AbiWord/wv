@@ -114,7 +114,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 			/* paragraph properties */
 			if (j == para_fcLim)
 				{
-				wvHandleElement(ps, PARAEND, &apap);
+				wvHandleElement(ps, PARAEND, (void*)&apap);
 				para_pendingclose = 0;
 				}
 			
@@ -129,14 +129,14 @@ void wvDecodeSimple(wvParseStruct *ps)
 			if (j == para_fcFirst)
 				{
 				wvAssembleSimplePAP(&apap, para_fcLim, &para_fkp, &stsh);
-				wvHandleElement(ps, PARABEGIN, &apap);
+				wvHandleElement(ps, PARABEGIN, (void*)&apap);
 				para_pendingclose = 1;
 				}
 
 			/* character properties */
 			if (j == char_fcLim)
 				{
-				wvHandleCharProp(ps, CHARPROPEND, &achp);
+				wvHandleElement(ps, CHARPROPEND, (void*)&achp);
 				char_pendingclose = 0;
 				}
 			
@@ -156,7 +156,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 				wvTrace("assembling CHP...\n");
 				wvAssembleSimpleCHP(&achp, char_fcLim, &char_fkp, &stsh);
 				wvTrace("CHP assembled.\n");
-				wvHandleCharProp(ps, CHARPROPBEGIN, &achp);
+				wvHandleElement(ps, CHARPROPBEGIN, (void*)&achp);
 				char_pendingclose = 1;
 				}
 
@@ -167,9 +167,9 @@ void wvDecodeSimple(wvParseStruct *ps)
 		}
 	
 	if (char_pendingclose)
-		wvHandleCharProp(ps, CHARPROPEND, &achp);
+		wvHandleElement(ps, CHARPROPEND, (void*)&achp);
 	if (para_pendingclose)
-		wvHandleElement(ps, PARAEND, &apap);
+		wvHandleElement(ps, PARAEND, (void*)&apap);
 
 	wvReleasePAPX_FKP(&para_fkp);
 	wvReleaseCHPX_FKP(&char_fkp);

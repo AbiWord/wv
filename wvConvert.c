@@ -21,8 +21,7 @@ returns 1 for not an ole doc
 0 on success
 */
 
-int myelehandler(wvParseStruct *ps,wvTag tag, PAP *apap);
-int mycharprophandler(wvParseStruct *ps,wvTag tag, CHP *achp);
+int myelehandler(wvParseStruct *ps,wvTag tag, void *props);
 int mydochandler(wvParseStruct *ps,wvTag tag);
 
 void Usage(void)
@@ -55,7 +54,6 @@ int main(int argc,char **argv)
 		}
 	
 	wvSetElementHandler(myelehandler);
-	wvSetCharPropHandler(mycharprophandler);
 	wvSetDocumentHandler(mydochandler);
     
     wvInitStateData(&myhandle);
@@ -81,12 +79,12 @@ int main(int argc,char **argv)
 	return(ret);
 	}
 
-int myelehandler(wvParseStruct *ps,wvTag tag, PAP *apap)
+int myelehandler(wvParseStruct *ps,wvTag tag, void *props)
 	{
 	expand_data *data = (expand_data *)ps->userData;
 	data->anSttbfAssoc = &ps->anSttbfAssoc;
 	data->charset = wvAutoCharset(&ps->clx);
-	data->apap = apap;
+	data->props = props;
 
 	switch (tag)
 		{
@@ -96,31 +94,16 @@ int myelehandler(wvParseStruct *ps,wvTag tag, PAP *apap)
 		case PARAEND:
 			wvEndPara(data);
 			break;
+		case CHARPROPBEGIN:
+		        wvBeginCharProp(data);
+		        break;
+		case CHARPROPEND:
+		        wvEndCharProp(data);
 		default:
 			break;
 		}
 	return(0);
 	}
-
-int mycharprophandler(wvParseStruct *ps,wvTag tag, CHP *achp)
-{
-   expand_data *data = (expand_data *)ps->userData;
-   data->anSttbfAssoc = &ps->anSttbfAssoc;
-   data->charset = wvAutoCharset(&ps->clx);
-   data->achp = achp;
-   
-   switch (tag) {
-    case CHARPROPBEGIN:
-      wvBeginCharProp(data);
-      break;
-    case CHARPROPEND:
-      wvEndCharProp(data);
-      break;
-    default:
-      break;
-   }
-   return(0);
-}
 
 int mydochandler(wvParseStruct *ps,wvTag tag)
 	{

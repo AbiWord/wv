@@ -39,8 +39,7 @@
 
 
 int CharProc(wvParseStruct *ps,U16 eachchar,U8 chartype);
-int ElementProc(wvParseStruct *ps,wvTag tag,PAP *apap);
-int CharPropProc(wvParseStruct *ps,wvTag tag,CHP *achp);
+int ElementProc(wvParseStruct *ps,wvTag tag, void *props);
 int DocProc(wvParseStruct *ps,wvTag tag);
 
 
@@ -72,7 +71,6 @@ IEStatus IE_Imp_wv::importFile(const char * szFilename)
 	fprintf(stderr,"just here\n");
 	ps.userData = this;
 	wvSetElementHandler(ElementProc);
-	wvSetCharPropHandler(CharPropProc);
 	wvSetCharHandler(CharProc);
 	wvSetDocumentHandler(DocProc);
 
@@ -105,14 +103,6 @@ int ElementProc(wvParseStruct *ps,wvTag tag,PAP *apap)
 	return(0);
 	}
 
-int CharPropProc(wvParseStruct *ps,wvTag tag,CHP *achp)
-	{
-	IE_Imp_wv* pDocReader = (IE_Imp_wv *) ps->userData;
-	return(pDocReader->_charPropProc(ps, tag,achp));
-	fprintf(stderr,"charprop begins\n");
-	return(0);
-	}
-
 int IE_Imp_wv::_charData(U16 *charstr, int len)
 	{
 	UT_UCSChar buf[1];
@@ -137,20 +127,22 @@ int IE_Imp_wv::_docProc(wvParseStruct *ps,wvTag tag)
 
 int IE_Imp_wv::_charPropProc(wvParseStruct *ps, wvTag tag, CHP *achp)
 {
-   // add code to handle character properties here
 }
 
-int IE_Imp_wv::_eleProc(wvParseStruct *ps,wvTag tag,PAP *apap)
+int IE_Imp_wv::_eleProc(wvParseStruct *ps,wvTag tag, void *props)
 	{
 	XML_Char propBuffer[1024];
 	XML_Char* pProps = "PROPS";
 	propBuffer[0] = 0;
 	fprintf(stderr," started\n");
-
+	PAP *apap;
+	CHP *achp;
+	   
 	switch(tag)
 		{
 		case PARABEGIN:
-			strcat(propBuffer, "text-align:");
+                        apap = (PAP*)props;
+		        strcat(propBuffer, "text-align:");
 			switch(apap->jc)
 				{
 				case 0:
@@ -183,7 +175,12 @@ int IE_Imp_wv::_eleProc(wvParseStruct *ps,wvTag tag,PAP *apap)
 			X_ReturnNoMemIfError(m_pDocument->appendStrux(PTX_Block,NULL));
 			*/
 			break;
+		case CHARPROPBEGIN:
+		        achp = (CHP*)props;
+		        // add code to handle character properties here
+		        break;
 		case PARAEND:	/* not needed */
+		case CHARPROPEND: /* not needed */
 		default:
 			break;
 		}
