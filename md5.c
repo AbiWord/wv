@@ -84,8 +84,8 @@ static unsigned char PADDING[64] = {
   }
 
 void
-MD5Init (mdContext)
-     MD5_CTX *mdContext;
+wvMD5Init (mdContext)
+     wvMD5_CTX *mdContext;
 {
     mdContext->i[0] = mdContext->i[1] = (UINT4) 0;
 
@@ -98,8 +98,8 @@ MD5Init (mdContext)
 }
 
 void
-MD5Update (mdContext, inBuf, inLen)
-     MD5_CTX *mdContext;
+wvMD5Update (mdContext, inBuf, inLen)
+     wvMD5_CTX *mdContext;
      unsigned char *inBuf;
      unsigned int inLen;
 {
@@ -136,8 +136,8 @@ MD5Update (mdContext, inBuf, inLen)
 }
 
 void
-MD5Final (mdContext)
-     MD5_CTX *mdContext;
+wvMD5Final (mdContext)
+     wvMD5_CTX *mdContext;
 {
     UINT4 in[16];
     int mdi;
@@ -153,7 +153,7 @@ MD5Final (mdContext)
 
     /* pad out to 56 mod 64 */
     padLen = (mdi < 56) ? (56 - mdi) : (120 - mdi);
-    MD5Update (mdContext, PADDING, padLen);
+    wvMD5Update (mdContext, PADDING, padLen);
 
     /* append length in bits and transform */
     for (i = 0, ii = 0; i < 14; i++, ii += 4)

@@ -17,13 +17,13 @@
 #include "rc4.h"
 #include "md5.h"
 
-MD5_CTX valContext;
-void MD5StoreDigest (MD5_CTX * mdContext);
+wvMD5_CTX valContext;
+void wvMD5StoreDigest (wvMD5_CTX * mdContext);
 
 void
 makekey (U32 block, rc4_key * key)
 {
-    MD5_CTX mdContext;
+    wvMD5_CTX mdContext;
     U8 pwarray[64];
 
     memset (pwarray, 0, 64);
@@ -40,9 +40,9 @@ makekey (U32 block, rc4_key * key)
     pwarray[9] = 0x80;
     pwarray[56] = 0x48;
 
-    MD5Init (&mdContext);
-    MD5Update (&mdContext, pwarray, 64);
-    MD5StoreDigest (&mdContext);
+    wvMD5Init (&mdContext);
+    wvMD5Update (&mdContext, pwarray, 64);
+    wvMD5StoreDigest (&mdContext);
     prepare_key (mdContext.digest, 16, key);
 }
 
@@ -50,20 +50,20 @@ makekey (U32 block, rc4_key * key)
 int
 verifypwd (U8 pwarray[64], U8 docid[16], U8 salt[64], U8 hashedsalt[16])
 {
-    MD5_CTX mdContext1, mdContext2;
+    wvMD5_CTX mdContext1, mdContext2;
     rc4_key key;
     int offset, keyoffset;
     unsigned int tocopy;
 
-    MD5Init (&mdContext1);
-    MD5Update (&mdContext1, pwarray, 64);
-    MD5StoreDigest (&mdContext1);
+    wvMD5Init (&mdContext1);
+    wvMD5Update (&mdContext1, pwarray, 64);
+    wvMD5StoreDigest (&mdContext1);
 
     offset = 0;
     keyoffset = 0;
     tocopy = 5;
 
-    MD5Init (&valContext);
+    wvMD5Init (&valContext);
 
     while (offset != 16)
       {
@@ -75,7 +75,7 @@ verifypwd (U8 pwarray[64], U8 docid[16], U8 salt[64], U8 hashedsalt[16])
 
 	  if (offset == 64)
 	    {
-		MD5Update (&valContext, pwarray, 64);
+		wvMD5Update (&valContext, pwarray, 64);
 		keyoffset = tocopy;
 		tocopy = 5 - tocopy;
 		offset = 0;
@@ -95,8 +95,8 @@ verifypwd (U8 pwarray[64], U8 docid[16], U8 salt[64], U8 hashedsalt[16])
     pwarray[56] = 0x80;
     pwarray[57] = 0x0A;
 
-    MD5Update (&valContext, pwarray, 64);
-    MD5StoreDigest (&valContext);
+    wvMD5Update (&valContext, pwarray, 64);
+    wvMD5StoreDigest (&valContext);
 
     /* Generate 40-bit RC4 key from 128-bit hashed password */
 
@@ -109,9 +109,9 @@ verifypwd (U8 pwarray[64], U8 docid[16], U8 salt[64], U8 hashedsalt[16])
     memset (salt + 17, 0, 47);
     salt[56] = 0x80;
 
-    MD5Init (&mdContext2);
-    MD5Update (&mdContext2, salt, 64);
-    MD5StoreDigest (&mdContext2);
+    wvMD5Init (&mdContext2);
+    wvMD5Update (&mdContext2, salt, 64);
+    wvMD5StoreDigest (&mdContext2);
 
     return (memcmp (mdContext2.digest, hashedsalt, 16));
 }
@@ -412,14 +412,14 @@ wvDecrypt97 (wvParseStruct * ps)
 
 
 /* 
-this is just cut out of MD5Final to get the byte order correct
+this is just cut out of wvMD5Final to get the byte order correct
 under MSB systems, the previous code was woefully tied to intel
 x86
 
 C.
 */
 void
-MD5StoreDigest (MD5_CTX * mdContext)
+wvMD5StoreDigest (wvMD5_CTX * mdContext)
 {
     unsigned int i, ii;
     /* store buffer in digest */

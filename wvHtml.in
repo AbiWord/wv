@@ -16,4 +16,8 @@ if [ ${?} -ne "0" ]; then
     exit 1
 fi
 
-wvWare -x ${datadir}/wv/wvHtml.xml "${1}" > "${2}"
+if [ -n "${2}" -a "${2}" != "-" ]; then
+    wvWare -x ${datadir}/wv/wvHtml.xml "${1}" > "${2}"
+else
+    wvWare -x ${datadir}/wv/wvHtml.xml "${1}" 
+fi

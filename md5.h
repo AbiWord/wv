@@ -46,11 +46,11 @@ typedef struct {
     UINT4 buf[4];		/* scratch buffer */
     unsigned char in[64];	/* input buffer */
     unsigned char digest[16];	/* actual digest after MD5Final call */
-} MD5_CTX;
+} wvMD5_CTX;
 
-void MD5Init ();
-void MD5Update ();
-void MD5Final ();
+void wvMD5Init ();
+void wvMD5Update ();
+void wvMD5Final ();
 
 /*
  **********************************************************************
