@@ -22,7 +22,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	U32 piececount=0,i,j=0;
 	U32 beginfc,endfc;
 	U32 begincp,endcp;
-	int chartype;
+	U8 chartype;
 	U16 eachchar;
 	U32 para_fcFirst, para_fcLim=0xffffffff;
 	U32 char_fcFirst, char_fcLim=0xffffffff;

@@ -394,8 +394,8 @@ void exstartElement(void *userData, const char *name, const char **atts)
 	static LVL lvl;
 	static U32 lastid=0;
 	static LFO *retlfo;
-	U32 i;
-	int j;
+	U32 k;
+	int i, j;
 
 
 	tokenIndex = s_mapNameToToken(name);
@@ -425,7 +425,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_TABLERELWIDTH:
 			{
-			int width = ((PAP *)(mydata->props))->ptap.rgdxaCenter[((PAP *)(mydata->props))->ptap.itcMac] -
+			S16 width = ((PAP *)(mydata->props))->ptap.rgdxaCenter[((PAP *)(mydata->props))->ptap.itcMac] -
 			((PAP *)(mydata->props))->ptap.rgdxaCenter[0];
 			sprintf(buffer,"%.2f%%",wvRelativeWidth(width,mydata->asep));
 			wvAppendStr(&mydata->retstring,buffer);
@@ -433,13 +433,13 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			}
 			break;
 		case TT_CELLBGCOLOR:
-			i = wvCellBgColor(mydata->whichrow,mydata->whichcell,((PAP *)(mydata->props))->ptap.itcMac,*(mydata->norows),&(((PAP *)(mydata->props))->ptap.tlp)); 
-			if (i<1)
+			k = wvCellBgColor(mydata->whichrow,mydata->whichcell,((PAP *)(mydata->props))->ptap.itcMac,*(mydata->norows),&(((PAP *)(mydata->props))->ptap.tlp)); 
+			if (k<1)
 				return;
-			wvTrace(("color is %s\n",mydata->sd->elements[TT_BLACK+((i-1)*3)].str[0]));
+			wvTrace(("color is %s\n",mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0]));
 
-			text = (char *)malloc(strlen(mydata->sd->elements[TT_BLACK+((i-1)*3)].str[0])+1); 
-			strcpy(text,mydata->sd->elements[TT_BLACK+((i-1)*3)].str[0]); 
+			text = (char *)malloc(strlen(mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0])+1); 
+			strcpy(text,mydata->sd->elements[TT_BLACK+((k-1)*3)].str[0]); 
 			str = mydata->retstring; 
 			wvExpand(mydata,text,strlen(text)); 
 			wvAppendStr(&str,mydata->retstring); 
@@ -593,7 +593,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 					}
 				else
 					{
-					int i;
+					U32 i;
 					wvTrace(("start number is %d, type is %d\n",lvl.lvlf.iStartAt,lvl.lvlf.nfc));
 					if ((*mydata->liststartnos)[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl] == 0xffffffffL) 
 						{
@@ -722,7 +722,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 					}
 				else
 					{
-					int i;
+					U32 i;
 					wvTrace(("start number is %d, type is %d\n",lvl.lvlf.iStartAt,lvl.lvlf.nfc));
 					wvTrace(("lfo is %d, ilvi is %d\n",((PAP*)(mydata->props))->ilfo,((PAP*)(mydata->props))->ilvl));
 
@@ -1270,7 +1270,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 
 void startElement(void *userData, const char *name, const char **atts)
 	{
-	int nAtts;
+	unsigned int nAtts;
 	const XML_Char **p;
 	unsigned int tokenIndex,i;
 	state_data *mydata = (state_data *)userData;

@@ -4,9 +4,6 @@
 extern "C" {
 #endif
 
-#include <stdlib.h>
-#include <time.h>
-
 /* redefs of things that are either in glibc or we have to include them ourselves*/
 #ifdef WIN32
 #define strcasecmp(s1,s2) stricmp(s1,s2)
@@ -16,6 +13,8 @@ int strcasecmp(const char *s1, const char *s2);
 
 int getopt(int argc, char * const argv[], const char *optstring);
 /* end redefs */
+
+#include <time.h>
 
 
 #ifndef PATH_MAX
@@ -2599,7 +2598,7 @@ typedef enum
 U32 wvNormFC(U32 fc,int *flag);
 int wvGetPieceBoundsFC(U32 *begin,U32 *end,CLX *clx,U32 piececount);
 int wvGetPieceBoundsCP(U32 *begin,U32 *end,CLX *clx,U32 piececount);
-U16 wvGetChar(FILE *fd,int chartype);
+U16 wvGetChar(FILE *fd,U8 chartype);
 
 
 typedef struct _BTE
@@ -2651,7 +2650,7 @@ void wvReleasePAPX_FKP(PAPX_FKP *fkp);
 void wvInitPAPX_FKP(PAPX_FKP *fkp);
 
 int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *pos, U32 nopos);
-int wvIncFC(int chartype);
+int wvIncFC(U8 chartype);
 
 int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,/*CLX *clx,*/ BTE *bte, U32 *pos,int nobte, FILE *fd);
 

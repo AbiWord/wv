@@ -306,7 +306,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 	U32 piececount=0,i,j;
 	U32 beginfc,endfc;
 	U32 begincp,endcp;
-	int chartype;
+	U8 chartype;
 	U16 eachchar;
 	U32 para_fcFirst,para_fcLim=0xffffffffL;
 	U32 char_fcFirst,char_fcLim=0xffffffffL;
@@ -666,6 +666,7 @@ void wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 	Sprm Sprm;
 	*/
 	U16 sprm,pos=0,i=0;
+	U8 sprm8;
 	U8 *pointer;
 	U16 index;
 	U8 val;
@@ -686,9 +687,9 @@ void wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 				sprm = bread_16ubit(clx->grpprl[index]+i,&i);
 			else
 				{
-				sprm = bgetc(clx->grpprl[index]+i,&i);
-				wvTrace(("sprm (word 6) is %x\n",sprm));
-				sprm = wvGetrgsprmWord6(sprm);
+				sprm8 = bgetc(clx->grpprl[index]+i,&i);
+				wvTrace(("sprm (word 6) is %x\n",sprm8));
+				sprm = (U16)wvGetrgsprmWord6(sprm8);
 				}
 			wvTrace(("sprm is %x\n",sprm));
 			pointer = clx->grpprl[index]+i;
@@ -704,6 +705,7 @@ void wvAssembleComplexCHP(int version,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 	Sprm Sprm;
 	*/
 	U16 sprm,pos=0,i=0;
+	U8 sprm8;
 	U8 *pointer;
 	U16 index;
 	U8 val;
@@ -731,9 +733,9 @@ void wvAssembleComplexCHP(int version,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 				sprm = bread_16ubit(clx->grpprl[index]+i,&i);
 			else
 				{
-				sprm = bgetc(clx->grpprl[index]+i,&i);
-				wvTrace(("sprm (word 6) is %x\n",sprm));
-				sprm = wvGetrgsprmWord6(sprm);
+				sprm8 = bgetc(clx->grpprl[index]+i,&i);
+				wvTrace(("sprm (word 6) is %x\n",sprm8));
+				sprm = (U16)wvGetrgsprmWord6(sprm8);
 				}
 			wvTrace(("sprm is %x\n",sprm));
 			pointer = clx->grpprl[index]+i;

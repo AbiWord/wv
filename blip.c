@@ -18,8 +18,6 @@ int external_knowledge_0x01 = 0;/*when we magically know that we will not
 
 char failsafe[1];
 
-extern int errno;
-
 U16 idlist[NOOFIDS] = {0,0x216,0x3D4,0x542,0x6E0,0x46A,0x7A8,0x800};
 
 void wvGetMSOFBH(MSOFBH *amsofbh,FILE *infd)

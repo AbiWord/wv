@@ -30,8 +30,6 @@ written by thisguy@somewhere.com who doesnt want his name in the source
 theres some notes in the notes dir on compression
 */
 
-extern int errno;
-
 int decompress(FILE *inputfile,char *outputfile,U32 inlen,U32 outlen)
 	{
 #if defined(SYSTEM_ZLIB) && defined(HAVE_SYS_MMAN)

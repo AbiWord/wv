@@ -59,7 +59,7 @@ U32 wvNormFC(U32 fc,int *flag)
 	return(fc);
 	}
 
-U16 wvGetChar(FILE *fd,int chartype)
+U16 wvGetChar(FILE *fd,U8 chartype)
     {
     if (chartype == 1)
         return(getc(fd));
@@ -68,7 +68,7 @@ U16 wvGetChar(FILE *fd,int chartype)
     return(0);
     }
 
-int wvIncFC(int chartype)
+int wvIncFC(U8 chartype)
 	{
     if (chartype == 1)
 		return(1);
