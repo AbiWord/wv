@@ -513,17 +513,19 @@ if [ test "$check_for_libiconv" = "yes" ]; then
 		if [ test "$use_peer_libiconv" != "no" ]; then
 			ICONV_CFLAGS="-I\$(top_builddir)/../libiconv/include"
 			ICONV_LIBS="-L\$(top_builddir)/../libiconv/lib/.libs -liconv"
+			CPPFLAGS="$CPPFLAGS -I../libiconv/include"
+			LDFLAGS="$LDFLAGS -L../libiconv/lib/.libs -liconv"
 		else
 			ICONV_CFLAGS="-I$LIBICONV_DIR/include"
 			ICONV_LIBS="-L$LIBICONV_DIR/lib -liconv"
+			CPPFLAGS="$CPPFLAGS $ICONV_CFLAGS"
+			LDFLAGS="$LDFLAGS $ICONV_LIBS"
 		fi
 	else
 		ICONV_CFLAGS=""
 		ICONV_LIBS="-liconv"
+		LDFLAGS="$LDFLAGS $ICONV_LIBS"
 	fi
-
-	CPPFLAGS="${CPPFLAGS} $ICONV_CFLAGS"
-	LDFLAGS="${LDFLAGS} $ICONV_LIBS"
 
 	if [ test "$use_peer_libiconv" = "abi" ]; then
 		dnl if configure is called with --with-peer-iconv=abi
