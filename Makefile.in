@@ -392,7 +392,7 @@ BGLIB-WV:
 	@echo not making glib-wv... using system glib instead
 endif
 
-version.$(OBJEXT):	$(top_srcdir)/configure.in
+version.$(OBJEXT):	$(srcdir)/configure.in
 	$(CC) $(INCLUDES) $(DEFS) $(CPPFLAGS) $(CFLAGS) -c version.c
 
 %.$(OBJEXT): $(srcdir)/%.c 
