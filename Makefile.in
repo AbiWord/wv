@@ -409,7 +409,8 @@ clean: cleansub
 	$(RM) -rf *.$(OBJEXT) $(GETOPT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvRTF$(EXEEXT) core a.out *.a *.dylib
 
 distclean: realcleansub
-	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.dylib *.$(OBJEXT) wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvHtml wvDocBook wvAbw wvLatex wvText wvWml wvCleanLatex core out* analyze/* .pure lex.yy.c libtool
+	$(RM) -rf analyze config.cache config.status config.log Makefile config.h *.a *.dylib *.$(OBJEXT) wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvHtml wvDocBook wvAbw wvLatex wvText wvWml wvCleanLatex core out* analyze/* .pure lex.yy.c libtool
+	$(RM) -f wvDVI wvPDF wvPS version.c
 
 realclean: distclean
 
