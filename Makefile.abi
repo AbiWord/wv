@@ -22,7 +22,8 @@ ABI_ROOT:=$(shell pwd)/../abi
 
 include $(ABI_ROOT)/src/config/abi_defs.mk
 
-CSRCS=	main.c \
+CSRCS=	lex.yy.c \
+	main.c \
 	mswordview.c \
 	laolareplace.old.c \
 	support.c \
@@ -75,7 +76,6 @@ CSRCS=	main.c \
         numrm.c \
         asumyi.c \
         version.c \
-        lex.yy.c \
         lspd.c \
         phe.c \
         tlp.c \
@@ -108,7 +108,7 @@ LEX=			flex
 
 include $(ABI_ROOT)/src/config/abi_rules.mk
 
-parser_lex::
+parser_lex:
 	$(LEX) parser.lex
 
 build:: parser_lex $(TARGETS)
