@@ -446,6 +446,13 @@ wvGenerateStyle (STSH * item, U16 i, U16 word6)
 	  /* data is NULL because HugePAPX cannot occur in this circumstance, according to the
 	     docs */
 
+	  /* if cupx <=1, there is not grupe[1] or grupxf[1] to access */
+	  if (item->std[i].cupx <= 1)
+	    { 
+	      wvWarning("cupx <=1. we better stop here."); 
+	      break;
+	    }
+
 	  wvInitCHPFromIstd (&(item->std[i].grupe[1].achp),
 			     (U16) item->std[i].istdBase, item);
 
