@@ -1,4 +1,18 @@
 Changes to to 0.5.30
+	* removed crypt dir and references to it.
+	* removed crypt from configure script
+	* made check so as not to close NULL FILE * in decrypt.c
+	* modified decrypt.c to be big endian safe, in this vein
+	and in an attempt to make it more readable I have used the
+	standard md5 code snarfed from the rfc instead of the
+	original md5 code, its all the same in function, just endian
+	safe.
+	* modified the SetPassword and password string promotion to
+	be a utf-8 to unicode conversion, this of course will only
+	work if the input, like an xterm, supports utf-8, in any
+	other case its exactly the same as an ascii to unicode, so
+	its the same as ever, except I feel a lot better at least
+	in theory supporting the full unicode suite.
 ALL TODO
 	* multilevel word6/95 lists.
 

@@ -39,9 +39,20 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 
 void wvSetPassword(char *password,wvParseStruct *ps)
 	{
-	/* at this stage we are passing in an ascii password and
-	later converting it to unicode, this is a flaw, and at a later
-	stage we should be sure that the password reaches the
-	password engine in unicode, the same as it would under windows*/
-	strncpy(ps->password,password,16);
+	int i=0,len;
+	/* at this stage we are passing in an utf-8 password and
+	later converting it to unicode, we should use the generic
+	available mb to wide char stuff, but that isnt very prevalent
+	yet, and this is the only time i think i go from utf to 
+	unicode */
+
+	while (*password)
+		{
+		len = our_mbtowc(&(ps->password[i]), password, 5);
+		i++;
+		password+=len;
+		if (i == 16)
+			break;
+		}
+	ps->password[i]=0;
 	}

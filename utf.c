@@ -12,8 +12,8 @@
 #include	"plan9.h"
 #endif
 #include	"hdr.h"
-#include 	"utf.h"
 #include 	"wv.h"
+#include 	"utf.h"
 
 enum
 {
@@ -67,7 +67,7 @@ enum
 };
 
 int
-our_wctomb(char *s, unsigned long wc)
+our_wctomb(char *s, U16 wc)
 {
 	if(s == 0)
 		return 0;		/* no shift states */
@@ -117,11 +117,11 @@ our_wctomb(char *s, unsigned long wc)
 }
 
 int
-our_mbtowc(unsigned long *p, char *s, unsigned n)
+our_mbtowc(U16 *p, char *s, unsigned n)
 {
 	U8 *us;
 	int c0, c1, c2, c3, c4, c5;
-	unsigned long wc;
+	U16 wc;
 
 	if(s == 0)
 		return 0;		/* no shift states */

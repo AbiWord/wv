@@ -573,4 +573,4 @@ AC_SUBST(ZLIB_CFLAGS)
 AC_SUBST(ZLIB_LIBS)
 	
 
-AC_OUTPUT(Makefile oledecod/Makefile crypt/Makefile expat/Makefile)
+AC_OUTPUT(Makefile oledecod/Makefile expat/Makefile)

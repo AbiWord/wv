@@ -574,6 +574,12 @@ FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
 
 int wvQuerySupported(FIB *fib,int *reason)
     {
+    if (fib->fEncrypted)
+        {
+        if (reason) *reason=4;
+        return(4);
+        }
+
     /*begin from microsofts kb q 40*/
     if (fib->nFib <101)
         {
@@ -593,11 +599,6 @@ int wvQuerySupported(FIB *fib,int *reason)
             break;
         }
     /*end from microsofts kb q 40*/
-    if (fib->fEncrypted)
-        {
-        if (reason) *reason=4;
-        return(4);
-        }
     return(0);
     }
 

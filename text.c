@@ -74,6 +74,9 @@ int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStr
 		case 21:	/*field end*/
 			*state=0;
 			return(0);
+		case 0x92:
+			printf("'");
+			return;
 		}
 
 	if (*state)	
@@ -116,6 +119,9 @@ void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype)
 			return;
 		case 62:
 			printf("&gt;");
+			return;
+		case 0x92:
+			printf("'");
 			return;
 		}
 

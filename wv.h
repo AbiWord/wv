@@ -2458,7 +2458,7 @@ typedef struct _wvParseStruct
 	/*private*/
 	FILE *tablefd0;
 	FILE *tablefd1;
-	U8 password[16];
+	U16 password[16];
 	}wvParseStruct;
 
 void wvSetPassword(char *password,wvParseStruct *ps);
