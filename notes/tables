@@ -1,0 +1,65 @@
+Ive been plinking around with tables in the wv library at the moment, and
+have hacked together a few mechanisms (for simple mode only so far) to mangle
+them into a sensible arangement. Heres the story so far...
+
+There is no concept of a table at all, there is only that of rows. So in
+advance there is no way of telling how many rows there are, or which cells
+will be merged into other ones, you can only tell when you actually get to
+the row in question. This is terribly awkward so i have installed a two
+pass system into wv.
+
+On first finding a cell i loop through all the up and coming paragraphs 
+filling in some table details until i find a para that is not a table 
+or i hit the end of the document. this is wvGetFullTableInit
+
+I keep two seperate numerical structs to keep track of some vital details,
+both tuned to the needs of a html converter. Firstly keeping track of
+colspanning, For instance take this example of a word table
+
+-------------------------
+|          |            |
+-------------------------
+|   | | |    |     |    |
+-------------------------
+|                       |
+-------------------------
+|     |         |       |
+-------------------------
+
+The html output should have a complex set of colspans to get the same layout as
+this, so i splurge the table into one row like this (wvSetTableInfo)
+
+|   | | |  | |  |  |    |
+
+So now given a cell and the boundaries that come with it (wvGetRowTap), i can 
+tell how many columns it crosses and assign that number to the colspan number, 
+and ta-da we get the same basic layout in html as we would in word.
+
+The other issue is that of vertically merged cells, word says that it can only
+merge cells vertically if the boundaries match (whew !!, and then allows the
+bounds to differ by three units :-), anyhow not to grumble ), and sets the
+TC.fVertMerge member of the offending cell to 1. So again to munge this into
+html i create a 2dim array with a slot for each cell, and set each slot to 1
+(spans one row) I start at the bottom row of the table, and check to see if a 
+cell has vertmerge set, if so i check the cell whose boundaries are the same 
+on the above row (if it exists), if the above cell fits the profile we increment
+its colspan by the colspan of the cell on the under row (in this example 1), and
+then we set the under cell's colspan to 0 to indicate that we should not have a 
+reserved cell for this location at all. We continue up the table and the colspan
+figures percolate to the top so that when we output html we know in advance of 
+outputting a column or rows information all that we need to have for spanning
+in each dimension.
+
+All nice enough, some issues that are a bit messy, and that impact abiword
+include
+
+1) doing wvGetFullTableInit in fastsaved mode will be a slight bit trickier
+2) there is a special para consisting of just the row end mark, in my own
+binding to the PARABEGIN event i exclude this case from being a paragraph
+as it would just be an empty cell, 
+3) when vertically merged cells exist there is an empty paragraph exactly
+the same as 2 in existance as well, I use my new entries in wvParseStruct
+to locate this event and to ignore starting a new paragraph for this
+event as well.
+
+C.
