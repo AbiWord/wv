@@ -201,6 +201,9 @@ AC_CHECK_HEADER(png.h,[
 		HAVE_PNG=0
 		PNG_CFLAGS=""
 		PNG_LIBS=""
+	],[#if HAVE_ZLIB
+#include <zlib.h>
+#endif
 	])
 ],[	dnl Shouldn't this be an error?
 	AC_MSG_WARN([* * * Missing "png.h" header file * * *])
