@@ -299,7 +299,11 @@ wvLIDToCodePageConverter (U16 lid)
 	  return ("CP1252");
       case 0x043E:		/*Malaysian */
 	  return ("CP1251");
+
+      case 0x0FFF:		/*Macintosh Hack */
+	  return ("MACINTOSH");
       };
+
     return ("CP1252");
 }
 
