@@ -397,6 +397,11 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
        }
        rewind(OLEfile);
      }
+
+	for(j=0;j<len*4;j++) {
+	 	free(pps_list[j]);
+	 }
+    free(pps_list);
     wvFree(Root);
     wvFree(BDepot);
     wvFree(Block);

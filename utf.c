@@ -3,12 +3,12 @@
 #include	<libc.h>
 #include	<bio.h>
 #else
-#include	"config.h"
 #include	<sys/types.h>
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
 #include	<errno.h>
+#include	"config.h"
 #include	"plan9.h"
 #endif
 #include	"hdr.h"

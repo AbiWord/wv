@@ -101,8 +101,16 @@ void wvGetFFN_STTBF(FFN_STTBF *item,U32 offset,U32 len,FILE *fd)
 		item->ffn = (FFN *)malloc(item->nostrings*sizeof(FFN));
 		for (i=0;i<item->nostrings;i++)
 		     {
+#ifdef DEBUG
+			char * dbg;
+#endif
 			wvGetFFN(&(item->ffn[i]),fd);
-			wvTrace(("font %d: %s\n", i, wvWideStrToMB(item->ffn[i].xszFfn)));
+#ifdef DEBUG
+			dbg = wvWideStrToMB(item->ffn[i].xszFfn);
+			wvTrace(("font %d: %s\n", i, dbg));
+			if (dbg)
+				free(dbg);
+#endif
 		     }
 		}
 
@@ -132,6 +140,9 @@ void wvGetFFN_STTBF6(FFN_STTBF *item,U32 offset,U32 len,FILE *fd)
 	
 	while (count < len)
 		{
+#ifdef DEBUG
+		char * dbg;
+#endif
 		if (noffn == item->nostrings)
 			{
 			/* need to extend the array just in case */
@@ -140,7 +151,12 @@ void wvGetFFN_STTBF6(FFN_STTBF *item,U32 offset,U32 len,FILE *fd)
 			}
 		wvGetFFN6(&(item->ffn[noffn]),fd);
 		count+=(item->ffn[noffn].cbFfnM1+1);
-		wvTrace(("font %d: %s\n", noffn, wvWideStrToMB(item->ffn[noffn].xszFfn)));
+#ifdef DEBUG
+		dbg = wvWideStrToMB(item->ffn[noffn].xszFfn);
+		wvTrace(("font %d: %s\n", noffn, dbg));
+		if (dbg)
+			free(dbg);
+#endif
 		noffn++;
 		}
 
