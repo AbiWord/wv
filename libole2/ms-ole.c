@@ -36,6 +36,10 @@
 #include <glib.h>
 #include <string.h>
 
+#ifndef HAVE_GNOMEVFS
+#include <io.h>			/* use "normal" IO */
+#endif
+
 #include "ms-ole.h"
 
 #ifdef HAVE_MMAP
