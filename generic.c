@@ -92,7 +92,7 @@ wvMalloc (U32 size)
 char *
 wvTempName (char *s)
 {
-    return tmpnam (s);
+    return mkstemp (s);
 }
 
 /*
