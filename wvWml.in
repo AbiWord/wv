@@ -91,7 +91,9 @@ fi
 name=`basename "$o_file"`
 if test "x$o_file" != "x$name"; then
   echo "* * * Better to use '--targetdir' for writing in another directory * * *"
+  exit 1
 fi
+name=`echo $name | sed 's/\.[^\.]*$//'`
 
 if test "x$exec_prefix" = "x"; then
   exec_prefix=@exec_prefix@

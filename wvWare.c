@@ -211,6 +211,8 @@ do_help (void)
     printf ("  -p --password=password\tSpecify password for encrypted\n\t\t\t\tWord Documents\n");
     printf ("  -d --dir=dir\t\t\tDIR\n");
     printf ("  -b --basename=name\t\tUse name as base name of image files\n");
+    printf ("  -a --auto-eps=fmt\t\tQuery support for conversion of fmt to eps\n");
+    printf ("  -s --suppress=fmt\t\tDon't convert fmt to eps\n");
     printf ("  -v --version\t\t\tPrint wvWare's version number\n");
     printf ("  -? --help\t\t\tPrint this help message\n");
     printf
@@ -224,6 +226,9 @@ do_help (void)
     printf ("Authors:\nDom Lachowicz (dominicl@seas.upenn.edu)\n");
     printf ("Caolan McNamara (original author)\nVisit http://www.wvware.com\n");
 }
+
+static void wv_query_eps (const char* format);
+static void wv_suppress (const char* format);
 
 char *charset = NULL;
 
@@ -244,6 +249,8 @@ main (int argc, char **argv)
 	{"password", 1, 0, 'p'},
 	{"dir", 1, 0, 'd'},
 	{"basename", 1, 0, 'b'},
+	{"auto-eps", 1, 0, 'a'},
+	{"suppress", 1, 0, 's'},
 	{"version", 0, 0, 'v'},
 	{"help", 0, 0, '?'},
 	{0, 0, 0, 0}
@@ -257,7 +264,7 @@ main (int argc, char **argv)
 
     while (1)
       {
-	  c = getopt_long (argc, argv, "?vc:x:p:d:b:", long_options, &index);
+	  c = getopt_long (argc, argv, "?vc:x:p:d:b:a:s:", long_options, &index);
 	  if (c == -1)
 	      break;
 	  switch (c)
@@ -297,6 +304,12 @@ main (int argc, char **argv)
 		    wv_arg_basename = optarg;
 		else
 		    wvError (("No name given to basename option"));
+		break;
+	    case 'a':
+		wv_query_eps (optarg);
+		return 0;
+	    case 's':
+		wv_suppress (optarg);
 		break;
 	    default:
 		do_help ();
@@ -592,6 +605,8 @@ long wv_wmfTell (void *);
 
 void wvConvert_WMF_to_EPS (int, int, char **);
 void wvConvert_WMF_to_PNG (int, int, char **);
+void wvConvert_PNG_to_EPS (int, int, char **);
+void wvConvert_JPG_to_EPS (int, int, char **);
 
 int
 wv_wmfRead (void *context)
@@ -615,6 +630,9 @@ wv_wmfTell (void *context)
 
 #include <libwmf/api.h>
 #include <libwmf/eps.h>
+#ifdef HAVE_LIBWMF_FOREIGN_H
+#include <libwmf/foreign.h>
+#endif
 
 #endif /* HAVE_LIBWMF */
 
@@ -809,6 +827,310 @@ wvConvert_WMF_to_PNG (int width, int height, char **source)
 }
 
 void
+wvConvert_PNG_to_EPS (int width, int height, char **source)
+{
+#ifdef HAVE_LIBWMF_FOREIGN_H
+    FILE *in = 0;
+    FILE *out = 0;
+
+    char *sink = 0;
+
+    unsigned long flags;
+
+    wmf_error_t err;
+
+    wmf_foreign_t *ddata = 0;
+
+    wmfAPI *API = 0;
+
+    wmfAPI_Options api_options;
+
+    wmfImage image;
+
+    flags = WMF_OPT_IGNORE_NONFATAL | WMF_OPT_FUNCTION;
+    api_options.function = wmf_foreign_function;
+
+    err = wmf_api_create (&API, flags, &api_options);
+    if (err != wmf_E_None)
+	return;
+
+    ddata = WMF_FOREIGN_GetData (API);
+
+    if ((ddata->flags & WMF_FOREIGN_SUPPORTS_PNG) == 0)
+      {
+      	wmf_api_destroy (API);
+      	return;
+      }
+
+    in = fopen (*source, "rb");
+
+    if (in == 0)
+      {
+      	wmf_api_destroy (API);
+      	return;
+      }
+
+    if (wmf_image_load_png (API,in,&image) == (-1))
+      {
+        fclose (in);
+      	wmf_api_destroy (API);
+      	return;
+      }
+
+    fclose (in);
+
+    sink = strdup (*source);
+
+    remove_suffix (sink, ".png");
+    wvAppendStr (&sink, ".eps");
+
+    out = fopen (sink, "w");
+
+    if (out == 0)
+      {
+        wvFree (sink);
+        wmf_image_free (API,&image);
+        wmf_api_destroy (API);
+        return;
+      }
+
+    wmf_image_save_eps (API,out,&image);
+
+    fclose (out);
+
+    wmf_image_free (API,&image);
+    wmf_api_destroy (API);
+
+    *source = sink;
+
+    return;
+#endif /* HAVE_LIBWMF_FOREIGN_H */
+}
+
+void
+wvConvert_JPG_to_EPS (int width, int height, char **source)
+{
+#ifdef HAVE_LIBWMF_FOREIGN_H
+    FILE *in = 0;
+    FILE *out = 0;
+
+    char *sink = 0;
+
+    unsigned long flags;
+
+    wmf_error_t err;
+
+    wmf_foreign_t *ddata = 0;
+
+    wmfAPI *API = 0;
+
+    wmfAPI_Options api_options;
+
+    wmfImage image;
+
+    flags = WMF_OPT_IGNORE_NONFATAL | WMF_OPT_FUNCTION;
+    api_options.function = wmf_foreign_function;
+
+    err = wmf_api_create (&API, flags, &api_options);
+    if (err != wmf_E_None)
+	return;
+
+    ddata = WMF_FOREIGN_GetData (API);
+
+    if ((ddata->flags & WMF_FOREIGN_SUPPORTS_JPEG) == 0)
+      {
+      	wmf_api_destroy (API);
+      	return;
+      }
+
+    in = fopen (*source, "rb");
+
+    if (in == 0)
+      {
+      	wmf_api_destroy (API);
+      	return;
+      }
+
+    if (wmf_image_load_jpg (API,in,&image) == (-1))
+      {
+        fclose (in);
+      	wmf_api_destroy (API);
+      	return;
+      }
+
+    fclose (in);
+
+    sink = strdup (*source);
+
+    remove_suffix (sink, ".jpg");
+    wvAppendStr (&sink, ".eps");
+
+    out = fopen (sink, "w");
+
+    if (out == 0)
+      {
+        wvFree (sink);
+        wmf_image_free (API,&image);
+        wmf_api_destroy (API);
+        return;
+      }
+
+    wmf_image_save_eps (API,out,&image);
+
+    fclose (out);
+
+    wmf_image_free (API,&image);
+    wmf_api_destroy (API);
+
+    *source = sink;
+
+    return;
+#endif /* HAVE_LIBWMF_FOREIGN_H */
+}
+
+static void wv_query_eps (const char* format)
+{
+#ifdef HAVE_LIBWMF
+  unsigned long flags;
+
+  wmf_error_t err;
+#ifdef HAVE_LIBWMF_FOREIGN_H
+  wmf_foreign_t *ddata = 0;
+#endif /* HAVE_LIBWMF_FOREIGN_H */
+  wmfAPI* API = 0;
+  wmfAPI_Options api_options;
+#endif /* HAVE_LIBWMF */
+
+  if (format == 0)
+    {
+      printf ("no\n");
+      return;
+    }
+
+#ifdef HAVE_LIBWMF
+  if (strcmp (format,"wmf") == 0)
+    {
+      printf ("yes\n");
+      return;
+    }
+#ifdef HAVE_LIBWMF_FOREIGN_H
+  if (strcmp (format,"png") == 0)
+    {
+      flags = WMF_OPT_IGNORE_NONFATAL | WMF_OPT_FUNCTION;
+      api_options.function = wmf_foreign_function;
+
+      err = wmf_api_create (&API, flags, &api_options);
+      if (err != wmf_E_None)
+        {
+          printf ("no\n");
+          return;
+        }
+
+      ddata = WMF_FOREIGN_GetData (API);
+
+      if (ddata->flags & WMF_FOREIGN_SUPPORTS_PNG)
+        {
+          printf ("yes\n");
+        }
+      else
+        {
+          printf ("no\n");
+        }
+
+      wmf_api_destroy (API);
+      return;
+    }
+  if (strcmp (format,"jpg") == 0)
+    {
+      flags = WMF_OPT_IGNORE_NONFATAL | WMF_OPT_FUNCTION;
+      api_options.function = wmf_foreign_function;
+
+      err = wmf_api_create (&API, flags, &api_options);
+      if (err != wmf_E_None)
+        {
+          printf ("no\n");
+          return;
+        }
+
+      ddata = WMF_FOREIGN_GetData (API);
+
+      if (ddata->flags & WMF_FOREIGN_SUPPORTS_JPEG)
+        {
+          printf ("yes\n");
+        }
+      else
+        {
+          printf ("no\n");
+        }
+
+      wmf_api_destroy (API);
+      return;
+    }
+#endif /* HAVE_LIBWMF_FOREIGN_H */
+#endif /* HAVE_LIBWMF */
+
+  printf ("no\n");
+  return;
+}
+
+static int Convert_WMF = 1;
+static int Convert_PNG = 1;
+static int Convert_JPG = 1;
+
+static void wv_suppress (const char* format)
+{
+  const char* ptr = format;
+
+  if (format == 0)
+    {
+      Convert_WMF = 1;
+      Convert_PNG = 1;
+      Convert_JPG = 1;
+
+      return;
+    }
+
+  while (*ptr)
+    {
+      if (strncmp (ptr,"wmf,",4) == 0)
+        {
+          Convert_WMF = 0;
+          ptr += 4;
+          continue;
+        }
+      if (strncmp (ptr,"png,",4) == 0)
+        {
+          Convert_PNG = 0;
+          ptr += 4;
+          continue;
+        }
+      if (strncmp (ptr,"jpg,",4) == 0)
+        {
+          Convert_JPG = 0;
+          ptr += 4;
+          continue;
+        }
+      if (strcmp (ptr,"wmf") == 0)
+        {
+          Convert_WMF = 0;
+          break;
+        }
+      if (strcmp (ptr,"png") == 0)
+        {
+          Convert_PNG = 0;
+          break;
+        }
+      if (strcmp (ptr,"jpg") == 0)
+        {
+          Convert_JPG = 0;
+          break;
+        }
+      fprintf (stderr,"format(s) `%s' not recognized!\n",ptr);
+      break;
+    }
+}
+
+void
 wvPrintGraphics (char *config, int graphicstype, int width, int height,
 		 char *source)
 {
@@ -816,8 +1138,14 @@ wvPrintGraphics (char *config, int graphicstype, int width, int height,
 	|| (strstr (config, "wvCleanLaTeX.xml") != NULL))
       {
 	  if (strlen (source) >= 4)
-	      if (strcmp (source + strlen (source) - 4, ".wmf") == 0)
+	    {
+	      if (Convert_WMF && strcmp (source + strlen (source) - 4, ".wmf") == 0)
 		  wvConvert_WMF_to_EPS (width, height, &source);
+	      else if (Convert_PNG && strcmp (source + strlen (source) - 4, ".png") == 0)
+		  wvConvert_PNG_to_EPS (width, height, &source);
+	      else if (Convert_JPG && strcmp (source + strlen (source) - 4, ".jpg") == 0)
+		  wvConvert_JPG_to_EPS (width, height, &source);
+	    }
 	  remove_suffix (source, ".eps");
 	  remove_suffix (source, ".wmf");
 	  remove_suffix (source, ".pict");
@@ -828,7 +1156,7 @@ wvPrintGraphics (char *config, int graphicstype, int width, int height,
 	   */
 	  printf ("\n\\resizebox{%dpt}{%dpt}\
 		  {\\includegraphics{%s.eps}}\
-		  \n-- %#.2x graphic -- \n", width, height, source, graphicstype);
+		  \n% -- %#.2x graphic -- \n", width, height, source, graphicstype);
       }
     else
       {
@@ -1201,6 +1529,7 @@ char * figure_name (wvParseStruct * ps)
       if (wv_arg_basename)
         {
           b_name = strdup (wv_arg_basename);
+#ifdef WV_REMOVE_SUFFIX
           if (b_name) /* remove any suffix */
             {
               char * dot = 0;
@@ -1212,6 +1541,7 @@ char * figure_name (wvParseStruct * ps)
                 }
               if (dot) *dot = 0;
             }
+#endif /* WV_REMOVE_SUFFIX */
         }
       else
         {

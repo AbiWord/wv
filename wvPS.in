@@ -6,6 +6,12 @@ if [ ${?} -ne "0" ]; then
   exit 1
 fi
 
+which dvips >/dev/null 2>&1
+if [ ${?} -ne "0" ]; then
+  echo "Could not find required program 'dvips'"
+  exit 1
+fi
+
 prefix=@prefix@
 exec_prefix=
 datadir=
@@ -259,5 +265,11 @@ if [ ! -f "$name".dvi ]; then
 	exit 1
 fi
 
-cp -f "$name".dvi "$o_file"
+dvips -o "$o_file" "$name".dvi >/dev/null 2>&1
+if [ ${?} -ne "0" ]; then
+	echo "Could not convert into Postscript"
+	exit 1
+fi
+
+#clean up
 rm -f "$name".dvi

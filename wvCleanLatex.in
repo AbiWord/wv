@@ -91,12 +91,14 @@ fi
 name=`basename "$o_file"`
 if test "x$o_file" != "x$name"; then
   echo "* * * Better to use '--targetdir' for writing in another directory * * *"
+  exit 1
 fi
 sp_chk=`echo $name | sed "s/ /_/g"`
 if test "x$name" != "x$sp_chk"; then
   echo "sorry, LaTeX file names cannot contain spaces."
   exit 1
 fi
+name=`echo $name | sed 's/\.[^\.]*$//'`
 
 if test "x$exec_prefix" = "x"; then
   exec_prefix=@exec_prefix@
