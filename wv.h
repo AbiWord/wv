@@ -3182,8 +3182,8 @@ returns the same as wvOLEDecode with the addition that
     typedef size_t (*wvConvertToUnicode) (const char **, size_t *, char **,
 					  size_t *);
 
-    char *wvLIDToCodePageConverter (U16 lid);
-    char *wvLIDToLangConverter (U16 lid);
+    const char *wvLIDToCodePageConverter (U16 lid);
+    const char *wvLIDToLangConverter (U16 lid);
   U16 wvLangToLIDConverter ( const char * lang );
 
     typedef struct _MSOFBH {

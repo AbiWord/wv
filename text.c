@@ -164,417 +164,200 @@ wvOutputHtmlChar (U16 eachchar, U8 chartype, char *outputtype, U16 lid)
        return cpname;  \
 }
 
-#if 0
-
-// todo: use this to cut down on duplicate data
-
 typedef struct {
-  const char * locale;
-  U16 cp;
-  U16 lid;
-} wvLanguageId;
+	const char * locale ;
+	U16 lid ;
+} wvLanguageId ;
 
-#endif
+static const wvLanguageId mLanguageIds[] =
+	{
+		{ "af-ZA", 0x0436 }, /* Afrikaans */
+		{ "", 0x041c }, /* Albanian */
+		{ "ar-SA", 0x0401 }, /* Arabic (Saudi) */
+		{ "", 0x0801 }, /* Arabic (Iraq) */
+		{ "ar-EG", 0x0c01 }, /* Arabic (Egypt) */		
+		{ "", 0x1001 }, /* Arabic (Libya) */
+		{ "", 0x1401 }, /* Arabic (Algeria) */
+		{ "", 0x1801 }, /* Arabic (Morocco) */
+		{ "", 0x1c01 }, /* Arabic (Tunisia) */
+		{ "", 0x2001 }, /* Arabic (Oman) */
+		{ "", 0x2401 }, /* Arabic (Yemen) */		
+		{ "", 0x2801 }, /* Arabic (Syria) */
+		{ "", 0x2c01 }, /* Arabic (Jordan) */
+		{ "", 0x3001 }, /* Arabic (Lebanon) */
+		{ "", 0x3401 }, /* Arabic (Kuwait) */
+		{ "", 0x3801 }, /* Arabic (United Arab Emirates) */
+		{ "", 0x3c01 }, /* Arabic (Bahrain) */		
+		{ "", 0x4001 }, /* Arabic (Qatar) */
+		{ "hy-AM", 0x042b }, /* Armenian */
+		{ "", 0x044c }, /* Azeri (Latin) */
+		{ "", 0x082c }, /* Azeri (Cyrillic) */
+		{ "eu-ES", 0x042d }, /* Basque */
+		{ "", 0x0423 }, /* Belarussian */		
+		{ "", 0x0445 }, /* Bengali */
+		{ "bg-BG", 0x0402 }, /* Bulgarian */
+		{ "ca-ES", 0x0403 }, /* Catalan */
+		{ "zh-TW", 0x0404 }, /* Chinese (Taiwan) */
+		{ "zh-CN", 0x0804 }, /* Chinese (PRC) */
+		{ "zh-HK", 0x0c04 }, /* Chinese (Hong Kong) */		
+		{ "zh-SG", 0x1004 }, /* Chinese (Singapore) */
+		{ "", 0x1404 }, /* Chinese (Macau SAR) */
+		{ "", 0x041a }, /* Croatian */
+		{ "cs-CZ", 0x0405 }, /* Czech */
+		{ "da-DK", 0x0406 }, /* Danish */
+		{ "nl-NL", 0x0413 }, /* Dutch (Netherlands) */		
+		{ "", 0x0813 }, /* Dutch (Belgium) */
+		{ "en-US", 0x0409 }, /* English (USA) */
+		{ "en-GB", 0x0809 }, /* English (UK) */
+		{ "en-AU", 0x0c09 }, /* English (Australia) */
+		{ "en-CA", 0x1009 }, /* English (Canada) */
+		{ "en-NZ", 0x1409 }, /* English (New Zealand) */		
+		{ "en-IE", 0x1809 }, /* English (Ireland) */
+		{ "en-ZA", 0x1c09 }, /* English (South Africa) */
+		{ "", 0x2009 }, /* English (Jamaica) */
+		{ "", 0x2409 }, /* English (Caribbean) */
+		{ "", 0x2809 }, /* English (Belize) */
+		{ "", 0x2c09 }, /* English (Trinidad) */		
+		{ "", 0x3009 }, /* English (Zimbabwe) */
+		{ "", 0x3409 }, /* English (Phillipines) */
+		{ "", 0x0425 }, /* Estonian */
+		{ "", 0x0438 }, /* Faeroese */
+		{ "fa-IR", 0x0429 }, /* Farsi */
+		{ "fi-FI", 0x040b }, /* Finnish */		
+		{ "fr-FR", 0x040c }, /* French (France) */
+		{ "fr-BE", 0x080c }, /* French (Belgium) */
+		{ "fr-CA", 0x0c0c }, /* French (Canada) */
+		{ "fr-CH", 0x100c }, /* French (Switzerland) */
+		{ "", 0x140c }, /* French (Luxembourg) */
+		{ "", 0x180c }, /* French (Monaco) */		
+		{ "ka-GE", 0x0437 }, /* Georgian */
+		{ "de-DE", 0x0407 }, /* German (Germany) */
+		{ "de-CH", 0x0807 }, /* German (Switzerland) */
+		{ "de-AT", 0x0c07 }, /* German (Austria) */
+		{ "", 0x1007 }, /* German (Luxembourg) */
+		{ "", 0x1407 }, /* German (Liechtenstein) */		
+		{ "el-GR", 0x0408 }, /* Greek */
+		{ "", 0x0447 }, /* Gugarati */
+		{ "he-IL", 0x040d }, /* Hebrew */
+		{ "hi-IN", 0x0439 }, /* Hindi */
+		{ "hu-HU", 0x040e }, /* Hungarian */
+		{ "is-IS", 0x040f }, /* Icelandic */		
+		{ "id-ID", 0x0421 }, /* Indonesian */
+		{ "it-IT", 0x0410 }, /* Italian (Italy) */
+		{ "", 0x0810 }, /* Italian (Switzerland) */
+		{ "ja-JP", 0x0411}, /* Japanese */
+		{ "", 0x044b }, /* Kannada */
+		{ "", 0x0860 }, /* Kashmiri (India) */		
+		{ "", 0x043f }, /* Kazakh */
+		{ "", 0x0457 }, /* Konkani */
+		{ "ko-KR", 0x0412 }, /* Korean */
+		{ "", 0x0812 }, /* Korean (Johab) */
+		{ "lv-LV", 0x0426 }, /* Latvian */
+		{ "lt-LT", 0x0427 }, /* Lithuanian */		
+		{ "lt-LT", 0x0827 }, /* Lithuanian (Classic) */
+		{ "", 0x042f }, /* FYRO Macedonian */
+		{ "", 0x043e }, /* Malaysian */
+		{ "", 0x083e }, /* Malay Brunei Darussalam */
+		{ "", 0x044c }, /* Malayalam */
+		{ "", 0x044e }, /* Marathi */		
+		{ "", 0x0461 }, /* Napali (Nepal) */
+		{ "", 0x0861 }, /* Nepali (India) */
+		{ "nb-NO", 0x0414 }, /* Norwegian (Bokmai) */
+		{ "nn-NO", 0x0814 }, /* Norwegian (Nynorsk) */
+		{ "", 0x0448 }, /* Oriya */
+		{ "pl-PL", 0x0415 }, /* Polish */		
+		{ "pt-BR", 0x0416 }, /* Portuguese (Brazil) */
+		{ "pt-PT", 0x0816 }, /* Portuguese (Portugal) */
+		{ "", 0x0446 }, /* Punjabi */
+		{ "", 0x0417 }, /* Rhaeto-Romanic */
+		{ "ro-RO", 0x0418 }, /* Romanian */
+		{ "", 0x0818 }, /* Romanian (Moldova) */		
+		{ "ru-RU", 0x0419 }, /* Russian */
+		{ "", 0x0819 }, /* Russian (Moldova) */
+		{ "", 0x043b }, /* Sami (Lappish) */
+		{ "", 0x044f }, /* Sanskrit */
+		{ "", 0x0c1a }, /* Serbian (Cyrillic) */
+		{ "", 0x081a }, /* Serbian (Latin) */		
+		{ "", 0x0459 }, /* Sindhi */
+		{ "sk-SK", 0x041b }, /* Slovak */
+		{ "sl-SI", 0x0424 }, /* Slovenian */
+		{ "", 0x042e }, /* Sorbian */
+		{ "es-ES", 0x040a }, /* Spanish (Spain, Traditional) */
+		{ "es-MX", 0x080a }, /* Spanish (Mexico) */		
+		{ "", 0x0c0a }, /* Spanish (Modern) */
+		{ "", 0x100a }, /* Spanish (Guatemala) */
+		{ "", 0x140a }, /* Spanish (Costa Rica) */
+		{ "", 0x180a }, /* Spanish (Panama) */
+		{ "", 0x1c0a }, /* Spanish (Dominican Republic) */
+		{ "", 0x200a }, /* Spanish (Venezuela) */		
+		{ "", 0x240a }, /* Spanish (Colombia) */
+		{ "", 0x280a }, /* Spanish (Peru) */
+		{ "", 0x2c0a }, /* Spanish (Argentina) */
+		{ "", 0x300a }, /* Spanish (Ecuador) */
+		{ "", 0x340a }, /* Spanish (Chile) */
+		{ "", 0x380a }, /* Spanish (Uruguay) */		
+		{ "", 0x3c0a }, /* Spanish (Paraguay) */
+		{ "", 0x400a }, /* Spanish (Bolivia) */
+		{ "", 0x440a }, /* Spanish (El Salvador) */
+		{ "", 0x480a }, /* Spanish (Honduras) */
+		{ "", 0x4c0a }, /* Spanish (Nicaragua) */
+		{ "", 0x500a }, /* Spanish (Puerto Rico) */		
+		{ "", 0x0430 }, /* Sutu */
+		{ "", 0x0441 }, /* Swahili (Kenya) */
+		{ "sv-SE", 0x041d }, /* Swedish */
+		{ "sv-FI", 0x081d }, /* Swedish (Finland) */
+		{ "", 0x0449 }, /* Tamil */
+		{ "", 0x0444 }, /* Tatar (Tatarstan) */		
+		{ "", 0x044a }, /* Telugu */
+		{ "th-TH", 0x041e }, /* Thai */
+		{ "", 0x0431 }, /* Tsonga */
+		{ "", 0x0432 }, /* Tswana */
+		{ "tr-TR", 0x041f }, /* Turkish */
+		{ "uk-UA", 0x0422 }, /* Ukrainian */		
+		{ "", 0x0420 }, /* Urdu (Pakistan) */
+		{ "", 0x0820 }, /* Urdo (India) */
+		{ "", 0x0443 }, /* Uzbek (Latin) */
+		{ "", 0x0843 }, /* Uzbek (Cyrillic) */
+		{ "", 0x0433 }, /* Venda */
+		{ "vi-VN", 0x042a }, /* Vietnamese */		
+		{ "", 0x0434 }, /* Xhosa */
+		{ "", 0x043d }, /* Yiddish */
+		{ "", 0x0435 }, /* Zulu */
+		{ "-none-", 0x0400 } /* none */
+	};
+
+#define NrMappings (sizeof(mLanguageIds)/sizeof(mLanguageIds[0]))
 
 U16 wvLangToLIDConverter ( const char * lang )
 {
-  if ( !lang || !strcmp(lang, "en-US") )
-    return 0x0409;
-  
-  if (!strcmp(lang, "af-ZA"))
-    return 0x0436;
-  else if(!strcmp(lang, "af-EG"))
-    return 0x0c01;
-  else if(!strcmp(lang, "af-SA"))
-    return 0x0401;
-  else if(!strcmp(lang, "zh-HK"))
-    return 0x0c04;
-  else if(!strcmp(lang, "zh-CN"))
-    return 0x0804;
-  else if(!strcmp(lang, "zh-SG"))
-    return 0x1004;
-  else if(!strcmp(lang, "zh-TW"))
-    return 0x0404;
-  else if(!strcmp(lang, "cs-CZ"))
-    return 0x0405;
-  else if(!strcmp(lang, "da-DK"))
-    return 0x0406;
-  else if(!strcmp(lang, "de-AT"))
-    return 0x0c07;
-  else if(!strcmp(lang, "de-DE"))
-    return 0x0407;
-  else if(!strcmp(lang, "el-GR"))
-    return 0x0408;
-  else if(!strcmp(lang, "en-AU"))
-    return 0x0c09;
-  else if(!strcmp(lang, "en-CA"))
-    return 0x1009;
-  else if(!strcmp(lang, "en-GB"))
-    return 0x0809;
-  else if(!strcmp(lang, "en-IE"))
-    return 0x1809;
-  else if(!strcmp(lang, "en-NZ"))
-    return 0x1409;
-  else if(!strcmp(lang, "es-ES"))
-    return 0x040a;
-  else if(!strcmp(lang, "es-MX"))
-    return 0x080a;
-  else if(!strcmp(lang, "fa-IR"))
-    return 0x040b;
-  else if(!strcmp(lang, "fr-FR"))
-    return 0x040c;
-  else if(!strcmp(lang, "hi-IN"))
-    return 0x0439;
-  else if(!strcmp(lang, "hy-AM"))
-    return 0x042b;
-  else if(!strcmp(lang, "it-IT"))
-    return 0x0410;
-  else if(!strcmp(lang, "iw-IL"))
-    return 0x040d;
-  else if(!strcmp(lang, "ka-GE"))
-    return 0x0437;
-  else if(!strcmp(lang, "ja-JP"))
-    return 0x0411;
-  else if(!strcmp(lang, "ko-KR"))
-    return 0x0412;
-  else if(!strcmp(lang, "nl-NL"))
-    return 0x0413;
-  else if(!strcmp(lang, "nb-NO"))
-    return 0x0414;
-  else if(!strcmp(lang, "nn-NO"))
-    return 0x0814;
-  else if(!strcmp(lang, "pt-BR"))
-    return 0x0416;
-  else if(!strcmp(lang, "pt-PT"))
-    return 0x0816;
-  else if(!strcmp(lang, "ru-RU"))
-    return 0x0419;
-  else if(!strcmp(lang, "sv-SE"))
-    return 0x041d;
-  else if(!strcmp(lang, "th-TH"))
-    return 0x041e;
-  else if(!strcmp(lang, "tr-TR"))
-    return 0x041f;
-  else if(!strcmp(lang, "vi-VN"))
-    return 0x042a;
-  else if(!strcmp(lang, "lt-LT"))
-    return 0x0427;
-  else if(!strcmp(lang, "-none-"))
-    return 0x0400;
-  else
-    return 0x0409;
+	unsigned int i = 0 ;
+
+	if (!lang)
+		return 0x0409;   /* return en-US */
+	
+	for ( i = 0 ; i < NrMappings ; i++ )
+		if (!strcmp (lang, mLanguageIds[i].locale))
+			return mLanguageIds[i].lid ;
+	
+	return 0x409 ;   /* return en-US */
 }
 
-char *
+const char *
 wvLIDToLangConverter (U16 lid)
 {
-  switch (lid)
-    {
-#if 0
-    case 0x0000: /* Language Neutral */
-#endif
+	unsigned int i = 0 ;
+	
+	if ( lid == 0 ) /* language netural */
+		return "-none-" ;
+	
+	for ( i = 0 ; i < NrMappings ; i++ )
+		if ( mLanguageIds[i].lid == lid )
+			return mLanguageIds[i].locale ;
 
-    case 0x0436: 
-      return "af-ZA";
-
-#if 0
-    case 0x041c: /* Albanian */
-
-    case 0x1401: /* Arabic (Algeria) */
-    case 0x3c01: /* Arabic (Bahrain) */
-#endif
-    case 0x0c01: /* Arabic (Egypt) */
-      return "af-EG";
-#if 0
-    case 0x0801: /* Arabic (Iraq) */
-    case 0x2c01: /* Arabic (Jordan) */
-    case 0x3401: /* Arabic (Kuwait) */
-    case 0x3001: /* Arabic (Lebanon) */
-    case 0x1001: /* Arabic (Libya) */
-    case 0x1801: /* Arabic (Morocco) */
-    case 0x2001: /* Arabic (Oman) */
-    case 0x4001: /* Arabic (Qatar) */
-#endif
-    case 0x0401: /* Arabic (Saudi Arabia) */
-      return "af-SA";
-#if 0
-    case 0x2801: /* Arabic (Syria) */
-    case 0x1c01: /* Arabic (Tunisia) */
-    case 0x3801: /* Arabic (U.A.E.) */
-    case 0x2401: /* Arabic (Yemen) */
-#endif
-
-#if 0
-    case 0x044d: /* Windows 2000: Assamese. This is Unicode only. */
-    case 0x082c: /* Azeri (Cyrillic) */
-    case 0x042c: /* Azeri (Latin) */
-    case 0x042d: /* Basque */
-    case 0x0423: /* Belarussian */
-    case 0x0445: /* Windows 2000: Bengali. This is Unicode only. */
-    case 0x0402: /* Bulgarian */
-    case 0x0455: /* Burmese */
-    case 0x0403: /* Catalan */
-#endif
-
-    case 0x0c04: /* Chinese (Hong Kong SAR, PRC) */
-      return "zh-HK";
-#if 0
-    case 0x1404: /* Chinese (Macau SAR) */
-#endif
-    case 0x0804: /* Chinese (PRC) */
-      return "zh-CN";
-    case 0x1004: /* Chinese (Singapore) */
-      return "zh-SG";
-    case 0x0404: /* Chinese (Taiwan) */
-      return "zh-TW";
-
-#if 0
-    case 0x041a: /* Croatian */
-#endif
-
-	case 0x0405: 
-      return "cs-CZ";
-
-    case 0x0406:  
-      return "da-DK";
-
-    case 0x0c07: /* German (Austria) */
-      return "de-AT";
-    case 0x0407: /* german */
-      return "de-DE";
-#if 0
-    case 0x1407: /* German (Liechtenstein) */
-    case 0x1007: /* German (Luxembourg) */
-    case 0x0807: /* swiss german */
-#endif
-
-    case 0x0408: /* Greek */
-      return "el-GR";
-
-    case 0x0c09: /* English (Australian) */
-      return "en-AU";
-#if 0
-    case 0x2809: /* English (Belize) */
-#endif
-    case 0x1009: /* English (Canadian) */
-      return "en-CA";
-#if 0
-    case 0x2409: /* English (Caribbean) */
-#endif
-    case 0x0809: /* british english */
-      return "en-GB";
-    case 0x1809: /* English (Ireland) */
-      return "en-IE";
-#if 0
-    case 0x2009: /* English (Jamaica) */
-#endif
-    case 0x1409: /* English (New Zealand) */
-      return "en-NZ";
-#if 0
-    case 0x3409: /* English (Philippines) */
-    case 0x2c09: /* English (Trinidad) */
-#endif
-    case 0x1c09: /* English (South Africa) */
-      return "en-ZA";
-#if 0
-    case 0x3009: /* English (Zimbabwe) */
-#endif
-
-#if 0
-    case 0x2c0a: /* Spanish (Argentina) */
-    case 0x400a: /* Spanish (Bolivia) */
-    case 0x340a: /* Spanish (Chile) */
-    case 0x240a: /* Spanish (Colombia) */
-    case 0x140a: /* Spanish (Costa Rica) */
-    case 0x1c0a: /* Spanish (Dominican Republic) */
-    case 0x300a: /* Spanish (Ecuador) */
-    case 0x440a: /* Spanish (El Salvador) */
-#endif
-    case 0x040a: /* castillian - traditional sort */
-      return "es-ES";
-#if 0
-    case 0x100a: /* Spanish (Guatemala) */
-    case 0x480a: /* Spanish (Honduras) */
-#endif
-    case 0x080a: /* mexican */ 
-      return "es-MX";
-#if 0
-    case 0x0c0a: /* Spanish (Modern Sort) */
-    case 0x4c0a: /* Spanish (Nicaragua) */
-    case 0x180a: /* Spanish (Panama) */
-    case 0x3c0a: /* Spanish (Paraguay) */
-    case 0x280a: /* Spanish (Peru) */
-    case 0x500a: /* Spanish (Puerto Rico) */
-    case 0x380a: /* Spanish (Uruguay) */
-    case 0x200a: /* Spanish (Venezuela) */
-#endif
-
-#if 0
-    case 0x0425: /* Estonian */
-    case 0x0438: /* Faeroese */
-#endif
-
-    case 0x0429: /* Farsi */
-      return "fa-IR";
-
-	case 0x040b:
-      return "fi-FI";
-
-#if 0
-    case 0x080c: /* French (Belgian) */
-    case 0x0c0c: /* French (Canadian) */
-#endif
-	case 0x040c:
-      return "fr-FR";
-#if 0
-    case 0x140c: /* French (Luxembourg) */
-    case 0x180c: /* French (Monaco) */
-    case 0x100c: /* French (Switzerland) */
-#endif
-
-#if 0
-    case 0x0447: /* Windows 2000: Gujarati. This is Unicode only. */
-#endif
-
-    case 0x0439: /* Windows 2000: Hindi. This is Unicode only. */
-      return "hi-IN";
-
-    case 0x042b: /* Windows 2000: Armenian. This is Unicode only. */
-      return "hy-AM";
-
-    case 0x0410:
-      return "it-IT";
-
-    case 0x040d: /* hebrew */
-      return "iw-IL";
-
-#if 0
-    case 0x040e: /* Hungarian */
-#endif
-
-    case 0x0437: /* Windows 2000: Georgian. This is Unicode only. */
-      return "ka-GE";
-
-#if 0
-    case 0x040f: /* Icelandic */
-    case 0x0421: /* Indonesian */
-    case 0x0410: /* Italian (Standard) */
-    case 0x0810: /* Italian (Switzerland) */
-#endif
-
-    case 0x0411: /* Japanese */
-      return "ja-JP";
-
-#if 0
-    case 0x044b: /* Windows 2000: Kannada. This is Unicode only. */
-    case 0x0860: /* Kashmiri (India) */
-    case 0x043f: /* Kazakh */
-    case 0x0457: /* Windows 2000: Konkani. This is Unicode only. */
-#endif
-
-#if 0
-    case 0x0812: /* Korean (Johab) */
-#endif
-    case 0x0412: /* Korean */
-      return "ko-KR";
-
-    case 0x0827: /* Lithuanian (Classic) */
-    case 0x0427: /* Lithuanian */
-      return "lt-LT";
-
-#if 0
-    case 0x0426: /* Latvian */
-    case 0x042f: /* Macedonian */
-    case 0x083e: /* Malay (Brunei Darussalam) */
-    case 0x043e: /* Malay (Malaysian) */
-    case 0x044c: /* Windows 2000: Malayalam. This is Unicode only. */
-    case 0x0458: /* Manipuri */
-    case 0x044e: /* Windows 2000: Marathi. This is Unicode only. */
-#endif
-
-#if 0
-    case 0x0813: /* Dutch (Belgium) */
-#endif
-    case 0x0413: /* Dutch (Netherlands) */
-      return "nl-NL";
-
-#if 0
-    case 0x0861: /* Nepali Windows 2000: (India). This is Unicode only. */
-#endif
-
-    case 0x0414: /* Norwegian (Bokmal) */
-      return "nb-NO";
-    case 0x0814: /* Norwegian (Nynorsk) */
-      return "nn-NO";
-
-#if 0
-    case 0x0448: /* Windows 2000: Oriya. This is Unicode only. */
-    case 0x0415: /* Polish */
-#endif
-
-    case 0x0416: /* brazilian */
-      return "pt-BR";
-    case 0x0816: /* portugese */
-      return "pt-PT";
-
-#if 0
-    case 0x0446: /* Windows 2000: Punjabi. This is Unicode only. */
-    case 0x0418: /* Romanian */
-#endif
-
-    case 0x0419:
-      return "ru-RU";
-
-#if 0
-    case 0x044f: /* Windows 2000: Sanskrit. This is Unicode only. */
-    case 0x0c1a: /* Serbian (Cyrillic) */
-    case 0x081a: /* Serbian (Latin) */
-    case 0x0459: /* Sindhi */
-    case 0x041b: /* Slovak */
-    case 0x0424: /* Slovenian */
-    case 0x0430: /* Sutu */
-    case 0x0441: /* Swahili (Kenya) */
-#endif
-
-#if 0
-    case 0x081d: /* Swedish (Finland) */
-#endif
-    case 0x041d:
-      return "sv-SE";
-
-#if 0
-    case 0x0449: /* Windows 2000: Tamil. This is Unicode only. */
-    case 0x0444: /* Tatar (Tatarstan) */
-    case 0x044a: /* Windows 2000: Telugu. This is Unicode only. */
-#endif
-
-    case 0x041e: /* Thai */
-      return "th-TH";
-
-    case 0x041f: /* Turkish */
-      return "tr-TR";
-
-#if 0
-    case 0x0422: /* Ukrainian */
-    case 0x0820: /* Urdu (India) */
-    case 0x0420: /* Urdu (Pakistan) */
-    case 0x0843: /* Uzbek (Cyrillic) */
-    case 0x0443: /* Uzbek (Latin) */
-#endif
-
-    case 0x042a: /* Vietnamese */
-      return "vi-VN";
-
-    case 0x0400:
-      return "-none-";
-
-    case 0x0409:
-    default:
-      return "en-US";
-    }
+	return "en-US"; /* default */
 }
 
-char *
+const char *
 wvLIDToCodePageConverter (U16 lid)
 {
     if (lid == 0x0FFF)	/*Macintosh Hack */
@@ -773,7 +556,7 @@ swap_iconv (U16 lid)
     iconv_t handle = NULL;
     char f_code[33];		/* From CCSID                           */
     char t_code[33];		/* To CCSID                             */
-    char *codepage = NULL;
+    const char *codepage = NULL;
     size_t ibuflen, obuflen;
 
     U8 buffer[2];
@@ -821,7 +604,7 @@ wvHandleCodePage (U16 eachchar, U16 lid)
 {
     char f_code[33];		/* From CCSID                           */
     char t_code[33];		/* To CCSID                             */
-    char *codepage;
+    const char *codepage;
     iconv_t iconv_handle;	/* Conversion Descriptor returned       */
     /* from iconv_open() function           */
     size_t ibuflen;		/* Length of input buffer               */
