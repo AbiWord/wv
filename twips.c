@@ -21,8 +21,13 @@ high screen then there are
 */
 
 #define TWIPS_PER_INCH 1440
+#if 0
 #define PIXELS_PER_H_INCH 75
 #define PIXELS_PER_V_INCH 75
+#else
+#define PIXELS_PER_H_INCH 100
+#define PIXELS_PER_V_INCH 100
+#endif
 
 static S16 pperhi = PIXELS_PER_H_INCH;
 static S16 ppervi = PIXELS_PER_V_INCH;

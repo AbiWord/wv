@@ -33,6 +33,15 @@ returns 1 for not an ole doc
 
 char *config = "wvHtml.xml";
 
+/* flags for -X / --xml option */
+int   xml_output = 0;
+char *xml_slash  = "";
+
+/* flag for -1 / --nographics1 option */
+int   no_graphics1 = 0;
+
+
+
 int myelehandler (wvParseStruct * ps, wvTag tag, void *props, int dirty);
 int mydochandler (wvParseStruct * ps, wvTag tag);
 int myCharProc (wvParseStruct * ps, U16 eachchar, U8 chartype, U16 lid);
@@ -218,6 +227,8 @@ do_help (void)
     printf ("  -b --basename=name\t\tUse name as base name of image files\n");
     printf ("  -a --auto-eps=fmt\t\tQuery support for conversion of fmt to eps\n");
     printf ("  -s --suppress=fmt\t\tDon't convert fmt to eps\n");
+    printf ("  -X --xml\t\t\tXML ouput\n");
+    printf ("  -1 --nographics1\t\tno 0x01 graphics output\n");
     printf ("  -v --version\t\t\tPrint wvWare's version number\n");
     printf ("  -? --help\t\t\tPrint this help message\n");
     printf
@@ -258,6 +269,8 @@ main (int argc, char **argv)
 	{"suppress", 1, 0, 's'},
 	{"version", 0, 0, 'v'},
 	{"help", 0, 0, '?'},
+	{"xml", 0, 0, 'X'},
+	{"nographics1", 0, 0, '1'},
 	{0, 0, 0, 0}
     };
 
@@ -269,7 +282,7 @@ main (int argc, char **argv)
 
     while (1)
       {
-	  c = getopt_long (argc, argv, "?vc:x:p:d:b:a:s:", long_options, &index);
+	  c = getopt_long (argc, argv, "?vc:x:p:d:b:a:s:X1", long_options, &index);
 	  if (c == -1)
 	      break;
 	  switch (c)
@@ -316,6 +329,18 @@ main (int argc, char **argv)
 	    case 's':
 		wv_suppress (optarg);
 		break;
+
+	    case 'X':
+		config     = "wvXml.xml";
+		charset    = "utf-8";
+		xml_output = 1;
+		xml_slash  = " /";
+		break;
+		
+	    case '1':
+		no_graphics1 = 1;
+		break;
+		
 	    default:
 		do_help ();
 		return -1;
@@ -600,8 +625,8 @@ wvStrangeNoGraphicData (char *config, int graphicstype)
  		  \n-- %#.2x graphic: StrangeNoGraphicData --",
 	     graphicstype);
     else
-	printf ("<img alt=\"%#.2x graphic\" src=\"%s\"><br>", graphicstype,
-		"StrangeNoGraphicData");
+	printf ("<img alt=\"%#.2x graphic\" src=\"%s\"%s><br%s>", graphicstype,
+		"StrangeNoGraphicData", xml_slash, xml_slash);
     return;
 }
 
@@ -1202,13 +1227,15 @@ wvPrintGraphics (char *config, int graphicstype, int width, int height,
 	  if ((strstr (config, "wvHtml.xml") != NULL)
 	   || (strstr (config, "wvWml.xml")  != NULL))
 	    {
-	      printf ("<img width=\"%d\" height=\"%d\" alt=\"%#.2x graphic\" src=\"%s\"><br>",
-	              width, height, graphicstype, name_to_url (source));
+	      printf ("<img width=\"%d\" height=\"%d\" alt=\"%#.2x graphic\" src=\"%s\"%s><br%s>",
+	              width, height, graphicstype, name_to_url (source),
+		      xml_slash, xml_slash);
 	    }
 	  else
 	    {
-	      printf ("<img width=\"%d\" height=\"%d\" alt=\"%#.2x graphic\" src=\"%s\"><br>",
-	              width, height, graphicstype, source);
+	      printf ("<img width=\"%d\" height=\"%d\" alt=\"%#.2x graphic\" src=\"%s\"%s><br%s>",
+	              width, height, graphicstype, source,
+		      xml_slash, xml_slash);
 	    }
       }
     return;
@@ -1280,7 +1307,8 @@ mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp)
 
 	      if (achp->fOle2)
 		  exit (139);
-#if 1
+	      if(!no_graphics1) 
+	      {
 	      wvStream_goto (ps->data, achp->fcPic_fcObj_lTagObj);
 	      wvGetPICF (wvQuerySupported (&ps->fib, NULL), &picf, ps->data);
 	      f = picf.rgb;
@@ -1298,9 +1326,12 @@ mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp)
 		}
 	      else
 		  wvStrangeNoGraphicData (config, 0x01);
-#else
+	      }
+	      else 
+	      {
 	      wvError (("0x01 graphics not supported at the moment\n"));
-#endif
+	      }
+
 	      wvStream_goto (ps->data, p);
 	      return (0);
 	  }

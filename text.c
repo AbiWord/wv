@@ -829,7 +829,7 @@ wvSetDocumentHandler (wvParseStruct * ps,
 {
     ps->dochandler = proc;
 }
-
+    
 int
 wvConvertUnicodeToLaTeX (U16 char16)
 {
@@ -2096,4 +2096,110 @@ thing and just put ... instead of this
     /* Debugging aid: */
     /* if (char16 >= 0x100) printf("[%x]", char16); */
     return (0);
+}
+
+
+
+int
+wvConvertUnicodeToXml (U16 char16)
+{
+    switch (char16)
+      {
+      case 11:
+	  printf ("<br />");
+	  return (1);
+
+      case 30:
+      case 31:
+      case 12:
+      case 13:
+      case 14:
+      case 7:
+	  return (1);
+
+      /* Much simpler here, because XML supports only a few entities */
+      case 34:
+	  printf ("&quot;");
+	  return (1);
+      case 38:
+	  printf ("&amp;");
+	  return (1);
+      case 39:
+	  printf ("&apos;");
+	  return (1);
+      case 60:
+	  printf ("&lt;");
+	  return (1);
+      case 62:
+	  printf ("&gt;");
+	  return (1);
+      }
+    
+    return (0);
+}
+
+
+
+char *str_copy(char *d, size_t n, char *s)
+{
+    strncpy(d, s, n);
+    d[n-1] = 0;
+    return d;
+}
+
+#define BUF_COPY(d,s) str_copy(d,sizeof(d),s)
+
+
+
+char *
+wvConvertStylename(char *stylename, char *outputtype)
+{
+    static char cached_outputtype[36];
+    static iconv_t iconv_handle = NULL;
+    /**FIXME: 100 is just the size of stylename[] from wv.h**/
+    static char buffer[100];
+    char *ibuf, *obuf;
+    size_t ibuflen, obuflen, len;
+
+    /* Destroy */
+    if(!outputtype) 
+    {
+	if (iconv_handle)
+	    iconv_close(iconv_handle);
+	return NULL;
+    }
+
+    /* Initialize */
+    if(!iconv_handle || strcmp(cached_outputtype, outputtype))
+    {
+	if (iconv_handle)
+	    iconv_close(iconv_handle);
+
+	/**FIXME: don´t know if ISO-8859-1 is really the correct
+	 **charset for style names with eg umlauts.             **/
+	iconv_handle = iconv_open(outputtype, "ISO-8859-1");
+	if(iconv_handle == (iconv_t)-1)
+	{
+	    wvError(("iconv_open fail: %d, cannot convert %s to %s\n",
+		     errno, "ISO-8859-1", outputtype));
+	    return stylename;
+	}
+    
+	BUF_COPY(cached_outputtype, outputtype);
+    }
+
+    /* Convert */
+    ibuf    = stylename;
+    ibuflen = strlen(stylename);
+    obuf    = buffer;
+    obuflen = sizeof(buffer) - 1;
+    len     = wv_iconv (iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+    *obuf   = 0;
+    if(len == -1) 
+    {
+	wvError(("wvConfig.c: can´t iconv()\n"));
+	return stylename;
+    }
+    
+    return buffer;
 }

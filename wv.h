@@ -2920,6 +2920,8 @@ returns the same as wvOLEDecode with the addition that
     void wvOutputFromUnicode (U16 eachchar, char *outputtype);
 
     int wvConvertUnicodeToHtml (U16 char16);
+    int wvConvertUnicodeToXml (U16 char16);
+    char *wvConvertStylename(char *stylename, char *outputtype);
     int wvConvertUnicodeToLaTeX (U16 char16);
     U16 wvConvertSymbolToUnicode (U16 char16);
     U16 wvConvertMTExtraToUnicode (U16 char16);

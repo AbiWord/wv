@@ -27,14 +27,14 @@ char *
 wvFmtMsg (char *fmt, ...)
 {
   static char mybuf[1024];
-  mybuf[0] = 0;
-
 #if 0
+  mybuf[0] = 0;
+#endif  
+
   va_list argp;
   va_start (argp, fmt);
   vsprintf (mybuf, fmt, argp);
   va_end (argp);
-#endif  
 
   return mybuf;
 }

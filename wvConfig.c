@@ -1730,11 +1730,14 @@ exstartElement (void *userData, const char *name, const char **atts)
 	  break;
 	  /* 	>> PATCH -----------------------  */
 	case  TT_stylename:
-
-	 		pap=(PAP *)(mydata->props);
-
- 		  wvAppendStr (&mydata->retstring, pap->stylename);
-	 	     mydata->currentlen = strlen (mydata->retstring);
+	    pap=(PAP *)(mydata->props);
+#if 0
+	    wvAppendStr (&mydata->retstring, pap->stylename);
+#else
+	    wvAppendStr(&mydata->retstring,
+			wvConvertStylename(pap->stylename, mydata->charset));
+#endif
+	    mydata->currentlen = strlen (mydata->retstring);
 	  break;
 
 	  /*  	-------------------------<<   */
@@ -3631,6 +3634,8 @@ wvSetEntityConverter (expand_data * data)
 		    wvConvertUnicodeToEntity = wvConvertUnicodeToHtml;
 		else if (!(strcasecmp (data->retstring, "LaTeX")))
 		    wvConvertUnicodeToEntity = wvConvertUnicodeToLaTeX;
+		else if (!(strcasecmp (data->retstring, "XML")))
+		    wvConvertUnicodeToEntity = wvConvertUnicodeToXml;
 		wvTrace (
 			 ("Using %s entity conversion in conjunction with ordinary charset conversion\n",
 			  data->retstring));
