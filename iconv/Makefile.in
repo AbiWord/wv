@@ -1,0 +1,56 @@
+CC = @CC@
+
+SHELL=/bin/sh
+
+INSTALL = @INSTALL@
+INSTALL_DATA = @INSTALL_DATA@
+
+@SET_MAKE@
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+srcdir=@srcdir@
+bindir=@bindir@
+libdir=@libdir@
+mandir=@mandir@
+includedir = @includedir@
+PERL = @PERL@
+
+VPATH = @srcdir@
+
+CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/../
+
+SHELL = /bin/sh
+
+.SUFFIXES: .C .o
+
+ICONVOBJECTS =	\
+	iconv.o \
+	codepage-874.o \
+	codepage-1250.o \
+	codepage-1251.o \
+	codepage-1252.o \
+	codepage-1253.o \
+	codepage-1254.o \
+	codepage-1255.o \
+	codepage-1256.o \
+	codepage-1257.o \
+	iso-8859-15.o \
+	tis-620.o \
+	utf-8.o \
+	koi8-r.o
+
+all: $(ICONVOBJECTS)
+
+%.o: $(srcdir)/%.c 
+	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
+
+clean:
+	rm -rf *.o core a.out *.a
+
+distclean: 
+	rm -rf config.cache config.status config.log Makefile config.h *.a *.o core out* .pure
+
+realclean: distclean
+
+#  DO  NOT  DELETE THIS LINE -- make depend depends on it.
