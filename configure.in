@@ -80,7 +80,7 @@ dnl AC_HEADER_SYS_WAIT
 dnl AC_TYPE_SIGNAL
 dnl AC_FUNC_WAIT3
 
-AC_CHECK_HEADERS(fcntl.h sys/file.h sys/ioctl.h unistd.h)
+AC_CHECK_HEADERS(fcntl.h io.h sys/file.h sys/ioctl.h unistd.h)
 CFLAGS="$CFLAGS $X_CFLAGS"
 
 
@@ -276,162 +276,107 @@ dnl ========================================================
 _cppflags=${CPPFLAGS}
 _ldflags=${LDFLAGS}
 
-AC_ARG_WITH(libiconv,
-[  --with-libiconv[=DIR]   use libiconv [in DIR]],[
-    if test "$withval" = "yes"; then
-        check_for_libiconv=yes
-    elif test "$withval" = "no"; then
-        check_for_libiconv=no
-    else
-        check_for_libiconv=yes
-        LIBICONV_DIR=$withval
-        CPPFLAGS="${CPPFLAGS} -I$withval/include"
-        LDFLAGS="${LDFLAGS} -L$withval/lib"
-    fi
-],check_for_libiconv="yes")
-
 have_iconv=no
+use_peer_libiconv=no
+check_for_libiconv=yes
+default_to_libiconv=yes
 
-if test "$check_for_libiconv" = "yes"; then
-    AC_CHECK_LIB(iconv,iconv_open,[
-        if test "x$LIBICONV_DIR" != "x"; then
-            ICONV_CFLAGS="-I$LIBICONV_DIR/include"
-            ICONV_LIBS="-L$LIBICONV_DIR/lib -liconv"
-        else
-            ICONV_LIBS="-liconv"
-        fi
-        AC_DEFINE(USE_ICONV)
-        have_iconv=yes])
-    dnl some libiconv don't have iconv_open but rather libiconv_open
-    if test "$have_iconv" = "no"; then
-        AC_CHECK_LIB(iconv,libiconv_open,[
-            if test "x$LIBICONV_DIR" != "x"; then
-                ICONV_CFLAGS="-I$LIBICONV_DIR/include"
-                ICONV_LIBS="-L$LIBICONV_DIR/lib -liconv"
-            else
-                ICONV_LIBS="-liconv"
-            fi
-            AC_DEFINE(USE_ICONV)
-            have_iconv=yes])
-    fi
-fi
+AC_ARG_WITH(libiconv,[  --with-libiconv[=DIR]   use libiconv [in DIR]],[
+	if [ test "$withval" = "no" ]; then
+		check_for_libiconv=no
+	elif [ test "$withval" != "yes" ]; then
+		check_for_libiconv=yes
+		LIBICONV_DIR=$withval
+	fi
+],default_to_libiconv=no)
 
-# use --with-peer-iconv to get libiconv from the peer directory
-AC_ARG_WITH(peer-iconv,
-[  --with-peer-iconv       use libiconv from peer directory ],[
-     if test "$withval" = "yes"; then
-	 use_peer_iconv=yes
-     elif test "$withval" = "no"; then
-         use_peer_iconv=no
-     else
-         use_peer_iconv=no
-     fi
-],use_peer_iconv=no)
-
-if test "$use_peer_iconv" = "yes"; then
-    basepath="../libiconv"
-    ICONV_LIBS="${basepath}/lib/.libs/libiconv.a"
-    ICONV_CFLAGS="-I${basepath}/include"
-    AC_MSG_RESULT(using supplied iconv library)
-else
-    if test "$have_iconv" = "no"; then
-	AC_CHECK_FUNC(iconv,[
-	    AC_DEFINE(USE_ICONV)
-	    have_iconv=yes],[
-	    ICONVOBJS="\$(RICONVOBJS)"
-	    ICONV="BICONV"
-	    AC_MSG_WARN(*** Get Iconv ***)])
-    fi
-fi
-
-AC_DEFUN(AC_SYS_ICONV_WIN_CP_SUPPORT,
-[
-AC_MSG_CHECKING([for existence of $1 to $2 iconv support])
-dnl AC_CACHE_VAL(have_codepages,
-dnl [
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-AC_TRY_RUN([
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"$1");
-		strcpy(t_code,"$2");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","$1","$2");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","$1","$2");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-], have_codepages=yes, have_codepages=no, have_codepages=no)
-LIBS=$_libs
-dnl])
-AC_MSG_RESULT($have_codepages)
-if test $have_codepages = no; then
-AC_DEFINE(MUST_USE_INTERNAL_ICONV_TABLE)
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
+dnl use --with-peer-iconv to get libiconv from the peer directory
+dnl 
+AC_ARG_WITH(peer-iconv,[  --with-peer-iconv       use libiconv from peer directory ],[
+	if test "$withval" != "no"; then
+		use_peer_libiconv=$withval
+		if [ test -d ../libiconv ]; then
+			check_for_libiconv=yes
+			default_to_libiconv=yes
+			LIBICONV_DIR="../libiconv"
+		fi
+	fi
 ])
 
-if [ test "$have_iconv" = yes ]; then
-	AC_SYS_ICONV_WIN_CP_SUPPORT(CP874,UCS-2)
-dnl	AC_SYS_ICONV_WIN_CP_SUPPORT(CP936,UCS-2)
-dnl	AC_SYS_ICONV_WIN_CP_SUPPORT(CP932,UCS-2)
-dnl	AC_SYS_ICONV_WIN_CP_SUPPORT(CP949,UCS-2)
-dnl	AC_SYS_ICONV_WIN_CP_SUPPORT(CP950,UCS-2)
-	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1250,UCS-2)
-	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1251,UCS-2)
-	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1252,UCS-2)
-	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1253,UCS-2)
-	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1254,UCS-2)
-	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1255,UCS-2)
-	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1256,UCS-2)
-	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1257,UCS-2)
-
-	AC_SYS_ICONV_WIN_CP_SUPPORT(UCS-2,UCS-2)
-	AC_SYS_ICONV_WIN_CP_SUPPORT(UCS-2,UTF-8)
-	AC_SYS_ICONV_WIN_CP_SUPPORT(UCS-2,koi8-r)
-	AC_SYS_ICONV_WIN_CP_SUPPORT(UCS-2,tis-620)
-	AC_SYS_ICONV_WIN_CP_SUPPORT(UCS-2,iso-8859-15)
+dnl first search for system iconv
+dnl 
+if [ test "$default_to_libiconv" = "no" ]; then
+	AC_CHECK_FUNC(iconv,[
+		AC_CHECK_HEADER(iconv.h,[
+			have_iconv=sys
+			check_for_libiconv=no
+		],[	AC_MSG_ERROR(* * * I found system iconv but can't find iconv.h header! * * *)
+		])
+	])
 fi
+
+dnl then search for libiconv
+dnl 
+if [ test "$check_for_libiconv" = "yes" ]; then
+	if [ test "x$LIBICONV_DIR" != "x" ]; then
+		if [ test "$use_peer_libiconv" != "no" ]; then
+			ICONV_CFLAGS="-I$LIBICONV_DIR/include"
+			ICONV_LIBS="-L$LIBICONV_DIR/lib/.libs -liconv"
+		else
+			ICONV_CFLAGS="-I$LIBICONV_DIR/include"
+			ICONV_LIBS="-L$LIBICONV_DIR/lib -liconv"
+		fi
+	else
+		ICONV_CFLAGS=""
+		ICONV_LIBS="-liconv"
+	fi
+
+	CPPFLAGS="${CPPFLAGS} $ICONV_CFLAGS"
+	LDFLAGS="${LDFLAGS} $ICONV_LIBS"
+
+	if [ test "$use_peer_libiconv" = "abi" ]; then
+		dnl if configure is called with --with-peer-iconv=abi
+		dnl then assume that iconv exists and will be linked eventually
+		dnl 
+		AC_CHECK_HEADER(iconv.h,have_iconv=abi)
+	else
+		AC_CHECK_HEADER(iconv.h,[
+			AC_CHECK_LIB(iconv,iconv_open,[
+				have_iconv=iconv
+			],[	AC_CHECK_LIB(iconv,libiconv_open,[
+					have_iconv=libiconv
+				],[	AC_MSG_ERROR(* * * I found iconv.h header but no working library! * * *)
+				])
+			])
+		])
+	fi	
+fi
+
+if [ test "$have_iconv" = "no" ]; then
+	AC_MSG_ERROR(* * * iconv is required: ftp://ftp.gnu.org/pub/gnu/libiconv * * *)
+fi
+
+AC_LANG_CPLUSPLUS
+
+AC_MSG_CHECKING(need for const in iconv)
+AC_TRY_COMPILE([
+#include <iconv.h>
+],[
+	iconv_t handle;
+	size_t ib;
+	size_t ob;
+	const char* in = 0;
+	char* out = 0;
+	iconv (handle,const_cast<char **>(&in),&ib,&out,&ob);
+],[	AC_MSG_RESULT(no)
+],[	AC_MSG_RESULT(yes)
+	AC_DEFINE(ICONV_REQUIRES_CONST)
+])
+
+AC_LANG_C
 
 AC_SUBST(ICONV_CFLAGS)
 AC_SUBST(ICONV_LIBS)
-
-AC_SUBST(ICONV)
-AC_SUBST(ICONVOBJS)
 
 CPPFLAGS=$_cppflags
 LDFLAGS=$_ldflags

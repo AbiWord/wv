@@ -76,9 +76,6 @@
 #define NO_HOLES
 #endif
 
-/* define if you have iconv */
-#undef USE_ICONV
-
 /* define if you have malloc.h */
 #undef HAVE_MALLOC_H
 
@@ -98,5 +95,14 @@
 #undef HAVE_MMAP
 
 #undef HAVE_LIBXML2
+
+/* Define this if the second argument of iconv requires a const */
+#undef ICONV_REQUIRES_CONST
+
+#ifdef ICONV_REQUIRES_CONST
+#define ICONV_CONST const
+#else
+#define ICONV_CONST
+#endif
 
 #endif /* CONFIG_H_CALLED */

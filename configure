@@ -2056,7 +2056,7 @@ EOF
 fi
 
 
-for ac_hdr in fcntl.h sys/file.h sys/ioctl.h unistd.h
+for ac_hdr in fcntl.h io.h sys/file.h sys/ioctl.h unistd.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
@@ -2847,167 +2847,51 @@ LDFLAGS=$_ldflags
 _cppflags=${CPPFLAGS}
 _ldflags=${LDFLAGS}
 
+have_iconv=no
+use_peer_libiconv=no
+check_for_libiconv=yes
+default_to_libiconv=yes
+
 # Check whether --with-libiconv or --without-libiconv was given.
 if test "${with_libiconv+set}" = set; then
   withval="$with_libiconv"
   
-    if test "$withval" = "yes"; then
-        check_for_libiconv=yes
-    elif test "$withval" = "no"; then
-        check_for_libiconv=no
-    else
-        check_for_libiconv=yes
-        LIBICONV_DIR=$withval
-        CPPFLAGS="${CPPFLAGS} -I$withval/include"
-        LDFLAGS="${LDFLAGS} -L$withval/lib"
-    fi
+	if  test "$withval" = "no" ; then
+		check_for_libiconv=no
+	elif  test "$withval" != "yes" ; then
+		check_for_libiconv=yes
+		LIBICONV_DIR=$withval
+	fi
 
 else
-  check_for_libiconv="yes"
+  default_to_libiconv=no
 fi
 
 
-have_iconv=no
-
-if test "$check_for_libiconv" = "yes"; then
-    echo $ac_n "checking for iconv_open in -liconv""... $ac_c" 1>&6
-echo "configure:2875: checking for iconv_open in -liconv" >&5
-ac_lib_var=`echo iconv'_'iconv_open | sed 'y%./+-%__p_%'`
-if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  ac_save_LIBS="$LIBS"
-LIBS="-liconv  $LIBS"
-cat > conftest.$ac_ext <<EOF
-#line 2883 "configure"
-#include "confdefs.h"
-/* Override any gcc2 internal prototype to avoid an error.  */
-/* We use char because int might match the return type of a gcc2
-    builtin and then its argument prototype would still apply.  */
-char iconv_open();
-
-int main() {
-iconv_open()
-; return 0; }
-EOF
-if { (eval echo configure:2894: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
-  rm -rf conftest*
-  eval "ac_cv_lib_$ac_lib_var=yes"
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -rf conftest*
-  eval "ac_cv_lib_$ac_lib_var=no"
-fi
-rm -f conftest*
-LIBS="$ac_save_LIBS"
-
-fi
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  echo "$ac_t""yes" 1>&6
-  
-        if test "x$LIBICONV_DIR" != "x"; then
-            ICONV_CFLAGS="-I$LIBICONV_DIR/include"
-            ICONV_LIBS="-L$LIBICONV_DIR/lib -liconv"
-        else
-            ICONV_LIBS="-liconv"
-        fi
-        cat >> confdefs.h <<\EOF
-#define USE_ICONV 1
-EOF
-
-        have_iconv=yes
-else
-  echo "$ac_t""no" 1>&6
-fi
-
-        if test "$have_iconv" = "no"; then
-        echo $ac_n "checking for libiconv_open in -liconv""... $ac_c" 1>&6
-echo "configure:2927: checking for libiconv_open in -liconv" >&5
-ac_lib_var=`echo iconv'_'libiconv_open | sed 'y%./+-%__p_%'`
-if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  ac_save_LIBS="$LIBS"
-LIBS="-liconv  $LIBS"
-cat > conftest.$ac_ext <<EOF
-#line 2935 "configure"
-#include "confdefs.h"
-/* Override any gcc2 internal prototype to avoid an error.  */
-/* We use char because int might match the return type of a gcc2
-    builtin and then its argument prototype would still apply.  */
-char libiconv_open();
-
-int main() {
-libiconv_open()
-; return 0; }
-EOF
-if { (eval echo configure:2946: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
-  rm -rf conftest*
-  eval "ac_cv_lib_$ac_lib_var=yes"
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -rf conftest*
-  eval "ac_cv_lib_$ac_lib_var=no"
-fi
-rm -f conftest*
-LIBS="$ac_save_LIBS"
-
-fi
-if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
-  echo "$ac_t""yes" 1>&6
-  
-            if test "x$LIBICONV_DIR" != "x"; then
-                ICONV_CFLAGS="-I$LIBICONV_DIR/include"
-                ICONV_LIBS="-L$LIBICONV_DIR/lib -liconv"
-            else
-                ICONV_LIBS="-liconv"
-            fi
-            cat >> confdefs.h <<\EOF
-#define USE_ICONV 1
-EOF
-
-            have_iconv=yes
-else
-  echo "$ac_t""no" 1>&6
-fi
-
-    fi
-fi
-
-# use --with-peer-iconv to get libiconv from the peer directory
 # Check whether --with-peer-iconv or --without-peer-iconv was given.
 if test "${with_peer_iconv+set}" = set; then
   withval="$with_peer_iconv"
   
-     if test "$withval" = "yes"; then
-	 use_peer_iconv=yes
-     elif test "$withval" = "no"; then
-         use_peer_iconv=no
-     else
-         use_peer_iconv=no
-     fi
+	if test "$withval" != "no"; then
+		use_peer_libiconv=$withval
+		if  test -d ../libiconv ; then
+			check_for_libiconv=yes
+			default_to_libiconv=yes
+			LIBICONV_DIR="../libiconv"
+		fi
+	fi
 
-else
-  use_peer_iconv=no
 fi
 
 
-if test "$use_peer_iconv" = "yes"; then
-    basepath="../libiconv"
-    ICONV_LIBS="${basepath}/lib/.libs/libiconv.a"
-    ICONV_CFLAGS="-I${basepath}/include"
-    echo "$ac_t""using supplied iconv library" 1>&6
-else
-    if test "$have_iconv" = "no"; then
+if  test "$default_to_libiconv" = "no" ; then
 	echo $ac_n "checking for iconv""... $ac_c" 1>&6
-echo "configure:3006: checking for iconv" >&5
+echo "configure:2890: checking for iconv" >&5
 if eval "test \"`echo '$''{'ac_cv_func_iconv'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 3011 "configure"
+#line 2895 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char iconv(); below.  */
@@ -3030,7 +2914,7 @@ iconv();
 
 ; return 0; }
 EOF
-if { (eval echo configure:3034: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:2918: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_iconv=yes"
 else
@@ -3045,1135 +2929,281 @@ fi
 if eval "test \"`echo '$ac_cv_func_'iconv`\" = yes"; then
   echo "$ac_t""yes" 1>&6
   
-	    cat >> confdefs.h <<\EOF
-#define USE_ICONV 1
+		ac_safe=`echo "iconv.h" | sed 'y%./+-%__p_%'`
+echo $ac_n "checking for iconv.h""... $ac_c" 1>&6
+echo "configure:2935: checking for iconv.h" >&5
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 2940 "configure"
+#include "confdefs.h"
+#include <iconv.h>
 EOF
-
-	    have_iconv=yes
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:2945: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  
+			have_iconv=sys
+			check_for_libiconv=no
+		
 else
   echo "$ac_t""no" 1>&6
-
-	    ICONVOBJS="\$(RICONVOBJS)"
-	    ICONV="BICONV"
-	    echo "configure: warning: *** Get Iconv ***" 1>&2
-fi
-
-    fi
-fi
-
-
-
-if  test "$have_iconv" = yes ; then
-	
-echo $ac_n "checking for existence of CP874 to UCS-2 iconv support""... $ac_c" 1>&6
-echo "configure:3070: checking for existence of CP874 to UCS-2 iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
-else
-  cat > conftest.$ac_ext <<EOF
-#line 3077 "configure"
-#include "confdefs.h"
-
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"CP874");
-		strcpy(t_code,"UCS-2");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","CP874","UCS-2");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","CP874","UCS-2");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
-EOF
-if { (eval echo configure:3124: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
-fi
-rm -fr conftest*
-fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
-EOF
-
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
+	{ echo "configure: error: * * * I found system iconv but can't find iconv.h header! * * *" 1>&2; exit 1; }
+		
 fi
 
 	
-echo $ac_n "checking for existence of CP1250 to UCS-2 iconv support""... $ac_c" 1>&6
-echo "configure:3149: checking for existence of CP1250 to UCS-2 iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+fi
+
+if  test "$check_for_libiconv" = "yes" ; then
+	if  test "x$LIBICONV_DIR" != "x" ; then
+		if  test "$use_peer_libiconv" != "no" ; then
+			ICONV_CFLAGS="-I$LIBICONV_DIR/include"
+			ICONV_LIBS="-L$LIBICONV_DIR/lib/.libs -liconv"
+		else
+			ICONV_CFLAGS="-I$LIBICONV_DIR/include"
+			ICONV_LIBS="-L$LIBICONV_DIR/lib -liconv"
+		fi
+	else
+		ICONV_CFLAGS=""
+		ICONV_LIBS="-liconv"
+	fi
+
+	CPPFLAGS="${CPPFLAGS} $ICONV_CFLAGS"
+	LDFLAGS="${LDFLAGS} $ICONV_LIBS"
+
+	if  test "$use_peer_libiconv" = "abi" ; then
+								ac_safe=`echo "iconv.h" | sed 'y%./+-%__p_%'`
+echo $ac_n "checking for iconv.h""... $ac_c" 1>&6
+echo "configure:2998: checking for iconv.h" >&5
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 3156 "configure"
+#line 3003 "configure"
 #include "confdefs.h"
-
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"CP1250");
-		strcpy(t_code,"UCS-2");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","CP1250","UCS-2");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","CP1250","UCS-2");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
+#include <iconv.h>
 EOF
-if { (eval echo configure:3203: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:3008: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  have_iconv=abi
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+	else
+		ac_safe=`echo "iconv.h" | sed 'y%./+-%__p_%'`
+echo $ac_n "checking for iconv.h""... $ac_c" 1>&6
+echo "configure:3032: checking for iconv.h" >&5
+if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  cat > conftest.$ac_ext <<EOF
+#line 3037 "configure"
+#include "confdefs.h"
+#include <iconv.h>
+EOF
+ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
+{ (eval echo configure:3042: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
+if test -z "$ac_err"; then
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=yes"
+else
+  echo "$ac_err" >&5
+  echo "configure: failed program was:" >&5
+  cat conftest.$ac_ext >&5
+  rm -rf conftest*
+  eval "ac_cv_header_$ac_safe=no"
+fi
+rm -f conftest*
+fi
+if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  
+			echo $ac_n "checking for iconv_open in -liconv""... $ac_c" 1>&6
+echo "configure:3060: checking for iconv_open in -liconv" >&5
+ac_lib_var=`echo iconv'_'iconv_open | sed 'y%./+-%__p_%'`
+if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  ac_save_LIBS="$LIBS"
+LIBS="-liconv  $LIBS"
+cat > conftest.$ac_ext <<EOF
+#line 3068 "configure"
+#include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char iconv_open();
+
+int main() {
+iconv_open()
+; return 0; }
+EOF
+if { (eval echo configure:3079: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=yes"
 else
   echo "configure: failed program was:" >&5
   cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=no"
 fi
-rm -fr conftest*
+rm -f conftest*
+LIBS="$ac_save_LIBS"
+
 fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
-EOF
-
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
-
-	
-echo $ac_n "checking for existence of CP1251 to UCS-2 iconv support""... $ac_c" 1>&6
-echo "configure:3228: checking for existence of CP1251 to UCS-2 iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
+if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  
+				have_iconv=iconv
+			
 else
-  cat > conftest.$ac_ext <<EOF
-#line 3235 "configure"
+  echo "$ac_t""no" 1>&6
+	echo $ac_n "checking for libiconv_open in -liconv""... $ac_c" 1>&6
+echo "configure:3100: checking for libiconv_open in -liconv" >&5
+ac_lib_var=`echo iconv'_'libiconv_open | sed 'y%./+-%__p_%'`
+if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
+  echo $ac_n "(cached) $ac_c" 1>&6
+else
+  ac_save_LIBS="$LIBS"
+LIBS="-liconv  $LIBS"
+cat > conftest.$ac_ext <<EOF
+#line 3108 "configure"
 #include "confdefs.h"
+/* Override any gcc2 internal prototype to avoid an error.  */
+/* We use char because int might match the return type of a gcc2
+    builtin and then its argument prototype would still apply.  */
+char libiconv_open();
 
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"CP1251");
-		strcpy(t_code,"UCS-2");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","CP1251","UCS-2");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","CP1251","UCS-2");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
+int main() {
+libiconv_open()
+; return 0; }
 EOF
-if { (eval echo configure:3282: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
+if { (eval echo configure:3119: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=yes"
 else
   echo "configure: failed program was:" >&5
   cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
+  rm -rf conftest*
+  eval "ac_cv_lib_$ac_lib_var=no"
 fi
-rm -fr conftest*
+rm -f conftest*
+LIBS="$ac_save_LIBS"
+
 fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
-EOF
-
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
-
-	
-echo $ac_n "checking for existence of CP1252 to UCS-2 iconv support""... $ac_c" 1>&6
-echo "configure:3307: checking for existence of CP1252 to UCS-2 iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
+if eval "test \"`echo '$ac_cv_lib_'$ac_lib_var`\" = yes"; then
+  echo "$ac_t""yes" 1>&6
+  
+					have_iconv=libiconv
+				
 else
-  cat > conftest.$ac_ext <<EOF
-#line 3314 "configure"
+  echo "$ac_t""no" 1>&6
+	{ echo "configure: error: * * * I found iconv.h header but no working library! * * *" 1>&2; exit 1; }
+				
+fi
+
+			
+fi
+
+		
+else
+  echo "$ac_t""no" 1>&6
+fi
+
+	fi	
+fi
+
+if  test "$have_iconv" = "no" ; then
+	{ echo "configure: error: * * * iconv is required: ftp://ftp.gnu.org/pub/gnu/libiconv * * *" 1>&2; exit 1; }
+fi
+
+ac_ext=C
+# CXXFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='${CXX-g++} -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext 1>&5'
+ac_link='${CXX-g++} -o conftest${ac_exeext} $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS 1>&5'
+cross_compiling=$ac_cv_prog_cxx_cross
+
+
+echo $ac_n "checking need for const in iconv""... $ac_c" 1>&6
+echo "configure:3167: checking need for const in iconv" >&5
+cat > conftest.$ac_ext <<EOF
+#line 3169 "configure"
 #include "confdefs.h"
 
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
+#include <iconv.h>
 
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
+int main() {
 
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
+	iconv_t handle;
+	size_t ib;
+	size_t ob;
+	const char* in = 0;
+	char* out = 0;
+	iconv (handle,const_cast<char **>(&in),&ib,&out,&ob);
 
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"CP1252");
-		strcpy(t_code,"UCS-2");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","CP1252","UCS-2");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","CP1252","UCS-2");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
+; return 0; }
 EOF
-if { (eval echo configure:3361: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
+if { (eval echo configure:3185: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+  rm -rf conftest*
+  	echo "$ac_t""no" 1>&6
+
 else
   echo "configure: failed program was:" >&5
   cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
-fi
-rm -fr conftest*
-fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
+  rm -rf conftest*
+  	echo "$ac_t""yes" 1>&6
+	cat >> confdefs.h <<\EOF
+#define ICONV_REQUIRES_CONST 1
 EOF
 
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
-
-	
-echo $ac_n "checking for existence of CP1253 to UCS-2 iconv support""... $ac_c" 1>&6
-echo "configure:3386: checking for existence of CP1253 to UCS-2 iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
-else
-  cat > conftest.$ac_ext <<EOF
-#line 3393 "configure"
-#include "confdefs.h"
-
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"CP1253");
-		strcpy(t_code,"UCS-2");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","CP1253","UCS-2");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","CP1253","UCS-2");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
-EOF
-if { (eval echo configure:3440: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
-fi
-rm -fr conftest*
-fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
-EOF
-
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
-
-	
-echo $ac_n "checking for existence of CP1254 to UCS-2 iconv support""... $ac_c" 1>&6
-echo "configure:3465: checking for existence of CP1254 to UCS-2 iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
-else
-  cat > conftest.$ac_ext <<EOF
-#line 3472 "configure"
-#include "confdefs.h"
-
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"CP1254");
-		strcpy(t_code,"UCS-2");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","CP1254","UCS-2");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","CP1254","UCS-2");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
-EOF
-if { (eval echo configure:3519: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
-fi
-rm -fr conftest*
-fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
-EOF
-
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
-
-	
-echo $ac_n "checking for existence of CP1255 to UCS-2 iconv support""... $ac_c" 1>&6
-echo "configure:3544: checking for existence of CP1255 to UCS-2 iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
-else
-  cat > conftest.$ac_ext <<EOF
-#line 3551 "configure"
-#include "confdefs.h"
-
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"CP1255");
-		strcpy(t_code,"UCS-2");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","CP1255","UCS-2");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","CP1255","UCS-2");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
-EOF
-if { (eval echo configure:3598: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
-fi
-rm -fr conftest*
-fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
-EOF
-
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
-
-	
-echo $ac_n "checking for existence of CP1256 to UCS-2 iconv support""... $ac_c" 1>&6
-echo "configure:3623: checking for existence of CP1256 to UCS-2 iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
-else
-  cat > conftest.$ac_ext <<EOF
-#line 3630 "configure"
-#include "confdefs.h"
-
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"CP1256");
-		strcpy(t_code,"UCS-2");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","CP1256","UCS-2");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","CP1256","UCS-2");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
-EOF
-if { (eval echo configure:3677: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
-fi
-rm -fr conftest*
-fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
-EOF
-
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
-
-	
-echo $ac_n "checking for existence of CP1257 to UCS-2 iconv support""... $ac_c" 1>&6
-echo "configure:3702: checking for existence of CP1257 to UCS-2 iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
-else
-  cat > conftest.$ac_ext <<EOF
-#line 3709 "configure"
-#include "confdefs.h"
-
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"CP1257");
-		strcpy(t_code,"UCS-2");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","CP1257","UCS-2");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","CP1257","UCS-2");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
-EOF
-if { (eval echo configure:3756: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
-fi
-rm -fr conftest*
-fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
-EOF
-
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
-
-
-	
-echo $ac_n "checking for existence of UCS-2 to UCS-2 iconv support""... $ac_c" 1>&6
-echo "configure:3782: checking for existence of UCS-2 to UCS-2 iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
-else
-  cat > conftest.$ac_ext <<EOF
-#line 3789 "configure"
-#include "confdefs.h"
-
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"UCS-2");
-		strcpy(t_code,"UCS-2");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","UCS-2","UCS-2");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","UCS-2","UCS-2");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
-EOF
-if { (eval echo configure:3836: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
-fi
-rm -fr conftest*
-fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
-EOF
-
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
-
-	
-echo $ac_n "checking for existence of UCS-2 to UTF-8 iconv support""... $ac_c" 1>&6
-echo "configure:3861: checking for existence of UCS-2 to UTF-8 iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
-else
-  cat > conftest.$ac_ext <<EOF
-#line 3868 "configure"
-#include "confdefs.h"
-
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"UCS-2");
-		strcpy(t_code,"UTF-8");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","UCS-2","UTF-8");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","UCS-2","UTF-8");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
-EOF
-if { (eval echo configure:3915: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
-fi
-rm -fr conftest*
-fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
-EOF
-
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
-
-	
-echo $ac_n "checking for existence of UCS-2 to koi8-r iconv support""... $ac_c" 1>&6
-echo "configure:3940: checking for existence of UCS-2 to koi8-r iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
-else
-  cat > conftest.$ac_ext <<EOF
-#line 3947 "configure"
-#include "confdefs.h"
-
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"UCS-2");
-		strcpy(t_code,"koi8-r");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","UCS-2","koi8-r");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","UCS-2","koi8-r");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
-EOF
-if { (eval echo configure:3994: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
-fi
-rm -fr conftest*
-fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
-EOF
-
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
-
-	
-echo $ac_n "checking for existence of UCS-2 to tis-620 iconv support""... $ac_c" 1>&6
-echo "configure:4019: checking for existence of UCS-2 to tis-620 iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
-else
-  cat > conftest.$ac_ext <<EOF
-#line 4026 "configure"
-#include "confdefs.h"
-
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"UCS-2");
-		strcpy(t_code,"tis-620");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","UCS-2","tis-620");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","UCS-2","tis-620");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
-EOF
-if { (eval echo configure:4073: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
-fi
-rm -fr conftest*
-fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
-EOF
-
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
-
-	
-echo $ac_n "checking for existence of UCS-2 to iso-8859-15 iconv support""... $ac_c" 1>&6
-echo "configure:4098: checking for existence of UCS-2 to iso-8859-15 iconv support" >&5
-_libs=${LIBS}
-LIBS="${LIBS} ${ICONV_LIBS}"
-if test "$cross_compiling" = yes; then
-  have_codepages=no
-else
-  cat > conftest.$ac_ext <<EOF
-#line 4105 "configure"
-#include "confdefs.h"
-
-	#include <iconv.h>
-	#include <stdio.h>
-	#include <errno.h>
-	#include <string.h>
-	#include <stdlib.h>
-
-	int main(int argc, char *argv[])
-	{
-		char f_code[33];              /* From CCSID                           */
-		char t_code[33];              /* To CCSID                             */
-		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
-									/* from iconv_open() function           */
-		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
-		char *obuf;                   /* Buffer for converted characters      */
-		size_t ibuflen;               /* Length of input buffer               */
-		size_t obuflen;               /* Length of output buffer              */
-		const char *isav;             /* Saved pointer to input buffer        */
-		char *osav;                   /* Saved pointer to output buffer       */
-
-	/* All reserved positions of from code (last 12 characters) and to code   */
-	/* (last 19 characters) must be set to hexadecimal zeros.                 */
-
-		memset(f_code,'\0',33);
-		memset(t_code,'\0',33);
-
-		strcpy(f_code,"UCS-2");
-		strcpy(t_code,"iso-8859-15");
-
-		iconv_handle = iconv_open(t_code,f_code);
-		if (iconv_handle == (iconv_t)-1)
-		{
-			perror("ERROR");
-			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","UCS-2","iso-8859-15");
-			exit(-1);
-		}
-		else
-			{
-			fprintf(stderr,"success!, can handle %s to %s\n","UCS-2","iso-8859-15");
-			iconv_close(iconv_handle);
-			}
-		return(0);
-	}
-
-EOF
-if { (eval echo configure:4152: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
-then
-  have_codepages=yes
-else
-  echo "configure: failed program was:" >&5
-  cat conftest.$ac_ext >&5
-  rm -fr conftest*
-  have_codepages=no
-fi
-rm -fr conftest*
-fi
-
-LIBS=$_libs
-echo "$ac_t""$have_codepages" 1>&6
-if test $have_codepages = no; then
-cat >> confdefs.h <<\EOF
-#define MUST_USE_INTERNAL_ICONV_TABLE 1
-EOF
-
-ICONVOBJS="\$(RICONVOBJS)"
-ICONV="BICONV"
-fi
 
 fi
+rm -f conftest*
 
-
+ac_ext=c
+# CFLAGS is not in ac_cpp because -g, -O, etc. are not valid cpp options.
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='${CC-cc} -c $CFLAGS $CPPFLAGS conftest.$ac_ext 1>&5'
+ac_link='${CC-cc} -o conftest${ac_exeext} $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS 1>&5'
+cross_compiling=$ac_cv_prog_cc_cross
 
 
 
@@ -4204,7 +3234,7 @@ if test -n "$MAGICK_DIR"; then
     # Extract the first word of "Magick-config", so it can be a program name with args.
 set dummy Magick-config; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:4208: checking for $ac_word" >&5
+echo "configure:3238: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_MAGICK_CONFIG'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -4240,7 +3270,7 @@ else
     # Extract the first word of "Magick-config", so it can be a program name with args.
 set dummy Magick-config; ac_word=$2
 echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:4244: checking for $ac_word" >&5
+echo "configure:3274: checking for $ac_word" >&5
 if eval "test \"`echo '$''{'ac_cv_path_MAGICK_CONFIG'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -4283,17 +3313,17 @@ if test -n "$MAGICK_CONFIG"; then
 
     ac_safe=`echo "magick/magick.h" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for magick/magick.h""... $ac_c" 1>&6
-echo "configure:4287: checking for magick/magick.h" >&5
+echo "configure:3317: checking for magick/magick.h" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 4292 "configure"
+#line 3322 "configure"
 #include "confdefs.h"
 #include <magick/magick.h>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:4297: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:3327: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -4310,7 +3340,7 @@ fi
 if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
   echo "$ac_t""yes" 1>&6
   echo $ac_n "checking for GetImageInfo in -lMagick""... $ac_c" 1>&6
-echo "configure:4314: checking for GetImageInfo in -lMagick" >&5
+echo "configure:3344: checking for GetImageInfo in -lMagick" >&5
 ac_lib_var=`echo Magick'_'GetImageInfo | sed 'y%./+-%__p_%'`
 if eval "test \"`echo '$''{'ac_cv_lib_$ac_lib_var'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
@@ -4318,7 +3348,7 @@ else
   ac_save_LIBS="$LIBS"
 LIBS="-lMagick  $LIBS"
 cat > conftest.$ac_ext <<EOF
-#line 4322 "configure"
+#line 3352 "configure"
 #include "confdefs.h"
 /* Override any gcc2 internal prototype to avoid an error.  */
 /* We use char because int might match the return type of a gcc2
@@ -4329,7 +3359,7 @@ int main() {
 GetImageInfo()
 ; return 0; }
 EOF
-if { (eval echo configure:4333: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:3363: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_lib_$ac_lib_var=yes"
 else
@@ -4376,7 +3406,7 @@ LDFLAGS=$_ldflags
 
 
 echo $ac_n "checking size of char""... $ac_c" 1>&6
-echo "configure:4380: checking size of char" >&5
+echo "configure:3410: checking size of char" >&5
 if eval "test \"`echo '$''{'ac_cv_sizeof_char'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -4384,7 +3414,7 @@ else
   ac_cv_sizeof_char=1
 else
   cat > conftest.$ac_ext <<EOF
-#line 4388 "configure"
+#line 3418 "configure"
 #include "confdefs.h"
 #include <stdio.h>
 main()
@@ -4395,7 +3425,7 @@ main()
   exit(0);
 }
 EOF
-if { (eval echo configure:4399: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:3429: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   ac_cv_sizeof_char=`cat conftestval`
 else
@@ -4415,7 +3445,7 @@ EOF
 
 
 echo $ac_n "checking size of short""... $ac_c" 1>&6
-echo "configure:4419: checking size of short" >&5
+echo "configure:3449: checking size of short" >&5
 if eval "test \"`echo '$''{'ac_cv_sizeof_short'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -4423,7 +3453,7 @@ else
   ac_cv_sizeof_short=2
 else
   cat > conftest.$ac_ext <<EOF
-#line 4427 "configure"
+#line 3457 "configure"
 #include "confdefs.h"
 #include <stdio.h>
 main()
@@ -4434,7 +3464,7 @@ main()
   exit(0);
 }
 EOF
-if { (eval echo configure:4438: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:3468: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   ac_cv_sizeof_short=`cat conftestval`
 else
@@ -4454,7 +3484,7 @@ EOF
 
 
 echo $ac_n "checking size of int""... $ac_c" 1>&6
-echo "configure:4458: checking size of int" >&5
+echo "configure:3488: checking size of int" >&5
 if eval "test \"`echo '$''{'ac_cv_sizeof_int'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -4462,7 +3492,7 @@ else
   ac_cv_sizeof_int=4
 else
   cat > conftest.$ac_ext <<EOF
-#line 4466 "configure"
+#line 3496 "configure"
 #include "confdefs.h"
 #include <stdio.h>
 main()
@@ -4473,7 +3503,7 @@ main()
   exit(0);
 }
 EOF
-if { (eval echo configure:4477: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:3507: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   ac_cv_sizeof_int=`cat conftestval`
 else
@@ -4493,7 +3523,7 @@ EOF
 
 
 echo $ac_n "checking size of long""... $ac_c" 1>&6
-echo "configure:4497: checking size of long" >&5
+echo "configure:3527: checking size of long" >&5
 if eval "test \"`echo '$''{'ac_cv_sizeof_long'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -4501,7 +3531,7 @@ else
   ac_cv_sizeof_long=4
 else
   cat > conftest.$ac_ext <<EOF
-#line 4505 "configure"
+#line 3535 "configure"
 #include "confdefs.h"
 #include <stdio.h>
 main()
@@ -4512,7 +3542,7 @@ main()
   exit(0);
 }
 EOF
-if { (eval echo configure:4516: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:3546: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   ac_cv_sizeof_long=`cat conftestval`
 else
@@ -4545,14 +3575,14 @@ fi
 
 if  test "$cross_compiling" != "yes" ; then
     echo $ac_n "checking whether byte ordering is bigendian""... $ac_c" 1>&6
-echo "configure:4549: checking whether byte ordering is bigendian" >&5
+echo "configure:3579: checking whether byte ordering is bigendian" >&5
 if eval "test \"`echo '$''{'ac_cv_c_bigendian'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   ac_cv_c_bigendian=unknown
 # See if sys/param.h defines the BYTE_ORDER macro.
 cat > conftest.$ac_ext <<EOF
-#line 4556 "configure"
+#line 3586 "configure"
 #include "confdefs.h"
 #include <sys/types.h>
 #include <sys/param.h>
@@ -4563,11 +3593,11 @@ int main() {
 #endif
 ; return 0; }
 EOF
-if { (eval echo configure:4567: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:3597: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   # It does; now see whether it defined to BIG_ENDIAN or not.
 cat > conftest.$ac_ext <<EOF
-#line 4571 "configure"
+#line 3601 "configure"
 #include "confdefs.h"
 #include <sys/types.h>
 #include <sys/param.h>
@@ -4578,7 +3608,7 @@ int main() {
 #endif
 ; return 0; }
 EOF
-if { (eval echo configure:4582: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
+if { (eval echo configure:3612: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   ac_cv_c_bigendian=yes
 else
@@ -4598,7 +3628,7 @@ if test "$cross_compiling" = yes; then
     { echo "configure: error: can not run test program while cross compiling" 1>&2; exit 1; }
 else
   cat > conftest.$ac_ext <<EOF
-#line 4602 "configure"
+#line 3632 "configure"
 #include "confdefs.h"
 main () {
   /* Are we little or big endian?  From Harbison&Steele.  */
@@ -4611,7 +3641,7 @@ main () {
   exit (u.c[sizeof (long) - 1] == 1);
 }
 EOF
-if { (eval echo configure:4615: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:3645: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   ac_cv_c_bigendian=no
 else
@@ -4659,12 +3689,12 @@ fi
 
 
 echo $ac_n "checking for getopt_long""... $ac_c" 1>&6
-echo "configure:4663: checking for getopt_long" >&5
+echo "configure:3693: checking for getopt_long" >&5
 if eval "test \"`echo '$''{'ac_cv_func_getopt_long'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 4668 "configure"
+#line 3698 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char getopt_long(); below.  */
@@ -4687,7 +3717,7 @@ getopt_long();
 
 ; return 0; }
 EOF
-if { (eval echo configure:4691: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:3721: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_getopt_long=yes"
 else
@@ -4708,12 +3738,12 @@ LIBOBJS="$LIBOBJS getopt1.o getopt.o"
 fi
 
 echo $ac_n "checking for strerror""... $ac_c" 1>&6
-echo "configure:4712: checking for strerror" >&5
+echo "configure:3742: checking for strerror" >&5
 if eval "test \"`echo '$''{'ac_cv_func_strerror'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 4717 "configure"
+#line 3747 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char strerror(); below.  */
@@ -4736,7 +3766,7 @@ strerror();
 
 ; return 0; }
 EOF
-if { (eval echo configure:4740: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:3770: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_strerror=yes"
 else
@@ -4757,12 +3787,12 @@ LIBOBJS="$LIBOBJS strerror.o"
 fi
 
 echo $ac_n "checking for strcasecmp""... $ac_c" 1>&6
-echo "configure:4761: checking for strcasecmp" >&5
+echo "configure:3791: checking for strcasecmp" >&5
 if eval "test \"`echo '$''{'ac_cv_func_strcasecmp'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 4766 "configure"
+#line 3796 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char strcasecmp(); below.  */
@@ -4785,7 +3815,7 @@ strcasecmp();
 
 ; return 0; }
 EOF
-if { (eval echo configure:4789: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:3819: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_strcasecmp=yes"
 else
@@ -4808,12 +3838,12 @@ fi
 for ac_func in memcpy
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
-echo "configure:4812: checking for $ac_func" >&5
+echo "configure:3842: checking for $ac_func" >&5
 if eval "test \"`echo '$''{'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 4817 "configure"
+#line 3847 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char $ac_func(); below.  */
@@ -4836,7 +3866,7 @@ $ac_func();
 
 ; return 0; }
 EOF
-if { (eval echo configure:4840: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:3870: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_$ac_func=yes"
 else
@@ -4864,17 +3894,17 @@ for ac_hdr in unistd.h
 do
 ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
 echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
-echo "configure:4868: checking for $ac_hdr" >&5
+echo "configure:3898: checking for $ac_hdr" >&5
 if eval "test \"`echo '$''{'ac_cv_header_$ac_safe'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 4873 "configure"
+#line 3903 "configure"
 #include "confdefs.h"
 #include <$ac_hdr>
 EOF
 ac_try="$ac_cpp conftest.$ac_ext >/dev/null 2>conftest.out"
-{ (eval echo configure:4878: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
+{ (eval echo configure:3908: \"$ac_try\") 1>&5; (eval $ac_try) 2>&5; }
 ac_err=`grep -v '^ *+' conftest.out | grep -v "^conftest.${ac_ext}\$"`
 if test -z "$ac_err"; then
   rm -rf conftest*
@@ -4903,12 +3933,12 @@ done
 for ac_func in getpagesize
 do
 echo $ac_n "checking for $ac_func""... $ac_c" 1>&6
-echo "configure:4907: checking for $ac_func" >&5
+echo "configure:3937: checking for $ac_func" >&5
 if eval "test \"`echo '$''{'ac_cv_func_$ac_func'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
   cat > conftest.$ac_ext <<EOF
-#line 4912 "configure"
+#line 3942 "configure"
 #include "confdefs.h"
 /* System header to define __stub macros and hopefully few prototypes,
     which can conflict with char $ac_func(); below.  */
@@ -4931,7 +3961,7 @@ $ac_func();
 
 ; return 0; }
 EOF
-if { (eval echo configure:4935: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
+if { (eval echo configure:3965: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext}; then
   rm -rf conftest*
   eval "ac_cv_func_$ac_func=yes"
 else
@@ -4956,7 +3986,7 @@ fi
 done
 
 echo $ac_n "checking for working mmap""... $ac_c" 1>&6
-echo "configure:4960: checking for working mmap" >&5
+echo "configure:3990: checking for working mmap" >&5
 if eval "test \"`echo '$''{'ac_cv_func_mmap_fixed_mapped'+set}'`\" = set"; then
   echo $ac_n "(cached) $ac_c" 1>&6
 else
@@ -4964,7 +3994,7 @@ else
   ac_cv_func_mmap_fixed_mapped=no
 else
   cat > conftest.$ac_ext <<EOF
-#line 4968 "configure"
+#line 3998 "configure"
 #include "confdefs.h"
 
 /* Thanks to Mike Haertel and Jim Avera for this test.
@@ -5104,7 +4134,7 @@ main()
 }
 
 EOF
-if { (eval echo configure:5108: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
+if { (eval echo configure:4138: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest${ac_exeext} && (./conftest; exit) 2>/dev/null
 then
   ac_cv_func_mmap_fixed_mapped=yes
 else
@@ -5318,8 +4348,6 @@ s%@WMF_LIBS@%$WMF_LIBS%g
 s%@WMF_CFLAGS@%$WMF_CFLAGS%g
 s%@ICONV_CFLAGS@%$ICONV_CFLAGS%g
 s%@ICONV_LIBS@%$ICONV_LIBS%g
-s%@ICONV@%$ICONV%g
-s%@ICONVOBJS@%$ICONVOBJS%g
 s%@MAGICK_CONFIG@%$MAGICK_CONFIG%g
 s%@MAGICK_CFLAGS@%$MAGICK_CFLAGS%g
 s%@MAGICK_LIBS@%$MAGICK_LIBS%g

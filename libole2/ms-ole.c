@@ -37,7 +37,9 @@
 #include <string.h>
 
 #ifndef HAVE_GNOMEVFS
+#ifdef HAVE_IO_H
 #include <io.h>			/* use "normal" IO */
+#endif
 #endif
 
 #include "ms-ole.h"

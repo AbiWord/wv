@@ -14,7 +14,7 @@ int (*wvConvertUnicodeToEntity) (U16 char16) = NULL;
 
 /* i hate iconv - compilers treat its prototype differently */
 #if !defined(WIN32) || !defined(_WIN32)
-#define wv_iconv(a,b,c,d,e) iconv(a, (char**)b,c,(char**)d,e)
+#define wv_iconv(a,b,c,d,e) iconv(a, (ICONV_CONST char**)b,c,(char**)d,e)
 #else
 #define wv_iconv(a,b,c,d,e) iconv(a,b,c,(char**)d,e)
 #endif
