@@ -124,6 +124,32 @@ int wvConvert1252ToHtml(U16 char8)
 	{
 	switch (char8)
 		{
+		/* 
+		german characters, im assured that this is the right way to handle them
+		by Markus Schulte <markus@dom.de>
+		*/
+		case 0xc4:
+			printf("&Auml;");
+			return(1); 
+		case 0xe4:
+			printf("&auml;");
+			return(1); 
+		case 0xdc:
+			printf("&Uuml;");
+			return(1); 
+		case 0xfc:
+			printf("&uuml;");
+			return(1); 
+		case 0xd6:
+			printf("&Ouml;");
+			return(1); 
+		case 0xf6:
+			printf("&ouml;");
+			return(1); 
+		case 0xdf:
+			printf("&szlig;");
+			return(1); 
+		/* end german characters */
 		case 0x80:
 			printf("&euro;"); /*EURO SIGN*/
 			return(1); 

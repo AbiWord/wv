@@ -114,6 +114,7 @@ MYOBJECTS =	\
 	fkp.o \
 	codepage-1252.o \
 	iso-5589-15.o \
+	tis-620.o \
 	koi8-r.o \
 	text.o \
 	decode_complex.o \

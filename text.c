@@ -15,8 +15,8 @@ CharsetTable c_Tokens[] =
 {
     { "utf-8",UTF8 },
     { "iso-5589-15",ISO_5589_15 },
-    { "cp-1252",CP1252 },
-    { "koi8-r",KOI8 }
+    { "koi8-r",KOI8 },
+	{ "tis-620", TIS620 }
 	/* add your charset here */
 };
 
@@ -97,7 +97,7 @@ int wvOutputTextChar(U16 eachchar,U8 chartype,U16 outputtype,U8 *state,wvParseSt
 
 	if (*state)	
 		return(0);
-	if (chartype == CP1252)
+	if (chartype)
 		wvOutputFromCP1252(eachchar,outputtype);
 	else
 		wvOutputFromUnicode(eachchar,outputtype);
@@ -165,7 +165,7 @@ thing and just put ... instead of this
 		}
 
 	
-	if (chartype == CP1252)
+	if (chartype)
 		{
 		if (wvConvert1252ToHtml(eachchar))
 			return;
@@ -204,6 +204,9 @@ void wvOutputFromCP1252(U16 eachchar,U8 outputtype)
 		case KOI8:
 			wvError(("It is my belief that there is no russian word 97 documents in 8bit mode, if I am wrong then this is my mistake, please send me this document if it is actually in russian\n"));
 			break;
+		case TIS620:
+			wvError(("It is my belief that there is no thai word 97 documents in 8bit mode, if I am wrong then this is my mistake, please send me this document if it is actually in russian\n"));
+			break;
 		/*add your own charset here*/
 		}
 	}
@@ -232,6 +235,16 @@ void wvOutputFromUnicode(U16 eachchar,U8 outputtype)
 			break;
 		case KOI8:
 			temp16 = wvConvertUnicodeToKOI8_R(eachchar);
+			if (temp16 == 0xffff)
+				{
+				printf("?");
+				return;
+				}
+			temp8 = (U8)temp16;	/*whistle innocently*/
+			printf("%c",temp8);
+			break;
+		case TIS620:
+			temp16 = wvConvertUnicodeToTIS620(eachchar);
 			if (temp16 == 0xffff)
 				{
 				printf("?");

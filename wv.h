@@ -2144,8 +2144,8 @@ typedef enum
 	{
 	UTF8,
 	ISO_5589_15,
-	CP1252,
 	KOI8,
+	TIS620,
 	/*add your own charset here*/
 	CharsetTableSize		/* must be last entry on pain of death */
 	} wvCharset;

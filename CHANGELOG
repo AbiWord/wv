@@ -56,6 +56,7 @@ Changes to to 0.5.38
 	encryption is marked in the version by the base version ored with 0x8000.
 	* some mods to the old list conversion to new list format, removes at 
 	least one crash and might solve others, possibly not a full solution.
+	* added html names for umlautte characters.
 ALL TODO
 	* Got to think of some way to keep the list stuff in sync with the margins 
 	of the enclosed paragraphs in html output.

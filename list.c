@@ -207,6 +207,12 @@ int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,LVL *retlvl,LFO **re
 		*finallvl = (LVL *)realloc(*finallvl,9 * (*nolfo) * sizeof(LVL));
 				
 		apap->ilfo = *nolfo;
+
+		if ( (apap->nLvlAnm == 10) || (apap->nLvlAnm == 1) || (apap->nLvlAnm == 0) )
+			apap->ilvl = 0;
+		else
+			apap->ilvl = apap->nLvlAnm-1;
+
 		wvTrace(("ilfo set to %d\n",apap->ilfo));
 
 		/* begin new test */
@@ -230,10 +236,6 @@ int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,LVL *retlvl,LFO **re
 			wvCopyLVL(&((*finallvl)[(apap->ilfo-1)*9+i]),retlvl);
 			}
 
-		if ( (apap->nLvlAnm == 10) || (apap->nLvlAnm == 1) || (apap->nLvlAnm == 0) )
-			apap->ilvl = 0;
-		else
-			apap->ilvl = apap->nLvlAnm-1;
 
 		/*
 		and set the ilfo and ilvl of the list to point to that fake entry instead
