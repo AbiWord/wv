@@ -2074,7 +2074,7 @@ wvConvertUnicodeToLaTeX (U16 char16)
 	  printf ("\\u{u}");	/* u with breve */
 	  return (1);
       case 0x016E:
-	  printf ("\\r{U}");	/* U with ring above */
+	  printf ("\\r{u}");	/* U with ring above */
 	  return (1);
       case 0x016F:
 	  printf ("\\r{U}");	/* u with ring above */
