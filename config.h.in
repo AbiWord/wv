@@ -175,4 +175,3 @@ int strcasecmp (const char *s1, const char *s2);
 #endif
 
 #endif /* ! HAVE_WV_CONFIG_H */
-
