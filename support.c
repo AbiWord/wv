@@ -28,7 +28,6 @@ indentation.
 #include <string.h>
 #include <time.h>
 #include <math.h>
-#include <assert.h>
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -116,7 +115,6 @@ read_32ubit (wvStream * in)
       }
     else
       {
-	  assert (in->kind == FILE_STREAM);
 	  fread (&ret, sizeof (U8), 4, in->stream.file_stream);
       }
 #endif
@@ -142,7 +140,6 @@ read_16ubit (wvStream * in)
       }
     else
       {
-	  assert (in->kind == FILE_STREAM);
 	  fread (&ret, sizeof (U8), 2, in->stream.file_stream);
       }
 #endif
@@ -161,7 +158,6 @@ read_8ubit (wvStream * in)
       }
     else
       {
-	  assert (in->kind == FILE_STREAM);
 	  return (getc (in->stream.file_stream));
       }
 }
@@ -176,7 +172,6 @@ wvStream_read (void *ptr, size_t size, size_t nmemb, wvStream * in)
       }
     else
       {
-	  assert (in->kind == FILE_STREAM);
 	  return (fread (ptr, size, nmemb, in->stream.file_stream));
       }
 }
@@ -191,7 +186,6 @@ wvStream_rewind (wvStream * in)
       }
     else
       {
-	  assert (in->kind == FILE_STREAM);
 	  rewind (in->stream.file_stream);
       }
 }
@@ -206,7 +200,6 @@ wvStream_goto (wvStream * in, long position)
       }
     else
       {
-	  assert (in->kind == FILE_STREAM);
 	  return ((U32) fseek (in->stream.file_stream, position, SEEK_SET));
       }
 }
@@ -221,7 +214,6 @@ wvStream_offset (wvStream * in, long offset)
       }
     else
       {
-	  assert (in->kind == FILE_STREAM);
 	  return ((U32) fseek (in->stream.file_stream, offset, SEEK_CUR));
       }
 }
@@ -236,7 +228,6 @@ wvStream_offset_from_end (wvStream * in, long offset)
       }
     else
       {
-	  assert (in->kind == FILE_STREAM);
 	  return ((U32) fseek (in->stream.file_stream, offset, SEEK_END));
       }
 }
@@ -251,7 +242,6 @@ wvStream_tell (wvStream * in)
       }
     else
       {
-	  assert (in->kind == FILE_STREAM);
 	  return ((U32) ftell (in->stream.file_stream));
       }
 }
@@ -260,6 +250,9 @@ wvStream_tell (wvStream * in)
 U32
 wvStream_close (wvStream * in)
 {
+    if ( !in )
+      return 0;
+
     if (in->kind == LIBOLE_STREAM)
       {
 	  U32 ret = (U32) ms_ole_stream_close (&in->stream.libole_stream);
@@ -269,7 +262,6 @@ wvStream_close (wvStream * in)
     else
       {
 	  U32 ret;
-	  assert (in->kind == FILE_STREAM);
 	  ret = (U32) fclose (in->stream.file_stream);
 	  wvFree (in);
 	  return (ret);

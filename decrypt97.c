@@ -17,11 +17,10 @@
 #include "rc4.h"
 #include "md5.h"
 
-wvMD5_CTX valContext;
 void wvMD5StoreDigest (wvMD5_CTX * mdContext);
 
-void
-makekey (U32 block, rc4_key * key)
+static void
+makekey (U32 block, rc4_key * key, wvMD5_CTX * valContext)
 {
     wvMD5_CTX mdContext;
     U8 pwarray[64];
@@ -29,7 +28,7 @@ makekey (U32 block, rc4_key * key)
     memset (pwarray, 0, 64);
 
     /* 40 bit of hashed password, set by verifypwd() */
-    memcpy (pwarray, valContext.digest, 5);
+    memcpy (pwarray, valContext->digest, 5);
 
     /* put block number in byte 6...9 */
     pwarray[5] = (U8) (block & 0xFF);
@@ -46,9 +45,9 @@ makekey (U32 block, rc4_key * key)
     prepare_key (mdContext.digest, 16, key);
 }
 
-
-int
-verifypwd (U8 pwarray[64], U8 docid[16], U8 salt[64], U8 hashedsalt[16])
+static int
+verifypwd (U8 pwarray[64], U8 docid[16], U8 salt[64], U8 hashedsalt[16],
+	   wvMD5_CTX * valContext)
 {
     wvMD5_CTX mdContext1, mdContext2;
     rc4_key key;
@@ -63,7 +62,7 @@ verifypwd (U8 pwarray[64], U8 docid[16], U8 salt[64], U8 hashedsalt[16])
     keyoffset = 0;
     tocopy = 5;
 
-    wvMD5Init (&valContext);
+    wvMD5Init (valContext);
 
     while (offset != 16)
       {
@@ -95,12 +94,12 @@ verifypwd (U8 pwarray[64], U8 docid[16], U8 salt[64], U8 hashedsalt[16])
     pwarray[56] = 0x80;
     pwarray[57] = 0x0A;
 
-    wvMD5Update (&valContext, pwarray, 64);
-    wvMD5StoreDigest (&valContext);
+    wvMD5Update (valContext, pwarray, 64);
+    wvMD5StoreDigest (valContext);
 
     /* Generate 40-bit RC4 key from 128-bit hashed password */
 
-    makekey (0, &key);
+    makekey (0, &key, valContext);
 
     rc4 (salt, 16, &key);
     rc4 (hashedsalt, 16, &key);
@@ -116,7 +115,7 @@ verifypwd (U8 pwarray[64], U8 docid[16], U8 salt[64], U8 hashedsalt[16])
     return (memcmp (mdContext2.digest, hashedsalt, 16));
 }
 
-void
+static void
 expandpw (U16 password[16], U8 pwarray[64])
 {
     /* expandpw expects null terminated 16bit unicode input */
@@ -137,160 +136,6 @@ expandpw (U16 password[16], U8 pwarray[64])
     pwarray[56] = (i << 4);
 }
 
-#if 0
-int
-main (int argc, char *argv[])
-{
-    wvParseStruct ps;
-    wvStream *outtable, *input, *enc;
-    /* max password is 16 unicode chars long */
-    U16 password[16] = { 'p', 'a', 's', 's', 'w', 'o', 'r', 'd', '1', 0 };
-    U8 pwarray[64];
-    U8 docid[16], salt[64], hashedsalt[16], x;
-    int i, ret = 0, j, end;
-    unsigned int blk;
-    rc4_key key;
-    unsigned char test[0x10];
-    char *s;
-    int len;
-
-    if (argc < 2)
-      {
-	  printf ("Usage: ./a.out password wordfile\n");
-	  return (-1);
-      }
-
-    input = fopen (argv[2], "rb");
-    ret = wvInitParser (&ps, input);
-    wvError (("ret is %d\n", ret));
-    if (ret != 4)
-      {
-	  wvError (("file is not anencrypted word97 document %s\n", argv[1]));
-	  wvOLEFree ();
-	  return (2);
-      }
-
-#if 0
-    ps.tablefd = fopen ("en.01", "r+b");
-#endif
-
-    for (i = 0; i < 4; i++)
-	x = getc (ps.tablefd);
-
-    for (i = 0; i < 16; i++)
-	docid[i] = getc (ps.tablefd);
-
-    for (i = 0; i < 16; i++)
-	salt[i] = getc (ps.tablefd);
-
-    for (i = 0; i < 16; i++)
-	hashedsalt[i] = getc (ps.tablefd);
-
-    if (argc > 1)
-      {
-	  i = 0;
-	  s = argv[1];
-	  while (*s)
-	    {
-		len = our_mbtowc (&password[i], s, 5);
-		i++;
-		s += len;
-	    }
-      }
-
-    expandpw (password, pwarray);
-
-    if (verifypwd (pwarray, docid, salt, hashedsalt))
-	printf ("Wrong password\n");
-    else
-	printf ("Correct password\n");
-    /*
-       now, what all that previous code does is take in some bytes that word leaves
-       around for the express purpose of testing that the password is correct, once
-       we've done all that we have the correct key for rc4 in keytable3.
-     */
-
-    enc = ps.tablefd;
-
-    fseek (enc, 0, SEEK_END);
-    end = ftell (enc);
-
-    j = 0;
-    fseek (enc, j, SEEK_SET);
-
-    outtable = tmpfile ();
-
-    blk = 0;
-    makekey (blk, &key);
-
-    while (j < end)
-      {
-	  for (i = 0; i < 0x10; i++)
-	      test[i] = getc (enc);
-
-	  rc4 (test, 0x10, &key);
-
-	  for (i = 0; i < 0x10; i++)
-	      fputc (test[i], outtable);
-	  j += 0x10;
-	  if ((j % 0x200) == 0)
-	    {
-		/* 
-		   at this stage we need to rekey the rc4 algorithm
-		   Dieter Spaar <spaar@mirider.augusta.de> figured out
-		   this rekeying, big kudos to him 
-		 */
-		blk++;
-		makekey (blk, &key);
-	    }
-
-      }
-
-
-
-    enc = ps.mainfd;
-
-    fseek (enc, 0, SEEK_END);
-    end = ftell (enc);
-
-    j = 0;
-    fseek (enc, j, SEEK_SET);
-
-    outtable = tmpfile ();
-
-    blk = 0;
-    makekey (blk, &key);
-
-    while (j < end)
-      {
-	  for (i = 0; i < 0x10; i++)
-	      test[i] = getc (enc);
-
-	  rc4 (test, 0x10, &key);
-
-	  for (i = 0; i < 0x10; i++)
-	      fputc (test[i], outtable);
-	  j += 0x10;
-	  if ((j % 0x200) == 0)
-	    {
-		/* 
-		   at this stage we need to rekey the rc4 algorithm
-		   Dieter Spaar <spaar@mirider.augusta.de> figured out
-		   this rekeying, big kudos to him 
-		 */
-		blk++;
-		makekey (blk, &key);
-	    }
-
-      }
-
-    wvOLEFree ();
-    fclose (outtable);
-    return (ret);
-}
-#endif
-
-
 int
 wvDecrypt97 (wvParseStruct * ps)
 {
@@ -303,6 +148,7 @@ wvDecrypt97 (wvParseStruct * ps)
     unsigned int blk;
     rc4_key key;
     unsigned char test[0x10];
+    wvMD5_CTX valContext;
 
     for (i = 0; i < 4; i++)
 	x = read_8ubit (ps->tablefd);
@@ -318,7 +164,7 @@ wvDecrypt97 (wvParseStruct * ps)
 
     expandpw (ps->password, pwarray);
 
-    if (verifypwd (pwarray, docid, salt, hashedsalt))
+    if (verifypwd (pwarray, docid, salt, hashedsalt, &valContext))
 	return (1);
 
     enc = ps->tablefd;
@@ -332,7 +178,7 @@ wvDecrypt97 (wvParseStruct * ps)
     outtable = tmpfile ();
 
     blk = 0;
-    makekey (blk, &key);
+    makekey (blk, &key, &valContext);
 
     while (j < end)
       {
@@ -352,7 +198,7 @@ wvDecrypt97 (wvParseStruct * ps)
 		   this rekeying, big kudos to him 
 		 */
 		blk++;
-		makekey (blk, &key);
+		makekey (blk, &key, &valContext);
 	    }
 
       }
@@ -368,7 +214,7 @@ wvDecrypt97 (wvParseStruct * ps)
     outmain = tmpfile ();
 
     blk = 0;
-    makekey (blk, &key);
+    makekey (blk, &key, &valContext);
 
     while (j < end)
       {
@@ -388,7 +234,7 @@ wvDecrypt97 (wvParseStruct * ps)
 		   this rekeying, big kudos to him 
 		 */
 		blk++;
-		makekey (blk, &key);
+		makekey (blk, &key, &valContext);
 	    }
 
       }
@@ -400,9 +246,15 @@ wvDecrypt97 (wvParseStruct * ps)
     wvStream_close (ps->mainfd);
  
    wvStream_FILE_create(&ps->tablefd, outtable);
+   wvStream_FILE_create(&ps->mainfd, outmain);
+
+#if 1
    wvStream_FILE_create(&ps->tablefd0, outtable);
    wvStream_FILE_create(&ps->tablefd1, outtable);
-   wvStream_FILE_create(&ps->mainfd, outmain);
+#else
+   ps->tablefd0 = ps->tablefd;
+   ps->tablefd1 = ps->tablefd;
+#endif
 
     wvStream_rewind (ps->tablefd);
     wvStream_rewind (ps->mainfd);
