@@ -2154,7 +2154,7 @@ U8 wvToggle(U8 in,U8 toggle);
 typedef enum
 	{
 	UTF8,
-	ISO_5589_15,
+	ISO_8859_15,
 	KOI8,
 	TIS620,
 	/*add your own charset here*/
@@ -2538,7 +2538,6 @@ typedef struct _CLX
     }CLX;
 
 
-U16 wvAutoCharset(CLX *clx);
 
 void wvInitCLX(CLX *item);
 void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,FILE *fd);
@@ -2598,10 +2597,11 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no);
 int wvDecrypt95(wvParseStruct *ps);
 int wvDecrypt97(wvParseStruct *ps);
 
-void wvPrintTitle(wvParseStruct *ps,STTBF *item,U16 charset);
+void wvPrintTitle(wvParseStruct *ps,STTBF *item);
 
 FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps);
 
+char *wvAutoCharset(wvParseStruct *ps);
 
 typedef struct _expand_data
 	{
@@ -2630,7 +2630,7 @@ typedef struct _expand_data
 	FIB *fib;
 
 	void *props; /* holds PAP/CHP/etc */
-	U16 charset;
+	char *charset;
 	
 	char *retstring;
 	U32 currentlen;
@@ -2770,22 +2770,15 @@ int wvIncFC(U8 chartype);
 
 int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,/*CLX *clx,*/ BTE *bte, U32 *pos,int nobte, FILE *fd);
 
-int wvOutputTextChar(U16 eachchar,U8 chartype,U16 outputtype,U8 *state,wvParseStruct *ps,CHP *achp);
-void wvOutputFromCP1252(U16 eachchar,U8 outputtype);
-void wvOutputFromUnicode(U16 eachchar,U8 outputtype);
+int wvOutputTextChar(U16 eachchar,U8 chartype,U8 *state,wvParseStruct *ps,CHP *achp);
+void wvOutputFromUnicode(U16 eachchar,char *outputtype);
 
-U16 wvConvert1252ToUnicode(U16 char8);
-U16 wvConvert1252Toiso8859_15(U16 char8);
 int wvConvert1252ToHtml(U16 char8);
 
-U16 wvConvert1251ToUnicode(U16 char8);
-int wvConvert1251ToHtml(U16 char8);
-
-U16 wvConvertUnicodeToiso8859_15(U16 char16);
-U16 wvConvertUnicodeToKOI8_R(U16 char16);
-U16 wvConvertUnicodeToTIS620(U16 char16);
-
+int wvConvertUnicodeToHtml(U16 char16);
 U16 wvConvertSymbolToUnicode(U16 char16);
+
+void wvHandleCodePage(U16 eachchar,char *outputtype,U16 lid);
 
 void wvDecodeComplex(wvParseStruct *ps);
 int wvGetComplexParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,FILE *fd);
@@ -2857,7 +2850,7 @@ version wvQuerySupported(FIB *fib,int *reason);
 
 const char *wvReason(int reason);
 
-void wvSetCharHandler(int (*proc)(wvParseStruct *,U16,U8));
+void wvSetCharHandler(int (*proc)(wvParseStruct *,U16,U8,U16));
 void wvSetSpecialCharHandler(int (*proc)(wvParseStruct *,U16,CHP *));
 
 
@@ -3000,7 +2993,7 @@ int wvAssembleSimpleCHP(version ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh
 int wvGetComplexCharfcLim(version ver, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, FILE *fd);
 int wvGetComplexCharfcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, FILE *fd);
 
-void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype);
+void wvOutputHtmlChar(U16 eachchar,U8 chartype,char *outputtype,U16 lid);
 
 int wvGetListEntryInfo(version ver,LVL **rlvl,U32 **nos,U8 **nfcs,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST **lst, U16 *noofLST);
 
@@ -3034,10 +3027,11 @@ STTBF *bookmarks,BKF *bkf,U32 *posBKF,U32 bkf_intervals,BKL *bkl,U32 *posBKL,U32
 int cellCompEQ(void *a,void *b);
 int cellCompLT(void *a,void *b);
 
+typedef size_t (*wvConvertToUnicode)(const char **, size_t *, char **, size_t *);
 
+char *wvLIDToCodePageConverter(U16 lid);
 
-
-/*current addition position*/
+/*current insertion position*/
 
 
 typedef struct _MSOFBH
@@ -3835,9 +3829,9 @@ typedef struct ttextportions textportions;
 U16 read_16ubit(FILE *);
 U32 read_32ubit(FILE *);
 
-U32 sread_32ubit(U8 *in);
-U16 sread_16ubit(U8 *in);
-U8 sgetc(U8 *in);
+U32 sread_32ubit(const U8 *in);
+U16 sread_16ubit(const U8 *in);
+U8 sgetc(const U8 *in);
 
 U32 dread_32ubit(FILE *in,U8 **list);
 U16 dread_16ubit(FILE *in,U8 **list);

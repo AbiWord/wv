@@ -285,7 +285,7 @@ void wvGetFIB(FIB *item,FILE *fd)
 
 	item->nProduct = read_16ubit(fd);
 	item->lid = read_16ubit(fd);
-	wvError(("lid is %x\n",item->lid));
+	wvTrace(("lid is %x\n",item->lid));
 	item->pnNext = (S16)read_16ubit(fd);
 	temp16 = read_16ubit(fd);
 	item->fDot = (temp16 & 0x0001);
@@ -623,7 +623,7 @@ void wvGetFIB6(FIB *item,FILE *fd)
 
 	item->nProduct = read_16ubit(fd);
 	item->lid = read_16ubit(fd);
-	wvError(("lid is %x\n",item->lid));
+	wvTrace(("lid is %x\n",item->lid));
 	item->pnNext = (S16)read_16ubit(fd);
 	temp16 = read_16ubit(fd);
 

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "config.h"
 #include "wv.h"
 
 /*
@@ -668,7 +667,9 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 								but exists in earlier versions so...
 								*/
 			achp->lid = bread_16ubit(pointer,pos);
-			wvError(("lid is %x\n",achp->lid));
+			achp->lidDefault = achp->lid;
+			achp->lidFE = achp->lid;
+			wvTrace(("lid is %x\n",achp->lidDefault));
 			break;
 		case sprmCFBoldBi:		/* ???? */
 		case sprmCFBiDi:		/* ???? */

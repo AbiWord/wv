@@ -311,7 +311,6 @@ void wvDecodeComplex(wvParseStruct *ps)
 	BTE *btePapx=NULL, *bteChpx=NULL;
 	U32 *posPapx=NULL, *posChpx=NULL;
 	U32 para_intervals, char_intervals,section_intervals,atrd_intervals;
-	U16 charset;
 	U8 state=0;
 	int cpiece=0,npiece=0;
 	PAPX_FKP para_fkp;
@@ -424,8 +423,6 @@ encoded into the first 22 bytes.
 
 	wvGetSED_PLCF(&sed,&posSedx,&section_intervals,ps->fib.fcPlcfsed,ps->fib.lcbPlcfsed,ps->tablefd);
 	wvTrace(("section_intervals is %d\n",section_intervals));
-
-	charset = wvAutoCharset(&ps->clx);
 
 	wvInitPAPX_FKP(&para_fkp);
 	wvInitCHPX_FKP(&char_fkp);
@@ -585,9 +582,6 @@ encoded into the first 22 bytes.
                         }
 
                     }
-				/*
-				char_fcFirst = j;	
-				*/
 				}
 
 			if (j == char_fcFirst)
@@ -614,7 +608,7 @@ encoded into the first 22 bytes.
 			if ((eachchar == 0x07) && (!achp.fSpec))
 				ps->endcell=1;
 		
-			wvOutputTextChar(eachchar,chartype,charset,&state,ps,&achp);
+			wvOutputTextChar(eachchar,chartype,&state,ps,&achp);
 			}
 
 		if (j == para_fcLim)

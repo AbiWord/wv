@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "config.h"
 #include "wv.h"
 
 extern FILE *erroroutput;

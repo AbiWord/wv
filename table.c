@@ -36,7 +36,7 @@ int cellCompEQ(void *a,void *b)
 void wvGetRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32 *posPapx)	
 	{
 	PAPX_FKP para_fkp;
-	U32 para_fcFirst, para_fcLim=0xffffffff;
+	U32 para_fcFirst, para_fcLim=0xffffffffL;
 	PAP apap;
 	U32 i;
 	S32 j=0;
@@ -69,9 +69,9 @@ void wvGetRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32
 void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx)	
 	{
 	PAPX_FKP para_fkp;
-	U32 para_fcFirst, para_fcLim=0xffffffff;
+	U32 para_fcFirst, para_fcLim=0xffffffffL;
 	PAP apap;
-	U32 i,j=0,l;
+	U32 i,j=0;
 	TAP *test=NULL;
 
 	if (ps->intable) return;
@@ -702,9 +702,10 @@ void TheTest(wvParseStruct *ps,U32 piece,BTE *btePapx,U32 *posPapx,U32 para_inte
 void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piece)	
 	{
 	PAPX_FKP para_fkp;
-	U32 para_fcFirst, para_fcLim=0xffffffff;
+	U32 para_fcFirst, para_fcLim=0xffffffffL;
 	PAP apap;
-	U32 i,j=0,k=0,l;
+	U32 i,j=0,k=0;
+	S32 l;
 	TAP *test=NULL;
 
 	if (ps->intable) return;
@@ -730,7 +731,7 @@ void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx
 			i,&ps->clx, btePapx, posPapx, para_intervals,piece,ps->mainfd);
 
 
-		if (piece == -1) break;
+		if (piece == 0xffffffffL) break;
 		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh,ps->data);
 		wvTrace(("para from %x to %x\n",para_fcFirst,para_fcLim));
 		wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,piece,&ps->stsh,&ps->clx,ps->data);
@@ -752,8 +753,10 @@ void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx
 		}
 	while(apap.fInTable);
 	wvTrace(("BOTTOM\n"));
-	if (piece == -1)
+#ifdef DEBUG
+	if (piece == 0xffffffffL)
 		wvTrace(("broken on line %d\n",j));
+#endif
 	wvTrace(("no of lines is %d %d\n",j,k));
 
 	wvReleasePAPX_FKP(&para_fkp);
@@ -767,7 +770,7 @@ void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx
 void wvGetComplexRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piece)	
 	{
 	PAPX_FKP para_fkp;
-	U32 para_fcFirst, para_fcLim=0xffffffff;
+	U32 para_fcFirst, para_fcLim=0xffffffffL;
 	PAP apap;
 	U32 i;
 	S32 j=0;
@@ -784,7 +787,7 @@ void wvGetComplexRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *bteP
 		
 		wvTrace(("3: cp and fc are %x(%d) %x\n",i,i,wvConvertCPToFC(i, &ps->clx)));
 		piece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,i,&ps->clx, btePapx, posPapx, para_intervals,piece,ps->mainfd);
-		if (piece == -1) break;
+		if (piece == 0xffffffffL) break;
 		wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap, para_fcLim, &para_fkp, &ps->stsh,ps->data);
         wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,piece,&ps->stsh,&ps->clx,ps->data);
 		wvTrace(("para from %x to %x, table is %d\n",para_fcFirst,para_fcLim,apap.fInTable));

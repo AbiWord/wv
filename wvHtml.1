@@ -14,18 +14,23 @@ into html.
 .TP
 .I "\-c charset, \-\-charset charset"
 word 97 documents are stored in one of two formats, either in 8 bit
-cp1252 or in 16bit unicode. The 8 bit can be converted easily into
-western european iso-5589-15, while the unicode can be converted
-easily into utf-8. These are the defaults. It in possible to
-convert into other formats, it is not recomended as you don't
-get a guarantee that the output will be correct, for instance if
+windows codepages or in 16bit unicode. The unicode can be converted
+easily into utf-8, and the codepages are promoted to unicode and
+converted from there, except for the western european codepage
+which is always converted to iso-5589-15 if possible. This is the 
+default behaviour. It in possible to convert into other formats or to
+force a conversion to a particular format, it is not recomended as 
+you don't get a guarantee that the output will be correct, for instance if
 you convert an english document into koi8-r encoding then it will
 be wrong, but if you are sure then you can override the default
 output format using this option. The charsets that are available
-for output are
+depend on your system. Systems using the gnu libc 2 and above can
+convert to just about anything, systems that at wv configure time prove
+to be inadequate for charset conversion use wv's internal conversion
+formats which are a small subset of the possible conversions, namely
 utf-8
 iso-5589-15
-koi-8
+koi8-r
 tis-620
 .TP
 .I "\-c password, \-\-password password"

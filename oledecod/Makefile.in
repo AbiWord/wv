@@ -6,7 +6,9 @@ SHELL=/bin/sh
 
 @SET_MAKE@
 
-CFLAGS = @CFLAGS@ @DEFS@ -I. -I.. @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/mswordview/ttf\"
+srcdir=@srcdir@
+
+CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/..  @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/mswordview/ttf\"
 
 SHELL = /bin/sh
 
@@ -16,8 +18,8 @@ MYOBJECTS =  oledecod.o
 
 all: oledecod.o
 
-%.o: %.c 
-	$(CC) $(CFLAGS) -c $*.c 
+%.o: $(srcdir)/%.c 
+	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
 clean:	
 	rm -rf $(MYOBJECTS) core 

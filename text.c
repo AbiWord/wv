@@ -1,50 +1,27 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
+#include "iconv.h"
 #include "wv.h"
 
 extern TokenTable s_Tokens[];
 
-int (*charhandler)(wvParseStruct *ps,U16 eachchar,U8 chartype)=NULL;
+int (*charhandler)(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)=NULL;
 int (*scharhandler)(wvParseStruct *ps,U16 eachchar,CHP *achp)=NULL;
 int (*elehandler)(wvParseStruct *ps,wvTag tag, void *props, int dirty)=NULL;
 int (*dochandler)(wvParseStruct *ps,wvTag tag)=NULL;
 
-
-CharsetTable c_Tokens[] =
-{
-    { "utf-8",UTF8 },
-    { "iso-5589-15",ISO_5589_15 },
-    { "koi8-r",KOI8 },
-	{ "tis-620", TIS620 }
-	/* add your charset here */
-};
-
-const char *wvGetCharset(U16 charset)
-    {
-    unsigned int k;
-    for (k=0; k<CharsetTableSize; k++)
-        {
-        if (c_Tokens[k].m_type == charset)
-            return(c_Tokens[k].m_name);
-        }
-    return(NULL);
-    }
-
-U16 wvLookupCharset(char *optarg)
+int wvOutputTextChar(U16 eachchar,U8 chartype,U8 *state,wvParseStruct *ps, CHP *achp)
 	{
-	unsigned int k;
-    for (k=0; k<CharsetTableSize; k++)
-        {
-        if (0 == strcasecmp(c_Tokens[k].m_name,optarg))
-            return(c_Tokens[k].m_type);
-        }
-	wvError(("Unrecognized charset %s, resetting to defaults\n",optarg));
-    return(0xffff);
-	}
+	U16 lid;
+	/* testing adding a language */
+    lid = achp->lidDefault;
+	if (lid == 0x400)
+		lid = ps->fib.lid;
+	/* end testing adding a language */
 
-int wvOutputTextChar(U16 eachchar,U8 chartype,U16 outputtype,U8 *state,wvParseStruct *ps, CHP *achp)
-	{
+	
 	if (achp->fSpec)
 		{
 	/*
@@ -59,206 +36,252 @@ int wvOutputTextChar(U16 eachchar,U8 chartype,U16 outputtype,U8 *state,wvParseSt
 		{
 	/* Most Chars go through this baby */
 		if (charhandler)
-			return( (*charhandler)(ps,eachchar,chartype) );
+			return( (*charhandler)(ps,eachchar,chartype,lid) );
 		}
-
-	switch(eachchar)
-		{
-		case 11:
-			printf("\n");
-			return(0);
-		case 45:
-		case 31:
-		case 30:
-			printf("-");
-			return(0);
-		case 160:
-			printf(" ");
-			return(0);
-		case 12:
-		case 13:
-		case 14:
-		case 7:
-			return(0);
-		case 19:	/*field begin*/
-			wvTrace(("field begin\n"));
-			*state=1;
-			return(0);
-		case 20:	/*field middle*/
-			*state=0;
-			return(0);
-		case 21:	/*field end*/
-			*state=0;
-			return(0);
-		case 0x92:
-			printf("'");
-			return(0);
-		}
-
-	if (*state)	
-		return(0);
-	if (chartype)
-		wvOutputFromCP1252(eachchar,outputtype);
-	else
-		wvOutputFromUnicode(eachchar,outputtype);
+	wvError(("No CharHandler registered, programmer error\n"));
 	return(0);
 	}
 
-void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype)
+void wvOutputHtmlChar(U16 eachchar,U8 chartype,char *outputtype,U16 lid)
 	{
-	switch(eachchar)
-		{
-		case 11:
-			printf("<br>");
-			return;
-		case 30:
-		case 31:
-		case 45:
-		case 0x96:
-		case 0x2013:
-			printf("-");
-			return;
-		case 160:
-			printf("&nbsp;");
-			return;
-		case 12:
-		case 13:
-		case 14:
-		case 7:
-			return;
-		case 34:
-			printf("&quot;");
-			return;
-		case 38:
-			printf("&amp;");
-			return;
-		case 60:
-			printf("&lt;");
-			return;
-		case 62:
-			printf("&gt;");
-			return;
-		case 0x85:
-		case 0x2026:
-#if 0
-/* this just looks awful in netscape 4.5, so im going to do a very foolish
-thing and just put ... instead of this
-*/
-			printf("&#133;");	/*is there a proper html name for ... &ellipse; ?*/
-#endif
-			printf("...");	
-			return;
-		case 0x92:
-		case 0x2019:
-			printf("'");
-			return;
-		case 0x2215:
-			printf("/");
-			return;
-		case 0x93:
-		case 0x94:
-			printf("\"");
-			return;
-		case 0xF8E7:	/* without this, things should work in theory, but not for me */
-			printf("_");
-			return;
-		case 0x91:
-		case 0x2018:
-			printf("`");
-			return;
-		}
-
-	
 	if (chartype)
-		{
-		if (wvConvert1252ToHtml(eachchar))
-			return;
-		wvOutputFromCP1252(eachchar,outputtype);
-		}
+		wvHandleCodePage(eachchar,outputtype,lid);
 	else
 		wvOutputFromUnicode(eachchar,outputtype);
 	}
 
-void wvOutputFromCP1252(U16 eachchar,U8 outputtype)
+
+char *wvLIDToCodePageConverter(U16 lid)
 	{
-	U16 temp16;
-	char *str;
-	switch(outputtype)
+	switch(lid)
 		{
-		case UTF8:
-			temp16 = wvConvert1252ToUnicode(eachchar);
-			if (temp16 == 0xffff)
-				{
-				printf("?");
-				return;
-				}
-			str = wvWideCharToMB(eachchar);
-			printf("%s",str);
-			wvFree(str);
-			break;
-		case ISO_5589_15:
-			temp16 = wvConvert1252Toiso8859_15(eachchar);
-			if (temp16 == 0xffff)
-				{
-				printf("?");
-				return;
-				}
-			printf("%c",temp16);
-			break;
-		case KOI8:
-			wvError(("It is my belief that there is no russian word 97 documents in 8bit mode, if I am wrong then this is my mistake, please send me this document if it is actually in russian\n"));
-			break;
-		case TIS620:
-			wvError(("It is my belief that there is no thai word 97 documents in 8bit mode, if I am wrong then this is my mistake, please send me this document if it is actually in russian\n"));
-			break;
-		/*add your own charset here*/
-		}
+		case 0x0401:	/*Arabic*/
+			return("CP1256");
+		case 0x0402:	/*Bulgarian*/
+			return("CP1251");
+		case 0x0403:	/*Catalan*/
+			return("CP1252");
+		case 0x0404:	/*Traditional Chinese*/
+			return("CP950");
+		case 0x0804:	/*Simplified Chinese*/
+			return("CP936");
+		case 0x0405:	/*Czech*/
+			return("CP1250");
+		case 0x0406:	/*Danish*/
+			return("CP1252");
+		case 0x0407:	/*German*/
+			return("CP1252");
+		case 0x0807:	/*Swiss German*/
+			return("CP1252");
+		case 0x0408:	/*Greek*/
+			return("CP1253");
+		case 0x0409:	/*U.S. English*/
+			return("CP1252");
+		case 0x0809:	/*U.K. English*/
+			return("CP1252");
+		case 0x0c09:	/*Australian English*/
+			return("CP1252");
+		case 0x040a:	/*Castilian Spanish*/
+			return("CP1252");
+		case 0x080a:	/*Mexican Spanish*/
+			return("CP1252");
+		case 0x040b:	/*Finnish*/
+			return("CP1252");
+		case 0x040c:	/*French*/
+			return("CP1252");
+		case 0x080c:	/*Belgian French*/
+			return("CP1252");
+		case 0x0c0c:	/*Canadian French*/
+			return("CP1252");
+		case 0x100c:	/*Swiss French*/
+			return("CP1252");
+		case 0x040d:	/*Hebrew*/
+			return("CP1255");
+		case 0x040e:	/*Hungarian*/
+			return("CP1250");
+		case 0x040f:	/*Icelandic*/
+			return("CP1252");
+		case 0x0410:	/*Italian*/
+			return("CP1252");
+		case 0x0810:	/*Swiss Italian*/
+			return("CP1252");
+		case 0x0411:	/*Japanese*/
+			return("CP932");
+		case 0x0412:	/*Korean*/
+			return("CP949");
+		case 0x0413:	/*Dutch*/
+			return("CP1252");
+		case 0x0813:	/*Belgian Dutch*/
+			return("CP1252");
+		case 0x0414:	/*Norwegian - Bokmal*/
+			return("CP1252");
+		case 0x0814:	/*Norwegian - Nynorsk*/
+			return("CP1252");
+		case 0x0415:	/*Polish*/
+			return("CP1250");
+		case 0x0416:	/*Brazilian Portuguese*/
+			return("CP1252");
+		case 0x0816:	/*Portuguese*/
+			return("CP1252");
+		case 0x0417:	/*Rhaeto-Romanic*/
+			return("CP1252");	/* ? */
+		case 0x0418:	/*Romanian*/
+			return("CP1250");
+		case 0x0419:	/*Russian*/
+			return("CP1251");
+		case 0x041a:	/*Croato-Serbian*/
+			return("CP1250");	/* ? */
+		case 0x081a:	/*(Latin)*/
+			return("CP1252");
+		case 0x041b:	/*Serbo-Croatian*/
+			return("CP1250");	/* ? */
+		case 0x041c:	/*(Cyrillic)*/
+			return("CP1251");
+		case 0x041d:	/*Slovak*/
+			return("CP1250");
+		case 0x041e:	/*Albanian*/
+			return("CP1250");
+		case 0x041f:	/*Swedish*/
+			return("CP1252");
+		case 0x0420:	/*Thai*/
+			return("CP874");
+		case 0x0421:	/*Turkish*/
+			return("CP1254");
+		case 0x0422:	/*Urdu*/
+			return("CP1256");
+		case 0x0423:	/*Bahasa*/
+			return("CP1256");
+		case 0x0424:	/*Ukrainian*/
+			return("CP1251");
+		case 0x0425:	/*Byelorussian*/
+			return("CP1251");
+		case 0x0426:	/*Slovenian*/
+			return("CP1250");
+		case 0x0427:	/*Estonian*/
+			return("CP1257");
+		case 0x0429:	/*Latvian*/
+			return("CP1257");
+		case 0x042D:	/*Lithuanian*/
+			return("CP1257");
+		case 0x042F:	/*Farsi*/
+			return("CP1256");
+		case 0x0436:	/*Basque*/
+			return("CP1252");
+		case 0x043E:	/*Macedonian*/
+			return("CP1251");
+		};
+	return("CP1252");
 	}
 
-
-void wvOutputFromUnicode(U16 eachchar,U8 outputtype)
+void wvHandleCodePage(U16 eachchar,char *outputtype,U16 lid)
 	{
+	char f_code[33];            /* From CCSID                           */
+	char t_code[33];            /* To CCSID                             */
+	iconv_t iconv_handle;       /* Conversion Descriptor returned       */
+								/* from iconv_open() function           */
+	char *obuf;                 /* Buffer for converted characters      */
+	char *p;
+	size_t ibuflen;               /* Length of input buffer               */
+	size_t obuflen;               /* Length of output buffer              */
+	const char *ibuf;
+	char *codepage;
+	char buffer[1];
+	char buffer2[2];
+
+	buffer[0]=eachchar;
+	ibuf = buffer;
+	obuf = buffer2;
+	
+	codepage = wvLIDToCodePageConverter(lid);
+	if (!(strcasecmp(codepage,"CP1252")))
+		{
+		if (wvConvert1252ToHtml(eachchar))
+			return;
+		}
+
+	/* All reserved positions of from code (last 12 characters) and to code   */
+	/* (last 19 characters) must be set to hexadecimal zeros.                 */
+
+	memset(f_code,'\0',33);
+	memset(t_code,'\0',33);
+
+	strcpy(f_code,codepage);
+	strcpy(t_code,"UCS-2");
+
+	iconv_handle = iconv_open(t_code,f_code);
+	if (iconv_handle == (iconv_t)-1)
+		{
+		wvError(("iconv_open fail: %d, cannot convert %s to unicode\n",errno,codepage));
+		printf("?");
+		return;
+		}
+
+	ibuflen = 1;
+    obuflen = 2;
+	p = obuf;
+    iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+    eachchar = (U8)*p++;
+    eachchar = (eachchar << 8)&0xFF00;
+    eachchar += (U8)*p;
+
+	iconv_close(iconv_handle);
+	wvOutputFromUnicode(eachchar,outputtype);
+	}
+	
+void wvOutputFromUnicode(U16 eachchar,char *outputtype)
+	{
+	int i;
 	U16 temp16;
 	U8 temp8;
 	char *str;
-	switch (outputtype)
-		{
-		case UTF8:
-			str = wvWideCharToMB(eachchar);
-			printf("%s",str);
-			wvFree(str);
-			break;
-		case ISO_5589_15:
-			temp16 = wvConvertUnicodeToiso8859_15(eachchar);
-			if (temp16 == 0xffff)
-				{
-				printf("?");
-				return;
-				}
-			printf("%c",temp16);
-			break;
-		case KOI8:
-			temp16 = wvConvertUnicodeToKOI8_R(eachchar);
-			if (temp16 == 0xffff)
-				{
-				printf("?");
-				return;
-				}
-			temp8 = (U8)temp16;	/*whistle innocently*/
-			printf("%c",temp8);
-			break;
-		case TIS620:
-			temp16 = wvConvertUnicodeToTIS620(eachchar);
-			if (temp16 == 0xffff)
-				{
-				printf("?");
-				return;
-				}
-			temp8 = (U8)temp16;	/*whistle innocently*/
-			printf("%c",temp8);
-			break;
-		/*add your own charset here*/
-		}
+	char f_code[33];            /* From CCSID                           */
+    char t_code[33];            /* To CCSID                             */
+    iconv_t iconv_handle;       /* Conversion Descriptor returned       */
+                                /* from iconv_open() function           */
+    char *obuf;                 /* Buffer for converted characters      */
+	char *p;
+    size_t ibuflen;               /* Length of input buffer               */
+    size_t obuflen;               /* Length of output buffer              */
+	size_t len;
+    const char *ibuf;
+    char buffer[2];
+    char buffer2[5];
+
+    buffer[0]=(eachchar>>8)&0x00ff;
+    buffer[1]=eachchar&0x00ff;
+    ibuf = buffer;
+    obuf = buffer2;
+
+	if (wvConvertUnicodeToHtml(eachchar))
+		return;
+
+	 /* All reserved positions of from code (last 12 characters) and to code   */
+    /* (last 19 characters) must be set to hexadecimal zeros.                 */
+
+    memset(f_code,'\0',33);
+    memset(t_code,'\0',33);
+
+    strcpy(f_code,"UCS-2");
+    strcpy(t_code,outputtype);
+
+	iconv_handle = iconv_open(t_code,f_code);
+    if (iconv_handle == (iconv_t)-1)
+        {
+        wvError(("iconv_open fail: %d, cannot convert %s to %s\n",errno,"UCS-2",outputtype));
+        printf("?");
+        return;
+        }
+
+	ibuflen = 2;
+    obuflen = 5;
+	p = obuf;
+    len = obuflen;
+    iconv(iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+	len = len-obuflen;
+    iconv_close(iconv_handle);
+
+	for (i=0;i<len;i++)
+		printf("%c",p[i]);
 	}
 
 
@@ -490,7 +513,7 @@ void wvEndCharProp(expand_data *data)
 		}
 	}
 
-void wvSetCharHandler(int (*proc)(wvParseStruct *,U16,U8))
+void wvSetCharHandler(int (*proc)(wvParseStruct *,U16,U8,U16))
     {
 	charhandler = proc;
 	}
@@ -509,3 +532,62 @@ void wvSetDocumentHandler(int (*proc)(wvParseStruct *,wvTag))
 	{
 	dochandler = proc;
 	}
+
+
+int wvConvertUnicodeToHtml(U16 char16)
+	{
+	switch(char16)
+		{
+		case 11:
+			printf("<br>");
+			return(1);
+		case 30:
+		case 31:
+		case 45:
+		case 0x2013:
+			printf("-");
+			return(1);
+		case 12:
+		case 13:
+		case 14:
+		case 7:
+			return(1);
+		case 34:
+			printf("&quot;");
+			return(1);
+		case 38:
+			printf("&amp;");
+			return(1);
+		case 60:
+			printf("&lt;");
+			return(1);
+		case 62:
+			printf("&gt;");
+			return(1);
+		case 0x2026:
+#if 0
+/* 
+this just looks awful in netscape 4.5, so im going to do a very foolish
+thing and just put ... instead of this
+*/
+			printf("&#133;");	/*is there a proper html name for ... &ellipse; ?*/
+#endif
+			printf("...");	
+			return(1);
+		case 0x2019:
+			printf("'");
+			return(1);
+		case 0x2215:
+			printf("/");
+			return(1);
+		case 0xF8E7:	/* without this, things should work in theory, but not for me */
+			printf("_");
+			return(1);
+		case 0x2018:
+			printf("`");
+			return(1);
+		}
+	return(0);
+	}
+
+	

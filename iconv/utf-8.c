@@ -1,0 +1,29 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include "wv.h"
+#include "iconv_internal.h"
+
+size_t wvConvertUnicodeToUTF_8(const char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft)
+	{
+	U16 c1,c2;
+	size_t ret=0;
+	int len;
+    while(  (*inbytesleft) && (*outbytesleft)   )
+        {
+		c2 = (U8)**inbuf;
+		(*inbuf)++;
+		c2 = (c2<< 8)&0xFF00;
+		c2 += (U8)**inbuf;
+		(*inbuf)++;
+
+        (*inbytesleft)-=2;
+
+        c1 = ConvertUnicodeToiso8859_15(c2);
+    	len = our_wctomb(*outbuf,c2);
+
+        (*outbuf)+=len;
+        (*outbytesleft)-=len;
+		ret+=len;
+        }
+	return(ret);
+	}

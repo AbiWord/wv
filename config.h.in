@@ -67,3 +67,9 @@
 #include <getopt.h>
 
 #undef WORDS_BIGENDIAN
+
+/* define if you have iconv */
+#undef USE_ICONV
+
+/* define if you have iconv but do not have windows codepage to unicode support */
+#undef MUST_USE_INTERNAL_ICONV_TABLE

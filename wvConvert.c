@@ -178,7 +178,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
 	data->vmerges = &ps->vmerges;
 	data->norows = &ps->norows;
 	data->nextpap = &ps->nextpap;
-	data->charset = wvAutoCharset(&ps->clx);
+	data->charset = wvAutoCharset(ps);
 	data->props = props;
 
 	switch (tag)
@@ -231,7 +231,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 	data->vmerges = &ps->vmerges;
 	data->norows = &ps->norows;
 
-	data->charset = wvAutoCharset(&ps->clx);
+	data->charset = wvAutoCharset(ps);
 
 	switch (tag)
 		{

@@ -399,7 +399,7 @@ void wvListStateData(state_data *data)
 		for(j=0;j<data->elements[i].nostr;j++)
 			{
 			if (data->elements[i].str[j])
-				wvTrace(("listing->element %s\n",data->elements[i].str[j]));
+				wvError(("listing->element %s\n",data->elements[i].str[j]));
 			}
 		}
 
@@ -460,12 +460,11 @@ void exstartElement(void *userData, const char *name, const char **atts)
                 mydata->retstring = NULL;
                 mydata->currentlen = 0;
                 }
-            wvPrintTitle(mydata->ps,mydata->anSttbfAssoc,mydata->charset);
+            wvPrintTitle(mydata->ps,mydata->anSttbfAssoc);
             break;
 		case TT_CHARSET:
 			wvTrace(("the charset is %d\n",mydata->charset));
-			ctext = wvGetCharset(mydata->charset);
-			wvAppendStr(&mydata->retstring,ctext);
+			wvAppendStr(&mydata->retstring,mydata->charset);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_ROWSPAN:
@@ -1036,7 +1035,6 @@ void exstartElement(void *userData, const char *name, const char **atts)
 					wvTrace(("start number is %d, type is %d\n",lvl.lvlf.iStartAt,lvl.lvlf.nfc));
 					wvTrace(("lfo is %d, ilvi is %d\n",((PAP*)(mydata->props))->ilfo,((PAP*)(mydata->props))->ilvl));
 					wvTrace(("Start No is %d\n",(*mydata->liststartnos)[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl]));
-
 
 					for (i=0;i<tilvl+1;i++)
                            {
@@ -1823,8 +1821,6 @@ void startElement(void *userData, const char *name, const char **atts)
 	nAtts = (p - atts) >> 1;
 
 	tokenIndex = s_mapNameToToken(name);
-	if (mydata->current != NULL)
-		wvTrace(("current not NULL\n"));
 	wvTrace(("element %s started\n",name));
 	switch (s_Tokens[tokenIndex].m_type)
 		{
@@ -3075,8 +3071,9 @@ int wvParseConfig(state_data *myhandle)
 			}
 	} while (!done);
 	XML_ParserFree(parser);
-
+#ifdef DEBUG
 	wvListStateData(myhandle);
+#endif
 
 	return 0;
 	}

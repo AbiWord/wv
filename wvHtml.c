@@ -25,7 +25,7 @@ returns 1 for not an ole doc
 
 int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty);
 int mydochandler(wvParseStruct *ps,wvTag tag);
-int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype);
+int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid);
 int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp);
 
 FILE *wvOpenConfig(char *config);
@@ -36,7 +36,7 @@ void usage( void )
 	exit(-1);
 	}
 
-static U16 charset=0xffff;
+char *charset=NULL;
 
 int main(int argc,char **argv)
 	{
@@ -70,7 +70,7 @@ int main(int argc,char **argv)
 			{
 			case 'c':
 				if (optarg)
-					charset = wvLookupCharset(optarg);
+					charset = optarg;
 				else
 					wvError(("No argument given to charset"));
 				break;
@@ -207,8 +207,11 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
 	data->vmerges = &ps->vmerges;
 	data->norows = &ps->norows;
 	data->nextpap = &ps->nextpap;
-	if (charset == 0xffff)
-    	data->charset = wvAutoCharset(&ps->clx);
+	if (charset == NULL)
+		{
+    	data->charset = wvAutoCharset(ps);
+		charset=data->charset;
+		}
 	else
 		data->charset = charset;
     data->props = props;
@@ -308,8 +311,11 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 		data->ps=ps;
 		}
 
-	if (charset == 0xffff)
-	    data->charset = wvAutoCharset(&ps->clx);
+	if (charset == NULL)
+		{
+	    data->charset = wvAutoCharset(ps);
+		charset = data->charset;
+		}
 	else
 		data->charset = charset;
 
@@ -384,7 +390,7 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			wvTrace(("no of strings %d %d\n",ps->fonts.nostrings,achp->ftcSym));
 			if (0 == memcmp(symbol,ps->fonts.ffn[achp->ftcSym].xszFfn,12))
 				{
-				if ( (!message) && (UTF8 != charset) )
+				if ( (!message) && (strcasecmp("UTF-8",charset)) )
 					{
 					wvWarning("Symbol font detected (too late sorry!), rerun wvHtml with option --charset utf-8\n\
 option to support correct symbol font conversion to a viewable format.\n");
@@ -392,7 +398,11 @@ option to support correct symbol font conversion to a viewable format.\n");
 					}
 				wvTrace(("symbol char %d %x %c, using font %d %s\n",achp->xchSym,achp->xchSym,achp->xchSym,achp->ftcSym,wvWideStrToMB(ps->fonts.ffn[achp->ftcSym].xszFfn) ));
 				wvTrace(("symbol char ends up as a unicode %x\n",wvConvertSymbolToUnicode(achp->xchSym-61440)));
-				return(myCharProc(ps,wvConvertSymbolToUnicode(achp->xchSym-61440),UTF8));
+				/*
+				return(myCharProc(ps,wvConvertSymbolToUnicode(achp->xchSym-61440),UTF8,0x400));
+				*/
+				wvOutputFromUnicode(wvConvertSymbolToUnicode(achp->xchSym-61440),charset);
+				return(0);
 				}
 			else if (0 == memcmp(wingdings,ps->fonts.ffn[achp->ftcSym].xszFfn,18))
 				{
@@ -421,7 +431,7 @@ option to support correct symbol font conversion to a viewable format.\n");
 	}
 
 	
-int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype)
+int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 	{
 	static int state,i;
 	switch(eachchar)
@@ -446,10 +456,11 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype)
 		fieldCharProc(ps,eachchar,chartype);
 		return(0);
 		}
-	if (charset != 0xffff)
-		wvOutputHtmlChar(eachchar,chartype,charset);
+	wvTrace(("charset is %s, lid is %x, type is %d, char is %x\n",charset,lid,chartype,eachchar));
+	if (charset != NULL)
+		wvOutputHtmlChar(eachchar,chartype,charset,lid);
 	else
-		wvOutputHtmlChar(eachchar,chartype,wvAutoCharset(&ps->clx));
+		wvOutputHtmlChar(eachchar,chartype,wvAutoCharset(ps),lid);
 	return(0);
 	}
 

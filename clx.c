@@ -171,23 +171,43 @@ int wvGetPieceBoundsCP(U32 *begin,U32 *end,CLX *clx,U32 piececount)
     }
 
 
-U16 wvAutoCharset(CLX *clx)
+char *wvAutoCharset(wvParseStruct *ps)
 	{
 	U16 i=0;
 	int flag;
-	U16 ret=ISO_5589_15;
+	char *ret;
+	ret="iso-8859-15";
 
-	while(i<clx->nopcd)
+	/* 
+	If any of the pieces use unicode then we have to assume the
+	worst and use utf-8
+	*/
+	while(i<ps->clx.nopcd)
         {
-		wvNormFC(clx->pcd[i].fc,&flag);
+		wvNormFC(ps->clx.pcd[i].fc,&flag);
 		if (flag==0)
 			{
-			ret=UTF8;
+			ret="UTF-8";
 			break;
 			}
         i++;
         }
 
+	/* 
+	Also if the document fib is not codepage 1252 we also have to 
+	assume the worst 
+	*/
+	if (strcmp(ret,"UTF-8"))
+		{
+		if (
+			(ps->fib.lid != 0x407) &&
+			(ps->fib.lid != 0x807) &&
+			(ps->fib.lid != 0x409) &&
+			(ps->fib.lid != 0x807) &&
+			(ps->fib.lid != 0xC09)
+			)
+		ret="UTF-8";
+		}
 	return(ret);
 	}
 

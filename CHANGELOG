@@ -1,3 +1,116 @@
+Changes to to 0.5.41
+	* attempting to support 8 bit russian cp1251 docs as well.
+	* there is an extra argument to the character handler, this
+	is the lid of the character. the Language identifier.
+	* made some changes to the build so that it will work build
+	correctly outside the source tree.
+	* added a small iconv implementation which follow the same syntax 
+	as the ordinary iconv. We *must* be able to convert from windows 
+	codepages into unicode, it doesnt matter about the reverse direction 
+	at all. If the native iconv can do this then we use that, if 
+	the native iconv cannot, or does not exist we use our own iconv
+	which can only handle a conversion from windows codepages into unicode,
+	* So currently we can always output in utf-8 from just about whatever
+	input charset word hits us with.
+	* removed the unnecessary symbolfont dir
+	* made some more mods so that we convert into 16bit unicode from
+	all the codepages, we also must convert from 16bit unicode into
+	all the current outputs such as tis and koi and iso-5589 and also
+	utf-8.
+	* I have had the wrong name for my own charset all along :-), a
+	bit dyslexic of me, iso-8859-15, NOT iso-5589-15 !
+	* change the charset all the way through the system to a string
+	so that we can use everything that works with a systems iconv.
+	* removed unnecessary paramater to wvOutputText
+	* hooked up all the output system through output, i.e. the
+	title gets printed the same way as the body text.
+	* changes to Makefiles to make it build outside of its own
+	dir.
+ALL TODO
+	* wvSetCharHandler(proc,NATIVE|UNICODE)
+	* attempt to remove completely empty para's with the IsEmpty code
+
+	* support 0x01 graphics ala broken/001-TETMEI.doc
+	
+	* rationalize the char codes, put unicode and cp conversion to
+	html seperately from eachother, and try that before doing any
+	output conversion.
+	* Got to think of some way to keep the list stuff in sync with the margins 
+	of the enclosed paragraphs in html output.
+
+	* need to add a color Auto thing that figures out what color goes against 
+	what fore or back ground.
+
+	* multiple columns are part of section code, how to support this in html 
+	without brain failure.
+
+	* put the default text and char stuff into one single "style", and then 
+	try and figure out a way to save arbitrary no of styles into some nice 
+	structure for later seaching and stylesheet implementation.
+
+	* title not being done in the correct charset
+
+	* style overrides for each word style, example idea in wvHtml.xml
+
+	* comment/footnote and endnote support.
+
+	* fully implement tablelooks, the flags in particular, and maybe the 
+	colors for the bg should be farmed out to sperate config options rather
+	than piggy backing on the other colors, also why did one of the text
+	foregrounds not work on its own, while the others did, and is there
+	one of two cases where our grid will not handle every case ?
+
+	* bring in some stylesheet constructs, such as para indentation and
+	font size and color and so on. move things that direction instead.
+
+	* add another option for table width, i.e. tableabswidth.
+	* we need character formatting for the <li> itself, we can do this I 
+	suppose, but i'll hold off on that for a while.
+
+	* fontface and size for char runs..
+
+	* what about a collision between underline and revision added ? and also 
+	the strike and revision deleted ?, what if a mad user created his own 
+	collisions.  In the future there will be problems with links being broken 
+	by references, this is a similar problem.
+	* what was i at with sprmCFtcDefault ????, fBold ??, what the...
+	* install cygwin thingy at home and test configure mechanism for searching 
+	and installing strcasecmp/rint.
+	* i figured out what the story is with ole embedded files, ill have to 
+	modify my ole code so as to be able in the future to parse embedded docs 
+	and splice them together, which could be a wee bit of a challenge.
+	* modify configure script so its possible to link against a different 
+	expat lib, or to disable it or something.
+	* add errors via numbered errors to wvInitParser.
+	* additional code checks for conversion of codepage whatever to iso for
+	ancillary strings that might be stored in that format.
+
+	* implement whatever special drawing format there is.
+	* patch thai handling back in.
+	* test that continous sections and endnotes at the end of section, and
+	other things like that do what i think they should do.
+	* placement of footnotes, what does "treat like endnotes" really mean ?
+	* make sure captions are alright, especially formatting.
+	* bits for anld are wrong
+	* bookmarks embedded in html tags break them, constructs such as e.g
+	<A href="stuff">stuf<a name="here">f</a></A> are being output even though
+	thats well wrong in html.
+	* convert the cross-referenced "above/below", into hyperlinked above and 
+	below.
+	* optional support for specifying special fonts, not recommended for use
+	on publishing for internet sites, but useful for internal use for those 
+	of you who have done the funky chicken dance with unix netscape to work 
+	with ms winding etc fonts or are using ie/netscape on windows.
+	* all the fields, document background colour.
+	* gnome canvas wysiwyg viewer, output to ps from this
+	* use incremental zlib functions to do decompressing rather than use mmap,
+	someone who doesnt have mmap on their system can send me a patch for this one
+	;-)
+	* doesnt compile under neXt & needs to use gcc for hpux 10.20 ?
+	* put code thats in both simple and complex together.
+	* do an autoconf check for mman.h and dont do compression if not there.
+	* maybe someday we should use #pragme pack(1) if we are being compiled
+	with gcc under a little endian platform. That might gain a speed up ?
 Changes to to 0.5.40
 	* took a patch from Mitch Davis <mjd@aus.hp.com> to change PAGESIZE to
 	WV_PAGESIZE, this define already exists under HPUX (oops), and modify
@@ -91,90 +204,6 @@ Changes to to 0.5.40
 	the same as the complex, ah well.
 	* I believe I have correctly worked out how to determine when word 6 and 7 files use 
 	unicode characters.
-ALL TODO
-	* attempt to remove completely empty para's with the IsEmpty code
-
-	* support 0x01 graphics ala broken/001-TETMEI.doc
-	
-	* rationalize the char codes, put unicode and cp conversion to
-	html seperately from eachother, and try that before doing any
-	output conversion.
-	* Got to think of some way to keep the list stuff in sync with the margins 
-	of the enclosed paragraphs in html output.
-
-	* need to add a color Auto thing that figures out what color goes against 
-	what fore or back ground.
-
-	* multiple columns are part of section code, how to support this in html 
-	without brain failure.
-
-	* put the default text and char stuff into one single "style", and then 
-	try and figure out a way to save arbitrary no of styles into some nice 
-	structure for later seaching and stylesheet implementation.
-
-	* title not being done in the correct charset
-
-	* style overrides for each word style, example idea in wvHtml.xml
-
-	* comment/footnote and endnote support.
-
-	* fully implement tablelooks, the flags in particular, and maybe the 
-	colors for the bg should be farmed out to sperate config options rather
-	than piggy backing on the other colors, also why did one of the text
-	foregrounds not work on its own, while the others did, and is there
-	one of two cases where our grid will not handle every case ?
-
-	* bring in some stylesheet constructs, such as para indentation and
-	font size and color and so on. move things that direction instead.
-
-	* add another option for table width, i.e. tableabswidth.
-	* we need character formatting for the <li> itself, we can do this I 
-	suppose, but i'll hold off on that for a while.
-
-	* fontface and size for char runs..
-
-	* what about a collision between underline and revision added ? and also 
-	the strike and revision deleted ?, what if a mad user created his own 
-	collisions.  In the future there will be problems with links being broken 
-	by references, this is a similar problem.
-	* what was i at with sprmCFtcDefault ????, fBold ??, what the...
-	* install cygwin thingy at home and test configure mechanism for searching 
-	and installing strcasecmp/rint.
-	* i figured out what the story is with ole embedded files, ill have to 
-	modify my ole code so as to be able in the future to parse embedded docs 
-	and splice them together, which could be a wee bit of a challenge.
-	* modify configure script so its possible to link against a different 
-	expat lib, or to disable it or something.
-	* add errors via numbered errors to wvInitParser.
-	* additional code checks for conversion of codepage whatever to iso for
-	ancillary strings that might be stored in that format.
-
-	* implement whatever special drawing format there is.
-	* patch thai handling back in.
-	* test that continous sections and endnotes at the end of section, and
-	other things like that do what i think they should do.
-	* placement of footnotes, what does "treat like endnotes" really mean ?
-	* make sure captions are alright, especially formatting.
-	* bits for anld are wrong
-	* bookmarks embedded in html tags break them, constructs such as e.g
-	<A href="stuff">stuf<a name="here">f</a></A> are being output even though
-	thats well wrong in html.
-	* convert the cross-referenced "above/below", into hyperlinked above and 
-	below.
-	* optional support for specifying special fonts, not recommended for use
-	on publishing for internet sites, but useful for internal use for those 
-	of you who have done the funky chicken dance with unix netscape to work 
-	with ms winding etc fonts or are using ie/netscape on windows.
-	* all the fields, document background colour.
-	* gnome canvas wysiwyg viewer, output to ps from this
-	* use incremental zlib functions to do decompressing rather than use mmap,
-	someone who doesnt have mmap on their system can send me a patch for this one
-	;-)
-	* doesnt compile under neXt & needs to use gcc for hpux 10.20 ?
-	* put code thats in both simple and complex together.
-	* do an autoconf check for mman.h and dont do compression if not there.
-	* maybe someday we should use #pragme pack(1) if we are being compiled
-	with gcc under a little endian platform. That might gain a speed up ?
 Changes to to 0.5.39
 	* made a new wvHtml conversion page, looks nice to me, online bug listing, 
 	its hardly a bugzilla bug it serves better for my needs.

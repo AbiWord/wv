@@ -10,53 +10,41 @@ RANLIB = @RANLIB@
 
 AR = ar
 
+srcdir=@srcdir@
+
 # If you know what your system's byte order is, define XML_BYTE_ORDER:
 # use -DXML_BYTE_ORDER=12 for little-endian byte order;
 # use -DXML_BYTE_ORDER=21 for big-endian (network) byte order.
 # -DXML_NS adds support for checking of lexical aspects of XML namespaces spec
 # -DXML_MIN_SIZE makes a smaller but slower parser
-CFLAGS = @CFLAGS@ -Ixmltok/ -Ixmlparse/ -DXML_NS
+CFLAGS = @CFLAGS@ -I$(srcdir)../xmltok/ -I$(srcdir)/ -DXML_NS
 
 # Use one of the next two lines; unixfilemap is better if it works.
 FILEMAP_OBJ=xmlwf/unixfilemap.o
 #FILEMAP_OBJ=xmlwf/readfilemap.o
-
-srcdir=@srcdir@
-
 SHELL = /bin/sh
 
 .SUFFIXES: .C .o
 
-all: XMLTOK XMLPARSE
+TOKENOBJECTS =	\
+	xmltok.o \
+	xmlrole.o 
 
-XMLTOK:
-	@echo making xmltok in xmltok
-	@(cd xmltok && $(MAKE)) || exit 1
+all: libxmltok.a
 
-XMLPARSE:
-	@echo making xmlparse in xmlparse
-	@(cd xmlparse && $(MAKE)) || exit 1
+libxmltok.a:	$(TOKENOBJECTS)
+	$(AR) rc $@ $(TOKENOBJECTS) 
+	$(RANLIB) $@
 
 %.o: $(srcdir)/%.c
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c
 
-clean: cleansub
+clean: 
+	rm -rf $(TOKENOBJECTS)
 
-distclean: clean realcleansub
-	rm -rf Makefile 
+distclean: clean
+	rm -rf Makefile *.a 
 
-cleansub:
-	@echo cleaning xmlparse in xmlparse
-	@(cd xmlparse && $(MAKE) clean) || exit 1
-	@echo cleaning xmltok in xmltol
-	@(cd xmltok && $(MAKE) clean) || exit 1
-
-realcleansub:
-	@echo real cleaning xmlparse in xmlparse
-	@(cd xmlparse && $(MAKE) realclean) || exit 1
-	@echo real cleaning xmltok in xmltol
-	@(cd xmltok && $(MAKE) realclean) || exit 1
-
-realclean: distclean 
+realclean: distclean
 
 #  DO  NOT  DELETE THIS LINE -- make depend depends on it.

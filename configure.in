@@ -72,106 +72,7 @@ CFLAGS="$CFLAGS $X_CFLAGS"
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 
-dnl AC_TYPE_PID_T
-
-dnl Check type of signal routines (posix, 4.2bsd, 4.1bsd or v7)
-AC_DEFUN(BASH_SIGNAL_CHECK,
-[AC_REQUIRE([AC_TYPE_SIGNAL])
-AC_MSG_CHECKING(for type of signal functions)
-AC_CACHE_VAL(bash_cv_signal_vintage,
-[
-  AC_TRY_LINK([#include <signal.h>],[
-    sigset_t ss;
-    struct sigaction sa;
-    sigemptyset(&ss); sigsuspend(&ss);
-    sigaction(SIGINT, &sa, (struct sigaction *) 0);
-    sigprocmask(SIG_BLOCK, &ss, (sigset_t *) 0);
-  ], bash_cv_signal_vintage=posix,
-  [
-    AC_TRY_LINK([#include <signal.h>], [
-    int mask = sigmask(SIGINT);
-    sigsetmask(mask); sigblock(mask); sigpause(mask);
-    ], bash_cv_signal_vintage=4.2bsd,
-    [
-      AC_TRY_LINK([
-    #include <signal.h>
-    RETSIGTYPE foo() { }], [
-        int mask = sigmask(SIGINT);
-        sigset(SIGINT, foo); sigrelse(SIGINT);
-        sighold(SIGINT); sigpause(SIGINT);
-        ], bash_cv_signal_vintage=svr3, bash_cv_signal_vintage=v7
-    )]
-  )]
-)
-])
-AC_MSG_RESULT($bash_cv_signal_vintage)
-if test "$bash_cv_signal_vintage" = posix; then
-AC_DEFINE(HAVE_POSIX_SIGNALS)
-elif test "$bash_cv_signal_vintage" = "4.2bsd"; then
-AC_DEFINE(HAVE_BSD_SIGNALS)
-elif test "$bash_cv_signal_vintage" = svr3; then
-AC_DEFINE(HAVE_USG_SIGHOLD)
-fi
-])
-
-AC_DEFUN(BASH_REINSTALL_SIGHANDLERS,
-[AC_REQUIRE([AC_TYPE_SIGNAL])
-AC_REQUIRE([BASH_SIGNAL_CHECK])
-AC_MSG_CHECKING([if signal handlers must be reinstalled when invoked])
-AC_CACHE_VAL(bash_cv_must_reinstall_sighandlers,
-[AC_TRY_RUN([
-#include <signal.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-typedef RETSIGTYPE sigfunc();
-
-int nsigint;
-
-#ifdef HAVE_POSIX_SIGNALS
-sigfunc *
-set_signal_handler(sig, handler)
-     int sig;
-     sigfunc *handler;
-{
-  struct sigaction act, oact;
-  act.sa_handler = handler;
-  act.sa_flags = 0;
-  sigemptyset (&act.sa_mask);
-  sigemptyset (&oact.sa_mask);
-  sigaction (sig, &act, &oact);
-  return (oact.sa_handler);
-}
-#else
-#define set_signal_handler(s, h) signal(s, h)
-#endif
-
-RETSIGTYPE
-sigint(s)
-int s;
-{
-  nsigint++;
-}
-
-main()
-{
-    nsigint = 0;
-    set_signal_handler(SIGINT, sigint);
-    kill((int)getpid(), SIGINT);
-    kill((int)getpid(), SIGINT);
-    exit(nsigint != 2);
-}
-], bash_cv_must_reinstall_sighandlers=no, bash_cv_must_reinstall_sighandlers=yes
-AC_MSG_WARN(cannot check signal handling if cross compiling))])
-AC_MSG_RESULT($bash_cv_must_reinstall_sighandlers)
-if test $bash_cv_must_reinstall_sighandlers = yes; then
-AC_DEFINE(MUST_REINSTALL_SIGHANDLERS)
-fi
-])
-
 dnl LDFLAGS="$LDFLAGS -lm"
-
 
 dnl test for X, and Xpm and ttf to get the flags needed to compile something to use libwmf
 
@@ -525,6 +426,99 @@ dnl ========================================================
 dnl end of libwmf
 
 
+dnl ========================================================
+dnl test for iconv
+
+
+AC_DEFUN(AC_SYS_ICONV_WIN_CP_SUPPORT,
+[
+AC_MSG_CHECKING([for existance of $1 to $2 iconv support])
+dnl AC_CACHE_VAL(have_codepages,
+dnl [
+AC_TRY_RUN([
+	#include <iconv.h>
+	#include <stdio.h>
+	#include <errno.h>
+	#include <string.h>
+	#include <stdlib.h>
+
+	int main(int argc, char *argv[])
+	{
+		char f_code[33];              /* From CCSID                           */
+		char t_code[33];              /* To CCSID                             */
+		iconv_t iconv_handle;         /* Conversion Descriptor returned       */
+									/* from iconv_open() function           */
+		const char *ibuf = "ABCxyz012#&";   /* Buffer of characters to be converted */
+		char *obuf;                   /* Buffer for converted characters      */
+		size_t ibuflen;               /* Length of input buffer               */
+		size_t obuflen;               /* Length of output buffer              */
+		const char *isav;             /* Saved pointer to input buffer        */
+		char *osav;                   /* Saved pointer to output buffer       */
+
+	/* All reserved positions of from code (last 12 characters) and to code   */
+	/* (last 19 characters) must be set to hexadecimal zeros.                 */
+
+		memset(f_code,'\0',33);
+		memset(t_code,'\0',33);
+
+		strcpy(f_code,"$1");
+		strcpy(t_code,"$2");
+
+		iconv_handle = iconv_open(t_code,f_code);
+		if (iconv_handle == (iconv_t)-1)
+		{
+			perror("ERROR");
+			fprintf(stderr,"iconv_open fail: cannot handle %s to %s\n","$1","$2");
+			exit(-1);
+		}
+		else
+			{
+			fprintf(stderr,"success!, can handle %s to %s\n","$1","$2");
+			iconv_close(iconv_handle);
+			}
+		return(0);
+	}
+], have_codepages=yes, have_codepages=no, have_codepages=no)
+dnl])
+AC_MSG_RESULT($have_codepages)
+if test $have_codepages = no; then
+AC_DEFINE(MUST_USE_INTERNAL_ICONV_TABLE)
+ICONVOBJS="\$(RICONVOBJS)"
+ICONV="ICONV"
+fi
+])
+
+AC_CHECK_FUNC(iconv, [
+AC_DEFINE(USE_ICONV)
+have_iconv=yes], 
+ICONVOBJS="\$(RICONVOBJS)"
+ICONV="ICONV"
+have_iconv=no)
+
+if [ test "$have_iconv" = yes ]; then
+	AC_SYS_ICONV_WIN_CP_SUPPORT(CP874,UCS-2)
+dnl	AC_SYS_ICONV_WIN_CP_SUPPORT(CP936,UCS-2)
+dnl	AC_SYS_ICONV_WIN_CP_SUPPORT(CP932,UCS-2)
+dnl	AC_SYS_ICONV_WIN_CP_SUPPORT(CP949,UCS-2)
+dnl	AC_SYS_ICONV_WIN_CP_SUPPORT(CP950,UCS-2)
+	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1250,UCS-2)
+	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1251,UCS-2)
+	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1252,UCS-2)
+	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1253,UCS-2)
+	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1254,UCS-2)
+	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1255,UCS-2)
+	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1256,UCS-2)
+	AC_SYS_ICONV_WIN_CP_SUPPORT(CP1257,UCS-2)
+
+	AC_SYS_ICONV_WIN_CP_SUPPORT(UCS-2,UTF-8)
+	AC_SYS_ICONV_WIN_CP_SUPPORT(UCS-2,koi8-r)
+	AC_SYS_ICONV_WIN_CP_SUPPORT(UCS-2,tis-620)
+	AC_SYS_ICONV_WIN_CP_SUPPORT(UCS-2,iso-8859-15)
+fi
+
+dnl end of iconv
+dnl ========================================================
+
 dnl ===We dont actually need this at all, and its causing problems for everyone===
 dnl BASH_REINSTALL_SIGHANDLERS
 
@@ -574,8 +568,16 @@ AC_CHECK_FUNC(strerror, , [LIBOBJS="$LIBOBJS strerror.o"])
 AC_CHECK_FUNC(strcasecmp, , [LIBOBJS="$LIBOBJS strcasecmp.o"])
 dnl AC_CHECK_FUNCS(waitpid)
 AC_SUBST(LIBOBJS)
+AC_SUBST(ICONVOBJS)
+AC_SUBST(ICONV)
 AC_SUBST(ZLIB_CFLAGS)
 AC_SUBST(ZLIB_LIBS)
-	
 
-AC_OUTPUT(Makefile oledecod/Makefile expat/Makefile)
+AC_OUTPUT(
+Makefile 
+oledecod/Makefile 
+expat/Makefile 
+expat/xmltok/Makefile 
+expat/xmlparse/Makefile
+iconv/Makefile
+)

@@ -114,6 +114,7 @@ int wvGetBTE_FromFC(BTE *bte, U32 currentfc, BTE *list,U32 *fcs, int nobte)
 		wvTrace(("currentfc %x bte %x %x\n",currentfc,wvNormFC(fcs[i],NULL),wvNormFC(fcs[i+1],NULL)));
 		if ( (currentfc >= wvNormFC(fcs[i],NULL)) && (currentfc < wvNormFC(fcs[i+1],NULL)) )
 			{
+			wvTrace(("valid\n"));
 			wvCopyBTE(bte,&list[i]);
 			return(0);
 			}

@@ -50,10 +50,9 @@
 #include <sys/types.h>
 #include <assert.h>
 
-#include "../wv.h"
+#include "wv.h"
 
-#include <oledecod.h>
-#include <support.h>
+#include "oledecod.h"
 
 
 #define ENTRYCHUNK 20		/* number of entries in root_list and sbd_list

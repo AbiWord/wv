@@ -202,10 +202,10 @@ int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc)
 void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, FILE *fd)
 	{
 	int i;
-	wvTrace(("chpx fkp malloc\n"));
-
+	wvTrace(("chpx fkp gone to %x\n",pn*WV_PAGESIZE+(WV_PAGESIZE-1)));
 	fseek(fd, pn*WV_PAGESIZE+(WV_PAGESIZE-1), SEEK_SET);
 	fkp->crun = getc(fd);
+	wvTrace(("crun is %d\n",fkp->crun));
 	fkp->rgfc = (U32 *)malloc(sizeof(U32) * (fkp->crun+1));
 	fkp->rgb = (U8 *)malloc(sizeof(U8) * (fkp->crun));
 	fkp->grpchpx = (CHPX *)malloc(sizeof(CHPX) * (fkp->crun));

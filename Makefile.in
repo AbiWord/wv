@@ -10,6 +10,27 @@ LIBS =  @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EX
 
 GETOPT = @LIBOBJS@
 
+ICONV = @ICONV@
+
+RICONVOBJS = \
+iconv/codepage-874.o 	\
+iconv/codepage-1250.o 	\
+iconv/codepage-1251.o 	\
+iconv/codepage-1254.o 	\
+iconv/codepage-1257.o 	\
+iconv/codepage-1252.o 	\
+iconv/codepage-1255.o 	\
+iconv/codepage-1253.o 	\
+iconv/codepage-1256.o 	\
+iconv/koi8-r.o 			\
+iconv/iso-8859-15.o		\
+iconv/tis-620.o			\
+iconv/utf-8.o			\
+iconv/iconv.o
+
+ICONVOBJS =  @ICONVOBJS@
+
+
 #abi's picky warning checks
 #CC = @CC@ -Wall -W -ansi -pedantic
 
@@ -41,7 +62,7 @@ PERL = @PERL@
 
 VPATH = @srcdir@
 
-CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I$(srcdir)/expat/xmlparse -I$(srcdir)/oledecod -I$(srcdir) @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DXMLCONFIG=\"$(libdir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(libdir)/wv/wvHtml.xml\" 
+CFLAGS = @CFLAGS@ @DEFS@ @ZLIB_CFLAGS@ -I. -I./ -I$(srcdir)/ -I$(srcdir)/iconv/ -I$(srcdir)/expat/xmlparse/ -I$(srcdir)/oledecod/  @TTF_CFLAGS@ @WMF_CFLAGS@ -DTTFDIR=\"$(libdir)/wv/ttf\" -DXMLCONFIG=\"$(libdir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(libdir)/wv/wvHtml.xml\" 
 
 MKINSTALLDIRS = $(srcdir)/mkinstalldirs
 
@@ -112,11 +133,7 @@ MYOBJECTS =	\
 	bte.o \
 	bx.o \
 	fkp.o \
-	codepage-1251.o \
 	codepage-1252.o \
-	iso-5589-15.o \
-	tis-620.o \
-	koi8-r.o \
 	text.o \
 	decode_complex.o \
 	wvTextEngine.o \
@@ -196,15 +213,19 @@ lex.yy.c: parser.lex
 testparse$(EXEEXT):  testparse.o $(GETOPT) OLEDECODE libwv.a
 	$(CC)  -o $@ testparse.o $(GETOPT) -L. -lwv $(LIBS)  $(LDFLAGS)
 
-error.o: error.c Makefile
-	$(CC) $(CFLAGS) -c $*.c 
+error.o: $(srcdir)/error.c Makefile
+	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
-laolareplace.o: laolareplace.c 
-	$(CC) $(CFLAGS) -c $*.c 
+laolareplace.o: $(srcdir)/laolareplace.c 
+	$(CC) $(CFLAGS) -c $(srcdir)/$*.c 
 
-libwv.a:	$(MYOBJECTS) XMLPARSER
-	$(AR) rc $@ $(MYOBJECTS) $(XML)
+libwv.a:	$(MYOBJECTS) XMLPARSER $(ICONV)
+	$(AR) rc $@ $(MYOBJECTS) $(ICONVOBJS) $(XML)
 	$(RANLIB) $@
+
+ICONV:
+	@echo making iconv in iconv
+	@(cd iconv && $(MAKE)) || exit 1
 
 OLEDECODE:
 	@echo making oledecod in oledecod
@@ -222,6 +243,8 @@ cleansub:
 	@(cd oledecod && $(MAKE) clean) || exit 1
 	@echo cleaning expat in expat
 	@(cd expat && $(MAKE) clean) || exit 1
+	@echo cleaning iconv in iconv 
+	@(cd iconv && $(MAKE) clean) || exit 1
 
 clean: cleansub
 	rm -rf *.o $(GETOPT) wvHtml$(EXEEXT) wvConvert$(EXEEXT) wvText$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvSimpleCLX$(EXEEXT) wvGraphicConvert$(EXEEXT) core a.out *.a
@@ -237,6 +260,8 @@ realcleansub:
 	@(cd oledecod && $(MAKE) realclean) || exit 1
 	@echo real cleaning expat in expat
 	@(cd expat && $(MAKE) realclean) || exit 1
+	@echo real cleaning iconv in iconv 
+	@(cd iconv && $(MAKE) realclean) || exit 1
 
 installdirs:
 	$(MKINSTALLDIRS) $(bindir) \

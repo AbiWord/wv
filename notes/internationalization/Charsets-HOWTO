@@ -3,107 +3,59 @@ How to add a new output character encoding to wv
 
 The reason that utf-8 is used for output in 90% of cases is that word itself 
 usually stores documents in 16bit unicode. In ascii languages it often uses 
-the windows codepage-1252, which is basically just the standard iso-5589-1
-that west europe uses. 
+the windows codepages.
 
-When the document is in unicode its easiest to convert it to utf-8 html
-which netscape can display. It *is* possible to add different conversions.
+When the text is 8 bit and uses the western european codepage 1252 then we
+have a special case and we output by default iso-5589-15. If it is a 
+different 8 bit codepage we convert it to unicode through one of the unicode
+mapping tables and then output utf-8 from this.
 
-Ill walk through what could be done...
+When the document is in unicode or has been converted up to unicode it 
+is easiest to convert it to utf-8 html which netscape can display. It *is* 
+possible to add different conversions.
 
-first look at wv.h approx line 2096, the wvCharSet enum. Listed are the
-output types that wv can support. utf-8 and iso 5589. You could add your
-char encodinge.g.  KOI8 to that list. 
+Ill walk through the issues involved in this.
 
-Now look at wvHtml. at line 85 the handler for characters is set, i.e
-wvSetCharHandler(myCharProc);
-In that function we see that for html mode each char is passed to 
-wvOutputHtmlChar.
+There exists a call on some unices called iconv which
+is for conversion of charsets. The glibc2 one can handle
+windows codepages. But other platforms such as solaris
+have iconv but its a useless implementation, so wv does
+the following.
 
-wvOutputHtmlChar(eachchar,chartype,wvAutoCharset(&ps->clx))
-eachchar is the character from the word document, it might be either unicode or
-cp1252 (it can be unicode for part of the file and cp-1252 for another !). the
-chartype tells wvOutputHtmlChar which it is. Now the next argument is what
-the input type should be converted to. Currently we can only convert to utf-8
-and iso-5589-15 (same as iso-5589-1 except with the euro symbol). the
-wvAutoCharSet functions figures out if all the file is definitely cp-1252 and
-if returns a flag to make it convert the chardata into iso-5589-15 html. Other
-wise default to utf-8. 
+tests on configure for the existance of iconv, and test if it can
+handle the windows codepages that I am currently supporting.
+If it does (it appears that only glibc2 fits this profile) then
+we use that for our windows codepage to unicode conversion, if
+it does not then I have a mini iconv implementation which can
+only handle windows codepage into unicode conversion, unicode
+into utf, unicode into koi8-r, unicode into iso-8859-15 and
+unicode into tis-620 (thai).
 
-If charset has been set earlier in the initialiaztion this auto check is
-disabled and the set output type is used. e.g. ./wvHtml -c koi-8 filename.doc
+If you want to convert to a different output language try
+wvHtml --charset nameofcharset file.doc
+If you have a good iconv implementation on your system then
+it will work. If you have a useless iconv and I have had to
+substitite my own mini iconv implementation then you can do
+the following...
 
-So heres what we do.  In wvHtml at approx line 64, we have wvLookupCharset
-the name of the encoding is used on the command line and passed to this 
-function, so in text.c you add the name to use on the command line plus
-the enum added to wv.h to the CharsetTable,
-e.g.
-{ "koi-8",KOI8 }
+Add a new file for your conversion to the iconv dir, add
+the filename to the iconv/Makefile.in *AND* to the 
+wv Makefile.in. Follow the pattern of a converter such as the
+koi8-r.c. It would be nice if you included a document which
+used the language you are supporting to this dir, as well as
+a screenshot of what it should look like so that I can
+confirm in the future that any changes I might have made have
+not broken the converter.
 
-We should add to wvOutputFromCP1252 and to wvOutputFromUnicode cases to deal 
-with the extra new outputtype e.g. KOI8, and those handlers for output to 
-KOI8 have to implement converts from unicode and from 8bit windows. 
+You will have to implement a unicode (16bit varient) to your
+charset, add your converer to 
+1) iconv_internal.h
+2) all the appropiate Makefiles are mentioned before
+3) to the convertt outputs structure in iconv.c, 
+bump up the NOOUTPUTS define by one. Make sure you use the
+correct name for the charset name in the other convertt field.
+4) Test it.
 
-There are conversion tables available at ftp.unicode.org.
-
-Now firstly i don't know if anything except for west euro languages are ever 
-stored in words 8bit mode, it might be only necessary to implement unicode to 
-your format.... I don't really know yet.
-
-One you have all this done, add your char encoding name to wvHtml.1 (the man 
-page) and do..
-make clean
-make 
-
-The problem with putting in a specific output handler for a char encoding is
-that it is not a full and complete solution, imagine a word document written in 
-both russian and chinese. In this case unicode will work fine, but a conversion 
-to koi8 will completely break the chinese section. Its unlikely that there
-are that many documents i know, but its just something to think about.
-
-Now i have allowed the extension of wv to handle other language encodings by 
-this method (which i reckon is pretty ok) but i'm not going to do them myself
-as there is just far far too many languages out there, and the only ones i can
-read to see if im right are a handful of the western european ones which are
-already supported. So it should be a reasonably easy task for a russian 
-programmer to add unicode to koi8 conversion and i'll add it in happily. 
-(koi-8 has been done at this stage btw)
-
-Deep down I believe that individual language encodings is a nightmare. windows 
-uses unicode internally, and i hope unix is moving towards using utf-8 
-everywhere, so I hope not to rely on having individual handlers for every
-output charset in existance.
-
-So to reiterate the steps involved
-1) add the charset to the wvCharset enum in wv.h
-2) add the charset to the CharsetTable struct in text.c
-3) add a case statement to handle your new encoding to 
-	3.1) wvOutputFromUnicode, which must be able to convert 16bit unicode to your
-	charset
-	3.2) wvOutputFromCP1252, which might not be necessary, i don't know, follow
-	the same mechanism as for koi-8
-	
-	In both cases please put your actual implementation in a seperate file,
-	i.e. the name of the encoding + .c, e.g. koi-8.c
-4) add the charset name (same as you used in the CharsetTable) to wvHtml.1 for
-	documentation
-5) make sure you have your contact email address in your implementation file.
-	e.g koi-8.c
-6) this is optional, but it would be great to send me a one line word 97
-document that contains hello world or the equivalent in the language format
-you have added, and to take a screenshot of in under windows, so that if
-I make changes I can visually check to see that I haven't broken your 
-language support, and also because it would be fun to collect :-)
-
-I want the seperate language encodings in seperate c files so as to make
-any possible maintainence easier. And of course you can put comments in
-your native language in there to explain the matter to programmers who
-can't read my own hard-arsed brand of english.
-
-There will be problems in the future with languages such as hebrew ? that
-write right to left, and others that have a strange and customized concept of
-whitespace under word (thai ?), and so on. We'll deal with them when the issue
-arises.
 
 C.
 

@@ -50,7 +50,7 @@ U32 read_32ubit(FILE *in)
 	return(ret);
 	}
 
-U32 sread_32ubit(U8 *in)
+U32 sread_32ubit(const U8 *in)
 	{
 	U16 temp1,temp2;
 	U32 ret;
@@ -88,7 +88,7 @@ U16 read_16ubit(FILE *in)
 	}
 
 
-U16 sread_16ubit(U8 *in)
+U16 sread_16ubit(const U8 *in)
 	{
 	U8 temp1,temp2;
 	U16 ret;
@@ -156,7 +156,7 @@ U8 dgetc(FILE *in,U8 **list)
 		}
 	}
 
-U8 sgetc(U8 *in)
+U8 sgetc(const U8 *in)
 	{
 	return(*in);
 	}

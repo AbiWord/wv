@@ -3,7 +3,6 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
-#include "config.h"
 #include "wv.h"
 
 extern FILE *outputfile;

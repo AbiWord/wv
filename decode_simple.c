@@ -32,7 +32,6 @@ void wvDecodeSimple(wvParseStruct *ps)
 	BTE *btePapx, *bteChpx;
 	U32 *posPapx, *posChpx;
 	U32 para_intervals, char_intervals, section_intervals,atrd_intervals;
-	U16 charset;
 	U8 state=0;
 	int para_pendingclose=0,char_pendingclose=0,section_pendingclose=0,comment_pendingclose=0;
 	int para_dirty=0,char_dirty=0,section_dirty=0;
@@ -108,6 +107,8 @@ void wvDecodeSimple(wvParseStruct *ps)
 	*/
 	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->fib.fExtChar,ps->tablefd);
 	if (ps->clx.nopcd == 0) wvBuildCLXForSimple6(&ps->clx,&ps->fib);	/* for word 6 and just in case */
+
+	para_fcFirst = char_fcFirst = section_fcFirst = wvConvertCPToFC(0,&ps->clx);
 	
 	/*
 	we will need the paragraph and character bounds table to make decisions as 
@@ -143,8 +144,6 @@ void wvDecodeSimple(wvParseStruct *ps)
 		wvTrace(("fcMac is not the same as the piecetable %x %x!\n",ps->fib.fcMac,wvGetEndFCPiece(ps->clx.nopcd-1,&ps->clx)));
 #endif
 
-	charset = wvAutoCharset(&ps->clx);
-
 	wvInitPAPX_FKP(&para_fkp);
 	wvInitCHPX_FKP(&char_fkp);
 	   
@@ -159,7 +158,11 @@ void wvDecodeSimple(wvParseStruct *ps)
 		fseek(ps->mainfd,beginfc,SEEK_SET);
 		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
 
-		
+		/*
+		text that is not in the same piece is not guaranteed to have the same properties as
+		the rest of the exception run, so force a stop and restart of these properties.
+		*/
+		char_fcLim = beginfc;
 		
 		for (i=begincp,j=beginfc;(i<endcp && i<ps->fib.ccpText);i++,j += wvIncFC(chartype))
 			{
@@ -209,6 +212,22 @@ void wvDecodeSimple(wvParseStruct *ps)
 				wvReleasePAPX_FKP(&para_fkp);
 				wvGetSimpleParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,wvConvertCPToFC(i,&ps->clx), btePapx, posPapx, para_intervals, ps->mainfd);
 				wvTrace(("Para from %x to %x\n",para_fcFirst,para_fcLim));
+
+				if (0 == para_pendingclose)
+                    {
+                    /*
+                    if there's no paragraph open, but there should be then I believe that the fcFirst search
+                    has failed me, so I set it to now. I need to investigate this further. I believe it occurs
+                    when a the last piece ended simultaneously with the last paragraph, and that the algorithm
+                    for finding the beginning of a para breaks under that condition. I need more examples to
+                    be sure, but it happens is very large complex files so its hard to find
+                    */
+                    if (j != para_fcFirst)
+                        {
+                        wvWarning(("There is no paragraph due to open but one should be, plugging the gap.\n"));
+                        para_fcFirst = j;
+                        }
+                    }
 				}
 
 			if (j == para_fcFirst)
@@ -229,7 +248,8 @@ void wvDecodeSimple(wvParseStruct *ps)
 				else if (apap.fInTable == 0)
 					ps->intable=0;
 				wvHandleElement(ps, PARABEGIN, (void*)&apap,para_dirty);
-				char_fcFirst = j;
+
+				char_fcLim = j;
 				para_pendingclose = 1;
 				}
 
@@ -279,7 +299,8 @@ void wvDecodeSimple(wvParseStruct *ps)
 				wvTrace(("font is %d\n",achp.ftcAscii));
 				wvTrace(("char spec is %d\n",achp.ftcSym));
 				wvHandleElement(ps, CHARPROPBEGIN, (void*)&achp,char_dirty);
-				char_pendingclose = 1;
+				wvTrace(("char lid is %x\n",achp.lidDefault));
+				char_pendingclose = 1; 
 				}
 
 			eachchar = wvGetChar(ps->mainfd, chartype);
@@ -288,7 +309,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 				ps->endcell=1;
 
 			ps->currentcp = i;
-			wvOutputTextChar(eachchar, chartype, charset, &state, ps,&achp);
+			wvOutputTextChar(eachchar, chartype, &state, ps,&achp);
 			}
 
 		if (j == para_fcLim)
@@ -472,7 +493,10 @@ int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *rgfc, U32 
 	while(i<nopos-1)
 		{
 		wvTrace(("searching...%x %x %x\n",currentfc,wvNormFC(rgfc[i],NULL),wvNormFC(rgfc[i+1],NULL)));
+		/*
 		if ( (wvNormFC(rgfc[i],NULL) >= currentfc) && (currentfc <= wvNormFC(rgfc[i+1],NULL)) )
+		*/
+		if ( (currentfc >= wvNormFC(rgfc[i],NULL)) && (currentfc < wvNormFC(rgfc[i+1],NULL)) )
 			{
 			*fcFirst = wvNormFC(rgfc[i],NULL);
 			*fcLim = wvNormFC(rgfc[i+1],NULL);
