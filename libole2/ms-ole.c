@@ -280,12 +280,14 @@ gint ms_ole_stream_read_copy   (MsOleStream *stream,
 				guint8 *ptr,
 				MsOlePos length)
 {
+	g_return_val_if_fail (stream != NULL, -1);
 	return stream->read_copy(stream, ptr, length);
 }
 
 guint8 * ms_ole_stream_read_ptr     (MsOleStream *stream,
 				     MsOlePos length)
 {
+	g_return_val_if_fail(stream != NULL, NULL);
 	return stream->read_ptr(stream, length);
 }
 
@@ -293,11 +295,13 @@ MsOleSPos ms_ole_stream_lseek        (MsOleStream *stream,
 				      MsOleSPos bytes,
 				      MsOleSeek type)
 {
+	g_return_val_if_fail (stream != NULL, -1);
 	return stream->lseek (stream, bytes, type);
 }
 
 MsOlePos  ms_ole_stream_tell         (MsOleStream *stream)
 {
+	g_return_val_if_fail (stream != NULL, -1);
 	return stream->tell(stream);
 }
 
@@ -305,6 +309,7 @@ MsOlePos  ms_ole_stream_write       (MsOleStream *stream,
 				     guint8 *ptr,
 				     MsOlePos length)
 {
+	g_return_val_if_fail (stream != NULL, -1);
 	return stream->write(stream, ptr, length);
 }
 
