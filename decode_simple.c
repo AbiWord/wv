@@ -370,8 +370,7 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 		if (j == para_fcFirst)
 		  {
 		      para_dirty =
-			  wvAssembleSimplePAP (ver, &apap,
-					       para_fcLim, &para_fkp,ps);
+			  wvAssembleSimplePAP (ver, &apap, para_fcLim, &para_fkp, ps);
 
 		      /* test section */
 		      wvReleasePAPX_FKP (&para_fkp);
@@ -379,9 +378,7 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 					     &dummy, &nextpara_fcLim,
 					     para_fcLim, btePapx, posPapx,
 					     para_intervals, ps->mainfd);
-		      wvAssembleSimplePAP (ver,
-					   &ps->nextpap, nextpara_fcLim,
-					   &para_fkp, ps);
+		      wvAssembleSimplePAP (ver, &ps->nextpap, nextpara_fcLim, &para_fkp, ps);
 		      /* end test section */
 
 		      if ((apap.fInTable) && (!apap.fTtp))
@@ -460,9 +457,9 @@ wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc)
 		  {
 		      wvTrace (("assembling CHP...\n"));
 		      /* a CHP's base style is in the para style */
-		      achp.istd = apap.istd;
+		      /* achp.istd = apap.istd; */
 		      char_dirty =
-			  wvAssembleSimpleCHP (ver, &achp,
+				  wvAssembleSimpleCHP (ver, &achp, &apap,
 					       char_fcLim, &char_fkp,
 					       &ps->stsh);
 		      wvTrace (("CHP assembled.\n"));

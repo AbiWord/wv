@@ -43,6 +43,7 @@ wvGetRowTap (wvParseStruct * ps, PAP * dpap, U32 para_intervals,
 	     BTE * btePapx, U32 * posPapx)
 {
     PAPX_FKP para_fkp;
+	
     U32 para_fcFirst, para_fcLim = 0xffffffffL;
     PAP apap;
     U32 i;
@@ -80,7 +81,7 @@ wvGetFullTableInit (wvParseStruct * ps, U32 para_intervals, BTE * btePapx,
 		    U32 * posPapx)
 {
     PAPX_FKP para_fkp;
-    U32 para_fcFirst, para_fcLim = 0xffffffffL;
+	U32 para_fcFirst, para_fcLim = 0xffffffffL;
     PAP apap;
     U32 i, j = 0;
     TAP *test = NULL;
@@ -690,7 +691,7 @@ TheTest (wvParseStruct * ps, U32 piece, BTE * btePapx, U32 * posPapx,
     U32 i, j, k = 0;
     U32 para_fcFirst, para_fcLim;
     PAPX_FKP para_fkp;
-    PAP apap;
+	PAP apap;
     int cpiece = 0;
     wvVersion ver = wvQuerySupported (&ps->fib, NULL);
     long pos = wvStream_tell (ps->mainfd);
@@ -763,7 +764,7 @@ wvGetComplexFullTableInit (wvParseStruct * ps, U32 para_intervals,
 			   BTE * btePapx, U32 * posPapx, U32 piece)
 {
     PAPX_FKP para_fkp;
-    U32 para_fcFirst, para_fcLim = 0xffffffffL;
+	U32 para_fcFirst, para_fcLim = 0xffffffffL;
     PAP apap;
     U32 i, j = 0, k = 0;
     S32 l;
@@ -842,7 +843,7 @@ wvGetComplexRowTap (wvParseStruct * ps, PAP * dpap, U32 para_intervals,
 		    BTE * btePapx, U32 * posPapx, U32 piece)
 {
     PAPX_FKP para_fkp;
-    U32 para_fcFirst, para_fcLim = 0xffffffffL;
+	U32 para_fcFirst, para_fcLim = 0xffffffffL;
     PAP apap;
     U32 i;
     S32 j = 0;

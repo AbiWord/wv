@@ -1462,6 +1462,7 @@ brc.dxpSpace should be set to 0.
 		U8      format;
 		U8      align;
 		U8      ixchFollow;
+		CHP     chp;
 	}wvListInfo;
 
 
@@ -1603,7 +1604,6 @@ brc.dxpSpace should be set to 0.
 	UPX upx;
     } UPXF;
 
-
     typedef struct _CHPX {
 	U16 istd;
 	U8 cbGrpprl;
@@ -1614,9 +1614,8 @@ brc.dxpSpace should be set to 0.
     void wvCopyCHPX (CHPX * dest, CHPX * src);
     void wvReleaseCHPX (CHPX * item);
     void wvGetCHPX (wvVersion ver, CHPX * item, U8 * page, U16 * pos);
-
-
-    typedef struct _CHPX_FKP {
+	
+   typedef struct _CHPX_FKP {
 	U32 *rgfc;
 	U8 *rgb;
 	CHPX *grpchpx;
@@ -2975,8 +2974,7 @@ returns the same as wvOLEDecode with the addition that
 #define wvTrace( args )
 #endif
 
-    int wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp,
-							 wvParseStruct * ps);
+    int wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseStruct * ps);
     int wvAssembleComplexCHP (wvVersion ver, CHP * achp, U32 cpiece,STSH * stsh, CLX * clx);
 
     void wvAppendStr (char **orig, const char *add);
@@ -3156,8 +3154,8 @@ returns the same as wvOLEDecode with the addition that
     int wvGetSimpleCharBounds (wvVersion ver, CHPX_FKP * fkp, U32 * fcFirst,
 			       U32 * fcLim, U32 currentcp, CLX * clx, BTE * bte,
 			       U32 * pos, int nobte, wvStream * fd);
-    int wvAssembleSimpleCHP (wvVersion ver, CHP * achp, U32 fc, CHPX_FKP * fkp,
-			     STSH * stsh);
+    int wvAssembleSimpleCHP (wvVersion ver, CHP * achp, const PAP * apap,
+							 U32 fc, CHPX_FKP * fkp, STSH * stsh);
     int wvGetComplexCharfcLim (wvVersion ver, U32 * fcLim, U32 currentfc,
 			       CLX * clx, BTE * bte, U32 * pos, int nobte,
 			       U32 piece, CHPX_FKP * fkp, wvStream * fd);

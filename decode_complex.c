@@ -642,8 +642,7 @@ encoded into the first 22 bytes.
 		if (j == para_fcFirst)
 		  {
 		      para_dirty =
-			  wvAssembleSimplePAP (ver, &apap,
-					       para_fcLim, &para_fkp,ps);
+			  wvAssembleSimplePAP (ver, &apap, para_fcLim, &para_fkp, ps);
 		      para_dirty =
 			  (wvAssembleComplexPAP
 			   (ver, &apap, cpiece, ps) ? 1 : para_dirty);
@@ -676,8 +675,7 @@ encoded into the first 22 bytes.
 				para_fcLim));
 		      if (npiece > -1)
 			{
-			    wvAssembleSimplePAP (ver, &ps->nextpap, nextpara_fcLim,
-						 &para_fkp, ps);
+			    wvAssembleSimplePAP (ver, &ps->nextpap, nextpara_fcLim, &para_fkp, ps);
 			    wvAssembleComplexPAP (ver, &ps->nextpap, npiece,ps);
 			}
 		      else
@@ -767,10 +765,10 @@ encoded into the first 22 bytes.
 		if (j == char_fcFirst)
 		  {
 		      /* a CHP's base style is in the para style */
-		      achp.istd = apap.istd;
+		      /*achp.istd = apap.istd;*/
 		      wvTrace (("getting chp\n"));
 		      char_dirty =
-			  wvAssembleSimpleCHP (ver, &achp,
+				  wvAssembleSimpleCHP (ver, &achp, &apap,
 					       char_fcLim, &char_fkp,
 					       &ps->stsh);
 		      wvTrace (("getting complex chp\n"));

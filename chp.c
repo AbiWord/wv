@@ -661,7 +661,7 @@ wvUpdateCHPXBucket (UPXF * src)
  */
 
 int
-wvAssembleSimpleCHP (wvVersion ver, CHP * achp, U32 fc, CHPX_FKP * fkp,
+wvAssembleSimpleCHP (wvVersion ver, CHP * achp, const PAP * apap, U32 fc, CHPX_FKP * fkp,
 		     STSH * stsh)
 {
     CHPX *chpx;
@@ -677,38 +677,41 @@ wvAssembleSimpleCHP (wvVersion ver, CHP * achp, U32 fc, CHPX_FKP * fkp,
 
     /* before this function was called, achp->istd should have
        * been set to the current paragraph properties' stylesheet */
-    tistd = achp->istd;
+    tistd = apap->istd;
+	achp->istd = tistd;
     wvInitCHPFromIstd (achp, achp->istd, stsh);
 	achp->istd = tistd;
 
-	/*index is the i in the text above */
-    /* the PAPX version of the function only looks at rgfc's, which are
-       * the same for CHPX and PAPX FKPs, so we'll reuse the function */
-    index = wvGetIndexFCInFKP_PAPX ((PAPX_FKP *) fkp, fc);
-
-    wvTrace (("index is %d, using %d\n", index, index - 1));
-
     /* get CHPX */
-    chpx = &(fkp->grpchpx[index - 1]);
-
-    /* apply CHPX from FKP */
-    if ((chpx) && (chpx->cbGrpprl > 0))
-      {
-	  ret = 1;
-	  /* for (i = 0; i < chpx->cbGrpprl; i++) */
-	  upxf.cbUPX = chpx->cbGrpprl;
-	  upxf.upx.chpx.grpprl = chpx->grpprl;
-	  if (ver == WORD8)
-	      wvAddCHPXFromBucket (achp, &upxf, stsh);
-	  else
-	      wvAddCHPXFromBucket6 (achp, &upxf, stsh);
-      }
-
-	if(achp->istd != tistd)
+	if(fkp)
 	{
-		/* the chpx contained instruction to apply character style; we
-		   want to remember its name */
-		strncpy(achp->stylename,stsh->std[achp->istd].xstzName, sizeof(achp->stylename));
+		/* the PAPX version of the function only looks at rgfc's, which are
+		 * the same for CHPX and PAPX FKPs, so we'll reuse the function */
+		index = wvGetIndexFCInFKP_PAPX ((PAPX_FKP *) fkp, fc);
+
+		wvTrace (("index is %d, using %d\n", index, index - 1));
+
+		chpx = &(fkp->grpchpx[index - 1]);
+
+		/* apply CHPX from FKP */
+		if ((chpx) && (chpx->cbGrpprl > 0))
+		{
+			ret = 1;
+			/* for (i = 0; i < chpx->cbGrpprl; i++) */
+			upxf.cbUPX = chpx->cbGrpprl;
+			upxf.upx.chpx.grpprl = chpx->grpprl;
+			if (ver == WORD8)
+				wvAddCHPXFromBucket (achp, &upxf, stsh);
+			else
+				wvAddCHPXFromBucket6 (achp, &upxf, stsh);
+		}
+
+		if(achp->istd != tistd)
+		{
+			/* the chpx contained instruction to apply character style; we
+			   want to remember its name */
+			strncpy(achp->stylename,stsh->std[achp->istd].xstzName, sizeof(achp->stylename));
+		}
 	}
 	
     return (ret);

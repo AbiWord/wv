@@ -503,11 +503,6 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 	myPAPX.grpprl = mygPAPX;
 	myPAPX.istd = 4095; /* no style */
 
-	myCHPX.cbGrpprl = mygCHPX_count;
-	myCHPX.grpprl = mygCHPX;
-	myCHPX.istd = 4095; /* no style */
-
-
 	/*
 	  IMPORTANT now we have the list formatting sutff retrieved; it is found in several
 	  different places:
@@ -562,6 +557,11 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 	apap->linfo.align = myLVLF->jc;
 	apap->linfo.ixchFollow = myLVLF->ixchFollow;
 
+	/* the number formatting */
+	myCHPX.cbGrpprl = mygCHPX_count;
+	myCHPX.grpprl = mygCHPX;
+	myCHPX.istd = 4095; 
+
 	/* next we need to apply the PAPX to our PAP */
     if (myPAPX.cb > 2)
 	{
@@ -574,6 +574,25 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 		else
 			wvAddPAPXFromBucket6 (apap, &upxf, &ps->stsh);
 	}
+
+	/* next see if the list number comes with
+	   additional char formatting information; if it does, we will
+	   stre it the linfo.chp */
+
+	if(myCHPX.cbGrpprl)
+	{
+		ret = 1;
+
+		wvAssembleSimpleCHP(ver, &apap->linfo.chp, apap, 0, NULL, &ps->stsh);
+		upxf.cbUPX = myCHPX.cbGrpprl;
+		upxf.upx.chpx.grpprl = myCHPX.grpprl;
+		if (ver == WORD8)
+			wvAddCHPXFromBucket (&apap->linfo.chp, &upxf, &ps->stsh);
+		else
+			wvAddCHPXFromBucket6 (&apap->linfo.chp, &upxf, &ps->stsh);
+	}
+	
+
 
     if (myPAPX.istd != istdNil)
 		apap->istd = myPAPX.istd;
