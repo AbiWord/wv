@@ -16,7 +16,7 @@ PERL = @PERL@
 
 VPATH = @srcdir@
 
-CFLAGS = @DEFS@ @CFLAGS@ @CPPFLAGS@ @PNG_CFLAGS@ @ZLIB_CFLAGS@ -I$(srcdir)/ -I$(srcdir)/../ -I. -I./ -I.. -I../
+CFLAGS = -I.. -I$(srcdir) -I$(srcdir)/.. @DEFS@ @CPPFLAGS@ @CFLAGS@ @PNG_CFLAGS@ @ZLIB_CFLAGS@
 
 SHELL = /bin/sh
 

@@ -1,26 +1,29 @@
-CC = @CC@
-OBJEXT = @OBJEXT@
-EXEEXT= @EXEEXT@
-LDFLAGS= @LDFLAGS@
-SHELL=/bin/sh
-LIBS =  @MAGICK_LIBS@ @LIB_PNG@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LIBS@ @X_LIBS@ @X11@ @X_EXTRA_LIBS@ -lm
+EXEEXT=@EXEEXT@
+OBJEXT=@OBJEXT@
 
-@SET_MAKE@
+CC=@CC@
+
+LDFLAGS=@LDFLAGS@
+
+SHELL=/bin/sh
 
 srcdir=@srcdir@
 
-HAVE_GLIB = @HAVE_GLIB@
+HAVE_GLIB=@HAVE_GLIB@
 
-CFLAGS = -I$(srcdir)/ -I$(srcdir)/.. -I$(srcdir)/../libole2 -I$(srcdir)/../oledecod @CPPFLAGS@ @CFLAGS@ @DEFS@ @GLIB_CFLAGS@
+INCLUDES = -I.. -I$(srcdir) -I$(srcdir)/.. -I$(srcdir)/../libole2 -I$(srcdir)/../oledecod
 ifneq ($(HAVE_GLIB), 1)
-CFLAGS += -I$(srcdir)/../glib-wv/
+INCLUDES += -I$(srcdir)/../glib-wv
 endif
 
-SHELL = /bin/sh
+DEFS = @DEFS@
+
+CPPFLAGS = @CPPFLAGS@ @GLIB_CFLAGS@
+
+CFLAGS = @CFLAGS@ @ANSI_PEDANTIC@
 
 .SUFFIXES: .C .$(OBJEXT)
 :g/\.0/s//\.$(OBJEXT)/g
-
 
 MYOBJECTS = \
 	anld.$(OBJEXT) \
@@ -79,6 +82,9 @@ all: $(MYOBJECTS)
 
 exptest$(EXEEXT): exptest.$(OBJEXT) ../libwv.a
 	$(CC) $(CFLAGS) -o $@ exptest.$(OBJEXT) -L. -L.. -lglib -lwv $(LIB) $(LDFLAGS)
+
+%.$(OBJEXT): $(srcdir)/%.c 
+	$(CC) $(INCLUDES) $(DEFS) $(CPPFLAGS) $(CFLAGS) -c $(srcdir)/$*.c 
 
 clean:	
 	rm -rf $(MYOBJECTS) core exptest

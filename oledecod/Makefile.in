@@ -13,9 +13,9 @@ datadir=@datadir@
 
 HAVE_GLIB = @HAVE_GLIB@
 
-CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/.. -DTTFDIR=\"$(datadir)/wv/ttf\" -I$(srcdir)/../libole2 @WMF_CFLAGS@ @GLIB_CFLAGS@
+CFLAGS = -I.. -I$(srcdir) -I$(srcdir)/.. @CPPFLAGS@ @CFLAGS@ @DEFS@ -I$(srcdir)/../libole2 @GLIB_CFLAGS@
 ifneq ($(HAVE_GLIB), 1)
-CFLAGS += -I$(srcdir)/../glib-wv/
+CFLAGS += -I$(srcdir)/../glib-wv
 endif
 
 SHELL = /bin/sh

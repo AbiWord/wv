@@ -1,4 +1,5 @@
 EXEEXT = @EXEEXT@
+OBJEXT = @OBJEXT@
 
 LDFLAGS = @LDFLAGS@
 
@@ -12,15 +13,15 @@ AR = ar
 
 srcdir=@srcdir@
 
-CFLAGS = @CFLAGS@ -I$(srcdir)/../xmltok/ -I$(srcdir)/
+CFLAGS = -I$(srcdir)/../xmltok -I$(srcdir) @CPPFLAGS@ @CFLAGS@
 
 SHELL = /bin/sh
 
-.SUFFIXES: .C .o
+.SUFFIXES: .C .$(OBJEXT)
 
 PARSEOBJECTS =	\
-	xmlparse.o \
-	hashtable.o
+	xmlparse.$(OBJEXT) \
+	hashtable.$(OBJEXT)
 
 all: libxmlparse.a
 
@@ -28,7 +29,7 @@ libxmlparse.a:	$(PARSEOBJECTS)
 	$(AR) rc $@ $(PARSEOBJECTS) 
 	$(RANLIB) $@
 
-%.o: $(srcdir)/%.c
+%.$(OBJEXT): $(srcdir)/%.c
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c
 
 clean: 

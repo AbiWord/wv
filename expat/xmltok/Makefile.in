@@ -1,4 +1,5 @@
 EXEEXT = @EXEEXT@
+OBJEXT = @OBJEXT@
 
 LDFLAGS = @LDFLAGS@
 
@@ -17,18 +18,19 @@ srcdir=@srcdir@
 # use -DXML_BYTE_ORDER=21 for big-endian (network) byte order.
 # -DXML_NS adds support for checking of lexical aspects of XML namespaces spec
 # -DXML_MIN_SIZE makes a smaller but slower parser
-CFLAGS = @CFLAGS@ -I$(srcdir)../xmltok/ -I$(srcdir)/ -I../../ -I$(srcdir)/../../
+
+CFLAGS = -I$(srcdir) @CPPFLAGS@ @CFLAGS@
 
 # Use one of the next two lines; unixfilemap is better if it works.
 FILEMAP_OBJ=xmlwf/unixfilemap.o
 #FILEMAP_OBJ=xmlwf/readfilemap.o
 SHELL = /bin/sh
 
-.SUFFIXES: .C .o
+.SUFFIXES: .C .$(OBJEXT)
 
 TOKENOBJECTS =	\
-	xmltok.o \
-	xmlrole.o 
+	xmltok.$(OBJEXT) \
+	xmlrole.$(OBJEXT)
 
 all: libxmltok.a
 
@@ -36,7 +38,7 @@ libxmltok.a:	$(TOKENOBJECTS)
 	$(AR) rc $@ $(TOKENOBJECTS) 
 	$(RANLIB) $@
 
-%.o: $(srcdir)/%.c
+%.$(OBJEXT): $(srcdir)/%.c
 	$(CC) $(CFLAGS) -c $(srcdir)/$*.c
 
 clean: 

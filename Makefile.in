@@ -82,9 +82,12 @@ src_mandir=$(srcdir)/help/man
 VPATH = @srcdir@
 
 DEFS = @DEFS@ -DVERSION=\"@VERSION@\" -DXMLCONFIG=\"$(datadir)/wv/wvConfig.xml\" -DHTMLCONFIG=\"$(datadir)/wv/wvHtml.xml\"
-CPPFLAGS = @ICONV_CFLAGS@ @WMF_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @PNG_CFLAGS@ @ZLIB_CFLAGS@ @CPPFLAGS@
 
-INCLUDES = -I. -I./ -I$(srcdir)/ -I$(srcdir)/magick/  -I$(srcdir)/libole2/ -I$(srcdir)/oledecod/
+CPPFLAGS = @CPPFLAGS@ @ICONV_CFLAGS@ @WMF_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @PNG_CFLAGS@ @ZLIB_CFLAGS@
+
+CFLAGS = @CFLAGS@ @ANSI_PEDANTIC@
+
+INCLUDES = -I. -I$(srcdir) -I$(srcdir)/magick -I$(srcdir)/libole2 -I$(srcdir)/oledecod
 
 ifeq ($(INCLUDED_EXPAT),1)
 INCLUDES += "-I$(srcdir)/expat/xmlparse/"
@@ -95,8 +98,6 @@ INCLUDES += "-I$(srcdir)/glib-wv/"
 endif
 
 MKINSTALLDIRS = $(srcdir)/mkinstalldirs
-
-SHELL = /bin/sh
 
 .SUFFIXES: .C .$(OBJEXT)
 

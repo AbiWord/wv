@@ -1,31 +1,6 @@
-EXEEXT = @EXEEXT@
-
-LDFLAGS = @LDFLAGS@
-
-CC = @CC@
+@SET_MAKE@
 
 SHELL=/bin/sh
-
-RANLIB = @RANLIB@
-
-AR = ar
-
-# If you know what your system's byte order is, define XML_BYTE_ORDER:
-# use -DXML_BYTE_ORDER=12 for little-endian byte order;
-# use -DXML_BYTE_ORDER=21 for big-endian (network) byte order.
-# -DXML_NS adds support for checking of lexical aspects of XML namespaces spec
-# -DXML_MIN_SIZE makes a smaller but slower parser
-CFLAGS = @CFLAGS@ -Ixmltok/ -Ixmlparse/
-
-# Use one of the next two lines; unixfilemap is better if it works.
-FILEMAP_OBJ=xmlwf/unixfilemap.o
-#FILEMAP_OBJ=xmlwf/readfilemap.o
-
-srcdir=@srcdir@
-
-SHELL = /bin/sh
-
-.SUFFIXES: .C .o
 
 all: BXMLTOK BXMLPARSE
 
@@ -36,9 +11,6 @@ BXMLTOK:
 BXMLPARSE:
 	@echo making xmlparse in xmlparse
 	@(cd xmlparse && $(MAKE)) || exit 1
-
-%.o: $(srcdir)/%.c
-	$(CC) $(CFLAGS) -c $(srcdir)/$*.c
 
 clean: cleansub
 
