@@ -23,93 +23,102 @@ ABI_PEER:=/wv
 
 include $(ABI_ROOT)/src/config/abi_defs.mk
 
-CSRCS=	lex.yy.c \
-	main.c \
-	crc32.c \
-	mswordview.c \
-	laolareplace.old.c \
+CSRCS=	laolareplace.old.c \
 	support.c \
-	list.c  \
+	list.c \
 	piecetable.c \
 	stylesheet.c \
-        sprm.c \
-        blip.c \
-        utf.c \
-        init_chp.c \
-        field.c \
-        formatting.c \
-        references.c \
-        gpprl.c \
-	graphics.c \
-	picf.c \
-        papchpsep.c \
-        hyperlink.c \
-        decompresswmf.c \
-        table.c \
-        annotations.c \
-        dop.c \
-        roman.c \
-        doc_limits.c \
-        fib.c \
-        frd.c \
-        atrd.c \
-        sed.c \
-        font.c \
-        ffn.c \
+	sprm.c \
+	blip.c \
+	utf.c \
+	init_chp.c \
+	field.c \
+	formatting.c \
+	references.c \
+	gpprl.c \
+	papchpsep.c \
+	hyperlink.c \
+	decompresswmf.c \
+	annotations.c \
+	dop.c \
+	roman.c \
+	doc_limits.c \
+	fib.c \
+	frd.c \
+	atrd.c \
+	sed.c \
+	font.c \
+	ffn.c \
 	fld.c \
-        bkf.c \
-        dttm.c \
-        generic.c \
-        error.c \
-        unicode.c \
-        sttbf.c \
-        xst.c \
-        fspa.c \
-        lst.c \
-        lvl.c \
-        lfo.c \
-        nfc.c \
-        ordinal.c \
-        summary.c \
-        filetime.c \
-        chp.c \
-        brc.c \
-        anld.c \
-        shd.c \
-        dcs.c \
-        numrm.c \
-        asumyi.c \
-        version.c \
-        lspd.c \
-        phe.c \
-        tlp.c \
-        tc.c \
-        tap.c \
-        pap.c \
-        bintree.c \
-        decode_simple.c \
-        pcd.c \
-        prm.c \
-        clx.c \
-        bte.c \
-        bx.c \
-        fkp.c \
-        codepage-1252.c \
-        iso-5589-15.c \
+	bkf.c \
+	dttm.c \
+	generic.c \
+	error.c \
+	unicode.c \
+	sttbf.c \
+	xst.c \
+	fspa.c \
+	lst.c \
+	lvl.c \
+	lfo.c \
+	nfc.c \
+	ordinal.c \
+	summary.c \
+	filetime.c \
+	chp.c \
+	brc.c \
+	anld.c \
+	shd.c \
+	dcs.c \
+	numrm.c \
+	asumyi.c \
+	version.c \
+	lspd.c \
+	phe.c \
+	tlp.c \
+	tc.c \
+	tap.c \
+	pap.c \
+	bintree.c \
+	decode_simple.c \
+	pcd.c \
+	prm.c \
+	clx.c \
+	bte.c \
+	bx.c \
+	fkp.c \
+	codepage-1252.c \
+	iso-5589-15.c \
 	koi8-r.c \
-        text.c \
-        decode_complex.c \
-        wvTextEngine.c \
-        wvHtmlEngine.c \
-        wvConfig.c \
-        wvparse.c \
-        reasons.c \
+	text.c \
+	decode_complex.c \
+	wvTextEngine.c \
+	wvHtmlEngine.c \
+	wvConfig.c \
+	wvparse.c \
+	reasons.c \
 	sep.c \
-	tbd.c \
+	anlv.c \
+	olst.c \
+	asumy.c \
+	bkd.c \
+	bkl.c \
 	dogrid.c \
 	doptypography.c \
-	olst.c \
-	anlv.c
+	pgd.c \
+	rs.c \
+	rr.c \
+	tbd.c \
+	ftxbxs.c \
+	wkb.c \
+	graphics.c \
+	picf.c \
+	crc32.c \
+	md5.c \
+	rc4.c \
+	decrypt97.c \
+	decrypt95.c \
+	table.c
 
 CFLAGS+=		-I. -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\"
 LIBRARY_NAME=		Abi_libwv
@@ -119,8 +128,5 @@ LEX=			flex
 
 include $(ABI_ROOT)/src/config/abi_rules.mk
 
-lex.yy.c:
-	$(LEX) parser.lex
-
-build:: lex.yy.c $(TARGETS)
+build:: $(TARGETS)
 
