@@ -212,11 +212,11 @@ wvSetTableInfo (wvParseStruct * ps, TAP * ptap, int no)
     wvTrace (("end of out\n"));
 
     ps->vmerges = (S16 **) wvMalloc (sizeof (S16 *) * no);
-    wvTrace (("no of rows is %d", no));
+    wvTrace (("no of rows is %d\n", no));
     for (i = 0; i < no; i++)
       {
 	  ps->vmerges[i] = (S16 *) wvMalloc (sizeof (S16) * ptap[i].itcMac);
-	  wvTrace (("no of cells is %d", ptap[i].itcMac));
+	  wvTrace (("no of cells is %d\n", ptap[i].itcMac));
 	  for (j = 0; j < ptap[i].itcMac; j++)
 	      ps->vmerges[i][j] = 1;
       }
