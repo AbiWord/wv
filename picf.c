@@ -218,13 +218,19 @@ wvEatOldGraphicHeader (wvStream * fd, U32 len)
 		break;
 	    default:
 		{
-		    U32 len = entry - 2;
+		    U32 lene2 = entry - 2;
 		    U32 i;
 		    wvTrace (
-			     ("len is %d, predict end of %x\n", len,
+			     ("lene2 is %d, predict end of %x\n", len,
 			      wvStream_tell (fd) + (entry - 2) * 2));
-		    for (i = 0; i < len; i++)
+		    /* RIES (rvt@dds.nl)
+		       prolly a dirty patch because I check count
+		       everytime it's incremnented against lene2.
+		       This seems twork very well I tried it on around 15.000
+		       word documents and it seems to work! */
+		    for (i = 0; i < lene2; i++)
 		      {
+		          if ( (count + 1) >= len) return (count);
 			  test = read_16ubit (fd);
 			  if ((i == 0)
 			      && ((test == 0x0f43) || (test == 0x0b41)))
@@ -232,11 +238,13 @@ wvEatOldGraphicHeader (wvStream * fd, U32 len)
 				wvTrace (
 					 ("Found a Bitmap, Will strip header and return with bitmap data\n"));
 				count += 2;
+    		        	if ( (count + 1) >= len) return (count);
 				pad = test;
 				test = read_32ubit (fd);	/*0x00cc0020 */
 				if (test != 0x00cc0020)
 				    wvTrace (("Old Graphic\n"));
 				count += 4;
+    		        	if ( (count + 1) >= len) return (count);
 
 				if (pad == 0x0f43)
 				  {
@@ -244,20 +252,26 @@ wvEatOldGraphicHeader (wvStream * fd, U32 len)
 				      if (test != 0x0000)
 					  wvTrace (("Old Graphic\n"));
 				      count += 2;
+			              if ( (count + 1) >= len) return (count);
 				  }
 
 				read_16ubit (fd);	/*width */
 				count += 2;
+    		        	if ( (count + 1) >= len) return (count);
 				read_16ubit (fd);	/*height */
 				count += 2;
+    		        	if ( (count + 1) >= len) return (count);
 				test = read_32ubit (fd);	/*0x00000000L */
 				if (test != 0x00000000L)
 				    wvTrace (("Old Graphic\n"));
 				count += 4;
+    		        	if ( (count + 1) >= len) return (count);
 				read_16ubit (fd);	/*width */
 				count += 2;
+    		        	if ( (count + 1) >= len) return (count);
 				read_16ubit (fd);	/*height */
 				count += 2;
+    		        	if ( (count + 1) >= len) return (count);
 				test = read_32ubit (fd);	/*0x00000000L */
 				if (test != 0x00000000L)
 				    wvTrace (("Old Graphic\n"));
@@ -265,6 +279,7 @@ wvEatOldGraphicHeader (wvStream * fd, U32 len)
 				return (count);
 			    }
 			  count += 2;
+	        	  if ( (count + 1) >= len) return (count);
 		      }
 		}
 		break;

@@ -215,8 +215,7 @@ wvGetDgContainer (DgContainer * item, MSOFBH * msofbh, wvStream * fd)
 		count +=
 		    wvGetSpgrContainer (&
 					(item->spgrcontainer
-					 [item->no_spgrcontainer - 1]),
-&amsofbh, fd);
+					 [item->no_spgrcontainer - 1]), &amsofbh, fd);
 		break;
 	    default:
 		count += wvEatmsofbt (&amsofbh, fd);
@@ -303,8 +302,7 @@ wvGetSpgrContainer (SpgrContainer * item, MSOFBH * msofbh, wvStream * fd)
 		count +=
 		    wvGetSpgrContainer (&
 					(item->spgrcontainer
-					 [item->no_spgrcontainer - 1]),
-&amsofbh, fd);
+					 [item->no_spgrcontainer - 1]), &amsofbh, fd);
 		break;
 	    default:
 		count += wvEatmsofbt (&amsofbh, fd);
@@ -684,10 +682,14 @@ wvGetMSOFBH (MSOFBH * amsofbh, wvStream * fd)
 U32
 wvEatmsofbt (MSOFBH * amsofbh, wvStream * fd)
 {
+    /* Ries (rvt@dds.nl)
+       Changed read to bound to 32bit instead of 8bit 
+       MS prolly does 32 bit bounderaries ??? */
     U32 i;
-    for (i = 0; i < amsofbh->cbLength; i++)
-	read_8ubit (fd);
-    return (amsofbh->cbLength);
+    U32 check=(amsofbh->cbLength + 3) >> 2;
+    for (i = 0; i < check; i++)
+	read_32ubit (fd);
+    return (check << 2);
 }
 
 void
