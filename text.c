@@ -981,6 +981,7 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x039b:
 			printf("$\\Lambda$");
 			return(1);
+		case 0xf04d: /* Mac? */
 		case 0x039c:
 			printf("$M$");
 			return(1);
@@ -1079,6 +1080,8 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 			printf("$\\pi$");
 			return(1);
 		case 0xf072:  /* Mac */
+			printf("$\\varrho$");
+			return(1);
 		case 0x03c1:
 			printf("$\\rho$");
 			return(1);
@@ -1092,7 +1095,6 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x03c5:
 			printf("$\\upsilon$");
 			return(1);
-		case 0xf06a: /* Mac? */
 		case 0x03c6:
 			printf("$\\phi$");
 			return(1);
@@ -1105,6 +1107,7 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x03c9:
 			printf("$\\omega$");
 			return(1);
+		case 0xf06a: /* Mac? */
 		case 0x03d5:
 			printf("$\\varphi$"); /* ? */
 			return(1);
@@ -1475,6 +1478,7 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x2021:
 			printf("\\ddag{}");  /* double dagger */
 			return(1);
+		case 0x25cf:  /* FilledCircle */
 		case 0x2022:
 			printf("$\\bullet$");  /* bullet */
 			return(1);

@@ -4,8 +4,7 @@
 </charentity>
 
 <document>
-<begin>&lt;?xml version=&quot;1.0&quot;?&gt;
-&lt;!DOCTYPE wml PUBLIC &quot;-//PHONE.COM//DTD WML 1.1//EN&quot;
+<begin>&lt;!DOCTYPE wml PUBLIC &quot;-//PHONE.COM//DTD WML 1.1//EN&quot;
                         &quot;http://www.phone.com/dtd/wml11.dtd&quot; &gt;
 &lt;!--created with <version/>--&gt;
 &lt;wml&gt;
