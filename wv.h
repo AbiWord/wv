@@ -1,25 +1,12 @@
 #ifndef MSWORDVIEW_HEADER
 #define MSWORDVIEW_HEADER
+
+#include <stdio.h>
+#include <time.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-/* redefs of things that are either in glibc or we have to include them ourselves*/
-#if defined(WIN32) && !defined(__MWERKS__)
-#define strcasecmp(s1,s2) stricmp(s1,s2)
-#else
-#if !defined(__GLIBC__) || (__GLIBC__ < 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2)
-
-    /* #include "getopt.h" */
-    int strcasecmp (const char *s1, const char *s2);
-#endif
-#endif
-
-    /* int getopt(int argc, char * const argv[], const char *optstring); */
-/* end redefs */
-
-#include <time.h>
-#include <stdio.h>
 
     /* TODO: find a way to remove this */
 #include "ms-ole.h"
