@@ -2658,7 +2658,7 @@ if test "${with_libwmf+set}" = set; then
 	fi
 
 else
-  	search_for_libwmf=yes
+  	search_for_libwmf=no
 
 fi
 

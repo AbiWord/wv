@@ -230,7 +230,7 @@ AC_ARG_WITH(libwmf,[  --with-libwmf=DIR       use libwmf(2) in DIR],[
 	else
 		search_for_libwmf=no
 	fi
-],[	search_for_libwmf=yes
+],[	search_for_libwmf=no
 ])
 
 if [ test $search_for_libwmf != no ]; then
