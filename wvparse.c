@@ -33,7 +33,6 @@ wvInitParser (wvParseStruct * ps, char *path)
     ps->elehandler = 0;
     ps->dochandler = 0;
 
-    wvInitError ();
     ps->password[0] = 0;
     /* set up the token table tree for faster lookups */
     tokenTreeInit ();

@@ -44,8 +44,6 @@ main (int argc, char **argv)
     fsp_list *tfsp_list;
     fopte_list *tfopte_list;
 
-    wvInitError ();
-
     if (argc < 3)
 	usage ();
 

@@ -222,6 +222,8 @@ wvInitPAP (PAP * item)
 	item->rgdxaTab[i] = 0;
     for (i = 0; i < itbdMax; i++)
 	wvInitTBD (&item->rgtbd[i]);
+
+    item->fBidi = 0;
 }
 
 /*

@@ -60,8 +60,6 @@ main (int argc, char **argv)
 	{0, 0, 0, 0}
     };
 
-    wvInitError ();
-
     if (argc < 2)
 	usage ();
 

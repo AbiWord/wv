@@ -346,10 +346,16 @@ border-right: thin <borderrightstyle/> <borderrightcolor/>;
 border-bottom: thin <borderbottomstyle/> <borderbottomcolor/>
 -->
 
+<!-- in HTML these are called by paramargin and paraborder (I think).
+Not working here -->
 
-<margin>
+<pmargin>
 <begin>margin: <mmParaBefore/> <mmParaRight/> <mmParaAfter/> <mmParaLeft/>;</begin>
-</margin>
+</pmargin>
+
+<pborder>
+<begin>border: thin <borderleftstyle/> <borderleftcolor/>;</begin>
+</pborder>
 
 <text>	
 <begin>

@@ -598,8 +598,6 @@ main (int argc, char *argv[])
 
     int c, index = 0;
 
-    wvInitError ();
-
     if (argc < 2)
       {
 	  do_help ();

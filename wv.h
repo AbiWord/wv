@@ -1356,6 +1356,16 @@ brc.dxpSpace should be set to 0.
 	XCHAR xstDispFldRMark[16];
 	SHD shd;
 	BRC brc;
+
+      /* BiDi properties */
+      U32  fBidi:1;
+      U32  fBoldBidi:1;
+      U32  fItalicBidi:1;
+      U16 ftcBidi;
+      U16 hpsBidi;
+      U8  icoBidi;
+      LID lidBidi;
+
     } CHP;
 
     void wvInitCHP (CHP * item);
@@ -1529,6 +1539,9 @@ brc.dxpSpace should be set to 0.
 	S16 itbdMac;
 	S16 rgdxaTab[itbdMax];
 	TBD rgtbd[itbdMax];
+
+      /* BiDi */
+      U32 fBidi:1;
     } PAP;
 
 #define istdNil 4095

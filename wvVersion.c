@@ -39,8 +39,6 @@ main (int argc, char *argv[])
     int ret;
     wvParseStruct ps;
 
-    wvInitError ();
-
     if (argc < 2)
 	usage ();
 

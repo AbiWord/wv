@@ -15,6 +15,7 @@
 \usepackage[latin1]{inputenc}
 \usepackage{longtable}
 \usepackage{times}
+\usepackage{enumerate}
 <!--
 \usepackage{multirow}
 -->
@@ -56,11 +57,11 @@
 </justification>
 
 <numbering>
-<Arabic>type=&quot;1&quot;</Arabic>
-<UpperRoman>type=&quot;I&quot;</UpperRoman>
-<LowerRoman>type=&quot;i&quot;</LowerRoman>
-<UpperCaseN>type=&quot;A&quot;</UpperCaseN>
-<LowerCaseN>type=&quot;a&quot;</LowerCaseN>
+<Arabic>[1.]</Arabic>
+<UpperRoman>[I.]</UpperRoman>
+<LowerRoman>[i.]</LowerRoman>
+<UpperCaseN>[A.]</UpperCaseN>
+<LowerCaseN>[a.]</LowerCaseN>
 </numbering>
 
 <border>
@@ -94,7 +95,7 @@
 </border>
 
 <olist>
-<begin>\begin{enumerate}
+<begin>\begin{enumerate}<nfc/>
 <!--
 only for one-level lists
 \setcounter{enumi}{<start/>}\addtocounter{enumi}{-1}
@@ -343,10 +344,16 @@ border-right: thin <borderrightstyle/> <borderrightcolor/>;
 border-bottom: thin <borderbottomstyle/> <borderbottomcolor/>
 -->
 
+<!-- in HTML these are called by paramargin and paraborder (I think).
+Not working here -->
 
-<margin>
+<pmargin>
 <begin>margin: <mmParaBefore/> <mmParaRight/> <mmParaAfter/> <mmParaLeft/>;</begin>
-</margin>
+</pmargin>
+
+<pborder>
+<begin>border: thin <borderleftstyle/> <borderleftcolor/>;</begin>
+</pborder>
 
 <text>	
 <begin>

@@ -263,6 +263,15 @@ wvInitCHP (CHP * item)
     wvInitSHD (&item->shd);
 
     wvInitBRC (&item->brc);
+
+    /* bidi */
+    item->fBidi = 0;
+    item->fBoldBidi = 0;
+    item->fItalicBidi = 0;
+    item->ftcBidi = 0;
+    item->hpsBidi = 0;
+    item->icoBidi = 0;
+    item->lidBidi = 0;
 }
 
 void
@@ -362,6 +371,15 @@ wvCopyCHP (CHP * dest, CHP * src)
     wvCopySHD (&dest->shd, &src->shd);
 
     wvCopyBRC (&dest->brc, &src->brc);
+
+    /* bidi */
+    dest->fBidi = src->fBidi;
+    dest->fBoldBidi = src->fBoldBidi;
+    dest->fItalicBidi = src->fItalicBidi;
+    dest->ftcBidi = src->ftcBidi;
+    dest->hpsBidi = src->hpsBidi;
+    dest->icoBidi = src->icoBidi;
+    dest->lidBidi = src->lidBidi; 
 }
 
 /*

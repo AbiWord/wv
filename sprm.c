@@ -417,9 +417,8 @@ wvApplySprmFromBucket (wvVersion ver, U16 sprm, PAP * apap, CHP * achp,
 	      apap->lvl = temp8;
 	  break;
       case sprmPFBiDi:
-	  /* ???? */
-	  bread_8ubit (pointer, pos);
-	  break;
+	apap->fBidi = bread_8ubit (pointer, pos);
+	break;
       case sprmPFNumRMIns:
 	  apap->fNumRMIns = bread_8ubit (pointer, pos);
 	  break;
@@ -681,13 +680,40 @@ wvApplySprmFromBucket (wvVersion ver, U16 sprm, PAP * apap, CHP * achp,
 	  achp->lidFE = achp->lid;
 	  wvTrace (("lid is %x\n", achp->lidDefault));
 	  break;
-      case sprmCFBoldBi:	/* ???? */
-      case sprmCFBiDi:		/* ???? */
-	  bread_8ubit (pointer, pos);
+
+	  /* BiDi */
+
+      case sprmCFBiDi:		/* is this run BiDi */
+	  achp->fBidi = bread_8ubit (pointer, pos);
 	  break;
-      case sprmCHpsBi:		/* ???? */
-	  bread_16ubit (pointer, pos);
-	  break;
+
+      case sprmCFDiacColor: /* ???? */
+	bread_16ubit (pointer, pos);
+	break;
+
+      case sprmCFBoldBi:	
+	achp->fBoldBidi = bread_8ubit (pointer, pos);
+	break;
+
+      case sprmCFItalicBi:
+	achp->fItalicBidi = bread_8ubit (pointer, pos);
+	break;
+
+      case sprmCFtcBi:
+	achp->ftcBidi = bread_16ubit (pointer, pos);
+	break;
+
+      case sprmCLidBi:
+	achp->lidBidi = bread_16ubit (pointer, pos);
+	break;
+
+      case sprmCIcoBi:
+	achp->icoBidi = bread_8ubit (pointer, pos);
+	break;
+
+      case sprmCHpsBi:
+	achp->hpsBidi = bread_16ubit (pointer, pos);
+	break;
 	  /* End of CHP */
 
 
@@ -955,11 +981,6 @@ wvApplySprmFromBucket (wvVersion ver, U16 sprm, PAP * apap, CHP * achp,
 	     case sprmPicBrcl
 	   */
 
-      case sprmCFDiacColor:	/* ???? */
-      case sprmCFItalicBi:	/* ???? */
-      case sprmCFtcBi:		/* ???? */
-      case sprmCLidBi:		/* ???? */
-      case sprmCIcoBi:		/* ???? */
       case sprmPRuler:		/* ???? */
       case sprmCIdCharType:	/* obsolete */
       case sprmCKcd:		/* ???? */
