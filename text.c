@@ -85,9 +85,17 @@ wvOutputTextChar (U16 eachchar, U8 chartype, wvParseStruct * ps, CHP * achp)
     if ((v <= WORD7) && (!ps->fib.fFarEast))
       {
 	  FFN currentfont;
-	  currentfont = ps->fonts.ffn[achp->ftc];
-	  /* Return 0 if no match */
-	  lid = wvnLocaleToLIDConverter (currentfont.chs);
+	
+	  if (ps->fonts.ffn == NULL)
+          {
+	      lid = 0;
+	  }
+	  else
+          {
+	  	currentfont = ps->fonts.ffn[achp->ftc];
+	  	/* Return 0 if no match */
+	  	lid = wvnLocaleToLIDConverter (currentfont.chs);
+	  }
       }
     if (!lid)
 	lid = achp->lidDefault;
@@ -1350,6 +1358,7 @@ wvConvertUnicodeToLaTeX (U16 char16)
       case 37:
 	  printf ("\\%%");
 	  return (1);
+      case 10:
       case 11:
 	  printf ("\\\\\n");
 	  return (1);
@@ -1363,6 +1372,8 @@ wvConvertUnicodeToLaTeX (U16 char16)
 	  /* case 45: minus/hyphen, pass through */
 
       case 12:
+	  printf("\\newpage\n");
+	  return (1);
       case 13:
       case 14:
       case 7:
@@ -1370,7 +1381,6 @@ wvConvertUnicodeToLaTeX (U16 char16)
       case 9:
 	  printf ("\\hfill{}");	/* tab -- horrible cludge */
 	  return (1);
-
       case 0xf020:
 	  printf (" ");		/* Mac specialty ? MV 10.10.2000 */
 	  return (1);

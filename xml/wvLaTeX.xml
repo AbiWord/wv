@@ -8,7 +8,7 @@
 %wvWare written by Caolan.McNamara@ul.ie
 %http://wvware.sourceforge.net/
 %
-\documentclass[10pt]{article}
+\documentclass[12pt]{article}
 \usepackage[dvips]{color}
 \usepackage[dvips]{graphics}
 \usepackage[T1]{fontenc}
@@ -57,11 +57,11 @@
 </justification>
 
 <numbering>
-<Arabic>[1.]</Arabic>
-<UpperRoman>[I.]</UpperRoman>
-<LowerRoman>[i.]</LowerRoman>
-<UpperCaseN>[A.]</UpperCaseN>
-<LowerCaseN>[a.]</LowerCaseN>
+<Arabic>~[1.]</Arabic>
+<UpperRoman>~[I.]</UpperRoman>
+<LowerRoman>~[i.]</LowerRoman>
+<UpperCaseN>~[A.]</UpperCaseN>
+<LowerCaseN>~[a.]</LowerCaseN>
 </numbering>
 
 <border>
