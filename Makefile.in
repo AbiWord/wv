@@ -327,7 +327,7 @@ testparse$(EXEEXT):  testparse.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ testparse.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS)  $(LDFLAGS)
 
 laolareplace.$(OBJEXT): $(srcdir)/laolareplace.c 
-	$(CC) $(DEFS) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) -c $(srcdir)/$*.c 
+	$(CC) $(INCLUDES) $(DEFS) $(CPPFLAGS) $(CFLAGS) -c $(srcdir)/$*.c 
 
 WVSUBDIRS:$(EXPORTER) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE BLIBOLE2
 
@@ -376,7 +376,7 @@ BGLIB-WV:
 endif
 
 %.$(OBJEXT): $(srcdir)/%.c 
-	$(CC) $(DEFS) $(CPPFLAGS) $(CFLAGS) $(INCLUDES) -c $(srcdir)/$*.c 
+	$(CC) $(INCLUDES) $(DEFS) $(CPPFLAGS) $(CFLAGS) -c $(srcdir)/$*.c 
 
 cleansub:
 	@echo cleaning oledecod in oledecod
