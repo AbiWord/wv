@@ -92,6 +92,7 @@ CSRCS=	lex.yy.c \
         fkp.c \
         codepage-1252.c \
         iso-5589-15.c \
+	koi8-r.c \
         text.c \
         decode_complex.c \
         wvTextEngine.c \
