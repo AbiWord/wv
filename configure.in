@@ -290,16 +290,50 @@ LDFLAGS=$_ldflags
 dnl system glib support
 dnl ========================================================
 
-AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$PATH])
-if test -n "$GLIB_CONFIG"; then
+AC_ARG_WITH(glib,[  --with-glib[=DIR]       use system glib [in DIR]],[
+	if [ test "x$withval" = "xno" ]; then
+		wv_sys_glib=no
+	elif [ test "x$withval" = "xyes" ]; then
+		wv_sys_glib=required
+		GLIB_DIR=""
+	else
+		wv_sys_glib=required
+		GLIB_DIR="$withval"
+	fi
+],[	wv_sys_glib=check
+	GLIB_DIR=""
+])
+
+if [ test $wv_sys_glib != no ]; then
+	if [ test "x$GLIB_DIR" = "x" ]; then
+		AC_PATH_PROG(GLIB_CONFIG, glib12-config, , [$PATH])
+	else
+		AC_PATH_PROG(GLIB_CONFIG, glib12-config, , [$GLIB_DIR/bin:$PATH])
+	fi
+	if [ test "x$GLIB_CONFIG" = "x" ]; then
+		if [ test "x$GLIB_DIR" = "x" ]; then
+			AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$PATH])
+		else
+			AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$GLIB_DIR/bin:$PATH])
+		fi
+	fi
+	if [ test "x$GLIB_CONFIG" = "x" ]; then
+		if [ test $wv_sys_glib = required ]; then
+			AC_MSG_ERROR(* * * Unable to find glib12-config or glib-config in path! * * *)
+		fi
+		wv_sys_glib=no
+	fi
+fi
+
+if [ test $wv_sys_glib = no ]; then
+       HAVE_GLIB=0
+       GLIB_CFLAGS=""
+       GLIB_LIBS=""
+else
        AC_DEFINE(HAVE_GLIB)
        HAVE_GLIB=1
        GLIB_CFLAGS=`$GLIB_CONFIG --cflags`
        GLIB_LIBS=`$GLIB_CONFIG --libs`
-else
-       HAVE_GLIB=0
-       GLIB_CFLAGS=""
-       GLIB_LIBS=""
 fi
 
 AC_SUBST(HAVE_GLIB)
