@@ -7,7 +7,7 @@
 #include "wv.h"
 #include "crc32.h"
 
-void wvGetANLD(version ver,ANLD *item,wvStream *fd)
+void wvGetANLD(wvVersion ver,ANLD *item,wvStream *fd)
 	{
 	U8 temp8;
 	int i;
@@ -56,7 +56,7 @@ void wvGetANLD(version ver,ANLD *item,wvStream *fd)
 				
 	}
 
-void wvGetANLD_FromBucket(version ver,ANLD *item,U8 *pointer8)
+void wvGetANLD_FromBucket(wvVersion ver,ANLD *item,U8 *pointer8)
 	{
 	U8 temp8;
 	int i;

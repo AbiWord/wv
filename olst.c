@@ -20,7 +20,7 @@ void wvInitOLST(OLST *item)
 	} 
 
 
-void wvGetOLST_internal(version ver,OLST *item,wvStream *fd,U8 *pointer)
+void wvGetOLST_internal(wvVersion ver,OLST *item,wvStream *fd,U8 *pointer)
 	{
 	U8 i;
 	for (i=0;i<9;i++)
@@ -41,12 +41,12 @@ void wvGetOLST_internal(version ver,OLST *item,wvStream *fd,U8 *pointer)
 		}
 	}
 
-void wvGetOLST(version ver,OLST *item,wvStream *fd)
+void wvGetOLST(wvVersion ver,OLST *item,wvStream *fd)
 	{
 	wvGetOLST_internal(ver,item,fd,NULL);
 	}
 
-void wvGetOLSTFromBucket(version ver,OLST *item,U8 *pointer)
+void wvGetOLSTFromBucket(wvVersion ver,OLST *item,U8 *pointer)
 	{
 	wvGetOLST_internal(ver,item,NULL,pointer);
 	}

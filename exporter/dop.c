@@ -26,7 +26,7 @@ void wvPutCOPTS(COPTS *item,wvStream *fd)
 	write_16ubit(fd, temp16);
 }
 
-void wvPutDOP(version ver, DOP *item, wvStream *fd)
+void wvPutDOP(wvVersion ver, DOP *item, wvStream *fd)
 {
 	U16 temp16 = 0;
 	U32 temp32 = 0;

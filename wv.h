@@ -196,7 +196,7 @@ typedef enum
 	WORD6 = 0x0005, 
 	WORD7 = 0x0006, 
 	WORD8 = 0x0007
-	} version;
+	} wvVersion;
 
 typedef enum
 	{
@@ -912,7 +912,7 @@ typedef struct _DOP
 	U16 dywDispPag;
 	} DOP;
 
-void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,wvStream *tablefd);
+void wvGetDOP(wvVersion ver,DOP *dop,U32 fcDop,U32 lcbDop,wvStream *tablefd);
 void wvInitDOP(DOP *dop);
 
 typedef struct _BKF
@@ -1144,8 +1144,8 @@ typedef struct _BRC
 	U32 reserved:1;
 	} BRC;
 
-void wvGetBRC(version ver,BRC *abrc,wvStream *fd);
-int wvGetBRCFromBucket(version ver,BRC *abrc,U8 *pointer);
+void wvGetBRC(wvVersion ver,BRC *abrc,wvStream *fd);
+int wvGetBRCFromBucket(wvVersion ver,BRC *abrc,U8 *pointer);
 void wvInitBRC(BRC *abrc);
 void wvCopyBRC(BRC *dest, BRC *src);
 int wvEqualBRC(BRC *a,BRC *b);
@@ -1291,8 +1291,8 @@ typedef struct _ANLD
     XCHAR rgxch[32];
     } ANLD;
 
-void wvGetANLD(version ver,ANLD *item,wvStream *fd);
-void wvGetANLD_FromBucket(version ver,ANLD *item,U8 *pointer8);
+void wvGetANLD(wvVersion ver,ANLD *item,wvStream *fd);
+void wvGetANLD_FromBucket(wvVersion ver,ANLD *item,U8 *pointer8);
 void wvCopyANLD(ANLD *dest, ANLD *src);
 void wvInitANLD(ANLD *item);
 U32 wvCheckSumANLD(ANLD *item);
@@ -1414,7 +1414,7 @@ typedef struct _TC
     } TC;
 
 void wvCopyTC(TC *dest,TC *src);
-int wvGetTCFromBucket(version ver,TC *abrc,U8 *pointer);
+int wvGetTCFromBucket(wvVersion ver,TC *abrc,U8 *pointer);
 void wvInitTC(TC *item);
 
 typedef struct _TLP
@@ -1572,7 +1572,7 @@ typedef struct _PAP
 void wvCopyPAP(PAP *dest,PAP *src);
 void wvCopyConformPAP(PAP *dest,PAP *src);
 void wvInitPAP(PAP *item);
-int wvIsListEntry(PAP *apap,version ver);
+int wvIsListEntry(PAP *apap,wvVersion ver);
 int isPAPConform(PAP *current,PAP *previous);
 
 
@@ -1632,7 +1632,7 @@ typedef struct _CHPX
 void wvInitCHPX(CHPX *item);
 void wvCopyCHPX(CHPX *dest, CHPX *src);
 void wvReleaseCHPX(CHPX *item);
-void wvGetCHPX(version ver, CHPX *item, U8 *page, U16 *pos);
+void wvGetCHPX(wvVersion ver, CHPX *item, U8 *page, U16 *pos);
 
 	       
 typedef struct _CHPX_FKP
@@ -1643,7 +1643,7 @@ typedef struct _CHPX_FKP
 	U8 crun;
 	} CHPX_FKP;
 
-void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, wvStream *fd);
+void wvGetCHPX_FKP(wvVersion ver, CHPX_FKP *fkp, U32 pn, wvStream *fd);
 void wvReleaseCHPX_FKP(CHPX_FKP *fkp);
 void wvInitCHPX_FKP(CHPX_FKP *fkp);
 
@@ -1815,8 +1815,8 @@ typedef struct _OLST
 	} OLST;
 
 void wvInitOLST(OLST *);
-void wvGetOLST(version ver,OLST *item,wvStream *fd);
-void wvGetOLSTFromBucket(version ver,OLST *item,U8 *pointer);
+void wvGetOLST(wvVersion ver,OLST *item,wvStream *fd);
+void wvGetOLSTFromBucket(wvVersion ver,OLST *item,U8 *pointer);
 
 
 typedef struct _SEP
@@ -1895,7 +1895,7 @@ typedef struct _SEPX
 	U8 *grpprl;
 	} SEPX;
 
-void wvGetSEPX(version ver,SEPX *item,wvStream *fd);
+void wvGetSEPX(wvVersion ver,SEPX *item,wvStream *fd);
 void wvReleaseSEPX(SEPX *item);
 int wvAddSEPXFromBucket(SEP *asep,SEPX *item,STSH *stsh);
 int wvAddSEPXFromBucket6(SEP *asep,SEPX *item,STSH *stsh);
@@ -1911,7 +1911,7 @@ typedef struct _Sprm
 
 
 
-Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh,U8 *pointer, U16 *pos,wvStream *data);
+Sprm wvApplySprmFromBucket(wvVersion ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh,U8 *pointer, U16 *pos,wvStream *data);
 
 int wvSprmLen(int spra);
 void wvGetSprmFromU16(Sprm *Sprm,U16 sprm);
@@ -2207,13 +2207,13 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos);
 int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *len);
 void wvApplysprmPPc(PAP *apap,U8 *pointer,U16 *len);
 void wvApplysprmPFrameTextFlow(PAP *apap,U8 *pointer,U16 *pos);
-void wvApplysprmPAnld(version ver,PAP *apap,U8 *pointer, U16 *pos);
+void wvApplysprmPAnld(wvVersion ver,PAP *apap,U8 *pointer, U16 *pos);
 void wvApplysprmPPropRMark(PAP *apap,U8 *pointer,U16 *pos);
 void wvApplysprmPNumRM(PAP *apap,U8 *pointer, U16 *pos);
 void wvApplysprmPHugePapx(PAP *apap,U8 *pointer,U16 *pos,wvStream *data,STSH *stsh);
 
 void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
-void wvApplysprmCSymbol(version ver,CHP *achp,U8 *pointer,U16 *pos);
+void wvApplysprmCSymbol(wvVersion ver,CHP *achp,U8 *pointer,U16 *pos);
 void wvApplysprmCIstdPermute(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
 void wvApplysprmCDefault(CHP *achp,U8 *pointer,U16 *pos);
 void wvApplysprmCPlain(CHP *achp,STSH *stsh);
@@ -2226,17 +2226,17 @@ void wvApplysprmCHpsInc1(CHP *achp,U8 *pointer,U16 *pos);
 void wvApplysprmCPropRMark(CHP *achp,U8 *pointer,U16 *pos);
 void wvApplysprmCDispFldRMark(CHP *achp,U8 *pointer,U16 *pos);
 
-void wvApplysprmSOlstAnm(version ver,SEP *asep,U8 *pointer,U16 *pos);
+void wvApplysprmSOlstAnm(wvVersion ver,SEP *asep,U8 *pointer,U16 *pos);
 void wvApplysprmSPropRMark(SEP *asep,U8 *pointer,U16 *pos);
 
 void wvApplysprmTDxaLeft(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDxaGapHalf(TAP *tap,U8 *pointer,U16 *pos);
-void wvApplysprmTTableBorders(version ver,TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTTableBorders(wvVersion ver,TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDefTable10(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos);
 void wv2ApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos);
-void wvApplysprmTSetBrc(version ver,TAP *tap,U8 *pointer,U16 *pos);
+void wvApplysprmTSetBrc(wvVersion ver,TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTInsert(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDelete(TAP *tap,U8 *pointer,U16 *pos);
 void wvApplysprmTDxaCol(TAP *tap,U8 *pointer,U16 *pos);
@@ -2678,7 +2678,7 @@ typedef struct _CLX
 
 
 void wvInitCLX(CLX *item);
-void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,wvStream *fd);
+void wvGetCLX(wvVersion ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,wvStream *fd);
 void wvReleaseCLX(CLX *clx);
 void wvBuildCLXForSimple6(CLX *clx,FIB *fib);
 
@@ -2910,7 +2910,7 @@ typedef struct _PAPX
  	U8 *grpprl;
 	} PAPX;
 
-void wvGetPAPX(version ver,PAPX *item,U8 *page,U16 *pos);
+void wvGetPAPX(wvVersion ver,PAPX *item,U8 *page,U16 *pos);
 void wvReleasePAPX(PAPX *item);
 void wvInitPAPX(PAPX *item);
 
@@ -2922,14 +2922,14 @@ typedef struct _PAPX_FKP
 	U8 crun;
 	} PAPX_FKP;
 
-void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,wvStream *fd);
+void wvGetPAPX_FKP(wvVersion ver,PAPX_FKP *fkp,U32 pn,wvStream *fd);
 void wvReleasePAPX_FKP(PAPX_FKP *fkp);
 void wvInitPAPX_FKP(PAPX_FKP *fkp);
 
 int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *pos, U32 nopos);
 int wvIncFC(U8 chartype);
 
-int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,/*CLX *clx,*/ BTE *bte, U32 *pos,int nobte, wvStream *fd);
+int wvGetSimpleParaBounds(wvVersion ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,/*CLX *clx,*/ BTE *bte, U32 *pos,int nobte, wvStream *fd);
 
 int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps,CHP *achp);
 void wvOutputFromUnicode(U16 eachchar,char *outputtype);
@@ -2941,11 +2941,11 @@ U16 wvConvertSymbolToUnicode(U16 char16);
 U16 wvHandleCodePage(U16 eachchar,U16 lid);
 
 void wvDecodeComplex(wvParseStruct *ps);
-int wvGetComplexParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,wvStream *fd);
+int wvGetComplexParaBounds(wvVersion ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,wvStream *fd);
 U32 wvSearchNextLargestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc);
 U32 wvSearchNextLargestFCCHPX_FKP(CHPX_FKP *fkp,U32 currentfc);
 int wvQuerySamePiece(U32 fcTest,CLX *clx,U32 piece);
-int wvGetComplexParafcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd);
+int wvGetComplexParafcFirst(wvVersion ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd);
 U32 wvSearchNextSmallestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc);
 U32 wvGetPieceFromCP(U32 cp,CLX *clx);
 int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc);
@@ -2972,8 +2972,8 @@ void wvRealTrace(char *file, int line, char *msg);
 #define wvTrace( args )
 #endif
 
-int wvAssembleSimplePAP(version ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH	*stsh,wvStream *data);
-int wvAssembleComplexCHP(version ver,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx);
+int wvAssembleSimplePAP(wvVersion ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH	*stsh,wvStream *data);
+int wvAssembleComplexCHP(wvVersion ver,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx);
 
 void wvAppendStr(char **orig,const char *add);
 int wvParseConfig(state_data *myhandle);
@@ -3004,9 +3004,9 @@ void wvEndSection(expand_data *data);
 void wvBeginComment(expand_data *data);
 void wvEndComment(expand_data *data);
    
-int wvGetComplexParafcLim(version ver,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd);
+int wvGetComplexParafcLim(wvVersion ver,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd);
 
-version wvQuerySupported(FIB *fib,int *reason);
+wvVersion wvQuerySupported(FIB *fib,int *reason);
 
 const char *wvReason(int reason);
 
@@ -3034,7 +3034,7 @@ int wvHandleDocument(wvParseStruct *ps,wvTag tag);
 void wvSetDocumentHandler(int (*proc)(wvParseStruct *,wvTag));
 
 SprmName wvGetrgsprmPrm(U16 in);
-int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx,wvStream *data);
+int wvAssembleComplexPAP(wvVersion ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx,wvStream *data);
 U32 wvGetEndFCPiece(U32 piece,CLX *clx);
 void wvInitSprm(Sprm *Sprm);
 
@@ -3098,7 +3098,7 @@ typedef struct _PGD
     } PGD;
 
 
-void wvGetPGD(version ver,PGD *item,wvStream *fd);
+void wvGetPGD(wvVersion ver,PGD *item,wvStream *fd);
 
 
 typedef struct _RS
@@ -3149,17 +3149,17 @@ typedef struct _WKB
 
 void wvGetWKB(WKB *item,wvStream *fd);
 
-int wvGetSimpleSectionBounds(version ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,wvStream *fd);
-int wvGetComplexSEP(version ver,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx);
+int wvGetSimpleSectionBounds(wvVersion ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,wvStream *fd);
+int wvGetComplexSEP(wvVersion ver,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx);
 
-int wvGetSimpleCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, wvStream *fd);
-int wvAssembleSimpleCHP(version ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh);
-int wvGetComplexCharfcLim(version ver, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, wvStream *fd);
-int wvGetComplexCharfcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, wvStream *fd);
+int wvGetSimpleCharBounds(wvVersion ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, wvStream *fd);
+int wvAssembleSimpleCHP(wvVersion ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh);
+int wvGetComplexCharfcLim(wvVersion ver, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, wvStream *fd);
+int wvGetComplexCharfcFirst(wvVersion ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, wvStream *fd);
 
 void wvOutputHtmlChar(U16 eachchar,U8 chartype,char *outputtype,U16 lid);
 
-int wvGetListEntryInfo(version ver,LVL **rlvl,U32 **nos,U8 **nfcs,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST **lst, U16 *noofLST);
+int wvGetListEntryInfo(wvVersion ver,LVL **rlvl,U32 **nos,U8 **nfcs,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST **lst, U16 *noofLST);
 
 
 void wvSetPixelsPerInch(S16 hpixels,S16 vpixels);
@@ -3509,7 +3509,7 @@ typedef struct _PICF
 	wvStream *rgb;
 	} PICF;
 
-int wvGetPICF(version ver,PICF *apicf,wvStream *fd);
+int wvGetPICF(wvVersion ver,PICF *apicf,wvStream *fd);
 
 void remove_suffix (char *name, const char *suffix);
 char *base_name (char const *name);

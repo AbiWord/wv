@@ -24,7 +24,7 @@ void wvGetBRC_internal(BRC *abrc,wvStream *infd,U8 *pointer)
     abrc->reserved = (temp8 & 0x80)>>7;
     }
 
-void wvGetBRC(version ver,BRC *abrc,wvStream *infd)
+void wvGetBRC(wvVersion ver,BRC *abrc,wvStream *infd)
     {
 	if (ver == WORD8)
 		wvGetBRC_internal(abrc,infd,NULL);
@@ -50,7 +50,7 @@ void wvGetBRC_internal6(BRC *abrc,wvStream *infd,U8 *pointer)
     }
 
 
-int wvGetBRCFromBucket(version ver,BRC *abrc,U8 *pointer)
+int wvGetBRCFromBucket(wvVersion ver,BRC *abrc,U8 *pointer)
     {
 	if (ver == WORD8)
 		wvGetBRC_internal(abrc,NULL,pointer);

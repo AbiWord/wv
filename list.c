@@ -7,7 +7,7 @@
 #endif
 #include "wv.h"
 
-int wvIsListEntry(PAP *apap,version ver)
+int wvIsListEntry(PAP *apap,wvVersion ver)
 	{
 	if (ver == WORD8)
 		{
@@ -57,7 +57,7 @@ followed to find out the paragraph's list information:
      text, and grpprlChpx, to determine the appearance of the actual
      paragraph number text.
 */
-int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,U8 **nfcs,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST **lst, U16 *noofLST)
+int wvGetListEntryInfo(wvVersion ver,LVL **finallvl,U32 **nos,U8 **nfcs,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST **lst, U16 *noofLST)
 	{
 	LST *alst=NULL;
 	U32 i,number=0;

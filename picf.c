@@ -7,7 +7,7 @@
 #endif
 #include "wv.h"
 
-int wvGetPICF(version ver,PICF *apicf,wvStream *fd)
+int wvGetPICF(wvVersion ver,PICF *apicf,wvStream *fd)
 	{
 	int ret=0;
 	FILE *f;

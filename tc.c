@@ -6,7 +6,7 @@
 #include "wv.h"
 #include "wvinternal.h"
 
-int wvGetTC_internal(version ver,TC *tc,wvStream *infd,U8 *pointer)
+int wvGetTC_internal(wvVersion ver,TC *tc,wvStream *infd,U8 *pointer)
     {
     U16 temp16;
 	BRC10 brc10;
@@ -76,7 +76,7 @@ int wvGetTC_internal(version ver,TC *tc,wvStream *infd,U8 *pointer)
 	return(cbTC);
     }
 
-int wvGetTCFromBucket(version ver,TC *abrc,U8 *pointer)
+int wvGetTCFromBucket(wvVersion ver,TC *abrc,U8 *pointer)
     {
     return(wvGetTC_internal(ver,abrc,NULL,pointer));
     }

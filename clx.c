@@ -58,7 +58,7 @@ block contains a grpprl) or 2 (meaning this is the plcfpcd). A clxtGrpprl
 clxtPlcfpcd (2) is followed by a 4-byte lcb which is the count of bytes of
 the piece table. A full saved file will have no clxtGrpprl's.
 */
-void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,wvStream *fd)
+void wvGetCLX(wvVersion ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,wvStream *fd)
 	{
 	U8 clxt;
 	U16 cb;

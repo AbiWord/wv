@@ -47,7 +47,7 @@ void wvInitCOPTS(COPTS *item)
 	}
 
 
-void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,wvStream *fd)
+void wvGetDOP(wvVersion ver,DOP *dop,U32 fcDop,U32 lcbDop,wvStream *fd)
 	{
 	U16 temp16;
 	U32 temp32;

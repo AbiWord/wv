@@ -235,7 +235,7 @@ fkp.rgbx[i - 1] to find the PAPX for the paragraph.
 of the paragraph were at the last full save.
 */
 
-int wvAssembleSimplePAP(version ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh,wvStream *data)
+int wvAssembleSimplePAP(wvVersion ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh,wvStream *data)
 	{
 	PAPX *papx;
 	int index;
@@ -298,7 +298,7 @@ void wvInitPAPX(PAPX *item)
 	item->grpprl=NULL;
 	}
 
-void wvGetPAPX(version ver,PAPX *item,U8 *page,U16 *pos)
+void wvGetPAPX(wvVersion ver,PAPX *item,U8 *page,U16 *pos)
 	{
 	U16 cw;
 	cw = bread_8ubit(&(page[*pos]),pos);

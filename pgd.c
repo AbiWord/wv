@@ -5,7 +5,7 @@
 #endif
 #include "wv.h"
 
-void wvGetPGD(version ver,PGD *item,wvStream *fd)
+void wvGetPGD(wvVersion ver,PGD *item,wvStream *fd)
 	{
 	U16 temp16;
 	

@@ -51,7 +51,7 @@ already recorded.
 */
 PAPX_FKP wvPAPX_FKP_previous;
 U32 wvPAPX_pn_previous=0;
-void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,wvStream *fd)
+void wvGetPAPX_FKP(wvVersion ver,PAPX_FKP *fkp,U32 pn,wvStream *fd)
 	{
 	int i;
 	U8 page[WV_PAGESIZE];
@@ -245,7 +245,7 @@ void internal_wvReleaseCHPX_FKP(CHPX_FKP *fkp)
  */
 CHPX_FKP wvCHPX_FKP_previous;
 U32 wvCHPX_pn_previous=0;
-void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, wvStream *fd)
+void wvGetCHPX_FKP(wvVersion ver, CHPX_FKP *fkp, U32 pn, wvStream *fd)
 	{
 	int i;
 	U8 page[WV_PAGESIZE];

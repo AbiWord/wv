@@ -610,7 +610,7 @@ wvStream *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
     }
 
 
-version wvQuerySupported(FIB *fib,int *reason)
+wvVersion wvQuerySupported(FIB *fib,int *reason)
     {
 	int ret=WORD8;
 

@@ -151,7 +151,7 @@ U8 wvEatSprm(U16 sprm,U8 *pointer, U16 *pos)
 	return(len);
 	}
 
-Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos,wvStream *data)
+Sprm wvApplySprmFromBucket(wvVersion ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos,wvStream *data)
 	{
 	BRC10 tempBRC10;
 	U16 temp16;
@@ -1409,7 +1409,7 @@ void wvApplysprmPFrameTextFlow(PAP *apap,U8 *pointer,U16 *pos)
 	apap->fRotateFont = (temp16 & 0x0004) >> 2;
 	}
 
-void wvApplysprmPAnld(version ver,PAP *apap,U8 *pointer, U16 *pos)
+void wvApplysprmPAnld(wvVersion ver,PAP *apap,U8 *pointer, U16 *pos)
 	{
 	dread_8ubit(NULL,&pointer);
 	(*pos)++;
@@ -1511,7 +1511,7 @@ void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos)
 	(*pos)+=2;
 	}
 
-void wvApplysprmCSymbol(version ver,CHP *achp,U8 *pointer,U16 *pos)
+void wvApplysprmCSymbol(wvVersion ver,CHP *achp,U8 *pointer,U16 *pos)
 	{
 	if (ver == WORD8)
 		{
@@ -2061,7 +2061,7 @@ void wvApplysprmCDispFldRMark(CHP *achp,U8 *pointer,U16 *pos)
 	}
 
 
-void wvApplysprmSOlstAnm(version ver,SEP *asep,U8 *pointer,U16 *pos)
+void wvApplysprmSOlstAnm(wvVersion ver,SEP *asep,U8 *pointer,U16 *pos)
 	{
 	U8 len = dread_8ubit(NULL,&pointer);
 	wvGetOLSTFromBucket(ver,&asep->olstAnm,pointer);
@@ -2134,7 +2134,7 @@ void wvApplysprmTDxaGapHalf(TAP *aTap,U8 *pointer,U16 *pos)
 sprmTTableBorders (opcode 0xD605) sets the tap.rgbrcTable. The sprm is
 interpreted by moving the 24 bytes of the sprm's operand to tap.rgbrcTable.
 */
-void wvApplysprmTTableBorders(version ver,TAP *aTap,U8 *pointer,U16 *pos)
+void wvApplysprmTTableBorders(wvVersion ver,TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	int i,d;
 	if (ver == WORD8)
@@ -2167,7 +2167,7 @@ void wvApplysprmTDefTable(TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U16 len;
 	int i,t,oldpos;
-	version type;
+	wvVersion type;
 	len = dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
 	wvTrace(("wvApplysprmTDefTable\n"));
@@ -2372,7 +2372,7 @@ to be set to new values. It has the following format:
 			fChangeTop int  :1   01
 	4    4  brc  BRC
 */
-void wvApplysprmTSetBrc(version ver,TAP *aTap,U8 *pointer,U16 *pos)
+void wvApplysprmTSetBrc(wvVersion ver,TAP *aTap,U8 *pointer,U16 *pos)
 	{
 	U8 itcFirst,itcLim,len,temp8;
 	BRC abrc;

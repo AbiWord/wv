@@ -7,7 +7,7 @@
 #endif
 #include "wvexporter.h"
 
-void wvPutANLD(version ver,ANLD *item,wvStream *fd)
+void wvPutANLD(wvVersion ver,ANLD *item,wvStream *fd)
 {
     	U8 temp8 = (U8)0;
     	int i = 0;

@@ -60,7 +60,7 @@ If the FC found is less than or equal to the limit FC of the
 piece, then the character that ends the paragraph is the character
 immediately before the FKP FC.
 */
-int wvGetComplexParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,wvStream *fd)
+int wvGetComplexParaBounds(wvVersion ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,wvStream *fd)
 	{
 	/*
 	U32 currentfc;
@@ -97,7 +97,7 @@ int wvGetComplexParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U
 	return(piece);
 	}
 
-int wvGetComplexParafcLim(version ver,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd)
+int wvGetComplexParafcLim(wvVersion ver,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd)
 	{
 	U32 fcTest,beginfc;
 	BTE entry;
@@ -148,7 +148,7 @@ int wvGetComplexParafcLim(version ver,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bt
 	}
 
 
-int wvGetComplexParafcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd)
+int wvGetComplexParafcFirst(wvVersion ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd)
 	{
 	U32 fcTest,endfc;
 	BTE entry;
@@ -206,7 +206,7 @@ int wvGetComplexParafcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
  * different between the two. We might be able to 
  * abstract the necessary functions to avoid duplicating them... */
 
-int wvGetComplexCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, 
+int wvGetComplexCharBounds(wvVersion ver, CHPX_FKP *fkp, U32 *fcFirst, 
 			   U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, 
 			   U32 *pos, int nobte, U32 piece, wvStream *fd)
 	{
@@ -244,7 +244,7 @@ int wvGetComplexCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst,
 	return(piece);
 	}
 
-int wvGetComplexCharfcLim(version ver, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, wvStream *fd)
+int wvGetComplexCharfcLim(wvVersion ver, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, wvStream *fd)
 	{
 	U32 fcTest;
 	/*
@@ -270,7 +270,7 @@ int wvGetComplexCharfcLim(version ver, U32 *fcLim, U32 currentfc, CLX *clx, BTE 
 	}
 
 
-int wvGetComplexCharfcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, wvStream *fd)
+int wvGetComplexCharfcFirst(wvVersion ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, wvStream *fd)
 	{
 	U32 fcTest/*,endfc*/;
 	/*BTE entry;*/
@@ -749,7 +749,7 @@ encoded into the first 22 bytes.
  3) If pcd.prm.fComplex is 1, pcd.prm.igrpprl is the index of a grpprl in the CLX. 
  If that grpprl contains any section sprms, they should be applied to the local SEP
 */
-int wvGetComplexSEP(version ver,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx)
+int wvGetComplexSEP(wvVersion ver,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx)
 	{
 	int ret=0;
 	U16 sprm,pos=0,i=0;
@@ -812,7 +812,7 @@ applied to the local PAP if it is a paragraph sprm.
 CLX.  If that grpprl contains any paragraph sprms, they should be applied to 
 the local PAP.
 */
-int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx, wvStream *data)
+int wvAssembleComplexPAP(wvVersion ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx, wvStream *data)
 	{
 	int ret=0;
 	U16 sprm,pos=0,i=0;
@@ -863,7 +863,7 @@ int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx, w
 	}
 
 /* CHP version of the above. follows the same rules -JB */
-int wvAssembleComplexCHP(version ver,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
+int wvAssembleComplexCHP(wvVersion ver,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 	{
 	int ret=0;
 	U16 sprm,pos=0,i=0;

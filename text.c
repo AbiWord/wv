@@ -43,7 +43,7 @@ int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps, CHP *achp)
         {
         U16 lid = 0;
 
-	version v = wvQuerySupported(&ps->fib, NULL);
+	wvVersion v = wvQuerySupported(&ps->fib, NULL);
 
         /* testing adding a language */
 

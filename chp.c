@@ -607,7 +607,7 @@ void wvUpdateCHPXBucket(UPXF *src)
  * -JB
  */
 
-int wvAssembleSimpleCHP(version ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
+int wvAssembleSimpleCHP(wvVersion ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh)
 	{
 	CHPX *chpx;
 	int index,i;
@@ -651,7 +651,7 @@ int wvAssembleSimpleCHP(version ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh
 	}
 
 
-void wvGetCHPX(version ver, CHPX *item, U8 *page, U16 *pos)
+void wvGetCHPX(wvVersion ver, CHPX *item, U8 *page, U16 *pos)
 	{
 	U8 i;
 	item->cbGrpprl = bread_8ubit(&(page[*pos]),pos);

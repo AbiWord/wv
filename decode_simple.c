@@ -58,7 +58,7 @@ void wvDecodeSimple(wvParseStruct *ps,subdocument whichdoc)
 	BKD *bkd;
 	U32 *posBKD;
 	U32 bkd_intervals;
-	version ver;
+	wvVersion ver;
 
 	ver = wvQuerySupported(&ps->fib,NULL);
 
@@ -477,7 +477,7 @@ Every character greater than or equal to fcFirst and less than fcLim is part of
 the containing paragraph.
 
 */
-int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc, BTE *bte, U32 *pos,int nobte,wvStream *fd)
+int wvGetSimpleParaBounds(wvVersion ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc, BTE *bte, U32 *pos,int nobte,wvStream *fd)
 	{
 	BTE entry;
 	long currentpos;
@@ -524,7 +524,7 @@ int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U3
 	return(wvGetIntervalBounds(fcFirst,fcLim,currentfc,fkp->rgfc,fkp->crun+1));
 	}
 
-int wvGetSimpleCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, wvStream *fd)
+int wvGetSimpleCharBounds(wvVersion ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, wvStream *fd)
 	{
 	U32 currentfc;
 	BTE entry;
@@ -612,7 +612,7 @@ sed.fc must be applied to the local SEP. The process thus far has created a
 SEP that describes what the section properties of the section at the last 
 full save. 
 */
-int wvGetSimpleSectionBounds(version ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,wvStream *fd)
+int wvGetSimpleSectionBounds(wvVersion ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,wvStream *fd)
 	{
 	U32 i=0;
 	int ret=0;

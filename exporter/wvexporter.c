@@ -36,7 +36,7 @@ if(!s) { \
  * @v - version
  */
 int 
-wvExporter_queryVersionSupported(version v)
+wvExporter_queryVersionSupported(wvVersion v)
 {
   switch((int)v){
   case WORD8:
@@ -55,7 +55,7 @@ wvExporter_queryVersionSupported(version v)
  * @returns <code>NULL</code> on error, valid wvExporter on success
  */
 wvExporter *
-wvExporter_create_version(const char *filename, version v)
+wvExporter_create_version(const char *filename, wvVersion v)
 {
   wvExporter *exp = NULL;
   MsOle *ole = NULL;

@@ -31,12 +31,12 @@ typedef MsOle wvDocument;
     /* more accounting structures to come later */
 
     FIB fib;
-    version ver;
+    wvVersion ver;
   } wvExporter;
 
-  int wvExporter_queryVersionSupported(version v);
+  int wvExporter_queryVersionSupported(wvVersion v);
   wvExporter * wvExporter_create(const char *filename);
-  wvExporter * wvExporter_create_version(const char *filename, version v);
+  wvExporter * wvExporter_create_version(const char *filename, wvVersion v);
   void wvExporter_close(wvExporter *exp);
   void wvExporter_summaryPutString(wvExporter *exp, U32 field, const char *str);
   void wvExporter_summaryPutLong(wvExporter *exp, U32 field, U32 l);
@@ -55,8 +55,8 @@ int write_8ubit(wvStream *in, U8 out);
 
 void wvInitFIBForExport(FIB *item);
 void wvPutFIB(FIB *item, wvStream *fd);
-void wvPutDOP(version ver, DOP *item, wvStream *fd);
-void wvPutANLD(version ver,ANLD *item,wvStream *fd);
+void wvPutDOP(wvVersion ver, DOP *item, wvStream *fd);
+void wvPutANLD(wvVersion ver,ANLD *item,wvStream *fd);
 void wvPutANLV(ANLV *item,wvStream *fd);
 void wvPutANLV(ANLV *item,wvStream *fd);
 void wvPutASUMYI(ASUMYI *asu,wvStream *fd);
@@ -106,7 +106,7 @@ void wvPutPRM(PRM *item, wvStream *fd);
 void wvPutRR(RR *item, wvStream *fd);
 void wvPutRS(RS *item, wvStream *fd);
 void wvPutSED(SED *item, wvStream *fd);
-void wvPutSEPX(version ver,SEPX *item,wvStream *fd);
+void wvPutSEPX(wvVersion ver,SEPX *item,wvStream *fd);
 void wvPutSHD(SHD *item, wvStream *fd);
 void wvPutPropHeader(PropHeader *header,wvStream *file);
 void wvPutFIDAndOffset(FIDAndOffset *fid,wvStream *file);
