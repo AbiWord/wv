@@ -318,10 +318,26 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 		chains1[i] = item->std[i].istdBase;
 		}
 
+	
+	/* 
+	we will do number 10, (standard character style) first if possible, 
+	some evil word docs attempt illegally to use sprmCBold etc with a 
+	128 and 129 argument, which is supposedly not allowed, but happens
+	anyway. In all examples so far it has been character style no 10 that
+	they have attempted to access
+	*/
+	if (item->std[10].istdBase == istdNil)
+		{
+		wvTrace(("Generating istd no %d\n",i));
+		wvGenerateStyle(item,10,word6);
+		}
 	for(i=0;i<item->Stshi.cstd;i++)
 		{
-		if (item->std[i].istdBase == istdNil)
+		if ( (item->std[i].istdBase == istdNil) && (i!=10) )
+			{
+			wvTrace(("Generating istd no %d\n",i));
 			wvGenerateStyle(item,i,word6);
+			}
 		wvTrace(("1: No %d,Base is %d\n",i,chains1[i]));
 		}
 

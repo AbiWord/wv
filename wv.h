@@ -865,7 +865,7 @@ typedef struct _FSPA
 void wvGetFSPA(FSPA *item,FILE *fd);
 int wvGetFSPA_PLCF(FSPA **fspa,U32 **pos,U32 *nofspa,U32 offset,U32 len,FILE *fd);
 FSPA *wvGetFSPAFromCP(U32 currentcp,FSPA *fspa,U32 *pos,U32 nofspa);
-
+void wvInitFSPA(FSPA *item);
 
 typedef struct _LSTF
     {

@@ -2,10 +2,30 @@
 #include <stdio.h>
 #include "wv.h"
 
+void wvInitFSPA(FSPA *item)
+	{
+ 	item->spid = 0;
+ 	item->xaLeft = 0;
+ 	item->yaTop = 0;
+ 	item->xaRight = 0;
+ 	item->yaBottom = 0;
+ 	item->fHdr = 0;
+    item->bx = 0;
+    item->by = 0;
+	item->wr = 0;
+	item->wrk = 0;
+    item->fRcaSimple = 0;
+	item->fBelowText = 0;
+	item->fAnchorLock = 0;
+ 	item->cTxbx = 0;
+	}
+
 void wvGetFSPA(FSPA *item,FILE *fd)
 	{
 	U16 temp16;
-
+#ifdef PURIFY
+	wvInitFSPA(item);
+#endif
  	item->spid = read_32ubit(fd);;
  	item->xaLeft = (S32) read_32ubit(fd);
  	item->yaTop = (S32) read_32ubit(fd);

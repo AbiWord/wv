@@ -17,7 +17,11 @@ the CHP property is set to the parameter value.
 When the parameter of the sprm is 128, then the CHP property is set to the
 value that is stored for the property in the style sheet. CHP When the
 parameter of the sprm is 129, the CHP property is set to the negation of the
-value that is stored for the property in the style sheet CHP.
+value that is stored for the property in the style sheet CHP. 
+sprmCFBold through sprmCFVanish are stored only in grpprls linked to piece table
+entries.
+
+
 */
 
 /*
@@ -30,6 +34,12 @@ to... etc etc
 This argument which i left as a comment to the original function has been
 bourne out in practice, so i converted this to a macro and did a lookup
 on the original unmodified chp in the stylesheet to check against
+
+Interestingly enough, even though the spec says that these are only used
+in piece table grpprls this is untrue, examples/doc-that-needs-utf8.doc
+has them in the stylesheet definition portion, which is a serious problem
+as the style that must be checked is not generated before this modifier
+comes along, a real nuisance.
 */
 
 #define wvTOGGLE(ret,in,stsh,toggle,type) \
