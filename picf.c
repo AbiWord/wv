@@ -86,7 +86,7 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 
 	  i = wvEatOldGraphicHeader (fd, len);
 	  wvTrace (("len is %d, header len guess is %d\n", len, i));
-	  if (i + 1 >= len)
+	  if (i + 2 >= len)
 	    {
 		wvTrace (("all read ok methinks\n"));
 		apicf->rgb = NULL;

@@ -314,7 +314,7 @@ wvSumInfoGetTime (U16 * yr, U16 * mon, U16 * day, U16 * hr, U16 * min,
 void
 wvReleaseProperty (PropValue * Prop)
 {
-    if (Prop != NULL)
+    if (Prop == NULL)
 	return;
     if (Prop->vtType == VT_LPSTR)
 	if (Prop->vtValue.vtBSTR.ch)
