@@ -1,9 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
-extern FILE *erroroutput;
-extern FILE *outputfile;
+#if 0
+extern wvStream *erroroutput;
+extern wvStream *outputfile;
 extern DOP dop;
 extern long int cp;
 extern int insuper;
@@ -12,7 +16,7 @@ extern int footnotehack;
 
 void decode_f_reference(textportions *portions)
     {
-    int i;
+    U32 i;
     error(erroroutput,"footnotes\n");
     /*
     search in the first thing for the cp of this
@@ -117,4 +121,4 @@ void decode_e_reference(textportions *portions)
         fprintf(erroroutput,"oops silly programmer :-) lost a endnote\n");
     }
 
-
+#endif

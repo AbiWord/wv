@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 #include "wv.h"
 
 /*
@@ -212,24 +215,24 @@ below.
 */
 
 
-void wvGetFLD(FLD *item,FILE *fd)
+void wvGetFLD(FLD *item,wvStream *fd)
 	{
 	U8 temp8;
 	U8 ch;
 
-	temp8 = getc(fd);
+	temp8 = read_8ubit(fd);
 	ch = temp8 & 0x1f;
 	if (ch == 19)
 		{
 		item->var1.ch = temp8 & 0x1f;
 		item->var1.reserved = (temp8 & 0xe0)>>5;
-		item->var1.flt = getc(fd);
+		item->var1.flt = read_8ubit(fd);
 		}
 	else
 		{
 		item->var2.ch = temp8 & 0x1f;
 		item->var2.reserved = (temp8 & 0xe0)>>5;
-		temp8 = getc(fd);
+		temp8 = read_8ubit(fd);
 		item->var2.fDiffer = temp8 & 0x01;
 		item->var2.fZombieEmbed = (temp8 & 0x02)>>1;
 		item->var2.fResultDirty = (temp8 & 0x04)>>2;
@@ -242,9 +245,9 @@ void wvGetFLD(FLD *item,FILE *fd)
 	}
 
 
-int wvGetFLD_PLCF(FLD **fld,U32 **pos,U32 *nofld,U32 offset,U32 len,FILE *fd)
+int wvGetFLD_PLCF(FLD **fld,U32 **pos,U32 *nofld,U32 offset,U32 len,wvStream *fd)
 	{
-	int i;
+	U32 i;
 	if (len == 0)
 		{
 		*fld = NULL;
@@ -257,19 +260,19 @@ int wvGetFLD_PLCF(FLD **fld,U32 **pos,U32 *nofld,U32 offset,U32 len,FILE *fd)
         *pos = (U32 *) malloc( (*nofld+1) * sizeof(U32));
         if (*pos == NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",(*nofld+1) * sizeof(U32));
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nofld+1) * sizeof(U32)));
             return(1);
             }
 
         *fld= (FLD *) malloc(*nofld* sizeof(FLD));
         if (*fld== NULL)
             {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",*nofld* sizeof(FLD));
-			free(pos);
+            wvError(("NO MEM 1, failed to alloc %d bytes\n",*nofld* sizeof(FLD)));
+			wvFree(pos);
             return(1);
             }
-        fseek(fd,offset,SEEK_SET);
-        for(i=0;i<*nofld+1;i++)
+        wvStream_goto(fd,offset);
+        for(i=0;i<=*nofld;i++)
             (*pos)[i]=read_32ubit(fd);
         for(i=0;i<*nofld;i++)
             wvGetFLD(&((*fld)[i]),fd);

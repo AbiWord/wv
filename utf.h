@@ -4,5 +4,5 @@
     but stopped that after i found a system which made wchar_t an
     unsigned char.
 */
-int our_wctomb(char *s, unsigned long wc);
-int our_mbtowc(unsigned long *p, char *s, unsigned n);
+int our_wctomb(char *s, U16 wc);
+int our_mbtowc(U16 *p, char *s, unsigned n);
