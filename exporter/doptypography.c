@@ -14,7 +14,7 @@ void wvPutDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt,wvStream *fd)
   temp16 |= dopt->reserved << 6;
   
   write_16ubit(fd, temp16);
-  write_16ubit(fd, dopt->cchFollowingPunct);
+  write_16ubit(fd, (U16)dopt->cchFollowingPunct);
   write_16ubit(fd, dopt->cchLeadingPunct);
   
   for (i=0;i<101;i++)

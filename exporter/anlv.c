@@ -8,7 +8,7 @@ void wvPutANLV(ANLV *item,wvStream *fd)
 
           write_8ubit(fd, item->nfc);
           write_8ubit(fd, item->cxchTextBefore);
-          write_8ubit(fd, item->cxchTextAfter);
+          write_8ubit(fd, (U8)item->cxchTextAfter);
 
           temp8 |= item->jc;
           temp8 |= item->fPrev << 2;

@@ -13,8 +13,8 @@ void wvPutPHE6(PHE *item, wvStream *fd)
 
   write_8ubit(fd, temp8);
 
-  write_8ubit(fd, item->var1.clMac);
-  write_16ubit(fd, item->var1.dxaCol);
+  write_8ubit(fd, (U8)item->var1.clMac);
+  write_16ubit(fd, (U16)item->var1.dxaCol);
   write_16ubit(fd, (U16)item->var1.dymHeight);
 }
 
@@ -29,8 +29,8 @@ void wvPutPHE(PHE *item, wvStream *fd)
 
   write_8ubit(fd, temp8);
 
-  write_8ubit(fd, item->var1.clMac);
-  write_16ubit(fd, item->var1.reserved2);
+  write_8ubit(fd, (U8)item->var1.clMac);
+  write_16ubit(fd, (U16)item->var1.reserved2);
   write_32ubit(fd, (U32)item->var1.dxaCol);
   write_32ubit(fd, (U32)item->var1.dymHeight);
 }

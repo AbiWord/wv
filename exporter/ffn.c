@@ -7,7 +7,7 @@ void wvPutFFN6(FFN *item, wvStream *fd)
   int len, i;
   U8 temp8 = 0;
 
-  write_8ubit(fd, item->cbFfnM1);
+  write_8ubit(fd, (U8)item->cbFfnM1);
 
   temp8 |= item->prq;
   temp8 |= item->fTrueType << 2;
@@ -23,7 +23,7 @@ void wvPutFFN6(FFN *item, wvStream *fd)
   len = item->cbFfnM1 - 5;
   if(len > 65) len = 65;
   for(i = 0; i < len; i++)
-    write_8ubit(fd, item->xszFfn[i]);
+    write_8ubit(fd, (U8)item->xszFfn[i]);
 }
 
 void wvPutFFN(FFN *item, wvStream *fd)
@@ -31,7 +31,7 @@ void wvPutFFN(FFN *item, wvStream *fd)
   int len, i;
   U8 temp8 = 0;
 
-  write_8ubit(fd, item->cbFfnM1);
+  write_8ubit(fd, (U8)item->cbFfnM1);
   
   temp8 |= item->prq;
   temp8 |= item->fTrueType << 2;

@@ -14,7 +14,7 @@ void wvPutSTSHI(STSHI *item, U16 cbSTSHI, wvStream *fd)
   temp16 |= item->reserved <<1;
   write_16ubit(fd, temp16);
   
-  write_16ubit(fd, item->stiMaxWhenSaved);
+  write_16ubit(fd, (U16)item->stiMaxWhenSaved);
   write_16ubit(fd, item->istdMaxFixedWhenSaved);
   write_16ubit(fd, item->nVerBuiltInNamesWhenSaved);
   
@@ -59,7 +59,7 @@ void wvPutSTD(STD *item, U16 len, wvStream *fd)
   temp16 |= item->istdNext << 4;
   write_16ubit(fd, temp16);
   
-  write_16ubit(fd, item->bchUpe);
+  write_16ubit(fd, (U16)item->bchUpe);
   
   count = 8; /* add */
   pos = 11;
@@ -69,7 +69,10 @@ void wvPutSTD(STD *item, U16 len, wvStream *fd)
   
   for(i=0;i<len;i++)
     {
-      write_8ubit(fd, item->xstzName[i]);
+      /* if (count > 10) */
+      /* write_16ubit(fd, (U16)item->xstzName[i]) */
+      /* else */
+      write_8ubit(fd, (U8)item->xstzName[i]);
       pos++;
     }
   

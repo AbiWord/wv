@@ -9,7 +9,7 @@ void wvPutDOGRID(DOGRID *dog,wvStream *fd)
 	write_16ubit(fd, dog->xaGrid);
 	write_16ubit(fd, dog->yaGrid);
 	write_16ubit(fd, dog->dxaGrid);
-	write_16ubit(fd, dog->dyaGrid);
+	write_16ubit(fd, (U16)dog->dyaGrid);
 
 	temp16 |= dog->dyGridDisplay;
 	temp16 |= dog->fTurnItOff << 7;

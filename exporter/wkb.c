@@ -14,5 +14,5 @@ void wvPutWKB(WKB *item,wvStream *fd)
          temp16 |= item->fnpd << 4;
          write_16ubit(fd, temp16);
          
-         write_16ubit(fd, item->doc);
+         write_32ubit(fd, (U32)item->doc);
          }

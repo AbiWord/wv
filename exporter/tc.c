@@ -18,7 +18,7 @@ void wvPutTC(TC *item, wvStream *fd)
   temp16 |= item->fUnused<<9;
   write_16ubit(fd, temp16);
   
-  write_16ubit(fd, item->wUnused);
+  write_16ubit(fd, (U16)item->wUnused);
 
   wvPutBRC(&item->brcTop, fd);
   wvPutBRC(&item->brcLeft, fd);

@@ -11,7 +11,7 @@ void wvPutANLD(version ver,ANLD *item,wvStream *fd)
 
 	write_8ubit(fd, item->nfc);
 	write_8ubit(fd, item->cxchTextBefore);
-	write_8ubit(fd, item->cxchTextAfter);
+	write_8ubit(fd, (U8)item->cxchTextAfter);
 	
 	temp8 |= item->jc;
 	temp8 |= item->fPrev << 2;
@@ -52,7 +52,6 @@ void wvPutANLD(version ver,ANLD *item,wvStream *fd)
             if (ver == WORD8)
 	      write_16ubit(fd, item->rgxch[i]);
             else
-	      write_8ubit(fd, item->rgxch[i]);
+	      write_8ubit(fd, (U8)item->rgxch[i]);
 	  }
 }
-

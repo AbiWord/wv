@@ -22,7 +22,7 @@ void wvPutPGD(PGD *item, wvStream *fd)
 
   write_16ubit(fd, temp16);
   
-  write_16ubit(fd, item->lnn);
+  write_16ubit(fd, (U16)item->lnn);
   write_16ubit(fd, item->pgn);
   
   /* only for WORD8 */

@@ -6,7 +6,7 @@ void wvPutTLP(TLP *item, wvStream *fd)
 {
   U16 temp16 = 0;
 
-  write_16ubit(fd, item->itl);
+  write_16ubit(fd, (U16)item->itl);
 
   temp16 |= item->fBorders;
   temp16 |= item->fShading <<1;

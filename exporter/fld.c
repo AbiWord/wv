@@ -18,7 +18,7 @@ void wvPutFLD(FLD *item,wvStream *fd)
 				 temp8 |= ch;
                  temp8 |= item->var1.reserved << 5;
 				 write_8ubit(fd, temp8);
-				 write_8ubit(fd, item->var1.flt);
+				 write_8ubit(fd, (U8)item->var1.flt);
                  }
          else
                  {

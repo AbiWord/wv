@@ -18,5 +18,5 @@ void wvPutLSTF(LSTF *item,wvStream *fd)
   temp8 |= item->reserved1 << 2;
   /* temp8 |= item->reserved2; */
   write_8ubit(fd, temp8);
-  write_8ubit(fd, item->reserved2);
+  write_16ubit(fd, item->reserved2);
 }

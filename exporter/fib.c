@@ -310,9 +310,9 @@ void wvPutFIB(FIB *item, wvStream *fd)
 
 		write_16ubit(fd,temp16);
 
-		write_16ubit(fd,item->nFibBack);
+		write_16ubit(fd, (U16)item->nFibBack);
 		write_32ubit(fd,item->lKey);
-		write_8ubit(fd,item->envr);
+		write_8ubit(fd, (U8)item->envr);
 
 		temp8 |= item->fMac;
 		temp8 |= item->fEmptySpecial << 1;
@@ -332,7 +332,7 @@ void wvPutFIB(FIB *item, wvStream *fd)
 
 		write_8ubit(fd,temp8);
 
-		write_16ubit(fd,item->chse);
+		write_16ubit(fd, (U16)item->chse);
 		write_16ubit(fd,item->chsTables);
 		write_32ubit(fd,item->fcMin);
 		write_32ubit(fd,item->fcMac);

@@ -5,10 +5,10 @@
 void wvPutFAnchor(FAnchor *item,wvStream *fd)
          {
          /* It is supposed to be a RECT, but its only 4 long so... */
-    	 write_8ubit(fd, item->left);
-    	 write_8ubit(fd, item->right);
-    	 write_8ubit(fd, item->top);
-    	 write_8ubit(fd, item->bottom);
+    	 write_8ubit(fd, (U8)item->left);
+    	 write_8ubit(fd, (U8)item->right);
+    	 write_8ubit(fd, (U8)item->top);
+    	 write_8ubit(fd, (U8)item->bottom);
          }
 
 void wvPutFOPTE(FOPTE *afopte,wvStream *fd)
@@ -20,7 +20,7 @@ void wvPutFOPTE(FOPTE *afopte,wvStream *fd)
 	 dtemp |= afopte->fComplex << 15;
 
 	 write_16ubit(fd, dtemp);
-     write_16ubit(fd, afopte->op);
+	 write_32ubit(fd, afopte->op);
      }
 
 /* TODO: check to make sure that this is correct */

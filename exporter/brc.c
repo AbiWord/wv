@@ -27,9 +27,9 @@ void wvPutBRC(BRC *item, wvStream *fd)
 
   /* word 8 support */
 
-  write_8ubit(fd, item->dptLineWidth);
-  write_8ubit(fd, item->brcType);
-  write_8ubit(fd, item->ico);
+  write_8ubit(fd, (U8)item->dptLineWidth);
+  write_8ubit(fd, (U8)item->brcType);
+  write_8ubit(fd, (U8)item->ico);
 
   temp8 |= item->dptSpace;
   temp8 |= item->fShadow << 5;

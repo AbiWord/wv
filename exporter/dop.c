@@ -162,7 +162,7 @@ void wvPutDOP(version ver, DOP *item, wvStream *fd)
 	}
 
 	/* onto WORD8 */
-	write_16ubit(fd, item->adt);
+	write_16ubit(fd, (U16)item->adt);
 	wvPutDOPTYPOGRAPHY(&item->doptypography, fd);
 	wvPutDOGRID(&item->dogrid, fd);
 

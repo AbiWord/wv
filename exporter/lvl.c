@@ -2,13 +2,33 @@
 #include <stdlib.h>
 #include "wvexporter.h"
 
-void wvPutVLF(LVLF *item,wvStream *fd)
+void wvPutLVL(LVL *item, wvStream *fd)
+{
+  int len;
+
+  wvPutLVLF(&item->lvlf, fd);
+
+  if (item->lvlf.cbGrpprlPapx > 0)
+    wvStream_write(item->grpprlPapx,sizeof(U8),item->lvlf.cbGrpprlPapx,fd);
+  
+  if (item->lvlf.cbGrpprlChpx > 0)
+    wvStream_write(item->grpprlChpx,sizeof(U8),item->lvlf.cbGrpprlChpx,fd);
+
+  if(item->numbertext)
+    len = item->numbertext[0];
+  else
+    len = 0;
+
+  write_16ubit(fd, (U16)len);
+}
+
+void wvPutLVLF(LVLF *item,wvStream *fd)
 	{
 	U8 temp8;
 	int i;
 
 	write_32ubit(fd, item->iStartAt );
-    write_8ubit(fd,item->nfc);
+    write_8ubit(fd,(U8)item->nfc);
     
 	temp8 = 0;
     temp8 |= item->jc;
