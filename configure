@@ -4107,7 +4107,6 @@ wvLatex
 wvCleanLatex
 wvText
 wvWml
-oledecod/Makefile 
 libole2/Makefile 
 glib-wv/Makefile 
 expat/Makefile 
@@ -4235,7 +4234,6 @@ wvLatex
 wvCleanLatex
 wvText
 wvWml
-oledecod/Makefile 
 libole2/Makefile 
 glib-wv/Makefile 
 expat/Makefile 

@@ -734,7 +734,6 @@ AC_CONFIG_FILES([
 	magick/GNUmakefile
 	glib-wv/GNUmakefile
 	libole2/GNUmakefile
-	oledecod/GNUmakefile
 	expat/GNUmakefile
 	expat/xmlparse/GNUmakefile
 	expat/xmltok/GNUmakefile

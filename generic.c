@@ -76,15 +76,6 @@ wvMalloc (U32 size)
     return p;
 }
 
-/*!
- * Separate this fn out so that we can use mkstemp someday soon
- */
-char *
-wvTempName (char *s)
-{
-    return tmpnam (s);
-}
-
 /*
 If the
 second most significant bit is clear, then this indicates the actual file

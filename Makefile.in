@@ -91,7 +91,7 @@ endif
 
 CFLAGS = @CFLAGS@ @ANSI_PEDANTIC@ $(WVPICFLAGS)
 
-INCLUDES = -I. -I$(srcdir) -I$(srcdir)/magick -I$(srcdir)/libole2 -I$(srcdir)/oledecod
+INCLUDES = -I. -I$(srcdir) -I$(srcdir)/magick -I$(srcdir)/libole2 
 
 ifeq ($(INCLUDED_EXPAT),1)
 INCLUDES += "-I$(srcdir)/expat/xmlparse/"
@@ -260,8 +260,7 @@ endif
 
 OLE= \
 	libole2/ms-ole.$(OBJEXT) \
-	libole2/ms-ole-summary.$(OBJEXT) \
-	oledecod/oledecod.$(OBJEXT)
+	libole2/ms-ole-summary.$(OBJEXT)
 
 ifeq ($(HAVE_GNOMEVFS),1)
 	OLE += libole2/ms-ole-gnomevfs.o
@@ -308,19 +307,19 @@ endif
 
 all: WVSUBDIRS $(WVLIB) $(WVEXECS)
 
-wvRTF$(EXEEXT): wvRTF.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
+wvRTF$(EXEEXT): wvRTF.$(OBJEXT) $(GETOPT) BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvRTF.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvSummary$(EXEEXT): wvSummary.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a 
+wvSummary$(EXEEXT): wvSummary.$(OBJEXT) $(GETOPT) BLIBOLE2 libwv.a 
 	$(CC)  -o $@ wvSummary.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvVersion$(EXEEXT): wvVersion.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
+wvVersion$(EXEEXT): wvVersion.$(OBJEXT) $(GETOPT) BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvVersion.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvConvert$(EXEEXT): wvConvert.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
+wvConvert$(EXEEXT): wvConvert.$(OBJEXT) $(GETOPT) BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvConvert.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
-wvWare$(EXEEXT): wvWare.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
+wvWare$(EXEEXT): wvWare.$(OBJEXT) $(GETOPT) BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvWare.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
 
 wv-libconfig: Makefile
@@ -336,10 +335,10 @@ wv-incconfig: Makefile
 lex.yy.c: parser.lex
 	$(LEX) parser.lex
 
-testparse$(EXEEXT):  testparse.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
+testparse$(EXEEXT):  testparse.$(OBJEXT) $(GETOPT) BLIBOLE2 libwv.a
 	$(CC)  -o $@ testparse.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS)  $(LDFLAGS)
 
-WVSUBDIRS:$(EXPORTER) XMLPARSER $(ICONV) $(MAGICK) OLEDECODE BLIBOLE2
+WVSUBDIRS:$(EXPORTER) XMLPARSER $(ICONV) $(MAGICK) BLIBOLE2
 
 libwv.a:$(MYOBJECTS) $(EXPORTER_OBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE)
 	$(AR) rc $@ $(MYOBJECTS) $(EXPORTER_OBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE)
@@ -363,10 +362,6 @@ BMAGICK:
 	@echo making magick in magick  
 	@(cd magick && $(MAKE)) || exit 1
 
-
-OLEDECODE:
-	@echo making oledecod in oledecod
-	@(cd oledecod && $(MAKE)) || exit 1
 
 ifeq ($(INCLUDED_EXPAT),1)
 XMLPARSER:
@@ -397,8 +392,6 @@ version.$(OBJEXT):	$(srcdir)/configure.in
 	$(CC) $(INCLUDES) $(DEFS) $(CPPFLAGS) $(CFLAGS) -c $(srcdir)/$*.c 
 
 cleansub:
-	@echo cleaning oledecod in oledecod
-	@(cd oledecod && $(MAKE) clean) || exit 1
 	@echo cleaning expat in expat
 	@(cd expat && $(MAKE) clean) || exit 1
 	@echo cleaning iconv in iconv 
@@ -421,8 +414,6 @@ distclean: realcleansub
 realclean: distclean
 
 realcleansub:
-	@echo real cleaning oledecod in oledecod
-	@(cd oledecod && $(MAKE) realclean) || exit 1
 	@echo real cleaning expat in expat
 	@(cd expat && $(MAKE) realclean) || exit 1
 	@echo real cleaning iconv in iconv 

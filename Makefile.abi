@@ -176,13 +176,11 @@ EXPORTERSOURCES = \
 CFLAGS+= -DHAVE_CONFIG_H -I. -I./exporter/ -I../libiconv/include -I./expat/xmlparse -DHAVE_ZLIB -DCONFIGFILE=\".mswordview\" -DTTFDIR=\"\" -DSYMBOLFONTDIR=\"\" -DPATTERNDIR=\"\" -DWINGDINGFONTDIR=\"\" 
  
 CSRCS+= \
-	oledecod/oledecod.c \
 	laolareplace.c \
 	libole2/ms-ole.c \
 	libole2/ms-ole-summary.c
 
 CFLAGS+= \
-	-I./oledecod \
 	-I./libole2
 	
 	

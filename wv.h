@@ -2874,7 +2874,6 @@ returns the same as wvOLEDecode with the addition that
     int wvGetPieceBoundsCP (U32 * begin, U32 * end, CLX * clx, U32 piececount);
     U16 wvGetChar (wvStream * fd, U8 chartype);
     void *wvMalloc (U32 size);
-    char *wvTempName (char *s);
 
     typedef struct _BTE {
 	U32 pn:22;
@@ -4697,8 +4696,6 @@ has got
 
     U32 decode_b_bookmark (bookmark_limits * l_bookmarks, STTBF * bookmarks);
     U32 decode_e_bookmark (bookmark_limits * l_bookmarks);
-
-    void myfreeOLEtree (void);
 
     void output_tablebg (pap * apap);
     int do_tablelooks (pap * apap);

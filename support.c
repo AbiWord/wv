@@ -33,7 +33,6 @@ indentation.
 #endif
 #include "wv.h"
 #include "wvinternal.h"
-#include "oledecod.h"
 
 #if defined(WORDS_BIGENDIAN) || !defined(MATCHED_TYPE)
 
@@ -70,7 +69,6 @@ indentation.
 */
 #endif
 
-extern pps_entry *stream_tree;
 static wvStream_list *streams = NULL;
 static U32 wvStream_close_stream(wvStream * in);
 
@@ -96,10 +94,6 @@ wvOLEFree (wvParseStruct * ps)
       {
 	  ms_ole_destroy (&ps->ole_file);
       }
-
-    freeOLEtree (stream_tree);	/* Does internal checking, so it doesn't matter
-				   * we just call it with NULL.
-				 */
 }
 
 wvStream *

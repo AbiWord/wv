@@ -1291,7 +1291,6 @@ mySpecCharProc (wvParseStruct * ps, U16 eachchar, CHP * achp)
 	  wvTrace (("field middle\n"));
 	  if (achp->fOle2)
 	    {
-		/*pps_entry *test; */
 		wvError (
 			 ("this field has an associated embedded object of id %x\n",
 			  achp->fcPic_fcObj_lTagObj));

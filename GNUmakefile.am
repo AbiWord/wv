@@ -26,14 +26,14 @@ DIREXPORTER =
 LIBEXPORTER = 
 endif
 
-DIST_SUBDIRS = xml help wingdingfont patterns glib-wv libole2 oledecod magick expat exporter .
+DIST_SUBDIRS = xml help wingdingfont patterns glib-wv libole2 magick expat exporter .
 
-SUBDIRS = xml help wingdingfont patterns $(DIRGLIB) libole2 oledecod magick $(DIREXPAT) $(DIREXPORTER) .
+SUBDIRS = xml help wingdingfont patterns $(DIRGLIB) libole2 magick $(DIREXPAT) $(DIREXPORTER) .
 
 DEFS = @DEFS@ -DVERSION=\"@VERSION@\" -DXMLCONFIG=\"$(pkgdatadir)/wvConfig.xml\" -DHTMLCONFIG=\"$(pkgdatadir)/wvHtml.xml\" -DWVDATADIR=\"$(datadir)/wv\"
 
 INCLUDES = -I. -I$(top_builddir) -I$(srcdir) \
-	-I$(srcdir)/magick -I$(srcdir)/libole2 -I$(srcdir)/oledecod $(INCGLIB) $(INCEXPAT)
+	-I$(srcdir)/magick -I$(srcdir)/libole2 $(INCGLIB) $(INCEXPAT)
 
 CFLAGS = @CFLAGS@ @ANSI_CFLAGS@
 
@@ -59,7 +59,7 @@ wvRTF_LDADD = libwv.la $(GETOPT)
 wvConvert_LDADD = libwv.la $(GETOPT)
 wvVersion_LDADD = libwv.la $(GETOPT)
 
-libwv_la_LIBADD = magick/libmagick.la libole2/libole2.la oledecod/liboledecod.la $(LIBGLIB) $(LIBEXPAT) $(LIBEXPORTER) $(WVLIBS)
+libwv_la_LIBADD = magick/libmagick.la libole2/libole2.la $(LIBGLIB) $(LIBEXPAT) $(LIBEXPORTER) $(WVLIBS)
 libwv_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) -release $(LT_RELEASE) -export-dynamic
 libwv_la_SOURCES = \
 	winmmap.c \

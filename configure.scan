@@ -46,4 +46,4 @@ AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS(getcwd mktime strdup strerror strstr strtod strtol)
 
-AC_OUTPUT(libole2/Makefile glib-wv/Makefile regexp/Makefile Makefile exporter/Makefile magick/Makefile oledecod/Makefile iconv/Makefile expat/Makefile expat/xmlparse/Makefile expat/xmltok/Makefile)
+AC_OUTPUT(libole2/Makefile glib-wv/Makefile regexp/Makefile Makefile exporter/Makefile magick/Makefile iconv/Makefile expat/Makefile expat/xmlparse/Makefile expat/xmltok/Makefile)
