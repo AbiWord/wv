@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "wv.h"
+#include "roman.h"
 
 char *wvGenerateNFC(int value,int no_type)
     {

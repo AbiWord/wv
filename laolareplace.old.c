@@ -17,15 +17,14 @@ Phone (44) 1793 896206, Fax (44) 1793 896251
 
 
 The interface to OLEdecode now has
-  int OLEdecode(char *filename, FILE **mainfd, FILE **tablefd0, FILE 
-**tablefd1,FILE **data,FILE **summary)	
+  int OLEdecode(char *filename, wvStream **mainfd, FILE **tablefd0, FILE 
+**tablefd1,wvStream **data,FILE **summary)	
 */
 
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
 #include <ctype.h>
 #include <sys/types.h>
 #include <assert.h>
@@ -36,7 +35,7 @@ The interface to OLEdecode now has
 
 #define MAXBLOCKS 256
 
-extern FILE *erroroutput;
+extern wvStream *erroroutput;
 
 struct pps_block
   {
@@ -67,7 +66,7 @@ return sread_32ubit(array);
 }
 
 pps_entry **pps_list=NULL;
-char *SDepot=NULL;
+unsigned char *SDepot=NULL;
 
 /* recurse to follow forward/backward list of root pps's */
 void unravel(pps_entry *pps_node)
@@ -82,30 +81,25 @@ void unravel(pps_entry *pps_node)
 	}
 }
 
-int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
-**tablefd1,FILE **data, FILE **summary)
+int wvOLEDecode(wvStream *input, FILE **mainfd, FILE **tablefd0, FILE
+**tablefd1,wvStream **data, FILE **summary)
 {
-  FILE *OLEfile=NULL;
-  FILE *sbfile=NULL;
-  FILE *infile=NULL;
-  
-#ifdef DEBUG
-  int debug=1;
-#else
-  int debug=0;
-#endif
+  wvStream *OLEfile=NULL;
+  wvStream *sbfile=NULL;
+  wvStream *infile=NULL;
   int BlockSize=0,Offset=0;
   int c,i,j,len,bytes;
-  char *s,*p,*t;
-  char *Block,*BDepot,*Depot,*Root;
-  U32 depot_len;
+  char *p;
+  unsigned char *s,*t;
+  unsigned char *Block,*BDepot=NULL,*Depot=NULL,*Root=NULL;
+  S32 depot_len;
   
   char Main[]="WordDocument";
   char Table0[]="0Table";
   char Table1[]="1Table";
   char Data[]="Data";
   char Summary[]="\005SummaryInformation";
-  U32 FilePos=0x00000000;
+  S32 FilePos=0x0;
   S32 num_bbd_blocks;
   S32 root_list[MAXBLOCKS], sbd_list[MAXBLOCKS];
   S32 pps_size,pps_start=-1;
@@ -114,8 +108,6 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
   S32 fullen;
   S32 temppos;
   
-
-
   *mainfd = NULL;
   *tablefd0 = NULL;
   *tablefd1 = NULL;
@@ -127,44 +119,49 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
   c=getc(input);
   if (c==EOF)
   	{
-    wvError("File is empty.\n");
+    wvError(("File is empty.\n"));
 	return(2);
 	}
   	
   ungetc(c,input);
 
-  if(isprint(c)) {
-     wvError("File looks like a plain text file.\n");
-     return 2;
-  /* check for MS OLE wrapper */
-  } else if(c==0xd0) {
-     Block = malloc(512);
+#if 0
+  if(isprint(c)) 
+  		{
+		wvError(("File looks like a plain text file.\n"));
+		return(2);
+	/* check for MS OLE wrapper */
+		} 
+	else 
+#endif	
+	if(c==0xd0) {
+     Block = (unsigned char *)malloc(512);
 	 if (Block == NULL)
 	 	{
-       	wvError("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",512);
+       	wvError(("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",512));
 		return(3);
 		}
      /* read header block */
      if(fread(Block,512,1,input)!=1) {
-       wvError("1 ===========> Input file has faulty OLE format\n");
-    return 3;
+       wvError(("1 ===========> Input file has faulty OLE format\n"));
+    return(3);
      }
      num_bbd_blocks=(S32)LongInt(Block+0x2c);
 	 if ((num_bbd_blocks == 0) || (num_bbd_blocks < 0))
 		{
-       	wvError("2 ===========> Input file has ridiculous bbd, mem for the depot was %d\n",512*num_bbd_blocks);
+       	wvError(("2 ===========> Input file has ridiculous bbd, mem for the depot was %d\n",512*num_bbd_blocks));
 		return(3);
 		}
-     BDepot = malloc(512*num_bbd_blocks);
+     BDepot = (unsigned char *)malloc(512*num_bbd_blocks);
 	 if (BDepot == NULL)
 	 	{
-       	wvError("2 ===========> couldnt alloc ole mem for the depot of %d\n",512*num_bbd_blocks);
+       	wvError(("2 ===========> couldnt alloc ole mem for the depot of %d\n",512*num_bbd_blocks));
 		return(3);
 		}
      s = BDepot;
      root_list[0]=LongInt(Block+0x30);
      sbd_list[0]=(S16)LongInt(Block+0x3c);
-    if(debug) wvError("num_bbd_blocks %d, root start %d, sbd start %d\n",num_bbd_blocks,root_list[0],sbd_list[0]);
+    wvTrace(("num_bbd_blocks %d, root start %d, sbd start %d\n",num_bbd_blocks,root_list[0],sbd_list[0]));
 	temppos = ftell(input);
 	fseek(input,0,SEEK_END);
 	fullen = ftell(input);
@@ -175,19 +172,23 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
 	 	{
 		if (0x4c+(i*4) > 512)
 			{
-			wvError("2.1 ===========> Input file has faulty bbd\n");
-			return 3;
+			wvError(("2.1 ===========> Input file has faulty bbd\n"));
+			return(3);
 			}
        	FilePos = 512*(LongInt(Block+0x4c+(i*4))+1);
 		if (FilePos > fullen)
 			{
-			wvError("2.2 ===========> Input file has faulty bbd\n");
+			wvError(("2.2 ===========> Input file has faulty bbd\n"));
 			return 3;
 			}
-       	fseek(input,FilePos,SEEK_SET);
+       	if (-1 == fseek(input,FilePos,SEEK_SET))
+			{
+			wvError(("2.3 ===========> Input file has faulty bbd\n"));
+			return(3);
+			}
        	if(fread(s,512,1,input)!=1) 
 			{
-			wvError("2.3 ===========> Input file has faulty bbd\n");
+			wvError(("2.4 ===========> Input file has faulty bbd\n"));
 			return 3;
 			}
        	s += 0x200;
@@ -200,15 +201,15 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
 			sbd_list[len] = LongInt(BDepot+(sbd_list[len-1]*4));
 		else
 			{
-         	wvError("3 ===========> Input file has faulty OLE format\n");
+         	wvError(("3 ===========> Input file has faulty OLE format\n"));
 			return(3);
 			}
 		if(sbd_list[len]==-2) break;
      	}
-     SDepot = malloc(512*len);
+     SDepot = (unsigned char *)malloc(512*len);
 	 if (SDepot== NULL)
 	 	{
-       	wvError("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",512*len);
+       	wvError(("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",512*len));
 		return(3);
 		}
      s = SDepot;
@@ -217,7 +218,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
        FilePos = 512 *(sbd_list[i]+1);
        fseek(input,FilePos,SEEK_SET);
        if(fread(s,512,1,input)!=1) {
-         wvError("3 ===========> Input file has faulty OLE format\n");
+         wvError(("3 ===========> Input file has faulty OLE format\n"));
          return 3;
        }
        s += 0x200;
@@ -227,16 +228,16 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
 		{
 		if ( ((root_list[len-1]*4) >= (512*num_bbd_blocks)) || ( (root_list[len-1]*4) < 0) )
 			{
-         	wvError("3.1 ===========> Input file has faulty OLE format\n");
+         	wvError(("3.1 ===========> Input file has faulty OLE format\n"));
 			return(3);
 			}
 		root_list[len] = LongInt(BDepot+(root_list[len-1]*4));
 		if(root_list[len]==-2) break;
 		}
-     Root = malloc(512*len);
+     Root = (unsigned char *)malloc(512*len);
 	 if (Root == NULL)
 	 	{
-       	wvError("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",512*len);
+       	wvError(("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",512*len));
 		return(3);
 		}
      s = Root;
@@ -245,25 +246,25 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
        FilePos = 512 *(root_list[i]+1);
        fseek(input,FilePos,SEEK_SET);
        if(fread(s,512,1,input)!=1) {
-         wvError("4 ===========> Input file has faulty OLE format\n");
+         wvError(("4 ===========> Input file has faulty OLE format\n"));
          return 3;
        }
        s += 0x200;
      }
 
      /* assign space for pps list */
-     pps_list = malloc(len*4*sizeof(pps_entry *));
+     pps_list = (pps_entry **)malloc(len*4*sizeof(pps_entry *));
 	 if (pps_list == NULL)
 	 	{
-       	wvError("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",len*4*sizeof(pps_entry *));
+       	wvError(("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",len*4*sizeof(pps_entry *)));
 		return(3);
 		}
      for(j=0;j<len*4;j++) 
 	 	{
-	 	pps_list[j] = malloc(sizeof(pps_entry));
+	 	pps_list[j] = (pps_entry *)malloc(sizeof(pps_entry));
 		if (pps_list[j] == NULL)
 			{
-			wvError("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",sizeof(pps_entry));
+			wvError(("1 ===========> probable corrupt ole file, unable to allocate %d bytes\n",sizeof(pps_entry)));
 			return(3);
 			}
 		}
@@ -274,7 +275,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
        i=ShortInt(s+0x40);
 	   if (((j*0x80) + i) >= (512 * len))
 	   	{
-		wvError("1.1 ===========> probable corrupt ole file\n");
+		wvError(("1.1 ===========> probable corrupt ole file\n"));
 		return(3);
 		}
        for(p=pps_list[j]->name,t=s;t<s+i;t++) 
@@ -319,32 +320,32 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
        if(pps_list[j]->type==5) {  /* Root entry */
          OLEfile = tmpfile();
          sbfile = OLEfile;
-         if(debug) wvTrace("Reading sbFile %d\n",pps_start);
+         wvTrace(("Reading sbFile %d\n",pps_start));
        }
        else if(!strcmp(pps_list[j]->name,Main)) {
          OLEfile = tmpfile();
          *mainfd = OLEfile;
-         if(debug) wvTrace("Reading Main %d\n",pps_start);
+         wvTrace(("Reading Main %d\n",pps_start));
        }
        else if(!strcmp(pps_list[j]->name,Table0)) {
          OLEfile = tmpfile();
          *tablefd0 = OLEfile;
-         if(debug) wvTrace("Reading Table0 %d\n",pps_start);
+         wvTrace(("Reading Table0 %d\n",pps_start));
        }
        else if(!strcmp(pps_list[j]->name,Table1)) {
          OLEfile = tmpfile();
          *tablefd1 = OLEfile;
-         if(debug) wvTrace("Reading Table1 %d\n",pps_start);
+         wvTrace(("Reading Table1 %d\n",pps_start));
        }
        else if(!strcmp(pps_list[j]->name,Data)) {
          OLEfile = tmpfile();
          *data = OLEfile;
-         if(debug) wvTrace("Reading Data %d\n",pps_start);
+         wvTrace(("Reading Data %d\n",pps_start));
        }
        else if(!strcmp(pps_list[j]->name,Summary)) {
          OLEfile = tmpfile();
          *summary= OLEfile;
-         if(debug) wvTrace("Reading Summary%d\n",pps_start);
+         wvTrace(("Reading Summary%d\n",pps_start));
        }
 	   	
        if(pps_size<=0) OLEfile = NULL;
@@ -367,21 +368,28 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
   		 depot_len= 512*len;
        }
        while(pps_start != -2) {
-         if(debug) wvTrace("Reading block %d, Offset %x\n",pps_start,Offset);
+         wvTrace(("Reading block %d, Offset %x\n",pps_start,Offset));
          FilePos = (pps_start+Offset)* BlockSize;
          bytes = THEMIN(BlockSize,pps_size);
          if (fseek(infile,FilePos,SEEK_SET) != 0) {
-		 wvError("6 ===========> Input file has faulty OLE format\n");
+		 /*wvError(("6 ===========> Input file has faulty OLE format\n"));*/
 		  return(3);
 		 }
          if(fread(Block,bytes,1,infile)!=1) {
-           wvError("5 ===========> Input file has faulty OLE format\n");
+           /*wvError(("5 ===========> Input file has faulty OLE format\n"));*/
+			wvFree(Root);
+			wvFree(BDepot);
+			wvFree(Block);
            return(3);
          }
          fwrite(Block,bytes,1,OLEfile);
-		 if (pps_start*4 > depot_len)
+		 if ( (pps_start*4 > depot_len) || (pps_start*4 < 0) )
 		 	{
-			wvWarning("5 ===========> Input file has dodgy OLE format\n");
+			/*wvWarning("5 ===========> Input file has dodgy OLE format\n");*/
+			wvFree(Root);
+			wvFree(BDepot);
+			wvFree(Block);
+			return(3);
 			pps_size = 0;
 			}
 		else
@@ -393,14 +401,24 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
        }
        rewind(OLEfile);
      }
-    free(Root);
-    free(BDepot);
-    free(Block);
+
+	for(j=0;j<len*4;j++) {
+	 	free(pps_list[j]);
+	 }
+    free(pps_list);
+    wvFree(Root);
+    wvFree(BDepot);
+    wvFree(Block);
     fclose(input);
     return 0;
   } else {
     /* not a OLE file! */
-    wvError("7 ===========> Input file is not an OLE file\n");
+  if(isprint(c)) 
+  		{
+		wvTrace(("File looks like a plain text file.\n"));
+		return 2;
+		} 
+    wvTrace(("7 ===========> Input file is not an OLE file\n"));
     return 2;
   }
 }
@@ -410,4 +428,16 @@ void wvOLEFree(void)
 	if (SDepot != NULL)
 		free(SDepot);
 	}
+
+void wvFindObject(S32 id)
+    {
+    U32 stream;
+    char idname[64];
+    sprintf(idname,"_%ld",id);
+    for (stream = stream_tree[root_stream].dir; stream != 0xffffffff; stream = stream_tree[stream].next)
+        {
+        if (!(strcmp(stream_tree[stream].name,idname)))
+            wvError(("found object\n"));
+        }
+    }
 

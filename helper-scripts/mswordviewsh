@@ -25,7 +25,7 @@ umask 077
 
 DOC=$1
 
-mswordview $DOC > $DOC.html
+wvWare $DOC > $DOC.html
 
 netscape -remote "openURL(file:$DOC.html)"
 

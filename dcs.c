@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "wv.h"
 
-void wvGetDCS_internal(DCS *item,FILE *fd, U8 *pointer)
+void wvGetDCS_internal(DCS *item,wvStream *fd, U8 *pointer)
 	{
 	U16 temp16;
 	temp16 = dread_16ubit(fd,&pointer);
@@ -11,7 +12,7 @@ void wvGetDCS_internal(DCS *item,FILE *fd, U8 *pointer)
 	item->reserved = (temp16 & 0xff00) >> 8;
 	}
 
-void wvGetDCS(DCS *item,FILE *fd)
+void wvGetDCS(DCS *item,wvStream *fd)
 	{
 	wvGetDCS_internal(item,fd,NULL);
 	}
@@ -23,9 +24,7 @@ void wvGetDCSFromBucket(DCS *item,U8 *pointer)
 
 void wvCopyDCS(DCS *dest,DCS *src)
 	{
-	dest->fdct = src->fdct;
-	dest->count = src->count;
-	dest->reserved = src->reserved;
+	memcpy(dest,src,sizeof(DCS));
 	}
 
 void wvInitDCS(DCS *item)

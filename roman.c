@@ -56,7 +56,7 @@ main (int argc, char **argv)
       char *buf = malloc (81);
       if (!buf)
       {
-         wvError("Not enough memory\n");
+         wvError(("Not enough memory\n"));
          exit (EXIT_FAILURE);
       }
       printf ("Decimal <=> Roman Numberal converter by Adam Rogoyski\n");
@@ -129,7 +129,7 @@ char * decimalToRoman (long decimal, char *roman)
    if (decimal > LARGEST || decimal < 1)
    {
       *r = '\0';
-	  wvError("roman broke\n");
+	  wvError(("roman broke\n"));
       return roman;
    }
    if (decimal >= Z)
