@@ -3509,8 +3509,8 @@ typedef enum _pid
 	shadowScaleYToX = 522,	/*LONG           0               16.16*/
 	shadowScaleXToY = 523,	/*LONG           0               16.16*/
 	shadowScaleYToY = 524,	/*LONG           1<<16           16.16*/
-	shadowPerspectiveX = 525,	/*LONG           0               16.16 /*/
-	shadowPerspectiveY = 526,	/*LONG           0               16.16 /*/
+	shadowPerspectiveX = 525,	/*LONG           0               16.16 */
+	shadowPerspectiveY = 526,	/*LONG           0               16.16 */
 	shadowWeight = 527,	/*LONG           1<<8            scaling*/
 	shadowOriginX = 528,	/*LONG           0*/
 	shadowOriginY = 529,	/*LONG           0*/
