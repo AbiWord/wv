@@ -13,6 +13,9 @@
 
 /* This should be done in glib */
 #ifndef _WIN32
+#if defined(__QNXNTO__)
+#		include <sys/types.h>	
+#endif
 #      include <fcntl.h>       /* for mode_t */
 #else
 	typedef unsigned long mode_t;
