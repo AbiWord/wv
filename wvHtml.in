@@ -34,6 +34,9 @@ while test $# -gt 0; do
     --charset=* | --password=*)
       wv_opts="$wv_opts $1"
       ;;
+    -1)
+      wv_opts="$wv_opts $1"
+      ;;
     -v | --version)
       echo @VERSION@
       exit 0
