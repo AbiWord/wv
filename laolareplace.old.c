@@ -98,7 +98,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
   int c,i,j,len,bytes;
   char *p;
   unsigned char *s,*t;
-  unsigned char *Block,*BDepot,*Depot,*Root;
+  unsigned char *Block,*BDepot=NULL,*Depot=NULL,*Root=NULL;
   U32 depot_len;
   
   char Main[]="WordDocument";
@@ -106,7 +106,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
   char Table1[]="1Table";
   char Data[]="Data";
   char Summary[]="\005SummaryInformation";
-  U32 FilePos=0x00000000;
+  S32 FilePos=0x0;
   S32 num_bbd_blocks;
   S32 root_list[MAXBLOCKS], sbd_list[MAXBLOCKS];
   S32 pps_size,pps_start=-1;
@@ -165,7 +165,7 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
      s = BDepot;
      root_list[0]=LongInt(Block+0x30);
      sbd_list[0]=(S16)LongInt(Block+0x3c);
-    if(debug) wvError("num_bbd_blocks %d, root start %d, sbd start %d\n",num_bbd_blocks,root_list[0],sbd_list[0]);
+    if(debug) wvTrace("num_bbd_blocks %d, root start %d, sbd start %d\n",num_bbd_blocks,root_list[0],sbd_list[0]);
 	temppos = ftell(input);
 	fseek(input,0,SEEK_END);
 	fullen = ftell(input);
@@ -377,12 +377,19 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
 		 }
          if(fread(Block,bytes,1,infile)!=1) {
            wvError("5 ===========> Input file has faulty OLE format\n");
+			wvFree(Root);
+			wvFree(BDepot);
+			wvFree(Block);
            return(3);
          }
          fwrite(Block,bytes,1,OLEfile);
 		 if (pps_start*4 > depot_len)
 		 	{
 			wvWarning("5 ===========> Input file has dodgy OLE format\n");
+			wvFree(Root);
+			wvFree(BDepot);
+			wvFree(Block);
+			return(3);
 			pps_size = 0;
 			}
 		else
@@ -394,9 +401,9 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
        }
        rewind(OLEfile);
      }
-    free(Root);
-    free(BDepot);
-    free(Block);
+    wvFree(Root);
+    wvFree(BDepot);
+    wvFree(Block);
     fclose(input);
     return 0;
   } else {

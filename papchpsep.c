@@ -57,7 +57,7 @@ void fill_table_info(pap *apap,U32 tapfc1, U32 *plcfbtePapx,U32 intervals,
 			tappap=NULL;
 			}
 
-		wvTrace("tappap nexts are %x\n",tapfc1);
+		error(erroroutput,"tappap nexts are %x\n",tapfc1);
 		tempfck = find_FKPno_papx(tapfc1,plcfbtePapx,intervals);
 		if (tempfck != -1)
 			tappap = get_pap(tempfck,mainfd,tapfc1,&tapfc1,sheet,a_list_info);
@@ -65,7 +65,7 @@ void fill_table_info(pap *apap,U32 tapfc1, U32 *plcfbtePapx,U32 intervals,
 			break;
 		}
 	while( (tappap != NULL) && (!tappap->fTtp) );
-	wvTrace("finished search for the tap here\n");
+	error(erroroutput,"finished search for the tap here\n");
 	/*
 	at this stage tappap has the correct row structure stored in it
 	that we want apap to have
@@ -73,7 +73,7 @@ void fill_table_info(pap *apap,U32 tapfc1, U32 *plcfbtePapx,U32 intervals,
 	if (tappap != NULL)
 		{
 		copy_tap(&(apap->ourtap),&(tappap->ourtap));
-		wvTrace("no of cells is %d, %d\n",apap->ourtap.cell_no,tappap->ourtap.cell_no);
+		error(erroroutput,"no of cells is %d, %d\n",apap->ourtap.cell_no,tappap->ourtap.cell_no);
 		free(tappap);
 		tappap=NULL;
 		}
@@ -94,22 +94,22 @@ chp *get_chp(U32 pageindex,FILE *in, FILE *data, U32 charindex, U32 *nextfc,styl
 	fseek(in,0,SEEK_END);
 	fullen = ftell(in);
 
-	wvTrace("\nlooking for CHP in page %d given istd %d\n",pageindex,istd);
+	error(erroroutput,"\nlooking for CHP in page %d given istd %d\n",pageindex,istd);
 	/*this no refers to 512*pageindex ?*/
-	wvTrace("\n%x\n",(512*pageindex));
+	error(erroroutput,"\n%x\n",(512*pageindex));
 
 
 	*nextfc = find_next_smallest_fc(charindex,pageindex,in,&i,NULL);
-	wvTrace("next char lim is %d (%x)\n",*nextfc,*nextfc);
+	error(erroroutput,"next char lim is %d (%x)\n",*nextfc,*nextfc);
 
 	retchp = (chp *) malloc(sizeof(chp));
 	if (retchp == NULL)
 		{
-		wvError("no mem available\n");
+		fprintf(erroroutput,"no mem available\n");
 		exit(-1);
 		}
 
-	wvTrace("the istd of this chp is %d\n",istd);
+	error(erroroutput,"the istd of this chp is %d\n",istd);
 
 	init_chp_from_istd(istd,sheet,retchp);
 
@@ -122,14 +122,14 @@ chp *get_chp(U32 pageindex,FILE *in, FILE *data, U32 charindex, U32 *nextfc,styl
 
 		/*the first byte is the one we want*/
 		offset = getc(in);
-		wvTrace("CHP: chpx offset is %ld %x, going to %x\n",offset,offset,(512*(pageindex))+offset*2);
+		error(erroroutput,"CHP: chpx offset is %ld %x, going to %x\n",offset,offset,(512*(pageindex))+offset*2);
 		}
 
 	if (offset == 0)
 		{
-		wvTrace("CHP: special chpx offset leaving now\n");
+		error(erroroutput,"CHP: special chpx offset leaving now\n");
 		fseek(in,pos,SEEK_SET);
-		wvTrace("at this end bold is %d\n",retchp->fBold);
+		error(erroroutput,"at this end bold is %d\n",retchp->fBold);
 		}
 	else
 		{
@@ -138,7 +138,7 @@ chp *get_chp(U32 pageindex,FILE *in, FILE *data, U32 charindex, U32 *nextfc,styl
 		the offset i get out of this value ?*/
 		fseek(in,(512*(pageindex))+offset*2,SEEK_SET);
 		cb = getc(in);
-		wvTrace("CHP: cb was %d\n",cb);
+		error(erroroutput,"CHP: cb was %d\n",cb);
 
 
 		if (cb != 0)
@@ -148,13 +148,13 @@ chp *get_chp(U32 pageindex,FILE *in, FILE *data, U32 charindex, U32 *nextfc,styl
 				{
 				clist = read_16ubit(in);
 				l+=2;
-				wvTrace("decoding sprm %X\n",clist);
+				error(erroroutput,"decoding sprm %X\n",clist);
 				decode_sprm(in,clist,NULL,retchp,NULL,&l,NULL,sheet,istd);
 				}
 			}
 
 		fseek(in,pos,SEEK_SET);
-		wvTrace("at end bold is %d\n",retchp->fBold);
+		error(erroroutput,"at end bold is %d\n",retchp->fBold);
 		}
 	
 	if (retchp->fSmallCaps)
@@ -162,17 +162,17 @@ chp *get_chp(U32 pageindex,FILE *in, FILE *data, U32 charindex, U32 *nextfc,styl
 
 	if ((retchp->fRMarkDel) && (dorevs))
 		{
-		wvTrace("delete mark is on\n");
+		error(erroroutput,"delete mark is on\n");
 		retchp->fStrike=1;
 		}
 
 	if ((retchp->fRMark) && (dorevs))
 		{
-		wvTrace("addition mark is on\n");
+		error(erroroutput,"addition mark is on\n");
 		retchp->underline=1;
 		}
 
-	wvTrace("fcPic in chp is %x\n",retchp->fcPic);
+	error(erroroutput,"fcPic in chp is %x\n",retchp->fcPic);
 
 	return(retchp);
 	}
@@ -185,17 +185,17 @@ void init_sep(sep *asep)
 	asep->fAutoPgn=0;
 
 	asep->nfcPgn=0;
-	asep->fUnlocked=0;
-        asep->cnsPgn=0;
+    asep->fUnlocked=0;
+    asep->cnsPgn=0;
 	asep->fPgnRestart=0;
 	asep->fEndNote=1;
 	asep->lnc=0;
-        asep->grpfIhdt=0;
+    asep->grpfIhdt=0;
 	asep->nLnnMod=0;
 	asep->ccolM1=0;
 	asep->pgnStart=1;
-        asep->xaPage=12240;
-        asep->yaPage=15840;
+    asep->xaPage=12240;
+    asep->yaPage=15840;
     asep->dxaLeft=1800;
     asep->dxaRight=1800;
     asep->dyaTop=1440;
@@ -213,16 +213,16 @@ sep *get_sep(U32 offset,FILE *in)
 	asep = (sep *) malloc(sizeof(sep));
 	if (asep == NULL)
 		{
-		wvError("no memory (get_sep)\n");
+		error(erroroutput,"arse\n");
 		exit(-1);
 		}
 
 	init_sep(asep);	
 
 	fseek(in,offset,SEEK_SET);
-	wvTrace("sepx at %x",offset);
+	error(erroroutput,"sepx at %x",offset);
 	cb = read_16ubit(in);
-	wvTrace("no of bytes is %d",cb);
+	error(erroroutput,"no of bytes is %d",cb);
 
 	if (cb != 0)
 		{
@@ -231,7 +231,7 @@ sep *get_sep(U32 offset,FILE *in)
 			{
 			clist = read_16ubit(in);
 			l+=2;
-			wvTrace("decoding sprm %X\n",clist);
+			error(erroroutput,"decoding sprm %X\n",clist);
 			decode_sprm(in,clist,NULL,NULL,asep,&l,NULL,NULL,0);
 			}
 		}
@@ -246,7 +246,7 @@ sep *get_sep(U32 offset,FILE *in)
 
 	currentsep = asep;
 
-	wvTrace("sep x and y is %d %d\n",asep->xaPage,asep->yaPage);
+	error(erroroutput,"sep x and y is %d %d\n",asep->xaPage,asep->yaPage);
 	return(asep);
 	}
 
@@ -263,65 +263,65 @@ pap *get_pap(U32 pageindex,FILE *in, U32 charindex, U32 *nextfc, style *sheet,li
 	pap *retpap=NULL;
 	sep fakesep;
 
-	wvTrace("\nlooking for PAP in page %d\n",pageindex);
+	error(erroroutput,"\nlooking for PAP in page %d\n",pageindex);
 	/*this no refers to 512*pageindex ?*/
-	wvTrace("\n%x\n",(512*pageindex));
+	error(erroroutput,"\n%x\n",(512*pageindex));
 
 	*nextfc = find_next_smallest_fc(charindex,pageindex,in,&i,NULL);
 
 	retpap = (pap *) malloc(sizeof(pap));
 	if (retpap == NULL)
 		{
-		wvError("no mem available\n");
+		fprintf(erroroutput,"no mem available\n");
 		exit(-1);
 		}
 	init_pap(retpap);
 
 	/*leap ahead to the BX we want*/
 	fseek(in,i*13,SEEK_CUR);
-	wvTrace("the pap offset is %x\n",ftell(in));
+	error(erroroutput,"the pap offset is %x\n",ftell(in));
 
 	/*pull out BX word offset*/
 	for(k=0;k<13;k++)
 		BX[k] = getc(in);
 	/*the first byte is the one we want*/
 	offset = BX[0];
-	wvTrace("papx offset is %ld %x, going to %x\n",offset,offset,(512*(pageindex))+offset*2);
+	error(erroroutput,"papx offset is %ld %x, going to %x\n",offset,offset,(512*(pageindex))+offset*2);
 	if (BX[0] == 0)
-		wvTrace("special papx offset ?\n");
+		error(erroroutput,"special papx offset ?\n");
 	/*this section is fucked up, why does it appear that i have to use twice
 	the offset i get out of this value ?*/
 	fseek(in,(512*(pageindex))+offset*2,SEEK_SET);
 	cw = getc(in);
 	if (cw == 0)
 		{
-		wvTrace("cw was pad %d\n",cw);
+		error(erroroutput,"cw was pad %d\n",cw);
 		cw = getc(in);
-		wvTrace("cw was %d\n",cw);
+		error(erroroutput,"cw was %d\n",cw);
 		cw=cw*2;
-		wvTrace("so bytes are %d\n",cw);
+		error(erroroutput,"so bytes are %d\n",cw);
 		}
 	else
 		cw=cw*2; /*when the pap is in a stsh then this is not done*/
 		
-	wvTrace("cw bytes are %d\n",cw);
+	error(erroroutput,"cw bytes are %d\n",cw);
 
 	len=0;
 	retpap->istd = read_16ubit(in);
 	len+=2;
-	wvTrace("istd index is %d\n",retpap->istd);
+	error(erroroutput,"istd index is %d\n",retpap->istd);
 	/*
 	take the istd and get the style from the decoded style list
 	and shove in the starting values values from that
 	*/
 	if (retpap->istd > nostyles)
 		{
-		wvWarning("invalid istd %d/%x\n",retpap->istd,retpap->istd);
+		error(erroroutput,"WARNING invalid istd %d/%x\n",retpap->istd,retpap->istd);
 		retpap->istd=0;
 		}
 
 	init_pap_from_istd(retpap->istd,sheet,retpap);
-	wvTrace("BEGIN, ilfo is %d",retpap->ilfo);
+	error(erroroutput,"BEGIN, ilfo is %d",retpap->ilfo);
 
 	while (len < cw)
 		{
@@ -330,20 +330,19 @@ pap *get_pap(U32 pageindex,FILE *in, U32 charindex, U32 *nextfc, style *sheet,li
 		/*
 		and *why* do i have to take this byte out to get what i want ?
 		*/
-		wvTrace("clist %x \n",clist);
+		error(erroroutput,"clist %x \n",clist);
 		decode_sprm(in,clist,retpap,NULL,&fakesep,&len,NULL,sheet,retpap->istd);
 		}
-	wvTrace("END");
+	error(erroroutput,"END");
 	fseek(in,pos,SEEK_SET);
 	return(retpap);
 	}
 
 U32 find_FC_sepx(U32 cp,U32 *sepcp,textportions *portions)
 	{
-	int j=1;
-	while (j<portions->section_nos+1)
+	U32 j=1;
+	while (j<=portions->section_nos)
 		{
-		/* wvTrace("find_FKPno_sepx:-> %x, %x\n",cp,portions->section_cps[j]); */
 		if (cp < portions->section_cps[j])
 			{
 			wvTrace("the sep cp is %x\n",portions->section_cps[j]-1);
@@ -354,16 +353,15 @@ U32 find_FC_sepx(U32 cp,U32 *sepcp,textportions *portions)
 			}
 		j++;
 		}
-	wvTrace("no sep FC found\n");
+	wvError("no sep FC found\n");
 	return(0xffffffffL);
 	}
 
 int find_FKPno_papx(U32 fc,U32 *plcfbtePapx,U32 intervals)
 	{
-	int j=1;
-	while (j<intervals+1)
+	U32 j=1;
+	while (j<=intervals)
 		{
-		/* wvTrace("->page %d, fc is (%x) and plcfbtePapx[j] is %x, intervals is %d\n",j,fc,plcfbtePapx[j],intervals); */
 		if (fc < plcfbtePapx[j])
 			{
 			wvTrace("it was less that it\n");
@@ -373,16 +371,15 @@ int find_FKPno_papx(U32 fc,U32 *plcfbtePapx,U32 intervals)
 			}
 		j++;
 		}
-	wvTrace("no FKP pap found, using last entry instead\n");
+	wvError("no FKP pap found, using last entry instead\n");
 	return(-1);
 	}
 
 int find_FKPno_chpx(U32 fc,U32 *plcfbteChpx,U32 chpintervals)
 	{
 	int j=1;
-	while (j<chpintervals+1)
+	while (j<=chpintervals)
 		{
-		/* wvTrace("->chp page %d, fc is (%x) and plcfbteChpx[j] is %x\n",j,fc,plcfbteChpx[j]); */
 		if (fc < plcfbteChpx[j])
 			{
 			wvTrace("CHP: it was less that it\n");
@@ -392,7 +389,7 @@ int find_FKPno_chpx(U32 fc,U32 *plcfbteChpx,U32 chpintervals)
 			}
 		j++;
 		}
-	wvTrace("CHP: no chp found, using last entry\n");
+	wvError("CHP: no chp found, using last entry\n");
 	return(-1);
 	}
 
@@ -409,7 +406,7 @@ U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, FILE *in, U16 *loc
 		{
 		wvTrace("smallest seek to %x\n",(512*pageindex)+511);
 		if ((mainend < (512*pageindex)+511) || (0 != fseek(in,(512*pageindex)+511,SEEK_SET)))
-			wvTrace("ran too far forward on smallest seek 1 to %x, bloody semi corrupt file\n",(512*pageindex)+511);
+			wvError("ran too far forward on smallest seek 1 to %x, bloody semi corrupt file\n",(512*pageindex)+511);
 		else
 			{
 			crun = getc(in);
@@ -430,8 +427,6 @@ U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, FILE *in, U16 *loc
 				{
 				if (charindex >=  rgfc[i])
 					{
-					/* wvTrace("looking for BX %ld, charindex is %ld (%x),  rgfc is %ld (%x),\n",
-						   i,charindex,charindex, rgfc[i+1],rgfc[i+1]); */
 					*location = i;
 					rval = rgfc[i];
 					break;
@@ -463,7 +458,7 @@ U32 find_next_biggest_fc(U32 charindex,U32 pageindex, FILE *in, U16 *location,lo
 		{
 		wvTrace("smallest seek to %x\n",(512*pageindex)+511);
 		if ((mainend < (512*pageindex)+511) || (0 != fseek(in,(512*pageindex)+511,SEEK_SET)))
-			wvTrace("ran too far forward on smallest seek 1 to %x, bloody semi corrupt file\n",(512*pageindex)+511);
+			wvError("ran too far forward on smallest seek 1 to %x, bloody semi corrupt file\n",(512*pageindex)+511);
 		else
 			{
 			crun = getc(in);
@@ -484,8 +479,6 @@ U32 find_next_biggest_fc(U32 charindex,U32 pageindex, FILE *in, U16 *location,lo
 				{
 				if (charindex >  rgfc[i])
 					{
-					/* wvTrace("looking for BX %ld, charindex is %ld (%x),  rgfc is %ld (%x),\n",
-						   i,charindex,charindex, rgfc[i+1],rgfc[i+1]);	*/
 					*location = i;
 					rval = rgfc[i];
 					break;
@@ -519,7 +512,7 @@ U32 find_next_smallest_fc(U32 charindex,U32 pageindex, FILE *in, S16 *location,l
 		{
 		wvTrace("smallest seek to %x\n",(512*pageindex)+511);
 		if ((mainend < (512*pageindex)+511) || (0 != fseek(in,(512*pageindex)+511,SEEK_SET)))
-			wvTrace("ran too far forward on smallest seek 1 to %x, bloody semi corrupt file\n",(512*pageindex)+511);
+			wvError("ran too far forward on smallest seek 1 to %x, bloody semi corrupt file\n",(512*pageindex)+511);
 		else
 			{
 			crun = getc(in);
@@ -533,7 +526,6 @@ U32 find_next_smallest_fc(U32 charindex,U32 pageindex, FILE *in, S16 *location,l
 			fseek(in,(512*pageindex),SEEK_SET);
 			for(i=0;i<crun+1;i++)
 				rgfc[i] = read_32ubit(in);
-			wvTrace("\n");
 			i=0;
 			while (i<crun)
 				{
@@ -607,8 +599,7 @@ chp * get_complex_chp(U32 fc,U32 *plcfbteChpx,U16 i,U16 nopieces,U32 chpinterval
 	}
 
 
-pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U32 *rgfc,FILE *main,
-		      U32 *avalrgfc,U32 *thenextone,U32 *paraendfc,int *paraendpiece,style *sheet,list_info *a_list_info)
+pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U32 *rgfc,FILE *main,U32 *avalrgfc,U32 *thenextone,U32 *paraendfc,int *paraendpiece,style *sheet,list_info *a_list_info)
 	{
 	pap *apap=NULL;
 	int tempfck;
@@ -629,7 +620,6 @@ pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U
 
 	*paraendpiece = i;
 
-	wvTrace("Searching for PAP, current piece is %d\n",i);
 
 	/*first get the piece that this char is from*/
 	/*ive been running the current fc through this processing, but maybe
@@ -656,7 +646,6 @@ pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U
 	/*get the end fc of the piece*/
 	
 	fc2 = avalrgfc[i];
-	wvTrace("1 fc2 is %x\n",fc2);
     if (fc2 & 0x40000000UL)
 		{
         fc2 = fc2 & 0xbfffffffUL;
@@ -666,26 +655,24 @@ pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U
 	else
 		fc2 +=2*(rgfc[i+1]-rgfc[i]);
 		
-	wvTrace("fc2 is %x\n",fc2);
 
 
 	/*now attempt to find the end of the paragraph*/
 	if (tempfck != -1)
 		{
 		nextfc = find_next_smallest_fc(fc,tempfck,main,&location,&passposition);
-		wvTrace("in this FKP the next fc larger than (%x) is (%x)\n",fc,nextfc);
 		}
 	else
 		{
-		wvTrace("for some reason this fc is outside the limits of the fkp itself\n");
+		wvError("for some reason this fc is outside the limits of the fkp itself\n");
 		/*this nextfc must be > fc2*/
 		nextfc = fc2+1;
 		}
 	
 	if ( nextfc <= (fc2) )
 		{
-		wvTrace("not doing para end search\n");
-		wvTrace("the end of the paragraph that describes this piece is at (%x)",nextfc-1);
+		error(erroroutput,"not doing para end search\n");
+		error(erroroutput,"the end of the paragraph that describes this piece is at (%x)",nextfc-1);
 		if (paraendfc != NULL)
 			*paraendfc=nextfc;
 		/*this means that if we grab the PAP of this char that we have got the pap for the piece*/
@@ -698,11 +685,11 @@ pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U
 	else if(nextfc == -1)
 		{
 		nextfc = fc;
-		wvWarning("BUGGING OUT\n"); /* should this be warning, or just a trace? --JB */
+		error(erroroutput,"BUGGING OUT\n");
 		}
 	else
 		{
-		wvTrace("PAP: doing para end search\n");
+		error(erroroutput,"PAP: doing para end search\n");
 		/*
 		in this case the paragraph will have to be looked for again
 		when this piece comes to an end ?
@@ -726,14 +713,14 @@ pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U
 					fc = fc & 0xbfffffffUL;
 					fc = fc/2;
 					}
-			wvTrace("fc pulled out here is (%x) (%x) %d\n",fc,avalrgfc[j],j);
+			error(erroroutput,"fc pulled out here is (%x) (%x) %d\n",fc,avalrgfc[j],j);
 			tempfck = find_FKPno_papx(fc,plcfbtePapx,intervals);
 			if (tempfck != -1)
 				{
 				nextfc = find_next_smallest_fc(fc,tempfck,main,&location,&passposition);
-				wvTrace("the next one is (%x)\n",nextfc);
-				wvTrace("less than aval is (%x),and end is (%x)",fc,fc+rgfc[j+1]-rgfc[j]);
-				wvTrace("avals are %x and %x\n",nextfc-1,fc+rgfc[j+1]-rgfc[j]);
+				error(erroroutput,"the next one is (%x)\n",nextfc);
+				error(erroroutput,"less than aval is (%x),and end is (%x)",fc,fc+rgfc[j+1]-rgfc[j]);
+				error(erroroutput,"avals are %x and %x\n",nextfc-1,fc+rgfc[j+1]-rgfc[j]);
 			/*
 				if ((nextfc <= (fc+rgfc[j+1]-rgfc[j])) || ((nextfc-1 >= fc+rgfc[j+1]-rgfc[j]) && (j==i+1)))
 			*/
@@ -753,25 +740,24 @@ pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U
 					}
 				else
 					fc2 += 2*(rgfc[j+1]-rgfc[j]);
-
-				 wvTrace("fc2 is %x\n",fc2);
+				error(erroroutput,"fc2 is %x\n",fc2);
 			
 
 				if (nextfc <= fc2 )
 					{
 					/*well this is the end then*/
-					wvTrace("the end of the paragraph that describes this piece is at (%x), after trying further",nextfc-1);
+					error(erroroutput,"the end of the paragraph that describes this piece is at (%x), after trying further",nextfc-1);
 					*paraendpiece = j; 
 					if (paraendfc != NULL)
 						*paraendfc=nextfc;
 
-					wvTrace("the pieceend is %d\n",*paraendpiece);
+					error(erroroutput,"the pieceend is %d\n",*paraendpiece);
 					if (tempfck != -1)
 						apap = get_pap(tempfck,main,nextfc-1,&tempfc,sheet,a_list_info);
 					break;
 					}
 				else
-					wvTrace("next cycle nopieces is %d,j is %d\n",nopieces,j);
+					error(erroroutput,"next cycle nopieces is %d,j is %d\n",nopieces,j);
 				}
 			}
 		}	
@@ -780,6 +766,6 @@ pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U
 */
 		
 	if (apap != NULL)
-		wvTrace("PAP: istd is %ld\n",apap->istd);
+		error(erroroutput,"PAP: istd is %ld\n",apap->istd);
 	return(apap);
 	}

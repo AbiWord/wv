@@ -14,7 +14,7 @@ extern int sectionpagenumber;
 extern int sectionno;
 
 
-void decode_field(FILE *main,field_info *magic_fields,long *cp,U8 *fieldwas,long *swallowcp1,long *swallowcp2)
+void decode_field(FILE *main,field_info *magic_fields,long *cp,U8 *fieldwas,unsigned long *swallowcp1,unsigned long *swallowcp2)
 	{
 	time_t timep;
 	struct tm *times;

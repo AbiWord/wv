@@ -78,7 +78,6 @@ extern element_style ele_style[3];
 
 extern RETSIGTYPE reaper(int);
 extern RETSIGTYPE timeingout(int );
-extern void signal_handle (int sig, SigHandler * handler);
 
 extern document_style *doc_style;
 
@@ -102,10 +101,7 @@ int main(int argc,char **argv)
 	int ret=0;
 	int timeout=-1;
 	char *endptr;
-	char *buffer;
-	char fileinbuf[1024];
 	
-	FILE *filein;
 	FILE *input;
 	wvParseStruct ps;
 
@@ -444,13 +440,13 @@ int main(int argc,char **argv)
 		}
 
 	/*set SIGCHLD handled*/
-	signal_handle (SIGCHLD, reaper);
+	/*signal_handle (SIGCHLD, reaper);*/
 
 	currentfontsize = NORMAL;
 	
 	if (timeout != -1)
 		{
-		signal_handle (SIGALRM, timeingout);
+		/*signal_handle (SIGALRM, timeingout);*/
 		/*well abort after this number of seconds*/
 		alarm(timeout);
 		}
@@ -529,7 +525,7 @@ int main(int argc,char **argv)
 	}
 
 
-
+/*
 #if defined (HAVE_POSIX_SIGNALS)
 void signal_handle (int sig, SigHandler * handler)
     {
@@ -542,3 +538,4 @@ void signal_handle (int sig, SigHandler * handler)
     sigaction (sig, &act, &oact);
     }
 #endif
+*/

@@ -40,8 +40,19 @@ int wvSprmLen(int spra)
 	return(-2);
 	}
 
+void wvInitSprm(Sprm *Sprm)
+	{
+	Sprm->ispmd = 0;
+	Sprm->fSpec = 0;
+	Sprm->sgc = 0;
+	Sprm->spra = 0;
+	}
+
 void wvGetSprmFromU16(Sprm *Sprm,U16 sprm)
 	{
+#ifdef PURIFY
+	wvInitSprm(Sprm);
+#endif
 	Sprm->ispmd = sprm & 0x01ff;
 	Sprm->fSpec = (sprm & 0x0200)>>9;  
 	Sprm->sgc = (sprm & 0x1c00)>>10;
@@ -52,7 +63,7 @@ int wvEatSprm(U16 sprm,U8 *pointer, U16 *pos)
 	{
 	int len;
 	Sprm aSprm;
-	wvError("Eating sprm %x\n",sprm);
+	wvTrace("Eating sprm %x\n",sprm);
 	wvGetSprmFromU16(&aSprm,sprm);
 	if (sprm == sprmPChgTabs)
 		{
@@ -95,7 +106,10 @@ void wvApplySprmFromBucket(U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8
 	if (apap == NULL)
 		apap = &temppap;
 	if (achp == NULL)
+		{
+		wvInitCHP(&tempchp);
 		achp = &tempchp;
+		}
 	if (asep == NULL)
 		asep = &tempsep;
 
@@ -595,6 +609,8 @@ void wvApplySprmFromBucket(U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8
 		case sprmCLid:			/* only used internally, never stored */
 		case sprmCKcd: 			/* ???? */
 		case sprmCCharScale:	/* ???? */
+		case sprmNoop:			/* no operand */
+			break;
 		default:
 			wvEatSprm(sprm,pointer,pos);
 			break;
@@ -1815,13 +1831,17 @@ void wvApplysprmPPc(PAP *apap,U8 *pointer,U16 *pos)
 	U8 temp8;
 	struct _temp
 		{
-		U8 reserved:4;
-		U8 pcVert:2;
-		U8 pcHorz:2;
+		U32 reserved:4;
+		U32 pcVert:2;
+		U32 pcHorz:2;
 		} temp;
     
 
 	temp8 = bgetc(pointer,pos);
+#ifdef PURIFY
+	temp.pcVert = 0;
+	temp.pcHorz = 0;
+#endif
 	temp.pcVert = (temp8 & 0x0C) >> 4;
 	temp.pcHorz = (temp8 & 0x03) >> 6;
 
@@ -2048,10 +2068,10 @@ void wvApplysprmCSizePos(CHP *achp,U8 *pointer,U16 *pos)
 	U16 temp8;
 	struct _temp
 		{
-		U8 hpsSize;
-		U8 cInc:7;
-		U8 fAdjust:1;
-		U8 hpsPos;
+		U32 hpsSize:8;
+		U32 cInc:7;
+		U32 fAdjust:1;
+		U32 hpsPos:8;
 		} temp;
 	temp.hpsSize = dgetc(NULL,&pointer);
 	(*pos)++;
@@ -2218,9 +2238,9 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	field is reset to the value stored in the style's CHP. If the two copies
 	differ, then the original CHP value is left unchanged.
 	*/
-	wvError("This document has a sprm (sprmCMajority), that ive never seen in practice please mail ");
-	wvError("Caolan.McNamara@ul.ie with this document, as i haven't been able to ");
-	wvError("get any examples of it so as to figure out if its handled correctly\n");
+	wvTrace("This document has a sprm (sprmCMajority), that ive never seen in practice please mail ");
+	wvTrace("Caolan.McNamara@ul.ie with this document, as i haven't been able to ");
+	wvTrace("get any examples of it so as to figure out if its handled correctly\n");
 	
 	wvInitCHP(&base);
 	base.ftc=4;
@@ -2236,8 +2256,12 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 		upxf.upx.chpx.grpprl[i] = dgetc(NULL,&pointer);
 		(*pos)++;
 		}
+
+	wvTrace("achp istd is %d\n",achp->istd);
 	
 	wvAddCHPXFromBucket(&base,&upxf,stsh);
+
+	wvTrace("achp istd is %d\n",achp->istd);
 
 	/* this might be a little wrong, review after doing dedicated CHP's*/
 	if (achp->fBold == base.fBold)
@@ -2321,9 +2345,9 @@ void wvApplysprmCMajority50(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	field is reset to the value stored in the style's CHP. If the two copies
 	differ, then the original CHP value is left unchanged.
 	*/
-	wvError("This document has a sprm (sprmCMajority50), that ive never seen in practice please mail ");
-	wvError("Caolan.McNamara@ul.ie with this document, as i haven't been able to ");
-	wvError("get any examples of it so as to figure out if its handled correctly\n");
+	wvTrace("This document has a sprm (sprmCMajority50), that ive never seen in practice please mail ");
+	wvTrace("Caolan.McNamara@ul.ie with this document, as i haven't been able to ");
+	wvTrace("get any examples of it so as to figure out if its handled correctly\n");
 	
 	wvInitCHP(&base);
 	base.ftc=4;
@@ -2405,4 +2429,259 @@ void wvApplysprmCDispFldRMark(CHP *achp,U8 *pointer,U16 *pos)
 		achp->xstDispFldRMark[i] = dread_16ubit(NULL,&pointer);
 		(*pos)+=2;
 		}
+	}
+
+SprmName rgsprmPrm[0x80] = 
+{sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmPIncLvl, sprmPJc,
+sprmPFSideBySide, sprmPFKeep, sprmPFKeepFollow, sprmPFPageBreakBefore,
+sprmPBrcl, sprmPBrcp, sprmPIlvl, sprmNoop, sprmPFNoLineNumb, sprmNoop,
+sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmNoop,
+sprmNoop, sprmPFInTable, sprmPFTtp, sprmNoop, sprmNoop, sprmNoop, sprmPPc,
+sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmNoop,
+sprmPWr, sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmNoop,
+sprmPFNoAutoHyph, sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmNoop,
+sprmPFLocked, sprmPFWidowControl, sprmNoop, sprmPFKinsoku, sprmPFWordWrap,
+sprmPFOverflowPunct, sprmPFTopLinePunct, sprmPFAutoSpaceDE,
+sprmPFAutoSpaceDN, sprmNoop, sprmNoop, sprmPISnapBaseLine, sprmNoop,
+sprmNoop, sprmNoop, sprmCFStrikeRM, sprmCFRMark, sprmCFFldVanish, sprmNoop,
+sprmNoop, sprmNoop, sprmCFData, sprmNoop, sprmNoop, sprmNoop, sprmCFOle2,
+sprmNoop, sprmCHighlight, sprmCFEmboss, sprmCSfxText, sprmNoop, sprmNoop,
+sprmNoop, sprmCPlain, sprmNoop, sprmCFBold, sprmCFItalic, sprmCFStrike,
+sprmCFOutline, sprmCFShadow, sprmCFSmallCaps, sprmCFCaps, sprmCFVanish,
+sprmNoop, sprmCKul, sprmNoop, sprmNoop, sprmNoop, sprmCIco, sprmNoop,
+sprmCHpsInc, sprmNoop, sprmCHpsPosAdj, sprmNoop, sprmCIss, sprmNoop,
+sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmNoop,
+sprmNoop, sprmNoop, sprmCFDStrike, sprmCFImprint, sprmCFSpec, sprmCFObj,
+sprmPicBrcl, sprmPOutLvl, sprmNoop, sprmNoop, sprmNoop, sprmNoop, sprmNoop,
+sprmPPnbrRMarkNot};
+
+SprmName wvGetrgsprmPrm(U16 in)
+	{
+	if (in > 0x80)
+		{
+		wvError("Impossible rgsprmPrm value\n");
+		return(sprmNoop);
+		}
+	return(rgsprmPrm[in]);
+	}
+
+
+SprmName rgsprmWord6[256] = 
+	{
+	sprmNoop/*          0*/,
+	sprmNoop/*		    1*/,
+	sprmPIstd/*         2*/,
+	sprmPIstdPermute/*  3*/,
+	sprmPIncLvl/*       4*/,
+	sprmPJc/*           5*/,
+	sprmPFSideBySide/*  6*/,
+	sprmPFKeep/*        7*/,
+	sprmPFKeepFollow/*  8*/,
+	sprmPFPageBreakBefore/*  9*/,	/* added F */
+	sprmPBrcl/*         10*/,
+	sprmPBrcp/*         11*/,
+	sprmPAnld/*         12*/,
+	sprmPNLvlAnm/*      13*/,
+	sprmPFNoLineNumb/*  14*/,
+	sprmPChgTabsPapx/*  15*/,
+	sprmPDxaRight/*     16*/,
+	sprmPDxaLeft/*      17*/,
+	sprmPNest/*         18*/,
+	sprmPDxaLeft1/*     19*/,
+	sprmPDyaLine/*      20*/,
+	sprmPDyaBefore/*    21*/,
+	sprmPDyaAfter/*     22*/,
+	sprmPChgTabs/*      23*/,
+	sprmPFInTable/*     24*/,
+	sprmPFTtp/*         25*/,	/* added F */
+	sprmPDxaAbs/*       26*/,
+	sprmPDyaAbs/*       27*/,
+	sprmPDxaWidth/*     28*/,
+	sprmPPc/*           29*/,
+	sprmPBrcTop10/*     30*/,
+	sprmPBrcLeft10/*    31*/,
+	sprmPBrcBottom10/*  32*/,
+	sprmPBrcRight10/*   33*/,
+	sprmPBrcBetween10/* 34*/,
+	sprmPBrcBar10/*     35*/,
+	sprmPDxaFromText10/*   36*/,	/* new name */
+	sprmPWr/*           37*/,
+	sprmPBrcTop/*       38*/,
+	sprmPBrcLeft/*      39*/,
+	sprmPBrcBottom/*    40*/,
+	sprmPBrcRight/*     41*/,
+	sprmPBrcBetween/*   42*/,
+	sprmPBrcBar/*       43*/,
+	sprmPFNoAutoHyph/*  44*/,
+	sprmPWHeightAbs/*   45*/,
+	sprmPDcs/*          46*/,
+	sprmPShd/*          47*/,
+	sprmPDyaFromText/*  48*/,
+	sprmPDxaFromText/*  49*/,
+	sprmPFLocked/*      50*/,
+	sprmPFWidowControl/*  51*/,
+	sprmNoop/*          52*/,
+	sprmNoop/*          53*/,
+	sprmNoop/*          54*/,
+	sprmNoop/*          55*/,
+	sprmNoop/*          56*/,
+	sprmNoop/*          57*/,
+	sprmNoop/*          58*/,
+	sprmNoop/*          59*/,
+	sprmNoop/*          60*/,
+	sprmNoop/*          61*/,
+	sprmNoop/*          62*/,
+	sprmNoop/*          63*/,
+	sprmNoop/*          64*/,
+	sprmCFStrikeRM/*    65*/,
+	sprmCFRMark/*       66*/,
+	sprmCFFldVanish/*   67*/,
+	sprmCPicLocation/*  68*/,
+	sprmCIbstRMark/*    69*/,
+	sprmCDttmRMark/*    70*/,
+	sprmCFData/*        71*/,
+	sprmCIdslRMark/*     72*/,	/* new name */
+	sprmCChs/*         73*/,	/* new name */
+	sprmCSymbol/*       74*/,
+	sprmCFOle2/*        75*/,
+	sprmNoop/*          76*/,
+	sprmNoop/*          77*/,
+	sprmNoop/*          78*/,
+	sprmNoop/*          79*/,
+	sprmCIstd/*         80*/,
+	sprmCIstdPermute/*  81*/,
+	sprmCDefault/*      82*/,
+	sprmCPlain/*        83*/,
+	sprmNoop/*          84*/,
+	sprmCFBold/*        85*/,
+	sprmCFItalic/*      86*/,
+	sprmCFStrike/*      87*/,
+	sprmCFOutline/*     88*/,
+	sprmCFShadow/*      89*/,
+	sprmCFSmallCaps/*   90*/,
+	sprmCFCaps/*        91*/,
+	sprmCFVanish/*      92*/,
+	sprmCFtc/*          93*/,
+	sprmCKul/*          94*/,
+	sprmCSizePos/*      95*/,
+	sprmCDxaSpace/*     96*/,
+	sprmCLid/*          97*/,
+	sprmCIco/*          98*/,
+	sprmCHps/*          99*/,
+	sprmCHpsInc/*       100*/,
+	sprmCHpsPos/*       101*/,
+	sprmCHpsPosAdj/*    102*/,
+	sprmCMajority/*     103*/,
+	sprmCIss/*          104*/,
+	sprmCHpsNew50/*     105*/,
+	sprmCHpsInc1/*      106*/,
+	sprmCHpsKern/*      107*/,
+	sprmCMajority50/*   108*/,
+	sprmCHpsMul/*       109*/,
+	sprmCYsri/*    		110*/,	/* new name */
+	sprmNoop/*          111*/,
+	sprmNoop/*          112*/,
+	sprmNoop/*          113*/,
+	sprmNoop/*          114*/,
+	sprmNoop/*          115*/,
+	sprmNoop/*          116*/,
+	sprmCFSpec/*        117*/,
+	sprmCFObj/*         118*/,
+	sprmPicBrcl/*       119*/,
+	sprmPicScale/*      120*/,
+	sprmPicBrcTop/*     121*/,
+	sprmPicBrcLeft/*    122*/,
+	sprmPicBrcBottom/*  123*/,
+	sprmPicBrcRight/*   124*/,
+	sprmNoop/*          125*/,
+	sprmNoop/*          126*/,
+	sprmNoop/*          127*/,
+	sprmNoop/*          128*/,
+	sprmNoop/*          129*/,
+	sprmNoop/*          130*/,
+	sprmScnsPgn/*      	131*/,	/* new name */
+	sprmSiHeadingPgn/*  132*/,
+	sprmSOlstAnm/*      133*/,
+	sprmNoop/*          134*/,
+	sprmNoop/*          135*/,
+	sprmSDxaColWidth/*  136*/,
+	sprmSDxaColWidth/*  137*/,	/* new name */
+	sprmSFEvenlySpaced/*138*/,
+	sprmSFProtected/*   139*/,
+	sprmSDmBinFirst/*   140*/,
+	sprmSDmBinOther/*   141*/,
+	sprmSBkc/*          142*/,
+	sprmSFTitlePage/*   143*/,
+	sprmSCcolumns/*     144*/,
+	sprmSDxaColumns/*   145*/,
+	sprmSFAutoPgn/*     146*/,
+	sprmSNfcPgn/*       147*/,
+	sprmSDyaPgn/*       148*/,
+	sprmSDxaPgn/*       149*/,
+	sprmSFPgnRestart/*  150*/,
+	sprmSFEndnote/*     151*/,
+	sprmSLnc/*          152*/,
+	sprmSGprfIhdt/*     153*/,
+	sprmSNLnnMod/*      154*/,
+	sprmSDxaLnn/*       155*/,
+	sprmSDyaHdrTop/*    156*/,
+	sprmSDyaHdrBottom/* 157*/,
+	sprmNoop/*          158*/,
+	sprmSVjc/*          159*/,
+	sprmSLnnMin/*       160*/,
+	sprmSPgnStart/*     161*/,
+	sprmSBOrientation/* 162*/,
+	sprmSBCustomize/*   163*/,
+	sprmSXaPage/*       164*/,
+	sprmSYaPage/*       165*/,
+	sprmSDxaLeft/*      166*/,
+	sprmSDxaRight/*     167*/,
+	sprmSDyaTop/*       168*/,
+	sprmSDyaBottom/*    169*/,
+	sprmSDzaGutter/*    170*/,
+	sprmSDmPaperReq/*   171*/,
+	sprmNoop/*          172*/,
+	sprmNoop/*          173*/,
+	sprmNoop/*          174*/,
+	sprmNoop/*          175*/,
+	sprmNoop/*          176*/,
+	sprmNoop/*          177*/,
+	sprmNoop/*          178*/,
+	sprmNoop/*          179*/,
+	sprmNoop/*          180*/,
+	sprmNoop/*          181*/,
+	sprmTJc/*           182*/,
+	sprmTDxaLeft/*      183*/,
+	sprmTDxaGapHalf/*   184*/,
+	sprmTFCantSplit/*   185*/,
+	sprmTTableHeader/*  186*/,
+	sprmTTableBorders/* 187*/,
+	sprmTDefTable10/*   188*/,
+	sprmTDyaRowHeight/* 189*/,
+	sprmTDefTable/*     190*/,
+	sprmTDefTableShd/*  191*/,
+	sprmTTlp/*          192*/,
+	sprmTSetBrc/*       193*/,
+	sprmTInsert/*       194*/,
+	sprmTDelete/*       195*/,
+	sprmTDxaCol/*       196*/,
+	sprmTMerge/*        197*/,
+	sprmTSplit/*        198*/,
+	sprmTSetBrc10/*     199*/,
+	sprmTSetShd/*       200*/,
+#if 0
+	sprmNoop/*          201*/,
+	sprmNoop/*          202*/,
+	sprmNoop/*          203*/,
+	sprmNoop/*          204*/,
+	sprmNoop/*          205*/,
+	sprmNoop/*          206*/,
+	sprmNoop/*          207*/,
+	sprmMax/*           208*/
+#endif
+	};
+
+SprmName wvGetrgsprmWord6(U8 in)
+	{
+	return(rgsprmWord6[in]);
 	}

@@ -5,11 +5,7 @@
 int wvInitParser(wvParseStruct *ps,FILE *fp)
 	{
 	int ret=0,reason=0;
-
-	wvSetErrorStream(stderr);
-	wvSetWarnStream(stderr);
-	wvSetTraceStream(stderr);
-	   
+	ps->userData=NULL;
 	ret = wvOLEDecode(fp,&ps->mainfd,&ps->tablefd0,&ps->tablefd1,
 		&ps->data,&ps->summary);
 	if (ret) 
@@ -23,13 +19,14 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 	wvGetFIB(&ps->fib,ps->mainfd);
 
 	ret = wvQuerySupported(&ps->fib,&reason);
-    if (ret)
+    if (ret > 1)
 		{
-		wvError("%s",wvReason(reason));
+		wvError("%s\n",wvReason(reason));
 		return(ret);
 		}
+	ret = 0;
 
-	ps->tablefd = wvWhichTableStream(&ps->fib,ps->tablefd0,ps->tablefd1);
+	ps->tablefd = wvWhichTableStream(&ps->fib,ps);
 
 	return ret;
 	}

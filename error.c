@@ -3,12 +3,9 @@
 #include <stdarg.h>
 #include "wv.h"
 
-/* These streams are now initialized in wvInitParser()
- * Setting them to stderr gives an error for me. --JB 
- */
-FILE *wverror=NULL;
-FILE *wvwarn=NULL;
-FILE *wvtrace=NULL;
+FILE *wverror=stderr;
+FILE *wvwarn=stderr;
+FILE *wvtrace=stderr;
 
 void wvRealError(char *file, int line,char *fmt, ...)
     {

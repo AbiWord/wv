@@ -34,10 +34,23 @@ void wvGetBRCFromBucket(BRC *abrc,U8 *pointer)
 	wvGetBRC_internal(abrc,NULL,pointer);
     }
 
+void wvInitBRC10(BRC10 *item)
+	{
+	item->dxpLine2Width = 0;
+	item->dxpSpaceBetween = 0;
+	item->dxpLine1Width = 0;
+	item->dxpSpace = 0;
+	item->fShadow = 0;
+	item->fSpare = 0;
+	}
+
 void wvGetBRC10_internal(BRC10 *item,FILE *infd,U8 *pointer)
     {
     U16 temp16;
 	temp16 = dread_16ubit(infd,&pointer);
+#ifdef PURIFY
+	wvInitBRC10(item);
+#endif
 	item->dxpLine2Width = (temp16 & 0x0007);
 	item->dxpSpaceBetween = (temp16 & 0x0038)>>3;
 	item->dxpLine1Width = (temp16 & 0x01C0)>>6;

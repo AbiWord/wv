@@ -1077,7 +1077,7 @@ char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *infd)
 	char *buffer;
 	char *tbuffer;
 	FILE *out;
-	U8 decompressf;
+	U8 decompressf=0;
 	int count=0;
 	for (i=0;i<16;i++)
 		amf->m_rgbUid[i] = getc(infd);
@@ -1221,7 +1221,6 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 	FDGG afdgg;
 	FIDCL *afidcl;
 	FBSE afbse;
-	FOPTE afopte;
 	MetaFileBlip amf;
 	BitmapBlip abm;
 	fsp_list *afsp_list=NULL;
@@ -1230,7 +1229,7 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 	fbse_list *afbse_list=NULL;
 	fbse_list *pfbse_list=NULL;
 	FDG afdg;
-	FILE *temp;
+	FILE *temp=NULL;
 	/*
 	FILE *out = fopen("drawingtest","w+b");
 	*/
@@ -1516,8 +1515,8 @@ void wvGetrc(rc *arc,FILE *infd)
 
 void wvGetPICF(PICF *apicf,FILE *infd,U32 offset)
 	{
-	int i,count=0;
-	U8 temp,temp2;
+	int count=0;
+	U8 temp;
 	FILE *out;
 	fbse_list *pic_list;
 	fbse_list *tpic_list;

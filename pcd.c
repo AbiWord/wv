@@ -66,9 +66,15 @@ int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,FILE *fd)
             }
         fseek(fd,offset,SEEK_SET);
         for(i=0;i<=*nopcd;i++)
+			{
             (*pos)[i]=read_32ubit(fd);
+			wvTrace("pcd pos is %x\n",(*pos)[i]);
+			}
         for(i=0;i<*nopcd;i++)
+			{
             wvGetPCD(&((*pcd)[i]),fd);
+			wvTrace("pcd fc is %x\n",(*pcd)[i].fc);
+			}
         }
 	return(0);
 	}

@@ -133,7 +133,7 @@ void wvInitPAPX_FKP(PAPX_FKP *fkp)
 
 int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc)
 	{
-	U32 i=0;
+	U32 i=1;	/*was 0, there is something slightly out of sync in the system*/
 	U8 until=fkp->crun+1;
 	
 	while (i<until)
@@ -143,5 +143,13 @@ int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc)
 			return(i);
 		i++;
 		}
-	return(0);
+	/*
+	 basically read 
+	 Algorithm to determine paragraph properties for a paragraph &
+	 Formatted Disk Page for PAPXs, somehow the currentfc sent in was wrong
+	 or my understanding is !
+	 */
+	wvError("Shite, fix me\n");
+	/*return 1 to make things continue on their merry way*/
+	return(1);
 	}

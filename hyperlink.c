@@ -15,7 +15,7 @@ extern long int realcp;
 this attempts to parse the HYPERLINK field that ms uses to encode
 hyperlink information
 */
-U16 *decode_hyperlink(int letter, long int *swallowcp1, long int *swallowcp2, U16 **deleteme)
+U16 *decode_hyperlink(int letter, unsigned long int *swallowcp1, unsigned long int *swallowcp2, U16 **deleteme)
 	{
 	/* a little state machine then */
 	/* 
@@ -128,7 +128,7 @@ U16 *decode_hyperlink(int letter, long int *swallowcp1, long int *swallowcp2, U1
 this attempts to parse the REF field that ms uses to encode
 crosslink information
 */
-U16 *decode_crosslink(int letter,long int *swallowcp1, long int *swallowcp2)
+U16 *decode_crosslink(int letter,unsigned long int *swallowcp1, unsigned long int *swallowcp2)
 	{
 	/* a little state machine then */
 	/* 

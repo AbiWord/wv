@@ -74,16 +74,17 @@ wait3 (statusp, options, (int *)0)
 /*signal things*/
 #include <signal.h>
 
+typedef RETSIGTYPE SigHandler (int);
+
 #if !defined (HAVE_POSIX_SIGNALS)
 #  define signal_handle(sig, handler) signal (sig, handler)
 #else
-extern void signal_handle();   /* in c code*/
+extern void signal_handle (int, SigHandler * );
 #if !defined (SA_RESTART)
 #  define SA_RESTART 0
 #endif
 #endif /* _POSIX_VERSION */
 
-typedef RETSIGTYPE SigHandler ();
 
 
 #ifdef HAVE_UNISTD_H

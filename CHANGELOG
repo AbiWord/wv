@@ -1,52 +1,39 @@
-Changes to to 0.5.19
-	* renamed libwv, and stuck in aviword cvs
-	* this version probably doesnt work, and almost certainly doesnt do
-	what it says on the tin, dont use this until i get to at least the next
-	version, this is basically a cvs test.
-	* use
-	./configure --without-zlib --without-ttf --without-xpm --without-wmf --without-x
-	change gcc to g++ in Makefile
-	and make a libwv.a suitable for abiword, (yeah i know i know, but im working on it)
-	to get a simple -lwv
-	* whoppee, nearly working fine as an abiword filter..
-	* moved fib into the parsestruct, changed over existing programs to use
-	wvInitParse rather then handcode for each one.
-	* mad mods to make it compile cleanly under c++
-	* changed over the simple decodation to use the parsestruct and 
-	propugated the changes throughout the system
-	* right, use wvSetCharHandler to set what function will be called with
-	each character of document text.
+Changes to to 0.5.20
+	* the checking for end of a piece was all wrong, i was looking
+	at the beginning of the next piece for that information which while
+	always correct failed horribly in the case of the last piece.
+	* fixed some more bugs
+	* fixed wvConvertCPToFC ala end of piece.
+	* fixed text *after* the final para in simple mode related to above.
+	* fixed oversight in len of UPX stuff in stylesheet
+	* fixed some style eating problems.
+	* cleanup up some bits and pieces with pointers and styles.
+	* added strcasecmp check and inclusion route.
+	* more bigfixes throughout chp and friends.
+	* added a simple fib6 reader that reads into a fib8 struct.
+	* word 6 doesnt appear to have a sep table stream so we'll have to
+	look closely at that sort of thing.
+	* modified STSHI handler to allow word6, modified STD to allow word6
+	* put in a word6 to word8 sprm converter, might even work. we won't
+	know for quite a while, implemented for pap and chp.
 ALL TODO
+	* bring fastsaved up to fullsave quality.
+	* rerun tests on doc archive.
+
+	* give abiword folk new alpha filter code for themselves to play with.
+
+	* add char properties
+
 	* modify configure script so its possible to link against a different expat
 	lib, or to disable it or something.
-	* compile with g++ and get rid of the problems that show up there, libwv will
-	compile mostly ok, so focus on that.
-
-	* create the hook into the getting the charcode in wvOutputText for abiword.
-
 	* add errors via numbered errors to wvInitParser.
-
-	* create an abiword filter with what we have already, need the ability to 
-	register handlers for events and so on.
-
-	* bring fastsaved up to fullsave quality.
+	
 
 	* harden wvConfig against bad pointers, and incomplete sections e.g justification
-
 	* make wvConvert read config from commandline, and 
-
-	* pull out para prop, make just example and work from there.
-	
-	* 1) does abiword have a title mechanism ?
-
-	8) create a wvAbi to do abiword automatically
-	9) make it possible to preload a config programically
-
 	* additional code checks for conversion of codepage whatever to iso for
 	ancillary strings that might be stored in that format.
-
 	* modify complex code to stop at end of main text
-	
 	* do sep and anlv
 
 	* i have Plcfbte's marked as generic empty structures in the old code, which 
@@ -122,7 +109,40 @@ ALL TODO
 	* hyperlink sequence fields ?
 	* doesnt compile under neXt & needs to use gcc for hpux 10.20 ?
 	* do an autoconf check for mman.h and dont do compression if not there.
-	* where did my word5 copy go ?
+Changes to to 0.5.19
+	* renamed libwv, and stuck in aviword cvs
+	* this version probably doesnt work, and almost certainly doesnt do
+	what it says on the tin, dont use this until i get to at least the next
+	version, this is basically a cvs test.
+	* use
+	./configure --without-zlib --without-ttf --without-xpm --without-wmf --without-x
+	change gcc to g++ in Makefile
+	and make a libwv.a suitable for abiword, (yeah i know i know, but im working on it)
+	to get a simple -lwv
+	* whoppee, nearly working fine as an abiword filter..
+	* moved fib into the parsestruct, changed over existing programs to use
+	wvInitParse rather then handcode for each one.
+	* mad mods to make it compile cleanly under c++
+	* changed over the simple decodation to use the parsestruct and 
+	propugated the changes throughout the system
+	* right, use wvSetCharHandler to set what function will be called with
+	each character of document text.
+	* found my word 5 spec, which is a bit of a relief, coz i don't think i could
+	replace it if i lost it. Made a few copies of it, i need some good ocr software
+	though as i got it sent to me in scanned in tiff files !, and the original docs
+	were obviously a bit crumpled.
+	* we can now read the text of simple word files in abiword
+	* finalized paragraph element handling
+	* made wvConvert and wvHtml use new paragraph element handling
+	* got the plugin to do the same
+	* compiles fine with g++ as well, which is a bonus.
+	* created hook into the the charcode in wvOutputText for abiword, and
+	other lib users.
+	* created an abiword filter with what we have already, need the ability to 
+	register handlers for events and so on.
+	* got rid of most of the compile warnings
+	* we can do now do para props of complex files, though we have to
+	confirm this as its always a bit flaky (also in old mswordview btw)
 Changes to to 0.5.18
 	* made a release to show off the devel version to the abiword folk.
 	* modified xml code to unexpand &lt; etc etc, so that i can defer

@@ -21,6 +21,9 @@ returns 1 for not an ole doc
 0 on success
 */
 
+int myelehandler(wvParseStruct *ps,wvTag tag,PAP *apap);
+int mydochandler(wvParseStruct *ps,wvTag tag);
+
 void Usage(void)
 	{
 	printf("Usage: wvConvert [-c config.xml] filename.doc\n");
@@ -28,12 +31,10 @@ void Usage(void)
 
 int main(int argc,char **argv)
 	{
-	char *buffer;
-	char fileinbuf[1024];
-	FILE *filein;
 	FILE *input;
 	int ret;
     state_data myhandle;
+	expand_data expandhandle;
 	wvParseStruct ps;
 
 	if (argc < 2) 
@@ -47,9 +48,13 @@ int main(int argc,char **argv)
 	ret = wvInitParser(&ps,input);
 	if (ret)
 		{
-		wvError("startup error\n");
+		wvError("startup error with file %s\n",argv[1]);
+		wvOLEFree();
 		return(-1);
 		}
+	
+	wvSetElementHandler(myelehandler);
+	wvSetDocumentHandler(mydochandler);
     
     wvInitStateData(&myhandle);
 	myhandle.fp= fopen("wvConfig.xml","rb");
@@ -57,9 +62,13 @@ int main(int argc,char **argv)
 		wvError("config file not found\n");
 	else
     	ret = wvParseConfig(&myhandle);
-	
+
 	if (!ret)
-		ret = wvText(&myhandle,&ps);
+		{
+		expandhandle.sd = &myhandle;
+		ps.userData = &expandhandle;
+		ret = wvText(&ps);
+		}
 
     wvReleaseStateData(&myhandle);
 	if (ret == 2)
@@ -68,4 +77,45 @@ int main(int argc,char **argv)
 		ret = -1;
 	wvOLEFree();
 	return(ret);
+	}
+
+int myelehandler(wvParseStruct *ps,wvTag tag,PAP *apap)
+	{
+	expand_data *data = (expand_data *)ps->userData;
+	data->anSttbfAssoc = &ps->anSttbfAssoc;
+	data->charset = wvAutoCharset(&ps->clx);
+	data->apap = apap;
+
+	switch (tag)
+		{
+		case PARABEGIN:	
+			wvBeginPara(data);
+			break;
+		case PARAEND:
+			wvEndPara(data);
+			break;
+		default:
+			break;
+		}
+	return(0);
+	}
+
+int mydochandler(wvParseStruct *ps,wvTag tag)
+	{
+	expand_data *data = (expand_data *)ps->userData;
+	data->anSttbfAssoc = &ps->anSttbfAssoc;
+	data->charset = wvAutoCharset(&ps->clx);
+
+	switch (tag)
+		{
+		case DOCBEGIN:	
+			wvBeginDocument(data);
+			break;
+		case DOCEND:
+			wvEndDocument(data);
+			break;
+		default:
+			break;
+		}
+	return(0);
 	}

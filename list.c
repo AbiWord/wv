@@ -669,7 +669,7 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 
 			if (a_list_info->overridecount[i] > 0)
 				{
-				wvTrace("create a copy\n");
+				error(erroroutput,"create a copy\n");
 				/*
 				a_list_info->o_list_def[i] = (list_def *) malloc(sizeof(list_def));
 				*/
@@ -678,7 +678,7 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 
 				if ((tempdef == NULL) || (tempdef2 == NULL))
 					{
-					wvWarning("list problem 2\n");
+					fprintf(erroroutput,"list problem 2\n");
 					return;
 					}
 
@@ -686,9 +686,9 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 					{
 					tempdef->len =  tempdef2->len;
 					if (tempdef->len == 0)
-						wvTrace("0 len 2\n");
+						error(erroroutput,"0 len 2\n");
 					else
-						wvTrace("lsn is %d\n",tempdef->len);
+						error(erroroutput,"lsn is %d\n",tempdef->len);
 					tempdef->begin_no = tempdef2->begin_no;
 					tempdef->no_type =  tempdef2->no_type;
 					tempdef->achp = tempdef2->achp;
@@ -727,14 +727,14 @@ void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSt
 			else
 				{
 				a_list_info->o_list_def[i] = a_list_info->a_list_def[k];
-				wvTrace("linking lfo id %x %d to lst id %x %d\n",a_list_info->lst_ids[i],i,a_list_info->o_lst_ids,k);
+				error(erroroutput,"linking lfo id %x %d to lst id %x %d\n",a_list_info->lst_ids[i],i,a_list_info->o_lst_ids,k);
 				}
 			for (j=0;j<3;j++)
-				wvTrace("LFO:undoc %x\n",getc(tablefd));
+				error(erroroutput,"LFO:undoc %x\n",getc(tablefd));
 			}
 
 
-		wvTrace("---->nooflfos is %d, nooflsts is %d,table offset is %x\n",a_list_info->nooflfos,a_list_info->nooflsts,ftell(tablefd));
+		error(erroroutput,"---->nooflfos is %d, nooflsts is %d,table offset is %x\n",a_list_info->nooflfos,a_list_info->nooflsts,ftell(tablefd));
 		for(i=0;i<a_list_info->nooflsts;i++)
 			{
 			if (a_list_info->overridecount[i] > 0)
@@ -1084,7 +1084,7 @@ void decode_s_list(pap *apap,chp *achp,list_info *a_list_info,FFN_STTBF *ffn_stt
 								decode_list_level(apap,inalist,num);
 								while ( i<list_data->len )
 									{
-									wvTrace("list string-->%d %c\n",list_data->list_string[i],list_data->list_string[i]);
+									fprintf(stderr,"list string-->%d %c\n",list_data->list_string[i],list_data->list_string[i]);
 									if (list_data->list_string[i] <= 9)
 										{
 										flist_data = apap->list_data;
@@ -1094,7 +1094,7 @@ void decode_s_list(pap *apap,chp *achp,list_info *a_list_info,FFN_STTBF *ffn_stt
 											flist_data = flist_data->sub_def_list;
 											if (flist_data == NULL)
 												{
-												wvWarning("list problem 2\n");
+												fprintf(erroroutput,"list problem 2\n");
 												return;
 												}
 											k++;

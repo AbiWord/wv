@@ -10,9 +10,7 @@ void wvGetSTSHI(STSHI *item,U16 cbSTSHI,FILE *fd)
 	int i;
 	U16 count=0;
 
-#ifdef PURIFY
-	wvInitSTSHI(item);
-#endif
+	wvInitSTSHI(item);	/* zero any new fields that might not exist in the file*/
 
     item->cstd = read_16ubit(fd);
 	count+=2;
@@ -33,6 +31,7 @@ void wvGetSTSHI(STSHI *item,U16 cbSTSHI,FILE *fd)
 		{
     	item->rgftcStandardChpStsh[i] = read_16ubit(fd);
 		count+=2;
+		if (count >= cbSTSHI) break;
 		}
 
 	while(count<cbSTSHI)
@@ -66,11 +65,13 @@ void wvReleaseSTD(STD *item)
 
 	for (i=0;i<item->cupx;i++)
 		{
+		if (item->grupxf[i].cbUPX == 0)
+			continue;
+
 		if ((item->cupx == 1) || ((item->cupx == 2) && (i==1)))
 			wvFree(item->grupxf[i].upx.chpx.grpprl);
 		else if ((item->cupx == 2) && (i==0))
 			wvFree(item->grupxf[i].upx.papx.grpprl);
-
 		}
 
 	if (item->sgc == sgcChp)
@@ -100,44 +101,71 @@ void wvInitSTD(STD *item)
 	item->grupe=NULL;
 	}
 
-void wvGetSTD(STD *item,FILE *fd)
+int wvGetSTD(STD *item,U16 baselen,FILE *fd)
 	{
 	U16 temp16;
 	U16 len,i,j;
 	int pos;
+	int ret=0;
+	U16 count=0;
 
-#ifdef PURIFY
-	wvInitSTD(item);
-#endif
+	wvInitSTD(item); /* zero any new fields that might not exist in the file*/
+
+	wvTrace("baselen set to %d\n",baselen);
 
 	temp16 = read_16ubit(fd);
+	count+=2;
 	item->sti = temp16 & 0x0fff;
     item->fScratch = (temp16 & 0x1000) >> 12;
     item->fInvalHeight = (temp16 & 0x2000) >> 13;
     item->fHasUpe = (temp16 & 0x4000) >> 14;
     item->fMassCopy = (temp16 & 0x8000) >> 15;
 	temp16 = read_16ubit(fd);
+	count+=2;
     item->sgc = temp16 & 0x000f;
     item->istdBase = (temp16 & 0xfff0) >> 4;
 	temp16 = read_16ubit(fd);
+	count+=2;
     item->cupx = temp16 & 0x000f;
     item->istdNext = (temp16 & 0xfff0) >> 4;
     item->bchUpe = read_16ubit(fd);
-	temp16 = read_16ubit(fd);
-    item->fAutoRedef = temp16 & 0x0001;
-    item->fHidden = (temp16 & 0x0002) >> 1;
-    item->reserved = (temp16 & 0xfffc) >> 2;
+	count+=2;
+	if (count < baselen)		/* word 6 has only a count of 8 */
+		{
+		temp16 = read_16ubit(fd);
+		count+=2;
+		item->fAutoRedef = temp16 & 0x0001;
+		item->fHidden = (temp16 & 0x0002) >> 1;
+		item->reserved = (temp16 & 0xfffc) >> 2;
+
+		while (count<baselen)	/* eat any new fields we might know about ourselves*/
+			{
+			getc(fd);
+			count++;
+			}
+		}
+	wvTrace("count is %d, baselen is %d\n",count,baselen);
+
 
 	pos=10;
 
-	len = read_16ubit(fd);
+	if (count < 10)
+		{
+		ret=1;
+		len = getc(fd);
+		}
+	else
+		len = read_16ubit(fd);
 	wvTrace("doing a std, str len is %d\n",len+1);
 	item->xstzName = (U16 *)malloc((len+1) * sizeof(XCHAR));
 	pos+=2;
 
 	for(i=0;i<len+1;i++)
 		{
-		item->xstzName[i] = read_16ubit(fd);
+		if (count < 10)
+			item->xstzName[i] = getc(fd);
+		else
+			item->xstzName[i] = read_16ubit(fd);
 		wvTrace("sample letter is %c\n",item->xstzName[i]);
 		pos+=2;
 		}
@@ -149,21 +177,21 @@ void wvGetSTD(STD *item,FILE *fd)
 		{
 		item->grupxf = NULL;
 		item->grupe = NULL;
-		return;
+		return(0);
 		}
 
 	item->grupxf = (UPXF *)malloc(sizeof(UPXF) * item->cupx);
 	if (item->grupxf == NULL)
 		{
 		wvError("Couuldn't alloc %d bytes for UPXF\n",sizeof(UPXF) * item->cupx);
-		return;
+		return(0);
 		}
 
 	item->grupe = (UPE *)malloc(sizeof(UPE) * item->cupx);
 	if (item->grupe == NULL)
 		{
 		wvError("Couuldn't alloc %d bytes for UPE\n",sizeof(UPE) * item->cupx);
-		return;
+		return(0);
 		}
 
 	for (i=0;i<item->cupx;i++)
@@ -179,6 +207,9 @@ void wvGetSTD(STD *item,FILE *fd)
 		wvTrace("cbUPX is %d\n",item->grupxf[i].cbUPX);
 		pos+=2;
 
+		if (item->grupxf[i].cbUPX == 0)
+			continue;
+
 		if ((item->cupx == 1) || ((item->cupx == 2) && (i==1)))
 			{
 			item->grupxf[i].upx.chpx.grpprl = (U8 *)malloc(item->grupxf[i].cbUPX);
@@ -192,7 +223,10 @@ void wvGetSTD(STD *item,FILE *fd)
 			{
 			item->grupxf[i].upx.papx.istd = read_16ubit(fd);
 			pos+=2;
-			item->grupxf[i].upx.papx.grpprl = (U8 *)malloc(item->grupxf[i].cbUPX-2);
+			if (item->grupxf[i].cbUPX-2)
+				item->grupxf[i].upx.papx.grpprl = (U8 *)malloc(item->grupxf[i].cbUPX-2);
+			else
+				item->grupxf[i].upx.papx.grpprl = NULL;
 			for(j=0;j<item->grupxf[i].cbUPX-2;j++)
 				{
 				item->grupxf[i].upx.papx.grpprl[j] = getc(fd);
@@ -212,6 +246,7 @@ void wvGetSTD(STD *item,FILE *fd)
 	/*eat odd bytes*/
 	if ((pos+1)/2 != pos/2)
 		fseek(fd,1,SEEK_CUR);
+	return(ret);
 	}
 
 void wvReleaseSTSH(STSH *item)
@@ -227,7 +262,7 @@ void wvReleaseSTSH(STSH *item)
 
 void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 	{
-	U16 cbStshi,cbStd,i;
+	U16 cbStshi,cbStd,i,word6;
 	if (len == 0)
 		{
 		item->Stshi.cstd=0;
@@ -258,7 +293,7 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 			wvInitSTD(&(item->std[i]));
 		else
 			{
-			wvGetSTD(&(item->std[i]),fd);
+			word6 = wvGetSTD(&(item->std[i]),item->Stshi.cbSTDBaseInFile,fd);
 
 			/* 
 			at this stage we should create the UPE from the available
@@ -275,11 +310,17 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 				case sgcPara:
 					wvTrace("doing paragraph, len is %d\n",item->std[i].grupxf[0].cbUPX);
 					wvInitPAPFromIstd(&(item->std[i].grupe[0].apap),item->std[i].istdBase,item);
-					wvAddPAPXFromBucket(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item);
+					if (word6)
+						wvAddPAPXFromBucket6(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item);
+					else
+						wvAddPAPXFromBucket(&(item->std[i].grupe[0].apap),&(item->std[i].grupxf[0]),item);
 
 					wvInitCHPFromIstd(&(item->std[i].grupe[1].achp),item->std[i].istdBase,item);
 					
-					wvAddCHPXFromBucket(&(item->std[i].grupe[1].achp),&(item->std[i].grupxf[1]),item);
+					if (word6)
+						wvAddCHPXFromBucket6(&(item->std[i].grupe[1].achp),&(item->std[i].grupxf[1]),item);
+					else
+						wvAddCHPXFromBucket(&(item->std[i].grupe[1].achp),&(item->std[i].grupxf[1]),item);
 
 					if (item->std[i].grupe[1].achp.istd != istdNormalChar)
 						{
@@ -568,7 +609,10 @@ style *decode_stylesheet(FILE *tablefd,U32 stsh,U32 stshlen,config_style *Xin_st
 			in_style = Xin_style;
 			for (i=0;i<noconfig_styles;i++)
 				{
+				/*
 				if (!(strcmp( ms_strlower(stylelist[m].name),ms_strlower(in_style->name) )))
+				*/
+				if (!(strcasecmp(stylelist[m].name,in_style->name)))
 					{
 					error(stderr,"found match for %s\n",stylelist[m].name);
 					stylelist[m].begin = in_style->begin;

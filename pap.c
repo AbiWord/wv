@@ -12,10 +12,33 @@ void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh)
 	U16 i=0;
 	U16 sprm;
 	apap->istd = upxf->upx.papx.istd;
+	if (upxf->cbUPX <= 2)
+		return;
+	wvTrace("no is %d\n",upxf->cbUPX);
 	while (i < upxf->cbUPX-2)	/*-2 because the istd takes up the first two bytes*/
 		{
 		sprm = bread_16ubit(upxf->upx.papx.grpprl+i,&i);
 		wvTrace("sprm is %x\n",sprm);
+		pointer = upxf->upx.papx.grpprl+i;
+		wvApplySprmFromBucket(sprm,apap,NULL,NULL,stsh,pointer,&i);
+		}
+	}
+
+void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh)
+	{
+	U8 *pointer;
+	U16 i=0;
+	U16 sprm;
+	apap->istd = upxf->upx.papx.istd;
+	if (upxf->cbUPX <= 2)
+		return;
+	wvTrace("no is %d\n",upxf->cbUPX);
+	while (i < upxf->cbUPX-2)	/*-2 because the istd takes up the first two bytes*/
+		{
+		sprm = bgetc(upxf->upx.papx.grpprl+i,&i);
+		wvTrace("word 6 sprm is %x (%d)\n",sprm,sprm);
+		sprm = wvGetrgsprmWord6(sprm);
+		wvTrace("word 6 sprm is converted to %x\n",sprm);
 		pointer = upxf->upx.papx.grpprl+i;
 		wvApplySprmFromBucket(sprm,apap,NULL,NULL,stsh,pointer,&i);
 		}
@@ -261,20 +284,31 @@ void wvAssembleSimplePAP(PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 	
 	wvTrace("index is %d, using %d\n",index,index-1);
 	papx = &(fkp->grppapx[index-1]);
-	for (i=0;i<papx->cb-2;i++)
-		wvTrace("%x ",papx->grpprl[i]);
-	wvTrace("\n");
-	wvTrace("istd index is %d\n",papx->istd);
-	wvInitPAPFromIstd(apap,papx->istd,stsh);
+	
+	if (papx)
+		{
+		wvTrace("istd index is %d\n",papx->istd);
+		wvInitPAPFromIstd(apap,papx->istd,stsh);
+		}
+	else
+		wvInitPAPFromIstd(apap,istdNil,stsh);
 
-	wvTrace("cbUPX is %d\n",papx->cb);
-	upxf.cbUPX = papx->cb-1;
-	upxf.upx.papx.istd = papx->istd;
-	upxf.upx.papx.grpprl = papx->grpprl;
-	wvAddPAPXFromBucket(apap,&upxf,stsh);
-	wvTrace("apap jc is now %d\n",apap->jc);
+	if ((papx) && (papx->cb > 2))
+		{
+		wvTrace("cbUPX is %d\n",papx->cb);
+		for (i=0;i<papx->cb-2;i++)
+			wvTrace("%x ",papx->grpprl[i]);
+		wvTrace("\n");
+		upxf.cbUPX = papx->cb-1;
+		upxf.upx.papx.istd = papx->istd;
+		upxf.upx.papx.grpprl = papx->grpprl;
+		wvAddPAPXFromBucket(apap,&upxf,stsh);
+		wvTrace("apap jc is now %d\n",apap->jc);
+		}
 
-	apap->istd = papx->istd;
+	if (papx)
+		apap->istd = papx->istd;
+	
 	wvCopyPHE(&apap->phe,&(fkp->rgbx[index-1].phe),apap->fTtp);
 	}
 
@@ -302,12 +336,16 @@ void wvGetPAPX(PAPX *item,U32 offset,FILE *fd)
 		wvTrace("cw was %d\n",cw);
 		}
 	item->cb=cw*2;
-	item->grpprl = (U8 *)malloc(item->cb-2);
+	if (item->cb > 2)
+		item->grpprl = (U8 *)malloc(item->cb-2);
+	else
+		item->grpprl = NULL;
+		
 	item->istd = read_16ubit(fd);
 	wvTrace("papx istd is %x\n",item->istd);
-	for (i=0;i<item->cb-2;i++)
+	for (i=2;i<item->cb;i++)
 		{
-		item->grpprl[i] = getc(fd);
-		wvTrace("papx byte is %x\n",item->grpprl[i]);
+		item->grpprl[i-2] = getc(fd);
+		wvTrace("papx byte is %x\n",item->grpprl[i-2]);
 		}
 	}

@@ -71,7 +71,7 @@ flag_8_16 is modified to be 1 if the piece that querycp is in is one
 	(the usual). 
 the index of the piece that querycp belongs to is returned.
 */
-int query_piece_cp(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U32 *nextpiececp,int *flag_8_16)
+int query_piece_cp(U32 *rgfc,U32* avalrgfc,int nopieces,U32 querycp,U32 *nextpiececp,int *flag_8_16)
 	{
 	int i=0;
 

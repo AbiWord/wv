@@ -13,12 +13,9 @@ the table tells us to go.
 there are special cases for coming to the end of a section, and for the beginning and ends of
 pages. for the purposes of headers and footers etc.
 */
-void wvDecodeSimple(state_data *myhandle,wvParseStruct *ps)
+void wvDecodeSimple(wvParseStruct *ps)
 	{
 	STSH stsh;
-	CLX clx;
-	STTBF anSttbfAssoc;
-	expand_data expandhandle;
 	PAPX_FKP fkp;
 	PAP apap;
 	U32 piececount=0,i,j=0;
@@ -30,17 +27,19 @@ void wvDecodeSimple(state_data *myhandle,wvParseStruct *ps)
 	BTE *btePapx;
 	U32 *posPapx;
 	U32 intervals;
+	U16 charset;
 	U8 state=0;
-
-	expandhandle.sd = myhandle;
+	int pendingclose=0;
 
 	/*we will need the stylesheet to do anything useful with layout and look*/
 	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
 
-	/*we will need the table of names to answer questions like the name of the doc*/
-	wvGetSTTBF(&anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
+	if (wvQuerySupported(&ps->fib,NULL))
+		exit(0);
 
-	expandhandle.anSttbfAssoc = &anSttbfAssoc;
+
+	/*we will need the table of names to answer questions like the name of the doc*/
+	wvGetSTTBF(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
 
 	/* 
 	despite what some parts of the spec might have you believe you still need to 
@@ -48,7 +47,7 @@ void wvDecodeSimple(state_data *myhandle,wvParseStruct *ps)
 	chars in one part, and 16bit chars in another, so you have to watch out for
 	that
 	*/
-	wvGetCLX(&clx,ps->fib.fcClx,ps->fib.lcbClx,ps->tablefd);
+	wvGetCLX(&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->tablefd);
 
 	/*
 	we will need the paragraph bounds table to make decisions as to where a piece
@@ -58,7 +57,7 @@ void wvDecodeSimple(state_data *myhandle,wvParseStruct *ps)
 
 	/*
 	The text of the file starts at fib.fcMin, but we will use the piecetable 
-	records rather than this.
+	records rather than this basic seek.
 	fseek(ps->mainfd,ps->fib.fcMin,SEEK_SET);
 	*/
 
@@ -66,65 +65,66 @@ void wvDecodeSimple(state_data *myhandle,wvParseStruct *ps)
 	If !fib.fComplex, the document text stream is represented by the text
 	beginning at fib.fcMin up to (but not including) fib.fcMac.
 	*/
+	
+	/*
+	if (ps->fib.fcMac != (S32)(wvNormFC(ps->clx.pcd[ps->clx.nopcd-1].fc,NULL)+ps->clx.pos[ps->clx.nopcd]))
+	*/
+	if ( ps->fib.fcMac != wvGetEndFCPiece(ps->clx.nopcd-1,&ps->clx) )
+		wvError("fcMac is not the same as the piecetable %x %x!\n",ps->fib.fcMac,wvGetEndFCPiece(ps->clx.nopcd-1,&ps->clx));
 
-	if (ps->fib.fcMac != (S32)(wvNormFC(clx.pcd[clx.nopcd-1].fc,NULL)+clx.pos[clx.nopcd]))
-		wvError("fcMac is not the same as the piecetable %x %x!\n",ps->fib.fcMac,wvNormFC(clx.pcd[clx.nopcd-1].fc,NULL)+clx.pos[clx.nopcd]);
-
-	expandhandle.charset = wvAutoCharset(&clx);
+	charset = wvAutoCharset(&ps->clx);
 
 	wvInitPAPX_FKP(&fkp);
 
-	wvBeginDocument(&expandhandle);
+	wvHandleDocument(ps,DOCBEGIN);
 	
 	/*for each piece*/
-	for (piececount=0;piececount<clx.nopcd;piececount++)
+	for (piececount=0;piececount<ps->clx.nopcd;piececount++)
 		{
-		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&clx,piececount);
+		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&ps->clx,piececount);
 		fseek(ps->mainfd,beginfc,SEEK_SET);
-		wvGetPieceBoundsCP(&begincp,&endcp,&clx,piececount);
+		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
 		for (i=begincp,j=beginfc;i<endcp;i++,j += wvIncFC(chartype))
 			{
 			if (j == fcLim)
-				wvEndPara(&expandhandle);
+				{
+				wvHandleElement(ps,PARAEND,&apap);
+				pendingclose=0;
+				}
 			
 			if ((fcLim == 0xffffffff) || (fcLim == j))
 				{
 				wvTrace("j i is %x %d\n",j,i);
 				wvReleasePAPX_FKP(&fkp);
-				wvGetSimpleParaBounds(&fkp,&fcFirst,&fcLim,i,&clx, btePapx, posPapx,intervals,ps->mainfd);
+				wvGetSimpleParaBounds(&fkp,&fcFirst,&fcLim,i,&ps->clx, btePapx, posPapx,intervals,ps->mainfd);
 				wvTrace("para beings at %x ends %x\n",fcFirst,fcLim);
 				}
 
 			if (j == fcFirst)
 				{
 				wvAssembleSimplePAP(&apap,fcLim,&fkp,&stsh);
-				expandhandle.apap = &apap;
-				wvBeginPara(&expandhandle);
+				wvHandleElement(ps,PARABEGIN,&apap);
+				pendingclose=1;
 				}
 
 			eachchar = wvGetChar(ps->mainfd,chartype);
 
-			wvOutputTextChar(eachchar,chartype,expandhandle.charset,&state,ps);
-			/*
-			wvOutputHtml4(eachchar,chartype,expandhandle.charset);
-			*/
+			wvOutputTextChar(eachchar,chartype,charset,&state,ps);
 			}
 		}
 
-	if (j == fcLim)
-		{
-		wvReleasePAPX_FKP(&fkp);
-		wvEndPara(&expandhandle);
-		}
+	if (pendingclose)
+		wvHandleElement(ps,PARAEND,&apap);
 
-	wvEndDocument(&expandhandle);
+	wvReleasePAPX_FKP(&fkp);
+	wvHandleDocument(ps,DOCEND);
 
-	wvReleaseSTTBF(&anSttbfAssoc);
+	wvReleaseSTTBF(&ps->anSttbfAssoc);
     wvFree(btePapx);
 	wvFree(posPapx);
 	if (ps->fib.fcMac != ftell(ps->mainfd))
 		wvError("fcMac did not match end of input !\n");
-	wvReleaseCLX(&clx);
+	wvReleaseCLX(&ps->clx);
 	wvReleaseSTSH(&stsh);
 	}
 
@@ -183,6 +183,7 @@ int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *rgfc, U32 
 	U32 i=0;
 	while(i<nopos)
 		{
+		wvTrace("searching...%x %x %x\n",currentfc,wvNormFC(rgfc[i],NULL),wvNormFC(rgfc[i+1],NULL));
 		if ( (wvNormFC(rgfc[i],NULL) >= currentfc) && (currentfc < wvNormFC(rgfc[i+1],NULL)) )
 			{
 			*fcFirst = wvNormFC(rgfc[i],NULL);

@@ -21,6 +21,24 @@ void wvAddCHPXFromBucket(CHP *achp,UPXF *upxf,STSH *stsh)
 		}
 	}
 
+void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
+	{
+	U8 *pointer;
+	U16 i=0;
+	U16 sprm;
+	while (i < upxf->cbUPX)
+		{
+		sprm = bgetc(upxf->upx.chpx.grpprl+i,&i);
+
+        wvTrace("word 6 sprm is %x (%d)\n",sprm,sprm);
+		sprm = wvGetrgsprmWord6(sprm);
+		wvTrace("word 6 sprm is converted to %x\n",sprm);
+		
+		pointer = upxf->upx.chpx.grpprl+i;
+		wvApplySprmFromBucket(sprm,NULL,achp,NULL,stsh,pointer,&i);
+		}
+	}
+
 void wvInitCHPFromIstd(CHP *achp,U16 istdBase,STSH *stsh)
 	{
 	if (istdBase == istdNil)
@@ -466,10 +484,10 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 
 	while(i<dest->cbGrpprl)
 		{
-		fprintf(stderr,"gotcha the sprm is %x\n",*((U16 *)pointer));
+		wvTrace("gotcha the sprm is %x\n",*((U16 *)pointer));
 		test = InsertNode(&tree,(void *)pointer);
 		sprm = dread_16ubit(NULL,&pointer);
-		fprintf(stderr,"the sprm is %x\n",sprm);
+		wvTrace("the sprm is %x\n",sprm);
 		temp = wvEatSprm(sprm,pointer,&i);
 		pointer += temp;
 		i+=2;
@@ -481,10 +499,10 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 	pointer = src->upx.chpx.grpprl;
 	while(i<src->cbUPX)
 		{
-		fprintf(stderr,"gotcha 2 the sprm is %x\n",*((U16 *)pointer));
+		wvTrace("gotcha 2 the sprm is %x\n",*((U16 *)pointer));
 		test = InsertNode(&tree,(void *)pointer);
 		sprm = dread_16ubit(NULL,&pointer);
-		fprintf(stderr,"the sprm is %x\n",sprm);
+		wvTrace("the sprm is %x\n",sprm);
 		temp = wvEatSprm(sprm,pointer,&i);
 		pointer += temp;
 		i+=2;
@@ -499,7 +517,7 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 	testn = NextNode(&tree,NULL);
 	while (testn != NULL)
 		{
-		fprintf(stderr,"methinks the sprm is %x\n",*((U16 *)testn->Data));
+		wvTrace("methinks the sprm is %x\n",*((U16 *)testn->Data));
 
 		sprm = *((U16 *)testn->Data);
 		pointer = (U8 *)testn->Data;
@@ -507,7 +525,7 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 
 		i=0;
 		wvEatSprm(sprm,pointer,&i);
-		fprintf(stderr,"i is now %d\n",i);
+		wvTrace("i is now %d\n",i);
 
 		pointer = (U8 *)testn->Data;
 		for(j=0;j<i+2;j++)
@@ -526,9 +544,9 @@ void wvMergeCHPXFromBucket(CHPX *dest,UPXF *src)
 	pointer = dest->grpprl;
 	while(i<dest->cbGrpprl)
 		{
-		fprintf(stderr,"final test the sprm is %x\n",*((U16 *)pointer));
+		wvTrace("final test the sprm is %x\n",*((U16 *)pointer));
 		sprm = dread_16ubit(NULL,&pointer);
-		fprintf(stderr,"the sprm is %x\n",sprm);
+		wvTrace("the sprm is %x\n",sprm);
 		temp = wvEatSprm(sprm,pointer,&i);
 		pointer += temp;
 		i+=2;

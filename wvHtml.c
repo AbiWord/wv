@@ -20,15 +20,15 @@ returns 1 for not an ole doc
 0 on success
 */
 
+int myelehandler(wvParseStruct *ps,wvTag tag,PAP *apap);
+int mydochandler(wvParseStruct *ps,wvTag tag);
 
 int main(int argc,char **argv)
 	{
-	char *buffer;
-	char fileinbuf[1024];
-	FILE *filein;
 	FILE *input;
 	int ret;
 	state_data myhandle;
+	expand_data expandhandle;
 	wvParseStruct ps;
 
 
@@ -46,6 +46,8 @@ int main(int argc,char **argv)
 		return(-1);
 		}
 
+	wvSetElementHandler(myelehandler);
+    wvSetDocumentHandler(mydochandler);
 
 	wvInitStateData(&myhandle);
     myhandle.fp = fopen("wvHtml.xml","rb");
@@ -58,7 +60,11 @@ int main(int argc,char **argv)
 		}
 
 	if (!ret)	
-		ret = wvHtml(&myhandle,&ps);
+		{
+		expandhandle.sd = &myhandle;
+		ps.userData = &expandhandle;
+		ret = wvHtml(&ps);
+		}
 	wvReleaseStateData(&myhandle);
 
 	if (ret == 2)
@@ -68,3 +74,45 @@ int main(int argc,char **argv)
 	wvOLEFree();
 	return(ret);
 	}
+
+int myelehandler(wvParseStruct *ps,wvTag tag,PAP *apap)
+    {
+    expand_data *data = (expand_data *)ps->userData;
+    data->anSttbfAssoc = &ps->anSttbfAssoc;
+    data->charset = wvAutoCharset(&ps->clx);
+    data->apap = apap;
+
+    switch (tag)
+        {
+        case PARABEGIN:
+            wvBeginPara(data);
+            break;
+        case PARAEND:
+            wvEndPara(data);
+            break;
+        default:
+            break;
+        }
+    return(0);
+    }
+
+int mydochandler(wvParseStruct *ps,wvTag tag)
+    {
+    expand_data *data = (expand_data *)ps->userData;
+    data->anSttbfAssoc = &ps->anSttbfAssoc;
+    data->charset = wvAutoCharset(&ps->clx);
+
+    switch (tag)
+        {
+        case DOCBEGIN:
+            wvBeginDocument(data);
+            break;
+        case DOCEND:
+            wvEndDocument(data);
+            break;
+        default:
+            break;
+        }
+    return(0);
+    }
+

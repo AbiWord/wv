@@ -84,7 +84,7 @@ unsigned int s_mapNameToToken(const char* name)
 		{
         if (s_Tokens[k].m_name[0] == '*')
             return k;
-        else if (!(strcmp(s_Tokens[k].m_name,ms_strlower(name))))
+        else if (!(strcasecmp(s_Tokens[k].m_name,name)))
             return k;
 		}
     return 0;
@@ -118,8 +118,13 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_JUST:
-			wvTrace("the just is %d\n",mydata->apap->jc);
+			if (mydata) wvTrace("1");
+			if (mydata->sd) wvTrace("2");
+			{
+			wvEle t = mydata->sd->elements[TT_JUSTIFICATION];
+			}
 			text = (char *)malloc(strlen(mydata->sd->elements[TT_JUSTIFICATION].str[mydata->apap->jc])+1);
+			wvTrace("the just is %d\n",mydata->apap->jc);
 			strcpy(text,mydata->sd->elements[TT_JUSTIFICATION].str[mydata->apap->jc]);
 			str = mydata->retstring;
 			wvExpand(mydata,text,strlen(text));

@@ -38,7 +38,7 @@ int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl
 			continue;
 		if ((*lfolvl)[i].fFormatting)
 			{
-			wvTrace("formatting set\n");
+			fprintf(stderr,"formatting set\n");
 			wvGetLVL(&((*lvl)[i]),fd);
 			}
 		i++;
@@ -116,7 +116,7 @@ int wvInvalidLFOLVL(LFOLVL *item)
 		return(0);
     if (item->reserved4 != 0xff) 
 		return(0);
-	wvWarning("invalid\n");
+	fprintf(stderr,"invalid\n");
 	return(1);
 	}
 

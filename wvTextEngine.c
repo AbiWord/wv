@@ -2,14 +2,11 @@
 #include <stdio.h>
 #include "wv.h"
 
-int wvText(state_data *myhandle,wvParseStruct *ps)
+int wvText(wvParseStruct *ps)
 	{
-	FILE *tablefd;
-	int ret,reason;
-
 	if (ps->fib.fComplex)
-		wvDecodeComplex(&ps->fib,ps->mainfd,ps->tablefd,ps->data);
+		wvDecodeComplex(ps);
 	else
-		wvDecodeSimple(myhandle,ps);
+		wvDecodeSimple(ps);
 	return(0);
 	}

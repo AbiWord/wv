@@ -4,7 +4,10 @@
 
 extern TokenTable s_Tokens[];
 
-static void (*charhandler)(wvParseStruct *ps,U16 eachchar,U8 chartype)=NULL;
+int (*charhandler)(wvParseStruct *ps,U16 eachchar,U8 chartype)=NULL;
+int (*elehandler)(wvParseStruct *ps,wvTag tag,PAP *apap)=NULL;
+int (*dochandler)(wvParseStruct *ps,wvTag tag)=NULL;
+
 
 CharsetTable c_Tokens[] =
 {
@@ -24,50 +27,48 @@ const char *wvGetCharset(U16 charset)
     return(NULL);
     }
 
-void wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStruct *ps)
+int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStruct *ps)
 	{
 	if (charhandler)
-		{
-		(*charhandler)(ps,eachchar,chartype);
-		return;
-		}
+		return( (*charhandler)(ps,eachchar,chartype) );
 
 	switch(eachchar)
 		{
 		case 11:
 			printf("\n");
-			return;
+			return(0);
 		case 45:
 		case 31:
 		case 30:
 			printf("-");
-			return;
+			return(0);
 		case 160:
 			printf(" ");
-			return;
+			return(0);
 		case 12:
 		case 13:
 		case 14:
 		case 7:
-			return;
+			return(0);
 		case 19:	/*field begin*/
 			wvTrace("field begin\n");
 			*state=1;
-			return;
+			return(0);
 		case 20:	/*field middle*/
 			*state=0;
-			return;
+			return(0);
 		case 21:	/*field end*/
 			*state=0;
-			return;
+			return(0);
 		}
 
 	if (*state)	
-		return;
+		return(0);
 	if (chartype == CP1252)
 		wvOutputFromCP1252(eachchar,outputtype);
 	else
 		wvOutputFromUnicode(eachchar,outputtype);
+	return(0);
 	}
 
 void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype)
@@ -202,9 +203,26 @@ void wvEndDocument(expand_data *data)
 		}
 	}
 
+int wvHandleElement(wvParseStruct *ps,wvTag tag, PAP *apap)
+	{
+	if (elehandler)
+		return( (*elehandler)(ps,tag,apap) );
+	wvError("unimplemented tag %d\n",tag);
+	return(0);
+	}
+
+int wvHandleDocument(wvParseStruct *ps,wvTag tag)
+	{
+	if (dochandler)
+		return( (*dochandler)(ps,tag) );
+	wvError("unimplemented tag %d\n",tag);
+	return(0);
+	}
+
+
 void wvBeginPara(expand_data *data)
 	{
-	if ( (data->sd != NULL) && (data->sd->elements[TT_PARA].str[0]!= NULL) )
+	if ( (data != NULL) &&  (data->sd != NULL) && (data->sd->elements[TT_PARA].str[0]!= NULL) )
 		{
 		wvExpand(data,data->sd->elements[TT_PARA].str[0],
 		strlen(data->sd->elements[TT_PARA].str[0]));
@@ -232,9 +250,17 @@ void wvEndPara(expand_data *data)
 		}
 	}
 
-
-
-void wvSetCharHandler(void (*proc)(wvParseStruct *,U16,U8))
+void wvSetCharHandler(int (*proc)(wvParseStruct *,U16,U8))
     {
 	charhandler = proc;
+	}
+
+void wvSetElementHandler(int (*proc)(wvParseStruct *,wvTag ,PAP *))
+    {
+	elehandler = proc;
+	}
+
+void wvSetDocumentHandler(int (*proc)(wvParseStruct *,wvTag))
+	{
+	dochandler = proc;
 	}

@@ -25,7 +25,7 @@ int do_tablelooks(pap *apap)
 	U16 templ;
 	/*check to see if we are supposed to use the background color of this table style*/
 
-	wvTrace("itl is %d, colcount is %d, rowcount is %d\n",apap->ourtap.tlp.itl,colcount,rowcount);
+	error(erroroutput,"itl is %d, colcount is %d, rowcount is %d\n",apap->ourtap.tlp.itl,colcount,rowcount);
 
 	switch(apap->ourtap.tlp.itl)
 		{

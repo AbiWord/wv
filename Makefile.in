@@ -245,6 +245,8 @@ install: installdirs $(srcdir)/mswordview$(EXEEXT)
 	$(INSTALL) $(srcdir)/wv-incconfig $(bindir)/wv-incconfig
 	$(INSTALL_DATA) $(srcdir)/mswordview.1 $(mandir)/man1/
 	$(INSTALL_DATA) $(srcdir)/config-mswordview $(libdir)/wv/config-mswordview
+	$(INSTALL_DATA) wv.h $(includedir)/wv.h
+	$(INSTALL_DATA) $(srcdir)/libwv.a $(libdir)/libwv.a
 	for filename in symbolfont/*.gif; do \
 		$(INSTALL_DATA) $$filename $(libdir)/wv/symbolfont; \
 	done
@@ -254,8 +256,7 @@ install: installdirs $(srcdir)/mswordview$(EXEEXT)
 	for filename in patterns/*.gif patterns/*.jpg; do \
 		$(INSTALL_DATA) $$filename $(libdir)/wv/patterns; \
 	done
-	$(INSTALL_DATA) wv.h $(includedir)/wv.h
-	$(INSTALL_DATA) $(srcdir)/libwv.a $(libdir)/libwv.a
+
 
 
 #  DO  NOT  DELETE THIS LINE -- make depend depends on it.

@@ -6,7 +6,7 @@ Copyright (C) 1998,1999
 
 Real Life: Caolan McNamara           *  Doing: MSc in HCI
 Work: Caolan.McNamara@ul.ie          *  Phone: +353-61-202699
-URL: http://skynet.csn.ul.ie/~caolan *  Sig: an oblique strategy
+URL: http://www.csn.ul.ie/~caolan    *  Sig: an oblique strategy
 How would you have done it?
 */
 
@@ -192,7 +192,7 @@ int decode_word8(wvParseStruct *ps,int core)
 	{
 	U32 i,j,k;
 	
-	int ret;
+	
 	textportions portions;
 	U32 *plcfbtePapx;
 	U32 *plcfbteChpx;
@@ -236,7 +236,7 @@ int decode_word8(wvParseStruct *ps,int core)
 	config_style *temp_styles;
 	/*end config stuff*/
 
-	int reason;
+	
 
 	if (configfile != NULL)
 		{
@@ -533,7 +533,7 @@ int decode_word8(wvParseStruct *ps,int core)
 		fastsaved docs as well (i bloody hope so)*/
 		fprintf(outputfile,"<!--complex document-->\n");
 		error(erroroutput,"main ends at %x\n",portions.ccpText);
-		wvDecodeComplex(&ps->fib,ps->mainfd,ps->tablefd,ps->data);
+		wvDecodeComplex(ps);
 
 		fseek(ps->mainfd,1024,SEEK_SET);
 		decode_clx(0,0,portions.ccpText,ps->tablefd,ps->mainfd,ps->data,ps->fib.fcClx,ps->fib.lcbClx,intervals,chpintervals,plcfbtePapx,plcfbteChpx,all_fields,&a_list_info,masterstylesheet,&portions,&ffn_sttbf,0);
@@ -542,7 +542,7 @@ int decode_word8(wvParseStruct *ps,int core)
 		{
 		error(erroroutput,"decoding simple\n");
 		fprintf(outputfile,"<!--noncomplex document-->\n");
-		wvDecodeSimple(NULL,ps);
+		wvDecodeSimple(ps);
 
 		fseek(ps->mainfd,1024,SEEK_SET);
 		decode_simple(ps->mainfd,ps->tablefd,ps->data,ps->fib.fcClx,ps->fib.fcMin,ps->fib.fcMac,intervals,chpintervals,plcfbtePapx,plcfbteChpx,all_fields,&a_list_info,masterstylesheet,&portions,&ffn_sttbf,0);
@@ -2561,7 +2561,7 @@ int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fi
 	int i=0,j;
 	static U8 fieldwas=0xff;
 	static int fieldeater=0;
-	static long int swallowcp1=0xffffffffL,swallowcp2=0xffffffffL;
+	static unsigned long int swallowcp1=0xffffffffL,swallowcp2=0xffffffffL;
 	static int spacecount;
 	static int tabstop;
 	static int silent=0;

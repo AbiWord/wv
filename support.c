@@ -670,7 +670,7 @@ void check_auto_color(chp *achp)
 the beginning tag and returns the next bookmark cp*/
 U32 decode_b_bookmark(bookmark_limits *l_bookmarks, STTBF *bookmarks)
 	{
-	int i=0;
+	U32 i=0;
 	U16 *letter16;
 	S8 *letter8;
 	while (i<l_bookmarks->bookmark_b_no)
@@ -1076,34 +1076,5 @@ int gcf_list(int *vals,int cno)
         }
     return(vals[i-1]);
     }
-
-int wvQuerySupported(FIB *fib,int *reason)
-	{
-	/*begin from microsofts kb q 40*/
-    if (fib->nFib <101)
-        {
-		if (reason) *reason=0;
-        return(1);
-        }
-    switch (fib->nFib)
-        {
-        case 101:
-			if (reason) *reason=1;
-            return(1);
-        case 103:
-        case 104:
-			if (reason) *reason=2;
-            return(1);
-        default:
-            break;
-        }
-	/*end from microsofts kb q 40*/
-	if (fib->fEncrypted)
-        {
-		if (reason) *reason=3;
-        return(1);
-        }
-	return(0);
-	}
 
 

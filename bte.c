@@ -30,6 +30,7 @@ int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
 	else
         {
         *nobte=(len-4)/(cbBTE+4);
+		wvTrace("no of bte is %d at %x\n",*nobte,offset);
         *pos = (U32 *) malloc( (*nobte+1) * sizeof(U32));
         if (*pos == NULL)
             {
@@ -72,5 +73,9 @@ int wvGetBTE_FromFC(BTE *bte, U32 currentfc, BTE *list,U32 *fcs, int nobte)
 			}
 		i++;
 		}
+	wvCopyBTE(bte,&list[i-1]);
+	return(0);
+	/*
 	return(1);
+	*/
 	}

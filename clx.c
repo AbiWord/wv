@@ -124,37 +124,15 @@ U16 wvAutoCharset(CLX *clx)
 	return(ret);
 	}
 
-/*
-1) search for the piece containing the character in the piece table.
 
-2) Then calculate the FC in the file that stores the character from the piece
-    table information.
-*/
-U32 wvConvertCPToFC(U32 currentcp,CLX *clx)
-	{
-	U32 currentfc=0xffffffffL;
-	U32 i=0;
-
-	while(i<clx->nopcd)
-        {
-//        fprintf(stderr,"%x %x %x\n",currentcp,clx->pos[i],clx->pos[i+1]);
-        if ( (currentcp >= clx->pos[i]) && (currentcp < clx->pos[i+1]) )
-            {
-            currentfc = wvNormFC(clx->pcd[i].fc,NULL) + (currentcp-clx->pos[i]);
-            break;
-            }
-        i++;
-        }
-	return(currentfc);
-	}
 
 int wvQuerySamePiece(U32 fcTest,CLX *clx,U32 piece)
 	{
 	/*
-    if ( (fcTest > wvNormFC(clx->pcd[piece].fc,NULL)) && (fcTest < wvNormFC(clx->pcd[piece+1].fc,NULL)) )
-	*/
-
+	wvTrace("Same Piece, %x %x %x\n",fcTest,wvNormFC(clx->pcd[piece].fc,NULL),wvNormFC(clx->pcd[piece+1].fc,NULL));
     if ( (fcTest >= wvNormFC(clx->pcd[piece].fc,NULL)) && (fcTest < wvNormFC(clx->pcd[piece+1].fc,NULL)) )
+	*/
+    if ( (fcTest >= wvNormFC(clx->pcd[piece].fc,NULL)) && (fcTest < wvGetEndFCPiece(piece,clx)) )
 		return(1);
     return(0);
 	}
@@ -169,6 +147,59 @@ U32 wvGetPieceFromCP(U32 currentcp,CLX *clx)
 			return(i);
 		i++;
 		}
-	wvError("cp was not in any piece ! \n",currentcp);
+	wvTrace("cp was not in any piece ! \n",currentcp);
 	return(0xffffffffL);
+	}
+
+U32 wvGetPieceFromFC(U32 currentfc,CLX *clx)
+	{
+	U32 i=0;
+	while(i<clx->nopcd)
+		{
+		if ( (currentfc >= clx->pos[i]) && (currentfc < clx->pos[i+1]) )
+			return(i);
+		i++;
+		}
+	wvTrace("fc was not in any piece ! \n",currentfc);
+	return(0xffffffffL);
+	}
+
+U32 wvGetEndFCPiece(U32 piece,CLX *clx)
+	{
+	int flag;
+	U32 fc;
+	U32 offset = clx->pos[piece+1] - clx->pos[piece];
+	wvTrace("offset is %x\n",offset);
+	fc = wvNormFC(clx->pcd[piece].fc,&flag);
+	wvTrace("fc is %x, flag %d\n",fc,flag);
+	if (flag) fc+=offset;
+	else fc+=offset*2;
+	wvTrace("fc is finally %x\n",fc);
+	return(fc);
+	}
+
+/*
+1) search for the piece containing the character in the piece table.
+
+2) Then calculate the FC in the file that stores the character from the piece
+    table information.
+*/
+U32 wvConvertCPToFC(U32 currentcp,CLX *clx)
+	{
+	U32 currentfc=0xffffffffL;
+	U32 i=0;
+	int flag;
+
+	while(i<clx->nopcd)
+        {
+        if ( (currentcp >= clx->pos[i]) && (currentcp < clx->pos[i+1]) )
+            {
+            currentfc = wvNormFC(clx->pcd[i].fc,&flag);
+			if (flag) currentfc+=(currentcp-clx->pos[i]);
+			else currentfc+=((currentcp-clx->pos[i])*2);
+            break;
+            }
+        i++;
+        }
+	return(currentfc);
 	}

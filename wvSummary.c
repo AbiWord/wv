@@ -135,14 +135,14 @@ int main(int argc,char **argv)
 	ret = wvSumInfoGetLong(&along,PID_PAGECOUNT, &si);
 
 	if (!ret)
-	    fprintf(stderr,"PageCount is %ld\n",along);
+	    fprintf(stderr,"PageCount is %d\n",along);
 	else
 		fprintf(stderr,"no pagecount\n");
 
 	ret = wvSumInfoGetLong(&along,PID_WORDCOUNT, &si);
 
 	if (!ret)
-	    fprintf(stderr,"WordCount is %ld\n",along);
+	    fprintf(stderr,"WordCount is %d\n",along);
 	else
 		fprintf(stderr,"no wordcount\n");
 
@@ -150,14 +150,14 @@ int main(int argc,char **argv)
 	ret = wvSumInfoGetLong(&along,PID_CHARCOUNT, &si);
 
 	if (!ret)
-	    fprintf(stderr,"CharCount is %ld\n",along);
+	    fprintf(stderr,"CharCount is %d\n",along);
 	else
 		fprintf(stderr,"no charcount\n");
 
 	ret = wvSumInfoGetLong(&along,PID_SECURITY, &si);
 
 	if (!ret)
-	    fprintf(stderr,"Security is %ld\n",along);
+	    fprintf(stderr,"Security is %d\n",along);
 	else
 		fprintf(stderr,"no security\n");
 
