@@ -1220,6 +1220,13 @@ read_pps (MsOle *f)
 			last = blk;
 			blk = NEXT_BB (f, blk);
 			g_array_index (f->bb, BLP, last) = UNUSED_BLOCK;
+
+			if (blk >= f->bb->len && blk != END_OF_CHAIN)
+				{						
+					/* Added boundary condition to the block chain traversal */
+					g_warning ("Corrupt block file: invalid block in chain\n");
+					break;
+				}
 		}
 	}
 
