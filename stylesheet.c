@@ -186,7 +186,7 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 
 
     wvTrace (("doing a std, str len is %d\n", len + 1));
-    item->xstzName = (U16 *) wvMalloc ((len + 1) * sizeof (XCHAR));
+    item->xstzName = (char *) wvMalloc ((len + 1) * sizeof (char));
 
     for (i = 0; i < len + 1; i++)
       {
@@ -197,7 +197,8 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 	    }
 	  else
 	    {
-		item->xstzName[i] = read_16ubit (fd);
+			/* DOM: is this correct? */
+		item->xstzName[i] = ( char ) read_16ubit (fd);
 		pos += 2;
 	    }
 

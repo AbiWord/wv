@@ -1663,15 +1663,14 @@ to writing word files, when we'll make a distinction.
 	U32 fHidden:1;		/* hidden from UI? */
 	U32 reserved:14;	/* unused bits */
 
-	/* Variable length part of STD: */
-/*	XCHAR *xstzName;*/	/* sub-names are separated by chDelimStyle */
-/* Patch */
-char *xstzName;
+		/* Variable length part of STD: */
+		/*	XCHAR *xstzName;*/	/* sub-names are separated by chDelimStyle */
+		char *xstzName;
 
 
-
-	UPXF *grupxf;		/*was UPX *grupx in the spec, but for my
-				   purposes its different */
+		
+		UPXF *grupxf;		/*was UPX *grupx in the spec, but for my
+							  purposes its different */
 
 	/* the UPEs are not stored on the file; they are a cache of the based-on
 	   chain */
@@ -3170,16 +3169,6 @@ returns the same as wvOLEDecode with the addition that
     float wvRelativeWidth (S16 width, SEP * asep);
 
     int fieldCharProc (wvParseStruct * ps, U16 eachchar, U8 chartype, U16 lid);
-
-#if 0
-    typedef struct _wvStyle {
-	 XCHAR *xstzName;
-/*		char *xstzName;*/
-
-	char *characterstring;
-	char *parastring;
-    } wvStyle;
-#endif
 
     ATRD *wvGetCommentBounds (U32 * comment_cpFirst, U32 * comment_cpLim,
 			      U32 currentcp, ATRD * atrd, U32 * pos, U32 noatrd,
