@@ -88,6 +88,9 @@ void wvGetLFO(LFO *item,FILE *fd)
 void wvGetLFOLVL(LFOLVL *item,FILE *fd)
 	{
 	U8 temp8;
+#ifdef PURIFY
+	wvInitLFOLVL(item);
+#endif
 	item->iStartAt = read_32ubit(fd);
 	temp8 = getc(fd);
     item->ilvl = temp8 & 0x0F;
@@ -97,6 +100,18 @@ void wvGetLFOLVL(LFOLVL *item,FILE *fd)
     item->reserved2 = getc(fd);
     item->reserved3 = getc(fd);
     item->reserved4 = getc(fd);
+	}
+
+void wvInitLFOLVL(LFOLVL *item)
+	{
+	item->iStartAt = 0;
+    item->ilvl = 0;
+    item->fStartAt = 0;
+    item->fFormatting = 0;
+    item->reserved1 = 0;
+    item->reserved2 = 0;
+    item->reserved3 = 0;
+    item->reserved4 = 0;
 	}
 
 int wvInvalidLFOLVL(LFOLVL *item)

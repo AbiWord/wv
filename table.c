@@ -166,7 +166,12 @@ void wvSetTableInfo(wvParseStruct *ps,TAP *ptap,int no)
         }
 
 
-	if (ps->vmerges) wvFree(ps->vmerges);
+	if (ps->vmerges) 
+		{
+		for(i=0;i<ps->norows;i++)
+			wvFree(ps->vmerges[i]);
+		wvFree(ps->vmerges);
+		}
 	ps->vmerges = (S16 **)malloc(sizeof(S16 *) * no);
 	for(i=0;i<no;i++)
 		{

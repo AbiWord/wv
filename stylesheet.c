@@ -366,7 +366,6 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 
 					break;
 				case sgcChp:
-					wvTrace(("sgcChp style, len is %d %d\n",item->std[i].grupxf[0].cbUPX,item->std[i].grupe[0].chpx.cbGrpprl));
 					wvInitCHPXFromIstd(&(item->std[i].grupe[0].chpx),item->std[i].istdBase,item);
 
 					if (word6)

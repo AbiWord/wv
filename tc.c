@@ -52,7 +52,7 @@ int wvGetTC_internal(int version,TC *tc,FILE *infd,U8 *pointer)
 		wvGetBRC10_internal(&brc10,infd,pointer);
 		wvConvertBRC10ToBRC(&tc->brcRight,&brc10);
 		pointer+=cb6BRC;
-		return(cbTC-4*cbBRC10);
+		return(cb6TC);
 		}
 	return(cbTC);
     }

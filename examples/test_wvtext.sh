@@ -8,7 +8,7 @@
 for filename in *
 	do
 	echo filename is $filename
-    ../wvText "$filename" > /dev/null
+    ../wvHtml "$filename" > /dev/null
 	test=$?
 	echo status is $test
 	if [ "$test" = "0" ] ; then

@@ -1,4 +1,9 @@
 Changes to to 0.5.36
+	* mem leaks plugged, word 6 and 7 section sprms added correctly.
+	* crushed a few out by ones, twos and threes :-), flattened a few
+	more pesky buglets and leaks.
+	* purify now reports no problems of any kind with any of the examples
+	and feature-examples.
 ALL TODO
 	* fully implement tablelooks, the flags in particular, and maybe the 
 	colors for the bg should be farmed out to sperate config options rather

@@ -271,8 +271,14 @@ void wvDecodeSimple(wvParseStruct *ps)
 	if (ps->fib.fcMac != ftell(ps->mainfd))
 		wvError(("fcMac did not match end of input !\n"));
 	wvReleaseCLX(&ps->clx);
-        wvReleaseFFN_STTBF(&ps->fonts);
+    wvReleaseFFN_STTBF(&ps->fonts);
 	wvReleaseSTSH(&ps->stsh);
+	if (ps->vmerges)
+		{
+		for(i=0;i<ps->norows;i++)
+			wvFree(ps->vmerges[i]);
+		wvFree(ps->vmerges);
+		}
 	}
 
 
@@ -424,8 +430,11 @@ int wvGetSimpleSectionBounds(int version,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 c
 	if (sed[j].fcSepx != 0xffffffffL)
 		{
 		fseek(fd,wvNormFC(sed[j].fcSepx,NULL),SEEK_SET);
-		wvGetSEPX(&sepx,fd);
-		wvAddSEPXFromBucket(sep,&sepx,stsh);
+		wvGetSEPX(version,&sepx,fd);
+		if (version == 0)
+			wvAddSEPXFromBucket(sep,&sepx,stsh);
+		else
+			wvAddSEPXFromBucket6(sep,&sepx,stsh);
 		wvReleaseSEPX(&sepx);
 		}
 

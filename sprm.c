@@ -2031,6 +2031,7 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 	int i,t,oldpos,type;
 	len = dread_16ubit(NULL,&pointer);
 	oldpos = *pos;
+	wvTrace(("oldpos is %x\n",oldpos));
 	(*pos)+=2;
 	tap->itcMac = dgetc(NULL,&pointer);
 	wvTrace(("C: there are %d cells\n",tap->itcMac));
@@ -2042,18 +2043,21 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 		(*pos)+=2;
 		}
 
-	if ( (len - (*pos - 2 - oldpos)) < (cb6TC * tap->itcMac) )
+	wvTrace(("len %d, %d, cb6TC * tap->itcMac %d\n",len,len - (tap->itcMac + 1)*2 -1,cb6TC * tap->itcMac));
+
+	if ( (len - (tap->itcMac + 1)*2 -1) < (cb6TC * tap->itcMac) )
 		{
-		if ( (len - (*pos - oldpos)) < (cbTAP * tap->itcMac) )
 		pointer += len - (*pos - oldpos);
 		(*pos) += len - (*pos - oldpos);
 		return;
 		}
 
-	if ( (len - (*pos - 2 - oldpos)) < (cbTC * tap->itcMac) )
+	if ( (len - (tap->itcMac + 1)*2 -1) < (cbTC * tap->itcMac) )
 		type = 1;
 	else
 		type = 0;
+
+	wvTrace(("type is %d\n",type));
 
 	for (i=0;i<tap->itcMac;i++)
 		{
@@ -2063,6 +2067,15 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 		(*pos)+=t;
 		pointer+=t;
 		}
+
+	wvTrace(("oldpos is %x, pos is %x, diff is %d, len %d\n",oldpos,*pos,*pos-oldpos-2,len));
+
+	while (*pos-oldpos-2 < len) 
+		{
+		(*pos)++;
+		pointer++;
+		}
+	wvTrace(("oldpos is %x, pos is %x, diff is %d\n",oldpos,*pos,*pos-oldpos-2));
 	}
 /*
 sprmTDefTable10 (opcode0xD606) is an obsolete version of sprmTDefTable

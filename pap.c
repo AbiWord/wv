@@ -23,12 +23,17 @@ void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh)
 		}
 	i=0;
 
-	while (i < upxf->cbUPX-2)	/*-2 because the istd takes up the first two bytes*/
+	/*
+	while (i < upxf->cbUPX-2)	
+	*/
+	while (i < upxf->cbUPX-4)	/* the end of the list is at -2, but there has to be a full sprm of
+								 len 2 as well*/
 		{
 		sprm = bread_16ubit(upxf->upx.papx.grpprl+i,&i);
 		wvTrace(("sprm is %x\n",sprm));
 		pointer = upxf->upx.papx.grpprl+i;
-		wvApplySprmFromBucket(0,sprm,apap,NULL,NULL,stsh,pointer,&i);
+		if (i < upxf->cbUPX-2)
+			wvApplySprmFromBucket(0,sprm,apap,NULL,NULL,stsh,pointer,&i);
 		}
 	}
 
@@ -41,14 +46,23 @@ void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh)
 	if (upxf->cbUPX <= 2)
 		return;
 	wvTrace(("no is %d\n",upxf->cbUPX));
-	while (i < upxf->cbUPX-2)	/*-2 because the istd takes up the first two bytes*/
+
+	/*
+	while (i < upxf->cbUPX-2)	
+	*/
+	while (i < upxf->cbUPX-3)	/* the end of the list is at -2, but there has to be a full sprm of
+								 len 1 as well*/
 		{
 		sprm = bgetc(upxf->upx.papx.grpprl+i,&i);
 		wvTrace(("pap word 6 sprm is %x (%d)\n",sprm,sprm));
 		sprm = wvGetrgsprmWord6(sprm);
 		wvTrace(("pap word 6 sprm is converted to %x\n",sprm));
 		pointer = upxf->upx.papx.grpprl+i;
-		wvApplySprmFromBucket(1,sprm,apap,NULL,NULL,stsh,pointer,&i);
+		/* hmm, maybe im wrong here, but there appears to be corrupt 
+		 * word 6 sprm lists being stored in the file
+		 */
+		if (i < upxf->cbUPX-2)
+			wvApplySprmFromBucket(1,sprm,apap,NULL,NULL,stsh,pointer,&i);
 		}
 	}
 
@@ -306,16 +320,15 @@ void wvAssembleSimplePAP(int version,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 		{
 		wvTrace(("cbUPX is %d\n",papx->cb));
 		for (i=0;i<papx->cb-2;i++)
-			wvTrace(("%x ",papx->grpprl[i]));
+			wvTrace(("-->%x ",papx->grpprl[i]));
 		wvTrace(("\n"));
-		upxf.cbUPX = papx->cb-1;
+		upxf.cbUPX = papx->cb;
 		upxf.upx.papx.istd = papx->istd;
 		upxf.upx.papx.grpprl = papx->grpprl;
 		if (version == 0)
 			wvAddPAPXFromBucket(apap,&upxf,stsh);
 		else
 			wvAddPAPXFromBucket6(apap,&upxf,stsh);
-		wvTrace(("apap jc is now %d\n",apap->jc));
 		}
 
 	if (papx)

@@ -975,6 +975,7 @@ typedef struct _LFOLVL
     } LFOLVL;
 
 void wvGetLFOLVL(LFOLVL *item,FILE *fd);
+void wvInitLFOLVL(LFOLVL *item);
 int wvInvalidLFOLVL(LFOLVL *item);
 
 int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl,U32 offset,U32 len,FILE *fd);
@@ -1764,10 +1765,10 @@ typedef struct _SEPX
 	U8 *grpprl;
 	} SEPX;
 
-void wvGetSEPX(SEPX *item,FILE *fd);
+void wvGetSEPX(int version,SEPX *item,FILE *fd);
 void wvReleaseSEPX(SEPX *item);
 void wvAddSEPXFromBucket(SEP *asep,SEPX *item,STSH *stsh);
-
+void wvAddSEPXFromBucket6(SEP *asep,SEPX *item,STSH *stsh);
 
 
 void wvApplySprmFromBucket(int version,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos);

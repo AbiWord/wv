@@ -116,13 +116,21 @@ void wvInitSEP(SEP *item)
  	wvInitOLST(&item->olstAnm);
 	} 
 
-void wvGetSEPX(SEPX *item,FILE *fd)
+void wvGetSEPX(int version,SEPX *item,FILE *fd)
 	{
 	U16 i;
 	item->cb = read_16ubit(fd);
-	item->grpprl = (U8 *)malloc(item->cb);
-	for (i=0;i<item->cb;i++)
+
+	if (item->cb)
+		item->grpprl = (U8 *)malloc(item->cb);
+	else
+		item->grpprl = NULL;
+
+	for (i=0;i<item->cb;i++)	
+		{
 		item->grpprl[i] = getc(fd);
+		wvTrace(("sep is %x\n",item->grpprl[i]));
+		}
 	}
 
 void wvReleaseSEPX(SEPX *item)
@@ -143,6 +151,23 @@ void wvAddSEPXFromBucket(SEP *asep,SEPX *item,STSH *stsh)
         wvApplySprmFromBucket(0,sprm,NULL,NULL,asep,stsh,pointer,&i);
         }
 	}
+
+void wvAddSEPXFromBucket6(SEP *asep,SEPX *item,STSH *stsh)
+	{
+	U8 *pointer;
+    U16 i=0;
+    U16 sprm;
+    while (i < item->cb)
+        {
+        sprm = bgetc(item->grpprl+i,&i);
+		wvTrace(("sep word 6 sprm is %x (%d)\n",sprm,sprm));
+		sprm = wvGetrgsprmWord6(sprm);
+		wvTrace(("sep word 6 sprm is converted to %x\n",sprm));
+        pointer = item->grpprl+i;
+        wvApplySprmFromBucket(1,sprm,NULL,NULL,asep,stsh,pointer,&i);
+        }
+	}
+
 
 
 

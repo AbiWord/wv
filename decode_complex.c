@@ -589,18 +589,33 @@ void wvDecodeComplex(wvParseStruct *ps)
 	wvReleasePAPX_FKP(&para_fkp);
 	wvReleaseCHPX_FKP(&char_fkp);
 	   
-	wvHandleDocument(ps,DOCEND);
 
-	wvFree(sed);
+	wvHandleDocument(ps,DOCEND);
 	wvFree(posSedx);
+	wvFree(sed);
+
+	wvFree(ps->liststartnos);
+	for (i=0;i<9 * ps->nolfo;i++)
+		wvReleaseLVL(&(ps->finallvl[i]));
+	wvFree(ps->finallvl);
+
+	wvReleaseLST(&ps->lst,ps->noofLST);
+	wvReleaseLFO_records(&ps->lfo,&ps->lfolvl,&ps->lvl,ps->nooflvl);
 	wvReleaseSTTBF(&ps->anSttbfAssoc);
-	wvReleaseCLX(&ps->clx);
-	wvReleaseFFN_STTBF(&ps->fonts);
-	wvReleaseSTSH(&ps->stsh);
+	
 	wvFree(btePapx);
 	wvFree(posPapx);
 	wvFree(bteChpx);
 	wvFree(posChpx);
+	wvReleaseCLX(&ps->clx);
+	wvReleaseFFN_STTBF(&ps->fonts);
+	wvReleaseSTSH(&ps->stsh);
+	if (ps->vmerges)
+		{
+		for(i=0;i<ps->norows;i++)
+			wvFree(ps->vmerges[i]);
+		wvFree(ps->vmerges);
+		}
 	}
 
 /*
