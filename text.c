@@ -24,12 +24,41 @@ wvnLocaleToLIDConverter (U8 nLocale)
 {
     switch (nLocale)
       {
-      case 134:		/* Chinese Simplified */
-	  return (0x804);
-      case 136:		/* Chinese Traditional */
-	  return (0x404);
+	  // case 0:		/* ANSI_CHARSET */
+	  // case 1:		/* DEFAULT_CHARSET */
+	  // case 2:		/* SYMBOL_CHARSET */
+	  case 77:			/* MAC_CHARSET */
+	  return (0xFFF);	/* This number is a hack */
+	  case 128:			/* SHIFTJIS_CHARSET */
+	  return (0x411);	/* Japanese */
+	  case 129:			/* HANGEUL_CHARSET */
+	  return (0x412);	/* Korean */
+	  case 130:			/* JOHAB_CHARSET */
+	  return (0x812);	/* Korean (Johab) */
+	  case 134:			/* GB2312_CHARSET - Chinese Simplified */
+	  return (0x804);	/* China PRC - And others!! */
+	  case 136:			/* CHINESEBIG5_CHARSET - Chinese Traditional */
+	  return (0x404);	/* Taiwan - And others!! */
+	  case 161:			/* GREEK_CHARSET */
+	  return (0x408);	/* Greek */
+	  case 162:			/* TURKISH_CHARSET */
+	  return (0x41f);	/* Turkish */
+	  case 163:			/* VIETNAMESE_CHARSET */
+	  return (0x42a);	/* Vietnamese */
+	  case 177:			/* HEBREW_CHARSET */
+	  return (0x40d);	/* Hebrew */
+	  case 178:			/* ARABIC_CHARSET */
+	  return (0x01);	/* Arabic */
+	  case 186:			/* BALTIC_CHARSET */
+	  return (0x425);	/* Estonian - And others!! */
+	  case 204:			/* RUSSIAN_CHARSET */
+	  return (0x419);	/* Russian - And others!! */
+	  case 222:			/* THAI_CHARSET */
+	  return (0x41e);	/* Thai */
+	  case 238:			/* EASTEUROPE_CHARSET */
+	  return (0x405);	/* Czech - And many others!! */
+	  // case 255:		/* OEM_CHARSET */
 
-	  /* Add Japanese, Korean and whatever nLocale you see fit. */
       default:
 	  return (0x0);
       }
@@ -127,33 +156,177 @@ wvLIDToLangConverter (U16 lid)
 {
   switch (lid)
     {
-    case 0x0405: 
+#if 0
+    case 0x0000: /* Language Neutral */
+#endif
+
+    case 0x0436: 
+      return "af-ZA";
+
+#if 0
+    case 0x041c: /* Albanian */
+
+    case 0x1401: /* Arabic (Algeria) */
+    case 0x3c01: /* Arabic (Bahrain) */
+#endif
+    case 0x0c01: /* Arabic (Egypt) */
+      return "af-EG";
+#if 0
+    case 0x0801: /* Arabic (Iraq) */
+    case 0x2c01: /* Arabic (Jordan) */
+    case 0x3401: /* Arabic (Kuwait) */
+    case 0x3001: /* Arabic (Lebanon) */
+    case 0x1001: /* Arabic (Libya) */
+    case 0x1801: /* Arabic (Morocco) */
+    case 0x2001: /* Arabic (Oman) */
+    case 0x4001: /* Arabic (Qatar) */
+#endif
+    case 0x0401: /* Arabic (Saudi Arabia) */
+      return "af-SA";
+#if 0
+    case 0x2801: /* Arabic (Syria) */
+    case 0x1c01: /* Arabic (Tunisia) */
+    case 0x3801: /* Arabic (U.A.E.) */
+    case 0x2401: /* Arabic (Yemen) */
+#endif
+
+#if 0
+    case 0x044d: /* Windows 2000: Assamese. This is Unicode only. */
+    case 0x082c: /* Azeri (Cyrillic) */
+    case 0x042c: /* Azeri (Latin) */
+    case 0x042d: /* Basque */
+    case 0x0423: /* Belarussian */
+    case 0x0445: /* Windows 2000: Bengali. This is Unicode only. */
+    case 0x0402: /* Bulgarian */
+    case 0x0455: /* Burmese */
+    case 0x0403: /* Catalan */
+#endif
+
+    case 0x0c04: /* Chinese (Hong Kong SAR, PRC) */
+      return "zh-HK";
+#if 0
+    case 0x1404: /* Chinese (Macau SAR) */
+#endif
+    case 0x0804: /* Chinese (PRC) */
+      return "zh-CN";
+    case 0x1004: /* Chinese (Singapore) */
+      return "zh-SG";
+    case 0x0404: /* Chinese (Taiwan) */
+      return "zh-TW";
+
+#if 0
+    case 0x041a: /* Croatian */
+#endif
+
+	case 0x0405: 
       return "cs-CZ";
 
     case 0x0406:  
       return "da-DK";
 
-    case 0x0807: /* swiss german */
+    case 0x0c07: /* German (Austria) */
+      return "de-AT";
     case 0x0407: /* german */
       return "de-DE";
+#if 0
+    case 0x1407: /* German (Liechtenstein) */
+    case 0x1007: /* German (Luxembourg) */
+    case 0x0807: /* swiss german */
+#endif
 
+    case 0x0408: /* Greek */
+      return "el-GR";
+
+    case 0x0c09: /* English (Australian) */
+      return "en-AU";
+#if 0
+    case 0x2809: /* English (Belize) */
+#endif
+    case 0x1009: /* English (Canadian) */
+      return "en-CA";
+#if 0
+    case 0x2409: /* English (Caribbean) */
+#endif
     case 0x0809: /* british english */
       return "en-GB";
-    case 0x0c09:
-      return "en-AU";
+    case 0x1809: /* English (Ireland) */
+      return "en-IE";
+#if 0
+    case 0x2009: /* English (Jamaica) */
+#endif
+    case 0x1409: /* English (New Zealand) */
+      return "en-NZ";
+#if 0
+    case 0x3409: /* English (Philippines) */
+    case 0x2c09: /* English (Trinidad) */
+#endif
+    case 0x1c09: /* English (South Africa) */
+      return "en-ZA";
+#if 0
+    case 0x3009: /* English (Zimbabwe) */
+#endif
 
-    case 0x0413: /* dutch */
-      return "da-NL"; /* netherlands */
-
-    case 0x040a: /* castillian */
-		    case 0x080a: /* mexican */ 
+#if 0
+    case 0x2c0a: /* Spanish (Argentina) */
+    case 0x400a: /* Spanish (Bolivia) */
+    case 0x340a: /* Spanish (Chile) */
+    case 0x240a: /* Spanish (Colombia) */
+    case 0x140a: /* Spanish (Costa Rica) */
+    case 0x1c0a: /* Spanish (Dominican Republic) */
+    case 0x300a: /* Spanish (Ecuador) */
+    case 0x440a: /* Spanish (El Salvador) */
+#endif
+    case 0x040a: /* castillian - traditional sort */
       return "es-ES";
+#if 0
+    case 0x100a: /* Spanish (Guatemala) */
+    case 0x480a: /* Spanish (Honduras) */
+#endif
+    case 0x080a: /* mexican */ 
+      return "es-MX";
+#if 0
+    case 0x0c0a: /* Spanish (Modern Sort) */
+    case 0x4c0a: /* Spanish (Nicaragua) */
+    case 0x180a: /* Spanish (Panama) */
+    case 0x3c0a: /* Spanish (Paraguay) */
+    case 0x280a: /* Spanish (Peru) */
+    case 0x500a: /* Spanish (Puerto Rico) */
+    case 0x380a: /* Spanish (Uruguay) */
+    case 0x200a: /* Spanish (Venezuela) */
+#endif
 
-    case 0x040b:
+#if 0
+    case 0x0425: /* Estonian */
+    case 0x0438: /* Faeroese */
+#endif
+
+    case 0x0429: /* Farsi */
+      return "fa-IR";
+
+	case 0x040b:
       return "fi-FI";
 
-    case 0x040c:
+#if 0
+    case 0x080c: /* French (Belgian) */
+    case 0x0c0c: /* French (Canadian) */
+#endif
+	case 0x040c:
       return "fr-FR";
+#if 0
+    case 0x140c: /* French (Luxembourg) */
+    case 0x180c: /* French (Monaco) */
+    case 0x100c: /* French (Switzerland) */
+#endif
+
+#if 0
+    case 0x0447: /* Windows 2000: Gujarati. This is Unicode only. */
+#endif
+
+    case 0x0439: /* Windows 2000: Hindi. This is Unicode only. */
+      return "hi-IN";
+
+    case 0x042b: /* Windows 2000: Armenian. This is Unicode only. */
+      return "hy-AM";
 
     case 0x0410:
       return "it-IT";
@@ -161,15 +334,120 @@ wvLIDToLangConverter (U16 lid)
     case 0x040d: /* hebrew */
       return "iw-IL";
 
+#if 0
+    case 0x040e: /* Hungarian */
+#endif
+
+    case 0x0437: /* Windows 2000: Georgian. This is Unicode only. */
+      return "ka-GE";
+
+#if 0
+    case 0x040f: /* Icelandic */
+    case 0x0421: /* Indonesian */
+    case 0x0410: /* Italian (Standard) */
+    case 0x0810: /* Italian (Switzerland) */
+#endif
+
+    case 0x0411: /* Japanese */
+      return "ja-JP";
+
+#if 0
+    case 0x044b: /* Windows 2000: Kannada. This is Unicode only. */
+    case 0x0860: /* Kashmiri (India) */
+    case 0x043f: /* Kazakh */
+    case 0x0457: /* Windows 2000: Konkani. This is Unicode only. */
+#endif
+
+#if 0
+    case 0x0812: /* Korean (Johab) */
+#endif
+    case 0x0412: /* Korean */
+      return "ko-KR";
+
+#if 0
+    case 0x0426: /* Latvian */
+    case 0x0827: /* Lithuanian (Classic) */
+    case 0x0427: /* Lithuanian */
+    case 0x042f: /* Macedonian */
+    case 0x083e: /* Malay (Brunei Darussalam) */
+    case 0x043e: /* Malay (Malaysian) */
+    case 0x044c: /* Windows 2000: Malayalam. This is Unicode only. */
+    case 0x0458: /* Manipuri */
+    case 0x044e: /* Windows 2000: Marathi. This is Unicode only. */
+#endif
+
+#if 0
+    case 0x0813: /* Dutch (Belgium) */
+#endif
+    case 0x0413: /* Dutch (Netherlands) */
+      return "nl-NL";
+
+#if 0
+    case 0x0861: /* Nepali Windows 2000: (India). This is Unicode only. */
+#endif
+
+    case 0x0414: /* Norwegian (Bokmal) */
+      return "nb-NO";
+    case 0x0814: /* Norwegian (Nynorsk) */
+      return "nn-NO";
+
+#if 0
+    case 0x0448: /* Windows 2000: Oriya. This is Unicode only. */
+    case 0x0415: /* Polish */
+#endif
+
     case 0x0416: /* brazilian */
+      return "pt-BR";
     case 0x0816: /* portugese */
       return "pt-PT";
+
+#if 0
+    case 0x0446: /* Windows 2000: Punjabi. This is Unicode only. */
+    case 0x0418: /* Romanian */
+#endif
 
     case 0x0419:
       return "ru-RU";
 
+#if 0
+    case 0x044f: /* Windows 2000: Sanskrit. This is Unicode only. */
+    case 0x0c1a: /* Serbian (Cyrillic) */
+    case 0x081a: /* Serbian (Latin) */
+    case 0x0459: /* Sindhi */
+    case 0x041b: /* Slovak */
+    case 0x0424: /* Slovenian */
+    case 0x0430: /* Sutu */
+    case 0x0441: /* Swahili (Kenya) */
+#endif
+
+#if 0
+    case 0x081d: /* Swedish (Finland) */
+#endif
     case 0x041d:
       return "sv-SE";
+
+#if 0
+    case 0x0449: /* Windows 2000: Tamil. This is Unicode only. */
+    case 0x0444: /* Tatar (Tatarstan) */
+    case 0x044a: /* Windows 2000: Telugu. This is Unicode only. */
+#endif
+
+    case 0x041e: /* Thai */
+      return "th-TH";
+
+    case 0x041f: /* Turkish */
+      return "tr-TR";
+
+#if 0
+    case 0x0422: /* Ukrainian */
+    case 0x0820: /* Urdu (India) */
+    case 0x0420: /* Urdu (Pakistan) */
+    case 0x0843: /* Uzbek (Cyrillic) */
+    case 0x0443: /* Uzbek (Latin) */
+#endif
+
+    case 0x042a: /* Vietnamese */
+      return "vi-VN";
 
     case 0x0400:
       return "-none-";
@@ -183,125 +461,190 @@ wvLIDToLangConverter (U16 lid)
 char *
 wvLIDToCodePageConverter (U16 lid)
 {
-    switch (lid)
-      {
-      case 0x0401:		/*Arabic */
-	  return ("CP1256");
-      case 0x0402:		/*Bulgarian */
-	  return ("CP1251");
-      case 0x0403:		/*Catalan */
-	  return ("CP1252");
-      case 0x0404:		/*Traditional Chinese */
-	  CPNAME_OR_FALLBACK ("CP950", "BIG5");
-      case 0x0804:		/*Simplified Chinese */
-	  CPNAME_OR_FALLBACK ("CP936", "GB2312");
-      case 0x0405:		/*Czech */
-	  return ("CP1250");
-      case 0x0406:		/*Danish */
-	  return ("CP1252");
-      case 0x0407:		/*German */
-	  return ("CP1252");
-      case 0x0807:		/*Swiss German */
-	  return ("CP1252");
-      case 0x0408:		/*Greek */
-	  return ("CP1253");
-      case 0x0409:		/*U.S. English */
-	  return ("CP1252");
-      case 0x0809:		/*U.K. English */
-	  return ("CP1252");
-      case 0x0c09:		/*Australian English */
-	  return ("CP1252");
-      case 0x040a:		/*Castilian Spanish */
-	  return ("CP1252");
-      case 0x080a:		/*Mexican Spanish */
-	  return ("CP1252");
-      case 0x040b:		/*Finnish */
-	  return ("CP1252");
-      case 0x040c:		/*French */
-	  return ("CP1252");
-      case 0x080c:		/*Belgian French */
-	  return ("CP1252");
-      case 0x0c0c:		/*Canadian French */
-	  return ("CP1252");
-      case 0x100c:		/*Swiss French */
-	  return ("CP1252");
-      case 0x040d:		/*Hebrew */
-	  return ("CP1255");
-      case 0x040e:		/*Hungarian */
-	  return ("CP1250");
-      case 0x040f:		/*Icelandic */
-	  return ("CP1252");
-      case 0x0410:		/*Italian */
-	  return ("CP1252");
-      case 0x0810:		/*Swiss Italian */
-	  return ("CP1252");
-      case 0x0411:		/*Japanese */
-	  return ("CP932");
-      case 0x0412:		/*Korean */
-	  return ("CP949");
-      case 0x0413:		/*Dutch */
-	  return ("CP1252");
-      case 0x0813:		/*Belgian Dutch */
-	  return ("CP1252");
-      case 0x0414:		/*Norwegian - Bokmal */
-	  return ("CP1252");
-      case 0x0814:		/*Norwegian - Nynorsk */
-	  return ("CP1252");
-      case 0x0415:		/*Polish */
-	  return ("CP1250");
-      case 0x0416:		/*Brazilian Portuguese */
-	  return ("CP1252");
-      case 0x0816:		/*Portuguese */
-	  return ("CP1252");
-      case 0x0417:		/*Rhaeto-Romanic */
-	  return ("CP1252");	/* ? */
-      case 0x0418:		/*Romanian */
-	  return ("CP1250");
-      case 0x0419:		/*Russian */
-	  return ("CP1251");
-      case 0x041a:		/*Croato-Serbian (Latin) */
-	  return ("CP1250");	/* ? */
-      case 0x081a:		/*Serbo-Croatian (Cyrillic) */
-	  return ("CP1252");
-      case 0x041b:		/*Slovak */
-	  return ("CP1250");
-      case 0x041c:		/*Albanian */
-	  return ("CP1251");
-      case 0x041d:		/*Swedish */
-	  return ("CP1252");
-      case 0x041e:		/*Thai */
-	  return ("CP874");
-      case 0x041f:		/*Turkish */
-	  return ("CP1254");
-      case 0x0420:		/*Urdu */
-	  return ("CP1256");
-      case 0x0421:		/*Bahasa */
-	  return ("CP1256");
-      case 0x0422:		/*Ukrainian */
-	  return ("CP1251");
-      case 0x0423:		/*Byelorussian */
-	  return ("CP1251");
-      case 0x0424:		/*Slovenian */
-	  return ("CP1250");
-      case 0x0425:		/*Estonian */
-	  return ("CP1257");
-      case 0x0426:		/*Latvian */
-	  return ("CP1257");
-      case 0x0427:		/*Lithuanian */
-	  return ("CP1257");
-      case 0x0429:		/*Farsi */
-	  return ("CP1256");
-      case 0x042D:		/*Basque */
-	  return ("CP1252");
-      case 0x042F:		/*Macedonian */
-	  return ("CP1251");
-      case 0x0436:		/*Afrikaans */
-	  return ("CP1252");
-      case 0x043E:		/*Malaysian */
-	  return ("CP1251");
-
-      case 0x0FFF:		/*Macintosh Hack */
+    if (lid == 0x0FFF)	/*Macintosh Hack */
 	  return ("MACINTOSH");
+
+    switch (lid & 0xff)
+	  {
+      case 0x01:		/*Arabic */
+	  return ("CP1256");
+      case 0x02:		/*Bulgarian */
+	  return ("CP1251");
+      case 0x03:		/*Catalan */
+	  return ("CP1252");
+      case 0x04:		/*Chinese */
+      switch (lid)
+		{
+#if 0
+      	case 0x0c04:		/*Chinese (Hong Kong SAR, PRC) */
+      	case 0x1404:		/*Chinese (Macau SAR) */
+#endif
+      	case 0x0804:		/*Chinese (PRC) */
+	  	CPNAME_OR_FALLBACK ("CP936", "GB2312");
+#if 0
+      	case 0x1004:		/*Chinese (Singapore) */
+#endif
+      	case 0x0404:		/*Chinese (Taiwan) */
+	  	CPNAME_OR_FALLBACK ("CP950", "BIG5");
+		}
+      case 0x05:		/*Czech */
+	  return ("CP1250");
+      case 0x06:		/*Danish */
+	  return ("CP1252");
+      case 0x07:		/*German */
+	  return ("CP1252");
+      case 0x08:		/*Greek */
+	  return ("CP1253");
+      case 0x09:		/*English */
+	  return ("CP1252");
+      case 0x0a:		/*Spanish */
+	  return ("CP1252");
+      case 0x0b:		/*Finnish */
+	  return ("CP1252");
+      case 0x0c:		/*French */
+	  return ("CP1252");
+      case 0x0d:		/*Hebrew */
+	  return ("CP1255");
+      case 0x0e:		/*Hungarian */
+	  return ("CP1250");
+      case 0x0f:		/*Icelandic */
+	  return ("CP1252");
+      case 0x10:		/*Italian */
+	  return ("CP1252");
+      case 0x11:		/*Japanese */
+	  return ("CP932");
+      case 0x12:		/*Korean */
+      switch (lid)
+		{
+      	case 0x0812:		/*Korean (Johab) */
+	  	return ("CP1361");
+      	case 0x0412:		/*Korean */
+	  	return ("CP949");
+		}
+      case 0x13:		/*Dutch */
+	  return ("CP1252");
+      case 0x14:		/*Norwegian */
+	  return ("CP1252");
+      case 0x15:		/*Polish */
+	  return ("CP1250");
+      case 0x16:		/*Portuguese */
+	  return ("CP1252");
+      case 0x17:		/*Rhaeto-Romanic */
+	  return ("CP1252");	/* ? */
+      case 0x18:		/*Romanian */
+	  return ("CP1250");
+      case 0x19:		/*Russian */
+	  return ("CP1251");
+      case 0x1a:		/*Serbian, Croatian */
+      switch (lid)
+		{
+#if 0
+      	case 0x041a:		/*Croatian */
+#endif
+      	case 0x0c1a:		/*Serbian (Cyrillic) */
+	  	return ("CP1251");
+      	case 0x081a:		/*Serbian (Latin) */
+	  	return ("CP1252");
+		}
+      case 0x1b:		/*Slovak */
+	  return ("CP1250");
+      case 0x1c:		/*Albanian */
+	  return ("CP1251");
+      case 0x1d:		/*Swedish */
+	  return ("CP1252");
+      case 0x1e:		/*Thai */
+	  return ("CP874");
+      case 0x1f:		/*Turkish */
+	  return ("CP1254");
+      case 0x20:		/*Urdu */
+	  return ("CP1256");
+      case 0x21:		/*Bahasa / Indonesian */
+	  return ("CP1256");
+      case 0x22:		/*Ukrainian */
+	  return ("CP1251");
+      case 0x23:		/*Byelorussian / Belarussian */
+	  return ("CP1251");
+      case 0x24:		/*Slovenian */
+	  return ("CP1250");
+      case 0x25:		/*Estonian */
+	  return ("CP1257");
+      case 0x26:		/*Latvian */
+	  return ("CP1257");
+      case 0x27:		/*Lithuanian */
+	  return ("CP1257");
+      case 0x29:		/*Farsi */
+	  return ("CP1256");
+      case 0x2a:		/*Vietnamese */
+	  return ("CP1258");
+      case 0x2b:		/*Windows 2000: Armenian. This is Unicode only. */
+	  return ("CP0");
+      case 0x2c:		/*Azeri */
+      switch (lid)
+		{
+      	case 0x082c:		/*Azeri (Cyrillic) */
+	  	return ("CP1251");
+#if 0
+      	case 0x042c:		/*Azeri (Latin) */
+#endif
+		}
+      case 0x2d:		/*Basque */
+	  return ("CP1252");
+      case 0x2f:		/*Macedonian */
+	  return ("CP1251");
+#if 0
+      case 0x30:		/*Sutu */
+#endif
+      case 0x36:		/*Afrikaans */
+	  return ("CP1252");
+      case 0x37:		/*Windows 2000: Georgian. This is Unicode only. */
+	  return ("CP0");
+#if 0
+      case 0x38:		/*Faeroese */
+#endif
+      case 0x39:		/*Windows 2000: Hindi. This is Unicode only. */
+	  return ("CP0");
+      case 0x3E:		/*Malaysian / Malay */
+	  return ("CP1251");
+#if 0
+      case 0x3f:		/*Kazakh */
+      case 0x41:		/*Swahili */
+#endif
+      case 0x43:		/*Uzbek */
+      switch (lid)
+		{
+      	case 0x0843:		/*Uzbek (Cyrillic) */
+	  	return ("CP1251");
+#if 0
+      	case 0x0443:		/*Uzbek (Latin) */
+#endif
+		}
+#if 0
+      case 0x44:		/*Tatar */
+#endif
+      case 0x45:		/*Windows 2000: Bengali. This is Unicode only. */
+      case 0x46:		/*Windows 2000: Punjabi. This is Unicode only. */
+      case 0x47:		/*Windows 2000: Gujarati. This is Unicode only. */
+      case 0x48:		/*Windows 2000: Oriya. This is Unicode only. */
+      case 0x49:		/*Windows 2000: Tamil. This is Unicode only. */
+      case 0x4a:		/*Windows 2000: Telugu. This is Unicode only. */
+      case 0x4b:		/*Windows 2000: Kannada. This is Unicode only. */
+      case 0x4c:		/*Windows 2000: Malayalam. This is Unicode only. */
+      case 0x4d:		/*Windows 2000: Assamese. This is Unicode only. */
+      case 0x4e:		/*Windows 2000: Marathi. This is Unicode only. */
+      case 0x4f:		/*Windows 2000: Sanskrit. This is Unicode only. */
+	  return ("CP0");
+#if 0
+      case 0x55:		/*Burmese */
+#endif
+      case 0x57:		/*Windows 2000: Konkani. This is Unicode only. */
+	  return ("CP0");
+#if 0
+      case 0x58:		/*Manipuri */
+      case 0x59:		/*Sindhi */
+      case 0x60:		/*Kashmiri (India) */
+#endif
+      case 0x61:		/*Windows 2000: Nepali (India). This is Unicode only. */
+	  return ("CP0");
       };
 
     return ("CP1252");
