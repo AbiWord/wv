@@ -293,7 +293,7 @@ wvStream_goto (wvStream * in, long position)
     else
       {
 	in->stream.memory_stream->current = position;
-        return 0;
+        return in->stream.memory_stream->current;
       }
 }
 
