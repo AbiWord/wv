@@ -41,6 +41,13 @@ Changes to to 0.5.43
 	in each row seperately, put lastcell.begin *before* cell.begin
 	and put lastcell.end *before* cell.end to use it, it is defined
 	the same way as cell
+	* moded percent sign back into config file, so that wvLaTeX.xml
+	can use /textpercent itself
+	* made my own changes to table handling in wvLaTeX.xml from 
+	discussion with David C Sterratt <dcs@cs.stir.ac.uk>
+	* added cellrelpagewidth to tokens which appears to work a 
+	charm with the latex conversion, cheers to David C Sterratt
+	for pointing pointing me on the way.
 ALL TODO
 
 	* allow latex or html or raw text conversion options.

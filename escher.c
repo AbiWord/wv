@@ -586,14 +586,16 @@ U32 wvGetFSPGR(FSPGR *item,FILE *fd)
 
 void wvReleaseFSPContainer(FSPContainer *item)
 	{
-	wvReleaseFOPTEArray(&item->fopte);
+	wvReleaseClientTextbox(&item->clienttextbox);
 	wvReleaseClientData(&item->clientdata);
+	wvReleaseFOPTEArray(&item->fopte);
 	}
 
 void wvInitFSPContainer(FSPContainer *item)
 	{
 	wvInitFOPTEArray(&item->fopte);
 	wvInitClientData(&item->clientdata);
+	wvInitClientTextbox(&item->clienttextbox);
 	}
 
 U32 wvGetFSPContainer(FSPContainer *item,MSOFBH *msofbh,FILE *fd)
@@ -630,14 +632,13 @@ U32 wvGetFSPContainer(FSPContainer *item,MSOFBH *msofbh,FILE *fd)
 			case msofbtClientData:
 				count +=wvGetClientData(&item->clientdata,&amsofbh,fd);
 				break;
+			case msofbtClientTextbox:
+				count +=wvGetClientTextbox(&item->clienttextbox,&amsofbh,fd);
+				break;
 
 			case msofbtTextbox:
 				wvError(("unimp\n"));
 				break;
-			case msofbtClientTextbox:
-				wvError(("unimp\n"));
-				break;
-
 			case msofbtOleObject:
 				wvError(("unimp\n"));
 				break;
@@ -676,6 +677,7 @@ U32 wvGetClientData(ClientData *item,MSOFBH *msofbh,FILE *fd)
 		}
 	else
 		item->data=NULL;
+	return(msofbh->cbLength);
 	}
 	
 U32 wvGetMSOFBH(MSOFBH *amsofbh,FILE *fd)
@@ -703,3 +705,22 @@ U32 wvEatmsofbt(MSOFBH *amsofbh,FILE *fd)
 		getc(fd);
 	return(amsofbh->cbLength);
 	}
+
+void wvInitClientTextbox(ClientTextbox *item)
+   {
+   item->textid=NULL;
+   }
+
+void wvReleaseClientTextbox(ClientTextbox *item)
+   {
+   wvFree(item->textid);
+   }
+
+U32 wvGetClientTextbox(ClientTextbox *item,MSOFBH *amsofbh,FILE *fd)
+   {
+   item->textid = (U32 *)malloc(amsofbh->cbLength);
+   *item->textid = read_32ubit(fd);
+   return(amsofbh->cbLength);
+   }
+
+

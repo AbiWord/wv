@@ -19,10 +19,8 @@ int flushbreaks(int newpap)
     else if (breakcount > 1)
         {
         if (verpadding == 1)
-            {
             for (i=0;i<breakcount;i++)
                 oprintf(silent,"<br>\n");
-            }
         else
             {
             oprintf(silent,"<p>\n");

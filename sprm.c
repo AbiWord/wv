@@ -1072,9 +1072,6 @@ void wvApplysprmPIncLvl(PAP *apap,U8 *pointer,U16 *pos)
 void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	{
 	S16 temp_rgdxaTab[itbdMax];
-	/*
-	S8 temp_rgtbd[itbdMax];
-	*/
 	TBD temp_rgtbd[itbdMax];
 	int i,j,k=0,oldpos;
 	U8 cch,itbdDelMax;
@@ -1082,9 +1079,6 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	U8 itbdAddMax;
 	S16 *rgdxaAdd;
 	int add=0;
-	/*
-	S8 *rgtbdAdd;
-	*/
 	TBD *rgtbdAdd;
 
 	oldpos = *pos;
@@ -1097,7 +1091,7 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 		rgdxaDel = (S16 *)malloc(sizeof(U16) * itbdDelMax);
 		for(i=0;i<itbdDelMax;i++)
 			{
-			rgdxaDel[i] = dread_16ubit(NULL,&pointer);
+			rgdxaDel[i] = (S16)dread_16ubit(NULL,&pointer);
 			(*pos)+=2;
 			}
 		}
@@ -1111,20 +1105,14 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 		rgdxaAdd = (S16 *)malloc(sizeof(U16) * itbdAddMax);
 		for(i=0;i<itbdAddMax;i++)
 			{
-			rgdxaAdd[i] = dread_16ubit(NULL,&pointer);
+			rgdxaAdd[i] = (S16)dread_16ubit(NULL,&pointer);
 			wvTrace(("stops are %d\n",rgdxaAdd[i]));
 			(*pos)+=2;
 			}
-		/*
-		rgtbdAdd = (S8 *)malloc(itbdAddMax);
-		*/
 		rgtbdAdd = (TBD *)malloc(itbdAddMax*sizeof(TBD));
 		for(i=0;i<itbdAddMax;i++)
 			{
 			wvGetTBDFromBucket(&rgtbdAdd[i],pointer);
-			/*
-			rgtbdAdd[i] = dgetc(NULL,&pointer);
-			*/
 			(*pos)++;
 			}
 		}
@@ -1201,7 +1189,7 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	apap->itbdMac = k;
 
 	for (i = 0; i < apap->itbdMac; i++) {
-	   wvTrace(("tab %d rgdxa %d\n", i, apap->rgdxaTab[i]));
+	   wvTrace(("tab %d rgdxa %d %x\n", i, apap->rgdxaTab[i],apap->rgdxaTab[i]));
 	}
 	   
 	wvFree(rgtbdAdd);
@@ -1245,7 +1233,7 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 		rgdxaClose = (S16*)malloc(sizeof(S16) * itbdDelMax);
 		for (i=0;i<itbdDelMax;i++)
 			{
-			rgdxaDel[i] = dread_16ubit(NULL,&pointer);
+			rgdxaDel[i] = (S16)dread_16ubit(NULL,&pointer);
 			(*pos)+=2;
 			}
 		for (i=0;i<itbdDelMax;i++)
@@ -1268,7 +1256,8 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 		rgtbdAdd = (TBD*)malloc(itbdAddMax*sizeof(TBD));
 		for (i=0;i<itbdAddMax;i++)
 			{
-			rgdxaAdd[i] = dread_16ubit(NULL,&pointer);
+			rgdxaAdd[i] = (S16)dread_16ubit(NULL,&pointer);
+			wvTrace(("rgdxaAdd %d is %x\n",i,rgdxaAdd[i]));
 			(*pos)+=2;
 			}
 		for (i=0;i<itbdAddMax;i++)
@@ -1311,11 +1300,13 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 	for(j=0;j<apap->itbdMac;j++)
 		{
 		add=1;
-	        for(i=0;i<itbdDelMax;i++)
+	    for(i=0;i<itbdDelMax;i++)
 			{
-			   if ( (apap->rgdxaTab[j] >= rgdxaDel[i] - rgdxaClose[i])
+			wvTrace(("examing %x against %x\n",apap->rgdxaTab[j],rgdxaDel[i]));
+			if ( (apap->rgdxaTab[j] >= rgdxaDel[i] - rgdxaClose[i])
 				&& (apap->rgdxaTab[j] <= rgdxaDel[i] + rgdxaClose[i]) )
 				{
+				wvTrace(("deleting\n"));
 				add=0;
 				break;
 				}
@@ -1336,17 +1327,20 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 		{
 		if ( (j<apap->itbdMac) && (i >= itbdAddMax || temp_rgdxaTab[j] < rgdxaAdd[i]) )
 			{
+			wvTrace(("adding from nondeleted tab stops\n"));
 			apap->rgdxaTab[k] = temp_rgdxaTab[j];
 			wvCopyTBD(&apap->rgtbd[k++],&temp_rgtbd[j++]);
 			}
 		else if ((j<apap->itbdMac) && (temp_rgdxaTab[j] == rgdxaAdd[i]))
 			{
+			wvTrace(("adding from new tab stops\n"));
 			apap->rgdxaTab[k] = rgdxaAdd[i];
 			wvCopyTBD(&apap->rgtbd[k++],&rgtbdAdd[i++]);
 			j++;
 			}
 		else /*if (i < itbdAddMax)*/
 			{
+			wvTrace(("adding from new tab stops\n"));
 			apap->rgdxaTab[k] = rgdxaAdd[i];
 			wvCopyTBD(&apap->rgtbd[k++],&rgtbdAdd[i++]);
 			}
@@ -1356,7 +1350,7 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 	wvTrace(("here %d\n",apap->itbdMac));
 
 	for (i = 0; i < apap->itbdMac; i++) {
-	   wvTrace(("tab %d rgdxa %d\n", i, apap->rgdxaTab[i]));
+	   wvTrace(("tab %d rgdxa %d %x\n", i, apap->rgdxaTab[i],apap->rgdxaTab[i]));
 	}
    	   
 	wvFree(rgdxaDel);

@@ -42,7 +42,7 @@ void wvGetDOP(DOP *dop,U32 fcDop,U32 lcbDop,FILE *fd)
 	dop->fPMHMainDoc = (temp16&0x0004)>>2;
 	dop->grfSuppression = (temp16&0x18)>>3;
 	dop->fpc = (temp16&0x0060)>>5;
-	error(stderr,"fpc is %d\n",dop->fpc);
+	wvTrace(("fpc is %d\n",dop->fpc));
 	dop->reserved1 = (temp16&0x0080)>>7;
 	dop->grpfIhdt = (temp16&0xFF00)>>8;
 	

@@ -29,3 +29,4 @@ U16 ConvertUnicodeToKOI8_R(U16 char16);
 size_t wvConvertUnicodeToTIS620(const char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft);
 U16 ConvertUnicodeToTIS620(U16 char16);
 size_t wvConvertUnicodeToUTF_8(const char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft);
+size_t wvConvertUnicodeToUCS_2(const char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft);

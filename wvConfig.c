@@ -89,6 +89,7 @@ static TokenTable s_Tokens[] =
     {   "htmlgraphic",   TT_htmlgraphic		},
     {   "colspan",       TT_COLSPAN      	},
 	{	"cellrelwidth",	 TT_CELLRELWIDTH	},
+	{	"cellrelpagewidth",	TT_CELLRELPAGEWIDTH	},
     {   "rowspan",       TT_ROWSPAN      	},
     {   "cellbgcolor",   TT_CELLBGCOLOR     },
     {   "parabgcolor",   TT_PARABGCOLOR     },
@@ -600,7 +601,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			{
 			S16 width = ((PAP *)(mydata->props))->ptap.rgdxaCenter[((PAP *)(mydata->props))->ptap.itcMac] -
 			((PAP *)(mydata->props))->ptap.rgdxaCenter[0];
-			sprintf(buffer,"%.2f%%",wvRelativeWidth(width,mydata->asep));
+			sprintf(buffer,"%.2f",wvRelativeWidth(width,mydata->asep));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			}
@@ -646,6 +647,14 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			wvFree(text); 
 			mydata->currentlen = strlen(mydata->retstring); 
 			break;
+		case TT_CELLRELPAGEWIDTH:
+			{
+			S16 width = (((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]-((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell]);
+			sprintf(buffer,"%.2f",wvRelativeWidth(width,mydata->asep));
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			}
+			break;
 		case TT_CELLRELWIDTH:
 			{
 			float pc;
@@ -658,7 +667,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			
 			pc = (float)over/under;
 
-			sprintf(buffer,"%.2f%%",pc);
+			sprintf(buffer,"%.2f",pc);
 			
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
@@ -2188,6 +2197,10 @@ void startElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(mydata->current,"<cellrelwidth/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
+		case TT_CELLRELPAGEWIDTH:
+			wvAppendStr(mydata->current,"<cellrelpagewidth/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
 		case TT_TABLERELWIDTH:
 			wvAppendStr(mydata->current,"<tablerelwidth/>");
 			mydata->currentlen = strlen(*(mydata->current));
@@ -2952,6 +2965,7 @@ void endElement(void *userData, const char *name)
 		case TT_CHARSET:
 		case TT_COLSPAN:
 		case TT_CELLRELWIDTH:
+		case TT_CELLRELPAGEWIDTH:
 		case TT_ROWSPAN:
 		case TT_CELLBGCOLOR:
 		case TT_PARABGCOLOR:
@@ -3157,6 +3171,7 @@ void exendElement(void *userData, const char *name)
 		case TT_no_rows:
 		case TT_no_cols:
 		case TT_CELLRELWIDTH:
+		case TT_CELLRELPAGEWIDTH:
 		case TT_VERSION:
 		case TT_FILENAME:
 			break;

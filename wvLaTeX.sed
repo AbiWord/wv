@@ -33,4 +33,3 @@ s/ยง/\\S{}/g
 s/<br>/\\\\/g
 s/โ.ข/(o) /g
 /\\vspace{0.00mm}/ d
-s/\\%\\textpercent/\\textpercent/g

@@ -1,5 +1,4 @@
 <main>
-
 <document>
 <begin>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/REC-html40/loose.dtd&quot;&gt;
 &lt;html&gt; 
@@ -101,7 +100,7 @@ Document created with &lt;a href=&quot;http://www.wvWare.com&quot;&gt;wvWare/<ve
 </entry>
 
 <table>
-<begin>&lt;table width=&quot;<tablerelwidth/>&quot; border=&quot;1&quot; cols=&quot;<no_cols/>&quot; rows=&quot;<no_rows/>&quot;&gt;</begin>
+<begin>&lt;table width=&quot;<tablerelwidth/>%&quot; border=&quot;1&quot; cols=&quot;<no_cols/>&quot; rows=&quot;<no_rows/>&quot;&gt;</begin>
 <end>&lt;/table&gt;</end>
 </table>
 
@@ -111,7 +110,7 @@ Document created with &lt;a href=&quot;http://www.wvWare.com&quot;&gt;wvWare/<ve
 </row>
 
 <cell>
-<begin>&lt;td bgcolor=&quot;<cellbgcolor/>&quot; width=&quot;<cellrelwidth/>&quot; rowspan=&quot;<rowspan/>&quot; colspan=&quot;<colspan/>&quot;&gt;</begin>
+<begin>&lt;td bgcolor=&quot;<cellbgcolor/>&quot; width=&quot;<cellrelwidth/>%&quot; rowspan=&quot;<rowspan/>&quot; colspan=&quot;<colspan/>&quot;&gt;</begin>
 <end>&lt;/td&gt;</end>
 </cell>
 

@@ -34,34 +34,36 @@ convertt inputs[NOINPUTS] =
 	{ "CP1257", wvConvert1257ToUnicode }
 };
 
-#define NOOUTPUTS 4
+#define NOOUTPUTS 5
 
 convertt outputs[NOOUTPUTS] = 
 {
 	{ "utf-8", 			wvConvertUnicodeToUTF_8},
 	{ "iso-8859-15", 	wvConvertUnicodeToiso8859_15},
 	{ "koi8-r", 		wvConvertUnicodeToKOI8_R},
-	{ "tis-620", 		wvConvertUnicodeToTIS620}
+	{ "tis-620", 		wvConvertUnicodeToTIS620},
+	{ "ucs-2", 			wvConvertUnicodeToUCS_2}
 };
 
 iconv_t iconv_open (const char *tocode, const char *fromcode)
 	{
 	int i;
-	/* if converting to unicode */
-	if (!(strcasecmp(tocode,"UCS-2")))
-		{
-		for (i=0;i<NOINPUTS;i++)
-			{
-			if (!(strcasecmp(fromcode,inputs[i].name)))
-				return(inputs[i].proc);
-			}
-		}
-	else if (!(strcasecmp(fromcode,"UCS-2")))
+	/* if converting from unicode */
+	if (!(strcasecmp(fromcode,"UCS-2")))
 		{
 		for (i=0;i<NOOUTPUTS;i++)
 			{
 			if (!(strcasecmp(tocode,outputs[i].name)))
 				return(outputs[i].proc);
+			}
+		}
+	/* if converting to unicode */
+	else if (!(strcasecmp(tocode,"UCS-2")))
+		{
+		for (i=0;i<NOINPUTS;i++)
+			{
+			if (!(strcasecmp(fromcode,inputs[i].name)))
+				return(inputs[i].proc);
 			}
 		}
 	return((iconv_t)-1);	

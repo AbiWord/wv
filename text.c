@@ -192,13 +192,6 @@ U16 wvHandleCodePage(U16 eachchar,U16 lid)
 	obuf = buffer2;
 
 	codepage = wvLIDToCodePageConverter(lid);
-	/*
-	if (!(strcasecmp(codepage,"CP1252")))
-		{
-		if (wvConvert1252ToHtml(eachchar))
-			return;
-		}
-	*/
 
 	/* All reserved positions of from code (last 12 characters) and to code   */
 	/* (last 19 characters) must be set to hexadecimal zeros.                 */

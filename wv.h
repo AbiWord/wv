@@ -2404,6 +2404,7 @@ typedef enum _TT
 	TT_TEXTB,
 	TT_TEXTE,
 	TT_CELLRELWIDTH,
+	TT_CELLRELPAGEWIDTH,
 	TT_CELLBGCOLOR,
 	TT_TABLERELWIDTH,
 	TT_STYLE,
@@ -2602,6 +2603,7 @@ typedef struct _wvParseStruct
 	FILE *data;
 	FILE *summary;
 	FIB fib;
+	DOP dop;
 	STTBF anSttbfAssoc;
 	STTBF Sttbfbkmk;
 	LFO *lfo;
@@ -2682,6 +2684,7 @@ typedef struct _expand_data
 	U16 *norows;
 
 	FIB *fib;
+	DOP *dop;
 
 	void *props; /* holds PAP/CHP/etc */
 	char *charset;
@@ -3310,16 +3313,25 @@ typedef struct _ClientData
 	U8 *data;
 	}ClientData;
 
+typedef struct _ClientTextbox
+    {
+    U32 *textid;
+    } ClientTextbox;
+
+void wvInitClientTextbox(ClientTextbox *item);
+void wvReleaseClientTextbox(ClientTextbox *item);
+U32 wvGetClientTextbox(ClientTextbox *item,MSOFBH *amsofbh,FILE *fd);
+
 typedef struct _FSPContainer
 	{
 	FSPGR fspgr;		/*may not exist */
 	FSP fsp;			/*always will exist */
 	FOPTE *fopte;		/*always */
 	FAnchor	fanchor;	/* one of these will be there */
-	ClientData clientdata;/*always */
+	ClientData clientdata;	/*always */
+	ClientTextbox	clienttextbox;	/*maybe */
+
 #if 0	
-	
-	ClientTextbox	/*maybe */
 	Textbox
 	
 	OleObject		/*maybe */

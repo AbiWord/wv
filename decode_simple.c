@@ -47,6 +47,10 @@ void wvDecodeSimple(wvParseStruct *ps)
 	U32 *posBKL;
 	U32 bkl_intervals;
 
+
+	/*dop*/
+	wvGetDOP(&ps->dop,ps->fib.fcDop,ps->fib.lcbDop,ps->tablefd);
+	wvTrace(("tabstops are every %d twips\n",ps->dop.dxaTab));
 	
 	/* this mountain of informatio is just to get comments organized*/
 	wvGetATRD_PLCF(&atrd,&posAtrd,&atrd_intervals,ps->fib.fcPlcfandRef,ps->fib.lcbPlcfandRef,ps->tablefd);

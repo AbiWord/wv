@@ -331,6 +331,9 @@ void wvDecodeComplex(wvParseStruct *ps)
 	U32 *posBKL;
 	U32 bkl_intervals;
 
+	/*dop*/
+	wvGetDOP(&ps->dop,ps->fib.fcDop,ps->fib.lcbDop,ps->tablefd);
+
 #if 0	
 /* 
 this is the versioning name information, the first 22 bytes of each sttbf entry are 
@@ -523,6 +526,14 @@ encoded into the first 22 bytes.
 				{
 				para_dirty = wvAssembleSimplePAP(wvQuerySupported(&ps->fib,NULL),&apap,para_fcLim,&para_fkp,&ps->stsh,ps->data);
 				para_dirty = (wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&ps->stsh,&ps->clx,ps->data) ? 1 : para_dirty);
+#ifdef SPRMTEST
+				{
+				int p;
+				wvTrace(("Assembled Complex\n"));
+				for(p=0;p<apap.itbdMac;p++)
+					wvError(("Tab stop positions are %f inches (%d)\n",((float)(apap.rgdxaTab[p]))/1440,apap.rgdxaTab[p]));
+				}
+#endif
 
 				/* test section */
 				wvReleasePAPX_FKP(&para_fkp);

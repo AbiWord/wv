@@ -36,6 +36,7 @@ ICONVOBJECTS =	\
 	codepage-1255.$(OBJEXT) \
 	codepage-1256.$(OBJEXT) \
 	codepage-1257.$(OBJEXT) \
+	ucs-2.$(OBJEXT) \
 	iso-8859-15.$(OBJEXT) \
 	tis-620.$(OBJEXT) \
 	utf-8.$(OBJEXT) \
