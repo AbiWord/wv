@@ -335,7 +335,8 @@ wvDecodeComplex (wvParseStruct * ps)
     U32 beginfc, endfc;
 	U32 stream_size;
     U32 begincp, endcp;
-    U8 chartype;
+    int ichartype;
+    U8  chartype;
     U16 eachchar;
     U32 para_fcFirst, para_fcLim = 0xffffffffL;
     U32 dummy, nextpara_fcLim = 0xffffffffL;
@@ -518,11 +519,11 @@ encoded into the first 22 bytes.
     /*for each piece */
     for (piececount = 0; piececount < ps->clx.nopcd; piececount++)
       {
-	  chartype =
+	  ichartype =
 	      wvGetPieceBoundsFC (&beginfc, &endfc, &ps->clx, piececount);
-	  if(chartype==-1)
+	  if(ichartype==-1)
 		  break;
-
+	  chartype = (U8) ichartype;
 	  /*lvm007@aha.ru fix antiloop: check stream size */
 	  if(beginfc>stream_size || endfc>stream_size){
 		  wvError (

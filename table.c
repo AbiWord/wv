@@ -685,7 +685,8 @@ TheTest (wvParseStruct * ps, U32 piece, BTE * btePapx, U32 * posPapx,
 	 U32 para_intervals)
 {
     U32 piececount;
-    U8 chartype;
+    int ichartype;
+    U8  chartype;
     U32 begincp, endcp;
     U32 beginfc, endfc;
     U32 i, j, k = 0;
@@ -701,8 +702,11 @@ TheTest (wvParseStruct * ps, U32 piece, BTE * btePapx, U32 * posPapx,
 
     for (piececount = piece; piececount < ps->clx.nopcd; piececount++)
       {
-	  chartype =
+	  ichartype =
 	      wvGetPieceBoundsFC (&beginfc, &endfc, &ps->clx, piececount);
+	  if(ichartype==-1)
+		  break;
+	  chartype = (U8) ichartype;
 	  wvStream_goto (ps->mainfd, beginfc);
 	  wvGetPieceBoundsCP (&begincp, &endcp, &ps->clx, piececount);
 	  if (k == 0)
