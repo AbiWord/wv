@@ -7,7 +7,6 @@
  **/
 
 #include <stdio.h>
-#include <unistd.h>
 #include <sys/stat.h>	/* for struct stat */
 #include <sys/types.h>
 #include <fcntl.h>
@@ -23,6 +22,20 @@
 #ifdef HAVE_MMAP
 #include <sys/mman.h>
 #endif
+
+#ifdef HAVE_UNISTD_H 
+#include <unistd.h>
+#else
+#include <io.h> 
+#define S_IRUSR 0000400 
+#define S_IWUSR 0000200 
+#define S_IRGRP 0000040 
+#define S_IWGRP 0000020 
+#define _S_ISREG(m) (((m)&0170000) == 0100000) 
+#define S_ISREG(m) _S_ISREG(m) 
+#define O_NONBLOCK 0x4000 
+#endif
+
 
 #ifndef MAP_FAILED
 /* Someone needs their head examining - BSD ? */
@@ -1479,7 +1492,9 @@ MsOleErr
 ms_ole_open_vfs (MsOle **f, const char *name, gboolean try_mmap,
 		 MsOleSysWrappers *wrappers)
 {
+#ifdef HAVE_MMAP   
 	int prot = PROT_READ | PROT_WRITE;
+#endif /* HAVE_MMAP */
 	int file;
 
 	if (!f)
@@ -1497,7 +1512,9 @@ ms_ole_open_vfs (MsOle **f, const char *name, gboolean try_mmap,
 	if (file == -1) {
 		(*f)->file_des = file = (*f)->syswrap->open2 (name, O_RDONLY);
 		(*f)->mode = 'r';
+#ifdef HAVE_MMAP
 		prot &= ~PROT_WRITE;
+#endif /* HAVE_MMAP */
 	}
 	if ((file == -1) || !((*f)->syswrap->isregfile (file))) {
 		/* FIXME tenix is not a memory leak not to close file? */
