@@ -111,6 +111,27 @@ wvStream_create (wvStream ** in, wvStreamKind kind, wvInternalStream inner)
     streams = listEntry;
 }
 
+static size_t memorystream_read(MemoryStream *stream, void *buf, size_t count)
+{
+  size_t ret;
+
+  if ( stream->current + count < stream->size)
+    {  
+      memcpy(buf, stream->mem + stream->current, count);
+      stream->current += count;
+      ret = count;
+    }
+  else
+    {
+      ret = stream->size - stream->current;
+      memcpy(buf, stream->mem + stream->current, ret);
+      memset(buf + ret , 0, count - ret);
+      stream->current = stream->size;
+      wvTrace(("read out of bounds\n"));
+    }
+  return ret;
+}
+
 U32
 read_32ubit (wvStream * in)
 {
@@ -134,9 +155,7 @@ read_32ubit (wvStream * in)
       }
     else
       {
-	ret =  *((U32 *) (in->stream.memory_stream->mem + 
-		 in->stream.memory_stream->current));
-	in->stream.memory_stream->current +=4;
+	memorystream_read(in->stream.memory_stream, &ret, 4);
       }
 #endif
     return (ret);
@@ -165,9 +184,7 @@ read_16ubit (wvStream * in)
       }
     else
       {
-	ret =  *((U16 *) (in->stream.memory_stream->mem + 
-		 in->stream.memory_stream->current));
-	in->stream.memory_stream->current+=2;
+	memorystream_read(in->stream.memory_stream, &ret, 2);
       }
 
 
@@ -192,9 +209,7 @@ read_8ubit (wvStream * in)
     else
       {
 	  U8 ret;
-	  ret =  *((U8 *)(in->stream.memory_stream->mem + 
-		 in->stream.memory_stream->current));
-	  in->stream.memory_stream->current++;
+	  memorystream_read(in->stream.memory_stream, &ret, 1);
 	  return ret;
       }
 }
@@ -213,9 +228,7 @@ wvStream_read (void *ptr, size_t size, size_t nmemb, wvStream * in)
       }
     else
       {
-	memcpy(ptr, in->stream.memory_stream->mem + 
-                    in->stream.memory_stream->current,size * nmemb);
-	in->stream.memory_stream->current+=size* nmemb;
+	return memorystream_read(in->stream.memory_stream, ptr, size * nmemb);
 	return size * nmemb;
       }
 }
