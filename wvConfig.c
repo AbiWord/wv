@@ -89,6 +89,7 @@ TokenTable s_Tokens[] =
     {   "charset",       TT_CHARSET      	},
     {   "version",       TT_VERSION      	},
     {   "colspan",       TT_COLSPAN      	},
+	{	"cellwidth",	 TT_CELLWIDTH		},
     {   "rowspan",       TT_ROWSPAN      	},
 
     {   "document",      TT_DOCUMENT     	},
@@ -411,6 +412,24 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
+		case TT_CELLWIDTH:
+			{
+			float pc;
+			long over;
+			long under;
+
+			over = (((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1]-((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell]);
+			over *=100;
+			under = (((PAP*)(mydata->props))->ptap.rgdxaCenter[((PAP*)(mydata->props))->ptap.itcMac] - ((PAP*)(mydata->props))->ptap.rgdxaCenter[0]);
+			
+			pc = (float)over/under;
+
+			sprintf(buffer,"%.2f%%",pc);
+			
+			wvAppendStr(&mydata->retstring,buffer);
+			mydata->currentlen = strlen(mydata->retstring);
+			}
+			break;
 		case TT_COLSPAN:
 			if (((PAP*)(mydata->props))->fInTable)
 				{
@@ -446,7 +465,6 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_COLORB:
-			wvTrace(("color is %d\n",((CHP*)(mydata->props))->ico)); 
 			wvTrace(("str is %s\n",mydata->sd->elements[TT_COLOR].str[0]));
 			text = (char *)malloc(strlen(mydata->sd->elements[TT_COLOR].str[((CHP*)(mydata->props))->ico])+1);
 			wvTrace(("the just is %d\n",((CHP*)(mydata->props))->ico));
@@ -1138,6 +1156,11 @@ void exstartElement(void *userData, const char *name, const char **atts)
 				{
 				wvTrace(("the current cell is %d\n",mydata->whichcell));
 				wvTrace(("the end boundary is %d\n",  ((PAP*)(mydata->props))->ptap.rgdxaCenter[mydata->whichcell+1] ));
+				wvError(("the table look for this cell is %d\n",((PAP*)(mydata->props))->ptap.tlp.itl));
+				if (((PAP*)(mydata->props))->ptap.tlp.itl)
+					{
+					wvError(("table look is %d\n",((PAP*)(mydata->props))->ptap.tlp.itl));
+					}
 				HANDLE_B_PARA_ELE(TT_CELL,fInTable,fintable,1)
 				}
 			break;
@@ -1328,6 +1351,10 @@ void startElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_COLSPAN:
 			wvAppendStr(mydata->current,"<colspan/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_CELLWIDTH:
+			wvAppendStr(mydata->current,"<cellwidth/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_ROWSPAN:
@@ -1919,6 +1946,7 @@ void endElement(void *userData, const char *name)
 		case TT_TITLE:
 		case TT_CHARSET:
 		case TT_COLSPAN:
+		case TT_CELLWIDTH:
 		case TT_ROWSPAN:
 		case TT_VERSION:
 		case TT_JUST:
@@ -2078,6 +2106,7 @@ void exendElement(void *userData, const char *name)
 		case TT_CHARSET:
 		case TT_COLSPAN:
 		case TT_ROWSPAN:
+		case TT_CELLWIDTH:
 		case TT_VERSION:
 			break;
 		default:

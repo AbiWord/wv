@@ -72,7 +72,7 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordV
 </row>
 
 <cell>
-<begin>&lt;td rowspan=&quot;<rowspan/>&quot; colspan=&quot;<colspan/>&quot;&gt;</begin>
+<begin>&lt;td width=&quot;<cellwidth/>&quot; rowspan=&quot;<rowspan/>&quot; colspan=&quot;<colspan/>&quot;&gt;</begin>
 <end>&lt;/td&gt;</end>
 </cell>
 
@@ -204,14 +204,14 @@ or uncomment below to make the notes dissappear
 <Red><begin>Red</begin><end></end></Red>
 <Yellow><begin>Yellow</begin><end></end></Yellow>
 <White><begin>White</begin><end></end></White>
-<DkBlue><begin>DkBlue</begin><end></end></DkBlue>
-<DkCyan><begin>DkCyan</begin><end></end></DkCyan>
-<DkGreen><begin>DkGreen</begin><end></end></DkGreen>
-<DkMagenta><begin>DkMagenta</begin><end></end></DkMagenta>
-<DkRed><begin>DkRed</begin><end></end></DkRed>
-<DkYellow><begin>DkYellow</begin><end></end></DkYellow>
-<DkGray><begin>DkGray</begin><end></end></DkGray>
-<LtGray><begin>LtGray</begin><end></end></LtGray>
+<DkBlue><begin>DarkBlue</begin><end></end></DkBlue>
+<DkCyan><begin>DarkCyan</begin><end></end></DkCyan>
+<DkGreen><begin>DarkGreen</begin><end></end></DkGreen>
+<DkMagenta><begin>DarkMagenta</begin><end></end></DkMagenta>
+<DkRed><begin>DarkRed</begin><end></end></DkRed>
+<DkYellow><begin>DarkYellow</begin><end></end></DkYellow>
+<DkGray><begin>DarkGray</begin><end></end></DkGray>
+<LtGray><begin>LightGray</begin><end></end></LtGray>
 <!--
 </color>
 -->
