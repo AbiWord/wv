@@ -36,7 +36,7 @@
 #include <glib.h>
 #include <string.h>
 
-#include <libole2/ms-ole.h>
+#include "ms-ole.h"
 
 #ifdef HAVE_MMAP
 #include <sys/mman.h>
