@@ -99,7 +99,6 @@ int main(int argc,char **argv)
 		return(-1);
 		}
 
-
 	ret = wvInitParser(&ps,input);
 	ps.filename = argv[optind];
 
@@ -198,6 +197,7 @@ int myelehandler(wvParseStruct *ps,wvTag tag, void *props, int dirty)
 	data->lst = &ps->lst;
 	data->noofLST = &ps->noofLST;
 	data->liststartnos = &ps->liststartnos;
+	data->listnfcs = &ps->listnfcs;
 	data->finallvl = &ps->finallvl;
 	data->fib = &ps->fib;
 	data->intable = &ps->intable;
@@ -287,6 +287,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 	data->lst = &ps->lst;
 	data->noofLST = &ps->noofLST;
 	data->liststartnos = &ps->liststartnos;
+	data->listnfcs = &ps->listnfcs;
 	data->finallvl = &ps->finallvl;
 	data->fib = &ps->fib;
 	data->intable = &ps->intable;

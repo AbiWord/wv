@@ -102,7 +102,7 @@ void wvInitSTD(STD *item)
 	item->grupe=NULL;
 	}
 
-int wvGetSTD(STD *item,U16 baselen,FILE *fd)
+int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,FILE *fd)
 	{
 	U16 temp16;
 	U16 len,i,j;
@@ -112,7 +112,7 @@ int wvGetSTD(STD *item,U16 baselen,FILE *fd)
 
 	wvInitSTD(item); /* zero any new fields that might not exist in the file*/
 
-	wvTrace(("baselen set to %d\n",baselen));
+	wvTrace(("baselen set to %d fixed part len is %d\n",baselen,fixedlen));
 
 	temp16 = read_16ubit(fd);
 	count+=2;
@@ -150,6 +150,7 @@ int wvGetSTD(STD *item,U16 baselen,FILE *fd)
 
 	pos=10;
 
+
 	if (count < 10)
 		{
 		ret=1;
@@ -160,7 +161,17 @@ int wvGetSTD(STD *item,U16 baselen,FILE *fd)
 		{
 		len = read_16ubit(fd);
 		pos+=2;
+		wvTrace(("%x %x %x %x\n",fixedlen,baselen,fixedlen-baselen,len));
+		if (fixedlen-baselen < len)
+			{
+			wvWarning("The names of the styles are not stored in unicode as is usual for this version, going to 8 bit\n");
+			fseek(fd,-2,SEEK_CUR);
+			len = getc(fd);
+			count=9;	/* to fake the later char reader code */
+			pos--;
+			}
 		}
+
 
 	wvTrace(("doing a std, str len is %d\n",len+1));
 	item->xstzName = (U16 *)malloc((len+1) * sizeof(XCHAR));
@@ -273,7 +284,7 @@ void wvReleaseSTSH(STSH *item)
 
 void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 	{
-	U16 cbStshi,cbStd,i,word6,j,k;
+	U16 cbStshi,cbStd,i,word6,j;
 	U16 *chains1;
 	U16 *chains2;
 	if (len == 0)
@@ -311,7 +322,7 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 		wvTrace(("index is %d,cbStd is %d, should end on %x\n",i,cbStd,ftell(fd)+cbStd));
 		if (cbStd != 0)
 			{
-			word6 = wvGetSTD(&(item->std[i]),item->Stshi.cbSTDBaseInFile,fd);
+			word6 = wvGetSTD(&(item->std[i]),item->Stshi.cbSTDBaseInFile,cbStd,fd);
 			wvTrace(("istdBase is %d, type is %d, 6|8 version is %d\n",item->std[i].istdBase,item->std[i].sgc,word6));
 			}
 		wvTrace(("actually ended on %x\n",ftell(fd)));

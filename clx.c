@@ -26,14 +26,19 @@ void wvBuildCLXForSimple6(CLX *clx,FIB *fib)
 	wvInitPCD(&(clx->pcd[0]));			
 	clx->pcd[0].fc = fib->fcMin;
 
-	/* reverse the special encoding thing they do for word97 */
-    clx->pcd[0].fc *= 2;
-	clx->pcd[0].fc |= 0x40000000UL;
+	/* reverse the special encoding thing they do for word97 
+	if we are using the usual 8 bit chars*/
+	
+	if (fib->fExtChar == 0)
+		{
+		clx->pcd[0].fc *= 2;
+		clx->pcd[0].fc |= 0x40000000UL;
+		}
 
 	clx->pcd[0].prm.fComplex = 0;
 	clx->pcd[0].prm.para.var1.isprm = 0;
 	/*
-	these set the one that *I* use correctly, but may break for other wv
+	these set the ones that *I* use correctly, but may break for other wv
 	users, though i doubt it, im just marking a possible firepoint for the
 	future
 	*/
@@ -49,7 +54,7 @@ block contains a grpprl) or 2 (meaning this is the plcfpcd). A clxtGrpprl
 clxtPlcfpcd (2) is followed by a 4-byte lcb which is the count of bytes of
 the piece table. A full saved file will have no clxtGrpprl's.
 */
-void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,FILE *fd)
+void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,FILE *fd)
 	{
 	U8 clxt;
 	U16 cb;
@@ -100,11 +105,16 @@ void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,FILE *fd)
 
 			if (ver == WORD7)
 				{
+#if 0
 				/* DANGER !!, this is a completely mad attempt to differenciate 
 				between word 95 files that use 16 and 8 bit characters. It may
 				not work, it attempt to err on the side of 8 bit characters.
 				*/
 				if (!(wvGuess16bit(clx->pcd,clx->pos,clx->nopcd)))
+#else
+				/* I think that this is the correct reason for this behaviour */
+				if (fExtChar == 0)
+#endif
 					for (i=0;i<clx->nopcd;i++)
 						{
 						clx->pcd[i].fc *= 2;

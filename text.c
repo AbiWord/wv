@@ -280,6 +280,15 @@ void wvBeginDocument(expand_data *data)
 
 void wvEndDocument(expand_data *data)
 	{
+	PAP apap;
+	/*
+	just for html mode, as this is designed for, I always have an empty
+	para end just to close off any open lists
+	*/
+	wvInitPAP(&apap);
+	data->props=(void *)&apap;
+	wvEndPara(data);
+
 	if ( (data->sd!= NULL) && (data->sd->elements[TT_DOCUMENT].str[1]!= NULL) )
 		{
 		wvExpand(data,data->sd->elements[TT_DOCUMENT].str[1],

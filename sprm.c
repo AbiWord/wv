@@ -499,7 +499,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvApplysprmCDefault(achp,pointer,pos);
 			break;
 		case sprmCPlain:
-			wvApplysprmCPlain(achp,stsh,pointer,pos);
+			wvApplysprmCPlain(achp,stsh);
 			break;
 		case sprmCFBold:
 			toggle = bgetc(pointer,pos);
@@ -1596,7 +1596,7 @@ void wvApplysprmCDefault(CHP *achp,U8 *pointer,U16 *pos)
 	achp->ico = 0;
 	}
 
-void wvApplysprmCPlain(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
+void wvApplysprmCPlain(CHP *achp,STSH *stsh)
 	{
 	U8 fSpec;
 	/*

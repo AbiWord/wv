@@ -1,4 +1,7 @@
 Changes to to 0.5.40
+	* took a patch from Mitch Davis <mjd@aus.hp.com> to change PAGESIZE to
+	WV_PAGESIZE, this define already exists under HPUX (oops), and modify
+	-I./ to -I. which supposedly makes a difference.
 	* output title in the same output charset as the rest of the document.
 	* inserted a hack to force lists to end before </td>, rather than
 	after the </td>
@@ -9,7 +12,88 @@ Changes to to 0.5.40
 	html and incorrect numbering, fixed this.
 	* doubled up the alignment tag with div align as well as the style 
 	assignment as netscape is having problems with short paragraph alignment.
+	* made some changes so that the first list start no is always 1 rather 
+	than programmer 0 :-).
+	* add a <br> as a section break to wvHtml.xml, sometimes a heading
+	starts after a section break, but because of no <p> it ends up in a 
+	bad position.
+	* hacked in some sanity checks to swap between unicode and 8bit in the
+	stylesheet names, some mac docs are using 8bit names in word8 files.
+	* hacked in a mechanism to fake a section the size of the document if
+	there are no sections in the section listing, like there always is 
+	except for some strange mac word8 docs that I received.
+	* an attempt to make nfc's more like liststartnos so that sublists that
+	start > 1 levels below the last list entry have the correct nfc code.
+	* forced a paraend in html mode to close off any open lists
+	* I wasted a *lot* of time getting multilevel lists to do exactly
+	the right thing, and to get them html complient. I now submit that
+	the problem is really actually quite a toughy without scanning the
+	entire list before printing it (which i do do with tables ). The 
+	interpretation of html lists doesnt help the matter, its *close*
+	to what I want but just far enough away to be useless, i.e.
+
+	This 
+	<ol>
+	<li>test
+    <ol>
+    <li>test
+    </li></ol>
+	</li>
+	<li>test
+	</li>
+	</ol>
+	gives 
+	1 test
+		1 test
+	2 test
+
+	and this gives	
+
+	<ol>
+	<li>
+		<ol>
+		<li>test
+		</li></ol>
+	</li>
+	<li>test
+	</li>
+	</ol>
+	1
+		1 test
+	2	test
+
+	I reckon it should be
+		1 test
+	2 test
+
+	What we are currently using is the incorrect
+
+	<ol>
+    <ol>
+    <li>test
+    </li></ol>
+	<li>test
+	</li>
+	</ol>
+
+	Which gives
+		1 test
+	1 test
+
+	Which is not optimum but the best we can do without scanning through the entire list
+	before printing a single entry. Attempting to see if a list entry will ever be
+	used, and if not then bumping up the start value by 1. Noone will notice the
+	incorrect values for the most part. I may at a later date sidestep the issue by allowing
+	the list entries to be output as ordinary text and be damned with html list 
+	limitations.
+	* It became necessary to duplicate the paraending code for the end of a piece 
+	in the simple mode as well as complex. THe simple code is now almost exactly
+	the same as the complex, ah well.
+	* I believe I have correctly worked out how to determine when word 6 and 7 files use 
+	unicode characters.
 ALL TODO
+	* attempt to remove completely empty para's with the IsEmpty code
+
 	* support 0x01 graphics ala broken/001-TETMEI.doc
 	
 	* rationalize the char codes, put unicode and cp conversion to

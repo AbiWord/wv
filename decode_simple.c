@@ -80,16 +80,19 @@ void wvDecodeSimple(wvParseStruct *ps)
 	if (ps->nolfo) 
 		{
 		ps->liststartnos = (U32 *)malloc(9 * ps->nolfo * sizeof(U32));
+		ps->listnfcs = (U8 *)malloc(9 * ps->nolfo);
 		ps->finallvl = (LVL *)malloc(9 * ps->nolfo * sizeof(LVL));
 		for (i=0;i<9 * ps->nolfo;i++) 
 				{
 				ps->liststartnos[i] = 0xffffffffL;
+				ps->listnfcs[i] = 0xff;
 				wvInitLVL(&(ps->finallvl[i]));
 				}
 		}
 	else 
 		{
 		ps->liststartnos=NULL;
+		ps->listnfcs=NULL;
 		ps->finallvl=NULL;
 		}
 	/*Extract Graphic Information*/
@@ -103,7 +106,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	chars in one part, and 16bit chars in another, so you have to watch out for
 	that
 	*/
-	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->tablefd);
+	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->fib.fExtChar,ps->tablefd);
 	if (ps->clx.nopcd == 0) wvBuildCLXForSimple6(&ps->clx,&ps->fib);	/* for word 6 and just in case */
 	
 	/*
@@ -135,8 +138,10 @@ void wvDecodeSimple(wvParseStruct *ps)
 	beginning at fib.fcMin up to (but not including) fib.fcMac.
 	*/
 
+#ifdef DEBUG
 	if ( ps->fib.fcMac != wvGetEndFCPiece(ps->clx.nopcd-1,&ps->clx) )
 		wvTrace(("fcMac is not the same as the piecetable %x %x!\n",ps->fib.fcMac,wvGetEndFCPiece(ps->clx.nopcd-1,&ps->clx)));
+#endif
 
 	charset = wvAutoCharset(&ps->clx);
 
@@ -151,8 +156,11 @@ void wvDecodeSimple(wvParseStruct *ps)
 	for (piececount=0;piececount<ps->clx.nopcd;piececount++)
 		{
 		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&ps->clx,piececount);
-		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
 		fseek(ps->mainfd,beginfc,SEEK_SET);
+		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
+
+		
+		
 		for (i=begincp,j=beginfc;(i<endcp && i<ps->fib.ccpText);i++,j += wvIncFC(chartype))
 			{
 			/* character properties */
@@ -186,7 +194,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 			if ((section_fcLim == 0xffffffff) || (section_fcLim == j))
 				{
 				wvTrace(("j i is %x %d\n",j,i));
-				section_dirty = wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),&sep,&section_fcFirst,&section_fcLim, i,&ps->clx,sed,&spiece,posSedx, section_intervals, &ps->stsh,ps->mainfd);
+				section_dirty = wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),ps,&sep,&section_fcFirst,&section_fcLim, i,&ps->clx,sed,&spiece,posSedx, section_intervals, &ps->stsh,ps->mainfd);
 				wvTrace(("section begins at %x ends %x\n", section_fcFirst, section_fcLim));
 				}
 
@@ -281,8 +289,29 @@ void wvDecodeSimple(wvParseStruct *ps)
 
 			ps->currentcp = i;
 			wvOutputTextChar(eachchar, chartype, charset, &state, ps,&achp);
-
 			}
+
+		if (j == para_fcLim)
+            {
+            wvHandleElement(ps,PARAEND, (void*)&apap,para_dirty);
+            para_pendingclose=0;
+            para_fcLim = 0xffffffffL;
+            }
+
+        if (i == comment_cpLim)
+            {
+            wvHandleElement(ps,COMMENTEND, (void*)catrd,0);
+            comment_pendingclose=0;
+            comment_cpLim = 0xffffffffL;
+            }
+
+        if (j == char_fcLim)
+            {
+            wvHandleElement(ps,CHARPROPEND, (void*)&achp,char_dirty);
+            char_pendingclose=0;
+            char_fcLim = 0xffffffffL;
+            }
+
 		}
 	
 	if (char_pendingclose)
@@ -320,6 +349,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 	wvFree(sed);
 
 	wvFree(ps->liststartnos);
+	wvFree(ps->listnfcs);
 	for (i=0;i<9 * ps->nolfo;i++)
 		wvReleaseLVL(&(ps->finallvl[i]));
 	wvFree(ps->finallvl);
@@ -474,13 +504,22 @@ sed.fc must be applied to the local SEP. The process thus far has created a
 SEP that describes what the section properties of the section at the last 
 full save. 
 */
-int wvGetSimpleSectionBounds(version ver,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd)
+int wvGetSimpleSectionBounds(version ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd)
 	{
 	U32 i=0;
 	int ret=0;
 	SEPX sepx;
 	long pos = ftell(fd);
-	U32 cpTest=0,j=section_intervals-1;
+	U32 cpTest=0,j,dummy;
+
+	if (section_intervals ==0)
+		{
+		wvGetPieceBoundsFC(fcFirst,&dummy,&ps->clx,0);
+		wvGetPieceBoundsFC(&dummy,fcLim,&ps->clx,ps->clx.nopcd);
+		return(0);
+		}
+
+	j=section_intervals-1;
 
 	if (cp == 0) j=0;
 	while (i<section_intervals)

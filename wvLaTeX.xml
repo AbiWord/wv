@@ -1,54 +1,19 @@
 <main>
 
 <document>
-<begin>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/REC-html40/loose.dtd&quot;&gt;
-&lt;html&gt; 
-&lt;head&gt; 
-&lt;META HTTP-EQUIV=&quot;Content-Type&quot; CONTENT=&quot;text/html; charset=<charset/>&quot;&gt;
-&lt;META NAME=&quot;GENERATOR&quot; CONTENT=&quot;wvWare/<version/>&quot;&gt;
-&lt;title&gt; 
-<title/>
-&lt;/title&gt; 
-&lt;/head&gt; 
-&lt;body bgcolor=&quot;#FFFFFF&quot; text=&quot;#000000&quot; link=&quot;#0000ee&quot; vlink=&quot;#551a8b&quot;&gt;
-&lt;table border=&quot;1&quot;&gt;
-&lt;tr&gt;
-&lt;td&gt;
-This table does not exist in the ordinary output of wvHtml, just in the online version to get any
-necessary bug reports, so if this file did not convert as you expected please submit a bugreport here&lt;br&gt;
-&lt;form method=&quot;post&quot; action=&quot;wvHtmlBug.cgi&quot;&gt;
-&lt;textarea name=&quot;comments&quot; wrap=hard rows=6 cols=80&gt;
-&lt;/textarea&gt;
-&lt;br&gt;
-&lt;input type=&quot;hidden&quot; name=&quot;name&quot; value=&quot;<filename/>&quot;&gt;
-&lt;input type=submit value=&quot;Submit Bug Report&quot;&gt;
-&lt;/form&gt;
-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/table&gt;
+<begin>\documentclass{book}
+\usepackage[dvips]{color}
+\begin{document}
 </begin>
 <end>
-&lt;hr&gt;
-&lt;address&gt;
-&lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/wvWare&quot;&gt;&lt;img
-src=&quot;../pics/wvSmall.png&quot; height=31 width=47
-align=left border=0 alt=&quot;wvWare&quot;&gt;&lt;/a&gt;
-&lt;a href=&quot;http://validator.w3.org/check/referer&quot;&gt;&lt;img
-src=&quot;../pics/vh40.png&quot; height=31 width=88
-align=right border=0 alt=&quot;Valid HTML 4.0!&quot;&gt;&lt;/a&gt;
-Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/wvWare&quot;&gt;wvWare/<version/>&lt;/a&gt;&lt;br&gt;
-&lt;/address&gt;
-&lt;/body&gt;
-&lt;/html&gt;
+\end{document}
 </end>
 </document>
 
 <section>
 <begin>
-&lt;!--Section Begins--&gt;&lt;br&gt;
 </begin>
 <end>
-&lt;!--Section Ends--&gt;
 </end>
 </section>
 
@@ -131,26 +96,13 @@ Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/wvWare&quot;
 </cell>
 
 <paragraph>
-<begin>
-<table.end/>
-<table.begin/>
-<row.begin/>
-<cell.begin/><olist.end/><olist.begin/><ulist.end/><ulist.begin/><entry.begin/>
-<text.begin/>
-</begin>
-<end>
-<text.end/>
-<entry.end/>
-<olist.end/>
-<ulist.end/>
-<cell.end/>
-<row.end/>
-</end>
+<begin><table.end/><table.begin/><row.begin/><cell.begin/><olist.end/><olist.begin/><ulist.end/><ulist.begin/><entry.begin/><text.begin/></begin>
+<end><text.end/><entry.end/><olist.end/><ulist.end/><cell.end/><row.end/></end>
 </paragraph>
 
 <!-- these are all the character properties that can show up in word -->
-<bold><begin>&lt;b&gt;</begin><end>&lt;/b&gt;</end></bold>
-<italic><begin>&lt;i&gt;</begin><end>&lt;/i&gt;</end></italic>
+<bold><begin>\textbf{</begin><end>}</end></bold>
+<italic><begin>\textit{</begin><end>}</end></italic>
 
 <!--
 text that has been deleted and will be displayed with strikethrough when
@@ -213,17 +165,17 @@ keep them for font face and do that later.
 <super><begin>&lt;sup&gt;</begin><end>&lt;/sup&gt;</end></super>
 <sub><begin>&lt;sub&gt;</begin><end>&lt;/sub&gt;</end></sub>
 
-<singleu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></singleu>
-<wordu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></wordu>
-<doubleu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></doubleu>
-<dottedu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dottedu>
-<hiddenu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></hiddenu>
-<thicku><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></thicku>
-<dashu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dashu>
-<dotu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dotu>
-<dotdashu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dotdashu>
-<dotdotdashu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></dotdotdashu>
-<waveu><begin>&lt;u&gt;</begin><end>&lt;/u&gt;</end></waveu>
+<singleu><begin>\underline{</begin><end>}</end></singleu>
+<wordu><begin>\underline{</begin><end>}</end></wordu>
+<doubleu><begin>\underline{</begin><end>}</end></doubleu>
+<dottedu><begin>\underline{</begin><end>}</end></dottedu>
+<hiddenu><begin>\underline{</begin><end>}</end></hiddenu>
+<thicku><begin>\underline{</begin><end>}</end></thicku>
+<dashu><begin>\underline{</begin><end>}</end></dashu>
+<dotu><begin>\underline{</begin><end>}</end></dotu>
+<dotdashu><begin>\underline{</begin><end>}</end></dotdashu>
+<dotdotdashu><begin>\underline{</begin><end>}</end></dotdotdashu>
+<waveu><begin>\underline{</begin><end>}</end></waveu>
 
 <!--
 text whose properties have been changed since the last time revision marks have been accepted
@@ -243,22 +195,22 @@ or uncomment below to make the notes dissappear
 <!--
 <color>
 -->
-<Black><begin>Black</begin><end></end></Black>
-<Blue><begin>Blue</begin><end></end></Blue>
-<Cyan><begin>Cyan</begin><end></end></Cyan>
-<Green><begin>Green</begin><end></end></Green>
-<Magenta><begin>Magenta</begin><end></end></Magenta>
-<Red><begin>Red</begin><end></end></Red>
-<Yellow><begin>Yellow</begin><end></end></Yellow>
-<White><begin>White</begin><end></end></White>
-<DkBlue><begin>DarkBlue</begin><end></end></DkBlue>
-<DkCyan><begin>DarkCyan</begin><end></end></DkCyan>
-<DkGreen><begin>DarkGreen</begin><end></end></DkGreen>
-<DkMagenta><begin>DarkMagenta</begin><end></end></DkMagenta>
-<DkRed><begin>DarkRed</begin><end></end></DkRed>
-<DkYellow><begin>#8b8b00</begin><end></end></DkYellow>
-<DkGray><begin>DarkGray</begin><end></end></DkGray>
-<LtGray><begin>LightGrey</begin><end></end></LtGray>
+<Black><begin></begin><end></end></Black>
+<Blue><begin>\textcolor{blue}{</begin><end>}</end></Blue>
+<Cyan><begin>\textcolor{cyan}{</begin><end>}</end></Cyan>
+<Green><begin>\textcolor{green}{</begin><end>}</end></Green>
+<Magenta><begin>\textcolor{magenta}{</begin><end>}</end></Magenta>
+<Red><begin>\textcolor{red}{</begin><end>}</end></Red>
+<Yellow><begin>\textcolor{yellow}{</begin><end>}</end></Yellow>
+<White><begin>\textcolor{white}{</begin><end>}</end></White>
+<DkBlue><begin>\textcolor{blue}{</begin><end>}</end></DkBlue>
+<DkCyan><begin>\textcolor{cyan}{</begin><end>}</end></DkCyan>
+<DkGreen><begin>\textcolor{green}{</begin><end>}</end></DkGreen>
+<DkMagenta><begin>\textcolor{magenta}{</begin><end>}</end></DkMagenta>
+<DkRed><begin>\textcolor{red}{</begin><end>}</end></DkRed>
+<DkYellow><begin>\textcolor[rgb]{0.54,0.54,0.54}{</begin><end>}</end></DkYellow>
+<DkGray><begin>\textcolor{gray}{</begin><end>}</end></DkGray>
+<LtGray><begin>\textcolor{gray}{</begin><end>}</end></LtGray>
 <!--
 </color>
 -->
@@ -296,8 +248,8 @@ or uncomment below to ignore it, the previous might even crash wv ?
 </animation>
 
 <fontstr>
-<begin>&lt;font color=&quot;<black.begin/><blue.begin/><cyan.begin/><green.begin/><magenta.begin/><red.begin/><yellow.begin/><white.begin/><dkblue.begin/><dkcyan.begin/><dkgreen.begin/><dkmagenta.begin/><dkred.begin/><dkyellow.begin/><dkgray.begin/><ltgray.begin/>&quot;&gt;</begin>
-<end><ltgray.end/><dkgray.end/><dkyellow.end/><dkred.end/><dkmagenta.end/><dkgreen.end/><dkcyan.end/><dkblue.end/><white.end/><yellow.end/><red.end/><magenta.end/><green.end/><cyan.end/><blue.end/><black.end/>&lt;/font&gt;</end>
+<begin><black.begin/><blue.begin/><cyan.begin/><green.begin/><magenta.begin/><red.begin/><yellow.begin/><white.begin/><dkblue.begin/><dkcyan.begin/><dkgreen.begin/><dkmagenta.begin/><dkred.begin/><dkyellow.begin/><dkgray.begin/><ltgray.begin/></begin>
+<end><ltgray.end/><dkgray.end/><dkyellow.end/><dkred.end/><dkmagenta.end/><dkgreen.end/><dkcyan.end/><dkblue.end/><white.end/><yellow.end/><red.end/><magenta.end/><green.end/><cyan.end/><blue.end/><black.end/></end>
 </fontstr>
 
 <comment>
@@ -339,72 +291,17 @@ these tags in tables, which I find is necessary for at least netscape
 
 <text>	
 <begin>
-&lt;div align=&quot;<just/>&quot; style=&quot;<paramargin/> border: thin <borderleftstyle/> <borderleftcolor/>;
-<!--
-border-top: thin <bordertopstyle/> <bordertopcolor/>;
-border-left: thin <borderleftstyle/> <borderleftcolor/>;
-border-right: thin <borderrightstyle/> <borderrightcolor/>;
-border-bottom: thin <borderbottomstyle/> <borderbottomcolor/>
--->
-padding: <mmPadTop/> <mmPadRight/> <mmPadBottom/> <mmPadLeft/>; &quot;&gt;
-&lt;p style=&quot;text-indent: <mmParaLeft1/>; text-align: <just/>; line-height: <mmLineHeight/>; color: <parafgcolor/>; background-color: <parabgcolor/>; &quot;&gt;
 </begin>
 <end>
-&lt;/p&gt;
-&lt;/div&gt;
 </end>
 </text>
 
 <picture>
 <begin>
-&lt;img <htmlAlignGuess/> width=&quot;<pixPicWidth/>&quot; height=&quot;<pixPicHeight/>&quot; alt=&quot;placeholder&quot; src=&quot;../pics/placeholder.png&quot;&gt;<htmlNextLineGuess/>
+&lt;img <htmlAlignGuess/> width=&quot;<pixPicWidth/>&quot; height=&quot;<pixPicHeight/>&quot; alt=&quot;placeholder&quot; src=&quot;placeholder.png&quot;&gt;<htmlNextLineGuess/>
 </begin>
 </picture>
 
 </style>
-
-<!--we need to be override the character properties-->
-<!--
-<style name="Normal">
-<character>
-<begin><PropRMark.begin/><DispFldRMark.begin/><animation.begin/><fontstr.begin/><bold.begin/><italic.begin/><strike.begin/><RMarkDel.begin/><outline.begin/><smallcaps.begin/><caps.begin/><vanish.begin/><RMark.begin/><shadow.begin/><lowercase.begin/><emboss.begin/><imprint.begin/><dstrike.begin/><super.begin/><sub.begin/><singleu.begin/><wordu.begin/><doubleu.begin/><dottedu.begin/><hiddenu.begin/><thicku.begin/><dashu.begin/><dotu.begin/><dotdashu.begin/><dotdotdashu.begin/><waveu.begin/></begin>
-<end><waveu.end/><dotdotdashu.end/><dotdashu.end/><dotu.end/><dashu.end/><thicku.end/><hiddenu.end/><dottedu.end/><doubleu.end/><wordu.end/><singleu.end/><sub.end/><super.end/><dstrike.end/><imprint.end/><emboss.end/><lowercase.end/><shadow.end/><RMark.end/><vanish.end/><caps.end/><smallcaps.end/><outline.end/><RMarkDel.end/><strike.end/><italic.end/><bold.end/><fontstr.end/><animation.end/><DispFldRMark.end/><PropRMark.end/></end>
-</character>
-
-<text>	
-<begin>
-&lt;div align=&quot;<just/>&quot;&gt;
-&lt;p&gt;
-</begin>
-<end>
-&lt;/p&gt;
-&lt;/div&gt;
-</end>
-</text>
-
-</style>
-
-<style name="Heading 1">
-
-<character>
-<begin></begin>
-<end></end>
-</character>
-
-<text>	
-<begin>
-&lt;div align=&quot;<just/>&quot;&gt;
-&lt;H1&gt;
-</begin>
-<end>
-&lt;/H1&gt;
-&lt;/div&gt;
-</end>
-</text>
-
-
-
-</style>
--->
 
 </main>

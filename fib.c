@@ -297,6 +297,7 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->fReadOnlyRecommended = (temp16 & 0x0400) >> 10;
 	item->fWriteReservation = (temp16 & 0x0800) >> 11;
 	item->fExtChar = (temp16 & 0x1000) >> 12;
+	wvTrace(("fExtChar is %d\n",item->fExtChar));
 	item->fLoadOverride = (temp16 & 0x2000) >> 13;
 	item->fFarEast = (temp16 & 0x4000) >> 14;
 	item->fCrypto = (temp16 & 0x8000) >> 15;
@@ -634,6 +635,7 @@ void wvGetFIB6(FIB *item,FILE *fd)
 	item->fReadOnlyRecommended = (temp16 & 0x0400) >> 10;
 	item->fWriteReservation = (temp16 & 0x0800) >> 11;
 	item->fExtChar = (temp16 & 0x1000) >> 12;
+	wvTrace(("fExtChar is %d\n",item->fExtChar));
 	item->fLoadOverride = 0;
 	item->fFarEast = 0;
 	item->fCrypto = 0;

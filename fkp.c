@@ -34,14 +34,14 @@ already recorded.
 void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,FILE *fd)
 	{
 	int i;
-	wvTrace(("seeking to %x to get crun\n",pn*PAGESIZE+(PAGESIZE-1)));
-	fseek(fd,pn*PAGESIZE+(PAGESIZE-1),SEEK_SET);
+	wvTrace(("seeking to %x to get crun\n",pn*WV_PAGESIZE+(WV_PAGESIZE-1)));
+	fseek(fd,pn*WV_PAGESIZE+(WV_PAGESIZE-1),SEEK_SET);
 	fkp->crun = getc(fd);
 	fkp->rgfc = (U32 *)malloc(sizeof(U32) * (fkp->crun+1));
 	fkp->rgbx = (BX *)malloc(sizeof(BX) * (fkp->crun));
 	fkp->grppapx = (PAPX *)malloc(sizeof(PAPX) * (fkp->crun));
-	wvTrace(("seeking to %x to get fkp\n",pn*PAGESIZE));
-	fseek(fd,pn*PAGESIZE,SEEK_SET);
+	wvTrace(("seeking to %x to get fkp\n",pn*WV_PAGESIZE));
+	fseek(fd,pn*WV_PAGESIZE,SEEK_SET);
 	for (i=0;i<fkp->crun+1;i++)
 		{
 		fkp->rgfc[i] = read_32ubit(fd);
@@ -65,8 +65,8 @@ void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,FILE *fd)
 			}
 		else
 			{
-			wvTrace(("papx index i is %d, offset is %x\n",i,pn*PAGESIZE+fkp->rgbx[i].offset*2));
-			wvGetPAPX(ver,&(fkp->grppapx[i]),pn*PAGESIZE+fkp->rgbx[i].offset*2,fd);
+			wvTrace(("papx index i is %d, offset is %x\n",i,pn*WV_PAGESIZE+fkp->rgbx[i].offset*2));
+			wvGetPAPX(ver,&(fkp->grppapx[i]),pn*WV_PAGESIZE+fkp->rgbx[i].offset*2,fd);
 			}
 		}
 	}
@@ -204,13 +204,13 @@ void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, FILE *fd)
 	int i;
 	wvTrace(("chpx fkp malloc\n"));
 
-	fseek(fd, pn*PAGESIZE+(PAGESIZE-1), SEEK_SET);
+	fseek(fd, pn*WV_PAGESIZE+(WV_PAGESIZE-1), SEEK_SET);
 	fkp->crun = getc(fd);
 	fkp->rgfc = (U32 *)malloc(sizeof(U32) * (fkp->crun+1));
 	fkp->rgb = (U8 *)malloc(sizeof(U8) * (fkp->crun));
 	fkp->grpchpx = (CHPX *)malloc(sizeof(CHPX) * (fkp->crun));
-	fseek(fd, pn*PAGESIZE, SEEK_SET);
-	wvTrace(("offset is %x\n",pn*PAGESIZE));
+	fseek(fd, pn*WV_PAGESIZE, SEEK_SET);
+	wvTrace(("offset is %x\n",pn*WV_PAGESIZE));
 	for (i=0;i<fkp->crun+1;i++)
 		{
 		fkp->rgfc[i] = read_32ubit(fd);
@@ -232,9 +232,9 @@ void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, FILE *fd)
 		else
 		     {
 			wvTrace(("chpx index i is %d, offset is %x\n", i,
-				(pn * PAGESIZE) + (fkp->rgb[i] * 2)));
+				(pn * WV_PAGESIZE) + (fkp->rgb[i] * 2)));
 			wvGetCHPX(ver, &(fkp->grpchpx[i]), 
-				  (pn*PAGESIZE) + (fkp->rgb[i] * 2), fd);
+				  (pn*WV_PAGESIZE) + (fkp->rgb[i] * 2), fd);
 			}
 		}
 	}

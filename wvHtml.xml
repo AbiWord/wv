@@ -15,18 +15,27 @@
 <end>
 &lt;hr&gt;
 &lt;address&gt;
-&lt;a href=&quot;http://www.wvWare.com&quot;&gt;&lt;img
+&lt;a href=&quot;http://www.csn.ul.ie/~caolan/wvWare&quot;&gt;&lt;img
 src=&quot;wvSmall.gif&quot; height=31 width=47
 align=left border=0 alt=&quot;wvWare&quot;&gt;&lt;/a&gt;
 &lt;a href=&quot;http://validator.w3.org/check/referer&quot;&gt;&lt;img
 src=&quot;vh40.gif&quot; height=31 width=88
 align=right border=0 alt=&quot;Valid HTML 4.0!&quot;&gt;&lt;/a&gt;
-Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/docs/MSWordView.html&quot;&gt;wvWare/<version/>&lt;/a&gt;&lt;br&gt;
+Document created with &lt;a href=&quot;http://www.csn.ul.ie/~caolan/wvWare&quot;&gt;wvWare/<version/>&lt;/a&gt;&lt;br&gt;
 &lt;/address&gt;
 &lt;/body&gt;
 &lt;/html&gt;
 </end>
 </document>
+
+<section>
+<begin>
+&lt;!--Section Begins--&gt;&lt;br&gt;
+</begin>
+<end>
+&lt;!--Section Ends--&gt;
+</end>
+</section>
 
 <justification>
 <left>left</left>
@@ -333,7 +342,7 @@ padding: <mmPadTop/> <mmPadRight/> <mmPadBottom/> <mmPadLeft/>; &quot;&gt;
 
 <picture>
 <begin>
-&lt;img <htmlAlignGuess/> width=&quot;<pixPicWidth/>&quot; height=&quot;<pixPicHeight/>&quot; src=&quot;placeholder.png&quot;&gt;<htmlNextLineGuess/>
+&lt;img <htmlAlignGuess/> width=&quot;<pixPicWidth/>&quot; height=&quot;<pixPicHeight/>&quot; alt=&quot;placeholder&quot; src=&quot;placeholder.png&quot;&gt;<htmlNextLineGuess/>
 </begin>
 </picture>
 

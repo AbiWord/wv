@@ -20,5 +20,6 @@ Justin Bradford <justin@ukans.edu>, did quite a bit of work to help getting wv
 	functioning as a library for abiword. Character properties as one example
 Jeff Hostetler <jeff@abisource.com>, for some mods to help it compile under
 	windows
+Mitch Davis <mjd@aus.hp.com>, for some mods to help it compile under hpux
 
 if ive forgotten anyone mail me.

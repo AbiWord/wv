@@ -122,6 +122,7 @@ void wvGetLVLF(LVLF *item,FILE *fd)
 	wvInitLVLF(item);
 #endif
 	item->iStartAt = read_32ubit(fd);
+	wvTrace(("iStartAt is %d\n",item->iStartAt));
     item->nfc = getc(fd);
 	temp8 = getc(fd);
     item->jc = temp8 & 0x03;
@@ -145,7 +146,7 @@ void wvGetLVLF(LVLF *item,FILE *fd)
 void wvInitLVLF(LVLF *item)
 	{
 	int i;
-	item->iStartAt = 0;
+	item->iStartAt = 1;
     item->nfc = 0;
     item->jc = 0;
    	item->fLegal = 0;

@@ -379,28 +379,34 @@ encoded into the first 22 bytes.
     if (ps->nolfo)
         {
         ps->liststartnos = (U32 *)malloc(9 * ps->nolfo * sizeof(U32));
+        ps->listnfcs = (U8 *)malloc(9 * ps->nolfo);
         ps->finallvl = (LVL *)malloc(9 * ps->nolfo * sizeof(LVL));
         for (i=0;i<9 * ps->nolfo;i++) 
 			{
 			ps->liststartnos[i] = 0xffffffffL;
+			ps->listnfcs[i] = 0xff;
 			wvInitLVL(&(ps->finallvl[i]));
 			}
         }
     else
         {
         ps->liststartnos=NULL;
+        ps->listnfcs=NULL;
         ps->finallvl=NULL;
         }
 
 	 /*Extract Graphic Information*/
 	wvGetFSPA_PLCF(&ps->fspa,&ps->fspapos,&ps->nooffspa,ps->fib.fcPlcspaMom,ps->fib.lcbPlcspaMom,ps->tablefd);
 
-	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->tablefd);
+	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->fib.fExtChar,ps->tablefd);
 
 	para_fcFirst = char_fcFirst = section_fcFirst = wvConvertCPToFC(0,&ps->clx);
 
+#ifdef DEBUG
 	if ((ps->fib.ccpFtn) || (ps->fib.ccpHdd))
 		wvTrace(("Special ending\n"));
+#endif
+
 	/*
 	we will need the paragraph and character bounds table to make decisions as 
 	to where a table begins and ends
@@ -474,7 +480,7 @@ encoded into the first 22 bytes.
 
 			if ((section_fcLim == 0xffffffff) || (section_fcLim == j))
 				{
-                section_dirty = wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),&sep,&section_fcFirst,&section_fcLim,i,&ps->clx, sed, &spiece,posSedx, section_intervals, &ps->stsh,ps->mainfd);
+                section_dirty = wvGetSimpleSectionBounds(wvQuerySupported(&ps->fib,NULL),ps,&sep,&section_fcFirst,&section_fcLim,i,&ps->clx, sed, &spiece,posSedx, section_intervals, &ps->stsh,ps->mainfd);
                 section_dirty = (wvGetComplexSEP(wvQuerySupported(&ps->fib,NULL),&sep,spiece,&ps->stsh,&ps->clx) ? 1 : section_dirty);
 				}
 
@@ -682,6 +688,7 @@ encoded into the first 22 bytes.
 	wvFree(sed);
 
 	wvFree(ps->liststartnos);
+	wvFree(ps->listnfcs);
 	for (i=0;i<9 * ps->nolfo;i++)
 		wvReleaseLVL(&(ps->finallvl[i]));
 	wvFree(ps->finallvl);

@@ -1622,7 +1622,7 @@ typedef enum
     sgcTap
     }sgcval;
 
-int wvGetSTD(STD *item,U16 baselen,FILE *fd);
+int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,FILE *fd);
 void wvInitSTD(STD *item);
 void wvReleaseSTD(STD *item);
 
@@ -2115,7 +2115,7 @@ void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
 void wvApplysprmCSymbol(version ver,CHP *achp,U8 *pointer,U16 *pos);
 void wvApplysprmCIstdPermute(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
 void wvApplysprmCDefault(CHP *achp,U8 *pointer,U16 *pos);
-void wvApplysprmCPlain(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos);
+void wvApplysprmCPlain(CHP *achp,STSH *stsh);
 void wvApplysprmCHpsInc(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
 void wvApplysprmCSizePos(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
 void wvApplysprmCHpsPosAdj(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
@@ -2541,7 +2541,7 @@ typedef struct _CLX
 U16 wvAutoCharset(CLX *clx);
 
 void wvInitCLX(CLX *item);
-void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,FILE *fd);
+void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,FILE *fd);
 void wvReleaseCLX(CLX *clx);
 void wvBuildCLXForSimple6(CLX *clx,FIB *fib);
 
@@ -2571,6 +2571,7 @@ typedef struct _wvParseStruct
 
 	LVL *finallvl;
 	U32 *liststartnos;
+	U8 *listnfcs;
 	   
 	/*private*/
 	FILE *tablefd0;
@@ -2588,7 +2589,7 @@ typedef struct _wvParseStruct
 	FSPA *fspa;
 	U32 *fspapos;
 	U32 nooffspa;
-
+	
 	char *filename;	
 	}wvParseStruct;
 
@@ -2622,6 +2623,7 @@ typedef struct _expand_data
 	int whichrow;
 
 	U32 **liststartnos;
+	U8 **listnfcs;
 	LVL **finallvl;
 	U16 *norows;
 
@@ -2729,7 +2731,7 @@ void wvCopyBTE(BTE *dest,BTE *src);
 int wvGetBTE_FromFC(BTE *bte, U32 currentfc, BTE *list,U32 *fcs, int nobte);
 void wvListBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte);
 
-#define PAGESIZE 512
+#define WV_PAGESIZE 512
 
 typedef struct _BX
 	{
@@ -2987,7 +2989,7 @@ typedef struct _WKB
 
 void wvGetWKB(WKB *item,FILE *fd);
 
-int wvGetSimpleSectionBounds(version ver,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd);
+int wvGetSimpleSectionBounds(version ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd);
 int wvGetComplexSEP(version ver,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx);
 
 int wvGetSimpleCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, FILE *fd);
@@ -2997,7 +2999,7 @@ int wvGetComplexCharfcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
 
 void wvOutputHtmlChar(U16 eachchar,U8 chartype,U8 outputtype);
 
-int wvGetListEntryInfo(version ver,LVL **rlvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST **lst, U16 *noofLST);
+int wvGetListEntryInfo(version ver,LVL **rlvl,U32 **nos,U8 **nfcs,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST **lst, U16 *noofLST);
 
 
 void wvSetPixelsPerInch(S16 hpixels,S16 vpixels);

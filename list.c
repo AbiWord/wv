@@ -54,7 +54,7 @@ followed to find out the paragraph's list information:
      text, and grpprlChpx, to determine the appearance of the actual
      paragraph number text.
 */
-int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST **lst, U16 *noofLST)
+int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,U8 **nfcs,LVL *retlvl,LFO **retlfo,PAP *apap,LFO **lfo,LFOLVL *lfolvl,LVL *lvl,U32 *nolfo, LST **lst, U16 *noofLST)
 	{
 	LST *alst=NULL;
 	U32 i,number=0;
@@ -62,7 +62,7 @@ int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,LVL *retlvl,LFO **re
 	U32 oldno;
 	U32 fakeid;
 
-	wvTrace(("given ilfo of %d\n",apap->ilfo));
+	wvTrace(("given ilfo of %d %d\n",apap->ilfo,apap->ilvl));
 	if (apap->ilfo < 0)
 		{
 		apap->ilfo = abs(apap->ilfo);
@@ -136,6 +136,7 @@ int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,LVL *retlvl,LFO **re
 				if (apap->ilvl >= 10) apap->ilvl-=10;
 				
 				for (i=0;i<9;i++) (*nos)[(apap->ilfo-1)*9+i] = 0xffffffffL;
+				for (i=0;i<9;i++) (*nfcs)[(apap->ilfo-1)*9+i] = 0xff;
 
 				wvTrace(("ilvl %d\n",apap->ilvl));
 
@@ -210,6 +211,7 @@ int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,LVL *retlvl,LFO **re
 		*/
 		*lfo = (LFO *)realloc(*lfo,sizeof(LFO) * (*nolfo));
 		*nos = (U32 *)realloc(*nos,sizeof(U32) * 9 * (*nolfo));
+		*nfcs = (U8 *)realloc(*nfcs,9 * (*nolfo));
 		wvTrace(("nos is now %d long\n",9 * (*nolfo)));
 		*finallvl = (LVL *)realloc(*finallvl,9 * (*nolfo) * sizeof(LVL));
 				
@@ -243,6 +245,7 @@ int wvGetListEntryInfo(version ver,LVL **finallvl,U32 **nos,LVL *retlvl,LFO **re
 		for (i=0;i<9;i++)
 			{
 			(*nos)[(apap->ilfo-1)*9+i] = 0xffffffffL;
+			(*nfcs)[(apap->ilfo-1)*9+i] = 0xff;
 			wvInitLVL(&((*finallvl)[(apap->ilfo-1)*9+i]));
 			wvCopyLVL(&((*finallvl)[(apap->ilfo-1)*9+i]),retlvl);
 			}
