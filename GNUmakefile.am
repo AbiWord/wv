@@ -41,9 +41,11 @@ CPPFLAGS = @CPPFLAGS@ @WMF_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @ICONV_CFLAGS@ @PN
 
 WVLIBS = @WMF_LIBS@ @XML_LIBS@ @GLIB_LIBS@ @ICONV_LIBS@ @PNG_LIBS@ @ZLIB_LIBS@ @LIBS@ -lm
 
-include_HEADERS = wv.h
+wvhdrdir = $(includedir)/wv
 
-bin_SCRIPTS = libwv-config wvCleanLatex wvHtml wvDocBook wvAbw wvMime wvPS wvDVI wvLatex wvPDF wvText wvWml
+wvhdr_HEADERS = wv.h
+
+bin_SCRIPTS = wvCleanLatex wvHtml wvDocBook wvAbw wvMime wvPS wvDVI wvLatex wvPDF wvText wvWml
 
 bin_PROGRAMS = wvSummary wvWare wvRTF wvConvert wvVersion
 
@@ -168,4 +170,8 @@ OTHERHEADERS = \
 
 OTHERSCRIPTS = wvMime
 
-EXTRA_DIST = autogen.sh $(OTHERHEADERS) $(OTHERSCRIPTS)
+pkgconfigdir = $(libdir)/pkgconfig
+
+pkgconfig_DATA = wv-1.0.pc
+
+EXTRA_DIST = wv-1.0.pc.in autogen.sh $(OTHERHEADERS) $(OTHERSCRIPTS)

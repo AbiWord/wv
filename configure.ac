@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([wv],[0.7.6],[wvware-devel@sourceforge.net])
+AC_INIT([wv],[1.0.0],[wvware-devel@sourceforge.net])
 AC_CONFIG_SRCDIR([exporter/wvexporter.h])
 
 dnl This next section is courtesy gtk+
@@ -350,7 +350,7 @@ AC_ARG_WITH(glib,[  --with-glib[=DIR]       use system glib [in DIR]],[
 	GLIB_DIR=""
 ])
 
-if [ test $wv_sys_glib = glib2 ]; then
+if test $wv_sys_glib = glib2; then
 	PKG_CHECK_MODULES(GLIB,glib-2.0 >= 2.0,[
 		dnl do we need to set these?
 		wv_glib2=yes
@@ -360,32 +360,45 @@ if [ test $wv_sys_glib = glib2 ]; then
 		AC_MSG_ERROR([$GLIB_PKG_ERRORS])
 	fi
 
-elif [ test $wv_sys_glib != no ]; then
-	if [ test "x$GLIB_DIR" = "x" ]; then
-		AC_PATH_PROG(GLIB_CONFIG, glib12-config, , [$PATH])
-	else
-		AC_PATH_PROG(GLIB_CONFIG, glib12-config, , [$GLIB_DIR/bin:$PATH])
+elif test $wv_sys_glib != no; then
+	wv_glib2=no
+	if test "x$GLIB_DIR" = "x"; then
+		AC_PATH_PROG(PKG_CONFIG, pkg-config, no)
+		if test "x$PKG_CONFIG" != "xno" ; then
+			PKG_CHECK_MODULES(GLIB,glib-2.0 >= 2.0,[
+				wv_sys_glib=glib2
+				wv_glib2=yes
+			],[	AC_MSG_WARN([*** falling back to glib-1.2])
+			])
+		fi
 	fi
-	if [ test "x$GLIB_CONFIG" = "x" ]; then
-		if [ test "x$GLIB_DIR" = "x" ]; then
-			AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$PATH])
+	if test $wv_glib2 = no; then
+		if test "x$GLIB_DIR" = "x"; then
+			AC_PATH_PROG(GLIB_CONFIG, glib12-config, , [$PATH])
 		else
-			AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$GLIB_DIR/bin:$PATH])
+			AC_PATH_PROG(GLIB_CONFIG, glib12-config, , [$GLIB_DIR/bin:$PATH])
 		fi
-	fi
-	if [ test "x$GLIB_CONFIG" = "x" ]; then
-		if [ test $wv_sys_glib = required ]; then
-			AC_MSG_ERROR(* * * Unable to find glib12-config or glib-config in path! * * *)
+		if test "x$GLIB_CONFIG" = "x"; then
+			if test "x$GLIB_DIR" = "x"; then
+				AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$PATH])
+			else
+				AC_PATH_PROG(GLIB_CONFIG, glib-config, , [$GLIB_DIR/bin:$PATH])
+			fi
 		fi
-		wv_sys_glib=no
+		if test "x$GLIB_CONFIG" = "x"; then
+			if test $wv_sys_glib = required; then
+				AC_MSG_ERROR([* * * Unable to find glib12-config or glib-config in path! * * *])
+			fi
+			wv_sys_glib=no
+		fi
 	fi
 fi
 
-if [ test $wv_sys_glib = no ]; then
+if test $wv_sys_glib = no; then
 	HAVE_GLIB=0
 	GLIB_CFLAGS=""
 	GLIB_LIBS=""
-elif [ test $wv_sys_glib != glib2 ]; then
+elif test $wv_sys_glib != glib2; then
 	AC_DEFINE(HAVE_GLIB,1,[Define if you have glib])
 	HAVE_GLIB=1
 	GLIB_CFLAGS=`$GLIB_CONFIG --cflags`
@@ -711,7 +724,7 @@ AC_CONFIG_FILES([
 	wvCleanLatex
 	wvText
 	wvWml
-	libwv-config
+	wv-1.0.pc
 	version.c
 	GNUmakefile
 	magick/GNUmakefile
