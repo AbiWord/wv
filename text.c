@@ -533,12 +533,28 @@ void wvSetEntityConverter(expand_data *data)
 
 int wvConvertUnicodeToLaTeX(U16 char16)
 	{
- 	if( (char16 >= 0x9f) && (char16 <= 0xff) ) 
- 	{ 
-  		printf("%c", char16); 
-  		return(1); 
- 	} 
+	/* 
+	german and scandinavian characters, MV 1.7.2000 
+	See man iso_8859_1
+
+ 	This requires the inputencoding latin1 package,
+ 	see latin1.def. Chars in range 160...255 are just
+	put through as these are legal iso-8859-1 symbols.
+	(see above)
 	
+	Best way to do it until LaTeX is Unicode enabled 
+	(Omega project).
+	-- MV 4.7.2000
+ 
+	We use a separate if-statement here ... the 'case range'
+	construct is gcc specific :-(  -- MV 13/07/2000
+	*/
+
+	if ( (char16 >= 0xa0) && (char16 <= 0xff) ) 
+	{
+		printf("%c", char16);
+		return(1);
+	}
 	switch(char16)
 		{
 		case 37:
@@ -551,7 +567,18 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 31:
 		case 45:
 		case 0x2013:
-			printf("--"); /* en-dash */
+			/* 
+			soft-hyphen? Or en-dash? I find that making 
+			this a soft-hyphen works very well, but makes
+			the occasional "hard" word-connection hyphen 
+			(like the "-" in roller-coaster) disappear.
+			(Are these actually en-dashes? Dunno.)
+			How does MS Word distinguish between the 0x2013's
+			that signify soft hyphens and those that signify
+			word-connection hyphens? wvware should be able
+			to as well. -- MV 8.7.2000
+			*/
+			printf("\\-"); 
 			return(1);
 		case 12:
 		case 13:
@@ -570,16 +597,6 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 62:
 			printf(">");
 			return(1);
-
-        /* 
-	german and scandinavian characters, MV 1.7.2000 
-	See man iso_8859_1
-
- 	This requires the inputencoding latin1 package,
- 	see latin1.def. Chars in range 159...255 are just
-	put through as these are legal iso-8859-1 symbols.
-	-- MV 4.7.2000
-	*/
 
 		case 0x2019:
 			printf("'");  /* Right single quote, Win */
@@ -657,7 +674,7 @@ int wvConvertUnicodeToHtml(U16 char16)
 		case 31:
 		case 45:
 		case 0x2013:
-			printf("--"); /* en-dash */
+			printf("-"); /* en-dash */
 			return(1);
 		case 12:
 		case 13:
