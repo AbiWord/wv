@@ -704,7 +704,7 @@ void
 wvOutputFromUnicode (U16 eachchar, char *outputtype)
 {
     static char cached_outputtype[33];	/* Last outputtype                  */
-    static iconv_t iconv_handle = NULL;	/* Cached iconv descriptor          */
+    static iconv_t iconv_handle = (iconv_t)-1;	/* Cached iconv descriptor          */
     static int need_swapping;
     U8 *ibuf, *obuf;
     size_t ibuflen, obuflen, len, count, i;
@@ -714,7 +714,7 @@ wvOutputFromUnicode (U16 eachchar, char *outputtype)
 	&& wvConvertUnicodeToEntity (eachchar))
 	return;
 
-    if (!iconv_handle || strcmp (cached_outputtype, outputtype) != 0)
+    if ((iconv_handle == (iconv_t)-1) || strcmp (cached_outputtype, outputtype) != 0)
       {
 	  if ((iconv_handle != (iconv_t)-1))
 	      iconv_close (iconv_handle);
