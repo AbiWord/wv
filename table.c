@@ -73,6 +73,9 @@ void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *p
 	PAP apap;
 	U32 i,j=0;
 	TAP *test=NULL;
+#ifdef DEBUG
+	U32 l;
+#endif
 
 	if (ps->intable) return;
 
