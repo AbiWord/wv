@@ -339,6 +339,9 @@ AC_ARG_WITH(glib,[  --with-glib[=DIR]       use system glib [in DIR]],[
 	elif [ test "x$withval" = "xyes" ]; then
 		wv_sys_glib=required
 		GLIB_DIR=""
+	elif [ test "x$withval" = "xglib2" ]; then
+		wv_sys_glib=glib2
+		GLIB_DIR=""
 	else
 		wv_sys_glib=required
 		GLIB_DIR="$withval"
@@ -347,7 +350,17 @@ AC_ARG_WITH(glib,[  --with-glib[=DIR]       use system glib [in DIR]],[
 	GLIB_DIR=""
 ])
 
-if [ test $wv_sys_glib != no ]; then
+if [ test $wv_sys_glib = glib2 ]; then
+	PKG_CHECK_MODULES(GLIB,glib-2.0 >= 2.0,[
+		dnl do we need to set these?
+		wv_glib2=yes
+	],[	wv_glib2=no
+	])
+	if test $wv_glib2 = no; then
+		AC_MSG_ERROR([$GLIB_PKG_ERRORS])
+	fi
+
+elif [ test $wv_sys_glib != no ]; then
 	if [ test "x$GLIB_DIR" = "x" ]; then
 		AC_PATH_PROG(GLIB_CONFIG, glib12-config, , [$PATH])
 	else
@@ -372,19 +385,17 @@ if [ test $wv_sys_glib = no ]; then
 	HAVE_GLIB=0
 	GLIB_CFLAGS=""
 	GLIB_LIBS=""
-else
+elif [ test $wv_sys_glib != glib2 ]; then
 	AC_DEFINE(HAVE_GLIB,1,[Define if you have glib])
 	HAVE_GLIB=1
 	GLIB_CFLAGS=`$GLIB_CONFIG --cflags`
 	GLIB_LIBS=`$GLIB_CONFIG --libs`
-	os_name=`uname`
-	if [ test "x$os_name" = "xDarwin" ]; then
-		GLIB_CFLAGS="$GLIB_CFLAGS -no-cpp-precomp"
-	fi
+else
+	AC_DEFINE(HAVE_GLIB,1,[Define if you have glib])
+	HAVE_GLIB=1
 fi
 
 AC_SUBST(HAVE_GLIB)
-AM_CONDITIONAL(BUILD_GLIB,[ test "$HAVE_GLIB" = "0" ])
 
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
