@@ -1,208 +1,179 @@
-wv
-==========
-It should all work hunky dory from a ./configure followed by 
-make and make install, a few sample word files to try this out 
-are included in the examples dir. Recommended libraries to
-install to convert wmf files are the zlib, png, ttf and libwmf 
-libraries. Recomended libraries to convert dib bitmap graphics
-are ImageMagick in conjunction with libpng, read on for details and 
-download locations.
-(redhat users note that..)
-If your using Red Hat Version 6 you should have the "zlib", "freetype" 
-"ImageMagick" and "png" packages installed. Check with rpm and the 
-cd-rom with /Redhat/RPMS/ on it. You will than just need to get, 
-compile and install libwmf (unless they are shipping libwmf with 
-redhat alread)
+libwv
+=====
 
+1. build system
+   ------------
 
-Configure Options
-=================
-zlib
-----
-libwv now requires zlib to be able to uncompress wmf files,
+   There are currently two methods for generating configure. The traditional
+   method is to use autoconf-2.13 with "configure.in". This does not use
+   automake or libtool, and builds only a static library, but has been
+   tested extensively.
 
-(Use ./configure --with-zlib=dir_above_zlibs_include&lib_dirs
-if configure does not find zlib on its own)
+   There is now a new build system based on libtool, automake & autoconf,
+   which can be used to build shared libraries. This is known to work with
+   autoconf-2.52, automake-1.4-p5 and libtool-1.4. Use ./autogen.sh to create
+   the new build system.
 
-If configure does not find zlib then libwv will still make, but it'll
-warn you about this feature loss. zlib can be found at 
-http://www.cdrom.com/pub/infozip/zlib
+   KNOWN ISSUES with the *new* build system
 
-libwmf
-------
-libwv also needs libwmf to be able to convert wmf files
-to gif files for inclusion in the html output.
+   * In wvware CVS the autogen.sh is non-executable - I'm not sure how to
+     fix this. However, a quick "chmod 755 autogen.sh" will fix that.
+   * There is a bug in automake-1.5 and automake-1.5b that prevents
+     dependency generation with GNUmakefile.am. This bug has been fixed in
+     automake-1.5d which is (or was for a while) available from alpha.gnu.org
+   * libtool <= 1.4.2 has problems with convenience libraries on darwin.
+     If building on darwin / MacOSX, please contact me (<fjf@alinameridon.com>)
 
-(Use ./configure --with-wmf==dir_above_libwmf_include&lib_dirs
-if configure does not find libwmf on its own)
+2. configuring
+   -----------
 
-If configure does not find libwmf then libwv will still make, but it'll
-warn you that it can't convert those wmf's. libwmf can be found at 
-http://www.csn.ul.ie/~caolan/docs/libwmf.html
+   It should all work hunky dory with
 
-freetype
---------
-libwv also needs freetype to be able to allow libwmf to
-output text in its conversion of wmf files to gif.
+      ./configure
+      make
+      make install
 
-(Use ./configure --with-ttf=dir_above_ttf_includes&lib_dirs
-if configure does not find freetype on its own)
+   A few sample word files to try out wv are included in the examples dir.
 
-It can be found at http://www.freetype.org, 
-*note* libwmf also has to be compiled with freetype support for this 
-to work.
+   The primary dependencies are libpng and zlib, iconv
 
-ImageMagick
------------
-libwv also needs ImageMagick to be able to convert bmp files
-to png, as well as other format conversions
+      libpng  http://www.libpng.org/pub/png/libpng.html
+      zlib    http://www.gzip.org/zlib
+      iconv   ftp://ftp.gnu.org/pub/gnu/libiconv
 
-(Use ./configure --with-Magick=dir_above_Magick_includes&lib_dirs
-if configure does not find Magick on its own)
+   IMPORTANT
+   Most modern OSes have an iconv implementation. It is highly recommended,
+   however, that you get the latest GNU libiconv from the above site.
 
-It can be found at http://www.wizards.dupont.com/cristy/ImageMagick.html
-*note* ImageMagick as to be compiled with png support for this to be of
-any use.
+3. converting images
+   -----------------
 
+   Although the configure script gives the appearance of ImageMagick support,
+   this is misleading. libwv hasn't supported IM in a long time. The magick
+   subdirectory holds a tiny subset of IM which is used for converting BMPs
+   into PNGs.
 
-png
----
-libwv also needs png, not for itself, but because both libwmf and
-ImageMagick require it for theirselves.
+   The scripts (wvHtml, wvLatex, etc.) use IM's "convert" utility, if found,
+   to convert other formats, in particular WMF into PNG (for HTML) or EPS (for
+   LaTeX).
 
-png can be found at http://www.cdrom.com/pub/png/ 
+   IMPORTANT
+   If using wv in conjuction with ImageMagick like this, please use the latest
+   ImageMagick and ensure that it is compiled against libwmf.
 
-General
--------
-In each case the dir argument to configure can either be the dir 
-*above* the include and lib dirs where the component can be found. 
-Or the actual dir where *both* the lib and include files exist.
+   If ImageMagick is not installed, then libwv can be configured to use libwmf
+   directly. Again, please use the latest libwmf. By default, libwmf support
+   is disabled - please specify when configuring wv: "--with-libwmf"
 
-But in general if you install zlib,libwmf,freetype, png and ImageMagick, then 
-you just have
-to do
-./configure
-make
+   ImageMagick http://www.imagemagick.org/
+   libwmf      http://sourceforge.net/projects/wvware
 
-Compilation Problems
-====================
+4. compilation problems
+   --------------------
 
-(1) Make does nothing except complain
-If for some reason the standard make didnt work i.e.
-if make gives up without compiling a single thing then try 
-gmake -f Makefile 
-instead, this is a for systems with old make, like Irix for example.
+   (a) "make" does nothing except complain
+       If for some reason the standard "make" didnt work i.e. if "make" gives
+       up without compiling a single thing then try "gmake -f Makefile" 
+       instead, this is a for systems with old "make", like Irix for example.
 
-(2) Cant install libwv from a make install
-If install fails due to some systems not allowing installs into user dirs
-change the INSTALL variable in the Makefiles to the path of the included
-install-sh, this is the kind of thing that happens on AIX.
+   (b) Can't install libwv from a "make install"
+       If install fails due to some systems not allowing installs into user
+       dirs, change the INSTALL variable in the Makefiles to the path of the
+       included "install-sh". This is the kind of thing that happens on AIX.
 
-(3) Final link fails with "undefined reference to `uncompress'"
-Now there is one possible problem that i've come across, for some reason
-on my old redhat4.2 system there was a libz.a in /usr/X11R6/lib that
-libwv was linking against rather than the correct one in /usr/lib.
-To fix that i just deleted it :-). You can recognize this problem if the
-make breaks like this at link time
-gcc -lm -o libwv libwv.o laolareplace.old.o support.o list.o 
-	piecetable.o stylesheet.o sprm.o blip.o utf.o init_chp.o field.o 
-	formatting.o references.o gpprl.o papchpsep.o hyperlink.o decompresswmf.o 
-	table.o annotations.o dop.o roman.o  oledecod/oledecod.o -lz   
-	-L/usr/X11R6/lib  -lX11  -lgdwmf -lwmf -lxgd -ldib -lXpm -lttf 
-decompresswmf.o: In function `decompress':
-decompresswmf.o(.text+0x211): undefined reference to `uncompress'
-gmake: *** [libwv] Error 1
+   (c) Final link fails with "undefined reference to `uncompress'"
+       Now there is one possible problem that i've come across, for some reason
+       on my old redhat4.2 system there was a libz.a in /usr/X11R6/lib that
+       libwv was linking against rather than the correct one in /usr/lib.
 
-The solution is to either delete /usr/X11R6/lib/libz.a or place -L/usr/lib
-or -L/usr/local/lib (whichever one has libz.a in it) before -lz i.e
-gcc -lm -o libwv libwv.o laolareplace.old.o support.o list.o 
-    piecetable.o stylesheet.o sprm.o blip.o utf.o init_chp.o field.o 
-	formatting.o references.o gpprl.o papchpsep.o hyperlink.o decompresswmf.o 
-	table.o annotations.o dop.o roman.o  oledecod/oledecod.o -L/usr/lib -lz
-	-L/usr/X11R6/lib  -lX11  -lgdwmf -lwmf -lxgd -ldib -lXpm -lttf
+       Specifying "--with-zlib=/usr" ought to fix this.
 
-The current configure script is tweaked to attempt to work around this one
-case of distribution madness, which im told is due to usage of the imake 
-system and gnuplot or something.
+   (d) Compilation failed on parser.lex
+       In this case the problem is probably something ive done wrong in the lex 
+       code, im not a great lex head. The only solution for this one that i
+       know of is to install flex 2.5.4 or higher, available from ftp.gnu.org.
 
-(4) Compilation failed on parser.lex or lex.yy.c
-In this case the problem is probably something ive done wrong in the lex 
-code, im not a great lex head. The only solution for this one that i
-know of is to install flex 2.5.4 or higher, available from ftp.gnu.org.
+       Alternatively a good lex person could take a look at my definition of
+       myalpha in parser.lex and see if its a portable definition or not.
 
-Alternatively a good lex person could take a look at my definition of
-myalpha in parser.lex and see if its a portable definition or not.
+5. supported platforms
+   -------------------
 
-Supported Platforms
-===================
-Ive gotten this to work myself so far on Linux/AIX/Solaris/OSF1 and Windows
-(for windows skip to windows section) and ive heard that irix/hpux/bsd also 
-work, and i had one report that with some magic it works on os/2. One mad
-person ported it to AmigaOS, check the homepage for a link to that insanity.
-And there was a few mails from someone who said he had it working under VMS,
-i don't have any patches for that one yet though.
+   Ive gotten this to work myself so far on Linux/AIX/Solaris/OSF1 and Windows
+   (for windows skip to windows section) and ive heard that irix/hpux/bsd also 
+   work, and i had one report that with some magic it works on os/2. One mad
+   person ported it to AmigaOS, check the homepage for a link to that insanity.
+   And there was a few mails from someone who said he had it working under VMS,
+   i don't have any patches for that one yet though.
 
-libwv for Windows
-======================
+6. libwv for Windows
+   -----------------
 
-Its should be possible to compile libwv with the cygwin32 package, available from 
-www.cygnus.com.  get that package and install it, then unpack libwv and 
-run ./configure.  then just add -DWINDOWS to the compiler flags are you are off. 
-i.e. change
-CC = gcc
-to
-CC = gcc -DWINDOWS
-The only thing that extra define does is change the / to \, in the scanning of a 
-command line so as to find the name of the word doc without the prepended path.
+   It should be possible to compile libwv with the cygwin32 package, available
+   from www.cygnus.com.  get that package and install it, then unpack libwv
+   and run ./configure. Then just add -DWINDOWS to the compiler flags are you
+   are off. i.e. change
 
-I haven't tried libwv under windows since zlib or the libwmf library were
-needed to be installed for full functionality, but i imagine that compiling them
-under cygwin32 would go smoothly as well, let me know on that one.
+      CC = gcc
 
-Running wvHtml from Netscape
-================================
-theres some scripts in helper-scripts that were sent to me to
-get netscape to use libwv as a helper application. I dont
-know anything about them, and they might not work, especially
-as the program changes while they dont, but they are a useful
-resource, i believe the nsopen nswordview are your best bet
-for this.
+   to
 
-libwv Crashes
-==================
-I don't believe you. You question the worthiness of my Code? I should kill
-you where you stand!, but seriously, follow these steps to help me.
+      CC = gcc -DWINDOWS
 
-make clean first
-add -g -DDEBUG to the flags to the c compiler to generate
-a stack of debugging info if things go wrong for you.
+   The only thing that extra define does is change the / to \, in the scanning
+   of a command line so as to find the name of the word doc without the
+   prepended path.
 
-if you get a crash please recompile libwv with 
-CC options -g -DDEBUG, run and send the output to a temporary
-file, and generate a core dump
-for tcsh 
-limit core unlimited
-and run again
-then do
-gdb libwv core
-and type
-backtrace
-send the output of gdb to me with the bugreport and the output
-from the -DDEBUG libwv and if possible send me the file that 
-libwv crashed on as well. if the word file is particulary 
-big compress it for me please. please mention your platform and
-libwv version.
+   I haven't tried libwv under windows since zlib or the libwmf library were
+   needed to be installed for full functionality, but i imagine that compiling
+   them under cygwin32 would go smoothly as well, let me know on that one.
 
+7. Running wvHtml from Netscape
+   ----------------------------
 
-C.
+   There are some scripts in helper-scripts that were sent to me to get
+   netscape to use libwv as a helper application. I don't know anything about
+   them, and they might not work, especially as the program changes while they
+   don't, but they are a useful resource, i believe the nsopen nswordview are
+   your best bet for this.
 
-HomePage and Contact Details
-============================
-http://wvWare.sourceforge.net/
+8. libwv crashes
+   -------------
 
-Caolan.McNamara@ul.ie
+   I don't believe you. You question the worthiness of my Code? I should kill
+   you where you stand!, but seriously, follow these steps to help me.
 
-standard configure help file follows...
+      make clean
+      CFLAGS="-g -DDEBUG=1" ./configure [etc.]
+      make
+      make install
+
+   Run and send the output to a temporary file, and generate a core dump.
+   For tcsh:
+
+      limit core unlimited
+
+   and run again. Then do:
+
+      gdb libwv core
+
+   and type:
+
+      backtrace
+
+   Send the output of gdb to me with the bugreport and the output from the
+   -DDEBUG libwv and if possible send me the file that libwv crashed on as
+   well. If the word file is particulary big, compress it for me please.
+   Please mention your platform and libwv version.
+
+9. contact details
+   ---------------
+
+   Usual forums etc. at SourceForge: http://wvware.sourceforge.net/
+   Best place to contact us is on the developer list wvware-devel
+   Even if we can't help, we can always sympathize...
+
+================ standard configure help file follows... ================
 
 Basic Installation
 ==================
