@@ -21,6 +21,7 @@ TokenTable s_Tokens[] =
     {   "right",       	 TT_RIGHT     	 },
     {   "center",        TT_CENTER     	 },
     {   "block",       	 TT_BLOCK     	 },
+    {   "asian",       	 TT_ASIAN     	 },
     {   "*",             TT_OTHER        } /* must be last */
 };
 
@@ -123,6 +124,8 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			{
 			wvEle t = mydata->sd->elements[TT_JUSTIFICATION];
 			}
+			wvTrace("just is %d\n",mydata->apap->jc);
+			wvTrace("str is %s\n",mydata->sd->elements[TT_JUSTIFICATION].str[0]);
 			text = (char *)malloc(strlen(mydata->sd->elements[TT_JUSTIFICATION].str[mydata->apap->jc])+1);
 			wvTrace("the just is %d\n",mydata->apap->jc);
 			strcpy(text,mydata->sd->elements[TT_JUSTIFICATION].str[mydata->apap->jc]);
@@ -157,9 +160,9 @@ void startElement(void *userData, const char *name, const char **atts)
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
 		case TT_JUSTIFICATION:
-			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*4);
-			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=4;
-			for(i=0;i<4;i++)
+			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*5);
+			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=5;
+			for(i=0;i<5;i++)
 				mydata->elements[s_Tokens[tokenIndex].m_type].str[i] = NULL;
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
@@ -183,6 +186,11 @@ void startElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_BLOCK:
 			mydata->current = &(mydata->currentele->str[3]);
+			wvAppendStr(mydata->current,"<begin>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_ASIAN:
+			mydata->current = &(mydata->currentele->str[4]);
 			wvAppendStr(mydata->current,"<begin>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
@@ -222,6 +230,7 @@ void endElement(void *userData, const char *name)
 		case TT_RIGHT:
 		case TT_CENTER:
 		case TT_BLOCK:
+		case TT_ASIAN:
 			wvAppendStr(mydata->current,"</begin>");
 			wvTrace("When we finish the str is %s\n",*(mydata->current));
 			mydata->currentlen=0;

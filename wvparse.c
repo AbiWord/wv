@@ -14,12 +14,14 @@ int wvInitParser(wvParseStruct *ps,FILE *fp)
 		{
 		ret = 4;
 		wvOLEFree();
+		wvError("Not a word document\n");
+		return(-1);
 		}
 
 	wvGetFIB(&ps->fib,ps->mainfd);
 
 	ret = wvQuerySupported(&ps->fib,&reason);
-    if (ret > 1)
+    if ( (ret > 1) && (ret != 2) )
 		{
 		wvError("%s\n",wvReason(reason));
 		return(ret);

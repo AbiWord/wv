@@ -153,21 +153,31 @@ int wvGetSTD(STD *item,U16 baselen,FILE *fd)
 		{
 		ret=1;
 		len = getc(fd);
+		pos++;
 		}
 	else
+		{
 		len = read_16ubit(fd);
+		pos+=2;
+		}
+
 	wvTrace("doing a std, str len is %d\n",len+1);
 	item->xstzName = (U16 *)malloc((len+1) * sizeof(XCHAR));
-	pos+=2;
 
 	for(i=0;i<len+1;i++)
 		{
 		if (count < 10)
+			{
 			item->xstzName[i] = getc(fd);
+			pos++;
+			}
 		else
+			{
 			item->xstzName[i] = read_16ubit(fd);
+			pos+=2;
+			}
+
 		wvTrace("sample letter is %c\n",item->xstzName[i]);
-		pos+=2;
 		}
 	wvTrace("string ended\n");
 

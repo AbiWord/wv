@@ -2,6 +2,28 @@
 #include <stdio.h>
 #include "wv.h"
 
+void wvGetPHE6(PHE *dest,FILE *fd)
+	{
+	U8 temp8;
+	U32 temp32;
+
+#ifdef PURIFY
+	wvInitPHE(dest,which);
+#endif
+
+	temp8 = getc(fd);
+	dest->var1.fSpare = temp8 & 0x01;
+	dest->var1.fUnk = (temp8 & 0x02) >> 1;
+
+	dest->var1.fDiffLines = (temp8 & 0x04) >> 2;
+	dest->var1.reserved1 = (temp8 & 0xf8) >> 3;
+
+	dest->var1.clMac = getc(fd);
+
+	dest->var1.dxaCol = (S16) read_16ubit(fd);
+	dest->var1.dymHeight = (S32) read_16ubit(fd);
+	}
+
 void wvGetPHE(PHE *dest,int which,FILE *fd)
 	{
 	U8 temp8;

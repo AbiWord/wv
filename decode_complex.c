@@ -57,7 +57,7 @@ If the FC found is less than or equal to the limit FC of the
 piece, then the character that ends the paragraph is the character
 immediately before the FKP FC.
 */
-int wvGetComplexParaBounds(PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,FILE *fd)
+int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,FILE *fd)
 	{
 	U32 currentfc;
 	BTE entry;
@@ -80,16 +80,16 @@ int wvGetComplexParaBounds(PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp
 	currentpos = ftell(fd);
 	/*The pagenumber of the FKP is entry.pn */
 
-	wvGetPAPX_FKP(fkp,entry.pn,fd);
+	wvGetPAPX_FKP(version,fkp,entry.pn,fd);
 
-	wvGetComplexParafcFirst(fcFirst,currentfc,clx, bte, pos,nobte,piece,fkp,fd);
-	piece = wvGetComplexParafcLim(fcLim,currentfc,clx, bte, pos,nobte,piece,fkp,fd);
+	wvGetComplexParafcFirst(version,fcFirst,currentfc,clx, bte, pos,nobte,piece,fkp,fd);
+	piece = wvGetComplexParafcLim(version,fcLim,currentfc,clx, bte, pos,nobte,piece,fkp,fd);
 
 	fseek(fd,currentpos,SEEK_SET);
 	return(piece);
 	}
 
-int wvGetComplexParafcLim(U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd)
+int wvGetComplexParafcLim(int version,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd)
 	{
 	U32 fcTest,beginfc;
 	BTE entry;
@@ -97,13 +97,7 @@ int wvGetComplexParafcLim(U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,
 	fcTest = wvSearchNextSmallestFCPAPX_FKP(fkp,currentfc);
 
 	wvTrace("fcTest is %x\n",fcTest);
-	/*
-	wvTrace("End Of Piece is %x or %x\n",wvGetEndFCPiece(piece,clx),wvNormFC(clx->pcd[piece+1].fc,NULL));
-	*/
 
-	/*
-	if (fcTest <= wvNormFC(clx->pcd[piece+1].fc,NULL))
-	*/
 	if (fcTest <= wvGetEndFCPiece(piece,clx))
 		{
 		*fcLim = fcTest/*-1*/;
@@ -112,7 +106,6 @@ int wvGetComplexParafcLim(U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,
 		{
 		wvTrace("piece is %d\n",piece);
 		/*get end fc of previous piece*/
-		piece++;
 		while (piece < clx->nopcd) 
 			{
 			beginfc = wvNormFC(clx->pcd[piece].fc,NULL);
@@ -122,11 +115,8 @@ int wvGetComplexParafcLim(U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,
 				return(-1);
 				}
 			wvReleasePAPX_FKP(fkp);
-			wvGetPAPX_FKP(fkp,entry.pn,fd);
+			wvGetPAPX_FKP(version,fkp,entry.pn,fd);
 			fcTest = wvSearchNextSmallestFCPAPX_FKP(fkp,beginfc);
-			/*
-			if (fcTest <= wvNormFC(clx->pcd[piece+1].fc,NULL))
-			*/
 			if (fcTest <= wvGetEndFCPiece(piece,clx))
 				{
 				*fcLim = fcTest/*-1*/;
@@ -136,11 +126,13 @@ int wvGetComplexParafcLim(U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,
 			}
 		}
 	wvTrace("fcLim is %x\n",*fcLim);
+	if (piece == clx->nopcd)
+		return(clx->nopcd-1);	/* test using this */
 	return(piece);
 	}
 
 
-int wvGetComplexParafcFirst(U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd)
+int wvGetComplexParafcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd)
 	{
 	U32 fcTest,endfc;
 	BTE entry;
@@ -173,7 +165,7 @@ int wvGetComplexParafcFirst(U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *
 				return(-1);
 				}
 			wvReleasePAPX_FKP(fkp);
-			wvGetPAPX_FKP(fkp,entry.pn,fd);
+			wvGetPAPX_FKP(version,fkp,entry.pn,fd);
 			fcTest = wvSearchNextLargestFCPAPX_FKP(fkp,endfc);
 			if (wvQuerySamePiece(fcTest-1,clx,piece))
 				{
@@ -186,9 +178,6 @@ int wvGetComplexParafcFirst(U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *
 		}
 	return(0);
 	}
-#include <stdlib.h>
-#include <stdio.h>
-#include "wv.h"
 
 /*
 how this works,
@@ -224,9 +213,12 @@ void wvDecodeComplex(wvParseStruct *ps)
 	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
 
 	/*we will need the table of names to answer questions like the name of the doc*/
-	wvGetSTTBF(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
+	if (wvQuerySupported(&ps->fib,NULL) == 2)
+		wvGetSTTBF6(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
+	else
+		wvGetSTTBF(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
 
-	wvGetCLX(&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->tablefd);
+	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->tablefd);
 
 	if ((ps->fib.ccpFtn) || (ps->fib.ccpHdd))
 		wvTrace("Special ending\n");
@@ -234,13 +226,21 @@ void wvDecodeComplex(wvParseStruct *ps)
 	we will need the paragraph bounds table to make decisions as to where a table
 	begins and ends
 	*/
-    wvGetBTE_PLCF(&btePapx,&posPapx,&intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
+	if (wvQuerySupported(&ps->fib,NULL) == 2)
+	    {
+		wvGetBTE_PLCF6(&btePapx,&posPapx,&intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
+		wvListBTE_PLCF(&btePapx,&posPapx,&intervals);
+		}
+	else
+    	wvGetBTE_PLCF(&btePapx,&posPapx,&intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
 
 	charset = wvAutoCharset(&ps->clx);
 
 	wvInitPAPX_FKP(&fkp);
 
 	wvHandleDocument(ps,DOCBEGIN);
+
+
 	
 	/*for each piece*/
 	for (piececount=0;piececount<ps->clx.nopcd;piececount++)
@@ -252,16 +252,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 		fseek(ps->mainfd,beginfc,SEEK_SET);
 		for (i=begincp,j=beginfc;i<endcp;i++,j += wvIncFC(chartype))
 			{
-			/*
-			if (j == tfcLim)
-				{
-				wvTrace("tfcLim is %x, i is %d\n",tfcLim,i);
-				temppiece = wvGetPieceFromCP(i+1,&ps->clx);
-				cpiece = wvGetComplexParaBounds(&fkp,&fcLim,&discard,i+1,&ps->clx, btePapx, posPapx,intervals,temppiece,ps->mainfd);
-				wvTrace("after tests fcLim %x\n",fcLim);
-				}
-			*/
-			
+
 			if (j == fcLim)
 				{
 				wvHandleElement(ps,PARAEND,&apap);
@@ -272,7 +263,7 @@ void wvDecodeComplex(wvParseStruct *ps)
 				{
 				wvTrace("before tests j is %x\n",j);
 				wvReleasePAPX_FKP(&fkp);
-				cpiece = wvGetComplexParaBounds(&fkp,&fcFirst,&fcLim,i,&ps->clx, btePapx, posPapx,intervals,piececount,ps->mainfd);
+				cpiece = wvGetComplexParaBounds(wvQuerySupported(&ps->fib,NULL),&fkp,&fcFirst,&fcLim,i,&ps->clx, btePapx, posPapx,intervals,piececount,ps->mainfd);
 				wvTrace("fcLim is %x, fcFirst is %x\n",fcLim,fcFirst);
 				/*
 				fcLim = 0xfffffffeL;
@@ -283,7 +274,8 @@ void wvDecodeComplex(wvParseStruct *ps)
 			if (j == fcFirst)
 				{
 				wvAssembleSimplePAP(&apap,fcLim,&fkp,&stsh);
-				wvAssembleComplexPAP(&apap,cpiece,&stsh,&ps->clx);
+				wvTrace("cpiece is %d, but full no is %d\n",cpiece,ps->clx.nopcd);
+				wvAssembleComplexPAP(wvQuerySupported(&ps->fib,NULL),&apap,cpiece,&stsh,&ps->clx);
 				wvHandleElement(ps,PARABEGIN,&apap);
 				pendingclose=1;
 				}
@@ -329,7 +321,7 @@ applied to the local PAP if it is a paragraph sprm.
 CLX.  If that grpprl contains any paragraph sprms, they should be applied to 
 the local PAP.
 */
-void wvAssembleComplexPAP(PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
+void wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 	{
 	/*
 	Sprm Sprm;
@@ -341,28 +333,29 @@ void wvAssembleComplexPAP(PAP *apap,U32 cpiece,STSH *stsh,CLX *clx)
 
 	if (clx->pcd[cpiece].prm.fComplex == 0)
 		{
-		/*
-		wvGetSprmFromU16(&Sprm,wvGetrgsprmPrm(clx->pcd[cpiece].prm.var1.isprm));
-		if (Sprm.sgc == sgcPAP)
-			{
-		*/
-			val = clx->pcd[cpiece].prm.var1.val;
-			pointer = &val;
-			wvApplySprmFromBucket(wvGetrgsprmPrm(clx->pcd[cpiece].prm.var1.isprm),
-			apap,NULL, NULL,stsh,pointer,&pos);
-		/*
-			}
-		*/
+		val = clx->pcd[cpiece].prm.para.var1.val;
+		pointer = &val;
+		wvApplySprmFromBucket(wvGetrgsprmPrm(clx->pcd[cpiece].prm.para.var1.isprm),
+		apap,NULL, NULL,stsh,pointer,&pos);
 		}
 	else
 		{
-		index = clx->pcd[cpiece].prm.var2.igrpprl;
+		index = clx->pcd[cpiece].prm.para.var2.igrpprl;
+		wvTrace("index is %d, piece is %d\n",index,cpiece);
 		while (i < clx->cbGrpprl[index])   
 			{
-			sprm = bread_16ubit(clx->grpprl[index]+i,&i);
+			if (version == 0)
+				sprm = bread_16ubit(clx->grpprl[index]+i,&i);
+			else
+				{
+				sprm = bgetc(clx->grpprl[index]+i,&i);
+				wvTrace("sprm (word 6) is %x\n",sprm);
+				sprm = wvGetrgsprmWord6(sprm);
+				}
 			wvTrace("sprm is %x\n",sprm);
 			pointer = clx->grpprl[index]+i;
 			wvApplySprmFromBucket(sprm,apap,NULL,NULL,stsh,pointer,&i);
 			}
 		}
 	}
+

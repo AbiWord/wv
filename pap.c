@@ -36,13 +36,14 @@ void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh)
 	while (i < upxf->cbUPX-2)	/*-2 because the istd takes up the first two bytes*/
 		{
 		sprm = bgetc(upxf->upx.papx.grpprl+i,&i);
-		wvTrace("word 6 sprm is %x (%d)\n",sprm,sprm);
+		wvTrace("pap word 6 sprm is %x (%d)\n",sprm,sprm);
 		sprm = wvGetrgsprmWord6(sprm);
-		wvTrace("word 6 sprm is converted to %x\n",sprm);
+		wvTrace("pap word 6 sprm is converted to %x\n",sprm);
 		pointer = upxf->upx.papx.grpprl+i;
 		wvApplySprmFromBucket(sprm,apap,NULL,NULL,stsh,pointer,&i);
 		}
 	}
+
 
 void wvInitPAPFromIstd(PAP *apap,U16 istdBase,STSH *stsh)
 	{
@@ -314,7 +315,10 @@ void wvAssembleSimplePAP(PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh)
 
 void wvReleasePAPX(PAPX *item)
 	{
+	item->cb=0;
+	item->istd=0;
 	wvFree(item->grpprl);
+	item->grpprl=NULL;
 	}
 
 void wvInitPAPX(PAPX *item)
@@ -324,12 +328,12 @@ void wvInitPAPX(PAPX *item)
 	item->grpprl=NULL;
 	}
 
-void wvGetPAPX(PAPX *item,U32 offset,FILE *fd)
+void wvGetPAPX(int version,PAPX *item,U32 offset,FILE *fd)
 	{
 	U8 cw,i;
 	fseek(fd,offset,SEEK_SET);
 	cw = getc(fd);
-	if (cw == 0)
+	if ( (cw == 0) && (version == 0) )	/* only do this for word 97 */
 		{
 		wvTrace("cw was pad %d\n",cw);
 		cw = getc(fd);

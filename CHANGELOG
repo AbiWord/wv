@@ -16,18 +16,30 @@ Changes to to 0.5.20
 	* modified STSHI handler to allow word6, modified STD to allow word6
 	* put in a word6 to word8 sprm converter, might even work. we won't
 	know for quite a while, implemented for pap and chp.
+	* reran purify, reworked the binary tree code section for that real
+	complex chp sprm.
+	* made the complex pap search start with the current piece, rather 
+	than the next one. Seems to be the right approach.
+	* fixed a small offset problem in word 6 sprm translations.
+	* clx now can load in a word 6 complex piecetable (in theory anyway)
+	* identify word 7 files.
+	* word 6 thing appears shafted.
+	* prm complex option was the wrong way around !
+	* fixed all bugs that cause crashes on doc collection.
+	* word 6 had to have a seperate BX and fkp and so on for itself, but
+	now i believe fullsaved word6 files are as supported as word97 files.
+	* can extract raw text of fastsaved word 6 files..
+	* and now we can get the para properties of word 6 fast saved files 
+	(i think)
+	* basically brought fastsaved up to fullsave quality, though im not 100
+	happy with them.
 ALL TODO
-	* bring fastsaved up to fullsave quality.
-	* rerun tests on doc archive.
-
-	* give abiword folk new alpha filter code for themselves to play with.
-
 	* add char properties
+	* give abiword folk new alpha filter code for themselves to play with.
 
 	* modify configure script so its possible to link against a different expat
 	lib, or to disable it or something.
 	* add errors via numbered errors to wvInitParser.
-	
 
 	* harden wvConfig against bad pointers, and incomplete sections e.g justification
 	* make wvConvert read config from commandline, and 

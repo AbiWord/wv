@@ -31,9 +31,10 @@ are recorded in the FKP, unused space is reduced by 17 if CHPX/PAPX
 is already recorded and is reduced by 17+sizeof(PAPX) if property is not
 already recorded.
 */
-void wvGetPAPX_FKP(PAPX_FKP *fkp,U32 pn,FILE *fd)
+void wvGetPAPX_FKP(int version,PAPX_FKP *fkp,U32 pn,FILE *fd)
 	{
 	int i;
+	wvTrace("papx fkp malloc\n");
 
 	fseek(fd,pn*PAGESIZE+(PAGESIZE-1),SEEK_SET);
 	fkp->crun = getc(fd);
@@ -48,7 +49,12 @@ void wvGetPAPX_FKP(PAPX_FKP *fkp,U32 pn,FILE *fd)
 		}
 
 	for (i=0;i<fkp->crun;i++)
-		wvGetBX(&fkp->rgbx[i],fd);
+		{
+		if (version == 0)
+			wvGetBX(&fkp->rgbx[i],fd);
+		else 
+			wvGetBX6(&fkp->rgbx[i],fd);
+		}
 
 	for (i=0;i<fkp->crun;i++)
 		{
@@ -60,7 +66,7 @@ void wvGetPAPX_FKP(PAPX_FKP *fkp,U32 pn,FILE *fd)
 		else
 			{
 			wvTrace("papx index i is %d, offset is %x\n",i,pn*PAGESIZE+fkp->rgbx[i].offset*2);
-			wvGetPAPX(&(fkp->grppapx[i]),pn*PAGESIZE+fkp->rgbx[i].offset*2,fd);
+			wvGetPAPX(version,&(fkp->grppapx[i]),pn*PAGESIZE+fkp->rgbx[i].offset*2,fd);
 			}
 		}
 	}
@@ -106,6 +112,7 @@ U32 wvSearchNextSmallestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc)
 	
 	while (i<until)
 		{
+		wvTrace("Smallest %x, %x %x\n",currentfc,wvNormFC(fkp->rgfc[i],NULL),wvNormFC(fkp->rgfc[i],NULL));
 		if ( (wvNormFC(fkp->rgfc[i],NULL) > currentfc) && (wvNormFC(fkp->rgfc[i],NULL) < fcTest) )
 			fcTest = wvNormFC(fkp->rgfc[i],NULL);
 		i++;
@@ -116,11 +123,17 @@ U32 wvSearchNextSmallestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc)
 void wvReleasePAPX_FKP(PAPX_FKP *fkp)
 	{
 	int i;
+	wvTrace("papx fkp b freeed\n");
 	wvFree(fkp->rgfc);
+	fkp->rgfc=NULL;
 	wvFree(fkp->rgbx);
+	fkp->rgbx=NULL;
 	for (i=0;i<fkp->crun;i++)
 		wvReleasePAPX(&(fkp->grppapx[i]));
+	fkp->crun=0;
 	wvFree(fkp->grppapx);
+	fkp->grppapx=NULL;
+	wvTrace("papx fkp e freeed\n");
 	}
 
 void wvInitPAPX_FKP(PAPX_FKP *fkp)

@@ -104,7 +104,12 @@ void wvApplySprmFromBucket(U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8
 
 	/*bullet proofing*/
 	if (apap == NULL)
+		{
+#ifdef PURIFY
+		wvInitPAP(&temppap);
+#endif
 		apap = &temppap;
+		}
 	if (achp == NULL)
 		{
 		wvInitCHP(&tempchp);
@@ -129,6 +134,7 @@ void wvApplySprmFromBucket(U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8
 			break;
 		case sprmPJc:
 			apap->jc = bgetc(pointer,pos);
+			wvTrace("jc is now %d\n",apap->jc);
 			break;
 		case sprmPFSideBySide:
 			apap->fSideBySide = bgetc(pointer,pos);
@@ -2367,6 +2373,7 @@ void wvApplysprmCMajority50(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 	wvAddCHPXFromBucket(&base,&upxf,stsh);
 
 	/* this might be a little wrong, review after doing dedicated CHP's*/
+	wvTrace("istd is %d\n",achp->istd);
 	if (achp->fBold == base.fBold)
 		achp->fBold = stsh->std[achp->istd].grupe[0].achp.fBold;
 	if (achp->fItalic == base.fItalic)

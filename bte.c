@@ -18,6 +18,52 @@ void wvInitBTE(BTE *bte)
 	bte->unused = 0;
 	}
 
+void wvListBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte)
+	{
+	U32 i=0;
+	for (i=0;i<*nobte;i++)
+		wvTrace("range %x %x is pn %d\n",(*pos)[i],(*pos)[i+1],(*bte)[i].pn);
+	}
+
+int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
+	{
+	U32 i;
+	if (len == 0)
+		{
+		*bte = NULL;
+		*pos = NULL;
+		*nobte = 0;
+		}
+	else
+        {
+        *nobte=(len-4)/(cb6BTE+4);
+		wvTrace("no of bte is %d at %x\n",*nobte,offset);
+        *pos = (U32 *) malloc( (*nobte+1) * sizeof(U32));
+        if (*pos == NULL)
+            {
+            wvError("NO MEM 1, failed to alloc %d bytes\n",(*nobte+1) * sizeof(U32));
+            return(1);
+            }
+
+        *bte = (BTE *) malloc(*nobte * sizeof(BTE));
+        if (*bte == NULL)
+            {
+            wvError("NO MEM 1, failed to alloc %d bytes\n",*nobte * sizeof(BTE));
+			free(pos);
+            return(1);
+            }
+        fseek(fd,offset,SEEK_SET);
+        for(i=0;i<=*nobte;i++)
+            (*pos)[i]=read_32ubit(fd);
+        for(i=0;i<*nobte;i++)
+			{
+            wvInitBTE(&((*bte)[i]));
+            (*bte)[i].pn = read_16ubit(fd);
+			}
+        }
+	return(0);
+	}
+
 int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
 	{
 	U32 i;

@@ -34,12 +34,11 @@ void wvDecodeSimple(wvParseStruct *ps)
 	/*we will need the stylesheet to do anything useful with layout and look*/
 	wvGetSTSH(&stsh,ps->fib.fcStshf,ps->fib.lcbStshf,ps->tablefd);
 
-	if (wvQuerySupported(&ps->fib,NULL))
-		exit(0);
-
-
 	/*we will need the table of names to answer questions like the name of the doc*/
-	wvGetSTTBF(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
+	if (wvQuerySupported(&ps->fib,NULL) == 2)
+		wvGetSTTBF6(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
+	else /*word 97*/
+		wvGetSTTBF(&ps->anSttbfAssoc,ps->fib.fcSttbfAssoc,ps->fib.lcbSttbfAssoc,ps->tablefd);
 
 	/* 
 	despite what some parts of the spec might have you believe you still need to 
@@ -47,13 +46,22 @@ void wvDecodeSimple(wvParseStruct *ps)
 	chars in one part, and 16bit chars in another, so you have to watch out for
 	that
 	*/
-	wvGetCLX(&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->tablefd);
-
+	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->tablefd);
+	if (ps->clx.nopcd == 0) wvBuildCLXForSimple6(&ps->clx,&ps->fib);	/* for word 6 and just in case */
+	
 	/*
-	we will need the paragraph bounds table to make decisions as to where a piece
+	we will need the paragraph bounds table to make decisions as to where a para
 	begins and ends
 	*/
-    wvGetBTE_PLCF(&btePapx,&posPapx,&intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
+	if (wvQuerySupported(&ps->fib,NULL) == 2)
+		{
+    	wvGetBTE_PLCF6(&btePapx,&posPapx,&intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
+    	wvListBTE_PLCF(&btePapx,&posPapx,&intervals);
+		}
+	else	/* word 97 */
+    	wvGetBTE_PLCF(&btePapx,&posPapx,&intervals,ps->fib.fcPlcfbtePapx,ps->fib.lcbPlcfbtePapx,ps->tablefd);
+
+
 
 	/*
 	The text of the file starts at fib.fcMin, but we will use the piecetable 
@@ -77,12 +85,14 @@ void wvDecodeSimple(wvParseStruct *ps)
 	wvInitPAPX_FKP(&fkp);
 
 	wvHandleDocument(ps,DOCBEGIN);
+
 	
 	/*for each piece*/
 	for (piececount=0;piececount<ps->clx.nopcd;piececount++)
 		{
 		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&ps->clx,piececount);
 		fseek(ps->mainfd,beginfc,SEEK_SET);
+
 		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
 		for (i=begincp,j=beginfc;i<endcp;i++,j += wvIncFC(chartype))
 			{
@@ -96,7 +106,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 				{
 				wvTrace("j i is %x %d\n",j,i);
 				wvReleasePAPX_FKP(&fkp);
-				wvGetSimpleParaBounds(&fkp,&fcFirst,&fcLim,i,&ps->clx, btePapx, posPapx,intervals,ps->mainfd);
+				wvGetSimpleParaBounds(wvQuerySupported(&ps->fib,NULL),&fkp,&fcFirst,&fcLim,i,&ps->clx, btePapx, posPapx,intervals,ps->mainfd);
 				wvTrace("para beings at %x ends %x\n",fcFirst,fcLim);
 				}
 
@@ -112,7 +122,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 			wvOutputTextChar(eachchar,chartype,charset,&state,ps);
 			}
 		}
-
+	
 	if (pendingclose)
 		wvHandleElement(ps,PARAEND,&apap);
 
@@ -147,7 +157,7 @@ Every character greater than or equal to fcFirst and less than fcLim is part of
 the containing paragraph.
 
 */
-int wvGetSimpleParaBounds(PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte,FILE *fd)
+int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte,FILE *fd)
 	{
 	U32 currentfc;
 	BTE entry;
@@ -171,7 +181,7 @@ int wvGetSimpleParaBounds(PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,
 	/*The pagenumber of the FKP is entry.pn */
 
 	wvTrace("pn is %d\n",entry.pn);
-	wvGetPAPX_FKP(fkp,entry.pn,fd);
+	wvGetPAPX_FKP(version,fkp,entry.pn,fd);
 
 	fseek(fd,currentpos,SEEK_SET);
 

@@ -12,6 +12,32 @@ void wvReleaseCLX(CLX *clx)
 	wvReleasePCD_PLCF(clx->pcd,clx->pos);
 	}
 
+void wvBuildCLXForSimple6(CLX *clx,FIB *fib)
+	{
+	wvInitCLX(clx);
+    clx->nopcd=1;;
+
+	clx->pcd = (PCD *) malloc(clx->nopcd * sizeof(PCD));
+	clx->pos = (U32 *) malloc( (clx->nopcd+1) * sizeof(U32));
+	
+    clx->pos[0] = 0;
+    clx->pos[1] = fib->ccpText;
+
+	wvInitPCD(&(clx->pcd[0]));			
+	clx->pcd[0].fc = fib->fcMin;
+
+	/* reverse the special encoding thing they do for word97 */
+    clx->pcd[0].fc *= 2;
+	clx->pcd[0].fc |= 0x40000000UL;
+
+	clx->pcd[0].prm.fComplex = 0;
+	clx->pcd[0].prm.para.var1.isprm = 0;
+	/*
+	these set the one that *I* use correctly, but may break for other wvware
+	users, though i doubt it, im just marking a possible firepoint for the
+	future
+	*/
+	}
 /*
 The complex part of a file (CLX) is composed of a number of variable-sized
 blocks of data. Recorded first are any grpprls that may be referenced by the
@@ -23,14 +49,14 @@ block contains a grpprl) or 2 (meaning this is the plcfpcd). A clxtGrpprl
 clxtPlcfpcd (2) is followed by a 4-byte lcb which is the count of bytes of
 the piece table. A full saved file will have no clxtGrpprl's.
 */
-void wvGetCLX(CLX *clx,U32 offset,U32 len,FILE *fd)
+void wvGetCLX(int version,CLX *clx,U32 offset,U32 len,FILE *fd)
 	{
 	U8 clxt;
 	U16 cb;
 	U32 lcb,i,j=0;
 
 	fseek(fd,offset,SEEK_SET);
-	wvTrace("clx offset is %d, len is %d\n",offset,len);
+	wvTrace("clx offset is %x, len is %d\n",offset,len);
 
 	wvInitCLX(clx);
 
@@ -53,10 +79,31 @@ void wvGetCLX(CLX *clx,U32 offset,U32 len,FILE *fd)
 			}
 		else if (clxt == 2)
 			{
-			lcb = read_32ubit(fd);
-			j+=4;
+			if (version == 0)
+				{
+				lcb = read_32ubit(fd);
+				j+=4;
+				}
+			else
+				{
+				wvTrace("Here so far\n");
+#if 0
+				lcb = read_16ubit(fd);		/* word 6 only has two bytes here */
+				j+=2;
+#endif
+
+				lcb = read_32ubit(fd);		/* word 6 specs appeared to have lied ! */
+				j+=4;
+				}
 			wvGetPCD_PLCF(&clx->pcd,&clx->pos,&clx->nopcd,ftell(fd),lcb,fd);
 			j+=lcb;
+
+			if (version)
+				for (i=0;i<clx->nopcd;i++)
+					{
+					clx->pcd[i].fc *= 2;
+					clx->pcd[i].fc |= 0x40000000UL;
+					}
 			}
 		else
 			{

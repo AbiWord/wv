@@ -36,6 +36,7 @@ void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,FILE *fd)
 	anS->u16strings=NULL;
 	anS->extradata=NULL;
 
+	wvTrace("sttbf offset is %x,len %d\n",offset,len);
 	if (len == 0)
 		{
 		anS->nostrings=0;
@@ -187,4 +188,41 @@ char *wvGetTitle(STTBF *item)
 		strcpy(title,"Untitled");
 		}
 	return(title);
+	}
+
+void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,FILE *fd)
+	{
+	int i,j;
+	U16 slen;
+
+	anS->s8strings=NULL;
+	anS->u16strings=NULL;
+	anS->extradata=NULL;
+
+	wvTrace("word 6 sttbf offset is %x,len %d\n",offset,len);
+	if (len == 0)
+		{
+		anS->nostrings=0;
+		return;
+		}
+	fseek(fd,offset,SEEK_SET);
+	anS->nostrings = ibstAssocMaxWord6;
+	anS->extendedflag = ibstAssocMaxWord6;	/*just for the sake of it*/
+	anS->extradatalen = 0;
+	anS->s8strings = (S8 **)malloc(sizeof(S8 *)*anS->nostrings);
+	if (len != getc(fd))
+		wvTrace("word 6 sttbf len does not match up correctly, strange\n");
+	for (i=0;i<anS->nostrings;i++)
+		{
+		slen = getc(fd);
+		if (slen == 0)
+			anS->s8strings[i] = NULL;
+		else
+			{
+			anS->s8strings[i] = (S8 *)malloc(slen+1);
+			for (j=0;j<slen;j++)
+				anS->s8strings[i][j] = getc(fd);
+			anS->s8strings[i][j]=0;
+			}
+		}
 	}

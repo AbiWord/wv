@@ -488,6 +488,7 @@ typedef struct _STTBF
 	} STTBF;
 
 void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,FILE *fd);
+void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,FILE *fd);
 void wvListSTTBF(STTBF *item);
 void wvReleaseSTTBF(STTBF *item);
 char *wvGetTitle(STTBF *item);
@@ -495,23 +496,24 @@ char *wvGetTitle(STTBF *item);
 typedef enum
     {
     ibstAssocFileNext = 0,
-    ibstAssocDot,
-    ibstAssocTitle,
-    ibstAssocSubject,
-    ibstAssocKeyWords,
-    ibstAssocComments,
-    ibstAssocAuthor,
-    ibstAssocLastRevBy,
-    ibstAssocDataDoc,
-    ibstAssocHeaderDoc,
-    ibstAssocCriteria1,
-    ibstAssocCriteria2,
-    ibstAssocCriteria3,
-    ibstAssocCriteria4,
-    ibstAssocCriteria5,
-    ibstAssocCriteria6,
-    ibstAssocCriteria7,
-    ibstAssocMax 
+    ibstAssocDot = 1,
+    ibstAssocTitle = 2,
+    ibstAssocSubject = 3,
+    ibstAssocKeyWords = 4,
+    ibstAssocComments = 5,
+    ibstAssocAuthor = 6,
+    ibstAssocLastRevBy = 7,
+    ibstAssocDataDoc = 8,
+    ibstAssocHeaderDoc = 9,
+    ibstAssocCriteria1 = 10,
+    ibstAssocCriteria2 = 11,
+    ibstAssocCriteria3 = 12,
+    ibstAssocCriteria4 = 13,
+    ibstAssocCriteria5 = 14,
+    ibstAssocCriteria6 = 15,
+    ibstAssocCriteria7 = 16,
+    ibstAssocMax = 17,
+    ibstAssocMaxWord6 = 17 		/* just in case */
     } ibst;
 
 
@@ -1087,6 +1089,7 @@ typedef union _PHE
 void wvCopyPHE(PHE *dest,PHE *src,int which);
 void wvInitPHE(PHE *item,int which);
 void wvGetPHE(PHE *dest,int which,FILE *fd);
+void wvGetPHE6(PHE *dest,FILE *fd);
 
 typedef struct _NUMRM
     {
@@ -1724,7 +1727,16 @@ typedef enum _SprmName
 	sprmPNLvlAnm		  = 0x240D ,
 	sprmCFtc			  = 0x685D ,
 	/*end subset*/
-	
+
+	/*
+	one of the sprm's that shows up in word 6 docs is "0", which
+	appears to be either the pap.istd or just an index, seeing
+	as the word 6 people didn't list it, lets just ignore it.
+	as it only happens in word 6 docs, our code happens to 
+	function fine in the current setup, but at some stage 
+	im sure it will bite me hard
+	*/
+
 	sprmPIstd             = 0x4600 ,
 	sprmPIstdPermute      = 0xC601 ,
 	sprmPIncLvl           = 0x2602 ,
@@ -2014,8 +2026,9 @@ typedef enum
 #define TT_RIGHT			11
 #define TT_CENTER			12
 #define TT_BLOCK			13
+#define TT_ASIAN			14
 
-#define TokenTableSize 14
+#define TokenTableSize 15
 
 typedef struct _TokenTable
 	{
@@ -2056,19 +2069,22 @@ typedef struct _expand_data
 
 void wvInitExpandData(expand_data *data);
 
-typedef union _PRM
+typedef struct _PRM
 	{
 	/*full total of bits should be 16*/
 	U32 fComplex:1;
-	struct 
+	union
 		{
-		U32 isprm:7;
-		U32 val:8;
-		} var1;
-	struct
-		{
-		U32 igrpprl:15;
-		} var2;
+		struct 
+			{
+			U32 isprm:7;
+			U32 val:8;
+			} var1;
+		struct
+			{
+			U32 igrpprl:15;
+			} var2;
+		} para;
 	} PRM; 
 
 void wvGetPRM(PRM *item,FILE *fd);
@@ -2106,8 +2122,9 @@ typedef struct _CLX
 U16 wvAutoCharset(CLX *clx);
 
 void wvInitCLX(CLX *item);
-void wvGetCLX(CLX *clx,U32 offset,U32 len,FILE *fd);
+void wvGetCLX(int version,CLX *clx,U32 offset,U32 len,FILE *fd);
 void wvReleaseCLX(CLX *clx);
+void wvBuildCLXForSimple6(CLX *clx,FIB *fib);
 
 
 typedef struct _wvParseStruct
@@ -2186,14 +2203,10 @@ typedef enum
 
 typedef enum
 	{
+	cb6BTE = 2, 
 	cb6FIB = 682, 
+	cb6PHE = 6
 	} cb6Struct;
-
-
-
-
-
-
 
 U32 wvNormFC(U32 fc,int *flag);
 int wvGetPieceBoundsFC(U32 *begin,U32 *end,CLX *clx,U32 piececount);
@@ -2210,8 +2223,10 @@ typedef struct _BTE
 void wvGetBTE(BTE *bte,FILE *fd);
 void wvInitBTE(BTE *bte);
 int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd);
+int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd);
 void wvCopyBTE(BTE *dest,BTE *src);
 int wvGetBTE_FromFC(BTE *bte, U32 currentfc, BTE *list,U32 *fcs, int nobte);
+void wvListBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte);
 
 #define PAGESIZE 512
 
@@ -2222,6 +2237,7 @@ typedef struct _BX
 	} BX;
 
 void wvGetBX(BX *item, FILE *fd);
+void wvGetBX6(BX *item, FILE *fd);
 
 typedef struct _PAPX
 	{
@@ -2230,7 +2246,7 @@ typedef struct _PAPX
  	U8 *grpprl;
 	} PAPX;
 
-void wvGetPAPX(PAPX *item,U32 offset,FILE *fd);
+void wvGetPAPX(int version,PAPX *item,U32 offset,FILE *fd);
 void wvReleasePAPX(PAPX *item);
 void wvInitPAPX(PAPX *item);
 
@@ -2242,14 +2258,14 @@ typedef struct _PAPX_FKP
 	U8 crun;
 	} PAPX_FKP;
 
-void wvGetPAPX_FKP(PAPX_FKP *fkp,U32 pn,FILE *fd);
+void wvGetPAPX_FKP(int version,PAPX_FKP *fkp,U32 pn,FILE *fd);
 void wvReleasePAPX_FKP(PAPX_FKP *fkp);
 void wvInitPAPX_FKP(PAPX_FKP *fkp);
 
 int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *pos, U32 nopos);
 int wvIncFC(int chartype);
 
-int wvGetSimpleParaBounds(PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte, FILE *fd);
+int wvGetSimpleParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte, FILE *fd);
 
 int wvOutputTextChar(U16 eachchar,U8 chartype,U8 outputtype,U8 *state,wvParseStruct *ps);
 void wvOutputFromCP1252(U16 eachchar,U8 outputtype);
@@ -2265,10 +2281,10 @@ U16 wvConvertUnicodeToiso8859_15(U16 char16);
 int wvConvert1252ToHtml(U8 char8);
 
 void wvDecodeComplex(wvParseStruct *ps);
-int wvGetComplexParaBounds(PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,FILE *fd);
+int wvGetComplexParaBounds(int version,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentcp,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,FILE *fd);
 U32 wvSearchNextLargestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc);
 int wvQuerySamePiece(U32 fcTest,CLX *clx,U32 piece);
-int wvGetComplexParafcFirst(U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd);
+int wvGetComplexParafcFirst(int version,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd);
 U32 wvSearchNextSmallestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc);
 U32 wvGetPieceFromCP(U32 cp,CLX *clx);
 int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc);
@@ -2315,7 +2331,7 @@ U32 wvConvertCPToFC(U32 currentcp,CLX *clx);
 void wvBeginPara(expand_data *data);
 void wvEndPara(expand_data *data);
 
-int wvGetComplexParafcLim(U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd);
+int wvGetComplexParafcLim(int first,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd);
 
 
 
@@ -2339,7 +2355,7 @@ int wvHandleDocument(wvParseStruct *ps,wvTag tag);
 void wvSetDocumentHandler(int (*proc)(wvParseStruct *,wvTag));
 
 SprmName wvGetrgsprmPrm(U16 in);
-void wvAssembleComplexPAP(PAP *apap,U32 cpiece,STSH *stsh,CLX *clx);
+void wvAssembleComplexPAP(int version,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx);
 U32 wvGetEndFCPiece(U32 piece,CLX *clx);
 void wvInitSprm(Sprm *Sprm);
 
