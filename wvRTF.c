@@ -1,13 +1,18 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
 #include <time.h>
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 #include "getopt.h"
 #include "wv.h"
 
@@ -205,6 +210,7 @@ static void
 fill_rtfUserData(rtfUserData *ud, CHP *chp, wvParseStruct *ps)
 {
   char *fname = NULL;
+
   if (!ps->fib.fFarEast) {
     fname = wvGetFontnameFromCode(&ps->fonts, chp->ftcAscii);
   } else {

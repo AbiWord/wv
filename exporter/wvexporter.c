@@ -10,10 +10,10 @@
 #include <string.h>
 
 /* document stream names */
-#define DOCUMENT_STREAM "WordDocument"
+#define DOCUMENT_STREAM  "WordDocument"
 #define TABLE1_STREAM    "1Table"
 #define TABLE0_STREAM    "0Table"
-#define DATA_STREAM     "Data"
+#define DATA_STREAM      "Data"
 
 /* normally text begins 128 bytes after the FIB */
 #define TXT_OFFSET (long)128
@@ -81,8 +81,8 @@ wvExporter_create_version(const char *filename, wvVersion v)
   if(ms_ole_create((MsOle**)(&ole), filename) != MS_OLE_ERR_OK)
     {
       wvError(("Error creating OLE docfile %s\n", filename)); 
-      free(ole);
-      free(exp);
+      wvFree(ole);
+      wvFree(exp);
       return NULL;
     }
 
@@ -106,9 +106,6 @@ wvExporter_create_version(const char *filename, wvVersion v)
   exp->summaryStream  = ms_ole_summary_create(ole);
   ASSERT_STREAM(exp->summaryStream);
 
-  exp->docSummaryStream = ms_ole_docsummary_create (ole);
-  ASSERT_STREAM(exp->docSummaryStream);
-
   wvTrace(("Created all relevant OLE streams\n"));
   
   /* initialize the FIB and put it into the document stream
@@ -120,7 +117,7 @@ wvExporter_create_version(const char *filename, wvVersion v)
   wvPutFIB(&(exp->fib), exp->documentStream);
   wvTrace(("Initial FIB inserted, proceeding with export\n"));
     
-  /* normally offset 128 bytes after the FIB, but who am I to care? */
+  /* in all of the document's i've run into, the fcMin == 1024 */
   exp->fib.fcMin = wvStream_tell(exp->documentStream);
 
   exp->ver = v;
@@ -155,7 +152,7 @@ wvExporter_close(wvExporter *exp)
   /* rewind and put the updated FIB in its proper place */
   
   /* last character's position + 1 */
-  exp->fib.cbMac = wvStream_tell(exp->documentStream) + 1;
+  /* exp->fib.cbMac = wvStream_tell(exp->documentStream) + 1; */
   exp->fib.ccpText = exp->fib.cbMac - exp->fib.fcMin;
 
   wvStream_rewind(exp->documentStream);
@@ -176,20 +173,13 @@ wvExporter_close(wvExporter *exp)
    * Close the summary streams
    */
   ms_ole_summary_close(exp->summaryStream);
-  ms_ole_summary_close(exp->docSummaryStream);
-  wvTrace(("Closed summary streams\n"));
-
-#if 0
-  /* i hate wvOLEFree... */
-  /* close all of the streams */
-  wvOLEFree();
-#endif
+  wvTrace(("Closed summary stream(s)\n"));
 
   /* close the document */
   ms_ole_destroy(&(exp->ole));
   wvTrace(("Closed all of the streams and OLE\n"));
 
-  free(exp);
+  wvFree(exp);
   exp = NULL;
 
   wvTrace(("Word Document Written!\n"));

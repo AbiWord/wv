@@ -83,10 +83,10 @@ void wvStream_libole2_create(wvStream** in, MsOleStream* inner)
 void wvStream_create(wvStream** in, wvStreamKind kind, wvInternalStream inner)
 	{
 	wvStream_list* listEntry;
-	*in=(wvStream*)malloc(sizeof(wvStream));
+	*in=(wvStream*)wvMalloc(sizeof(wvStream));
 	(*in)->kind=kind;
 	(*in)->stream=inner;
-	listEntry=malloc(sizeof(wvStream_list));
+	listEntry=wvMalloc(sizeof(wvStream_list));
 	listEntry->stream=(*in);
 	listEntry->next=streams;
 	streams=listEntry;

@@ -1,3 +1,4 @@
+/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 8; tab-width: 8 -*- */
 /**
  * ms-ole.c: MS Office OLE support for Gnumeric
  *
@@ -8,11 +9,23 @@
  * Copyright 1998-2000 Helix Code, Inc., Arturo Tena
  **/
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 
 /* BSDs require unistd.h before including stat.h */
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
+#ifdef HAVE_UNISTD_H 
+#	include <unistd.h>
+#else
+#	define S_IRUSR 0000400
+#	define S_IWUSR 0000200
+#	define S_IRGRP 0000040
+#	define S_IWGRP 0000020
+#	define _S_ISREG(m) (((m)&0170000) == 0100000)
+#	define S_ISREG(m) _S_ISREG(m)
+#	define O_NONBLOCK 0x4000
 #endif
 
 #include <sys/stat.h>	/* for struct stat */
@@ -23,31 +36,10 @@
 #include <glib.h>
 #include <string.h>
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "ms-ole.h"
+#include <libole2/ms-ole.h>
 
 #ifdef HAVE_MMAP
 #include <sys/mman.h>
-#endif
-
-#ifdef HAVE_UNISTD_H 
-#	include <unistd.h>
-#else
-
-#if 0
-#include <io.h> 
-#endif
-
-#define S_IRUSR 0000400 
-#define S_IWUSR 0000200 
-#define S_IRGRP 0000040 
-#define S_IWGRP 0000020 
-#define _S_ISREG(m) (((m)&0170000) == 0100000) 
-#define S_ISREG(m) _S_ISREG(m) 
-#define O_NONBLOCK 0x4000 
 #endif
 
 #ifndef PROT_READ
@@ -65,7 +57,7 @@
 
 #if !defined(MAP_SHARED) || !defined(HAVE_MMAP)
 /* Only define this where mmap() is not supported */
-#       define MAP_SHARED 0
+#	define MAP_SHARED 0
 #endif
 
 /* Implementational detail - not for global header */
@@ -112,7 +104,7 @@ struct _MsOle {
 	MsOleSysWrappers *syswrap;
 	
 	char              mode;
-	int               file_des;
+	MsOleHandleType   file_des;
 	int               dirty;
 	GArray           *bb;      /* Big  blocks status  */
 	GArray           *sb;      /* Small block status  */
@@ -125,86 +117,293 @@ struct _MsOle {
 };
 
 
+#ifndef HAVE_GNOMEVFS
+      /* open() returns -1 when it fails */
+      #define BAD_FILE -1
+#else
+      /* GnomeVFS instead returns a NULL object */
+      #define BAD_FILE NULL
+#endif
+
+#ifdef HAVE_GNOMEVFS
+
+/*
+ * These are small little helper functions
+ * To convert fnctl.h flags to GNOME_VFS type flags
+ */
+static GnomeVFSOpenMode
+flags_to_vfs (int flags)
+{
+	GnomeVFSOpenMode m = GNOME_VFS_OPEN_NONE;
+	
+	if (flags & O_RDONLY)
+		m |= GNOME_VFS_OPEN_READ;
+	if (flags & O_WRONLY)
+		m |= GNOME_VFS_OPEN_WRITE;
+
+	return m;
+}
+
+static GnomeVFSSeekPosition
+whence_to_vfs (int whence)
+{
+	switch (whence)
+		{
+		case SEEK_SET: return GNOME_VFS_SEEK_START;
+		case SEEK_CUR: return GNOME_VFS_SEEK_CURRENT;
+		case SEEK_END: return GNOME_VFS_SEEK_END;
+		default: return -1;
+		}
+}
+
+#endif
 
 /**
- * Default system calls wrappers
+ * Default system calls wrappers, currently with
+ * FILE * and GnomeVFS implementations. A Bonobo streams
+ * version is also planned
  **/
 
-static int
+#ifndef HAVE_GNOMEVFS
+
+static MsOleHandleType
 open2_wrap (const char *pathname, int flags)
 {
-  /* small fix for OS/2 and Win32 not applicable for Unix */
 #ifdef O_BINARY
-	return open (pathname, flags | O_BINARY);
+	return (MsOleHandleType) open (pathname, flags | O_BINARY);
 #else
-	return open (pathname, flags);
+	return (MsOleHandleType) open (pathname, flags);
 #endif
 }
 
-static int
+#else
+
+static MsOleHandleType
+open2_wrap (const char *pathname, int flags)
+{
+	GnomeVFSHandle * handle;
+	GnomeVFSOpenMode mode;
+  
+	mode = flags_to_vfs (flags);
+	
+	if (gnome_vfs_open (&handle, pathname, mode) == GNOME_VFS_OK)
+		{
+			if (flags & O_TRUNC)
+				gnome_vfs_truncate_handle (handle, 0);
+			return handle;
+		}
+	return NULL;
+}
+
+#endif
+
+#ifndef HAVE_GNOMEVFS
+
+static MsOleHandleType
 open3_wrap (const char *pathname, int flags, mode_t mode)
 {
-  /* small fix for OS/2 and Win32 not applicable for Unix */
 #ifdef O_BINARY
-	return open (pathname, flags | O_BINARY, mode);
+	return (MsOleHandleType) open (pathname, flags | O_BINARY, mode);
 #else
-	return open (pathname, flags, mode);
+	return (MsOleHandleType) open (pathname, flags, mode);
 #endif
 }
 
-static ssize_t
-read_wrap (int fd, void *buf, size_t count)
+#else
+
+static MsOleHandleType
+open3_wrap (const char *pathname, int flags, mode_t mode)
 {
-	return read (fd, buf, count);
+	GnomeVFSHandle * handle;      
+	GnomeVFSOpenMode m;
+	
+	m = flags_to_vfs (flags);
+  
+	if (flags & O_CREAT)
+		{
+			if (gnome_vfs_create (&handle, pathname, m, FALSE, mode) == GNOME_VFS_OK)
+				{
+					if (flags & O_TRUNC)
+						gnome_vfs_truncate_handle (handle, 0);
+					return handle;
+				}
+		}
+	else
+		{
+			if (gnome_vfs_open (&handle, pathname, m) == GNOME_VFS_OK)
+				{
+					if (flags & O_TRUNC)
+						gnome_vfs_truncate_handle (handle, 0);
+					return handle;
+				}
+		}
+
+	return NULL;
 }
+
+#endif
+
+#ifndef HAVE_GNOMEVFS
+
+static ssize_t
+read_wrap (MsOleHandleType fd, void *buf, size_t count)
+{
+	return read ((int) fd, buf, count);
+}
+
+#else
+
+static ssize_t
+read_wrap (MsOleHandleType fd, void *buf, size_t count)
+{
+	GnomeVFSFileSize bytes_read = 0;
+	
+	if (gnome_vfs_read ((GnomeVFSHandle *)fd, buf, (GnomeVFSFileSize)count, &bytes_read) == GNOME_VFS_OK)
+		return (ssize_t)bytes_read;
+	return -1;
+}
+#endif
+
+#ifndef HAVE_GNOMEVFS
 
 static int
-close_wrap (int fd)
+close_wrap (MsOleHandleType fd)
 {
-	return close (fd);
+	return close ((int) fd);
 }
 
-static ssize_t
-write_wrap (int fd, const void *buf, size_t count)
+#else
+
+static int
+close_wrap (MsOleHandleType fd)
 {
-	return write (fd, (void *)buf, count);
+	return (gnome_vfs_close ((GnomeVFSHandle *)fd) != GNOME_VFS_OK);
 }
+
+#endif
+
+#ifndef HAVE_GNOMEVFS
+
+static ssize_t
+write_wrap (MsOleHandleType fd, const void *buf, size_t count)
+{
+	return write ((int)fd, (void *)buf, count);
+}
+
+#else
+
+static ssize_t
+write_wrap (MsOleHandleType fd, const void *buf, size_t count)
+{
+	GnomeVFSFileSize bytes_written = 0;
+	
+	if (gnome_vfs_write ((GnomeVFSHandle *)fd, buf, (GnomeVFSFileSize)count, &bytes_written) == GNOME_VFS_OK)
+		return (ssize_t)bytes_written;
+	return -1;
+}
+
+#endif
+
+#ifndef HAVE_GNOMEVFS
 
 static off_t
-lseek_wrap (int fd, off_t offset, int whence)
+lseek_wrap (MsOleHandleType fd, off_t offset, int whence)
 {
-	return lseek (fd, offset, whence);
+	return lseek ((int)fd, offset, whence);
 }
 
+#else
+
+static off_t
+lseek_wrap (MsOleHandleType fd, off_t offset, int whence)
+{
+	GnomeVFSSeekPosition w = whence_to_vfs (whence);
+	GnomeVFSFileSize o;
+  
+	if (gnome_vfs_seek ((GnomeVFSHandle *)fd, (GnomeVFSSeekPosition) offset, w) == GNOME_VFS_OK)
+		{
+			if (gnome_vfs_tell ((GnomeVFSHandle *)fd, &o) == GNOME_VFS_OK)
+				return (off_t)o;
+		}
+	return -1;
+}
+
+#endif
+
+#ifndef HAVE_GNOMEVFS
+
 static int
-isregfile_wrap (int fd)
+isregfile_wrap (MsOleHandleType fd)
 {
 	struct stat st;
 
-	if (fstat (fd, &st))
+	if (fstat ((int)fd, &st))
 		return 0;
 
 	return S_ISREG (st.st_mode);
 }
 
+#else
+
 static int
-getfilesize_wrap (int fd, guint32 *size)
+isregfile_wrap (MsOleHandleType fd)
+{
+	int rtn = 0;
+	GnomeVFSFileInfo * fi = gnome_vfs_file_info_new ();
+	gnome_vfs_file_info_init (fi);
+
+	if (gnome_vfs_get_file_info_from_handle ((GnomeVFSHandle *)fd, fi,
+						 GNOME_VFS_FILE_INFO_FIELDS_TYPE) == GNOME_VFS_OK)
+		rtn = (fi->type == GNOME_VFS_FILE_TYPE_REGULAR);
+	else
+		rtn = 0 ;
+	gnome_vfs_file_info_unref (fi);
+	return rtn;
+}
+
+#endif
+
+#ifndef HAVE_GNOMEVFS
+
+static int
+getfilesize_wrap (MsOleHandleType fd, guint32 *size)
 {
 	struct stat st;
 
-	if (fstat (fd, &st))
+	if (fstat ((int)fd, &st))
 		return -1;
 
 	*size = st.st_size;
 	return 0;
 }
 
-#ifdef HAVE_MMAP
+#else
+
+static int
+getfilesize_wrap (MsOleHandleType fd, guint32 *size)
+{
+	int rtn = 0;
+	GnomeVFSFileInfo * fi = gnome_vfs_file_info_new ();
+	gnome_vfs_file_info_init (fi);
+	
+	if (gnome_vfs_get_file_info_from_handle ((GnomeVFSHandle *)fd, fi,
+						 GNOME_VFS_FILE_INFO_FIELDS_SIZE) == GNOME_VFS_OK)
+		*size = (int)fi->size;
+	else
+		rtn = -1;
+
+	gnome_vfs_file_info_unref (fi);
+	return rtn;
+}
+
+#endif
+
+#if defined(HAVE_MMAP) && !defined(HAVE_GNOMEVFS)
 static void *
 mmap_wrap (void *start, size_t length, int prot,
-	   int flags, int fd, off_t offset)
+	   int flags, MsOleHandleType fd, off_t offset)
 {
-	return mmap (start, length, prot, flags, fd, offset);
+	return mmap (start, length, prot, flags, (int)fd, offset);
 }
 
 static int
@@ -224,7 +423,7 @@ static MsOleSysWrappers ms_ole_default_wrappers = {
 	isregfile_wrap,	
 	getfilesize_wrap,
 
-#ifdef HAVE_MMAP
+#if defined(HAVE_MMAP) && !defined(HAVE_GNOMEVFS)
 	mmap_wrap,
 	munmap_wrap
 #else
@@ -242,7 +441,7 @@ take_wrapper_functions (MsOle *f, MsOleSysWrappers *wrappers)
 		f->syswrap = wrappers;
 }
 
-/* 
+/*
  * A global variable to enable calles to check_stream,
  * applications should optionally enable due to the performance penalty.
  * of 30-50 % of load time.
@@ -610,6 +809,29 @@ dump_allocation (MsOle *f)
 }
 
 /*
+ * Initialize the MsOle library
+ *
+ */
+
+#ifndef HAVE_GNOMEVFS
+
+void
+ms_ole_init (void)
+{
+  return;
+}
+
+#else
+
+void
+ms_ole_init (void)
+{
+  gnome_vfs_init ();
+}
+
+#endif
+
+/*
  * Dump some useful facts.
  * magic: 2       : dump tree
  *        default : dump header and allocation
@@ -787,7 +1009,7 @@ read_bb (MsOle *f)
 static void
 remap_file (MsOle *f, guint blocks)
 {
-	int file;
+	MsOleHandleType file;
 	guint8 *newptr, zero = 0;
 	guint32 filesize;
 	guint32 oldlen;
@@ -1361,7 +1583,7 @@ read_sb (MsOle *f)
 		if (ptr == UNUSED_BLOCK ||
 		    ptr == SPECIAL_BLOCK) {
 			g_warning ("Corrupt small block file: serious error, "
-				 "invalid block in chain\n");
+				   "invalid block in chain\n");
 			g_array_free (f->sbf, TRUE);
 			f->sbf = 0;
 			return 0;
@@ -1587,9 +1809,8 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 		 MsOleSysWrappers *wrappers)
 {
 	int prot = PROT_READ | PROT_WRITE;
-
 	MsOle *f;
-	int file;
+	MsOleHandleType file;
 
 	if (!fs)
 		return MS_OLE_ERR_BADARG;
@@ -1605,13 +1826,13 @@ ms_ole_open_vfs (MsOle **fs, const char *name,
 	f->ref_count = 0;
 	f->mode = 'w';
 
-	if (file == -1) {
+	if (file == BAD_FILE) {
 		f->file_des = file = f->syswrap->open2 (name, O_RDONLY);
 		f->mode = 'r';
 		prot &= ~PROT_WRITE;
 	}
 
-	if ((file == -1) || !(f->syswrap->isregfile (file))) {
+	if ((file == BAD_FILE) || !(f->syswrap->isregfile (file))) {
 		g_warning ("No such file '%s'\n", name);
 		g_free (f) ;
 		*fs = NULL;
@@ -1721,7 +1942,8 @@ ms_ole_create_vfs (MsOle **fs, const char *name, gboolean try_mmap,
 		   MsOleSysWrappers *wrappers)
 {
 	MsOle *f;
-	int file, zero=0;
+	MsOleHandleType file;
+	int zero=0;
 	int init_blocks = 1, lp;
 
 	if (!fs)
@@ -1730,9 +1952,9 @@ ms_ole_create_vfs (MsOle **fs, const char *name, gboolean try_mmap,
 	f = *fs = ms_ole_new ();
 	take_wrapper_functions (f, wrappers);
 	if ((file = f->syswrap->open3 (name,
-				       O_RDWR|O_CREAT|O_TRUNC/*|O_NONBLOCK*/,
+				       O_RDWR|O_CREAT|O_TRUNC,
 				       S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP))
-	    == -1) {
+	    == BAD_FILE) {
 		g_warning ("Can't create file '%s'\n", name);
 		g_free (f);
 		*fs = NULL;
@@ -1807,6 +2029,7 @@ ms_ole_create_vfs (MsOle **fs, const char *name, gboolean try_mmap,
 		f->bb  = g_array_new (FALSE, FALSE, sizeof(BLP));
 		f->sb  = g_array_new (FALSE, FALSE, sizeof(BLP));
 		f->sbf = g_array_new (FALSE, FALSE, sizeof(BLP));
+
 		p           = g_new (PPS, 1);
 		p->sig      = PPS_SIG;
 		p->name     = g_strdup ("Root Entry");
@@ -1835,7 +2058,7 @@ destroy_pps (GList *l)
 	GList *tmp;
 
 	if (!l)
-	  return;
+		return;
 
 	for (tmp = l; tmp; tmp = g_list_next (tmp)) {
 		PPS *pps = tmp->data;

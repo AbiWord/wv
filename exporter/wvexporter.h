@@ -1,32 +1,36 @@
 #ifndef WVEXPORTER_H
 #define WVEXPORTER_H
 
-#include "wv.h"
-#include "ms-ole-summary.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* This is our exportation abstraction layer.  
- * Each wvDocument maps to one file,
- * which streams can be opened within.
- */
-typedef MsOle wvDocument;
+#include "wv.h"
+#include "ms-ole-summary.h"
+
+  /* This is our exportation abstraction layer.  
+   * Each wvDocument maps to one file,
+   * which streams can be opened within.
+   */
+  typedef MsOle wvDocument;
 
   typedef struct {
-    /* consider all of this data to be private */    
+    /* consider all of this data to be private 
+     * except to wvExporter functions
+     */
 
-    /* our toplevel OLE Document */
+    /* our toplevel OLE Document 
+     * from which all of our following streams
+     * are created
+     */
     wvDocument *ole;
 
     /* the OLE streams within the toplevel OLE document */
-    wvStream     *documentStream;
-    wvStream     *table1Stream;
-    wvStream     *table0Stream;
-    wvStream     *dataStream;
-    MsOleSummary *summaryStream;
-    MsOleSummary *docSummaryStream;
+    wvStream        *documentStream;
+    wvStream        *table1Stream;
+    wvStream        *table0Stream;
+    wvStream        *dataStream;
+    MsOleSummary    *summaryStream;
 
     /* more accounting structures to come later */
 
@@ -35,9 +39,12 @@ typedef MsOle wvDocument;
   } wvExporter;
 
   int wvExporter_queryVersionSupported(wvVersion v);
+
   wvExporter * wvExporter_create(const char *filename);
   wvExporter * wvExporter_create_version(const char *filename, wvVersion v);
+
   void wvExporter_close(wvExporter *exp);
+
   void wvExporter_summaryPutString(wvExporter *exp, U32 field, const char *str);
   void wvExporter_summaryPutLong(wvExporter *exp, U32 field, U32 l);
   void wvExporter_summaryPutTime(wvExporter *exp, U32 field, time_t *t);
@@ -46,7 +53,7 @@ typedef MsOle wvDocument;
   size_t wvExporter_writeBytes(wvExporter *exp, size_t sz, size_t nmemb,
 			       const void *bytes);
 
-  /* */
+  /* these, no doubt, will become private soon */
 wvStream* wvStream_new(wvDocument* ole_file, const char* name);
 int wvStream_write(void *ptr, size_t size, size_t nmemb, wvStream *in);
 int write_32ubit(wvStream *in, U32 out);

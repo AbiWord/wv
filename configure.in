@@ -373,7 +373,7 @@ AC_ARG_WITH(libiconv,
         CPPFLAGS="${CPPFLAGS} -I$withval/include"
         LDFLAGS="${LDFLAGS} -L$withval/lib"
     fi
-],check_for_libiconv="no")
+],check_for_libiconv="yes")
 
 have_iconv=no
 
@@ -403,6 +403,8 @@ AC_DEFUN(AC_SYS_ICONV_WIN_CP_SUPPORT,
 AC_MSG_CHECKING([for existance of $1 to $2 iconv support])
 dnl AC_CACHE_VAL(have_codepages,
 dnl [
+_libs=${LIBS}
+LIBS="${LIBS} ${ICONV_LIBS}"
 AC_TRY_RUN([
 	#include <iconv.h>
 	#include <stdio.h>
@@ -447,6 +449,7 @@ AC_TRY_RUN([
 		return(0);
 	}
 ], have_codepages=yes, have_codepages=no, have_codepages=no)
+LIBS=$_libs
 dnl])
 AC_MSG_RESULT($have_codepages)
 if test $have_codepages = no; then

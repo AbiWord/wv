@@ -399,15 +399,18 @@ void wvOutputFromUnicode(U16 eachchar,char *outputtype)
       {
         wvError(("iconv failed errno: %d, to:%s from:%s\n",errno, t_code, f_code));
 	/* I'm torn here - do i just announce the failure, continue, or copy over to the other buffer? */
-      }
 
+	/* errno is usually 84 (illegal byte sequence)
+	   should i reverse the bytes and try again? */
+	printf ("%c", ibuf[1]);
+      } else {
         len = len-obuflen;
         iconv_close(iconv_handle);
 
         for (i=0;i<len;i++)
                 printf("%c",p[i]);
-        }
-
+      }
+	}
 
 void wvBeginDocument(expand_data *data)
         {

@@ -43,22 +43,25 @@ fi
 # temporary PS file, mangled to get some sort
 # of semi-uniqueness
 FILE=`basename ${1}`
-TMPPS="/tmp/${FILE}-${USER}-${$}.ps" 
+TMPDIR="/tmp/${FILE}-${USER}-${$}"
+TMPPS="$TMPDIR/${FILE}-${USER}-${$}.ps" 
+
+mkdir $TMPDIR
 
 # Make sure all graphics go into /tmp as well
-cp ${1} /tmp/$FILE
+cp ${1} $TMPDIR/$FILE
 
 # Extract graphics
-wvLatex "/tmp/$FILE" "/tmp/$FILE.tex" 2>/dev/null >/dev/null
+wvLatex "$TMPDIR/$FILE" "$TMPDIR/$FILE.tex" 2>/dev/null >/dev/null
 
 # Graphics conversion if make_epses.sh installed:
-STEM=/tmp/`basename ${1} .doc`
+STEM=$TMPDIR/`basename ${1} .doc`
 type make_epses.sh 2>&1 >/dev/null
   if [ ${?} -eq "0" ]; then
-    (cd /tmp; make_epses.sh $STEM)
+    (cd $TMPDIR; make_epses.sh $STEM)
   fi
 
-wvPS /tmp/$FILE ${TMPPS}
+wvPS $TMPDIR/$FILE ${TMPPS}
 if [ ${?} -ne "0" ]; then 
 	echo "Could not translate into Postscript" 
 	exit 1 
@@ -67,3 +70,6 @@ fi
 # call our ghost-viewer
 ${GV} ${TMPPS}
 rm -f ${TMPPS}
+
+cd /
+rm -rf $TMPDIR

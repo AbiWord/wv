@@ -4,6 +4,10 @@
 #ifndef _MAGICK_H
 #define _MAGICK_H
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #if defined(sun)
 #define __EXTENSIONS__  1
 #endif
@@ -33,7 +37,9 @@
 #if defined(_VISUALC_)
 #include <direct.h>
 #else
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #endif
 #include <ctype.h>
 #include <signal.h>

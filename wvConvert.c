@@ -1,12 +1,14 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-/* already done in wv.h
- #include "config.h"
-*/
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include <stdlib.h>
+#include <stdio.h>
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+
 #include "wv.h"
 #include "getopt.h"
 

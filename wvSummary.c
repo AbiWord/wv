@@ -44,63 +44,63 @@ int main(int argc, char *argv[])
 		return 1;
 		}
 
-	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_TITLE, &ret);
+	str = ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_TITLE, &ret);
 
 	if (ret && str)
 	  printf("The title is %s\n", str);
 	else
 	  printf("no title found\n");
 	
-	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_SUBJECT, &ret);
+	str = ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_SUBJECT, &ret);
 
 	if (ret && str)
 	  printf("The subject is %s\n", str);
 	else
 	  printf("no subject found\n");
 	
-	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_AUTHOR, &ret);
+	str = ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_AUTHOR, &ret);
 
 	if (ret && str)
 	  printf("The author is %s\n", str);
 	else
 	  printf("no author found\n");
 	
-	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_KEYWORDS, &ret);
+	str = ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_KEYWORDS, &ret);
 	
 	if (ret && str)
 	  printf("The keywords are %s\n", str);
 	else
 	  printf("no keywords found\n");
 	
-	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_COMMENTS, &ret);
+	str = ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_COMMENTS, &ret);
 	
 	if (ret && str)
 	  printf("The comments are %s\n", str);
 	else
 	  printf("no comments found\n");
 	
-	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_TEMPLATE, &ret);
+	str = ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_TEMPLATE, &ret);
 	
 	if (ret && str)
 	  printf("The template was %s\n", str);
 	else
 	  printf("no template found\n");
 	
-	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_LASTAUTHOR, &ret);
+	str = ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_LASTAUTHOR, &ret);
 	
 	if (ret && str)
 	  printf("The last author was %s\n", str);
 	else
 	  printf("no last author found\n");
 	
-	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_REVNUMBER, &ret);
+	str = ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_REVNUMBER, &ret);
 	
 	if (ret && str)
 	  printf("The rev # was %s\n", str);
 	else
 	  printf("no rev no found\n");
 	
-	ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_APPNAME, &ret);
+	str = ms_ole_summary_get_string(summary, MS_OLE_SUMMARY_APPNAME, &ret);
 
 	if (ret && str)
 	  printf("The app name was %s\n", str);

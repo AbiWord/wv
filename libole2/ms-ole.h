@@ -21,10 +21,17 @@
 	typedef unsigned long mode_t;
 	typedef size_t ssize_t;
 	typedef /* signed */ long off_t;
-	typedef /* unsigned? */ long caddr_t;
+	typedef /* unsigned */ long caddr_t;
 #endif
 
 #include <glib.h>
+
+#ifdef HAVE_GNOMEVFS
+        #include <libgnomevfs/gnome-vfs.h>
+        typedef GnomeVFSHandle * MsOleHandleType;
+#else
+        typedef int MsOleHandleType;
+#endif
 
 typedef enum {
 	MS_OLE_ERR_OK,
@@ -69,18 +76,18 @@ typedef struct _MsOleStream       MsOleStream;
 typedef struct _MsOleSysWrappers  MsOleSysWrappers;
 
 struct _MsOleSysWrappers {
-	int     (*open2)	(const char *pathname, int flags);
-	int     (*open3)	(const char *pathname, int flags, mode_t mode);
-	ssize_t (*read)		(int fd, void *buf, size_t count);
-	int     (*close)	(int fd);
-	ssize_t (*write)	(int fd, const void *buf, size_t count);
-	off_t   (*lseek)	(int fd, off_t offset, int whence);
-	int     (*isregfile)	(int fd);
-	int     (*getfilesize)	(int fd, guint32 *size);
+	MsOleHandleType     (*open2)	(const char *pathname, int flags);
+	MsOleHandleType     (*open3)	(const char *pathname, int flags, mode_t mode);
+	ssize_t (*read)		(MsOleHandleType fd, void *buf, size_t count);
+	int     (*close)	(MsOleHandleType fd);
+	ssize_t (*write)	(MsOleHandleType fd, const void *buf, size_t count);
+	off_t   (*lseek)	(MsOleHandleType fd, off_t offset, int whence);
+	int     (*isregfile)	(MsOleHandleType fd);
+	int     (*getfilesize)	(MsOleHandleType fd, guint32 *size);
 
 	/* Optionaly implementable */
 	void   *(*mmap)         (void *start, size_t length, int prot,
-				 int flags, int fd, off_t offset);
+				 int flags, MsOleHandleType fd, off_t offset);
 	int     (*munmap)       (void *start, size_t length);
 };
 
@@ -89,6 +96,7 @@ struct _MsOleStat {
 	MsOlePos  size;
 };
 
+extern void             ms_ole_init             (void);
 #define                 ms_ole_open(fs,path)     ms_ole_open_vfs ((fs), (path), TRUE, NULL)
 extern MsOleErr		ms_ole_open_vfs		(MsOle **fs,
 						 const char *path,
