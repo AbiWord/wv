@@ -3557,6 +3557,8 @@ returns the same as wvOLEDecode with the addition that
 	FDG fdg;
 	U32 no_spgrcontainer;
 	SpgrContainer *spgrcontainer;
+	U32 no_spcontainer;
+	FSPContainer *spcontainer;
 #if 0
 	SolverContainer solvercontainer;
 	ColorScheme colorscheme;

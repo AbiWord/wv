@@ -130,6 +130,10 @@ wvReleaseDgContainer (DgContainer * item)
     for (i = 0; i < item->no_spgrcontainer; i++)
 	wvReleaseSpgrContainer (&(item->spgrcontainer[i]));
     wvFree (item->spgrcontainer);
+
+    for (i = 0; i < item->no_spcontainer; i++)
+	wvReleaseFSPContainer (&(item->spcontainer[i]));
+    wvFree (item->spcontainer);
 }
 
 void
@@ -194,6 +198,9 @@ wvGetDgContainer (DgContainer * item, MSOFBH * msofbh, wvStream * fd)
     MSOFBH amsofbh;
     U32 count = 0;
 
+    item->spcontainer = NULL;
+    item->no_spcontainer = 0;
+
     while (count < msofbh->cbLength)
       {
 	  count += wvGetMSOFBH (&amsofbh, fd);
@@ -217,6 +224,17 @@ wvGetDgContainer (DgContainer * item, MSOFBH * msofbh, wvStream * fd)
 					(item->spgrcontainer
 					 [item->no_spgrcontainer - 1]), &amsofbh, fd);
 		break;
+		case msofbtSpContainer:
+	      	item->no_spcontainer++; 
+		item->spcontainer =
+		    (FSPContainer *) realloc (item->spcontainer,
+					       sizeof (FSPContainer) *
+					       item->no_spcontainer);
+		count +=
+		    wvGetFSPContainer (&
+	        			(item->spcontainer
+					 [item->no_spcontainer - 1]), &amsofbh, fd);
+		break; 
 	    default:
 		count += wvEatmsofbt (&amsofbh, fd);
 		wvError (("Eating type 0x%x\n", amsofbh.fbt));
