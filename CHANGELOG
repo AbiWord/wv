@@ -1,8 +1,791 @@
+Changes to 0.6.0
+	* Changed executable name from wvHtml to wvWare
+	* Added Mime display script (wvMime) (Martin Vermeer, Dom)
+	* Added Conversion Helper Scripts (wvHtml, wvLatex, wvCleanLatex,
+	  wvPS, wvDVI, wvPDF) (Dom)
+	* Added CleanLaTeX output mode, more closely resembling hand-crafted
+	  LaTeX (Martin)
+	* Use GLib (http://www.gtk.org) (Dom)
+	* Use Gnome Libole2 (http://www.gnome.org) (Dom, Jamie)
+	* New wvStream architecture (Jamie)
+	* Word 2 support! (Martin Vermeer)
+	* Code speedups and XP improvements (the Abiword team)
+	* Massive work started on an exporter (Dom)
+	* Move to wvware.sourceforge.net (Dom)
+	* New Maintainer: Dom Lachowicz (cinamod@hotmail.com)
+	  |-> also getting lots of help from Martin Vermeer
+
+Changes to to 0.5.44
+	* Seriously warped fastsaved table cell deleting licked
+Changes to to 0.5.43
+	* an improved wvLaTeX.xml by mv@liisa.pp.fi
+	* added some of the older 0x08 word 6 stuff to it.
+	* marvellous set of patches from brian.ewins@bt.com to do
+	a load of speedups. Including some chpx and papx page caching,
+	some replacement of unneeded byte by byte reads, and some
+	element by element copies. Plus a very spiffy token table lookup
+	scheme which speeds things up a lot.
+	* some fixes to parse the old word graphic file format, I cannot
+	use very much of it, but at least I don't crash on it anymore.
+	* added --dir option to wvHtml so that pictures can be placed in
+	a seperate directory
+	* removed some more unnecessary element by element copies
+	* found the lengths for word7 sprms of 111 112 and 113, but i
+	dont know what they do, nonetheless they are now defused and
+	made safe.
+	* make configure.in test for memcpy as well and use bcopy if
+	not
+	* define ssize_t in config.h if unistd.h is not available
+	* mem leaks removed
+	* made expat use the byteordering results for faster working,
+	will default correctly to nothing if this cannot be determined
+	due to cross compiling.
+	* implemented TIME field
+	* remove unnecessary expat subdirs
+	* title done in the correct charset
+	* implemented HYPERLINK field
+	* implemented PAGEREF field
+	* added bookmarks to wvParseStruct
+	* wmf files are decompressed and extracted correctly
+	* unicode in fields is support ok now again.
+	* field thing split into two parts, the command part and
+	the "argument", or last outputted text from the field part.
+	this allow hyperlinked fields to do the right thing, and for
+	unrecognized fields to output their original default contents.
+	* changed pap defaults to include correct widow/orphan defaults
+	* fixed sprm handling of tab stops
+	* added <no_rows/> and <no_cols/> to xml config, handy for html
+	and necessary for latex im told.
+	* added a lastcell entry which can be used to handle the last cell
+	in each row seperately, put lastcell.begin *before* cell.begin
+	and put lastcell.end *before* cell.end to use it, it is defined
+	the same way as cell
+	* moded percent sign back into config file, so that wvLaTeX.xml
+	can use /textpercent itself
+	* made my own changes to table handling in wvLaTeX.xml from 
+	discussion with David C Sterratt <dcs@cs.stir.ac.uk>
+	* added cellrelpagewidth to tokens which appears to work a 
+	charm with the latex conversion, cheers to David C Sterratt
+	for pointing pointing me on the way.
+	* added dop to wvParseStruct so abi can get default tab 
+	distance.
+	* remodeled the html entity lookup, and added the basics
+	of a latex entity lookup.
+	* removed the now unnecessary codepage 1252 html entity
+	lookup.
+	* I had left wvGetTC out of sync with the new WORD8 version
+	numbering
+	* horrific table supported munged in latex. latex people
+	should have a better suggestion to do what I want with them,
+	I *dont* want to hear the endless whining about form over
+	content, I still need to support tables that both vertically
+	merged cells, and horizontally merged cells together in
+	one table.
+	* dop reader takes account of the version for word 6/7 compatability
+	needs to be tested.
+	* allow latex or html or raw text conversion options from the config
+	file, this is not the same as charset, the latex option is pretty
+	empty at the moment, I will take submissions for it.
+	* wmf's are decompressed again, and dumped out to disk, so right
+	now you can manually use libwmf to convert them to gif.
+	* hdd should be hdr i reckon really.
+	* began to make some changes which will allow subdocuments to be
+	handled individually.
+ALL TODO
+	* extend escher to read the wierd.doc
+		extract background image for html
+		find the text id and return it so
+		as to find the break table for it
+		fiddle wvDecodeSimple to be able to handle
+		arbitrary subdocuments
+		stick each textid's range of text into a subdocument
+		handler which can be put in a html layer, extend to
+		handle headers and footers, and feed that to abiword.
+	
+	* more graphic checks, more escher records etc etc.
+	* promote old graphics into escher format.
+	* decompress wmf etc.
+	* get libwmf back into action and get picts together as well.
+
+	* wvSetCharHandler(proc,NATIVE|UNICODE)
+	* attempt to remove completely empty para's with the IsEmpty code
+
+	* Got to think of some way to keep the list stuff in sync with the margins 
+	of the enclosed paragraphs in html output.
+
+	* need to add a color Auto thing that figures out what color goes against 
+	what fore or back ground.
+
+	* put the default text and char stuff into one single "style", and then 
+	try and figure out a way to save arbitrary no of styles into some nice 
+	structure for later seaching and stylesheet implementation.
+
+	* style overrides for each word style, example idea in wvHtml.xml
+
+	* comment/footnote and endnote support.
+
+	* fully implement tablelooks, the flags in particular, and maybe the 
+	colors for the bg should be farmed out to sperate config options rather
+	than piggy backing on the other colors, also why did one of the text
+	foregrounds not work on its own, while the others did, and is there
+	one of two cases where our grid will not handle every case ?
+
+	* add another option for table width, i.e. tableabswidth.
+	* we need character formatting for the <li> itself, we can do this I 
+	suppose, but i'll hold off on that for a while.
+
+	* fontface and size for char runs..
+
+	* what about a collision between underline and revision added ? and also 
+	the strike and revision deleted ?, what if a mad user created his own 
+	collisions.  In the future there will be problems with links being broken 
+	by references, this is a similar problem.
+	* install cygwin thingy at home and test configure mechanism for searching 
+	and installing strcasecmp/rint.
+	* i figured out what the story is with ole embedded files, ill have to 
+	modify my ole code so as to be able in the future to parse embedded docs 
+	and splice them together, which could be a wee bit of a challenge.
+	* modify configure script so its possible to link against a different 
+	expat lib, or to disable it or something.
+
+	* test that continous sections and endnotes at the end of section, and
+	other things like that do what i think they should do.
+	* placement of footnotes, what does "treat like endnotes" really mean ?
+	* make sure captions are alright, especially formatting.
+	* bits for anld are wrong
+	* bookmarks embedded in html tags break them, constructs such as e.g
+	<A href="stuff">stuf<a name="here">f</a></A> are being output even though
+	thats well wrong in html.
+	* convert the cross-referenced "above/below", into hyperlinked above and 
+	below.
+	* optional support for specifying special fonts, not recommended for use
+	on publishing for internet sites, but useful for internal use for those 
+	of you who have done the funky chicken dance with unix netscape to work 
+	with ms winding etc fonts or are using ie/netscape on windows.
+	* all the fields, document background colour.
+	* gnome canvas wysiwyg viewer, output to ps from this
+	* use incremental zlib functions to do decompressing rather than use mmap,
+	someone who doesnt have mmap on their system can send me a patch for this one
+	;-)
+	* doesnt compile under neXt & needs to use gcc for hpux 10.20 ?
+	* put code thats in both simple and complex together.
+	* do an autoconf check for mman.h and dont do compression if not there.
+	* maybe someday we should use #pragme pack(1) if we are being compiled
+	with gcc under a little endian platform. That might gain a speed up ?
+Changes to to 0.5.42
+	* temporary bmp for older word6/7 document and legacy 
+	structures appears to be working.
+	* sprmCPicLocation was one too short for word6/7, strange.
+	* picf modified to use older word6/7 version as well.
+	* some modifications so that it can handle documents with 
+	incomplete bte tables. This is only in fullsave, because I
+	doubt the logic behind what ever program is creating them!
+	Its bloody insane, but im going to support it coz word can
+	do it.
+	* only put in the paraborders if we need them, makes the
+	html output smaller, and more importantly works around
+	a netscape bug where is para indent to the right is x, and
+	the first line indent to the left is x, and there is a border
+	(even if of type none!) then the para is indented too far to
+	the left. This is bug 1524.43 Rules.doc
+	* supported 0x01 graphics ala broken/001-TETMEI.doc
+	0x01 graphics are making their way back in, and are looking
+	better than the old code already.
+	* fields can be embedded in each other, so the field
+	ignorer is now capable of realizing this.
+	* all 0x01 bitmap formats are looking good.
+	* some 0x08 bitmap formats are coming through correctly as well
+	* bug in Huge handling
+Changes to to 0.5.41
+	* attempting to support 8 bit russian cp1251 docs as well.
+	* there is an extra argument to the character handler, this
+	is the lid of the character. the Language identifier.
+	* made some changes to the build so that it will work build
+	correctly outside the source tree.
+	* added a small iconv implementation which follow the same syntax 
+	as the ordinary iconv. We *must* be able to convert from windows 
+	codepages into unicode, it doesnt matter about the reverse direction 
+	at all. If the native iconv can do this then we use that, if 
+	the native iconv cannot, or does not exist we use our own iconv
+	which can only handle a conversion from windows codepages into unicode,
+	* So currently we can always output in utf-8 from just about whatever
+	input charset word hits us with.
+	* removed the unnecessary symbolfont dir
+	* made some more mods so that we convert into 16bit unicode from
+	all the codepages, we also must convert from 16bit unicode into
+	all the current outputs such as tis and koi and iso-5589 and also
+	utf-8.
+	* I have had the wrong name for my own charset all along :-), a
+	bit dyslexic of me, iso-8859-15, NOT iso-5589-15 !
+	* change the charset all the way through the system to a string
+	so that we can use everything that works with a systems iconv.
+	* removed unnecessary paramater to wvOutputText
+	* hooked up all the output system through output, i.e. the
+	title gets printed the same way as the body text.
+	* changes to Makefiles to make it build outside of its own
+	dir.
+Changes to to 0.5.40
+	* took a patch from Mitch Davis <mjd@aus.hp.com> to change PAGESIZE to
+	WV_PAGESIZE, this define already exists under HPUX (oops), and modify
+	-I./ to -I. which supposedly makes a difference.
+	* output title in the same output charset as the rest of the document.
+	* inserted a hack to force lists to end before </td>, rather than
+	after the </td>
+	* made a fix to setting the chp istd correctly after an initialization
+	* the style 10 (Normal) is Generated first if possible, as other styles
+	(illegally i think) depend on it in the style generation code.
+	* tables and list were interacting badly with eachother to create invalid
+	html and incorrect numbering, fixed this.
+	* doubled up the alignment tag with div align as well as the style 
+	assignment as netscape is having problems with short paragraph alignment.
+	* made some changes so that the first list start no is always 1 rather 
+	than programmer 0 :-).
+	* add a <br> as a section break to wvHtml.xml, sometimes a heading
+	starts after a section break, but because of no <p> it ends up in a 
+	bad position.
+	* hacked in some sanity checks to swap between unicode and 8bit in the
+	stylesheet names, some mac docs are using 8bit names in word8 files.
+	* hacked in a mechanism to fake a section the size of the document if
+	there are no sections in the section listing, like there always is 
+	except for some strange mac word8 docs that I received.
+	* an attempt to make nfc's more like liststartnos so that sublists that
+	start > 1 levels below the last list entry have the correct nfc code.
+	* forced a paraend in html mode to close off any open lists
+	* I wasted a *lot* of time getting multilevel lists to do exactly
+	the right thing, and to get them html complient. I now submit that
+	the problem is really actually quite a toughy without scanning the
+	entire list before printing it (which i do do with tables ). The 
+	interpretation of html lists doesnt help the matter, its *close*
+	to what I want but just far enough away to be useless, i.e.
+
+	This 
+	<ol>
+	<li>test
+    <ol>
+    <li>test
+    </li></ol>
+	</li>
+	<li>test
+	</li>
+	</ol>
+	gives 
+	1 test
+		1 test
+	2 test
+
+	and this gives	
+
+	<ol>
+	<li>
+		<ol>
+		<li>test
+		</li></ol>
+	</li>
+	<li>test
+	</li>
+	</ol>
+	1
+		1 test
+	2	test
+
+	I reckon it should be
+		1 test
+	2 test
+
+	What we are currently using is the incorrect
+
+	<ol>
+    <ol>
+    <li>test
+    </li></ol>
+	<li>test
+	</li>
+	</ol>
+
+	Which gives
+		1 test
+	1 test
+
+	Which is not optimum but the best we can do without scanning through the entire list
+	before printing a single entry. Attempting to see if a list entry will ever be
+	used, and if not then bumping up the start value by 1. Noone will notice the
+	incorrect values for the most part. I may at a later date sidestep the issue by allowing
+	the list entries to be output as ordinary text and be damned with html list 
+	limitations.
+	* It became necessary to duplicate the paraending code for the end of a piece 
+	in the simple mode as well as complex. THe simple code is now almost exactly
+	the same as the complex, ah well.
+	* I believe I have correctly worked out how to determine when word 6 and 7 files use 
+	unicode characters.
+Changes to to 0.5.39
+	* made a new wvHtml conversion page, looks nice to me, online bug listing, 
+	its hardly a bugzilla bug it serves better for my needs.
+	* added placeholder.png and wvOnline.xml to cvs, neither of which are of
+	any real importance except for the interim.
+	* added <filename/> variable, handy for the online converter.
+	* added three sprms of (now) known length and unknown purpose to word7
+	sprm list.
+	* NONE of the word documents that I have (4747 of them, 556Megs) now crash
+	with the current version, this is not to say there there are not serious
+	crashable bugs, or that the output is sane, just that it is now quite
+	reliable.
+	* versioning enum extended and renumbered to handle all word formats in
+	the future, hardcoded 0 and 1 changed to WORD8 and WORD6.
+	* finally hacked in preliminary stylesheet code to get the dependancies
+	in the correct order, its a bit crufty (!), but it does the trick for
+	now.
+Changes to to 0.5.38
+	* added the symbol mapping to unicode as best as I could, I made one or two 
+	mods from the proper unicode so as to get a few more to work with the 
+	current generation of web browsers. very bad behaviour I know and the sort 
+	of stuff that got the world into this mess, but at least you can recompile 
+	wv at a later to date to fix it, replace the commented out bits of symbol.c 
+	to do it.
+	* added messages for conversion table request for special fonts (the spawn 
+	of the devil as far as I am concerned).
+	* added a character property end and start at the beginning of a new 
+	paragraph, this is necessary in many cases, funny i never noticed it before
+	* figured out some rules to handle placement of graphics, abandoned 
+	stylesheet placement as netscape is too much of a mess to be of any use 
+	there, and thats the target audience.
+	* the CHP code didnt work for word 7 and 8 sprms, this ironically means 
+	that rather than falling through the default case and being ignored, each 
+	chp sprm is now parsed leading to certainly more crashes and bugs as we 
+	find differences one by one between word 8 and the previous versions 
+	character property sprms.  * fixed sprmCSymbol for pre word 8, there might 
+	be problems with fonts not named "Symbol", like wingdings.
+	* due to serious oddities I have added a TABLEOVERRIDES option in 
+	wvHtml.xml which allows the margins before and after and paragraph, and the 
+	first line indent to be turned off inside tables, as having them on creates 
+	a real mess in netscape, in the future when this ability is supported by 
+	browsers you can just remove tableoverrides and ta-da all will work fine.
+	* fixed table row scanner bug
+	* fix for last para scan in complex mode
+	* make mods to table.c to allow cells within 3 units of eachother be 
+	considered the same.
+	* hmm, added a workaround for missing the beginning of a para in complex 
+	mode under certain conditions.
+	* some incredible hackery to differciate between 16 and 8 bit character 
+	modes in word 95 and 6, real dodgy stuff, but its working so far. Though 
+	its certainly a point of failure in the future.
+	* fix for table colspan mistakes
+	* modified sprmTTableBorder to work with the smaller word 6 BRC's, also 
+	fixed bug where I thought the sprm was variable
+	* had to fix sprmTTableBorder again, because it *is* variable under word 8 
+	despite the docs to the contrary !!, gagh.
+	* aaaargh!, wvGetLFOLVL and that wvInvalidLFOLVL has struck again, this
+	time I think I have it sorted out once and for all (but i bet not), this
+	new layout fixes quite a number of crashes.
+	* incredibly hard to find overflow in U8 in wvGetPAPX, silly me, must
+	really pay more attention to these things, you tend to forget that U8 are
+	a really small type, left to my own devices i'd use int, but for this
+	program I slavishly follow the types in the spec, and overlook the 
+	workarounds that are obvious in the struct definitions for PAPX.
+	* fixed the rather ugly empty paragraph skipping code to only go to the
+	next cell when a para level check is done.
+	Im having terrible problems with sprmDefTableShd, it always follows
+	sprmDefTable, and there is something wrong with Shd, maybe its me, maybe
+	its word. Either way im working around the problem.
+	* I had broken the word97 decryption, fixed again.
+	* cleaned things up to create a version enum and associated obvious names
+	with the versions so that its more obvious to read and more extendable,
+	encryption is marked in the version by the base version ored with 0x8000.
+	* some mods to the old list conversion to new list format, removes at 
+	least one crash and might solve others, possibly not a full solution.
+	* added html names for umlautte characters.
+	* found a sprm 0x6646 which appears to be 0x6645 HugePAPX where the papx
+	is stored in the data stream, it only occurs for PAP's and only for FKP
+	papx's. Nonetheless it has requireed the addition of a data file stream
+	argument to many sprm related functions, nearly always NULL except for
+	fkp PAP papx's.
+	* sprmPHugePapx implemented, another nasty bug fixed because of this
+	impementation. 
+Changes to to 0.5.37
+	* para indentation, first line indentation, top bottom left and right 
+	margins
+	* border code started, mountain of tags included.
+	* border color added for paragraphs
+	* we can handle individual sides to the border rather than just taking the 
+	top for all sides.
+	* supporting brcBetween required that we repeat the table style lookahead
+	for brc's as well, this is very annoying, and seeing as netscape doesnt even allow
+	margin support correctly I hate putting it in as noone can use it, makes me feel
+	more complete to support it myself though, maybe mozilla will sort this out.
+Changes to to 0.5.36
+	* mem leaks plugged, word 6 and 7 section sprms added correctly.
+	* crushed a few out by ones, twos and threes :-), flattened a few
+	more pesky buglets and leaks.
+	* purify now reports no problems of any kind with any of the examples
+	and feature-examples.
+	* modified simple and complex saves to only do the *main* body text,
+	no comment and footnotes etc being put in when they shouldnt.
+	* made some headway into understanding undocumented version 
+	information. Theres 22 ununderstood bytes per version.
+	* added wvSetSpecialCharHandler, special chars now have their own
+	seperate callback which feeds you the char and the associated CHP,
+	this might require some more work.
+	* doh !, made silly mistake with ending the doc at the ccpText limit.
+	* added wvGetGrpXst converts strings groups to nice STTBF's
+	* added wvGetBKL_PLCF
+	* implemented the COMMENT BEGIN and END, and applied it to the "simple code",
+	the actual comment itself and so on is part of the subdocuments which are
+	not implemented yet, but will be soon.
+	* overlooked complex sep properties, added them in.
+	* added dirty tag to the elehandler, 1 means that the property might (more 
+	than likely it is) be modified from the original style as indicated by the 
+	istd, this is implemented in simple and complex for PAP,CHP and SEP.
+Changes to to 0.5.35
+	* tables.
+	* wvToggle was still in todo, it was fixed a while ago
+	* made decode_complex stsh into a ps->stsh, I obviously missed
+	it before, this is the problem with having both decode_complex and
+	decode_simple with unshared components, gagh!
+	* complex mode tables might even work now.
+	* table relative widths now in as well, percentage of screen, uses
+	the sep, so sep has been put into the expand_data struct, which needs
+	to be cleaned up, i propose putting chp pap and sep into wvParseStruct
+	rather than props, and making expand_data have a pointer to wvparsestruct 
+	* fixed section code begin and end crash.
+	* complex mode colspan and rowspan, and various support functions.
+	* wvHtml can find the config file on its own, and has a command line
+	option (-x) to find it.
+	* some fixes to wvConvert which I havnt looked at in a while, so as
+	to get it to work, and to include the password and other changes that
+	made their way into wvHtml.
+Changes to to 0.5.34
+	* added cellwidth percentage as well to wvHtml.xml to make the cells the
+	same ratio width in html as in the original word.
+	* changed Dk Colors to Dark Colors in wvHtml.xml to get the right colors
+	* tested rowspan lots and lots on examples.
+	* tested colspan. 
+	* wow my god !, there can be either no tc's in sprmTDefTable, word 6 ones,
+	or word 8 ones, you have to work it out depending on the length of the 
+	parameter.
+	* small doc addition by Karl F. Larsen <k5di@totacc.com>
+	* tweaked wvCharBegin to ignore empty rowend paragraphs, squeaks us past
+	the html validation service :-)
+	* basic tablelooks implemented, and basic background color for cells
+	* changed a few more colours in wvHtml.xml to get ones that work in
+	netscape, must change them all to #?????? values.
+	* removed signal and wait stuff from configure
+	* added searching for wvHtml.xml, i also install it, so you can wrap 
+	this in a rpm and it will work fine for the average user.
+Changes to to 0.5.33
+	* tested row and col span with fullsave and fixed many
+	many bugs, sprmTDefTable is not as simple as it looks.
+Changes to to 0.5.32
+	* multilevel word6/95 lists appear to work fine, needs verification
+	* use new cellwidth thing in wvHtml, wvConvert and wvConfig
+	* colspan probably works in general at least
+	* AHA!!!!, sprmTDefTable contains some TC structs, *but* only 10 bytes
+	are allocated for each one, a word 8 TC is 20 bytes long, a word 6 TC
+	is 10 bytes long, so we can point out another location where word 8
+	is disconnected from its own spec completely, gagh!!!!
+	* completed rowspan support, now wvParseStruct and expand_data are
+	exceedingly messy, and theres a stack of static in wvConfig, it
+	might be a good idea to move them into one location and stuff this
+	pointers from the parsestruct to the expand_data struct nonsense
+Changes to to 0.5.31
+	* wvSummary bug fix.
+	* word 95 decrypting from the password added as well !, theres no
+	stopping me somedays :-). Though I have to verify that, as its a
+	bit messy and some bits of it might be unnecessary, and i have no
+	idea how nonenglish languages might affect it. And maybe its 
+	based on the percularities of one particular word95 program that
+	I have. Also it would be reasonably easy to make a password cracker
+	for word95 instead of requiring a password to be added in.
+Changes to to 0.5.30
+	* removed crypt dir and references to it.
+	* removed crypt from configure script
+	* made check so as not to close NULL FILE * in decrypt.c
+	* modified decrypt.c to be big endian safe, in this vein
+	and in an attempt to make it more readable I have used the
+	standard md5 code snarfed from the rfc instead of the
+	original md5 code, its all the same in function, just endian
+	safe.
+	* modified the SetPassword and password string promotion to
+	be a utf-8 to unicode conversion, this of course will only
+	work if the input, like an xterm, supports utf-8, in any
+	other case its exactly the same as an ascii to unicode, so
+	its the same as ever, except I feel a lot better at least
+	in theory supporting the full unicode suite.
+Changes to to 0.5.29
+	* NUMBER 1 CHANGE: we now have the ability to decrypt word 97 documents, yippee!!
+
+	* more koi8.c changes from Sergey V. Udaltsov <svu@pop.convey.ru>
+	* removed all the lex rubbish, and took mswordview itself out of the default
+	Makefile dammit.
+	* some changes to semisupport word 95/6 lists, it does appear that word 95
+	lists are the exact same as word 6 lists.
+	* word 6 and 95 lists were different, and there is supposedly cases there the
+	word 97 can use word 6 style lists, though its supposedly unlikely.
+	* We have a problem with word6/95 lists, while we have the information about
+	each list entry, i cannot figure out how to tell if one particular entry
+	belongs to a particular list, i.e. I can quite happily pump out lists where
+	every entry is a seperate list consisting of a single entry, this is very
+	annoying. As a temporary measure I have done a checksum on the list information
+	and if the checksum is the same as another entry, then I assume that it is a
+	member of the same list, it works so far on very very simple lists, and I
+	imagine that it will explode when i investigate more complex word6/95 lists.
+	* now lists... 
+		lists come with number information and also with character formatting
+		which applies to the number text itself, and paragraph information
+		that applies to the paragraph that is the list entry itself. Every
+		list entry is a paragraph.
+
+		So if we are not interested in the character properties of the
+		number text itself we can quite happily convert the list into
+		html with numbering correct and so on.
+
+		If we want the char formatting of the number text we have to 
+		loose the html correctness of list handling.
+
+		The other final case is those weird windows symbols that might be
+		used, we cannot do them in correct html, they must either use
+		the three symbols available to use, or just become bullets.
+
+		We can apply the para stuff to the actual paragraph and some 
+		checking shows that a div is a valid element to put in a list
+		so thats what I have done
+	* with the word6 list problem, I have been unable in word95 to create
+	a list underneath another list with the exact same formatting without
+	putting a space between, I have also been unable to create a list
+	to continues from another list. In short I cannot create a list that
+	can break the admittedly insanely hacked mechanism I have devised to
+	leverage word6 lists into the word97 model used internally by the wv
+	library.
+	* some mods to make multilevel word6/95 lists work correctly, completely mad
+	stuff entirely, dragons be here and so on.
+	* minor change to summary.c to allow slightly dodgy but ok docs through the
+	system, happens with msword version 6.0.1 ( a mac version ?)
+	* explicit ul end ala ol end, if the para is the last para of the doc.
+Changes to to 0.5.28
+	* added sprmPNLvlAnm into sprm.c for compatibility with word6/95
+	* sorted out where there are two lists under each other at the same
+	level but of different types. 
+	* Now the list code has become very tied down to being html output, i
+	have been keeping things reasonably flexible with the config file, ah
+	well, its not a serious problem at all.
+	* well now interesting, supported-list-features.doc is now a very 
+	bloody awkware set of lists, and its encouraging to note that word97
+	makes a real mess out of it. While an argument can be made that there
+	should not be a seperate para for each <li> element, compare the 
+	word97 output against the wvHtml output. word97 restarts each of the
+	lists from scratch, hur hur.
+	* removed lex dependancies from the Makefile, and split some of the
+	olderstuff into temporary old* files, which will all be removed one
+	by one.
+	* make does not make mswordview by default, time to wean everyone off
+	that one.
+	* mswordview itself probably doesnt work anymore, use the stable 
+	version if you want this program
+Changes to to 0.5.27
+	* expanded the list info wvParseStruct to include all of the structures.
+	* made the stylesheet code safe, but its a fix until i do the out of 
+	sequence istd initalizing correctly.
+	* removed blank line from expat Makefile, Keith Wear <keith.wear@wcom.com>
+	* get list info extracted, make ul vs ol descision, get entry begin
+	* continued with lists, maybe change struct to include chp and pap simultaneously
+	as i might need it for the lists, extract start value for html, and number nfc
+	to use as well, for the case of symbols (nfc tells me i think ?) swap to ul
+	rather than ol, thus we need a reciprocol mechanism in the config file.
+	* lists look good, releaseing to the world
+Changes to to 0.5.26
+	* some checking showed that I had the wrong name for the koi encoding,
+	koi8-r is the correct name, and ive changed it to that.
+	* wvHtml dumps graphics, and wvGraphicConvert is a standlone little app
+	for hacking purposes to open up graphics to external hackers.
+Changes to to 0.5.25
+	* added date and author id to revisions, found bug in DTTM. added
+	wvDTTMtoUnix to dttm.c
+	* added animations to config file as blink (hur hur)
+	* i added (even though i have no idea what it is) DispFldRMark to everywhere
+	relevent.
+	* that basically completes everything in the chp that makes any kind of sense
+	in html except for font face and size.
+	* well seeing as the output passes the w3c validator test, the html output
+	be default announces this fact.
+	* added charset option to wvHtml, documented in new wvHtml.1 manpage
+	* added koi-8 from Sergey V. Udaltsov <svu@pop.convey.ru> and added
+	a howto in notes/internationalization/Charsets-HOWTO
+	* changed lists to be html 4 complient.
+Changes to to 0.5.24
+	* righteo, I made some (hopefully) final changes to fast saved handling, and
+	it looks a lot better now. Char attributes are correct, and the issue
+	of para begins and ends being missing from paras that begin in fastsave section
+	appears to be cleared up. There is still spurious character runs being created
+	in this location, but they appear within paragraph blocks, not outside them,
+	and they have no contents so they only create reduntant tags in the html output, 
+	or in the case of the lib makes it more inefficient. So its not 100% but its close
+	enough that it'll make absolutely not difference in the case of an abiword-like
+	app, and only someone looking at the source of the html output will make rude i
+	noises about how crap and ineffecient wv is because it outputs empty tags. So the
+	bottom line it that it is a known misfeature that in the case of fastsaved files 
+	that there is the duplication of empty char attributes in a small limited number 
+	of cases. If you really dislike this, then set options in msword to only create
+	fullsaved files, which you should do anyway, because thats the major reason your
+	word documents are so huge if you ever wondered about that, and its also a huge
+	security hole, e.g. if you edited a confidential document to remove the confidential
+	bits, then you can edit the doc with a hex editor and read all the deleted confidential
+	material !. At some stage i believe i might add a feature to show the original 
+	document that a fastsaved document was based on, it can sometimes scare you to
+	death. 
+	* my resetting char properties at a new para was slightly out, i wasn't fully
+	regenerating the exception run limits.
+Changes to to 0.5.23
+	* added RMarkDel & strike & outline to wvHtml support, handle empty tags 
+	correctly now as well.
+	* added lowercase, shadow,vanish, rmark,caps, outline and smallcaps to
+	wvHtml, though many are empty and caps,smallcaps and lowercase need
+	further code to actually do the deed
+	* added includedir to mkinstalldir list, coz of (Marko Rauhamaa) 
+	<marko@tekelec.com>
+	* the toggle (cases 128 and 129 for fBold and loads of others), works by
+	taking a look at the original style that the current one is based on. It
+	was until now not actually looking at the original one at all, but the
+	current one, thats fixed now.
+	* another one was that if we were based upon a char style we weren't
+	getting initalized correctly at all, this too is fixed.
+	* changes have also been made to sprmCMajority and sprmCMajority50 along
+	a similiar line. These three or 4 changes together make a huge difference
+	to the output. So this should clear up a *mountain* of mismatched output,
+	i'm so proud, the best way to track down these differences is to take a
+	fastsaved file and save it as fullsave and compare wv output for the
+	two.
+	* colour in html output.
+	* hmm, real real stupid thing in fastsaved mode where i was completely
+	fecking up the fcLim by changing it in a subfunc and then thinking that
+	it was the original and using it as that again!
+Changes to to 0.5.22
+	* new development release
+Changes to to 0.5.21
+	* fix for bad sprm handlers so font changes now occur.
+	* fix for having no summary stream in wvSummary.
+	* added protection support for istd out of sequence, we should in the
+	future handle them correctly
+	* added simple word95 file support, gets all text correctly and at least
+	pretends to get the paragraph properties, needs much much checking, i
+	treated them exactly the same as word6 and that appears to work reasonably
+	ok.
+	* I have added a sample import filter for abiword in the abi dir, basically
+	it's up to the abi folk to integrate that in at their leisure.
+	* added contents to sep.c anlv.c & olst.c 
+	* fixed the length of sprmTDefTable, solves some word6 crashes.
+	* finally noticed that the BRC is of a different len and layout with word 6
+	* note to self, the EatSprm only works for true word97 features, ones that d
+	in word6 and 95 have to implemented or things will crash, this is not a real
+	problem as all these sprms should be implemented one by one.
+	* found two TAP sprm's that differ from 6 to 8 and have updated.
+	* implemented sprmCLid which doesnt exist in word97 but does on older vers
+	* added ole code to viewer.
+	* the program named mswordview is depreciated, it still does far more than
+	wvHtml but this is a warning that wvHtml is the new html converter for
+	msword docs. wvConvert is a generic converter that currently defaults
+	to abiword xml so that i can examine a richer set of properties, I wonder
+	how generic i have actually made it, a tex converter would be nice
+	wouldn't it.
+	* wvHtml now uses html output so < & > will work now, i had overlooked
+	that aspect (whops), my focus was on other types of properties,
+	wvHtmlOutputChar might need more work, keep an eye on it.
+	* stuck a stack of structs that i havn't used yet into the header files,
+	and some implementations of readers that i might need someday :-)
+	* added char properties (Justin did all of this one, and good stuff it is too)
+	* merged together two vers
+	* finish SEP, and friends, added a mountain of structs, the remainer of
+	what was not already in the header file, and added some stub files for
+	them all.
+	* added simple file support for Section begins and ends, moved the
+	char handling code around a slight bit so as to be in a nice looking order
+	to me.
+	* continued sections in complex mode, brought my standalone abiword converter up
+	to speed with sections.
+	* implemented all of the SEP sprms, word 6 conflicts not fully checked yet.
+	* Jeff@abisource made it more portable by modifying the wvError/wvTrace macros
+	and putting in defs for rint and strcasecmp.
+	* purified sep code.
+	* fixed fastsaved chp init from pap istd (i think)
+	* fixed finding first para bounds with complex mode if the first para is a 
+	new fast saved chunk (i think)
+	* ffn sttbf was wrong for word95 & word6, is fixed now.
+	* Squashed one the bugs that was causing one of my annoying problems with 
+	complex files and incorrect para fcLims. This one was driving me completely mad,
+	i don't know if i have fixed it fully correct though, but i think so..
+	* changed laolareplace.old.c to put isprint test at the end.
+	* added bold and italic char prop handling to simple mode wvHtml
+	* added bold and italic char prop handling to complex mode wvHtml
+Changes to to 0.5.20
+	* the checking for end of a piece was all wrong, i was looking
+	at the beginning of the next piece for that information which while
+	always correct failed horribly in the case of the last piece.
+	* fixed some more bugs
+	* fixed wvConvertCPToFC ala end of piece.
+	* fixed text *after* the final para in simple mode related to above.
+	* fixed oversight in len of UPX stuff in stylesheet
+	* fixed some style eating problems.
+	* cleanup up some bits and pieces with pointers and styles.
+	* added strcasecmp check and inclusion route.
+	* more bigfixes throughout chp and friends.
+	* added a simple fib6 reader that reads into a fib8 struct.
+	* word 6 doesnt appear to have a sep table stream so we'll have to
+	look closely at that sort of thing.
+	* modified STSHI handler to allow word6, modified STD to allow word6
+	* put in a word6 to word8 sprm converter, might even work. we won't
+	know for quite a while, implemented for pap and chp.
+	* reran purify, reworked the binary tree code section for that real
+	complex chp sprm.
+	* made the complex pap search start with the current piece, rather 
+	than the next one. Seems to be the right approach.
+	* fixed a small offset problem in word 6 sprm translations.
+	* clx now can load in a word 6 complex piecetable (in theory anyway)
+	* identify word 7 files.
+	* word 6 thing appears shafted.
+	* prm complex option was the wrong way around !
+	* fixed all bugs that cause crashes on doc collection.
+	* word 6 had to have a seperate BX and fkp and so on for itself, but
+	now i believe fullsaved word6 files are as supported as word97 files.
+	* can extract raw text of fastsaved word 6 files..
+	* and now we can get the para properties of word 6 fast saved files 
+	(i think)
+	* basically brought fastsaved up to fullsave quality, though im not 100
+	happy with them.
+	* some more purify found problems.
+	* implemented chpx in stylesheet for word 6.
+	* did some nasty hackery to munge word 6 chp sprms in word 8 ones, appears
+	to work.
 Changes to to 0.5.19
 	* renamed libwv, and stuck in aviword cvs
 	* this version probably doesnt work, and almost certainly doesnt do
 	what it says on the tin, dont use this until i get to at least the next
 	version, this is basically a cvs test.
+	* use
+	./configure --without-zlib --without-ttf --without-xpm --without-wmf --without-x
+	change gcc to g++ in Makefile
+	and make a libwv.a suitable for abiword, (yeah i know i know, but im working on it)
+	to get a simple -lwv
+	* whoppee, nearly working fine as an abiword filter..
+	* moved fib into the parsestruct, changed over existing programs to use
+	wvInitParse rather then handcode for each one.
+	* mad mods to make it compile cleanly under c++
+	* changed over the simple decodation to use the parsestruct and 
+	propugated the changes throughout the system
+	* right, use wvSetCharHandler to set what function will be called with
+	each character of document text.
+	* found my word 5 spec, which is a bit of a relief, coz i don't think i could
+	replace it if i lost it. Made a few copies of it, i need some good ocr software
+	though as i got it sent to me in scanned in tiff files !, and the original docs
+	were obviously a bit crumpled.
+	* we can now read the text of simple word files in abiword
+	* finalized paragraph element handling
+	* made wvConvert and wvHtml use new paragraph element handling
+	* got the plugin to do the same
+	* compiles fine with g++ as well, which is a bonus.
+	* created hook into the the charcode in wvOutputText for abiword, and
+	other lib users.
+	* created an abiword filter with what we have already, need the ability to 
+	register handlers for events and so on.
+	* got rid of most of the compile warnings
+	* we can do now do para props of complex files, though we have to
+	confirm this as its always a bit flaky (also in old mswordview btw)
 Changes to to 0.5.18
 	* made a release to show off the devel version to the abiword folk.
 	* modified xml code to unexpand &lt; etc etc, so that i can defer
@@ -34,110 +817,7 @@ Changes to to 0.5.18
 	* modify OLEdecode to take a FILE * rather than a filename,
 	* standardized ret codes from OLEdecode.
 	* added an error explanation table.
-ALL TODO
-	* finish creating the simple wvPrint mechanism with the hooks to intercept 
-	the chars as they come out of the respective engines so as to redirect them
-	for your own purposes.
 
-	* add errors via numbered errors to wvInitParser.
-
-	* create an abiword filter with what we have already, need the ability to 
-	register handlers for events and so on.
-
-	* bring fastsaved up to fullsave quality.
-
-	* harden wvConfig against bad pointers, and incomplete sections e.g justification
-
-	* make wvConvert read config from commandline, and 
-
-	* pull out para prop, make just example and work from there.
-	
-	* 1) does abiword have a title mechanism ?
-
-	8) create a wvAbi to do abiword automatically
-	9) make it possible to preload a config programically
-
-	* additional code checks for conversion of codepage whatever to iso for
-	ancillary strings that might be stored in that format.
-
-	* modify complex code to stop at end of main text
-	
-	* do sep and anlv
-
-	* i have Plcfbte's marked as generic empty structures in the old code, which 
-	is technically incorrect but works the way i've set up the code to handle it.
-	* now that the stylesheet is in position, we should look at the simple
-	text handling and get that right for text only.
-	* scan sprm carefully for problems with pointer offset and pos mistakes
-	* wvToggle is wrong im sure.
-	* i should create a lex headerfile to Init,Copy,Read from File, and Read
-	from Bucket, so as to retain my sanity.
-	* convert stylesheet to correct stylesheet.
-	* convert chp to CHP.
-	* convert pap to PAP.
-	* the old ffffffff list problem still exists with the new interface, i must 
-	finally kill that issue once and for all
-	* colspan support, find the smallest common unit, and restart the
-	table handling.
-	* rowspan support
-	* add a fudge factor to the gcf part so as to fudge out insignificent
-	twip differences
-
-	4 table rowspan/colspan support
-
-	* use twips from config file throughout mswordview
-	I want...
-	* save word 6 and word 2 in similar format to auto fib grabber.
-	
-	* dont parse a $ with a \ before it.
-	* implement whatever special drawing format there is.
-	* patch thai handling back in.
-	* look at the complex code and try and pare it down to
-	readable size. also do the same to the decode_letter thing
-	as well, so as to make that simpler.
-	* its too complex, im going to strip out everything from decode_simple
-	and start going through it again simpler.
-	* test that continous sections and endnotes at the end of section, and
-	other things like that do what i think they should do.
-	* placement of footnotes, what does "treat like endnotes" really mean ?
-	* make sure captions are alright, especially formatting.
-	* must implement fully handling for 16bit chars, taking into account 
-	conversion from cp1252. two modes, one where we are in isowhatever mode
-	and one where we are in unicode/utf-8 mode.
-	* bits for anld are wrong
-	* bookmarks embedded in html tags break them, constructs such as e.g
-	<A href="stuff">stuf<a name="here">f</a></A> are being output even though
-	thats well wrong in html.
-	* allow the various colors that im using to specifiy different attributes to
-	be modified by the user.
-	* hmm, with bookmarks implemented, it might not be too hard to do 
-	the toc
-	* optional html correct handling of lists.
-	* place all wingding and symbolfont names directly in the makefile for
-	make install.
-	* convert the cross-referenced "above/below", into hyperlinked above and 
-	below.
-	* optional support for specifying special fonts, not recommended for use
-	on publishing for internet sites, but useful for internal use for those 
-	of you who have done the funky chicken dance with unix netscape to work 
-	with ms winding etc fonts or are using ie/netscape on windows.
-	* all the fields, document background colour.
-	* it might be possible to support right indentation, if its simultaneous
-	with equal left indentation by using <blockquote> instead of <dir>, but
-	i dont see that as essential.
-	* inside/outside page numbering doesnt work, dont know where its set, one
-	of the DOP fields ?
-	* two pass parser for finding best fit html tables for word tables.
-	* gtk+dps wysiwyg viewer, output to ps from this
-	* --> xml support ??, im told that xml is the way to go, i dont know a thing
-	about it yet, so the next task is to learn it.
-	* use incremental zlib functions to do decompressing rather than use mmap,
-	someone who doesnt have mmap on their system can send me a patch for this one
-	;-)
-	* hyperlink sequence fields ?
-	* doesnt compile under neXt & needs to use gcc for hpux 10.20 ?
-	* do an autoconf check for mman.h and dont do compression if not there.
-	* where did my word5 copy go ?
 Changes to to 0.5.17
 	* added clx.c, pcd.c, prm.c
 	* clx.c is the successor to piecetable.c,
