@@ -98,18 +98,21 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		  case 1:
 		      sprintf (temp, "%d", current->tm_mon+1);
 		      strcat (timestr, temp);
+		      consumed += strlen (temp);
 		      break;
 		  case 2:
 		      strcat (timestr, "%m");
+		      consumed += 2;
 		      break;
 		  case 3:
 		      strcat (timestr, "%b");
+		      consumed += 2;
 		      break;
 		  default:
 		      strcat (timestr, "%B");
+		      consumed += 2;
 		      break;
 		  }
-		consumed += 2;
 		break;
 	    case 's':
 	    case 'S':
@@ -139,6 +142,7 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		  case 1:
 		      consumed += sprintf (temp, "%d", current->tm_wday);
 		      strcat (timestr, temp);
+		      consumed += strlen (temp);
 		      break;
 		  case 2:
 		      strcat (timestr, "%d");
@@ -182,12 +186,13 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		  case 1:
 		      sprintf (temp, "%d", current->tm_hour % 12);
 		      strcat (timestr, temp);
+		      consumed += strlen (temp);
 		      break;
 		  default:
 		      strcat (timestr, "%I");
+		      consumed += 2;
 		      break;
 		  }
-		consumed += 2;
 		break;
 	    case 'H':
 		no = lookahead (token, 'H', 'H');
@@ -197,6 +202,7 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		  case 1:
 		      consumed += sprintf (temp, "%d", current->tm_hour);
 		      strcat (timestr, temp);
+		      consumed += strlen (temp);
 		      break;
 		  default:
 		      strcat (timestr, "%H");
@@ -212,6 +218,7 @@ wvHandleDateTimePicture (char *retstring, size_t max, char *token,
 		  case 1:
 		      consumed += sprintf (temp, "%d", current->tm_min);
 		      strcat (timestr, temp);
+		      consumed += strlen (temp);
 		      break;
 		  default:
 		      strcat (timestr, "%M");
