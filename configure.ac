@@ -70,16 +70,6 @@ AC_PROG_MAKE_SET
 AC_DISABLE_STATIC
 AM_PROG_LIBTOOL
 
-AC_ARG_ENABLE(convenience,[  --enable-convenience    build only as convenience library],[
-	if [ test "x$enableval" != "xno" ]; then
-		conv_build=yes
-	else
-		conv_build=no
-	fi
-],[	conv_build=no
-])
-AM_CONDITIONAL(BUILD_CONVENIENCE,[ test "$conv_build" = "yes" ])
-
 dnl Checks for headers.
 
 AC_HEADER_STDC

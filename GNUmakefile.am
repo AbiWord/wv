@@ -45,15 +45,9 @@ include_HEADERS = wv.h
 
 bin_SCRIPTS = libwv-config wvCleanLatex wvHtml wvAbw wvMime wvPS wvDVI wvLatex wvPDF wvText wvWml
 
-if BUILD_CONVENIENCE
-bin_PROGRAMS = 
-lib_LTLIBRARIES = 
-noinst_LTLIBRARIES = libwv.la
-else
 bin_PROGRAMS = wvSummary wvWare wvRTF wvConvert wvVersion
+
 lib_LTLIBRARIES = libwv.la
-noinst_LTLIBRARIES = 
-endif
 
 GETOPT = @LIBOBJS@
 
