@@ -16,7 +16,13 @@ PERL = @PERL@
 
 VPATH = @srcdir@
 
-CFLAGS = -I.. -I$(srcdir) -I$(srcdir)/.. @DEFS@ @CPPFLAGS@ @CFLAGS@ @PNG_CFLAGS@ @ZLIB_CFLAGS@
+ifeq ($(EPATH_DYLIB),1)
+WVPICFLAGS = -fno-common -DPIC
+else
+WVPICFLAGS = 
+endif
+
+CFLAGS = -I.. -I$(srcdir) -I$(srcdir)/.. @DEFS@ @CPPFLAGS@ @CFLAGS@ @PNG_CFLAGS@ @ZLIB_CFLAGS@ $(WVPICFLAGS)
 
 SHELL = /bin/sh
 

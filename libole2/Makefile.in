@@ -13,7 +13,13 @@ datadir=@datadir@
 HAVE_GLIB = @HAVE_GLIB@
 HAVE_GNOMEVFS= @HAVE_GNOMEVFS@
 
-CFLAGS = -I.. -I$(srcdir) -I$(srcdir)/.. @CPPFLAGS@ @CFLAGS@ @DEFS@ @GLIB_CFLAGS@
+ifeq ($(EPATH_DYLIB),1)
+WVPICFLAGS = -fno-common -DPIC
+else
+WVPICFLAGS = 
+endif
+
+CFLAGS = -I.. -I$(srcdir) -I$(srcdir)/.. @CPPFLAGS@ @CFLAGS@ @DEFS@ @GLIB_CFLAGS@ $(WVPICFLAGS)
 ifneq ($(HAVE_GLIB), 1)
 CFLAGS += -I$(srcdir)/../glib-wv
 endif

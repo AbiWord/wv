@@ -85,7 +85,13 @@ DEFS = @DEFS@ -DVERSION=\"@VERSION@\" -DXMLCONFIG=\"$(datadir)/wv/wvConfig.xml\"
 
 CPPFLAGS = @CPPFLAGS@ @ICONV_CFLAGS@ @WMF_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @PNG_CFLAGS@ @ZLIB_CFLAGS@
 
-CFLAGS = @CFLAGS@ @ANSI_PEDANTIC@
+ifeq ($(EPATH_DYLIB),1)
+WVPICFLAGS = -fno-common -DPIC
+else
+WVPICFLAGS = 
+endif
+
+CFLAGS = @CFLAGS@ @ANSI_PEDANTIC@ $(WVPICFLAGS)
 
 INCLUDES = -I. -I$(srcdir) -I$(srcdir)/magick -I$(srcdir)/libole2 -I$(srcdir)/oledecod
 
@@ -294,7 +300,13 @@ WVEXECS = wv-libconfig wv-incconfig \
 	wvVersion$(EXEEXT)
 endif
 
-all: WVSUBDIRS libwv.a $(WVEXECS)
+ifeq ($(EPATH_DYLIB),1)
+WVLIB = libwv.dylib
+else
+WVLIB = libwv.a
+endif
+
+all: WVSUBDIRS $(WVLIB) $(WVEXECS)
 
 wvRTF$(EXEEXT): wvRTF.$(OBJEXT) $(GETOPT) OLEDECODE BLIBOLE2 libwv.a
 	$(CC)  -o $@ wvRTF.$(OBJEXT) $(GETOPT) -L. -lwv $(LIBS) $(LDFLAGS)
@@ -336,6 +348,11 @@ libwv.a:$(MYOBJECTS) $(EXPORTER_OBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE
 	$(AR) rc $@ $(MYOBJECTS) $(EXPORTER_OBJECTS) $(ICONVOBJS) $(MAGICKOBJS) $(XML) $(OLE)
 
 	$(RANLIB) $@
+
+libwv.dylib:$(MYOBJECTS) $(EXPORTER_OBJECTS) $(MAGICKOBJS) $(OLE)
+	cc -dynamiclib -o libwv.dylib -install_name @executable_path/../Frameworks/libwv-@VERSION@.dylib \
+	 $(MYOBJECTS) $(EXPORTER_OBJECTS) $(MAGICKOBJS) $(OLE) \
+	 $(LDFLAGS) $(LIBS)
 
 BEXPORTER:
 	@echo making wvexporter in exporter
@@ -396,10 +413,10 @@ cleansub:
 	@(cd exporter && $(MAKE) clean) || exit 1
 
 clean: cleansub
-	$(RM) -rf *.$(OBJEXT) $(GETOPT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvRTF$(EXEEXT) core a.$(OBJEXT)ut *.a 
+	$(RM) -rf *.$(OBJEXT) $(GETOPT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvRTF$(EXEEXT) core a.out *.a *.dylib
 
 distclean: realcleansub
-	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.$(OBJEXT) wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvHtml wvAbw wvLatex wvText wvWml wvCleanLatex core out* analyze/* .pure lex.yy.c libtool
+	rm -rf analyze config.cache config.status config.log Makefile config.h *.a *.dylib *.$(OBJEXT) wv-incconfig wv-libconfig wvSummary$(EXEEXT) wvVersion$(EXEEXT) wvWare$(EXEEXT) wvConvert$(EXEEXT) wvHtml wvAbw wvLatex wvText wvWml wvCleanLatex core out* analyze/* .pure lex.yy.c libtool
 
 realclean: distclean
 
@@ -418,6 +435,9 @@ realcleansub:
 	@(cd glib-wv && $(MAKE) realclean) || exit 1
 	@echo real cleaning exporter in exporter
 	@(cd exporter && $(MAKE) realclean) || exit 1
+
+installdylib:libwv.dylib
+	$(MKINSTALLDIRS) $(libdir) && $(INSTALL) libwv.dylib $(libdir)/libwv-@VERSION@.dylib
 
 installdirs:
 	$(MKINSTALLDIRS) $(bindir) \
