@@ -701,7 +701,7 @@ AH_BOTTOM([
 #endif
 
 /* redefs of things that are either in glibc or we have to include them ourselves */
-#if defined(WIN32) && !defined(__MWERKS__)
+#if defined(WIN32) && !defined(__MWERKS__) && !defined(__WINE__)
 #define strcasecmp(s1,s2) stricmp(s1,s2)
 #else
 #if !defined(__GLIBC__) || (__GLIBC__ < 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2)

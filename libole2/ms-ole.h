@@ -23,7 +23,7 @@ extern "C" {
 # include <fcntl.h>       /* for mode_t */
 #else
 # include <stdlib.h>
-#ifdef __MINGW32__
+#if defined(__MINGW32__) || defined(__WINE__)
 # include <sys/types.h>
 #else
 	typedef unsigned long mode_t;
