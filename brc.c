@@ -3,7 +3,7 @@
 #include "wv.h"
 #include "wvinternal.h"
 
-void wvGetBRC_internal(BRC *abrc,FILE *infd,U8 *pointer)
+void wvGetBRC_internal(BRC *abrc,wvStream *infd,U8 *pointer)
     {
     U8 temp8;
 
@@ -11,17 +11,17 @@ void wvGetBRC_internal(BRC *abrc,FILE *infd,U8 *pointer)
 	wvInitBRC(abrc);
 #endif
 
-    abrc->dptLineWidth = dgetc(infd,&pointer);
-    abrc->brcType = dgetc(infd,&pointer);
-    abrc->ico = dgetc(infd,&pointer);
-    temp8 = dgetc(infd,&pointer);
+    abrc->dptLineWidth = dread_8ubit(infd,&pointer);
+    abrc->brcType = dread_8ubit(infd,&pointer);
+    abrc->ico = dread_8ubit(infd,&pointer);
+    temp8 = dread_8ubit(infd,&pointer);
     abrc->dptSpace = temp8 & 0x1f;
     abrc->fShadow = (temp8 & 0x20)>>5;
     abrc->fFrame = (temp8 & 0x40)>>6;
     abrc->reserved = (temp8 & 0x80)>>7;
     }
 
-void wvGetBRC(version ver,BRC *abrc,FILE *infd)
+void wvGetBRC(version ver,BRC *abrc,wvStream *infd)
     {
 	if (ver == WORD8)
 		wvGetBRC_internal(abrc,infd,NULL);
@@ -29,7 +29,7 @@ void wvGetBRC(version ver,BRC *abrc,FILE *infd)
 		wvGetBRC_internal6(abrc,infd,NULL);
     }
 
-void wvGetBRC_internal6(BRC *abrc,FILE *infd,U8 *pointer)
+void wvGetBRC_internal6(BRC *abrc,wvStream *infd,U8 *pointer)
     {
     U16 temp16;
 
@@ -69,7 +69,7 @@ void wvInitBRC10(BRC10 *item)
 	item->fSpare = 0;
 	}
 
-void wvGetBRC10_internal(BRC10 *item,FILE *infd,U8 *pointer)
+void wvGetBRC10_internal(BRC10 *item,wvStream *infd,U8 *pointer)
     {
     U16 temp16;
 	temp16 = dread_16ubit(infd,&pointer);

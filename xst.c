@@ -18,7 +18,7 @@ void wvFreeXst(Xst **xst)
         }
 	}
 
-void wvGetXst(Xst **xst,U32 offset,U32 len,FILE *fd)
+void wvGetXst(Xst **xst,U32 offset,U32 len,wvStream *fd)
     {
     U16 clen,i;
     U32 count=0;
@@ -31,7 +31,7 @@ void wvGetXst(Xst **xst,U32 offset,U32 len,FILE *fd)
         return;
         }
 
-    fseek(fd,offset,SEEK_SET);
+    wvStream_goto(fd,offset);
     *xst = (Xst*) malloc(sizeof(Xst));
     authorlist = *xst;
 

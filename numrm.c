@@ -13,11 +13,11 @@ as changed (old deleted, current inserted) if the strings differ. The string
 construction algorithm is the same as for an LVL structure.
 */
 
-void wvGetNUMRM_internal(NUMRM *item,FILE *fd,U8 *pointer)
+void wvGetNUMRM_internal(NUMRM *item,wvStream *fd,U8 *pointer)
 	{
 	int i;
-	item->fNumRM = dgetc(fd,&pointer);
-	item->Spare1 = dgetc(fd,&pointer);
+	item->fNumRM = dread_8ubit(fd,&pointer);
+	item->Spare1 = dread_8ubit(fd,&pointer);
 	item->ibstNumRM = (S16)dread_16ubit(fd,&pointer);
 	if (fd != NULL)
 		wvGetDTTM(&(item->dttmNumRM),fd);
@@ -27,9 +27,9 @@ void wvGetNUMRM_internal(NUMRM *item,FILE *fd,U8 *pointer)
 		pointer+=cbDTTM;
 		}
 	for (i=0;i<9;i++)
-		item->rgbxchNums[i] = dgetc(fd,&pointer);
+		item->rgbxchNums[i] = dread_8ubit(fd,&pointer);
 	for (i=0;i<9;i++)
-		item->rgnfc[i] = dgetc(fd,&pointer);
+		item->rgnfc[i] = dread_8ubit(fd,&pointer);
 	item->Spare2 = (S16)dread_16ubit(fd,&pointer);
 	for (i=0;i<9;i++)
 		item->PNBR[i] = (S32)dread_32ubit(fd,&pointer);
@@ -37,7 +37,7 @@ void wvGetNUMRM_internal(NUMRM *item,FILE *fd,U8 *pointer)
 		item->xst[i] = dread_16ubit(fd,&pointer);
 	}
 
-void wvGetNUMRM(NUMRM *item,FILE *fd)
+void wvGetNUMRM(NUMRM *item,wvStream *fd)
 	{
 	wvGetNUMRM_internal(item,fd,NULL);
 	}

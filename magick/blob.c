@@ -211,7 +211,7 @@ Export unsigned int OpenBlob(const ImageInfo *image_info,Image *image,
       return(True);
     }
   image->exempt=False;
-  if (image_info->file != (FILE *) NULL)
+  if (image_info->file != (wvStream *) NULL)
     {
       /*
         Use previously opened filehandle.
@@ -251,7 +251,7 @@ Export unsigned int OpenBlob(const ImageInfo *image_info,Image *image,
           (void) signal(SIGPIPE,SIG_IGN);
         (void) strncpy(mode,type,1);
         mode[1]='\0';
-        image->file=(FILE *) popen(filename+1,mode);
+        image->file=(wvStream *) popen(filename+1,mode);
         image->pipe=True;
         image->exempt=True;
       }
@@ -281,8 +281,8 @@ Export unsigned int OpenBlob(const ImageInfo *image_info,Image *image,
         if (*type == 'w')
           SetApplicationType(filename,image_info->magick,'8BIM');
 #endif
-        image->file=(FILE *) fopen(filename,type);
-        if (image->file != (FILE *) NULL)
+        image->file=(wvStream *) fopen(filename,type);
+        if (image->file != (wvStream *) NULL)
           {
             (void) SeekBlob(image,0L,SEEK_END);
             image->filesize=TellBlob(image);
@@ -295,7 +295,7 @@ Export unsigned int OpenBlob(const ImageInfo *image_info,Image *image,
       image->next=(Image *) NULL;
       image->previous=(Image *) NULL;
     }
-  return(image->file != (FILE *) NULL);
+  return(image->file != (wvStream *) NULL);
 }
 
 
@@ -397,7 +397,7 @@ Export void CloseBlob(Image *image)
         ReallocateMemory(image->blob.data,image->blob.extent);
       return;
     }
-  if (image->file == (FILE *) NULL)
+  if (image->file == (wvStream *) NULL)
     return;
   (void) FlushBlob(image);
   image->status=ferror(image->file);
@@ -410,13 +410,13 @@ Export void CloseBlob(Image *image)
 #endif
     if (!image->exempt)
       (void) fclose(image->file);
-  image->file=(FILE *) NULL;
+  image->file=(wvStream *) NULL;
   if (!image->orphan)
     {
       while (image->previous != (Image *) NULL)
         image=image->previous;
       for ( ; image != (Image *) NULL; image=image->next)
-        image->file=(FILE *) NULL;
+        image->file=(wvStream *) NULL;
     }
   errno=0;
 }

@@ -67,7 +67,7 @@ void decode_annotation(textportions *portions)
 	}
 
 #if 0
-Xst *extract_authors(FILE *tablefd,U32 fcGrpXstAtnOwners,U32 lcbGrpXstAtnOwners)
+Xst *extract_authors(wvStream *tablefd,U32 fcGrpXstAtnOwners,U32 lcbGrpXstAtnOwners)
 	{
 	U16 len,i;
 	U32 count=0;

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetRS(RS *item,FILE *fd)
+void wvGetRS(RS *item,wvStream *fd)
 	{
 	item->fRouted = (S16)read_16ubit(fd);
 	item->fReturnOrig = (S16)read_16ubit(fd);

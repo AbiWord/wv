@@ -15,7 +15,7 @@ int main(int argc,char **argv)
 	{
 	int ret;
 	FIB fib;
-	FILE *input,*mainfd,*tablefd0,*tablefd1,*data,*summary;
+	wvStream *input,*mainfd,*tablefd0,*tablefd1,*data,*summary;
 
 	if (argc < 2)
 		{

@@ -15,7 +15,7 @@ void wvCopyTBD(TBD *dest,TBD *src)
 	memcpy(dest,src,sizeof(TBD));
 	}
 
-void wvGetTBD(TBD *item,FILE *fd)
+void wvGetTBD(TBD *item,wvStream *fd)
 	{
 	wvGetTBD_internal(item,fd,NULL);
 	}
@@ -26,10 +26,10 @@ void wvGetTBDFromBucket(TBD *item,U8 *pointer)
 	}
 
 
-void wvGetTBD_internal(TBD *item,FILE *fd,U8 *pointer)
+void wvGetTBD_internal(TBD *item,wvStream *fd,U8 *pointer)
 	{
 	U8 temp8;
-	temp8 = dgetc(fd,&pointer);
+	temp8 = dread_8ubit(fd,&pointer);
 #ifdef PURIFY
 	wvInitTBD(item);
 #endif

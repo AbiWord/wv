@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetSHD_internal(SHD *item,FILE *fd,U8 *pointer)
+void wvGetSHD_internal(SHD *item,wvStream *fd,U8 *pointer)
 	{
 	U16 temp16;
 #ifdef PURIFY
@@ -14,7 +14,7 @@ void wvGetSHD_internal(SHD *item,FILE *fd,U8 *pointer)
 	item->ipat	= (temp16 & 0xFC00) >> 10;
 	}
 
-void wvGetSHD(SHD *item,FILE *fd)
+void wvGetSHD(SHD *item,wvStream *fd)
 	{
 	wvGetSHD_internal(item,fd,NULL);
 	}

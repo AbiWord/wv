@@ -32,13 +32,13 @@ void wvInitANLV(ANLV *item)
 	item->dxaSpace=0;
 	} 
 
-void wvGetANLV_internal(ANLV *item,FILE *fd,U8 *pointer)
+void wvGetANLV_internal(ANLV *item,wvStream *fd,U8 *pointer)
 	{
 	U8 temp8;
-	item->nfc = dgetc(fd,&pointer);
- 	item->cxchTextBefore = dgetc(fd,&pointer);
-	item->cxchTextAfter = dgetc(fd,&pointer);
-	temp8 = dgetc(fd,&pointer);
+	item->nfc = dread_8ubit(fd,&pointer);
+ 	item->cxchTextBefore = dread_8ubit(fd,&pointer);
+	item->cxchTextAfter = dread_8ubit(fd,&pointer);
+	temp8 = dread_8ubit(fd,&pointer);
  	item->jc = temp8 & 0x03;
 	item->fPrev = (temp8 & 0x04) >> 2;
 	item->fHang = (temp8 & 0x08) >> 3;
@@ -46,7 +46,7 @@ void wvGetANLV_internal(ANLV *item,FILE *fd,U8 *pointer)
 	item->fSetItalic = (temp8 & 0x20) >> 5;
 	item->fSetSmallCaps = (temp8 & 0x40) >> 6;
 	item->fSetCaps = (temp8 & 0x80) >> 7;
-	temp8 = dgetc(fd,&pointer);
+	temp8 = dread_8ubit(fd,&pointer);
  	item->fSetStrike = temp8 & 0x01;
 	item->fSetKul = (temp8 & 0x02) >> 1;
 	item->fPrevSpace = (temp8 & 0x04) >> 2;
@@ -55,7 +55,7 @@ void wvGetANLV_internal(ANLV *item,FILE *fd,U8 *pointer)
 	item->fSmallCaps = (temp8 & 0x20) >>5;
 	item->fCaps = (temp8 & 0x40) >> 6;
 	item->fStrike = (temp8 & 0x80) >>7;
-	temp8 = dgetc(fd,&pointer);
+	temp8 = dread_8ubit(fd,&pointer);
 	item->kul = temp8 & 0x07;
 	item->ico = (temp8 & 0xF1) >>3;
 	item->ftc = (S16)dread_16ubit(fd,&pointer);
@@ -66,7 +66,7 @@ void wvGetANLV_internal(ANLV *item,FILE *fd,U8 *pointer)
 	}
 
 
-void wvGetANLV(ANLV *item,FILE *fd)
+void wvGetANLV(ANLV *item,wvStream *fd)
 	{
 	wvGetANLV_internal(item,fd,NULL);
 	}

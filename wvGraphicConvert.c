@@ -26,7 +26,7 @@ extern char *outputfilename;
 
 int main(int argc,char **argv)
 	{
-	FILE *input,*out;
+	wvStream *input,*out;
 	int ret=0;
 	PICF apicf;
 	int count;

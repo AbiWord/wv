@@ -48,7 +48,7 @@ already recorded.
 */
 PAPX_FKP wvPAPX_FKP_previous;
 U32 wvPAPX_pn_previous=0;
-void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,FILE *fd)
+void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,wvStream *fd)
 	{
 	int i;
 	U8 page[WV_PAGESIZE];
@@ -65,8 +65,8 @@ void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,FILE *fd)
 		}
 
 	wvTrace(("seeking to %x to get crun\n",pn*WV_PAGESIZE+(WV_PAGESIZE-1)));
-	fseek(fd,pn*WV_PAGESIZE,SEEK_SET);
-	bytes_read=fread(page,WV_PAGESIZE,1,fd);
+	wvStream_goto(fd,pn*WV_PAGESIZE);
+	bytes_read=wvStream_read(page,WV_PAGESIZE,1,fd);
 	fkp->crun = (U8)page[WV_PAGESIZE-1];
 	fkp->rgfc = (U32 *)malloc(sizeof(U32) * (fkp->crun+1));
 	fkp->rgbx = (BX *)malloc(sizeof(BX) * (fkp->crun));
@@ -242,7 +242,7 @@ void internal_wvReleaseCHPX_FKP(CHPX_FKP *fkp)
  */
 CHPX_FKP wvCHPX_FKP_previous;
 U32 wvCHPX_pn_previous=0;
-void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, FILE *fd)
+void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, wvStream *fd)
 	{
 	int i;
 	U8 page[WV_PAGESIZE];
@@ -257,15 +257,15 @@ void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, FILE *fd)
 		memcpy(fkp,&wvCHPX_FKP_previous,sizeof(CHPX_FKP));
 		return;
 		}
-	fseek(fd,pn*WV_PAGESIZE,SEEK_SET);
-	bytes_read=fread(page,WV_PAGESIZE,1,fd);
+	wvStream_goto(fd,pn*WV_PAGESIZE);
+	bytes_read=wvStream_read(page,WV_PAGESIZE,1,fd);
 	fkp->crun = (U8)page[WV_PAGESIZE-1];
 	wvTrace(("chpx fkp gone to %x\n",pn*WV_PAGESIZE+(WV_PAGESIZE-1)));
 	wvTrace(("crun is %d\n",fkp->crun));
 	fkp->rgfc = (U32 *)malloc(sizeof(U32) * (fkp->crun+1));
 	fkp->rgb = (U8 *)malloc(sizeof(U8) * (fkp->crun));
 	fkp->grpchpx = (CHPX *)malloc(sizeof(CHPX) * (fkp->crun));
-	fseek(fd, pn*WV_PAGESIZE, SEEK_SET);
+	wvStream_goto(fd, pn*WV_PAGESIZE);
 	wvTrace(("offset is %x\n",pn*WV_PAGESIZE));
 	for (i=0;i<fkp->crun+1;i++)
 		{
@@ -274,7 +274,7 @@ void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, FILE *fd)
 		}
 
 	for (i=0;i<fkp->crun;i++)
-		fkp->rgb[i] = bgetc(&(page[pos]),&pos);
+		fkp->rgb[i] = bread_8ubit(&(page[pos]),&pos);
 
 	for (i=0;i<fkp->crun;i++)
 		{

@@ -20,7 +20,7 @@ void wvInitFSPA(FSPA *item)
  	item->cTxbx = 0;
 	}
 
-void wvGetFSPA(FSPA *item,FILE *fd)
+void wvGetFSPA(FSPA *item,wvStream *fd)
 	{
 	U16 temp16;
 #ifdef PURIFY
@@ -44,7 +44,7 @@ void wvGetFSPA(FSPA *item,FILE *fd)
 	}
 
 
-int wvGetFSPA_PLCF(FSPA **fspa,U32 **pos,U32 *nofspa,U32 offset,U32 len,FILE *fd)
+int wvGetFSPA_PLCF(FSPA **fspa,U32 **pos,U32 *nofspa,U32 offset,U32 len,wvStream *fd)
 	{
 	U32 i;
 	if (len == 0)
@@ -70,7 +70,7 @@ int wvGetFSPA_PLCF(FSPA **fspa,U32 **pos,U32 *nofspa,U32 offset,U32 len,FILE *fd
 			free(pos);
             return(1);
             }
-        fseek(fd,offset,SEEK_SET);
+        wvStream_goto(fd,offset);
         for(i=0;i<=*nofspa;i++)
             (*pos)[i]=read_32ubit(fd);
         for(i=0;i<*nofspa;i++)

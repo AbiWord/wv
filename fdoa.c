@@ -2,14 +2,14 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetFDOA(FDOA *item,FILE *fd)
+void wvGetFDOA(FDOA *item,wvStream *fd)
 	{
 	item->fc = (S32)read_32ubit(fd);
 	item->ctxbx = (S16)read_16ubit(fd);
 	}
 
 
-int wvGetFDOA_PLCF(FDOA **fdoa,U32 **pos,U32 *nofdoa,U32 offset,  U32 len, FILE *fd)
+int wvGetFDOA_PLCF(FDOA **fdoa,U32 **pos,U32 *nofdoa,U32 offset,  U32 len,wvStream *fd)
 	{
 	U32 i;
     if ((len == 0) || (offset == 0))
@@ -35,7 +35,7 @@ int wvGetFDOA_PLCF(FDOA **fdoa,U32 **pos,U32 *nofdoa,U32 offset,  U32 len, FILE 
             free(pos);
             return(1);
             }
-        fseek(fd,offset,SEEK_SET);
+        wvStream_goto(fd,offset);
         for(i=0;i<=*nofdoa;i++)
             (*pos)[i]=read_32ubit(fd);
         for(i=0;i<*nofdoa;i++)

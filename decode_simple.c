@@ -183,7 +183,7 @@ void wvDecodeSimple(wvParseStruct *ps,subdocument whichdoc)
 	for (piececount=0;piececount<ps->clx.nopcd;piececount++)
 		{
 		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&ps->clx,piececount);
-		fseek(ps->mainfd,beginfc,SEEK_SET);
+		wvStream_goto(ps->mainfd,beginfc);
 		wvTrace(("SEEK %x\n",beginfc));
 		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
 
@@ -456,7 +456,7 @@ Every character greater than or equal to fcFirst and less than fcLim is part of
 the containing paragraph.
 
 */
-int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc, BTE *bte, U32 *pos,int nobte,FILE *fd)
+int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc, BTE *bte, U32 *pos,int nobte,wvStream *fd)
 	{
 	BTE entry;
 	long currentpos;
@@ -478,7 +478,7 @@ int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U3
 		wvError(("BTE not found !\n"));
 		return(1);
 		}
-	currentpos = ftell(fd);
+	currentpos = wvStream_tell(fd);
 	/*The pagenumber of the FKP is entry.pn */
 
 	wvTrace(("pn is %d\n",entry.pn));
@@ -498,12 +498,12 @@ int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U3
 		wvGetPAPX_FKP(ver,fkp,entry.pn,fd);
 		}
 
-	fseek(fd,currentpos,SEEK_SET);
+	wvStream_goto(fd,currentpos);
 
 	return(wvGetIntervalBounds(fcFirst,fcLim,currentfc,fkp->rgfc,fkp->crun+1));
 	}
 
-int wvGetSimpleCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, FILE *fd)
+int wvGetSimpleCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, wvStream *fd)
 	{
 	U32 currentfc;
 	BTE entry;
@@ -525,7 +525,7 @@ int wvGetSimpleCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, 
 		wvError(("BTE not found !\n"));
 		return(1);
 		}
-	currentpos = ftell(fd);
+	currentpos = wvStream_tell(fd);
 	/*The pagenumber of the FKP is entry.pn */
 
 	wvTrace(("pn is %d\n",entry.pn));
@@ -545,7 +545,7 @@ int wvGetSimpleCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, 
 		wvGetCHPX_FKP(ver,fkp,entry.pn,fd);
 		}
 
-	fseek(fd, currentpos, SEEK_SET);
+	wvStream_goto(fd, currentpos);
 
 	return(wvGetIntervalBounds(fcFirst, fcLim, currentfc, fkp->rgfc, fkp->crun+1));
 	}
@@ -591,12 +591,12 @@ sed.fc must be applied to the local SEP. The process thus far has created a
 SEP that describes what the section properties of the section at the last 
 full save. 
 */
-int wvGetSimpleSectionBounds(version ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd)
+int wvGetSimpleSectionBounds(version ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,wvStream *fd)
 	{
 	U32 i=0;
 	int ret=0;
 	SEPX sepx;
-	long pos = ftell(fd);
+	long pos = wvStream_tell(fd);
 	U32 cpTest=0,j,dummy;
 
 	if (section_intervals ==0)
@@ -630,7 +630,7 @@ int wvGetSimpleSectionBounds(version ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst
 
 	if (sed[j].fcSepx != 0xffffffffL)
 		{
-		fseek(fd,wvNormFC(sed[j].fcSepx,NULL),SEEK_SET);
+		wvStream_goto(fd,wvNormFC(sed[j].fcSepx,NULL));
 		wvGetSEPX(ver,&sepx,fd);
 		if (ver == WORD8)
 			ret = wvAddSEPXFromBucket(sep,&sepx,stsh);
@@ -639,7 +639,7 @@ int wvGetSimpleSectionBounds(version ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst
 		wvReleaseSEPX(&sepx);
 		}
 
-	fseek(fd,pos,SEEK_SET);
+	wvStream_goto(fd,pos);
 	return(ret);
 	}
 

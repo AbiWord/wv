@@ -48,7 +48,7 @@ int DocProc(wvParseStruct *ps,wvTag tag);
 
 IEStatus IE_Imp_wv::importFile(const char * szFilename)
 {
-	FILE *fp = NULL;
+	wvStream *fp = NULL;
 	char buf[4096];
 	fprintf(stderr,"got to import file\n");
 

@@ -23,7 +23,7 @@ returns 1 for not an ole doc
 
 int myelehandler(wvParseStruct *ps,wvTag tag, void *props,int dirty);
 int mydochandler(wvParseStruct *ps,wvTag tag);
-FILE *wvOpenConfig(char *config);
+wvStream *wvOpenConfig(char *config);
 
 void usage(void)
 	{
@@ -35,7 +35,7 @@ int main(int argc,char **argv)
 	{
 	char *config=NULL;
 	char *password=NULL;
-	FILE *input;
+	wvStream *input;
 	int ret;
     state_data myhandle;
 	expand_data expandhandle;
@@ -249,9 +249,9 @@ int mydochandler(wvParseStruct *ps,wvTag tag)
 	return(0);
 	}
 
-FILE *wvOpenConfig(char *config)
+wvStream *wvOpenConfig(char *config)
     {
-    FILE *tmp;
+    wvStream *tmp;
     int i=0;
     if (config == NULL)
         config = "wvConfig.xml";

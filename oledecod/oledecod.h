@@ -84,7 +84,7 @@ typedef struct pps_block pps_entry;
    .       10 = Error allocating memory, there's no more memory.
  */
 int OLEdecode (FILE *OLEfile, pps_entry ** stream_list, U32 * root,
-	       U16 max_level);
+		U16 max_level);
 
 
 /*

@@ -17,15 +17,15 @@ void wvInitOLST(OLST *item)
 	} 
 
 
-void wvGetOLST_internal(version ver,OLST *item,FILE *fd,U8 *pointer)
+void wvGetOLST_internal(version ver,OLST *item,wvStream *fd,U8 *pointer)
 	{
 	U8 i;
 	for (i=0;i<9;i++)
 		wvGetANLV_internal(&item->rganlv[i],fd,pointer);
- 	item->fRestartHdr=dgetc(fd,&pointer);
- 	item->fSpareOlst2=dgetc(fd,&pointer);
- 	item->fSpareOlst3=dgetc(fd,&pointer);
- 	item->fSpareOlst4=dgetc(fd,&pointer);
+ 	item->fRestartHdr=dread_8ubit(fd,&pointer);
+ 	item->fSpareOlst2=dread_8ubit(fd,&pointer);
+ 	item->fSpareOlst3=dread_8ubit(fd,&pointer);
+ 	item->fSpareOlst4=dread_8ubit(fd,&pointer);
 	if (ver == WORD8)
 		{
 		for (i=0;i<32;i++)
@@ -34,11 +34,11 @@ void wvGetOLST_internal(version ver,OLST *item,FILE *fd,U8 *pointer)
 	else
 		{
 		for (i=0;i<64;i++)
-			item->rgxch[i]=dgetc(fd,&pointer);
+			item->rgxch[i]=dread_8ubit(fd,&pointer);
 		}
 	}
 
-void wvGetOLST(version ver,OLST *item,FILE *fd)
+void wvGetOLST(version ver,OLST *item,wvStream *fd)
 	{
 	wvGetOLST_internal(ver,item,fd,NULL);
 	}

@@ -92,32 +92,32 @@ void wvSetPassword(char *password,wvParseStruct *ps)
 	ps->password[i]=0;
 	}
 
-int wvOpenPreOLE(FILE **input, FILE **mainfd, FILE **tablefd0, FILE **tablefd1,FILE **data, FILE **summary)
+int wvOpenPreOLE(FILE **input, wvStream **mainfd, wvStream **tablefd0, wvStream **tablefd1,wvStream **data, wvStream **summary)
 	{
 	int ret=-1;
 	U16 magic;
 
-	*mainfd=*input;
-	*tablefd0=*input;
-	*tablefd1=*input;
-	*data=*input;
-	*summary=NULL;
+	*mainfd=(wvStream *)*input;
+	*tablefd0=(wvStream *)*input;
+	*tablefd1=(wvStream *)*input;
+	*data=(wvStream *)*input;
+	*summary=(wvStream *)NULL;
 
 	if (*input)
-		rewind(*input);
+		wvStream_rewind(*mainfd);
 	else
 		return(ret);
-	magic = read_16ubit(*input);
+	magic = read_16ubit(*mainfd);
 	if (0xa5db == magic)
 		{
-		wvError(("Theres a good change that this is a word 2 doc of nFib %d\n",read_16ubit(*input)));
-		rewind(*input);
+		wvError(("Theres a good change that this is a word 2 doc of nFib %d\n",read_16ubit(*mainfd)));
+		wvStream_rewind(*mainfd);
 		return(-1);
 		}
 	else if (0x37fe == magic)
 		{
-		wvError(("Theres a good change that this is a word 5 doc of nFib %d\n",read_16ubit(*input)));
-		rewind(*input);
+		wvError(("Theres a good change that this is a word 5 doc of nFib %d\n",read_16ubit(*mainfd)));
+		wvStream_rewind(*mainfd);
 		return(0);
 		}
 	return(ret);

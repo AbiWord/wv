@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 				
-void wvDumpPicture(U32 pos,FILE *fd)
+void wvDumpPicture(U32 pos,wvStream *fd)
 	{
 	static int i;
     U32 j;
@@ -10,12 +10,12 @@ void wvDumpPicture(U32 pos,FILE *fd)
 	FILE *out;
 	char buffer[64];
 
-	fseek(fd,pos,SEEK_SET);
+	wvStream_goto(fd,pos);
 	len = read_32ubit(fd);
 	sprintf(buffer,"graphicdump%d",i++);
 	out = fopen(buffer,"wb");
-	fseek(fd,pos,SEEK_SET);
+	wvStream_goto(fd,pos);
     for (j=0;j<len;j++)
-        fputc(getc(fd),out);
+        fputc(read_8ubit(fd),out);
     fclose(out);
 	}

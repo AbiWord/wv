@@ -57,7 +57,7 @@ If the FC found is less than or equal to the limit FC of the
 piece, then the character that ends the paragraph is the character
 immediately before the FKP FC.
 */
-int wvGetComplexParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,FILE *fd)
+int wvGetComplexParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,wvStream *fd)
 	{
 	/*
 	U32 currentfc;
@@ -76,7 +76,7 @@ int wvGetComplexParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U
 		wvError(("BTE not found !\n"));
 		return(-1);
 		}
-	currentpos = ftell(fd);
+	currentpos = wvStream_tell(fd);
 	/*The pagenumber of the FKP is entry.pn */
 
 	wvTrace(("the entry.pn is %d\n",entry.pn));
@@ -90,11 +90,11 @@ int wvGetComplexParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U
 
 	piece = wvGetComplexParafcLim(ver,fcLim,currentfc,clx, bte, pos,nobte,piece,fkp,fd);
 
-	fseek(fd,currentpos,SEEK_SET);
+	wvStream_goto(fd,currentpos);
 	return(piece);
 	}
 
-int wvGetComplexParafcLim(version ver,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd)
+int wvGetComplexParafcLim(version ver,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd)
 	{
 	U32 fcTest,beginfc;
 	BTE entry;
@@ -145,7 +145,7 @@ int wvGetComplexParafcLim(version ver,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bt
 	}
 
 
-int wvGetComplexParafcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd)
+int wvGetComplexParafcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd)
 	{
 	U32 fcTest,endfc;
 	BTE entry;
@@ -205,7 +205,7 @@ int wvGetComplexParafcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE
 
 int wvGetComplexCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, 
 			   U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, 
-			   U32 *pos, int nobte, U32 piece, FILE *fd)
+			   U32 *pos, int nobte, U32 piece, wvStream *fd)
 	{
 	BTE entry;
 	long currentpos;
@@ -223,7 +223,7 @@ int wvGetComplexCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst,
 		wvError(("BTE not found !\n"));
 		return(-1);
 		}
-	currentpos = ftell(fd);
+	 currentpos = wvStream_tell(fd);
 	/*The pagenumber of the FKP is entry.pn */
 
 	wvGetCHPX_FKP(ver, fkp, entry.pn, fd);
@@ -237,11 +237,11 @@ int wvGetComplexCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst,
 	piece = wvGetComplexCharfcLim(ver, fcLim, currentfc, clx, bte, pos, nobte, piece, fkp, fd);
 	wvTrace(("AFTER PIECE is %d\n",piece));
 
-	fseek(fd,currentpos,SEEK_SET);
+	wvStream_goto(fd,currentpos);
 	return(piece);
 	}
 
-int wvGetComplexCharfcLim(version ver, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, FILE *fd)
+int wvGetComplexCharfcLim(version ver, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, wvStream *fd)
 	{
 	U32 fcTest;
 	/*
@@ -267,7 +267,7 @@ int wvGetComplexCharfcLim(version ver, U32 *fcLim, U32 currentfc, CLX *clx, BTE 
 	}
 
 
-int wvGetComplexCharfcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, FILE *fd)
+int wvGetComplexCharfcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, wvStream *fd)
 	{
 	U32 fcTest/*,endfc*/;
 	/*BTE entry;*/
@@ -443,7 +443,7 @@ encoded into the first 22 bytes.
 	for (piececount=0;piececount<ps->clx.nopcd;piececount++)
 		{
 		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&ps->clx,piececount);
-		fseek(ps->mainfd,beginfc,SEEK_SET);
+		wvStream_goto(ps->mainfd,beginfc);
 		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
 		wvTrace(("piece begins at %x and ends just before %x. the char end is %x\n",beginfc,endfc,char_fcLim));
 
@@ -785,7 +785,7 @@ int wvGetComplexSEP(version ver,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx)
 				sprm = bread_16ubit(clx->grpprl[index]+i,&i);
 			else
 				{
-				sprm = bgetc(clx->grpprl[index]+i,&i);
+				sprm = bread_8ubit(clx->grpprl[index]+i,&i);
 				sprm = wvGetrgsprmWord6(sprm);
 				}
 			pointer = clx->grpprl[index]+i;
@@ -809,7 +809,7 @@ applied to the local PAP if it is a paragraph sprm.
 CLX.  If that grpprl contains any paragraph sprms, they should be applied to 
 the local PAP.
 */
-int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx, FILE *data)
+int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx, wvStream *data)
 	{
 	int ret=0;
 	U16 sprm,pos=0,i=0;
@@ -847,7 +847,7 @@ int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx, F
 				sprm = bread_16ubit(clx->grpprl[index]+i,&i);
 			else
 				{
-				sprm8 = bgetc(clx->grpprl[index]+i,&i);
+				sprm8 = bread_8ubit(clx->grpprl[index]+i,&i);
 				sprm = (U16)wvGetrgsprmWord6(sprm8);
 				wvTrace(("sprm is %x\n",sprm));
 				}
@@ -897,7 +897,7 @@ int wvAssembleComplexCHP(version ver,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx)
 				sprm = bread_16ubit(clx->grpprl[index]+i,&i);
 			else
 				{
-				sprm8 = bgetc(clx->grpprl[index]+i,&i);
+				sprm8 = bread_8ubit(clx->grpprl[index]+i,&i);
 				sprm = (U16)wvGetrgsprmWord6(sprm8);
 				}
 			pointer = clx->grpprl[index]+i;

@@ -16,12 +16,12 @@ void wvInitEscher(escherstruct *item)
 	wvInitDgContainer(&item->dgcontainer);
 	}
 
-void wvGetEscher(escherstruct *item,U32 offset,U32 len,FILE *fd,FILE *delay)
+void wvGetEscher(escherstruct *item,U32 offset,U32 len,wvStream *fd,wvStream *delay)
 	{
 	U32 count=0;
 	MSOFBH amsofbh;
-	long pos;
-	fseek(fd,offset,SEEK_SET);
+
+	wvStream_goto(fd,offset);
 	wvTrace(("offset %x, len %d\n",offset,len));
 	wvInitEscher(item);
 	while (count < len)
@@ -43,7 +43,7 @@ void wvGetEscher(escherstruct *item,U32 offset,U32 len,FILE *fd,FILE *delay)
 				break;
 			}
 		}
-	wvTrace(("offset %x, len %d (pos %x)\n",offset,len,ftell(fd)));
+	wvTrace(("offset %x, len %d (pos %x)\n",offset,len,wvStream_tell(fd)));
 	}
 
 void wvReleaseDggContainer(DggContainer *item)
@@ -60,7 +60,7 @@ void wvInitDggContainer(DggContainer *item)
 	wvInitBstoreContainer(&item->bstorecontainer);
 	}
 
-U32 wvGetDggContainer(DggContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay)
+U32 wvGetDggContainer(DggContainer *item,MSOFBH *msofbh,wvStream *fd,wvStream *delay)
 	{
 	MSOFBH amsofbh;
 	U32 count=0;
@@ -92,7 +92,7 @@ U32 wvGetDggContainer(DggContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay)
 	For some reason I appear to have an extra byte associated either with
 	this or its wrapper, I will investigate further.
 	*/
-	getc(fd);
+	read_8ubit(fd);
 	count++;
 	
 	return(count);
@@ -126,7 +126,7 @@ void wvInitBstoreContainer(BstoreContainer *item)
 	item->blip=NULL;
 	}
 
-U32 wvGetBstoreContainer(BstoreContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay)
+U32 wvGetBstoreContainer(BstoreContainer *item,MSOFBH *msofbh,wvStream *fd,wvStream *delay)
 	{
 	MSOFBH amsofbh;
 	U32 count=0;
@@ -137,7 +137,7 @@ U32 wvGetBstoreContainer(BstoreContainer *item,MSOFBH *msofbh,FILE *fd,FILE *del
 		switch(amsofbh.fbt)
 			{
 			case msofbtBSE:
-				wvTrace(("Blip at %x\n",ftell(fd)));
+				wvTrace(("Blip at %x\n",wvStream_tell(fd)));
 				item->no_fbse++;
 				item->blip = (Blip *)realloc(item->blip,sizeof(Blip)*item->no_fbse);
 				count += wvGetBlip((&item->blip[item->no_fbse-1]),fd,delay);
@@ -152,7 +152,7 @@ U32 wvGetBstoreContainer(BstoreContainer *item,MSOFBH *msofbh,FILE *fd,FILE *del
 	return(count);
 	}
 
-U32 wvGetDgContainer(DgContainer *item,MSOFBH *msofbh,FILE *fd)
+U32 wvGetDgContainer(DgContainer *item,MSOFBH *msofbh,wvStream *fd)
 	{
 	MSOFBH amsofbh;
 	U32 count=0;
@@ -187,7 +187,9 @@ FSPContainer *wvFindSPID(SpgrContainer *item,S32 spid)
 	FSPContainer *t;
 	for(i=0;i<item->no_spcontainer;i++)
 		{
-		if (item->spcontainer[i].fsp.spid == spid)
+		/* FIXME: Cast below is to avoid compiler warnings, but having
+				  to have it couls be a sign of something wrong. */
+		if (item->spcontainer[i].fsp.spid == (U32)spid)
 			{
 			wvTrace(("FOUND IT\n"));
 			return(&(item->spcontainer[i]));
@@ -215,7 +217,7 @@ void wvReleaseSpgrContainer(SpgrContainer *item)
 	}
 
 	
-U32 wvGetSpgrContainer(SpgrContainer *item,MSOFBH *msofbh,FILE *fd)
+U32 wvGetSpgrContainer(SpgrContainer *item,MSOFBH *msofbh,wvStream *fd)
 	{
 	MSOFBH amsofbh;
 	U32 count=0;
@@ -252,7 +254,7 @@ U32 wvGetSpgrContainer(SpgrContainer *item,MSOFBH *msofbh,FILE *fd)
 	}
 
 
-U32 wvGetFDG(FDG *afdg,FILE *fd)
+U32 wvGetFDG(FDG *afdg,wvStream *fd)
     {
     afdg->csp = read_32ubit(fd);
     afdg->spidCur = read_32ubit(fd);
@@ -272,7 +274,7 @@ void wvReleaseSplitMenuColors(SplitMenuColors *splitmenucolors)
 	wvFree(splitmenucolors->colors);
 	}
 	
-U32 wvGetSplitMenuColors(SplitMenuColors *splitmenucolors,MSOFBH *amsofbh,FILE *fd)
+U32 wvGetSplitMenuColors(SplitMenuColors *splitmenucolors,MSOFBH *amsofbh,wvStream *fd)
 	{
 	U32 i=0;
 	splitmenucolors->noofcolors = amsofbh->cbLength/4;
@@ -295,7 +297,7 @@ void wvInitDgg(Dgg *dgg)
 	dgg->fidcl=NULL;
 	}
 
-U32 wvGetDgg(Dgg *dgg,MSOFBH *amsofbh,FILE *fd)
+U32 wvGetDgg(Dgg *dgg,MSOFBH *amsofbh,wvStream *fd)
 	{
 	U32 count=0;
 	U32 no;
@@ -319,7 +321,7 @@ U32 wvGetDgg(Dgg *dgg,MSOFBH *amsofbh,FILE *fd)
 	return(count);
 	}
 
-U32 wvGetFIDCL(FIDCL *afidcl,FILE *fd)
+U32 wvGetFIDCL(FIDCL *afidcl,wvStream *fd)
     {
     afidcl->dgid = read_32ubit(fd);
     afidcl->cspidCur = read_32ubit(fd);
@@ -328,7 +330,7 @@ U32 wvGetFIDCL(FIDCL *afidcl,FILE *fd)
     }
 
 
-U32 wvGetFDGG(FDGG *afdgg,FILE *fd)
+U32 wvGetFDGG(FDGG *afdgg,wvStream *fd)
     {
     afdgg->spidMax = read_32ubit(fd);
     afdgg->cidcl = read_32ubit(fd);
@@ -344,7 +346,7 @@ int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps)
 	int ret=0;
 	U32 i;
 	escherstruct item;
-	FSPContainer *answer;
+	FSPContainer *answer=NULL;
 	wvTrace(("spid is %x\n",spid));
 	wvGetEscher(&item,ps->fib.fcDggInfo,ps->fib.lcbDggInfo,ps->tablefd,ps->mainfd);
 
@@ -356,7 +358,7 @@ int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps)
 		}
 
 	i=0;
-	if (!answer)
+	if (answer==NULL)
 		wvError(("Damn found nothing\n"));
 	else if (answer->fopte)
 		{
@@ -384,7 +386,7 @@ int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps)
 	return(ret);
 	}
 
-int wv0x01(Blip *blip,FILE *fd,U32 len)
+int wv0x01(Blip *blip,wvStream *fd,U32 len)
 	{
 	MSOFBH amsofbh;
 	FSPContainer item;
@@ -402,9 +404,9 @@ int wv0x01(Blip *blip,FILE *fd,U32 len)
 	to here, and then handled as normal
 	*/
 	test[2] = '\0';
-	test[0] = getc(fd);
-	test[1] = getc(fd);
-	rewind(fd);
+	test[0] = read_8ubit(fd);
+	test[1] = read_8ubit(fd);
+	wvStream_rewind(fd);
 	if (!(strcmp(test,"BM")))
 		{
 		blip->blip.bitmap.m_pvBits = fd;
@@ -420,12 +422,12 @@ int wv0x01(Blip *blip,FILE *fd,U32 len)
 		switch(amsofbh.fbt)
 			{
 			case msofbtSpContainer:
-				wvTrace(("Container at %x\n",ftell(fd)));
+				wvTrace(("Container at %x\n",wvStream_tell(fd)));
 				count += wvGetFSPContainer(&item,&amsofbh,fd);
 				wvReleaseFSPContainer(&item);
 				break;
 			case msofbtBSE:
-				wvTrace(("Blip at %x\n",ftell(fd)));
+				wvTrace(("Blip at %x\n",wvStream_tell(fd)));
 				count += wvGetBlip(blip,fd,NULL);
 				ret=1;
 				break;
@@ -438,7 +440,7 @@ int wv0x01(Blip *blip,FILE *fd,U32 len)
 	return(ret);
 	}
 
-U32 wvGetFSP(FSP *fsp,FILE *fd)
+U32 wvGetFSP(FSP *fsp,wvStream *fd)
 	{
 	fsp->spid = read_32ubit(fd);
 	wvTrace(("SPID is %x\n",fsp->spid));
@@ -447,7 +449,7 @@ U32 wvGetFSP(FSP *fsp,FILE *fd)
 	}
 
 
-U32 wvGetFSPGR(FSPGR *item,FILE *fd)
+U32 wvGetFSPGR(FSPGR *item,wvStream *fd)
 	{
 	/* It is supposed to be a RECT, but its only 4 long so... */
 	item->rcgBounds.left = read_32ubit(fd);
@@ -471,7 +473,7 @@ void wvInitFSPContainer(FSPContainer *item)
 	wvInitClientTextbox(&item->clienttextbox);
 	}
 
-U32 wvGetFSPContainer(FSPContainer *item,MSOFBH *msofbh,FILE *fd)
+U32 wvGetFSPContainer(FSPContainer *item,MSOFBH *msofbh,wvStream *fd)
 	{
 	MSOFBH amsofbh;
 	U32 count=0;
@@ -539,21 +541,21 @@ void wvReleaseClientData(ClientData *item)
 	wvFree(item->data);
 	}
 
-U32 wvGetClientData(ClientData *item,MSOFBH *msofbh,FILE *fd)
+U32 wvGetClientData(ClientData *item,MSOFBH *msofbh,wvStream *fd)
 	{
 	U32 i;
 	if (msofbh->cbLength)
 		{
 		item->data=(U8 *)malloc(msofbh->cbLength);
 		for(i=0;i<msofbh->cbLength;i++)
-			item->data[i]=getc(fd);
+			item->data[i]=read_8ubit(fd);
 		}
 	else
 		item->data=NULL;
 	return(msofbh->cbLength);
 	}
 	
-U32 wvGetMSOFBH(MSOFBH *amsofbh,FILE *fd)
+U32 wvGetMSOFBH(MSOFBH *amsofbh,wvStream *fd)
     {
     U16 dtemp=0;
     dtemp=read_16ubit(fd);
@@ -571,11 +573,11 @@ U32 wvGetMSOFBH(MSOFBH *amsofbh,FILE *fd)
     }
 
 
-U32 wvEatmsofbt(MSOFBH *amsofbh,FILE *fd)
+U32 wvEatmsofbt(MSOFBH *amsofbh,wvStream *fd)
 	{
 	U32 i;
 	for(i=0;i<amsofbh->cbLength;i++)
-		getc(fd);
+		read_8ubit(fd);
 	return(amsofbh->cbLength);
 	}
 
@@ -589,7 +591,7 @@ void wvReleaseClientTextbox(ClientTextbox *item)
    wvFree(item->textid);
    }
 
-U32 wvGetClientTextbox(ClientTextbox *item,MSOFBH *amsofbh,FILE *fd)
+U32 wvGetClientTextbox(ClientTextbox *item,MSOFBH *amsofbh,wvStream *fd)
    {
    item->textid = (U32 *)malloc(amsofbh->cbLength);
    *item->textid = read_32ubit(fd);

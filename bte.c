@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetBTE(BTE *bte,FILE *fd)
+void wvGetBTE(BTE *bte,wvStream *fd)
 	{
 	U32 temp32 = read_32ubit(fd);
 #ifdef PURIFY
@@ -25,7 +25,7 @@ void wvListBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte)
 		wvError(("range %x %x is pn %d\n",(*pos)[i],(*pos)[i+1],(*bte)[i].pn));
 	}
 
-int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
+int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,wvStream *fd)
 	{
 	U32 i;
 	if (len == 0)
@@ -53,7 +53,7 @@ int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
 			free(pos);
             return(1);
             }
-        fseek(fd,offset,SEEK_SET);
+        wvStream_goto(fd,offset);
         for(i=0;i<=*nobte;i++)
 			{
             (*pos)[i]=read_32ubit(fd);
@@ -68,7 +68,7 @@ int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
 	return(0);
 	}
 
-int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
+int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,wvStream *fd)
 	{
 	U32 i;
 	if (len == 0)
@@ -95,7 +95,7 @@ int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
 			free(pos);
             return(1);
             }
-        fseek(fd,offset,SEEK_SET);
+        wvStream_goto(fd,offset);
         for(i=0;i<=*nobte;i++)
             (*pos)[i]=read_32ubit(fd);
         for(i=0;i<*nobte;i++)

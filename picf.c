@@ -4,13 +4,13 @@
 #include <errno.h>
 #include "wv.h"
 
-int wvGetPICF(version ver,PICF *apicf,FILE *fd)
+int wvGetPICF(version ver,PICF *apicf,wvStream *fd)
 	{
 	int ret=0;
 	FILE *f;
 	U8 temp;
 	U32 i;
-	long pos=ftell(fd);
+	long pos=wvStream_tell(fd);
 
 	apicf->lcb = read_32ubit(fd);
 	apicf->cbHeader = read_16ubit(fd);
@@ -32,7 +32,7 @@ int wvGetPICF(version ver,PICF *apicf,FILE *fd)
 	apicf->dyaCropTop = (S16)read_16ubit(fd);
 	apicf->dxaCropRight = (S16)read_16ubit(fd);
 	apicf->dyaCropBottom = (S16)read_16ubit(fd);
-	temp = getc(fd);
+	temp = read_8ubit(fd);
 
 	apicf->brcl = temp & 0x0F;
 	apicf->fFrameEmpty = (temp & 0x10)>>4;
@@ -41,7 +41,7 @@ int wvGetPICF(version ver,PICF *apicf,FILE *fd)
 	apicf->fDrawHatch = (temp&0x40)>>6;
 	apicf->fError = (temp&0x80)>>7;
 
-	apicf->bpp = getc(fd);
+	apicf->bpp = read_8ubit(fd);
 	wvGetBRC(ver,&(apicf->brcTop),fd);
 	wvGetBRC(ver,&(apicf->brcLeft),fd);
 	wvGetBRC(ver,&(apicf->brcBottom),fd);
@@ -52,12 +52,12 @@ int wvGetPICF(version ver,PICF *apicf,FILE *fd)
 		apicf->cProps = (S16)read_16ubit(fd);
 	else
 		apicf->cProps = 0;
-	pos = ftell(fd)-pos;
+	pos = wvStream_tell(fd)-pos;
 	for(i=pos;i<apicf->cbHeader;i++)
-		getc(fd);
-	wvTrace(("pos is finally %x\n",ftell(fd)));
+		read_8ubit(fd);
+	wvTrace(("pos is finally %x\n",wvStream_tell(fd)));
 	wvTrace(("len of data is %d\n",apicf->lcb-apicf->cbHeader));
-	wvTrace(("ends at %x\n",ftell(fd)+apicf->lcb-apicf->cbHeader));
+	wvTrace(("ends at %x\n",wvStream_tell(fd)+apicf->lcb-apicf->cbHeader));
 	f = tmpfile();
 	if (f == NULL)
 		{
@@ -121,13 +121,13 @@ int wvGetPICF(version ver,PICF *apicf,FILE *fd)
 		}
 
 	for(;i<apicf->lcb-apicf->cbHeader;i++)
-		fputc(getc(fd),f);
+		fputc(read_8ubit(fd),f);
 	rewind(f);
 	apicf->rgb = (void *)f;
 	return(ret);
 	}
 
-U32 wvEatOldGraphicHeader(FILE *fd,U32 len)
+U32 wvEatOldGraphicHeader(wvStream *fd,U32 len)
 	{
 	U32 X,entry,count=0,test;
 	U16 pad;
@@ -161,7 +161,7 @@ U32 wvEatOldGraphicHeader(FILE *fd,U32 len)
 		{
 		entry = read_32ubit(fd);
 		count+=4;
-		wvTrace(("Entry is %x, %x, count is %d\n",entry,ftell(fd),count));
+		wvTrace(("Entry is %x, %x, count is %d\n",entry,wvStream_tell(fd),count));
 		switch(entry)
 			{
 			case 3:
@@ -171,8 +171,13 @@ U32 wvEatOldGraphicHeader(FILE *fd,U32 len)
 				break;
 			default:
 				{
-				U32 len = entry-2,i;
-				wvTrace(("len is %d, predict end of %x\n",len,ftell(fd)+(entry-2)*2));
+				/* Commenting the folowing line out makes the AbiWord importer
+				not [appear to] hang, but it's probably technically the 'wrong'
+				thing to do.  Someone who knows more about thw Word file format
+				should take a look at this, I think. (JM) */
+				/*U32 len = entry-2;*/
+				U32 i;
+				wvTrace(("len is %d, predict end of %x\n",len,wvStream_tell(fd)+(entry-2)*2));
 				for(i=0;i<len;i++)
 					{
 					test = read_16ubit(fd);
@@ -219,18 +224,18 @@ U32 wvEatOldGraphicHeader(FILE *fd,U32 len)
 			}
 		}
 	while ( count+1 < len);
-	wvTrace(("Entry is %x %x, %d\n",entry,ftell(fd),count));
+	wvTrace(("Entry is %x %x, %d\n",entry,wvStream_tell(fd),count));
 	return(count);
 	}
 
 extern int external_knowledge_0x01;
 
 #if 0
-void oldwvGetPICF(PICF *apicf,FILE *fd,U32 offset)
+void oldwvGetPICF(PICF *apicf,wvStream *fd,U32 offset)
 	{
 	U32 count=0;
 	U8 temp;
-	FILE *out;
+	wvStream *out;
 	fbse_list *pic_list;
 	fbse_list *tpic_list;
 	fsp_list *afsp_list;

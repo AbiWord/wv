@@ -4,7 +4,7 @@
 
 DOP dop;
 
-void wvGetCOPTS(COPTS *item,FILE *fd)
+void wvGetCOPTS(COPTS *item,wvStream *fd)
 	{
 	U16 temp16;
 	temp16 = read_16ubit(fd);
@@ -43,7 +43,7 @@ void wvInitCOPTS(COPTS *item)
 	}
 
 
-void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,FILE *fd)
+void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,wvStream *fd)
 	{
 	U16 temp16;
 	U32 temp32;
@@ -54,7 +54,7 @@ void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,FILE *fd)
 
 	if (lcbDop <= 0)
 		return;
-	fseek(fd,fcDop,SEEK_SET);
+	wvStream_goto(fd,fcDop);
 
 	temp16 = read_16ubit(fd);
 
@@ -244,7 +244,7 @@ void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,FILE *fd)
 	dop->KeyVirusSession30 = (temp32&0xFFFFFFFC)>>2;
 	
 	for(i=0;i<30;i++)
-		dop->Spare[i] = getc(fd);
+		dop->Spare[i] = read_8ubit(fd);
 
 	dop->reserved12 = read_32ubit(fd);
 	dop->reserved13 = read_32ubit(fd);

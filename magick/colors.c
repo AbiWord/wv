@@ -973,7 +973,7 @@ Export unsigned int QueryColorDatabase(const char *target,ColorPacket *color)
     *p;
 
   static FILE
-    *database = (FILE *) NULL;
+    *database = (wvStream *) NULL;
 
   /*
     Initialize color return value.
@@ -1072,9 +1072,9 @@ Export unsigned int QueryColorDatabase(const char *target,ColorPacket *color)
       color->index=((unsigned long) (65535L*index)/((1 << n)-1));
       return(True);
     }
-  if (database == (FILE *) NULL)
+  if (database == (wvStream *) NULL)
     database=fopen(RGBColorDatabase,"r");
-  if (database != (FILE *) NULL)
+  if (database != (wvStream *) NULL)
     {
       /*
         Match color against the X color database.

@@ -36,7 +36,7 @@ void wvReleaseBlip(Blip *blip)
 	wvFree(blip->name);
 	}
 
-U32 wvGetBlip(Blip *blip,FILE *fd,FILE *delay)
+U32 wvGetBlip(Blip *blip,wvStream *fd,wvStream *delay)
 	{
 	U32 i,count,count2;
 	MSOFBH amsofbh;
@@ -55,15 +55,15 @@ U32 wvGetBlip(Blip *blip,FILE *fd,FILE *delay)
 
 	if (delay)
 		{
-		pos = ftell(delay);
-		fseek(delay,blip->fbse.foDelay,SEEK_SET);
+		pos = wvStream_tell(delay);
+		wvStream_goto(delay,blip->fbse.foDelay);
 		wvTrace(("offset %x\n",blip->fbse.foDelay));
 		fd = delay;
 		}
 	
 	count2 = wvGetMSOFBH(&amsofbh,fd);
 	wvTrace(("count is %d\n",count2));
-	wvTrace(("HERE is %x %x (%d)\n",ftell(fd),amsofbh.fbt,amsofbh.fbt-msofbtBlipFirst));
+	wvTrace(("HERE is %x %x (%d)\n",wvStream_tell(fd),amsofbh.fbt,amsofbh.fbt-msofbtBlipFirst));
 	wvTrace(("type is %x\n",amsofbh.fbt));
 	switch(amsofbh.fbt-msofbtBlipFirst)
 		{
@@ -83,30 +83,30 @@ U32 wvGetBlip(Blip *blip,FILE *fd,FILE *delay)
 
 	if (delay)
 		{
-		fseek(delay,pos,SEEK_SET);
+		wvStream_goto(delay,pos);
 		return(count);
 		}
 	
 	return(count+count2);
 	}
 
-U32 wvGetFBSE(FBSE *afbse,FILE *fd)
+U32 wvGetFBSE(FBSE *afbse,wvStream *fd)
     {
     int i;
-    afbse->btWin32 = getc(fd);
-    afbse->btMacOS = getc(fd);
+    afbse->btWin32 = read_8ubit(fd);
+    afbse->btMacOS = read_8ubit(fd);
     for (i=0;i<16;i++)
-        afbse->rgbUid[i] = getc(fd);
+        afbse->rgbUid[i] = read_8ubit(fd);
     afbse->tag = read_16ubit(fd);
     afbse->size = read_32ubit(fd);
     afbse->cRef = read_32ubit(fd);
     afbse->foDelay = read_32ubit(fd);
 	wvTrace(("location is %x, size is %d\n",afbse->foDelay,afbse->size));
-    afbse->usage = getc(fd);
-    afbse->cbName = getc(fd);
+    afbse->usage = read_8ubit(fd);
+    afbse->cbName = read_8ubit(fd);
 	wvTrace(("name len is %d\n",afbse->cbName));
-    afbse->unused2 = getc(fd);
-    afbse->unused3 = getc(fd);
+    afbse->unused2 = read_8ubit(fd);
+    afbse->unused3 = read_8ubit(fd);
 	return(36);
     }
 
@@ -116,14 +116,14 @@ void wvCopyFBSE(FBSE *dest,FBSE *src)
     }
 
 
-U32 wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FILE *fd)
+U32 wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,wvStream *fd)
     {
 	U32 i,count;
 	char extra=0;
 	FILE *tmp;
-	wvTrace(("starting bitmap at %x\n",ftell(fd)));
+	wvTrace(("starting bitmap at %x\n",wvStream_tell(fd)));
     for (i=0;i<16;i++)
-        abm->m_rgbUid[i] = getc(fd);
+        abm->m_rgbUid[i] = read_8ubit(fd);
 	count=16;
 
     abm->m_rgbUidPrimary[0] = 0;
@@ -153,16 +153,16 @@ U32 wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FILE *fd)
     if (extra)
         {
         for (i=0;i<16;i++)
-            abm->m_rgbUidPrimary[i] = getc(fd);
+            abm->m_rgbUidPrimary[i] = read_8ubit(fd);
         count+=16;
         }
 
-    abm->m_bTag = getc(fd);
+    abm->m_bTag = read_8ubit(fd);
     count++;
     abm->m_pvBits=NULL;
 	tmp = tmpfile();
     for (i=count;i<amsofbh->cbLength;i++)
-        fputc(getc(fd),tmp);
+        fputc(read_8ubit(fd),tmp);
     rewind(tmp);
 	abm->m_pvBits=(void *)tmp;
 	count+=i;
@@ -183,7 +183,7 @@ void wvCopyBitmap(BitmapBlip *dest,BitmapBlip *src)
     }
 
 
-U32 wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *fd)
+U32 wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,wvStream *fd)
     {
     char extra=0;
     U32 i,count;
@@ -191,7 +191,7 @@ U32 wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *fd)
     U8 decompressf=0;
 
     for (i=0;i<16;i++)
-        amf->m_rgbUid[i] = getc(fd);
+        amf->m_rgbUid[i] = read_8ubit(fd);
     count=16;
 
     amf->m_rgbUidPrimary[0] = 0;
@@ -227,7 +227,7 @@ U32 wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *fd)
     if (extra)
         {
         for (i=0;i<16;i++)
-            amf->m_rgbUidPrimary[i] = getc(fd);
+            amf->m_rgbUidPrimary[i] = read_8ubit(fd);
         count+=16;
         }
 
@@ -240,8 +240,8 @@ U32 wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *fd)
     amf->m_ptSize.y = read_32ubit(fd);
     amf->m_ptSize.x = read_32ubit(fd);
     amf->m_cbSave = read_32ubit(fd);
-    amf->m_fCompression = getc(fd);
-    amf->m_fFilter = getc(fd);
+    amf->m_fCompression = read_8ubit(fd);
+    amf->m_fFilter = read_8ubit(fd);
     amf->m_pvBits=NULL;
     count +=34;
 
@@ -252,7 +252,7 @@ U32 wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *fd)
     tmp = tmpfile();
 	
     for (i=count;i<amsofbh->cbLength;i++)
-        fputc(getc(fd),tmp);
+        fputc(read_8ubit(fd),tmp);
 	count+=i;
 
     if (decompressf)

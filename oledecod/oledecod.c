@@ -77,8 +77,7 @@ static U32 *sbd_list;
 static U32 *root_list;
 
 int
-OLEdecode (FILE *input, pps_entry ** stream_list, U32 * root,
-	   U16 max_level)
+OLEdecode (FILE *input, pps_entry ** stream_list, U32 * root, U16 max_level)
 {
   int c;
   U32 num_bbd_blocks;

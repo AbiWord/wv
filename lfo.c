@@ -9,19 +9,19 @@ one has (LFO.clfolvl), and writes out, in order, each LFOLVL structure
 followed by its corresponding LVL structure (if LFOLVL.fFormatting is set).
 */
 
-int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl,U32 offset,U32 len,FILE *fd)
+int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl,U32 offset,U32 len,wvStream *fd)
 	{
 	U32 i;
 	long end;
 	*nooflvl=0;
 	wvTrace(("lfo begins at %x len %d\n",offset,len));
-	fseek(fd, 0, SEEK_END);
-	end = ftell(fd);
+	wvStream_offset_from_end(fd, 0);
+	end = wvStream_tell(fd);
 	wvGetLFO_PLF(lfo,nolfo,offset,len,fd);
 
 	for (i=0;i<*nolfo;i++)
 		*nooflvl += (*lfo)[i].clfolvl;
-	wvTrace(("pos %x %d\n",ftell(fd),*nooflvl));
+	wvTrace(("pos %x %d\n",wvStream_tell(fd),*nooflvl));
 	wvTrace(("nolfo is %d nooflvl is %d\n",*nolfo,*nooflvl));
 
 	if (*nooflvl == 0)
@@ -38,8 +38,8 @@ int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl
 	while (i<*nooflvl)
 		{
 		wvInitLVL(&((*lvl)[i]));
-		wvTrace(("%d pos now %x %d\n",i,ftell(fd),*nooflvl));
-		if (ftell(fd) == end)
+		wvTrace(("%d pos now %x %d\n",i,wvStream_tell(fd),*nooflvl));
+		if (wvStream_tell(fd) == end)
 			{
 			wvWarning("LFOLVL off the end of the file, continuing anyway\n");
 			i++;
@@ -60,7 +60,7 @@ int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl
 	return(0);
 	}
 
-int wvGetLFO_PLF(LFO **lfo,U32 *nolfo,U32 offset,U32 len,FILE *fd)
+int wvGetLFO_PLF(LFO **lfo,U32 *nolfo,U32 offset,U32 len,wvStream *fd)
 	{
 	U32 i;
 	if (len == 0)
@@ -70,7 +70,7 @@ int wvGetLFO_PLF(LFO **lfo,U32 *nolfo,U32 offset,U32 len,FILE *fd)
 		}
 	else
         {
-        fseek(fd,offset,SEEK_SET);
+        wvStream_goto(fd,offset);
         *nolfo=read_32ubit(fd);
 		wvTrace(("%d\n",*nolfo));
 
@@ -86,15 +86,15 @@ int wvGetLFO_PLF(LFO **lfo,U32 *nolfo,U32 offset,U32 len,FILE *fd)
 	return(0);
 	}
 
-void wvGetLFO(LFO *item,FILE *fd)
+void wvGetLFO(LFO *item,wvStream *fd)
 	{
 	int i;
 	item->lsid = read_32ubit(fd);     
     item->reserved1 = read_32ubit(fd);
     item->reserved2 = read_32ubit(fd);  
-    item->clfolvl = getc(fd);  
+    item->clfolvl = read_8ubit(fd);  
 	for(i=0;i<3;i++)
-    	item->reserved3[i] = getc(fd);
+    	item->reserved3[i] = read_8ubit(fd);
 	}
 
 void wvInitLFO(LFO *item)
@@ -108,7 +108,7 @@ void wvInitLFO(LFO *item)
     	item->reserved3[i] = 0;
 	}
 
-void wvGetLFOLVL(LFOLVL *item,FILE *fd)
+void wvGetLFOLVL(LFOLVL *item,wvStream *fd)
 	{
 	U8 temp8;
 #ifdef PURIFY
@@ -118,18 +118,18 @@ void wvGetLFOLVL(LFOLVL *item,FILE *fd)
 
 	while (wvInvalidLFOLVL(item))
 		{
-		wvTrace(("pos %x\n",ftell(fd)));
+		wvTrace(("pos %x\n",wvStream_tell(fd)));
 		item->iStartAt = read_32ubit(fd);
 		}
 
-	temp8 = getc(fd);
+	temp8 = read_8ubit(fd);
     item->ilvl = temp8 & 0x0F;
     item->fStartAt = (temp8 & 0x10) >> 4;
     item->fFormatting = (temp8 & 0x20) >> 5;
     item->reserved1 = (temp8 & 0xC0) >> 6;
-    item->reserved2 = getc(fd);
-    item->reserved3 = getc(fd);
-    item->reserved4 = getc(fd);
+    item->reserved2 = read_8ubit(fd);
+    item->reserved3 = read_8ubit(fd);
+    item->reserved4 = read_8ubit(fd);
 	}
 
 void wvInitLFOLVL(LFOLVL *item)

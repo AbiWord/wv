@@ -17,8 +17,8 @@ Phone (44) 1793 896206, Fax (44) 1793 896251
 
 
 The interface to OLEdecode now has
-  int OLEdecode(char *filename, FILE **mainfd, FILE **tablefd0, FILE 
-**tablefd1,FILE **data,FILE **summary)	
+  int OLEdecode(char *filename, wvStream **mainfd, FILE **tablefd0, FILE 
+**tablefd1,wvStream **data,FILE **summary)	
 */
 
 #include <stdio.h>
@@ -35,7 +35,7 @@ The interface to OLEdecode now has
 
 #define MAXBLOCKS 256
 
-extern FILE *erroroutput;
+extern wvStream *erroroutput;
 
 struct pps_block
   {
@@ -81,12 +81,12 @@ void unravel(pps_entry *pps_node)
 	}
 }
 
-int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE
-**tablefd1,FILE **data, FILE **summary)
+int wvOLEDecode(wvStream *input, FILE **mainfd, FILE **tablefd0, FILE
+**tablefd1,wvStream **data, FILE **summary)
 {
-  FILE *OLEfile=NULL;
-  FILE *sbfile=NULL;
-  FILE *infile=NULL;
+  wvStream *OLEfile=NULL;
+  wvStream *sbfile=NULL;
+  wvStream *infile=NULL;
   int BlockSize=0,Offset=0;
   int c,i,j,len,bytes;
   char *p;

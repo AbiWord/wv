@@ -6,7 +6,7 @@
 
 extern FILE *erroroutput;
 
-int get_piecetable(FILE *in,U32 **rgfc,U32 **avalrgfc,U16 **sprm,U32 *clxcount)
+int get_piecetable(wvStream *in,U32 **rgfc,U32 **avalrgfc,U16 **sprm,U32 *clxcount)
 	{
 	U32 lcb;
 	int nopieces=0;
@@ -95,7 +95,7 @@ int query_piece_cp(U32 *rgfc,U32* avalrgfc,int nopieces,U32 querycp,U32 *nextpie
 does the same as query_piece_cp, only it seeks fd to the beginning of the piece that
 querycp is in, and returns the position that we've seeked to.
 */
-int query_piece_cp_seek(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U32 *nextpiececp,int *flag_8_16,FILE *fd)
+int query_piece_cp_seek(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U32 *nextpiececp,int *flag_8_16,wvStream *fd)
 	{
 	int index = query_piece_cp(rgfc,avalrgfc,nopieces,querycp,nextpiececp,flag_8_16);
 	int thisfc;
@@ -104,7 +104,7 @@ int query_piece_cp_seek(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U3
 		thisfc = (avalrgfc[index]&0xbfffffffUL)/2;
 	else
 		thisfc = avalrgfc[index];
-	fseek(fd,thisfc,SEEK_SET);
+	wvStream_goto(fd,thisfc);
 
 	return(thisfc);
 	}

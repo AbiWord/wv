@@ -10,7 +10,7 @@ the rglst again, deciding, for each LST, whether it has one level
 (LSTF.fSimpleList) or nine levels (!LSTF.fSimpleList). It then writes the 
 appropriate number of LVL structures
 */
-int wvGetLST(LST **lst,U16 *noofLST,U32 offset,U32 len,FILE *fd)
+int wvGetLST(LST **lst,U16 *noofLST,U32 offset,U32 len,wvStream *fd)
 	{
 	U16 i,j;
 	*lst = NULL;
@@ -19,7 +19,7 @@ int wvGetLST(LST **lst,U16 *noofLST,U32 offset,U32 len,FILE *fd)
 	if (len == 0)
 		return(0);
 
-	fseek(fd,offset,SEEK_SET);
+	wvStream_goto(fd,offset);
 	wvTrace(("offset is %x, len is %d\n",offset,len));
 
 	*noofLST = read_16ubit(fd);
@@ -70,7 +70,7 @@ int wvGetLST(LST **lst,U16 *noofLST,U32 offset,U32 len,FILE *fd)
 	return(0);
 	}
 
-void wvGetLSTF(LSTF *item,FILE *fd)
+void wvGetLSTF(LSTF *item,wvStream *fd)
 	{
 	int i;
 	U8 temp8;
@@ -82,11 +82,11 @@ void wvGetLSTF(LSTF *item,FILE *fd)
 	item->tplc = read_32ubit(fd);
     for (i=0;i<9;i++)
 		item->rgistd[i]  = read_16ubit(fd);
-	temp8 = getc(fd);
+	temp8 = read_8ubit(fd);
 	item->fSimpleList = temp8 & 0x01;
     item->fRestartHdn = (temp8 & 0x02)>>1;
     item->reserved1 = (temp8 & 0xFC)>>2;
-    item->reserved2 = getc(fd);
+    item->reserved2 = read_8ubit(fd);
 	}
 
 void wvInitLSTF(LSTF *item)
@@ -103,7 +103,7 @@ void wvInitLSTF(LSTF *item)
 	}
 
 
-int wvGetLSTF_PLCF(LSTF **lstf,U32 **pos,U32 *nolstf,U32 offset,U32 len,FILE *fd)
+int wvGetLSTF_PLCF(LSTF **lstf,U32 **pos,U32 *nolstf,U32 offset,U32 len,wvStream *fd)
 	{
 	U32 i;
 	if (len == 0)
@@ -129,7 +129,7 @@ int wvGetLSTF_PLCF(LSTF **lstf,U32 **pos,U32 *nolstf,U32 offset,U32 len,FILE *fd
 			free(pos);
             return(1);
             }
-        fseek(fd,offset,SEEK_SET);
+        wvStream_goto(fd,offset);
         for(i=0;i<=*nolstf;i++)
             (*pos)[i]=read_32ubit(fd);
         for(i=0;i<*nolstf;i++)

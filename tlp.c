@@ -3,7 +3,7 @@
 #include "wv.h"
 #include "wvinternal.h"
 
-void wvGetTLP_internal(TLP *dest,FILE *infd,U8 *pointer)
+void wvGetTLP_internal(TLP *dest,wvStream *infd,U8 *pointer)
 	{
 	U16 temp16;
 	
@@ -21,7 +21,7 @@ void wvGetTLP_internal(TLP *dest,FILE *infd,U8 *pointer)
 	dest->fLastCol = (temp16 & 0x0100) >> 8;
 	}
 
-void wvGetTLP(TLP *item,FILE *infd)
+void wvGetTLP(TLP *item,wvStream *infd)
     {
     wvGetTLP_internal(item,infd,NULL);
     }

@@ -1,7 +1,7 @@
 /*
 The interface to wvOLEDecode now has
-  int OLEdecode(char *filename, FILE **mainfd, FILE **tablefd0, FILE 
-**tablefd1,FILE **data,FILE **summary)	
+  int OLEdecode(char *filename, wvStream **mainfd, FILE **tablefd0, FILE 
+**tablefd1,wvStream **data,FILE **summary)	
 */
 
 #include <stdio.h>
@@ -23,7 +23,7 @@ void wvOLEFree(void)
 	}
 
 
-int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE **tablefd1,FILE **data,FILE **summary)
+int wvOLEDecode(FILE *input, wvStream **mainfd, wvStream **tablefd0, wvStream **tablefd1,wvStream **data,wvStream **summary)
 	{
 	int result;
 	U32 stream;
@@ -37,23 +37,23 @@ int wvOLEDecode(FILE *input, FILE **mainfd, FILE **tablefd0, FILE **tablefd1,FIL
 				{
 				if (!(strcmp(stream_tree[stream].name,"WordDocument")))
 					{
-					*mainfd = fopen(stream_tree[stream].filename,"rb");
+					*mainfd = (wvStream *)fopen(stream_tree[stream].filename,"rb");
 					}
 				else if (!(strcmp(stream_tree[stream].name,"1Table")))
 					{
-					*tablefd1 = fopen(stream_tree[stream].filename,"rb");
+					*tablefd1 = (wvStream *)fopen(stream_tree[stream].filename,"rb");
 					}
 				else if (!(strcmp(stream_tree[stream].name,"0Table")))
 					{
-					*tablefd0 = fopen(stream_tree[stream].filename,"rb");
+					*tablefd0 = (wvStream *)fopen(stream_tree[stream].filename,"rb");
 					}
 				else if (!(strcmp(stream_tree[stream].name,"Data")))
 					{
-					*data = fopen(stream_tree[stream].filename,"rb");
+					*data = (wvStream *)fopen(stream_tree[stream].filename,"rb");
 					}
 				else if (!(strcmp(stream_tree[stream].name,"\005SummaryInformation")))
 					{
-					*summary = fopen(stream_tree[stream].filename,"rb");
+					*summary = (wvStream *)fopen(stream_tree[stream].filename,"rb");
 					}
 				}
 			}

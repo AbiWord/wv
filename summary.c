@@ -15,7 +15,7 @@ An example of usage of the summary stream is shown in wvSummary.c
 */
 
 
-void wvGetPropHeader(PropHeader *header,FILE *file)
+void wvGetPropHeader(PropHeader *header,wvStream *file)
 	{
 	int i;
 	header->byteOrder=read_16ubit(file);
@@ -23,11 +23,11 @@ void wvGetPropHeader(PropHeader *header,FILE *file)
 	header->osVersion1=read_16ubit(file);
 	header->osVersion2=read_16ubit(file);
 	for (i=0;i<16;i++)
-	 	header->classId[i] = getc(file);
+	 	header->classId[i] = read_8ubit(file);
 	header->cSections=read_32ubit(file);
 	}
 
-void wvGetFIDAndOffset(FIDAndOffset *fid,FILE *file)
+void wvGetFIDAndOffset(FIDAndOffset *fid,wvStream *file)
 	{
 	int i;
 	for (i=0;i<4;i++)
@@ -45,11 +45,11 @@ void wvReleaseSummaryInfo(SummaryInfo *si)
 		free(si->data);
 	}
 
-void wvGetSummaryInfo(SummaryInfo *si,FILE *file,U32 offset)
+void wvGetSummaryInfo(SummaryInfo *si,wvStream *file,U32 offset)
 	{
 	U32 i;
 
-	fseek(file,offset,SEEK_SET);
+	wvStream_offset(file,offset);
 
 	si->cBytes = read_32ubit(file);
 	si->cProps = read_32ubit(file);
@@ -71,7 +71,7 @@ void wvGetSummaryInfo(SummaryInfo *si,FILE *file,U32 offset)
 		{
 		si->data = (U8 *)malloc(si->cBytes - 8*si->cProps);
 		for (i=0;i<si->cBytes - 8*si->cProps;i++)
-			si->data[i] = getc(file);
+			si->data[i] = read_8ubit(file);
 		}
 	}
 
@@ -331,7 +331,7 @@ int wvGetProperty(PropValue *Prop, SummaryInfo *si, U32 pid)
     return(1);
 }
 
-int wvSumInfoOpenStream(SummaryInfo *si,FILE *stream)
+int wvSumInfoOpenStream(SummaryInfo *si,wvStream *stream)
     {
     PropHeader header;
     FIDAndOffset fid;
@@ -360,10 +360,11 @@ int wvSumInfoOpenStream(SummaryInfo *si,FILE *stream)
     return(0);
     }
 
-int wvOLESummaryStream(char *filename,FILE **summary)
+int wvOLESummaryStream(char *filename,wvStream **summary)
 	{
 	int ret;
-    FILE *input,*mainfd,*tablefd0,*tablefd1,*data;
+    FILE *input;
+	wvStream *mainfd,*tablefd0,*tablefd1,*data;
     input = fopen(filename,"rb");
     ret = wvOLEDecode(input,&mainfd,&tablefd0,&tablefd1,&data,summary);
     return(ret);

@@ -3,7 +3,7 @@
 #include "wv.h"
 
 
-void wvGetSED(SED *item,FILE *fd)
+void wvGetSED(SED *item,wvStream *fd)
 	{
 	item->fn = (S16)read_16ubit(fd);
 	item->fcSepx = read_32ubit(fd);
@@ -11,7 +11,7 @@ void wvGetSED(SED *item,FILE *fd)
 	item->fcMpr = read_32ubit(fd);
 	}
 
-int wvGetSED_PLCF(SED **item,U32 **pos,U32 *noitem,U32 offset,U32 len,FILE *fd)
+int wvGetSED_PLCF(SED **item,U32 **pos,U32 *noitem,U32 offset,U32 len,wvStream *fd)
 	{
 	U32 i;
 	if (len == 0)
@@ -37,7 +37,7 @@ int wvGetSED_PLCF(SED **item,U32 **pos,U32 *noitem,U32 offset,U32 len,FILE *fd)
 			free(pos);
             return(1);
             }
-        fseek(fd,offset,SEEK_SET);
+        wvStream_goto(fd,offset);
         for(i=0;i<=*noitem;i++)
             (*pos)[i]=read_32ubit(fd);
         for(i=0;i<*noitem;i++)

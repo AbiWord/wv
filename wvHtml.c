@@ -32,7 +32,7 @@ int mydochandler(wvParseStruct *ps,wvTag tag);
 int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid);
 int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp);
 
-FILE *wvOpenConfig(char *config);
+wvStream *wvOpenConfig(char *config);
 
 void usage( void )
 	{
@@ -44,7 +44,7 @@ char *charset=NULL;
 
 int main(int argc,char **argv)
 	{
-	FILE *input;
+	wvStream *input;
 	char *password=NULL;
 	char *config=NULL;
 	char *dir=NULL;
@@ -409,7 +409,7 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 			break;
 		case 0x01:
 			{
-			FILE *f;
+			wvStream *f;
 			Blip blip;
 			char *name;
 			long p = ftell(ps->data);
@@ -418,7 +418,7 @@ int mySpecCharProc(wvParseStruct *ps,U16 eachchar,CHP *achp)
 				exit(139);
 			fseek(ps->data,achp->fcPic_fcObj_lTagObj,SEEK_SET);
 			wvGetPICF(wvQuerySupported(&ps->fib,NULL),&picf,ps->data);
-			f = (FILE *)picf.rgb;
+			f = (wvStream *)picf.rgb;
 			if (wv0x01(&blip,f,picf.lcb-picf.cbHeader))
 				{
 				wvTrace(("Here\n"));
@@ -580,9 +580,9 @@ int myCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 	}
 
 
-FILE *wvOpenConfig(char *config)
+wvStream *wvOpenConfig(char *config)
 	{
-	FILE *tmp;
+	wvStream *tmp;
 	int i=0;
 	if (config == NULL)
 		config = "wvHtml.xml";
@@ -607,7 +607,7 @@ char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
    static int i;
    char buffer[10];
    char *name;
-   FILE *fd;
+   wvStream *fd;
    char test[3];
    sprintf(buffer,"%d",i++);
    name = strdup(ps->filename);
@@ -636,7 +636,7 @@ char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
       case msoblipJPEG:
       case msoblipDIB:
       case msoblipPNG:
-	fd = (FILE *)(blip->blip.bitmap.m_pvBits);
+	fd = (wvStream *)(blip->blip.bitmap.m_pvBits);
 	test[2] = '\0';
 	test[0] = getc(fd);
 	test[1] = getc(fd);
@@ -695,14 +695,14 @@ char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip)
 int HandleBitmap(char *name,BitmapBlip *bitmap)
 {
    int c;
-   FILE *fd;
+   wvStream *fd;
    fd = fopen(name,"wb");
    if (fd == NULL)
      {
 	wvError(("Cannot open %s for writing:%s\n",name,strerror(errno)));
 	return(-1);
      }
-   while (EOF != (c = getc((FILE *)(bitmap->m_pvBits))))
+   while (EOF != (c = getc((wvStream *)(bitmap->m_pvBits))))
      fputc(c,fd);
    fclose(fd);
    wvTrace(("Name is %s\n",name));
@@ -713,14 +713,14 @@ int HandleBitmap(char *name,BitmapBlip *bitmap)
 int HandleMetafile(char *name,MetaFileBlip *bitmap)
 {
    int c;
-   FILE *fd;
+   wvStream *fd;
    fd = fopen(name,"wb");
    if (fd == NULL)
      {
 	wvError(("Cannot open %s for writing:%s\n",name,strerror(errno)));
 	return(-1);
      }
-   while (EOF != (c = getc((FILE *)(bitmap->m_pvBits))))
+   while (EOF != (c = getc((wvStream *)(bitmap->m_pvBits))))
      fputc(c,fd);
    fclose(fd);
    wvTrace(("Name is %s\n",name));

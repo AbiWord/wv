@@ -3,7 +3,7 @@
 #include "wv.h"
 
 
-void wvGetPRM(PRM *item,FILE *fd)
+void wvGetPRM(PRM *item,wvStream *fd)
 	{
 	U16 temp16;
 	temp16 = read_16ubit(fd);

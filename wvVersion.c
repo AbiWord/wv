@@ -31,7 +31,7 @@ void usage( void )
 
 int main(int argc,char **argv)
 	{
-	FILE *input;
+	wvStream *input;
 	int ret;
 	wvParseStruct ps;
 

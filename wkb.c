@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetWKB(WKB *item,FILE *fd)
+void wvGetWKB(WKB *item,wvStream *fd)
 	{
 	U16 temp16;
 	item->fn = (S16)read_16ubit(fd);

@@ -3,7 +3,7 @@
 #include "wv.h"
 #include "wvinternal.h"
 
-int wvGetTC_internal(version ver,TC *tc,FILE *infd,U8 *pointer)
+int wvGetTC_internal(version ver,TC *tc,wvStream *infd,U8 *pointer)
     {
     U16 temp16;
 	BRC10 brc10;

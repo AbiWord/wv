@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetFONTSIGNATURE(FONTSIGNATURE *fs,FILE *fd)
+void wvGetFONTSIGNATURE(FONTSIGNATURE *fs,wvStream *fd)
 	{
 	int i;
 	for (i=0;i<4;i++)
@@ -20,18 +20,18 @@ void wvInitFONTSIGNATURE(FONTSIGNATURE *fs)
 		fs->fsCsb[i] = 0;
 	}
 
-void wvGetPANOSE(PANOSE *item,FILE *fd)
+void wvGetPANOSE(PANOSE *item,wvStream *fd)
 	{
-	item->bFamilyType=getc(fd);
-    item->bSerifStyle=getc(fd);
-    item->bWeight=getc(fd);
-    item->bProportion=getc(fd);
-    item->bContrast=getc(fd);
-    item->bStrokeVariation=getc(fd);
-    item->bArmStyle=getc(fd);
-    item->bLetterform=getc(fd);
-    item->bMidline=getc(fd);
-    item->bXHeight=getc(fd);
+	item->bFamilyType=read_8ubit(fd);
+    item->bSerifStyle=read_8ubit(fd);
+    item->bWeight=read_8ubit(fd);
+    item->bProportion=read_8ubit(fd);
+    item->bContrast=read_8ubit(fd);
+    item->bStrokeVariation=read_8ubit(fd);
+    item->bArmStyle=read_8ubit(fd);
+    item->bLetterform=read_8ubit(fd);
+    item->bMidline=read_8ubit(fd);
+    item->bXHeight=read_8ubit(fd);
 	}
 
 void wvInitPANOSE(PANOSE *item)

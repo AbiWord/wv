@@ -4,7 +4,7 @@
 #include <string.h>
 
 /*modify this to handle cbSTSHI < the current size*/
-void wvGetSTSHI(STSHI *item,U16 cbSTSHI,FILE *fd)
+void wvGetSTSHI(STSHI *item,U16 cbSTSHI,wvStream *fd)
 	{
 	U16 temp16;
 	int i;
@@ -37,7 +37,7 @@ void wvGetSTSHI(STSHI *item,U16 cbSTSHI,FILE *fd)
 
 	while(count<cbSTSHI)
 		{
-		getc(fd);
+		read_8ubit(fd);
 		count++;
 		}
 	}
@@ -102,7 +102,7 @@ void wvInitSTD(STD *item)
 	item->grupe=NULL;
 	}
 
-int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,FILE *fd)
+int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,wvStream *fd)
 	{
 	U16 temp16;
 	U16 len,i,j;
@@ -141,7 +141,7 @@ int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,FILE *fd)
 
 		while (count<baselen)	/* eat any new fields we might know about ourselves*/
 			{
-			getc(fd);
+			read_8ubit(fd);
 			count++;
 			}
 		}
@@ -154,7 +154,7 @@ int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,FILE *fd)
 	if (count < 10)
 		{
 		ret=1;
-		len = getc(fd);
+		len = read_8ubit(fd);
 		pos++;
 		}
 	else
@@ -165,8 +165,8 @@ int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,FILE *fd)
 		if (fixedlen-baselen < len)
 			{
 			wvWarning("The names of the styles are not stored in unicode as is usual for this version, going to 8 bit\n");
-			fseek(fd,-2,SEEK_CUR);
-			len = getc(fd);
+			wvStream_offset(fd,-2);
+			len = read_8ubit(fd);
 			count=9;	/* to fake the later char reader code */
 			pos--;
 			}
@@ -180,7 +180,7 @@ int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,FILE *fd)
 		{
 		if (count < 10)
 			{
-			item->xstzName[i] = getc(fd);
+			item->xstzName[i] = read_8ubit(fd);
 			pos++;
 			}
 		else
@@ -221,7 +221,7 @@ int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,FILE *fd)
 		if ((pos+1)/2 != pos/2)
 			{
 			/*eat odd bytes*/
-			fseek(fd,1,SEEK_CUR);
+			wvStream_offset(fd,1);
 			pos++;
 			}
 		
@@ -237,7 +237,7 @@ int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,FILE *fd)
 			item->grupxf[i].upx.chpx.grpprl = (U8 *)malloc(item->grupxf[i].cbUPX);
 			for(j=0;j<item->grupxf[i].cbUPX;j++)
 				{
-				item->grupxf[i].upx.chpx.grpprl[j] = getc(fd);
+				item->grupxf[i].upx.chpx.grpprl[j] = read_8ubit(fd);
 				pos++;
 				}
 			}
@@ -251,14 +251,14 @@ int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,FILE *fd)
 				item->grupxf[i].upx.papx.grpprl = NULL;
 			for(j=0;j<item->grupxf[i].cbUPX-2;j++)
 				{
-				item->grupxf[i].upx.papx.grpprl[j] = getc(fd);
+				item->grupxf[i].upx.papx.grpprl[j] = read_8ubit(fd);
 				pos++;
 				}
 			}
 		else 
 			{
 			wvTrace(("Strange cupx option\n"));
-			fseek(fd,item->grupxf[i].cbUPX,SEEK_CUR);
+			wvStream_offset(fd,item->grupxf[i].cbUPX);
 			pos+=item->grupxf[i].cbUPX;
 			}
 		}
@@ -267,7 +267,7 @@ int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,FILE *fd)
 
 	/*eat odd bytes*/
 	if ((pos+1)/2 != pos/2)
-		fseek(fd,1,SEEK_CUR);
+		wvStream_offset(fd,1);
 	return(ret);
 	}
 
@@ -282,7 +282,7 @@ void wvReleaseSTSH(STSH *item)
 	wvFree(item->std);
 	}
 
-void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
+void wvGetSTSH(STSH *item,U32 offset,U32 len,wvStream *fd)
 	{
 	U16 cbStshi,cbStd,i,word6=0,j;
 	U16 *chains1;
@@ -294,7 +294,7 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 		return;
 		}
 	wvTrace(("stsh offset len is %x %d\n",offset,len));
-	fseek(fd,offset,SEEK_SET);
+	wvStream_goto(fd,offset);
 	cbStshi = read_16ubit(fd);
 	wvGetSTSHI(&(item->Stshi),cbStshi,fd);
 	
@@ -319,13 +319,13 @@ void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd)
 	for(i=0;i<item->Stshi.cstd;i++)
 		{
 		cbStd = read_16ubit(fd);
-		wvTrace(("index is %d,cbStd is %d, should end on %x\n",i,cbStd,ftell(fd)+cbStd));
+		wvTrace(("index is %d,cbStd is %d, should end on %x\n",i,cbStd,wvStream_tell(fd)+cbStd));
 		if (cbStd != 0)
 			{
 			word6 = wvGetSTD(&(item->std[i]),item->Stshi.cbSTDBaseInFile,cbStd,fd);
 			wvTrace(("istdBase is %d, type is %d, 6|8 version is %d\n",item->std[i].istdBase,item->std[i].sgc,word6));
 			}
-		wvTrace(("actually ended on %x\n",ftell(fd)));
+		wvTrace(("actually ended on %x\n",wvStream_tell(fd)));
 		chains1[i] = item->std[i].istdBase;
 		}
 

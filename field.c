@@ -324,6 +324,7 @@ int fieldCharProc(wvParseStruct *ps,U16 eachchar,U8 chartype,U16 lid)
 				ret=1;
 			else
 				ret=0;
+
 			wvError(("command %s, ret is %d\n",wvWideStrToMB(command),ret));
 			wvFree(c);
 			which = argumen;

@@ -30,7 +30,7 @@ void create_menus (GnomeApp *app);
 char * ttoa(time_t curtime, int append_nl);
 
 #include "wv.h"
-FILE *input=NULL;
+wvStream *input=NULL;
 char *mfilename=NULL;
 wvParseStruct ps;
 

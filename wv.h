@@ -16,6 +16,11 @@ int getopt(int argc, char * const argv[], const char *optstring);
 
 #include <time.h>
 
+typedef union {
+	FILE file;
+} wvStream;	/* Could use typedef FILE wvStream, but this gives better
+		   	   warnings if 'wvStream *' is used  instead of
+			   'wvStream *' (but should still work) :-) */
 
 #ifndef PATH_MAX
 #define PATH_MAX 1024 /*seems a reasonable figure*/
@@ -100,7 +105,7 @@ typedef struct tagPANOSE
     U8 bXHeight;
 	} PANOSE;
 
-void wvGetPANOSE(PANOSE *panose,FILE *fd);
+void wvGetPANOSE(PANOSE *panose,wvStream *fd);
 void wvInitPANOSE(PANOSE *item);
 
 
@@ -122,7 +127,7 @@ typedef struct
 	U32 fsCsb[2];
 	} FONTSIGNATURE;
 
-void wvGetFONTSIGNATURE(FONTSIGNATURE *fs,FILE *fd);
+void wvGetFONTSIGNATURE(FONTSIGNATURE *fs,wvStream *fd);
 void wvInitFONTSIGNATURE(FONTSIGNATURE *fs);
 
 
@@ -136,7 +141,7 @@ typedef struct
 	} FILETIME;
 #endif /* _FILETIME_ */
 
-void wvGetFILETIME(FILETIME *ft,FILE *fd);
+void wvGetFILETIME(FILETIME *ft,wvStream *fd);
 void wvInitFILETIME(FILETIME *ft);
 
 time_t wvDOSFS_FileTimeToUnixTime( const FILETIME *filetime, U32 *remainder );
@@ -439,20 +444,20 @@ typedef struct _FIB
 	U32 lcbSttbfUssr ;				/* 0x037E */
 	} FIB;
 
-void wvGetFIB(FIB *item,FILE *fd);
-void wvGetFIB6(FIB *item,FILE *fd);
+void wvGetFIB(FIB *item,wvStream *fd);
+void wvGetFIB6(FIB *item,wvStream *fd);
 void wvInitFIB(FIB *item);
 
 
-int wvGetEmpty_PLCF(U32 **cp,U32 *nocps,U32 offset,U32 len,FILE *fd);
+int wvGetEmpty_PLCF(U32 **cp,U32 *nocps,U32 offset,U32 len,wvStream *fd);
 
 typedef struct _FRD
 	{
 	S16 frd;
 	} FRD;
 
-void wvGetFRD(FRD *item,FILE *fd);
-int wvGetFRD_PLCF(FRD **frd,U32 **pos,U32 *nofrd,U32 offset,U32 len,FILE *fd);
+void wvGetFRD(FRD *item,wvStream *fd);
+int wvGetFRD_PLCF(FRD **frd,U32 **pos,U32 *nofrd,U32 offset,U32 len,wvStream *fd);
 
 typedef U16 XCHAR;
 
@@ -465,8 +470,8 @@ typedef struct _ATRD
     S32 lTagBkmk;
     } ATRD;
 
-void wvGetATRD(ATRD *item,FILE *fd);
-int wvGetATRD_PLCF(ATRD **atrd,U32 **pos,U32 *noatrd,U32 offset,U32 len,FILE *fd);
+void wvGetATRD(ATRD *item,wvStream *fd);
+int wvGetATRD_PLCF(ATRD **atrd,U32 **pos,U32 *noatrd,U32 offset,U32 len,wvStream *fd);
 
 typedef struct _SED
     {
@@ -476,8 +481,8 @@ typedef struct _SED
     U32 fcMpr;
     } SED;
 
-void wvGetSED(SED *item,FILE *fd);
-int wvGetSED_PLCF(SED **item,U32 **pos,U32 *noitem,U32 offset,U32 len,FILE *fd);
+void wvGetSED(SED *item,wvStream *fd);
+int wvGetSED_PLCF(SED **item,U32 **pos,U32 *noitem,U32 offset,U32 len,wvStream *fd);
 
 typedef struct _FFN
     {
@@ -496,8 +501,8 @@ typedef struct _FFN
     XCHAR xszFfn[65];   /*max size*/
     } FFN;
 
-void wvGetFFN(FFN *item,FILE *fd);
-void wvGetFFN6(FFN *item,FILE *fd);
+void wvGetFFN(FFN *item,wvStream *fd);
+void wvGetFFN6(FFN *item,wvStream *fd);
 
 
 typedef struct _FFN_STTBF
@@ -508,8 +513,8 @@ typedef struct _FFN_STTBF
     FFN *ffn;
     } FFN_STTBF;
 
-void wvGetFFN_STTBF(FFN_STTBF *item,U32 offset,U32 len,FILE *fd);
-void wvGetFFN_STTBF6(FFN_STTBF *item,U32 offset,U32 len,FILE *fd);
+void wvGetFFN_STTBF(FFN_STTBF *item,U32 offset,U32 len,wvStream *fd);
+void wvGetFFN_STTBF6(FFN_STTBF *item,U32 offset,U32 len,wvStream *fd);
 void wvReleaseFFN_STTBF(FFN_STTBF *item);
 char *wvGetFontnameFromCode(FFN_STTBF *item,int fontcode);
 
@@ -524,11 +529,11 @@ typedef struct _STTBF
 	U8 **extradata;
 	} STTBF;
 
-void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,FILE *fd);
-void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,FILE *fd);
+void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,wvStream *fd);
+void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,wvStream *fd);
 void wvListSTTBF(STTBF *item);
 void wvReleaseSTTBF(STTBF *item);
-void wvGetGrpXst(STTBF *anS,U32 offset,U32 len,FILE *fd);
+void wvGetGrpXst(STTBF *anS,U32 offset,U32 len,wvStream *fd);
 
 
 U16 *UssrStrBegin(STTBF *sttbf,int no);
@@ -589,8 +594,8 @@ typedef union _FLD
     wv_var2 var2;
     } FLD;
 
-void wvGetFLD(FLD *item,FILE *fd);
-int wvGetFLD_PLCF(FLD **fld,U32 **pos,U32 *nofld,U32 offset,U32 len,FILE *fd);
+void wvGetFLD(FLD *item,wvStream *fd);
+int wvGetFLD_PLCF(FLD **fld,U32 **pos,U32 *nofld,U32 offset,U32 len,wvStream *fd);
 
 typedef struct _COPTS
 	{
@@ -610,7 +615,7 @@ typedef struct _COPTS
 	U32 reserved:4;
 	} COPTS;
 
-void wvGetCOPTS(COPTS *copts,FILE *fd);
+void wvGetCOPTS(COPTS *copts,wvStream *fd);
 
 typedef struct _DTTM
 	{
@@ -622,7 +627,7 @@ typedef struct _DTTM
 	U32 wdy:3;
 	} DTTM;
 
-void wvGetDTTM(DTTM *item,FILE *fd);
+void wvGetDTTM(DTTM *item,wvStream *fd);
 void wvGetDTTMFromBucket(DTTM *item,U8 *pointer);
 void wvCreateDTTM(DTTM *dttm,U16 one,U16 two);
 void wvCopyDTTM(DTTM *dest,DTTM *src);
@@ -644,7 +649,7 @@ typedef struct _DOPTYPOGRAPHY
 	U16 rgxchLPunct[51];
 	} DOPTYPOGRAPHY;
 
-void wvGetDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt,FILE *fd);
+void wvGetDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt,wvStream *fd);
 void wvInitDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt);
 
 
@@ -666,7 +671,7 @@ typedef struct _ASUMY
 	} ASUMY;
 
 
-void wvGetDOGRID(DOGRID *dogrid,FILE *fd);
+void wvGetDOGRID(DOGRID *dogrid,wvStream *fd);
 void wvInitDOGRID(DOGRID *dog);
 
 typedef struct _ASUMYI
@@ -682,7 +687,7 @@ typedef struct _ASUMYI
 	U32 lCurrentLevel;
 	} ASUMYI;
 
-void wvGetASUMYI(ASUMYI *asumyi,FILE *fd);
+void wvGetASUMYI(ASUMYI *asumyi,wvStream *fd);
 void wvInitASUMYI(ASUMYI *asu);
 
 typedef struct _DOP
@@ -832,7 +837,7 @@ typedef struct _DOP
 	U16 dywDispPag;
 	} DOP;
 
-void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,FILE *tablefd);
+void wvGetDOP(version ver,DOP *dop,U32 fcDop,U32 lcbDop,wvStream *tablefd);
 void wvInitDOP(DOP *dop);
 
 typedef struct _BKF
@@ -844,8 +849,8 @@ typedef struct _BKF
     U32 fCol:1;  
     } BKF;
 
-void wvGetBKF(BKF *item,FILE *fd);
-int wvGetBKF_PLCF(BKF **bkf,U32 **pos,U32 *nobkf,U32 offset,U32 len,FILE *fd);
+void wvGetBKF(BKF *item,wvStream *fd);
+int wvGetBKF_PLCF(BKF **bkf,U32 **pos,U32 *nobkf,U32 offset,U32 len,wvStream *fd);
 void wvInitBKF(BKF *item);
 
 
@@ -857,7 +862,7 @@ typedef struct _Xst
 	U32 noofstrings;
 	} Xst;
 
-void wvGetXst(Xst **xst,U32 offset,U32 len,FILE *fd);
+void wvGetXst(Xst **xst,U32 offset,U32 len,wvStream *fd);
 void wvFreeXst(Xst **xst);
 
 typedef struct _FSPA
@@ -879,8 +884,8 @@ typedef struct _FSPA
     S32 cTxbx;
     } FSPA;
 
-void wvGetFSPA(FSPA *item,FILE *fd);
-int wvGetFSPA_PLCF(FSPA **fspa,U32 **pos,U32 *nofspa,U32 offset,U32 len,FILE *fd);
+void wvGetFSPA(FSPA *item,wvStream *fd);
+int wvGetFSPA_PLCF(FSPA **fspa,U32 **pos,U32 *nofspa,U32 offset,U32 len,wvStream *fd);
 FSPA *wvGetFSPAFromCP(U32 currentcp,FSPA *fspa,U32 *pos,U32 nofspa);
 void wvInitFSPA(FSPA *item);
 
@@ -896,9 +901,9 @@ typedef struct _LSTF
     U32 reserved2:8;
     } LSTF;
 
-void wvGetLSTF(LSTF *item,FILE *fd);
+void wvGetLSTF(LSTF *item,wvStream *fd);
 void wvInitLSTF(LSTF *item);
-int wvGetLSTF_PLCF(LSTF **lstf,U32 **pos,U32 *nolst,U32 offset,U32 len,FILE *fd);
+int wvGetLSTF_PLCF(LSTF **lstf,U32 **pos,U32 *nolst,U32 offset,U32 len,wvStream *fd);
 
 typedef struct _LVLF
     {
@@ -921,7 +926,7 @@ typedef struct _LVLF
     U16 reserved2;     
     }LVLF;
 
-void wvGetLVLF(LVLF *item,FILE *fd);
+void wvGetLVLF(LVLF *item,wvStream *fd);
 void wvInitLVLF(LVLF *item);
 void wvCopyLVLF(LVLF *dest,LVLF *src);
 
@@ -951,7 +956,7 @@ typedef struct _LVL
     XCHAR *numbertext;
     } LVL;
 
-void wvGetLVL(LVL *lvl,FILE *fd);
+void wvGetLVL(LVL *lvl,wvStream *fd);
 void wvCopyLVL(LVL *dest,LVL *src);
 void wvReleaseLVL(LVL *lvl);
 void wvInitLVL(LVL *lvl);
@@ -982,7 +987,7 @@ typedef struct _LST
 	U32 *current_no;
     }LST;
 
-int wvGetLST(LST **lst,U16 *noofLST,U32 offset,U32 len,FILE *fd);
+int wvGetLST(LST **lst,U16 *noofLST,U32 offset,U32 len,wvStream *fd);
 void wvReleaseLST(LST **lst,U16 noofLST);
 LST *wvSearchLST(U32 id,LST *lst,U16 noofLST);
 int wvInitLST(LST *lst);
@@ -996,9 +1001,9 @@ typedef struct _LFO
     U8 reserved3[3];
     } LFO;
 
-void wvGetLFO(LFO *item,FILE *fd);
+void wvGetLFO(LFO *item,wvStream *fd);
 void wvInitLFO(LFO *item);
-int wvGetLFO_PLF(LFO **lfo,U32 *nolfo,U32 offset,U32 len,FILE *fd);
+int wvGetLFO_PLF(LFO **lfo,U32 *nolfo,U32 offset,U32 len,wvStream *fd);
 
 typedef struct _LFOLVL
     {
@@ -1012,11 +1017,11 @@ typedef struct _LFOLVL
     U32 reserved4:8;
     } LFOLVL;
 
-void wvGetLFOLVL(LFOLVL *item,FILE *fd);
+void wvGetLFOLVL(LFOLVL *item,wvStream *fd);
 void wvInitLFOLVL(LFOLVL *item);
 int wvInvalidLFOLVL(LFOLVL *item);
 
-int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl,U32 offset,U32 len,FILE *fd);
+int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl,U32 offset,U32 len,wvStream *fd);
 int wvReleaseLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 nooflvl);
 
 
@@ -1034,7 +1039,7 @@ typedef struct _SHD
     U32 ipat:6;
     } SHD;
 
-void wvGetSHD(SHD *item,FILE *fd);
+void wvGetSHD(SHD *item,wvStream *fd);
 void wvGetSHDFromBucket(SHD *item,U8 *pointer);
 void wvInitSHD(SHD *item);
 void wvCopySHD(SHD *dest,SHD *src);
@@ -1048,7 +1053,7 @@ typedef struct _DCS
     U32 reserved:8;
     } DCS;
 
-void wvGetDCS(DCS *item,FILE *fd);
+void wvGetDCS(DCS *item,wvStream *fd);
 void wvGetDCSFromBucket(DCS *item,U8 *pointer);
 void wvInitDCS(DCS *item);
 void wvCopyDCS(DCS *dest,DCS *src);
@@ -1064,7 +1069,7 @@ typedef struct _BRC
 	U32 reserved:1;
 	} BRC;
 
-void wvGetBRC(version ver,BRC *abrc,FILE *fd);
+void wvGetBRC(version ver,BRC *abrc,wvStream *fd);
 int wvGetBRCFromBucket(version ver,BRC *abrc,U8 *pointer);
 void wvInitBRC(BRC *abrc);
 void wvCopyBRC(BRC *dest, BRC *src);
@@ -1170,7 +1175,7 @@ typedef struct _NUMRM
     XCHAR xst[32];  
     }NUMRM;
 
-void wvGetNUMRM(NUMRM *item,FILE *fd);
+void wvGetNUMRM(NUMRM *item,wvStream *fd);
 void wvGetNUMRMFromBucket(NUMRM *item,U8 *pointer);
 void wvCopyNUMRM(NUMRM *dest,NUMRM *src);
 void wvInitNUMRM(NUMRM *item);
@@ -1211,7 +1216,7 @@ typedef struct _ANLD
     XCHAR rgxch[32];
     } ANLD;
 
-void wvGetANLD(version ver,ANLD *item,FILE *fd);
+void wvGetANLD(version ver,ANLD *item,wvStream *fd);
 void wvGetANLD_FromBucket(version ver,ANLD *item,U8 *pointer8);
 void wvCopyANLD(ANLD *dest, ANLD *src);
 void wvInitANLD(ANLD *item);
@@ -1354,7 +1359,7 @@ typedef struct _TLP
 
 void wvCopyTLP(TLP *dest,TLP *src);
 void wvInitTLP(TLP *item);
-void wvGetTLP(TLP *item,FILE *fd);
+void wvGetTLP(TLP *item,wvStream *fd);
 void wvGetTLPFromBucket(TLP *item,U8 *pointer);
 
 typedef struct _TAP
@@ -1398,7 +1403,7 @@ typedef struct _TBD	/* 8 bits */
 
 void wvInitTBD(TBD *item);
 void wvCopyTBD(TBD *dest,TBD *src);
-void wvGetTBD(TBD *item,FILE *fd);
+void wvGetTBD(TBD *item,wvStream *fd);
 void wvGetTBDFromBucket(TBD *item,U8 *pointer);
 
 
@@ -1517,7 +1522,7 @@ typedef struct _STSHI
     FTC  rgftcStandardChpStsh[3];       /* ftc used by StandardChpStsh for this document */
     } STSHI;
 
-void wvGetSTSHI(STSHI *item,U16 cbSTSHI,FILE *fd);
+void wvGetSTSHI(STSHI *item,U16 cbSTSHI,wvStream *fd);
 void wvInitSTSHI(STSHI *item);
 
 
@@ -1563,7 +1568,7 @@ typedef struct _CHPX_FKP
 	U8 crun;
 	} CHPX_FKP;
 
-void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, FILE *fd);
+void wvGetCHPX_FKP(version ver, CHPX_FKP *fkp, U32 pn, wvStream *fd);
 void wvReleaseCHPX_FKP(CHPX_FKP *fkp);
 void wvInitCHPX_FKP(CHPX_FKP *fkp);
 
@@ -1640,7 +1645,7 @@ typedef enum
     sgcTap
     }sgcval;
 
-int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,FILE *fd);
+int wvGetSTD(STD *item,U16 baselen,U16 fixedlen,wvStream *fd);
 void wvInitSTD(STD *item);
 void wvReleaseSTD(STD *item);
 
@@ -1667,13 +1672,13 @@ typedef struct _STSH
     STD *std;
     }STSH;
 
-void wvGetSTSH(STSH *item,U32 offset,U32 len,FILE *fd);
+void wvGetSTSH(STSH *item,U32 offset,U32 len,wvStream *fd);
 void wvReleaseSTSH(STSH *item);
 void wvGenerateStyle(STSH *item,U16 i,U16 type);
 
 
 void wvInitPAPFromIstd(PAP *apap,U16 istdBase,STSH *stsh);
-void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh,FILE *data);
+void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh,wvStream *data);
 void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh);
 
 void wvInitCHPFromIstd(CHP *achp,U16 istdBase,STSH *stsh);
@@ -1719,7 +1724,7 @@ typedef struct _ANLV
 
 void wvInitANLV(ANLV *item);
 
-void wvGetANLV(ANLV *item,FILE *fd);
+void wvGetANLV(ANLV *item,wvStream *fd);
 void wvGetANLVFromBucket(ANLV *item,U8 *pointer);
 
 
@@ -1735,7 +1740,7 @@ typedef struct _OLST
 	} OLST;
 
 void wvInitOLST(OLST *);
-void wvGetOLST(version ver,OLST *item,FILE *fd);
+void wvGetOLST(version ver,OLST *item,wvStream *fd);
 void wvGetOLSTFromBucket(version ver,OLST *item,U8 *pointer);
 
 
@@ -1815,7 +1820,7 @@ typedef struct _SEPX
 	U8 *grpprl;
 	} SEPX;
 
-void wvGetSEPX(version ver,SEPX *item,FILE *fd);
+void wvGetSEPX(version ver,SEPX *item,wvStream *fd);
 void wvReleaseSEPX(SEPX *item);
 int wvAddSEPXFromBucket(SEP *asep,SEPX *item,STSH *stsh);
 int wvAddSEPXFromBucket6(SEP *asep,SEPX *item,STSH *stsh);
@@ -1831,7 +1836,7 @@ typedef struct _Sprm
 
 
 
-Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos, FILE *data);
+Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh,U8 *pointer, U16 *pos,wvStream *data);
 
 int wvSprmLen(int spra);
 void wvGetSprmFromU16(Sprm *Sprm,U16 sprm);
@@ -2130,7 +2135,7 @@ void wvApplysprmPFrameTextFlow(PAP *apap,U8 *pointer,U16 *pos);
 void wvApplysprmPAnld(version ver,PAP *apap,U8 *pointer, U16 *pos);
 void wvApplysprmPPropRMark(PAP *apap,U8 *pointer,U16 *pos);
 void wvApplysprmPNumRM(PAP *apap,U8 *pointer, U16 *pos);
-void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos, FILE *data, STSH *stsh);
+void wvApplysprmPHugePapx(PAP *apap,U8 *pointer,U16 *pos,wvStream *data,STSH *stsh);
 
 void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos);	/*unfinished*/
 void wvApplysprmCSymbol(version ver,CHP *achp,U8 *pointer,U16 *pos);
@@ -2540,7 +2545,7 @@ typedef struct _state_data
 	wvEle *currentele;
 	char **current;
 	U32 currentlen;
-	FILE *fp;
+	wvStream *fp;
 	} state_data;
 
 
@@ -2563,7 +2568,7 @@ typedef struct _PRM
 		} para;
 	} PRM; 
 
-void wvGetPRM(PRM *item,FILE *fd);
+void wvGetPRM(PRM *item,wvStream *fd);
 void wvInitPRM(PRM *item);
 
 typedef struct _PCD
@@ -2578,9 +2583,9 @@ typedef struct _PCD
  	PRM prm;
 	} PCD;
 
-void wvGetPCD(PCD *item,FILE *fd);
+void wvGetPCD(PCD *item,wvStream *fd);
 void wvInitPCD(PCD *item);
-int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,FILE *fd);
+int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,wvStream *fd);
 int wvReleasePCD_PLCF(PCD *pcd,U32 *pos);
 int wvGuess16bit(PCD *pcd,U32 *pos,U32 nopcd);
 
@@ -2598,7 +2603,7 @@ typedef struct _CLX
 
 
 void wvInitCLX(CLX *item);
-void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,FILE *fd);
+void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,wvStream *fd);
 void wvReleaseCLX(CLX *clx);
 void wvBuildCLXForSimple6(CLX *clx,FIB *fib);
 
@@ -2608,8 +2613,8 @@ typedef struct _FDOA
 	S16 ctxbx;
 	}FDOA;
 
-void wvGetFDOA(FDOA *item,FILE *fd);
-int wvGetFDOA_PLCF(FDOA **fdoa,U32 **pos,U32 *nofdoa,U32 offset,U32 len,FILE *fd);
+void wvGetFDOA(FDOA *item,wvStream *fd);
+int wvGetFDOA_PLCF(FDOA **fdoa,U32 **pos,U32 *nofdoa,U32 offset,U32 len,wvStream *fd);
 FDOA *wvGetFDOAFromCP(U32 currentcp,FDOA *fdoa,U32 *pos,U32 nofdoa);
 
 typedef struct _wvParseStruct
@@ -2618,10 +2623,10 @@ typedef struct _wvParseStruct
 	void *userData;
 
 	/*protected*/
-	FILE *mainfd;
-	FILE *tablefd;
-	FILE *data;
-	FILE *summary;
+	wvStream *mainfd;
+	wvStream *tablefd;
+	wvStream *data;
+	wvStream *summary;
 	FIB fib;
 	DOP dop;
 	STTBF anSttbfAssoc;
@@ -2642,8 +2647,8 @@ typedef struct _wvParseStruct
 	U8 *listnfcs;
 	   
 	/*private*/
-	FILE *tablefd0;
-	FILE *tablefd1;
+	wvStream *tablefd0;
+	wvStream *tablefd1;
 	U16 password[16];
 	U8 intable;
 	S16 *cellbounds;
@@ -2675,7 +2680,7 @@ int wvDecrypt97(wvParseStruct *ps);
 
 void wvPrintTitle(wvParseStruct *ps,STTBF *item);
 
-FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps);
+wvStream *wvWhichTableStream(FIB *fib,wvParseStruct *ps);
 
 char *wvAutoCharset(wvParseStruct *ps);
 
@@ -2727,7 +2732,7 @@ returns the same as wvOLEDecode with the addition that
 */
 int wvInitParser(wvParseStruct *ps,FILE *fp);
 
-int wvOpenPreOLE(FILE **input, FILE **mafd, FILE **tablefd0, FILE **tablefd1,FILE **data, FILE **summary);
+int wvOpenPreOLE(FILE **input, wvStream **mafd, wvStream **tablefd0, wvStream **tablefd1,wvStream **data, wvStream **summary);
 
 void wvDecodeSimple(wvParseStruct *ps,subdocument whichdoc);
 U32 wvGetBeginFC(wvParseStruct *ps,subdocument whichdoc);
@@ -2793,7 +2798,7 @@ typedef enum
 U32 wvNormFC(U32 fc,int *flag);
 int wvGetPieceBoundsFC(U32 *begin,U32 *end,CLX *clx,U32 piececount);
 int wvGetPieceBoundsCP(U32 *begin,U32 *end,CLX *clx,U32 piececount);
-U16 wvGetChar(FILE *fd,U8 chartype);
+U16 wvGetChar(wvStream *fd,U8 chartype);
 
 
 typedef struct _BTE
@@ -2802,10 +2807,10 @@ typedef struct _BTE
     U32 unused:10;      
     } BTE;
 
-void wvGetBTE(BTE *bte,FILE *fd);
+void wvGetBTE(BTE *bte,wvStream *fd);
 void wvInitBTE(BTE *bte);
-int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd);
-int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd);
+int wvGetBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,wvStream *fd);
+int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,wvStream *fd);
 void wvCopyBTE(BTE *dest,BTE *src);
 int wvGetBTE_FromFC(BTE *bte, U32 currentfc, BTE *list,U32 *fcs, int nobte);
 void wvListBTE_PLCF(BTE **bte,U32 **pos,U32 *nobte);
@@ -2842,14 +2847,14 @@ typedef struct _PAPX_FKP
 	U8 crun;
 	} PAPX_FKP;
 
-void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,FILE *fd);
+void wvGetPAPX_FKP(version ver,PAPX_FKP *fkp,U32 pn,wvStream *fd);
 void wvReleasePAPX_FKP(PAPX_FKP *fkp);
 void wvInitPAPX_FKP(PAPX_FKP *fkp);
 
 int wvGetIntervalBounds(U32 *fcFirst, U32 *fcLim, U32 currentfc, U32 *pos, U32 nopos);
 int wvIncFC(U8 chartype);
 
-int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,/*CLX *clx,*/ BTE *bte, U32 *pos,int nobte, FILE *fd);
+int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,/*CLX *clx,*/ BTE *bte, U32 *pos,int nobte, wvStream *fd);
 
 int wvOutputTextChar(U16 eachchar,U8 chartype,wvParseStruct *ps,CHP *achp);
 void wvOutputFromUnicode(U16 eachchar,char *outputtype);
@@ -2861,11 +2866,11 @@ U16 wvConvertSymbolToUnicode(U16 char16);
 U16 wvHandleCodePage(U16 eachchar,U16 lid);
 
 void wvDecodeComplex(wvParseStruct *ps);
-int wvGetComplexParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,FILE *fd);
+int wvGetComplexParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte, U32 piece,wvStream *fd);
 U32 wvSearchNextLargestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc);
 U32 wvSearchNextLargestFCCHPX_FKP(CHPX_FKP *fkp,U32 currentfc);
 int wvQuerySamePiece(U32 fcTest,CLX *clx,U32 piece);
-int wvGetComplexParafcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd);
+int wvGetComplexParafcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd);
 U32 wvSearchNextSmallestFCPAPX_FKP(PAPX_FKP *fkp,U32 currentfc);
 U32 wvGetPieceFromCP(U32 cp,CLX *clx);
 int wvGetIndexFCInFKP_PAPX(PAPX_FKP *fkp,U32 currentfc);
@@ -2892,7 +2897,7 @@ void wvRealTrace(char *file, int line, char *msg);
 #define wvTrace( args )
 #endif
 
-int wvAssembleSimplePAP(version ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh,FILE *data);
+int wvAssembleSimplePAP(version ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH	*stsh,wvStream *data);
 int wvAssembleComplexCHP(version ver,CHP *achp,U32 cpiece,STSH *stsh,CLX *clx);
 
 void wvAppendStr(char **orig,const char *add);
@@ -2924,7 +2929,7 @@ void wvEndSection(expand_data *data);
 void wvBeginComment(expand_data *data);
 void wvEndComment(expand_data *data);
    
-int wvGetComplexParafcLim(version ver,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,FILE *fd);
+int wvGetComplexParafcLim(version ver,U32 *fcLim,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,PAPX_FKP *fkp,wvStream *fd);
 
 version wvQuerySupported(FIB *fib,int *reason);
 
@@ -2954,7 +2959,7 @@ int wvHandleDocument(wvParseStruct *ps,wvTag tag);
 void wvSetDocumentHandler(int (*proc)(wvParseStruct *,wvTag));
 
 SprmName wvGetrgsprmPrm(U16 in);
-int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx,FILE *data);
+int wvAssembleComplexPAP(version ver,PAP *apap,U32 cpiece,STSH *stsh,CLX *clx,wvStream *data);
 U32 wvGetEndFCPiece(U32 piece,CLX *clx);
 void wvInitSprm(Sprm *Sprm);
 
@@ -2973,8 +2978,8 @@ typedef struct _BKD
     U32 reserved1:3;
     } BKD;
 
-void wvGetBKD(BKD *item,FILE *fd);
-int wvGetBKD_PLCF(BKD **bkd,U32 **pos,U32 *nobkd,U32 offset,U32 len,FILE *fd);
+void wvGetBKD(BKD *item,wvStream *fd);
+int wvGetBKD_PLCF(BKD **bkd,U32 **pos,U32 *nobkd,U32 offset,U32 len,wvStream *fd);
 
 
 
@@ -2983,8 +2988,8 @@ typedef struct _BKL
    S16 ibkf;
    } BKL;
 
-void wvGetBKL(BKL *item,FILE *fd);
-int wvGetBKL_PLCF(BKL **bkl,U32 **pos,U32 *nobkl,U32 offset,U32 len,FILE *fd);
+void wvGetBKL(BKL *item,wvStream *fd);
+int wvGetBKL_PLCF(BKL **bkl,U32 **pos,U32 *nobkl,U32 offset,U32 len,wvStream *fd);
 
 
 typedef struct _PGD
@@ -3018,7 +3023,7 @@ typedef struct _PGD
     } PGD;
 
 
-void wvGetPGD(version ver,PGD *item,FILE *fd);
+void wvGetPGD(version ver,PGD *item,wvStream *fd);
 
 
 typedef struct _RS
@@ -3033,7 +3038,7 @@ typedef struct _RS
     S16 cRecip;
     } RS;
 
-void wvGetRS(RS *item,FILE *fd);
+void wvGetRS(RS *item,wvStream *fd);
 
 typedef struct _RR
     {
@@ -3041,7 +3046,7 @@ typedef struct _RR
     S16 cbSzRecip;
     } RR;
 
-void wvGetRR(RR *item,FILE *fd);
+void wvGetRR(RR *item,wvStream *fd);
 
 typedef struct _FTXBXS
     {
@@ -3053,8 +3058,8 @@ typedef struct _FTXBXS
     S32 txidUndo;
     } FTXBXS;
 
-void wvGetFTXBXS(FTXBXS *item,FILE *fd);
-int wvGetFTXBXS_PLCF(FTXBXS **ftxbxs,U32 **pos,U32 *noftxbxs,U32 offset,U32 len,FILE *fd);
+void wvGetFTXBXS(FTXBXS *item,wvStream *fd);
+int wvGetFTXBXS_PLCF(FTXBXS **ftxbxs,U32 **pos,U32 *noftxbxs,U32 offset,U32 len,wvStream *fd);
 
 
 typedef struct _WKB
@@ -3067,15 +3072,15 @@ typedef struct _WKB
     S32 doc;
     } WKB;
 
-void wvGetWKB(WKB *item,FILE *fd);
+void wvGetWKB(WKB *item,wvStream *fd);
 
-int wvGetSimpleSectionBounds(version ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,FILE *fd);
+int wvGetSimpleSectionBounds(version ver,wvParseStruct *ps,SEP *sep,U32 *fcFirst,U32 *fcLim, U32 cp, CLX *clx, SED *sed, U32 *spiece,U32 *posSedx, U32 section_intervals, STSH *stsh,wvStream *fd);
 int wvGetComplexSEP(version ver,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx);
 
-int wvGetSimpleCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, FILE *fd);
+int wvGetSimpleCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, U32 currentcp, CLX *clx, BTE *bte, U32 *pos, int nobte, wvStream *fd);
 int wvAssembleSimpleCHP(version ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh);
-int wvGetComplexCharfcLim(version ver, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, FILE *fd);
-int wvGetComplexCharfcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, FILE *fd);
+int wvGetComplexCharfcLim(version ver, U32 *fcLim, U32 currentfc, CLX *clx, BTE *bte, U32 *pos, int nobte, U32 piece, CHPX_FKP *fkp, wvStream *fd);
+int wvGetComplexCharfcFirst(version ver,U32 *fcFirst,U32 currentfc,CLX *clx, BTE *bte, U32 *pos,int nobte,U32 piece,CHPX_FKP *fkp, wvStream *fd);
 
 void wvOutputHtmlChar(U16 eachchar,U8 chartype,char *outputtype,U16 lid);
 
@@ -3123,8 +3128,8 @@ typedef struct _MSOFBH
 	U32 cbLength;
 	} MSOFBH;
 
-U32 wvGetMSOFBH(MSOFBH *amsofbh,FILE *fd);
-U32 wvEatmsofbt(MSOFBH *amsofbh,FILE *fd);
+U32 wvGetMSOFBH(MSOFBH *amsofbh,wvStream *fd);
+U32 wvEatmsofbt(MSOFBH *amsofbh,wvStream *fd);
 
 /* FDGG - File DGG */
 typedef struct _FDGG
@@ -3160,7 +3165,7 @@ typedef struct _FBSE
    U8      unused3;    /* for the future */
    } FBSE; 
 
-U32 wvGetFBSE(FBSE *afbse,FILE *fd);
+U32 wvGetFBSE(FBSE *afbse,wvStream *fd);
 void wvCopyFBSE(FBSE *dest,FBSE *src);
 
 
@@ -3287,13 +3292,14 @@ typedef struct _Blip
 		BitmapBlip bitmap;
 		}blip;
 	}Blip;
-
-U32 wvGetBlip(Blip *blip,FILE *fd,FILE *delay);
+	
+void wvCopyBlip(Blip *dest,Blip *src);
+U32 wvGetBlip(Blip *blip,wvStream *fd,wvStream *delay);
 void wvReleaseBlip(Blip *blip);
 
-U32 wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *fd);
+U32 wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,wvStream *fd);
 void wvCopyMetafile(MetaFileBlip *dest,MetaFileBlip *src);
-U32 wvGetBitmap(BitmapBlip *abm,MSOFBH *amsofbh,FILE *fd);
+U32 wvGetBitmap(BitmapBlip *abm,MSOFBH *amsofbh,wvStream *fd);
 void wvCopyBitmap(BitmapBlip *dest,BitmapBlip *src);
 
 typedef struct _FOPTE
@@ -3306,9 +3312,9 @@ typedef struct _FOPTE
 	U8 *entry;
 	} FOPTE;
 
-U32 wvGetFOPTE(FOPTE *afopte,FILE *fd);
+U32 wvGetFOPTE(FOPTE *afopte,wvStream *fd);
 void wvReleaseFOPTE(FOPTE *afopte);
-U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,FILE *fd);
+U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,wvStream *fd);
 void wvReleaseFOPTEArray(FOPTE **fopte);
 void wvInitFOPTEArray(FOPTE **fopte);
 
@@ -3318,7 +3324,7 @@ typedef struct _FSP
 	U32 grfPersistent;
 	} FSP;
 
-U32 wvGetFSP(FSP *fsp,FILE *fd);
+U32 wvGetFSP(FSP *fsp,wvStream *fd);
 
 /* FDG - File DG */
 typedef struct _FDG
@@ -3333,7 +3339,7 @@ typedef struct _FSPGR
 	} FSPGR;
 
 typedef RECT FAnchor,FChildAnchor,FClientAnchor;
-U32 wvGetFAnchor(FAnchor *fanchor,FILE *fd);
+U32 wvGetFAnchor(FAnchor *fanchor,wvStream *fd);
 
 typedef struct _ClientData
 	{
@@ -3347,7 +3353,7 @@ typedef struct _ClientTextbox
 
 void wvInitClientTextbox(ClientTextbox *item);
 void wvReleaseClientTextbox(ClientTextbox *item);
-U32 wvGetClientTextbox(ClientTextbox *item,MSOFBH *amsofbh,FILE *fd);
+U32 wvGetClientTextbox(ClientTextbox *item,MSOFBH *amsofbh,wvStream *fd);
 
 typedef struct _FSPContainer
 	{
@@ -3366,10 +3372,10 @@ typedef struct _FSPContainer
 #endif
 	}FSPContainer;
 
-int wv0x01(Blip *blip,FILE *fd,U32 len);
+int wv0x01(Blip *blip,wvStream *fd,U32 len);
 char *wvHtmlGraphic(wvParseStruct *ps,Blip *blip);
 
-U32 wvGetFSPContainer(FSPContainer *item,MSOFBH *msofbh,FILE *fd);
+U32 wvGetFSPContainer(FSPContainer *item,MSOFBH *msofbh,wvStream *fd);
 void wvReleaseFSPContainer(FSPContainer *item);
 
 /* begin temp */
@@ -3378,14 +3384,14 @@ typedef struct _BITMAP
 	U8 bm[14];
 	} BITMAP;
 
-void wvGetBITMAP(BITMAP *bmp,FILE *fd);
+void wvGetBITMAP(BITMAP *bmp,wvStream *fd);
 
 typedef struct _rc
 	{
 	U8 bm[14];
 	} rc;
 
-void wvGetrc(rc *arc,FILE *fd);
+void wvGetrc(rc *arc,wvStream *fd);
 /* end temp */
 
 typedef struct _PICF
@@ -3428,12 +3434,12 @@ typedef struct _PICF
 	void *rgb;
 	} PICF;
 
-int wvGetPICF(version ver,PICF *apicf,FILE *fd);
+int wvGetPICF(version ver,PICF *apicf,wvStream *fd);
 
 void remove_suffix (char *name, const char *suffix);
 char *base_name (char const *name);
 
-U32 wvEatOldGraphicHeader(FILE *fd,U32 len);
+U32 wvEatOldGraphicHeader(wvStream *fd,U32 len);
 int bmptopng(char *prefix);
 
 int wv0x08(Blip *blip,S32 spid,wvParseStruct *ps);
@@ -3464,23 +3470,24 @@ typedef struct _DggContainer
 	} DggContainer;
 
 
-U32 wvGetDggContainer(DggContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay);
+U32 wvGetDggContainer(DggContainer *item,MSOFBH *msofbh,wvStream *fd,wvStream *delay);
 void wvReleaseDggContainer(DggContainer *item);
 void wvInitDggContainer(DggContainer *item);
-U32 wvGetBstoreContainer(BstoreContainer *item,MSOFBH *msofbh,FILE *fd,FILE *delay);
+U32 wvGetBstoreContainer(BstoreContainer *item,MSOFBH *msofbh,wvStream *fd,wvStream *delay);
 void wvReleaseBstoreContainer(BstoreContainer *item);
 void wvInitBstoreContainer(BstoreContainer *item);
 
 
-U32 wvGetDgg(Dgg *dgg,MSOFBH *amsofbh,FILE *fd);
+U32 wvGetDgg(Dgg *dgg,MSOFBH *amsofbh,wvStream *fd);
 void wvReleaseDgg(Dgg *dgg);
 void wvInitDgg(Dgg *dgg);
 
-U32 wvGetFDGG(FDGG *afdgg,FILE *fd);
-U32 wvGetFIDCL(FIDCL *afidcl,FILE *fd);
+U32 wvGetFDGG(FDGG *afdgg,wvStream *fd);
+U32 wvGetFIDCL(FIDCL *afidcl,wvStream *fd);
 
 	
-U32 wvGetSplitMenuColors(SplitMenuColors *splitmenucolors,MSOFBH *amsofbh,FILE *fd);
+U32 wvGetSplitMenuColors(SplitMenuColors *splitmenucolors,MSOFBH
+		*amsofbh,wvStream *fd);
 void wvReleaseSplitMenuColors(SplitMenuColors *splitmenucolors);
 void wvInitSplitMenuColors(SplitMenuColors *splitmenucolors);
 
@@ -3504,15 +3511,15 @@ typedef struct _DgContainer
 #endif
 	}DgContainer;
 
-U32 wvGetDgContainer(DgContainer *item,MSOFBH *msofbh,FILE *fd);
+U32 wvGetDgContainer(DgContainer *item,MSOFBH *msofbh,wvStream *fd);
 void wvReleaseDgContainer(DgContainer *item);
 void wvInitDgContainer(DgContainer *item);
-U32 wvGetFDG(FDG *afdg,FILE *fd);
-U32 wvGetSpgrContainer(SpgrContainer *item,MSOFBH *msofbh,FILE *fd);
+U32 wvGetFDG(FDG *afdg,wvStream *fd);
+U32 wvGetSpgrContainer(SpgrContainer *item,MSOFBH *msofbh,wvStream *fd);
 void wvReleaseSpgrContainer(SpgrContainer *item);
-U32 wvGetFSPGR(FSPGR *item,FILE *fd);
+U32 wvGetFSPGR(FSPGR *item,wvStream *fd);
 
-U32 wvGetClientData(ClientData *item,MSOFBH *msofbh,FILE *fd);
+U32 wvGetClientData(ClientData *item,MSOFBH *msofbh,wvStream *fd);
 void wvReleaseClientData(ClientData *item);
 void wvInitClientData(ClientData *item);
 FSPContainer *wvFindSPID(SpgrContainer *item,S32 spid);
@@ -3523,7 +3530,7 @@ typedef struct _escherstruct
 	DgContainer dgcontainer;
 	} escherstruct;
 
-void wvGetEscher(escherstruct *item,U32 offset, U32 len, FILE *fd,FILE *delay);
+void wvGetEscher(escherstruct *item,U32 offset, U32 len, wvStream *fd,wvStream *delay);
 void wvInitEscher(escherstruct *item);
 void wvReleaseEscher(escherstruct *item);
 void wvStrToUpper(char *str);
@@ -3841,10 +3848,10 @@ typedef struct _fbse_list fbse_list;
 
 
 
-fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *escherstream,FILE *delaystream);
+fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,wvStream *escherstream,FILE *delaystream);
 int wvQueryDelayStream(FBSE *afbse);
 fbse_list *wvGetSPID(U32 spid,fsp_list *afsp_list,fbse_list *afbse_list);
-U32 twvGetFBSE(FBSE *item,FILE *fd);
+U32 twvGetFBSE(FBSE *item,wvStream *fd);
 
 
 
@@ -3866,7 +3873,7 @@ typedef struct _PropHeader
     U32    cSections;
     } PropHeader;
 
-void wvGetPropHeader(PropHeader *header,FILE *file);
+void wvGetPropHeader(PropHeader *header,wvStream *file);
 
 typedef struct _FIDAndOffset
 	{
@@ -3874,7 +3881,7 @@ typedef struct _FIDAndOffset
     U32 dwOffset;
     } FIDAndOffset;
 
-void wvGetFIDAndOffset(FIDAndOffset *fid,FILE *file);
+void wvGetFIDAndOffset(FIDAndOffset *fid,wvStream *file);
 
 typedef struct _aPro
 		{
@@ -3890,9 +3897,9 @@ typedef struct _SummaryInfo
 	U8 *data;
 	} SummaryInfo;
 
-int wvSumInfoOpenStream(SummaryInfo *si,FILE *stream);
+int wvSumInfoOpenStream(SummaryInfo *si,wvStream *stream);
 
-void wvGetSummaryInfo(SummaryInfo *si,FILE *file,U32 offset);
+void wvGetSummaryInfo(SummaryInfo *si,wvStream *file,U32 offset);
 void wvReleaseSummaryInfo(SummaryInfo *si);
 
 typedef struct _vtB
@@ -4385,42 +4392,51 @@ typedef struct ttextportions textportions;
 #define DONTIGNORENUM 1
 #define IGNOREALL 2
 
-U16 read_16ubit(FILE *);
-U32 read_32ubit(FILE *);
+U32 read_32ubit(wvStream *in);
+U16 read_16ubit(wvStream *in);
+U8 read_8ubit(wvStream *in);
 
 U32 sread_32ubit(const U8 *in);
 U16 sread_16ubit(const U8 *in);
-U8 sgetc(const U8 *in);
+U8 sread_8ubit(const U8 *in);
 
-U32 dread_32ubit(FILE *in,U8 **list);
-U16 dread_16ubit(FILE *in,U8 **list);
-U8 dgetc(FILE *in,U8 **list);
+U32 dread_32ubit(wvStream *in,U8 **list);
+U16 dread_16ubit(wvStream *in,U8 **list);
+U8 dread_8ubit(wvStream *in,U8 **list);
 
 U32 bread_32ubit(U8 *in,U16 *pos);
 U16 bread_16ubit(U8 *in,U16 *pos);
-U8 bgetc(U8 *in,U16 *pos);
+U8 bread_8ubit(U8 *in,U16 *pos);
 
+/* Perform file-I/O-like operations on wvStreams. */
+size_t wvStream_read(void *ptr, size_t size, size_t nmemb, wvStream *stream);
+void wvStream_rewind(wvStream *stream);
+int wvStream_goto(wvStream *stream, long position);
+int wvStream_offset(wvStream *stream, long offset);
+int wvStream_offset_from_end(wvStream *stream, long offset);
+long wvStream_tell(wvStream *stream);
+int wvStream_close(wvStream *stream);
 
 void cleanupstreams(char *analyze,char *slashtmp);
 olestream * divide_streams(char *filename,char **analyze,char **slashtmp, char *argv0);
 int decode_word8(wvParseStruct *ps,int core);
-void get_table_info(FILE *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSttbFnm,U32 fcPlcfLst,U32 lcbPlcfLst,U32 fcPlfLfo,U32 lcbPlfLfo,style *sheet);
+void get_table_info(wvStream *tablefd,list_info *a_list_info,U32 fcSttbFnm,U32 lcbSttbFnm,U32 fcPlcfLst,U32 lcbPlcfLst,U32 fcPlfLfo,U32 lcbPlfLfo,style *sheet);
 
-pap *get_pap(U32 pageindex,FILE *in,U32 charindex, U32 *nextfc,style *sheet,list_info *a_list_info);
-chp *get_chp(U32 pageindex,FILE *in, FILE *data, U32 charindex, U32 *nextfc,style *sheet,U16 istd);
-sep *get_sep(U32 offset,FILE *in);
+pap *get_pap(U32 pageindex,wvStream *in,U32 charindex, U32 *nextfc,style *sheet,list_info *a_list_info);
+chp *get_chp(U32 pageindex,wvStream *in, FILE *data, U32 charindex, U32 *nextfc,style *sheet,U16 istd);
+sep *get_sep(U32 offset,wvStream *in);
 
-void decode_clx(U32 startpiece,U32 begincp,U32 endcp,FILE *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headfooterflag);
-void decode_clx_header(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,FILE *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
-void decode_clx_footer(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,FILE *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
-int decode_clx_endnote(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,FILE *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
+void decode_clx(U32 startpiece,U32 begincp,U32 endcp,wvStream *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headfooterflag);
+void decode_clx_header(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,wvStream *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
+void decode_clx_footer(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,wvStream *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
+int decode_clx_endnote(U32 *rgfc,sep *asep,int nopieces,U32 startpiece,U32 begincp,U32 endcp,wvStream *in,FILE *main,FILE *data,U32 fcClx,U32 lcbClx,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int headerfooterflag);
 
-void decode_simple(FILE *mafd,FILE *tablefd,FILE *data,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
-int decode_simple_footer(FILE *mafd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
-int decode_simple_endnote(FILE *mafd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
-void decode_simple_header(FILE *mafd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
+void decode_simple(wvStream *mafd,FILE *tablefd,FILE *data,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
+int decode_simple_footer(wvStream *mafd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
+int decode_simple_endnote(wvStream *mafd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
+void decode_simple_header(wvStream *mafd,FILE *tablefd,FILE *data,sep *asep,U32 fcClx,U32 fcMin,U32 fcMac,U32 intervals,U32 chpintervals,U32 *plcfbtePapx,U32 *plcfbteChpx,field_info *all_fields[5],list_info *a_list_info,style *sheet,textportions *portions,FFN_STTBF *ffn_sttbf,int flag);
 
-int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fields,FILE *main,FILE *data,FFN_STTBF *ffn_sttbf,list_info *a_list_info,textportions *portions,int *issection,style *sheet);
+int decode_letter(int letter,int flag,pap *apap, chp * achp,field_info *magic_fields,wvStream *main,FILE *data,FFN_STTBF *ffn_sttbf,list_info *a_list_info,textportions *portions,int *issection,style *sheet);
 void decode_f_reference(textportions *portions);
 void decode_e_reference(textportions *portions);
 void get_next_f_ref(textportions *portions,signed long *nextfootnote);
@@ -4447,21 +4463,21 @@ void decode_s_anld(pap *apap,chp *achp,list_info *a_list_info,FFN_STTBF *ffn_stt
 void decode_s_list(pap *apap,chp *achp,list_info *a_list_info,FFN_STTBF *ffn_sttbf,int num,style *sheet);
 void decode_e_list(pap *apap,chp *achp,list_info *a_list_info);
 
-void decode_field(FILE *main,field_info *magic_fields,long *cp,U8 *fieldwas,unsigned long *swallowcp1,unsigned long *swallowcp2);
+void decode_field(wvStream *main,field_info *magic_fields,long *cp,U8 *fieldwas,unsigned long *swallowcp1,unsigned long *swallowcp2);
 
 int find_FKPno_papx(U32 fc,U32 *plcfbtePapx,U32 intervals);
 int find_FKPno_chpx(U32 fc,U32 *plcfbteChpx,U32 intervals);
 U32 find_FC_sepx(U32 cp,U32 *sepcp,textportions *portions);
-U32 find_next_smallest_fc(U32 charindex,U32 pageindex, FILE *in, S16 *location,long *pos);
-U32 find_next_biggest_fc(U32 charindex,U32 pageindex, FILE *in, U16 *location,long *pos);
-U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, FILE *in, U16 *location,long *pos);
+U32 find_next_smallest_fc(U32 charindex,U32 pageindex, wvStream *in, S16 *location,long *pos);
+U32 find_next_biggest_fc(U32 charindex,U32 pageindex, wvStream *in, U16 *location,long *pos);
+U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, wvStream *in, U16 *location,long *pos);
 
-pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U32 *rgfc,FILE *main,U32 *avalrgfc,U32 *thenextone,U32 *paraendfc,int *paraendpiece,style *sheet,list_info *a_list_info);
-chp * get_complex_chp(U32 fc,U32 *plcfbteChpx,U16 i,U16 nopieces,U32 chpintervals,U32 *rgfc,FILE *main,U32 *avalrgfc,U32 *thenextone,style *sheet,U16 istd);
+pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U32 *rgfc,wvStream *main,U32 *avalrgfc,U32 *thenextone,U32 *paraendfc,int *paraendpiece,style *sheet,list_info *a_list_info);
+chp * get_complex_chp(U32 fc,U32 *plcfbteChpx,U16 i,U16 nopieces,U32 chpintervals,U32 *rgfc,wvStream *main,U32 *avalrgfc,U32 *thenextone,style *sheet,U16 istd);
 
 void decode_gpprls(pap *apap,chp *achp,sep *asep,U16* gpprlindex,int index,tSprm *sprmlists, style *sheet);
 
-style *decode_stylesheet(FILE *tablefd,U32 stsh,U32 stshlen,config_style *in_style);
+style *decode_stylesheet(wvStream *tablefd,U32 stsh,U32 stshlen,config_style *in_style);
 void fill_pap(style *stylelist,int m,int b);
 
 void decode_sprm(FILE* in,U16 clist,pap *retpap,chp *retchp,sep *retsep,U16 *pos,U8 **list, style *sheet,U16 istd);
@@ -4484,11 +4500,11 @@ void decode_footnote(U32 *begin,U32 *len,textportions *portions,int i);
 void decode_endnote(U32 *begin,U32 *len,textportions *portions,int i);
 void decode_footanno(U32 *begin,U32 *len,textportions *portions,int i);
 
-int get_piecetable(FILE *in,U32 **rgfc,U32 **avalrgfc,U16 **sprm,U32 *clxcount);
+int get_piecetable(wvStream *in,U32 **rgfc,U32 **avalrgfc,U16 **sprm,U32 *clxcount);
 
 int find_piece_cp(U32 sepcp,U32  *rgfc,int nopieces);
 
-obj_by_spid * get_blips(U32 fcDggInfo,U32 lcbDggInfo,FILE *tablefd,FILE *mafd,int *noofblips,int streamtype,obj_by_spid **realhead);
+obj_by_spid * get_blips(U32 fcDggInfo,U32 lcbDggInfo,wvStream *tablefd,FILE *mafd,int *noofblips,int streamtype,obj_by_spid **realhead);
 void output_draw(U32 cp,textportions *portions);
 
 void do_indent(pap *apap);
@@ -4512,7 +4528,7 @@ void merge_chps(chp *blank,chp *modified,chp *result);
 void init_chp_from_istd(U16 istd,style *sheet,chp *retchp);
 void init_pap_from_istd(U16 istd,style *sheet,pap *retpap);
 
-void get_para_bounds(int currentpiece,U32 fc,U32 *rgfc,U32 *avalrgfc, int nopieces, U32 *plcfbtePapx,U32 intervals, FILE *main);
+void get_para_bounds(int currentpiece,U32 fc,U32 *rgfc,U32 *avalrgfc, int nopieces, U32 *plcfbtePapx,U32 intervals, wvStream *main);
 
 char *ms_strlower(char *in);
 
@@ -4522,10 +4538,10 @@ char *ms_strlower(char *in);
 2 if it isnt an ole file
 3 if its corrupt 
 */
-int wvOLEDecode(FILE *input, FILE **mafd, FILE **tablefd0, FILE **tablefd1,FILE **data,FILE **summary);
-int wvOLESummaryStream(char *filename,FILE **summary);
+int wvOLEDecode(FILE *input, wvStream **mafd, wvStream **tablefd0,wvStream **tablefd1,wvStream **data,wvStream **summary);
+int wvOLESummaryStream(char *filename,wvStream **summary);
 
-long get_picture_header(U32 fcPic,FILE *data,U32 *len,U16 *datatype);
+long get_picture_header(U32 fcPic,wvStream *data,U32 *len,U16 *datatype);
 
 void cleanupglobals(void);
 char *ms_basename(char *filename);
@@ -4541,7 +4557,7 @@ U32 decode_e_annotation(bookmark_limits *l_bookmarks);
 U16 *decode_hyperlink(int letter, unsigned long int *swallowcp1, unsigned long int *swallowcp2, U16 **deleteme);
 U16 *decode_crosslink(int letter,unsigned long int *swallowcp1, unsigned long int *swallowcp2);
 
-void decode_annotations(FILE *mafd,FILE *tablefd,textportions *portions);
+void decode_annotations(wvStream *mafd,FILE *tablefd,textportions *portions);
 
 void myfreeOLEtree(void);
 
@@ -4556,8 +4572,8 @@ void sectionbreak(sep *asep);
 void copy_tap(tap *rettap,tap *intap);
 void check_auto_color(chp *achp);
 
-Xst *extract_authors(FILE *tablefd,U32 fcGrpXstAtnOwners,U32 lcbGrpXstAtnOwners);
-void extract_bookm_limits(bookmark_limits *l_bookmarks,FILE *tablefd,U32 fcPlcfbkf,U32 lcbPlcfbkf, U32 fcPlcfbkl,U32 lcbPlcfbkl);
+Xst *extract_authors(wvStream *tablefd,U32 fcGrpXstAtnOwners,U32 lcbGrpXstAtnOwners);
+void extract_bookm_limits(bookmark_limits *l_bookmarks,wvStream *tablefd,U32 fcPlcfbkf,U32 lcbPlcfbkf, U32 fcPlcfbkl,U32 lcbPlcfbkl);
 
 int use_fontfacequery(chp *achp);
 
@@ -4565,14 +4581,14 @@ char *notoday(int no);
 
 void convertwmf(char *filename);
 
-int Parse (FILE * in,config_style **in_style,document_style **doc_style,element_style *ele_style);
+int Parse (wvStream * in,config_style **in_style,document_style **doc_style,element_style *ele_style);
 int do_output_start(U32 *avalrgfc,int nopieces,document_style *doc_style);
 void do_output_end(document_style *doc_style,int core,int tail);
 char *argument(void);
 
 int query_piece_cp(U32 *rgfc,U32* avalrgfc,int nopieces,U32 querycp,U32 *nextpiececp,int *flag_8_16);
-int query_piece_cp_seek(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U32 *nextpiececp,int *flag_8_16,FILE *fd);
-void fill_table_info(pap *apap,U32 tapfc1, U32 *plcfbtePapx,U32 intervals, FILE *mafd,style *sheet,list_info *a_list_info);
+int query_piece_cp_seek(U32 *rgfc,U32* avalrgfc,int nopieces,long int querycp,U32 *nextpiececp,int *flag_8_16,wvStream *fd);
+void fill_table_info(pap *apap,U32 tapfc1, U32 *plcfbtePapx,U32 intervals, wvStream *mafd,style *sheet,list_info *a_list_info);
 
 char *expand_variables(char *in, pap *apap);
 char *expand_element(char *in, char *fontface, char *color, char *size);
@@ -4588,8 +4604,8 @@ int allowedfont(style *sheet,U16 istd);
 
 /*interim*/
 U32 wvGetSPIDfromCP(U32 cp,textportions *portions);
-void wvDumpPicture(U32 pos,FILE *fd);
-void oldwvGetPICF(PICF *apicf,FILE *fd,U32 offset);
+void wvDumpPicture(U32 pos,wvStream *fd);
+void oldwvGetPICF(PICF *apicf,wvStream *fd,U32 offset);
 
 /* have to have pap replaced with PAP, and change the text output code to the new ones, whenever they are ready*/
 void wvGetListInfo(pap *apap, chp *achp,LFO *lfo, LFOLVL *lfolvl,LVL *lvl,U32 nolfo, LST *lst, U16 noofLST,style *sheet,FFN_STTBF *ffn_sttbf);

@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetPCD(PCD *item,FILE *fd)
+void wvGetPCD(PCD *item,wvStream *fd)
 	{
 	U8 temp8;
-	temp8 = getc(fd);
+	temp8 = read_8ubit(fd);
 #ifdef PURIFY
 	wvInitPCD(item);
 #endif
@@ -13,7 +13,7 @@ void wvGetPCD(PCD *item,FILE *fd)
 	item->fPaphNil = (temp8 & 0x02) >> 1;
 	item->fCopied = (temp8 & 0x04) >> 2;
 	item->reserved = (temp8 & 0xf8) >> 3;
-	item->fn = getc(fd);
+	item->fn = read_8ubit(fd);
 	item->fc = read_32ubit(fd);
 	wvGetPRM(&item->prm,fd);
 	}
@@ -38,7 +38,7 @@ int wvReleasePCD_PLCF(PCD *pcd,U32 *pos)
 	}
 
 
-int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,FILE *fd)
+int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,wvStream *fd)
 	{
 	U32 i;
 	if (len == 0)
@@ -64,7 +64,7 @@ int wvGetPCD_PLCF(PCD **pcd,U32 **pos,U32 *nopcd,U32 offset,U32 len,FILE *fd)
 			free(pos);
             return(1);
             }
-        fseek(fd,offset,SEEK_SET);
+        wvStream_goto(fd,offset);
         for(i=0;i<=*nopcd;i++)
 			{
             (*pos)[i]=read_32ubit(fd);

@@ -13,7 +13,7 @@ void wvListFTXBXS(FTXBXS *item)
 	}
 
 
-void wvGetFTXBXS(FTXBXS *item,FILE *fd)
+void wvGetFTXBXS(FTXBXS *item,wvStream *fd)
 	{
 	item->cTxbx_iNextReuse = (S32)read_32ubit(fd);
 	item->cReusable = (S32)read_32ubit(fd);
@@ -24,7 +24,7 @@ void wvGetFTXBXS(FTXBXS *item,FILE *fd)
 	wvListFTXBXS(item);
 	}
 
-int wvGetFTXBXS_PLCF(FTXBXS **ftxbxs,U32 **pos,U32 *noftxbxs,U32 offset,U32 len,FILE *fd)
+int wvGetFTXBXS_PLCF(FTXBXS **ftxbxs,U32 **pos,U32 *noftxbxs,U32 offset,U32 len,wvStream *fd)
 	{
 	U32 i;
 	if (len == 0)
@@ -50,7 +50,7 @@ int wvGetFTXBXS_PLCF(FTXBXS **ftxbxs,U32 **pos,U32 *noftxbxs,U32 offset,U32 len,
 			free(pos);
 			return(1);
 			}
-		fseek(fd,offset,SEEK_SET);
+		wvStream_goto(fd,offset);
 		for(i=0;i<*noftxbxs+1;i++)
 			(*pos)[i]=read_32ubit(fd);
 		for(i=0;i<*noftxbxs;i++)

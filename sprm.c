@@ -140,7 +140,7 @@ U8 wvEatSprm(U16 sprm,U8 *pointer, U16 *pos)
 		wvTrace(("wvSprmLen len is %d\n",len));
 		if (len < 0)
 			{
-			len = bgetc(pointer,pos);
+			len = bread_8ubit(pointer,pos);
 			len++;
 			}
 		}
@@ -148,7 +148,7 @@ U8 wvEatSprm(U16 sprm,U8 *pointer, U16 *pos)
 	return(len);
 	}
 
-Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos,FILE *data)
+Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,STSH *stsh, U8 *pointer, U16 *pos,wvStream *data)
 	{
 	BRC10 tempBRC10;
 	U16 temp16;
@@ -194,36 +194,36 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvApplysprmPIncLvl(apap,pointer,pos);
 			break;
 		case sprmPJc:
-			apap->jc = bgetc(pointer,pos);
+			apap->jc = bread_8ubit(pointer,pos);
 			wvTrace(("jc is now %d\n",apap->jc));
 			break;
 		case sprmPFSideBySide:
-			apap->fSideBySide = bgetc(pointer,pos);
+			apap->fSideBySide = bread_8ubit(pointer,pos);
 			break;
 		case sprmPFKeep:
-			apap->fKeep = bgetc(pointer,pos);
+			apap->fKeep = bread_8ubit(pointer,pos);
 			break;
 		case sprmPFKeepFollow:
-			apap->fKeepFollow = bgetc(pointer,pos);
+			apap->fKeepFollow = bread_8ubit(pointer,pos);
 			break;
 		case sprmPFPageBreakBefore:
-			apap->fPageBreakBefore = bgetc(pointer,pos);
+			apap->fPageBreakBefore = bread_8ubit(pointer,pos);
 			break;
 		case sprmPBrcl:
-			apap->brcl = bgetc(pointer,pos);
+			apap->brcl = bread_8ubit(pointer,pos);
 			break;
 		case sprmPBrcp:
-			apap->brcp = bgetc(pointer,pos);
+			apap->brcp = bread_8ubit(pointer,pos);
 			break;
 		case sprmPIlvl:
-			apap->ilvl = bgetc(pointer,pos);
+			apap->ilvl = bread_8ubit(pointer,pos);
 			break;
 		case sprmPIlfo:
 			apap->ilfo = (S16)bread_16ubit(pointer,pos);
 			wvTrace(("ilfo is %d\n",apap->ilfo));
 			break;
 		case sprmPFNoLineNumb:
-			apap->fNoLnn = bgetc(pointer,pos);
+			apap->fNoLnn = bread_8ubit(pointer,pos);
 			break;
 		case sprmPChgTabsPapx:
 			wvApplysprmPChgTabsPapx(apap,pointer,pos);
@@ -261,10 +261,10 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvApplysprmPChgTabs(apap,pointer,pos);
 			break;
 		case sprmPFInTable:
-			apap->fInTable = bgetc(pointer,pos);
+			apap->fInTable = bread_8ubit(pointer,pos);
 			break;
 		case sprmPFTtp:
-			apap->fTtp = bgetc(pointer,pos);
+			apap->fTtp = bread_8ubit(pointer,pos);
 			break;
 		case sprmPDxaAbs:
 			apap->dxaAbs = (S16)bread_16ubit(pointer,pos);
@@ -312,7 +312,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			apap->dxaFromText = (S16)bread_16ubit(pointer,pos);
 			break;
 		case sprmPWr:
-			apap->wr = bgetc(pointer,pos);
+			apap->wr = bread_8ubit(pointer,pos);
 			break;
 		case sprmPBrcTop:
 			(*pos)+=wvGetBRCFromBucket(ver,&apap->brcTop,pointer);
@@ -333,7 +333,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			(*pos)+=wvGetBRCFromBucket(ver,&apap->brcBar,pointer);
 			break;
 		case sprmPFNoAutoHyph:
-			apap->fNoAutoHyph = bgetc(pointer,pos);
+			apap->fNoAutoHyph = bread_8ubit(pointer,pos);
 			break;
 		case sprmPWHeightAbs:
 			/* ???? apap->wHeightAbs*/
@@ -354,25 +354,25 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			apap->dxaFromText = (S16)bread_16ubit(pointer,pos);
 			break;
 		case sprmPFLocked:
-			apap->fLocked = bgetc(pointer,pos);
+			apap->fLocked = bread_8ubit(pointer,pos);
 			break;
 		case sprmPFWidowControl:
-			apap->fWidowControl = bgetc(pointer,pos);
+			apap->fWidowControl = bread_8ubit(pointer,pos);
 			break;
 		case sprmPFKinsoku:
-			apap->fKinsoku = bgetc(pointer,pos);
+			apap->fKinsoku = bread_8ubit(pointer,pos);
 			break;
 		case sprmPFWordWrap:
-			apap->fWordWrap = bgetc(pointer,pos);
+			apap->fWordWrap = bread_8ubit(pointer,pos);
 			break;
 		case sprmPFOverflowPunct:
-			apap->fOverflowPunct = bgetc(pointer,pos);
+			apap->fOverflowPunct = bread_8ubit(pointer,pos);
 			break;
 		case sprmPFTopLinePunct:
-			apap->fTopLinePunct = bgetc(pointer,pos);
+			apap->fTopLinePunct = bread_8ubit(pointer,pos);
 			break;
 		case sprmPFAutoSpaceDE:
-			apap->fAutoSpaceDE = bgetc(pointer,pos);
+			apap->fAutoSpaceDE = bread_8ubit(pointer,pos);
 			break;
 		case sprmPFAutoSpaceDN:
 			/* ???? apap->fAutoSpaceDN */
@@ -390,7 +390,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			break;
 		case sprmPNLvlAnm:
 			/*obsolete: not applicable in Word97 and later version*/
-			apap->nLvlAnm = bgetc(pointer,pos);
+			apap->nLvlAnm = bread_8ubit(pointer,pos);
 			wvTrace(("%d\n",apap->nLvlAnm));
 			break;
 		case sprmPAnld:
@@ -401,16 +401,16 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			break;
 		case sprmPOutLvl:
 			/*has no effect if pap.istd is < 1 or is > 9*/
-			temp8 = bgetc(pointer,pos);
+			temp8 = bread_8ubit(pointer,pos);
 			if ((apap->istd >= 1) && (apap->istd <=9))
 				apap->lvl=temp8;
 			break;
 		case sprmPFBiDi:
 			/* ???? */
-			bgetc(pointer,pos);
+			bread_8ubit(pointer,pos);
 			break;
 		case sprmPFNumRMIns:
-			apap->fNumRMIns = bgetc(pointer,pos);
+			apap->fNumRMIns = bread_8ubit(pointer,pos);
 			break;
 		case sprmPCrLf:
 			/* ???? */
@@ -424,28 +424,28 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvApplysprmPHugePapx(apap,pointer,pos,data,stsh);
 			break;
 		case sprmPFUsePgsuSettings:
-			apap->fUsePgsuSettings = bgetc(pointer,pos);
+			apap->fUsePgsuSettings = bread_8ubit(pointer,pos);
 			break;
 		case sprmPFAdjustRight:
-			apap->fAdjustRight = bgetc(pointer,pos);
+			apap->fAdjustRight = bread_8ubit(pointer,pos);
 			break;
 		/*End of PAP*/
 
 
 		/*Begin of CHP*/
 		case sprmCFRMarkDel:
-			achp->fRMarkDel = bgetc(pointer,pos);
+			achp->fRMarkDel = bread_8ubit(pointer,pos);
 			break;
 		case sprmCFRMark:
-			achp->fRMark = bgetc(pointer,pos);
+			achp->fRMark = bread_8ubit(pointer,pos);
 			break;
 		case sprmCFFldVanish:
-			achp->fFldVanish = bgetc(pointer,pos);
+			achp->fFldVanish = bread_8ubit(pointer,pos);
 			break;
 		case sprmCPicLocation:
 			if (ver != WORD8)
 				{
-				wvTrace(("byte is %x\n",bgetc(pointer,pos)));
+				wvTrace(("byte is %x\n",bread_8ubit(pointer,pos)));
 				pointer++;
 				}
 			/*
@@ -464,7 +464,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			(*pos)+=4;
 			break;
 		case sprmCFData:
-			achp->fData = bgetc(pointer,pos);
+			achp->fData = bread_8ubit(pointer,pos);
 			break;
 		case sprmCIdslRMark:
 			achp->idslRMReason = (S16)bread_16ubit(pointer,pos);
@@ -476,11 +476,11 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvApplysprmCSymbol(ver,achp,pointer,pos);
 			break;
 		case sprmCFOle2:
-			achp->fOle2 = bgetc(pointer,pos);
+			achp->fOle2 = bread_8ubit(pointer,pos);
 			break;
 		case sprmCHighlight:
 			/* ico (fHighlight is set to 1 iff ico is not 0) */
-			achp->icoHighlight = bgetc(pointer,pos);
+			achp->icoHighlight = bread_8ubit(pointer,pos);
 			if (achp->icoHighlight) achp->fHighlight = 1;	/*?*/
 
 			/*another possibility is...*/
@@ -507,47 +507,47 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvApplysprmCPlain(achp,stsh);
 			break;
 		case sprmCFBold:
-			toggle = bgetc(pointer,pos);
+			toggle = bread_8ubit(pointer,pos);
 			wvTrace(("toggle here is %d, istd is %d\n",toggle,achp->istd));
 			wvTOGGLE(achp->fBold,achp,stsh,toggle,fBold)
 			break;
 		case sprmCFItalic:
-			toggle = bgetc(pointer,pos);
+			toggle = bread_8ubit(pointer,pos);
 			wvTrace(("Italic is %d, sprm val is %d\n",achp->fItalic,toggle));
 			wvTOGGLE(achp->fItalic,achp,stsh,toggle,fItalic)
 			wvTrace(("Italic is now %d\n",achp->fItalic));
 			break;
 		case sprmCFStrike:
-			toggle = bgetc(pointer,pos);
+			toggle = bread_8ubit(pointer,pos);
 			wvTOGGLE(achp->fStrike,achp,stsh,toggle,fStrike)
 			break;
 		case sprmCFOutline:
-			toggle = bgetc(pointer,pos);
+			toggle = bread_8ubit(pointer,pos);
 			wvTOGGLE(achp->fOutline,achp,stsh,toggle,fOutline)
 			break;
 		case sprmCFShadow:
-			toggle = bgetc(pointer,pos);
+			toggle = bread_8ubit(pointer,pos);
 			wvTOGGLE(achp->fShadow,achp,stsh,toggle,fShadow)
 			break;
 		case sprmCFSmallCaps:
-			toggle = bgetc(pointer,pos);
+			toggle = bread_8ubit(pointer,pos);
 			wvTOGGLE(achp->fSmallCaps,achp,stsh,toggle,fSmallCaps)
 			break;
 		case sprmCFCaps:
-			toggle = bgetc(pointer,pos);
+			toggle = bread_8ubit(pointer,pos);
 			wvTOGGLE(achp->fCaps,achp,stsh,toggle,fCaps)
 			break;
 		case sprmCFVanish:
 			wvTrace(("vanish modified\n"));
-			toggle = bgetc(pointer,pos);
+			toggle = bread_8ubit(pointer,pos);
 			wvTOGGLE(achp->fVanish,achp,stsh,toggle,fVanish)
 			break;
 		case sprmCFtcDefault:
-			toggle = bgetc(pointer,pos);
+			toggle = bread_8ubit(pointer,pos);
 			wvTOGGLE(achp->fBold,achp,stsh,toggle,fBold)
 			break;
 		case sprmCKul:
-			achp->kul = bgetc(pointer,pos);
+			achp->kul = bread_8ubit(pointer,pos);
 			break;
 		case sprmCSizePos:
 			wvApplysprmCSizePos(achp,pointer,pos);
@@ -556,7 +556,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			achp->dxaSpace = (S16)bread_16ubit(pointer,pos);
 			break;
 		case sprmCIco:
-			achp->ico = bgetc(pointer,pos);
+			achp->ico = bread_8ubit(pointer,pos);
 			break;
 		case sprmCHps:
 			/*incorrect marked as being a byte in docs ?*/
@@ -576,10 +576,10 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			wvApplysprmCMajority(achp,stsh,pointer,pos);
 			break;
 		case sprmCIss:
-			achp->iss = bgetc(pointer,pos);
+			achp->iss = bread_8ubit(pointer,pos);
 			break;
 		case sprmCHpsNew50:
-			bgetc(pointer,pos);
+			bread_8ubit(pointer,pos);
 			achp->hps = bread_16ubit(pointer,pos);
 			break;
 		case sprmCHpsInc1:
@@ -598,7 +598,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			break;
 		case sprmCYsri:
 			/* ???? achp->ysri*/
-			bgetc(pointer,pos);
+			bread_8ubit(pointer,pos);
 			break;
 		case sprmCRgFtc0:
 			achp->ftcAscii = bread_16ubit(pointer,pos);
@@ -610,25 +610,25 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			achp->ftcOther = bread_16ubit(pointer,pos);
 			break;
 		case sprmCFDStrike:
-			achp->fDStrike = bgetc(pointer,pos);
+			achp->fDStrike = bread_8ubit(pointer,pos);
 			break;
 		case sprmCFImprint:
-			achp->fImprint = bgetc(pointer,pos);
+			achp->fImprint = bread_8ubit(pointer,pos);
 			break;
 		case sprmCFSpec:
-			achp->fSpec = bgetc(pointer,pos);
+			achp->fSpec = bread_8ubit(pointer,pos);
 			break;
 		case sprmCFObj:
-			achp->fObj = bgetc(pointer,pos);
+			achp->fObj = bread_8ubit(pointer,pos);
 			break;
 		case sprmCPropRMark:
 			wvApplysprmCPropRMark(achp,pointer,pos);
 			break;
 		case sprmCFEmboss:
-			achp->fEmboss = bgetc(pointer,pos);
+			achp->fEmboss = bread_8ubit(pointer,pos);
 			break;
 		case sprmCSfxText:
-			achp->sfxtText = bgetc(pointer,pos);
+			achp->sfxtText = bread_8ubit(pointer,pos);
 			break;
 		case sprmCDispFldRMark:
 			wvApplysprmCDispFldRMark(achp,pointer,pos);
@@ -651,7 +651,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			(S16) bread_16ubit(pointer,pos);
 			break;
 		case sprmCFUsePgsuSettings:
-			achp->fUsePgsuSettings = bgetc(pointer,pos);
+			achp->fUsePgsuSettings = bread_8ubit(pointer,pos);
 			break;
 		case sprmCRgLid0:
 			achp->lidDefault = bread_16ubit(pointer,pos);
@@ -660,10 +660,10 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			achp->lidFE = bread_16ubit(pointer,pos);
 			break;
 		case sprmCIdctHint:
-			achp->idctHint = bgetc(pointer,pos);
+			achp->idctHint = bread_8ubit(pointer,pos);
 			break;
 		case sprmCFFtcAsciSymb:		/* not fully mentioned in spec*/
-			achp->fFtcAsciSym = bgetc(pointer,pos);
+			achp->fFtcAsciSym = bread_8ubit(pointer,pos);
 			break;
 		case sprmCCpg:			/* not fully mentioned in spec*/
 			achp->cpg = bread_16ubit(pointer,pos);
@@ -679,7 +679,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			break;
 		case sprmCFBoldBi:		/* ???? */
 		case sprmCFBiDi:		/* ???? */
-			bgetc(pointer,pos);
+			bread_8ubit(pointer,pos);
 			break;
 		case sprmCHpsBi:		/* ???? */
 			bread_16ubit(pointer,pos);
@@ -689,10 +689,10 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 
 		/* Begin of SEP */
 		case sprmScnsPgn:
-			asep->cnsPgn = bgetc(pointer,pos);
+			asep->cnsPgn = bread_8ubit(pointer,pos);
 			break;
 		case sprmSiHeadingPgn:
-			asep->iHeadingPgn = bgetc(pointer,pos);
+			asep->iHeadingPgn = bread_8ubit(pointer,pos);
 			break;
 		case sprmSOlstAnm:
 			wvApplysprmSOlstAnm(ver,asep,pointer,pos);
@@ -703,15 +703,15 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			but affects (i guess by name) a 89 long array so who
 			knows
 			*/
-			bgetc(pointer,pos);
-			bgetc(pointer,pos);
-			bgetc(pointer,pos);
+			bread_8ubit(pointer,pos);
+			bread_8ubit(pointer,pos);
+			bread_8ubit(pointer,pos);
 			break;
 		case sprmSFEvenlySpaced:
-			asep->fEvenlySpaced = bgetc(pointer,pos);
+			asep->fEvenlySpaced = bread_8ubit(pointer,pos);
 			break;
 		case sprmSFProtected:
-			asep->fUnlocked = bgetc(pointer,pos);
+			asep->fUnlocked = bread_8ubit(pointer,pos);
 			break;
 		case sprmSDmBinFirst:
 			asep->dmBinFirst = bread_16ubit(pointer,pos);
@@ -720,10 +720,10 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			asep->dmBinFirst = bread_16ubit(pointer,pos);
 			break;
 		case sprmSBkc:
-			asep->bkc = bgetc(pointer,pos);
+			asep->bkc = bread_8ubit(pointer,pos);
 			break;
 		case sprmSFTitlePage:
-			asep->fTitlePage = bgetc(pointer,pos);
+			asep->fTitlePage = bread_8ubit(pointer,pos);
 			break;
 		case sprmSCcolumns:
 			asep->ccolM1 = bread_16ubit(pointer,pos);
@@ -732,10 +732,10 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			asep->dxaColumns = (S16)bread_16ubit(pointer,pos);
 			break;
 		case sprmSFAutoPgn:
-			asep->fAutoPgn = bgetc(pointer,pos);
+			asep->fAutoPgn = bread_8ubit(pointer,pos);
 			break;
 		case sprmSNfcPgn:
-			asep->nfcPgn = bgetc(pointer,pos);
+			asep->nfcPgn = bread_8ubit(pointer,pos);
 			break;
 		case sprmSDyaPgn:
 			asep->dyaPgn = (S16)bread_16ubit(pointer,pos);
@@ -744,16 +744,16 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			asep->dxaPgn = (S16)bread_16ubit(pointer,pos);
 			break;
 		case sprmSFPgnRestart:
-			asep->fPgnRestart = bgetc(pointer,pos);
+			asep->fPgnRestart = bread_8ubit(pointer,pos);
 			break;
 		case sprmSFEndnote:
-			asep->fEndNote = bgetc(pointer,pos);
+			asep->fEndNote = bread_8ubit(pointer,pos);
 			break;
 		case sprmSLnc:
-			asep->lnc = bgetc(pointer,pos);
+			asep->lnc = bread_8ubit(pointer,pos);
 			break;
 		case sprmSGprfIhdt:
-			asep->grpfIhdt = bgetc(pointer,pos);
+			asep->grpfIhdt = bread_8ubit(pointer,pos);
 			break;
 		case sprmSNLnnMod:
 			asep->nLnnMod = bread_16ubit(pointer,pos);
@@ -768,10 +768,10 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			asep->dyaHdrBottom = bread_16ubit(pointer,pos);
 			break;
 		case sprmSLBetween:
-			asep->fLBetween = bgetc(pointer,pos);
+			asep->fLBetween = bread_8ubit(pointer,pos);
 			break;
 		case sprmSVjc:
-			asep->fLBetween = bgetc(pointer,pos);
+			asep->fLBetween = bread_8ubit(pointer,pos);
 			break;
 		case sprmSLnnMin:
 			asep->lnnMin = (S16) bread_16ubit(pointer,pos);
@@ -780,11 +780,11 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			asep->pgnStart = bread_16ubit(pointer,pos);
 			break;
 		case sprmSBOrientation:
-			asep->dmOrientPage = bgetc(pointer,pos);
+			asep->dmOrientPage = bread_8ubit(pointer,pos);
 			break;
 		case sprmSBCustomize:
 			/*noone knows what this is*/
-			bgetc(pointer,pos);
+			bread_8ubit(pointer,pos);
 			break;
 		case sprmSXaPage:
 			asep->xaPage = bread_16ubit(pointer,pos);
@@ -816,7 +816,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		case sprmSFBiDi:	/* ?????? , what the hell are these three*/
 		case sprmSFFacingCol:
 		case sprmSFRTLGutter:
-			bgetc(pointer,pos);
+			bread_8ubit(pointer,pos);
 			break;
 		case sprmSBrcTop:
 			(*pos)+=wvGetBRCFromBucket(ver,&asep->brcTop,pointer);
@@ -853,10 +853,10 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 			apap->ptap.jc = (S16)bread_16ubit(pointer,pos);
 			break;
 		case sprmTFCantSplit:
-			apap->ptap.fCantSplit = bgetc(pointer,pos);
+			apap->ptap.fCantSplit = bread_8ubit(pointer,pos);
 			break;
 		case sprmTTableHeader:
-			apap->ptap.fTableHeader = bgetc(pointer,pos);
+			apap->ptap.fTableHeader = bread_8ubit(pointer,pos);
 			break;
 		case sprmTDyaRowHeight:	/* check len */
 			asep->dyaLinePitch = (S16)bread_16ubit(pointer,pos);
@@ -938,7 +938,7 @@ Sprm wvApplySprmFromBucket(version ver,U16 sprm,PAP *apap,CHP *achp,SEP *asep,ST
 		/* read wv.h and word 6 sprm 204 
 		further down in this file to understand this
 		*/
-			bgetc(pointer,pos);
+			bread_8ubit(pointer,pos);
 			bread_16ubit(pointer,pos);
 			break;
 		case sprmTVertAlign:
@@ -981,11 +981,11 @@ void wvApplysprmPIstdPermute(PAP *apap,U8 *pointer,U16 *pos)
 	U16 *rgistd;
 	U16 i;
 
-	cch = dgetc(NULL,&pointer);
+	cch = dread_8ubit(NULL,&pointer);
 	(*pos)++;
-	fLongg = dgetc(NULL,&pointer);
+	fLongg = dread_8ubit(NULL,&pointer);
 	(*pos)++;
-	fSpare = dgetc(NULL,&pointer);
+	fSpare = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	istdFirst = dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
@@ -1025,7 +1025,7 @@ void wvApplysprmPIncLvl(PAP *apap,U8 *pointer,U16 *pos)
 	{
 	U8 temp8;
 	S8 tempS8;
-	temp8 = bgetc(pointer,pos);
+	temp8 = bread_8ubit(pointer,pos);
 	/*
 	If pap.stc is < 1 or > 9, sprmPIncLvl has no effect. Otherwise, if the value
 	stored in the byte has its highest order bit off, the value is a positive
@@ -1082,9 +1082,9 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	TBD *rgtbdAdd;
 
 	oldpos = *pos;
-	cch = dgetc(NULL,&pointer);
+	cch = dread_8ubit(NULL,&pointer);
 	(*pos)++;
-	itbdDelMax = dgetc(NULL,&pointer);
+	itbdDelMax = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	if (itbdDelMax != 0)
 		{
@@ -1097,7 +1097,7 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 		}
 	else
 		rgdxaDel = NULL;
-	itbdAddMax = dgetc(NULL,&pointer);
+	itbdAddMax = dread_8ubit(NULL,&pointer);
 	wvTrace(("itbdAddMax is %d\n",itbdAddMax));
 	(*pos)++;
 	if (itbdAddMax != 0)
@@ -1223,10 +1223,10 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 	follows: length = 2 + itbdDelMax * 4 + itbdAddMax * 3.
 	*/
 
-	cch = dgetc(NULL,&pointer);
+	cch = dread_8ubit(NULL,&pointer);
 	wvTrace(("cch is %d\n",cch));
 	(*pos)++;
-	itbdDelMax = dgetc(NULL,&pointer);
+	itbdDelMax = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 
 	wvTrace(("itbdDelMax is %d\n",itbdDelMax));
@@ -1250,7 +1250,7 @@ int wvApplysprmPChgTabs(PAP *apap,U8 *pointer,U16 *pos)
 		rgdxaDel = NULL;
 		rgdxaClose = NULL;
 		}
-	itbdAddMax = dgetc(NULL,&pointer);
+	itbdAddMax = dread_8ubit(NULL,&pointer);
 	wvTrace(("itbdAddMax is %d\n",itbdAddMax));
 	(*pos)++;
 	if (itbdAddMax != 0)
@@ -1376,7 +1376,7 @@ void wvApplysprmPPc(PAP *apap,U8 *pointer,U16 *pos)
 		} temp;
     
 
-	temp8 = bgetc(pointer,pos);
+	temp8 = bread_8ubit(pointer,pos);
 #ifdef PURIFY
 	temp.pcVert = 0;
 	temp.pcHorz = 0;
@@ -1406,7 +1406,7 @@ void wvApplysprmPFrameTextFlow(PAP *apap,U8 *pointer,U16 *pos)
 
 void wvApplysprmPAnld(version ver,PAP *apap,U8 *pointer, U16 *pos)
 	{
-	dgetc(NULL,&pointer);
+	dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	wvGetANLD_FromBucket(ver,&apap->anld,pointer);
 	if (ver == WORD8)
@@ -1417,13 +1417,13 @@ void wvApplysprmPAnld(version ver,PAP *apap,U8 *pointer, U16 *pos)
 
 void wvApplysprmPPropRMark(PAP *apap,U8 *pointer,U16 *pos)
 	{
-	dgetc(NULL,&pointer);
+	dread_8ubit(NULL,&pointer);
 	/*
 	sprmPPropRMark is interpreted by moving the first parameter
 	byte to pap.fPropRMark, the next two bytes to pap.ibstPropRMark, and the
 	remaining four bytes to pap.dttmPropRMark.
 	*/
-	apap->fPropRMark = dgetc(NULL,&pointer);
+	apap->fPropRMark = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	apap->ibstPropRMark = dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
@@ -1433,13 +1433,13 @@ void wvApplysprmPPropRMark(PAP *apap,U8 *pointer,U16 *pos)
 	
 void wvApplysprmPNumRM(PAP *apap,U8 *pointer, U16 *pos)
 	{
-	dgetc(NULL,&pointer);
+	dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	wvGetNUMRMFromBucket(&apap->numrm,pointer);
 	(*pos)+=cbNUMRM;
 	}
 
-void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos,FILE *data, STSH *stsh)
+void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos,wvStream *data, STSH *stsh)
 	{
 	U32 offset;
 	U16 len,i,sprm;
@@ -1461,7 +1461,7 @@ void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos,FILE *data, STSH *sts
 		wvError(("No data stream!!\n"));
 		return;
 		}
-	if (0 != fseek(data, offset, SEEK_SET))
+	if (0 != wvStream_goto(data, offset))
 		{
 		wvError(("Couldn't seek data stream!!\n"));
 		return;
@@ -1476,7 +1476,7 @@ void wvApplysprmPHugePapx(PAP *apap, U8 *pointer, U16 *pos,FILE *data, STSH *sts
 	grpprl = (U8*)malloc(len);
 
 	for (i=0;i<len;i++)
-		grpprl[i] = getc(data);
+		grpprl[i] = read_8ubit(data);
 
 	 i=0;
 	 while (i < len-2)   
@@ -1498,7 +1498,7 @@ void wvApplysprmCChs(CHP *achp,U8 *pointer,U16 *pos)
 	When this sprm is interpreted, the first byte of the operand is moved to
 	chp.fChsDiff and the remaining word is moved to chp.chse.
 	*/
-	achp->fChsDiff = dgetc(NULL,&pointer);
+	achp->fChsDiff = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	/*achp->chse ???? */ 
 	/* the doc says to set this, but it doesnt exist anywhere else in the docs */
@@ -1533,11 +1533,11 @@ void wvApplysprmCSymbol(version ver,CHP *achp,U8 *pointer,U16 *pos)
 	byte character specifier recorded at offset 4 is moved to chp.chSym
 	and chp.fSpec is set to 1.
 	*/
-		dgetc(NULL,&pointer);
+		dread_8ubit(NULL,&pointer);
 		(*pos)++;
 		achp->ftcSym = dread_16ubit(NULL,&pointer);
 		(*pos)+=2;
-		achp->xchSym = dgetc(NULL,&pointer);
+		achp->xchSym = dread_8ubit(NULL,&pointer);
 		achp->xchSym += 61440;		/* promote this char into a unicode char to
 		be consistent with what word 8 does */
 		(*pos)++;
@@ -1555,11 +1555,11 @@ void wvApplysprmCIstdPermute(CHP *achp,U8 *pointer,U16 *pos)
 	U16 *rgistd;
 	U16 i;
 
-	cch = dgetc(NULL,&pointer);
+	cch = dread_8ubit(NULL,&pointer);
 	(*pos)++;
-	fLongg = dgetc(NULL,&pointer);
+	fLongg = dread_8ubit(NULL,&pointer);
 	(*pos)++;
-	fSpare = dgetc(NULL,&pointer);
+	fSpare = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	istdFirst = dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
@@ -1610,7 +1610,7 @@ void wvApplysprmCDefault(CHP *achp,U8 *pointer,U16 *pos)
 	3.00 so it is a variable length sprm whose count of bytes is 0. It consists
 	of the sprmCDefault opcode followed by a byte of 0.
 	*/
-	dgetc(NULL,&pointer);
+	dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	achp->fBold = 0;
 	achp->fItalic = 0;
@@ -1678,13 +1678,13 @@ void wvApplysprmCSizePos(CHP *achp,U8 *pointer,U16 *pos)
 		U32 fAdjust:1;
 		U32 hpsPos:8;
 		} temp;
-	temp.hpsSize = dgetc(NULL,&pointer);
+	temp.hpsSize = dread_8ubit(NULL,&pointer);
 	(*pos)++;
-	temp8 = dgetc(NULL,&pointer);
+	temp8 = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	temp.cInc = (temp8 & 0x7f) >> 8;
 	temp.fAdjust = (temp8 & 0x80) >> 7;
-	temp.hpsPos= dgetc(NULL,&pointer);
+	temp.hpsPos= dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	
 	/*
@@ -1763,11 +1763,11 @@ void wvApplysprmCHpsInc(CHP *achp,U8 *pointer,U16 *pos)
 	sprmCHpsInc is stored only in grpprls linked to piece table entries.
 	*/
 
-	wvError(("This document has an unsupported sprm (sprmCHpsInc), please mail "));
+	wvError(("This document has an unsupported sprm (sprmCHpsInc), please mail"));
 	wvError(("Caolan.McNamara@ul.ie with this document, as i haven't been able to "));
 	wvError(("get any examples of it so as to figure out how to handle it\n"));
 
-	param = dgetc(NULL,&pointer);
+	param = dread_8ubit(NULL,&pointer);
 
 	/*
 	Now for christ sake !!, how on earth would i have an "ordered array of the 
@@ -1810,7 +1810,7 @@ void wvApplysprmCHpsPosAdj(CHP *achp,U8 *pointer,U16 *pos)
 	wvError(("Caolan.McNamara@ul.ie with this document, as i haven't been able to "));
 	wvError(("get any examples of it so as to figure out how to handle it\n"));
 
-	param = dgetc(NULL,&pointer);
+	param = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 
 	/*
@@ -1857,13 +1857,13 @@ void wvApplysprmCMajority(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 
 	/*generate a UPE and run wvAddCHPXFromBucket*/
 
-	upxf.cbUPX = dgetc(NULL,&pointer);
+	upxf.cbUPX = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	upxf.upx.chpx.grpprl = (U8 *)malloc(upxf.cbUPX);
 
 	for (i=0;i<upxf.cbUPX;i++)
 		{
-		upxf.upx.chpx.grpprl[i] = dgetc(NULL,&pointer);
+		upxf.upx.chpx.grpprl[i] = dread_8ubit(NULL,&pointer);
 		(*pos)++;
 		}
 
@@ -1936,7 +1936,7 @@ void wvApplysprmCHpsInc1(CHP *achp,U8 *pointer,U16 *pos)
 	the chp.hps is set to 8. If the result is greater than 32766, the chp.hps is
 	set to 32766.
 	*/
-	dgetc(NULL,&pointer);
+	dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	achp->hps += dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
@@ -1975,13 +1975,13 @@ void wvApplysprmCMajority50(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 
 	/*generate a UPE and run wvAddCHPXFromBucket*/
 
-	upxf.cbUPX = dgetc(NULL,&pointer);
+	upxf.cbUPX = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	upxf.upx.chpx.grpprl = (U8 *)malloc(upxf.cbUPX);
 
 	for (i=0;i<upxf.cbUPX;i++)
 		{
-		upxf.upx.chpx.grpprl[i] = dgetc(NULL,&pointer);
+		upxf.upx.chpx.grpprl[i] = dread_8ubit(NULL,&pointer);
 		(*pos)++;
 		}
 	
@@ -2019,9 +2019,9 @@ void wvApplysprmCMajority50(CHP *achp,STSH *stsh,U8 *pointer,U16 *pos)
 
 void wvApplysprmCPropRMark(CHP *achp,U8 *pointer,U16 *pos)
 	{
-	dgetc(NULL,&pointer);	/*len*/
+	dread_8ubit(NULL,&pointer);	/*len*/
 	(*pos)++;
-	achp->fPropRMark = dgetc(NULL,&pointer); 
+	achp->fPropRMark = dread_8ubit(NULL,&pointer); 
 	(*pos)++;
 	achp->ibstPropRMark = (S16)dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
@@ -2039,9 +2039,9 @@ void wvApplysprmCDispFldRMark(CHP *achp,U8 *pointer,U16 *pos)
 	*/
 
 	int i;
-	dgetc(NULL,&pointer);    /*len*/
+	dread_8ubit(NULL,&pointer);    /*len*/
 	(*pos)++;
-	achp->fDispFldRMark = dgetc(NULL,&pointer);
+	achp->fDispFldRMark = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	achp->ibstDispFldRMark = (S16)dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
@@ -2058,7 +2058,7 @@ void wvApplysprmCDispFldRMark(CHP *achp,U8 *pointer,U16 *pos)
 
 void wvApplysprmSOlstAnm(version ver,SEP *asep,U8 *pointer,U16 *pos)
 	{
-	U8 len = dgetc(NULL,&pointer);
+	U8 len = dread_8ubit(NULL,&pointer);
 	wvGetOLSTFromBucket(ver,&asep->olstAnm,pointer);
 	if (len != cbOLST)
 		wvError(("OLST len is different from expected\n"));
@@ -2067,14 +2067,14 @@ void wvApplysprmSOlstAnm(version ver,SEP *asep,U8 *pointer,U16 *pos)
 
 void wvApplysprmSPropRMark(SEP *asep,U8 *pointer,U16 *pos)
 	{
-	dgetc(NULL,&pointer);
+	dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	/*
 	sprmPPropRMark is interpreted by moving the first parameter
 	byte to pap.fPropRMark, the next two bytes to pap.ibstPropRMark, and the
 	remaining four bytes to pap.dttmPropRMark.
 	*/
-	asep->fPropRMark = dgetc(NULL,&pointer);
+	asep->fPropRMark = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	asep->ibstPropRMark = dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
@@ -2134,7 +2134,7 @@ void wvApplysprmTTableBorders(version ver,TAP *tap,U8 *pointer,U16 *pos)
 	int i,d;
 	if (ver == WORD8)
 		{
-		dgetc(NULL,&pointer);
+		dread_8ubit(NULL,&pointer);
 		(*pos)++;
 		}
 	for (i=0;i<6;i++)
@@ -2166,7 +2166,7 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 	len = dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
 	wvTrace(("wvApplysprmTDefTable\n"));
-	tap->itcMac = dgetc(NULL,&pointer);
+	tap->itcMac = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	oldpos = (*pos)-2;
 	wvTrace(("oldpos is %x\n",oldpos));
@@ -2210,7 +2210,7 @@ void wvApplysprmTDefTable(TAP *tap,U8 *pointer,U16 *pos)
 
 	while (len-(*pos-oldpos)) 
 		{
-		wvTrace(("Eating byte %x\n",dgetc(NULL,&pointer)));
+		wvTrace(("Eating byte %x\n",dread_8ubit(NULL,&pointer)));
 		(*pos)++;
 		}
 	wvTrace(("oldpos is %x, pos is %x, diff is %d\n",oldpos,*pos,*pos-oldpos-2));
@@ -2228,7 +2228,7 @@ void wvApplysprmTDefTable10(TAP *tap,U8 *pointer,U16 *pos)
 	int i,t;
 	len = dread_16ubit(NULL,&pointer);
 	(*pos)+=2;
-	tap->itcMac = dgetc(NULL,&pointer);
+	tap->itcMac = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	for (i=0;i<tap->itcMac + 1;i++)
 		{
@@ -2249,7 +2249,7 @@ void wv2ApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos)
 	U16 itcMac;
 	int i;
 
-	len = dgetc(NULL,&pointer);
+	len = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	itcMac = len/cbSHD;
 	wvTrace(("len in 2sprmTDefTableShd is %d, no of cells is %d\n",len,itcMac));
@@ -2286,7 +2286,7 @@ void wvApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos)
 		wvError(("bad len in sprmTDefTableShd, munging to %d instead\n",len));
 		}
 	wvTrace(("wvApplysprmTDefTableShd, len %d\n",len));
-	itcMac = dgetc(NULL,&pointer);
+	itcMac = dread_8ubit(NULL,&pointer);
 	(*pos)++;
 	oldpos = (*pos)-2;
 	wvTrace(("oldpos is %x\n",oldpos));
@@ -2313,7 +2313,7 @@ void wvApplysprmTDefTableShd(TAP *tap,U8 *pointer,U16 *pos)
 
 	while (len-(*pos-oldpos)) 
 		{
-		wvTrace(("Eating byte %x\n",dgetc(NULL,&pointer)));
+		wvTrace(("Eating byte %x\n",dread_8ubit(NULL,&pointer)));
 		(*pos)++;
 		}
 	wvTrace(("oldpos is %x, pos is %x, diff is %d\n",oldpos,*pos,*pos-oldpos-2));
@@ -2374,13 +2374,13 @@ void wvApplysprmTSetBrc(version ver,TAP *tap,U8 *pointer,U16 *pos)
 	int i;
 	if (ver == WORD8)
 		{
-		len = dgetc(NULL,&pointer);
+		len = dread_8ubit(NULL,&pointer);
 		(*pos)++;
 		wvTrace(("the len is %d",len));
 		}
-	itcFirst = dgetc(NULL,&pointer);
-	itcLim = dgetc(NULL,&pointer);
-	temp8 = dgetc(NULL,&pointer);
+	itcFirst = dread_8ubit(NULL,&pointer);
+	itcLim = dread_8ubit(NULL,&pointer);
+	temp8 = dread_8ubit(NULL,&pointer);
 	(*pos)+=3;
 	(*pos) += wvGetBRCFromBucket(ver,&abrc,pointer);
 
@@ -2434,8 +2434,8 @@ sprmTInsert is stored only in grpprls linked to piece table entries.
 
 void wvApplysprmTInsert(TAP *tap,U8 *pointer,U16 *pos)
 	{
-	U8 itcInsert = dgetc(NULL,&pointer);
-	U8 ctc = dgetc(NULL,&pointer);
+	U8 itcInsert = dread_8ubit(NULL,&pointer);
+	U8 ctc = dread_8ubit(NULL,&pointer);
 	S16 dxaCol = (S16)dread_16ubit(NULL,&pointer);
 	int i;
 	(*pos)+=4;
@@ -2481,8 +2481,8 @@ table entries.
 */
 void wvApplysprmTDelete(TAP *tap,U8 *pointer,U16 *pos)
 	{
-	U8 itcFirst = dgetc(NULL,&pointer);
-	U8 itcLim = dgetc(NULL,&pointer);
+	U8 itcFirst = dread_8ubit(NULL,&pointer);
+	U8 itcLim = dread_8ubit(NULL,&pointer);
 	int i;
 	(*pos)+=2;
 
@@ -2508,8 +2508,8 @@ account the amount added to or removed from the previous columns.
 */
 void wvApplysprmTDxaCol(TAP *tap,U8 *pointer,U16 *pos)
 	{
-	U8 itcFirst = dgetc(NULL,&pointer);
-	U8 itcLim = dgetc(NULL,&pointer);
+	U8 itcFirst = dread_8ubit(NULL,&pointer);
+	U8 itcLim = dread_8ubit(NULL,&pointer);
 	S16 dxaCol = (S16)dread_16ubit(NULL,&pointer);
 	S16 diff=0;
 	int i;
@@ -2538,8 +2538,8 @@ in grpprls linked to piece table entries.
 */
 void wvApplysprmTMerge(TAP *tap,U8 *pointer,U16 *pos)
 	{
-	U8 itcFirst = dgetc(NULL,&pointer);
-	U8 itcLim = dgetc(NULL,&pointer);
+	U8 itcFirst = dread_8ubit(NULL,&pointer);
+	U8 itcLim = dread_8ubit(NULL,&pointer);
 	int i;
 	(*pos)+=2;
 
@@ -2562,8 +2562,8 @@ table entries.
 */
 void wvApplysprmTSplit(TAP *tap,U8 *pointer,U16 *pos)
 	{
-	U8 itcFirst = dgetc(NULL,&pointer);
-	U8 itcLim = dgetc(NULL,&pointer);
+	U8 itcFirst = dread_8ubit(NULL,&pointer);
+	U8 itcLim = dread_8ubit(NULL,&pointer);
 	int i;
 	(*pos)+=2;
 
@@ -2582,10 +2582,10 @@ void wvApplysprmTSetBrc10(TAP *tap,U8 *pointer,U16 *pos)
 	U8 itcFirst,itcLim,len,temp8;
 	BRC10 abrc;
 	int i;
-	len = dgetc(NULL,&pointer);
-	itcFirst = dgetc(NULL,&pointer);
-	itcLim = dgetc(NULL,&pointer);
-	temp8 = dgetc(NULL,&pointer);
+	len = dread_8ubit(NULL,&pointer);
+	itcFirst = dread_8ubit(NULL,&pointer);
+	itcLim = dread_8ubit(NULL,&pointer);
+	temp8 = dread_8ubit(NULL,&pointer);
 	(*pos)+=3;
 	(*pos) += wvGetBRC10FromBucket(&abrc,pointer);
 
@@ -2614,8 +2614,8 @@ in grpprls linked to piece table entries.
 */
 void wvApplysprmTSetShd(TAP *tap,U8 *pointer,U16 *pos)
 	{
-	U8 itcFirst = dgetc(NULL,&pointer);
-	U8 itcLim = dgetc(NULL,&pointer);
+	U8 itcFirst = dread_8ubit(NULL,&pointer);
+	U8 itcLim = dread_8ubit(NULL,&pointer);
 	int i;
 	SHD shd;
 	(*pos)+=2;
@@ -2634,8 +2634,8 @@ stored only in grpprls linked to piece table entries.
 */
 void wvApplysprmTSetShdOdd(TAP *tap,U8 *pointer,U16 *pos)
 	{
-	U8 itcFirst = dgetc(NULL,&pointer);
-	U8 itcLim = dgetc(NULL,&pointer);
+	U8 itcFirst = dread_8ubit(NULL,&pointer);
+	U8 itcLim = dread_8ubit(NULL,&pointer);
 	int i;
 	SHD shd;
 	(*pos)+=2;
@@ -2653,7 +2653,7 @@ void wvApplysprmTSetShdOdd(TAP *tap,U8 *pointer,U16 *pos)
 /* guess */
 void wvApplysprmTTextFlow(TAP *tap,U8 *pointer,U16 *pos)
 	{
-	U8 val = dgetc(NULL,&pointer);
+	U8 val = dread_8ubit(NULL,&pointer);
 	int i;
 	(*pos)++;
 
@@ -2680,10 +2680,10 @@ void wvApplysprmTVertMerge(TAP *tap,U8 *pointer,U16 *pos)
 	U8 index,props,count;
 	wvTrace(("doing Vertical merge\n"));
 
-	count = dgetc(NULL,&pointer);
+	count = dread_8ubit(NULL,&pointer);
 	wvTrace(("count is %d\n",count));	/* check against word 8 please */
-	index = dgetc(NULL,&pointer);
-	props = dgetc(NULL,&pointer);
+	index = dread_8ubit(NULL,&pointer);
+	props = dread_8ubit(NULL,&pointer);
 	(*pos)+=3;
 
 	switch(props)
@@ -2715,9 +2715,9 @@ sprmTVertAlign is stored only in grpprls linked to piece table entries.
 */
 void wvApplysprmTVertAlign(TAP *tap,U8 *pointer,U16 *pos)
 	{
-	U8 itcFirst = dgetc(NULL,&pointer);
-	U8 itcLim = dgetc(NULL,&pointer);
-	U8 props = dgetc(NULL,&pointer);
+	U8 itcFirst = dread_8ubit(NULL,&pointer);
+	U8 itcLim = dread_8ubit(NULL,&pointer);
+	U8 props = dread_8ubit(NULL,&pointer);
 	int i;
 	(*pos)+=3;
 

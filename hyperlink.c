@@ -6,7 +6,7 @@
 #include "wv.h"
 
 extern FILE *erroroutput;
-extern FILE *outputfile;
+extern wvStream *outputfile;
 
 extern long int cp;
 extern long int realcp;

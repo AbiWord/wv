@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
 #include "wv.h"
 
 #include <sys/types.h>
@@ -33,13 +34,13 @@ int setdecom(void)
 int decompress(FILE *inputfile,FILE *outputfile,U32 inlen,U32 outlen)
 	{
 #if defined(SYSTEM_ZLIB) && defined(HAVE_MMAP)
-	char *compr;
-	char *uncompr;
+	unsigned char *compr;
+	unsigned char *uncompr;
 	int err;
 	uLong uncomprLen, comprLen;
 	
 	
-	char *input,*output;
+	unsigned char *input,*output;
 	int out;
 	int in;
 	
@@ -55,7 +56,7 @@ int decompress(FILE *inputfile,FILE *outputfile,U32 inlen,U32 outlen)
 
 	input = mmap(0,inlen,PROT_READ|PROT_WRITE,MAP_SHARED,in,0);
 
-	if (input == (char *)-1)
+	if (input == (unsigned char *)-1)
 		{
 		wvError(("unable to mmap inputfile\n"));
 		return(-1);
@@ -80,7 +81,7 @@ int decompress(FILE *inputfile,FILE *outputfile,U32 inlen,U32 outlen)
 
 	output = mmap(0,outlen,PROT_READ|PROT_WRITE,MAP_SHARED,out,0);
 
-	if (output == (char *)-1)
+	if (output == (unsigned char *)-1)
 		{
 		wvError(("map out failed\n"));
 		wvError(("%s\n",strerror(errno)));

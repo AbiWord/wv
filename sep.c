@@ -122,7 +122,7 @@ void wvInitSEP(SEP *item)
  	wvInitOLST(&item->olstAnm);
 	} 
 
-void wvGetSEPX(version ver,SEPX *item,FILE *fd)
+void wvGetSEPX(version ver,SEPX *item,wvStream *fd)
 	{
 	U16 i;
 	item->cb = read_16ubit(fd);
@@ -134,7 +134,7 @@ void wvGetSEPX(version ver,SEPX *item,FILE *fd)
 
 	for (i=0;i<item->cb;i++)	
 		{
-		item->grpprl[i] = getc(fd);
+		item->grpprl[i] = read_8ubit(fd);
 		wvTrace(("sep is %x\n",item->grpprl[i]));
 		}
 	}
@@ -192,7 +192,7 @@ int wvAddSEPXFromBucket6(SEP *asep,SEPX *item,STSH *stsh)
 #endif
     while (i < item->cb)
         {
-        sprm8 = bgetc(item->grpprl+i,&i);
+        sprm8 = bread_8ubit(item->grpprl+i,&i);
 #ifdef SPRMTEST
 		wvError(("sep word 6 sprm is %x (%d)\n",sprm8,sprm8));
 #endif

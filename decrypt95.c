@@ -105,17 +105,17 @@ int wvDecrypt95(wvParseStruct *ps)
 
 	if (ret) return(ret);
 
-	fseek(ps->mainfd,0,SEEK_END);
-	end = ftell(ps->mainfd);
+	wvStream_offset_from_end(ps->mainfd,0);
+	end = wvStream_tell(ps->mainfd);
 
 	j = 0;
-	fseek(ps->mainfd,j,SEEK_SET);
+	wvStream_goto(ps->mainfd,j);
 
 	mainfd = tmpfile();
 
 	while(j<0x30)
         {
-        c = fgetc(ps->mainfd);
+        c = read_8ubit(ps->mainfd);
         fputc(c,mainfd);
         j++;
         }
@@ -123,7 +123,7 @@ int wvDecrypt95(wvParseStruct *ps)
 	while(j<end)
 		{
 		for (i=0;i<16;i++)
-			test[i] = fgetc(ps->mainfd);
+			test[i] = read_8ubit(ps->mainfd);
 		for (i=0;i<16;i++)
         	{
             if (test[i] != 0)
@@ -137,16 +137,16 @@ int wvDecrypt95(wvParseStruct *ps)
 
 
 	if (ps->tablefd0)
-        fclose(ps->tablefd0);
+        wvStream_close(ps->tablefd0);
     if (ps->tablefd1)
-        fclose(ps->tablefd1);
-    fclose(ps->mainfd);
-    ps->tablefd = mainfd;
-    ps->tablefd0 = mainfd;
-    ps->tablefd1 = mainfd;
-    ps->mainfd = mainfd;
-    rewind(ps->tablefd);
-    rewind(ps->mainfd);
+        wvStream_close(ps->tablefd1);
+    wvStream_close(ps->mainfd);
+    ps->tablefd = (wvStream*)mainfd;
+    ps->tablefd0 = (wvStream*)mainfd;
+    ps->tablefd1 = (wvStream*)mainfd;
+    ps->mainfd = (wvStream*)mainfd;
+    wvStream_rewind(ps->tablefd);
+    wvStream_rewind(ps->mainfd);
     ps->fib.fEncrypted=0;
     wvGetFIB(&ps->fib,ps->mainfd);
     ps->fib.fEncrypted=0;

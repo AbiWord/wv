@@ -191,7 +191,7 @@ Export void GetImageInfo(ImageInfo *image_info)
     File and image dimension members.
   */
   GetBlobInfo(&(image_info->blob));
-  image_info->file=(FILE *) NULL;
+  image_info->file=(wvStream *) NULL;
   *image_info->filename='\0';
   *image_info->magick='\0';
   TemporaryFilename(image_info->unique);
@@ -306,7 +306,7 @@ Export Image *AllocateImage(const ImageInfo *image_info)
     Initialize Image structure.
   */
   GetBlobInfo(&(allocated_image->blob));
-  allocated_image->file=(FILE *) NULL;
+  allocated_image->file=(wvStream *) NULL;
   allocated_image->exempt=False;
   allocated_image->status=False;
   allocated_image->temporary=False;
@@ -565,7 +565,7 @@ Export void DestroyImage(Image *image)
   /*
     Close image.
   */
-  if (image->file != (FILE *) NULL)
+  if (image->file != (wvStream *) NULL)
     {
       CloseBlob(image);
       if (image->temporary)
@@ -758,7 +758,7 @@ Export Image *CloneImage(const Image *image,const unsigned int columns,
     }
   if (image->orphan)
     {
-      clone_image->file=(FILE *) NULL;
+      clone_image->file=(wvStream *) NULL;
       clone_image->previous=(Image *) NULL;
       clone_image->next=(Image *) NULL;
     }
@@ -1873,7 +1873,7 @@ Export void SetImageInfo(ImageInfo *image_info,const unsigned int rectify)
   /*
     Look for explicit 'format:image' in filename.
   */
-  image_info->affirm=image_info->file != (FILE *) NULL;
+  image_info->affirm=image_info->file != (wvStream *) NULL;
   p=image_info->filename;
   while (isalnum((int) *p))
     p++;
@@ -1958,12 +1958,12 @@ Export void SetImageInfo(ImageInfo *image_info,const unsigned int rectify)
       /*
         Copy standard input or pipe to temporary file.
       */
-      image_info->file=(FILE *) NULL;
+      image_info->file=(wvStream *) NULL;
       TemporaryFilename(image->filename);
       image_info->temporary=True;
       FormatString(image_info->filename,"%.1024s",image->filename);
       file=fopen(image->filename,WriteBinaryType);
-      if (file == (FILE *) NULL)
+      if (file == (wvStream *) NULL)
         {
           MagickWarning(FileOpenWarning,"Unable to write file",image->filename);
           return;

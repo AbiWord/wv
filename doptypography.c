@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt,FILE *fd)
+void wvGetDOPTYPOGRAPHY(DOPTYPOGRAPHY *dopt,wvStream *fd)
 	{
 	int i;
 	U16 temp16=read_16ubit(fd);

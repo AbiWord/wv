@@ -54,20 +54,20 @@ block contains a grpprl) or 2 (meaning this is the plcfpcd). A clxtGrpprl
 clxtPlcfpcd (2) is followed by a 4-byte lcb which is the count of bytes of
 the piece table. A full saved file will have no clxtGrpprl's.
 */
-void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,FILE *fd)
+void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,wvStream *fd)
 	{
 	U8 clxt;
 	U16 cb;
 	U32 lcb,i,j=0;
 
 	wvTrace(("offset %x len %d\n",offset,len));
-	fseek(fd,offset,SEEK_SET);
+	wvStream_goto(fd,offset);
 
 	wvInitCLX(clx);
 
 	while (j<len)
 		{
-		clxt = getc(fd);
+		clxt = read_8ubit(fd);
 		j++;
 		if (clxt == 1)
 			{
@@ -79,7 +79,7 @@ void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,FILE *fd)
 			clx->grpprl = (U8 **)realloc(clx->grpprl,sizeof(U8 *)*(clx->grpprl_count));
 			clx->grpprl[clx->grpprl_count-1] = (U8 *)malloc(cb);
 			for(i=0;i<cb;i++)
-				clx->grpprl[clx->grpprl_count-1][i] = getc(fd);
+				clx->grpprl[clx->grpprl_count-1][i] = read_8ubit(fd);
 			j+=i;
 			}
 		else if (clxt == 2)
@@ -100,7 +100,7 @@ void wvGetCLX(version ver,CLX *clx,U32 offset,U32 len,U8 fExtChar,FILE *fd)
 				lcb = read_32ubit(fd);		/* word 6 specs appeared to have lied ! */
 				j+=4;
 				}
-			wvGetPCD_PLCF(&clx->pcd,&clx->pos,&clx->nopcd,ftell(fd),lcb,fd);
+			wvGetPCD_PLCF(&clx->pcd,&clx->pos,&clx->nopcd,wvStream_tell(fd),lcb,fd);
 			j+=lcb;
 
 			if (ver == WORD7)

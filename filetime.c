@@ -3,7 +3,7 @@
 #include <time.h>
 #include "wv.h"
 
-void wvGetFILETIME(FILETIME *ft,FILE *fd)
+void wvGetFILETIME(FILETIME *ft,wvStream *fd)
 	{
 	ft->dwLowDateTime = read_32ubit(fd);
 	ft->dwHighDateTime = read_32ubit(fd);

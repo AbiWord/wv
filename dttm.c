@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetDTTM(DTTM *item,FILE *fd)
+void wvGetDTTM(DTTM *item,wvStream *fd)
 	{
 	U16 a = read_16ubit(fd);
 	U16 b = read_16ubit(fd);

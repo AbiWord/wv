@@ -45,21 +45,21 @@ void wvCopyLVL(LVL *dest,LVL *src)
 		}
 	}
 
-void wvGetLVL(LVL *lvl,FILE *fd)
+void wvGetLVL(LVL *lvl,wvStream *fd)
 	{
 	int len;
 	wvGetLVLF(&(lvl->lvlf),fd);
 	if (lvl->lvlf.cbGrpprlPapx > 0)
 		{
 		lvl->grpprlPapx = (U8 *)malloc(lvl->lvlf.cbGrpprlPapx);
-		fread(lvl->grpprlPapx,sizeof(U8),lvl->lvlf.cbGrpprlPapx,fd);
+		wvStream_read(lvl->grpprlPapx,sizeof(U8),lvl->lvlf.cbGrpprlPapx,fd);
 		}		
 	else
 		lvl->grpprlPapx = NULL;
 	if (lvl->lvlf.cbGrpprlChpx > 0)
 		{
 		lvl->grpprlChpx = (U8 *)malloc(lvl->lvlf.cbGrpprlChpx);
-		fread(lvl->grpprlChpx,sizeof(U8),lvl->lvlf.cbGrpprlChpx,fd);
+		wvStream_read(lvl->grpprlChpx,sizeof(U8),lvl->lvlf.cbGrpprlChpx,fd);
 		}	
 	else
 		lvl->grpprlChpx = NULL;
@@ -68,7 +68,7 @@ void wvGetLVL(LVL *lvl,FILE *fd)
 		{
 		lvl->numbertext = (U16 *)malloc(sizeof(U16)*(len +2));
 		lvl->numbertext[0] = len;
-		fread(&(lvl->numbertext[1]),sizeof(U16),len,fd);
+		wvStream_read(&(lvl->numbertext[1]),sizeof(U16),len,fd);
 		lvl->numbertext[len-1] = 0;
 		}
 	else
@@ -90,7 +90,7 @@ void wvCopyLVLF(LVLF *dest,LVLF *src)
 	memcpy(dest,src,sizeof(LVLF));
 	}
 
-void wvGetLVLF(LVLF *item,FILE *fd)
+void wvGetLVLF(LVLF *item,wvStream *fd)
 	{
 	U8 temp8;
 	int i;
@@ -99,8 +99,8 @@ void wvGetLVLF(LVLF *item,FILE *fd)
 #endif
 	item->iStartAt = read_32ubit(fd);
 	wvTrace(("iStartAt is %d\n",item->iStartAt));
-    item->nfc = getc(fd);
-	temp8 = getc(fd);
+    item->nfc = read_8ubit(fd);
+	temp8 = read_8ubit(fd);
     item->jc = temp8 & 0x03;
    	item->fLegal = (temp8 & 0x04) >>2;
     item->fNoRestart = (temp8 & 0x08) >> 3;
@@ -109,12 +109,12 @@ void wvGetLVLF(LVLF *item,FILE *fd)
     item->fWord6 = (temp8 & 0x40) >> 6;
     item->reserved1 = (temp8 & 0x80) >> 7;
 	for (i=0;i<9;i++)
-    	item->rgbxchNums[i] = getc(fd); 
-    item->ixchFollow = getc(fd);;
+    	item->rgbxchNums[i] = read_8ubit(fd); 
+    item->ixchFollow = read_8ubit(fd);;
     item->dxaSpace = read_32ubit(fd);      
     item->dxaIndent = read_32ubit(fd);     
-    item->cbGrpprlChpx = getc(fd);
-    item->cbGrpprlPapx = getc(fd);
+    item->cbGrpprlChpx = read_8ubit(fd);
+    item->cbGrpprlPapx = read_8ubit(fd);
     item->reserved2 = read_16ubit(fd);;  
 	}
 

@@ -3,7 +3,7 @@
 #include "config.h"
 #include "wv.h"
 #if 0
-extern FILE *erroroutput;
+extern wvStream *erroroutput;
 extern int sectionpagenumber;
 extern sep *currentsep;
 extern int nostyles;
@@ -44,7 +44,7 @@ the paps for the pap that describes the table in more detail, and
 copy that information into this pap
 */
 void fill_table_info(pap *apap,U32 tapfc1, U32 *plcfbtePapx,U32 intervals, 
-	FILE *mainfd,style *sheet,list_info *a_list_info)
+	wvStream *mainfd,style *sheet,list_info *a_list_info)
 	{
 	pap *tappap=NULL;
 	int tempfck;
@@ -79,7 +79,7 @@ void fill_table_info(pap *apap,U32 tapfc1, U32 *plcfbtePapx,U32 intervals,
 		}
 	}
 
-chp *get_chp(U32 pageindex,FILE *in, FILE *data, U32 charindex, U32 *nextfc,style *sheet,U16 istd)
+chp *get_chp(U32 pageindex,wvStream *in, FILE *data, U32 charindex, U32 *nextfc,style *sheet,U16 istd)
 	{
 	long pos = ftell(in);
 	S16 i;
@@ -203,7 +203,7 @@ void init_sep(sep *asep)
     asep->dzaGutter=0;
 	}
 
-sep *get_sep(U32 offset,FILE *in)
+sep *get_sep(U32 offset,wvStream *in)
 	{
 	sep *asep;
 	U16 clist;
@@ -250,7 +250,7 @@ sep *get_sep(U32 offset,FILE *in)
 	return(asep);
 	}
 
-pap *get_pap(U32 pageindex,FILE *in, U32 charindex, U32 *nextfc, style *sheet,list_info *a_list_info)
+pap *get_pap(U32 pageindex,wvStream *in, U32 charindex, U32 *nextfc, style *sheet,list_info *a_list_info)
 	{
 	long pos = ftell(in);
 	U8 k;
@@ -393,7 +393,7 @@ int find_FKPno_chpx(U32 fc,U32 *plcfbteChpx,U32 chpintervals)
 	return(-1);
 	}
 
-U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, FILE *in, U16 *location,long *pos)
+U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, wvStream *in, U16 *location,long *pos)
 	{
 	U8 crun;
 	int i;
@@ -445,7 +445,7 @@ U32 find_next_biggest_orequal_fc(U32 charindex,U32 pageindex, FILE *in, U16 *loc
 	return(rval); 
 	}
 
-U32 find_next_biggest_fc(U32 charindex,U32 pageindex, FILE *in, U16 *location,long *pos)
+U32 find_next_biggest_fc(U32 charindex,U32 pageindex, wvStream *in, U16 *location,long *pos)
 	{
 	U8 crun;
 	int i;
@@ -497,7 +497,7 @@ U32 find_next_biggest_fc(U32 charindex,U32 pageindex, FILE *in, U16 *location,lo
 	return(rval); 
 	}
 
-U32 find_next_smallest_fc(U32 charindex,U32 pageindex, FILE *in, S16 *location,long *pos)
+U32 find_next_smallest_fc(U32 charindex,U32 pageindex, wvStream *in, S16 *location,long *pos)
 	{
 	U8 crun,i;
 	U32 *rgfc;
@@ -551,7 +551,7 @@ U32 find_next_smallest_fc(U32 charindex,U32 pageindex, FILE *in, S16 *location,l
 	}
 
 
-chp * get_complex_chp(U32 fc,U32 *plcfbteChpx,U16 i,U16 nopieces,U32 chpintervals,U32 *rgfc,FILE *main,U32 *avalrgfc,U32 *thenextone,style *sheet,U16 istd)
+chp * get_complex_chp(U32 fc,U32 *plcfbteChpx,U16 i,U16 nopieces,U32 chpintervals,U32 *rgfc,wvStream *main,U32 *avalrgfc,U32 *thenextone,style *sheet,U16 istd)
 	{
 	chp *achp=NULL;
 	int tempfck;
@@ -599,7 +599,7 @@ chp * get_complex_chp(U32 fc,U32 *plcfbteChpx,U16 i,U16 nopieces,U32 chpinterval
 	}
 
 
-pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U32 *rgfc,FILE *main,U32 *avalrgfc,U32 *thenextone,U32 *paraendfc,int *paraendpiece,style *sheet,list_info *a_list_info)
+pap * get_complex_pap(U32 fc,U32 *plcfbtePapx,U16 i,U16 nopieces,U32 intervals,U32 *rgfc,wvStream *main,U32 *avalrgfc,U32 *thenextone,U32 *paraendfc,int *paraendpiece,style *sheet,list_info *a_list_info)
 	{
 	pap *apap=NULL;
 	int tempfck;

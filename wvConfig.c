@@ -533,7 +533,7 @@ void wvListStateData(state_data *data)
 void wvReleaseStateData(state_data *data)
 	{
 	int i,k;
-	if (data->fp) fclose(data->fp);
+	if (data->fp) wvStream_close(data->fp);
 	for(i=0;i<TokenTableSize;i++)
 	    {
 		for(k=0;k<data->elements[i].nostr;k++)
@@ -1218,7 +1218,7 @@ void exstartElement(void *userData, const char *name, const char **atts)
 						wvCopyLVL(&((*mydata->finallvl)[(((PAP*)(mydata->props))->ilfo-1)*9+((PAP*)(mydata->props))->ilvl]),&lvl);
 						}
 
-					for (i=0;i<*(mydata->nolfo)*9;i++)
+					for (i=0;i<(int)*(mydata->nolfo)*9;i++)
 						{
 						if ( (i%9 > ((PAP*)(mydata->props))->ilvl) && ((*mydata->finallvl)[i].lvlf.fNoRestart == 0) )
 							(*mydata->liststartnos)[i] = (*mydata->finallvl)[i].lvlf.iStartAt;
@@ -3285,7 +3285,7 @@ int wvParseConfig(state_data *myhandle)
 
 	do {
 		wvTrace(("loop in\n"));
-		len = fread(buf, 1, sizeof(buf), myhandle->fp);
+		len = wvStream_read(buf, 1, sizeof(buf), myhandle->fp);
 		wvTrace(("loop out\n"));
 		done = len < sizeof(buf);
 		if (!XML_Parse(parser, buf, len, done)) 

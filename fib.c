@@ -261,14 +261,14 @@ void wvInitFIB(FIB *item)
 	item->lcbSttbfUssr = 0;
 	}
 
-void wvGetFIB(FIB *item,FILE *fd)
+void wvGetFIB(FIB *item,wvStream *fd)
 	{
 	U16 temp16;
 	U8 temp8;
 
     item->fEncrypted=0;
 
-	fseek(fd,0,SEEK_SET);
+	wvStream_goto(fd,0);
 #ifdef PURIFY
 	wvInitFIB(item);
 #endif
@@ -278,7 +278,7 @@ void wvGetFIB(FIB *item,FILE *fd)
 	if ( (wvQuerySupported(item,NULL) == WORD5) || (wvQuerySupported(item,NULL) == WORD6) || (wvQuerySupported(item,NULL) == WORD7) )
 		{
 		wvInitFIB(item);
-		fseek(fd,-4,SEEK_CUR);
+		wvStream_offset(fd,-4);
 		wvGetFIB6(item,fd);
 		return;
 		}
@@ -304,8 +304,8 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->fCrypto = (temp16 & 0x8000) >> 15;
 	item->nFibBack = read_16ubit(fd);
 	item->lKey = read_32ubit(fd);
-	item->envr = getc(fd);
-	temp8 = getc(fd);
+	item->envr = read_8ubit(fd);
+	temp8 = read_8ubit(fd);
 	item->fMac = (temp8 & 0x01);
 	item->fEmptySpecial = (temp8 & 0x02) >> 1;
 	item->fLoadOverridePage = (temp8 & 0x04) >> 2;
@@ -543,9 +543,9 @@ void wvGetFIB(FIB *item,FILE *fd)
 	item->lcbSttbfUssr = read_32ubit(fd);
 	}
 
-FILE *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
+wvStream *wvWhichTableStream(FIB *fib,wvParseStruct *ps)
     {
-    FILE *ret;
+    wvStream *ret;
 
 	if ((wvQuerySupported(fib,NULL)&0x7fff) == WORD8)
 		{
@@ -617,7 +617,7 @@ version wvQuerySupported(FIB *fib,int *reason)
     }
 
 
-void wvGetFIB6(FIB *item,FILE *fd)
+void wvGetFIB6(FIB *item,wvStream *fd)
 	{
 	U16 temp16;
 	U8 temp8;
@@ -647,8 +647,8 @@ void wvGetFIB6(FIB *item,FILE *fd)
 	item->fCrypto = 0;
 	item->nFibBack = read_16ubit(fd);
 	item->lKey = read_32ubit(fd);
-	item->envr = getc(fd);
-	temp8 = getc(fd);
+	item->envr = read_8ubit(fd);
+	temp8 = read_8ubit(fd);
 	item->fMac = 0;
 	item->fEmptySpecial = 0;
 	item->fLoadOverridePage = 0;

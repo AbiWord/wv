@@ -2,13 +2,13 @@
 #include <stdio.h>
 #include "wv.h"
 
-U32 wvGetFAnchor(FAnchor *item,FILE *fd)
+U32 wvGetFAnchor(FAnchor *item,wvStream *fd)
 	{
 	/* It is supposed to be a RECT, but its only 4 long so... */
-	item->left = getc(fd);
-	item->right = getc(fd);
-	item->top = getc(fd);
-	item->bottom = getc(fd);
+	item->left = read_8ubit(fd);
+	item->right = read_8ubit(fd);
+	item->top = read_8ubit(fd);
+	item->bottom = read_8ubit(fd);
 	return(4);
 	}
 
@@ -31,7 +31,7 @@ void wvReleaseFOPTEArray(FOPTE **fopte)
 		}
 	}
 
-U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,FILE *fd)
+U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,wvStream *fd)
 	{
 	U32 i,j,count=0;
 	U32 no = msofbh->cbLength/6;
@@ -39,7 +39,7 @@ U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,FILE *fd)
 	no=0;
 	while (count < msofbh->cbLength)
 		{
-		wvTrace(("count %x %x, pos %x\n",count,msofbh->cbLength,ftell(fd)));
+		wvTrace(("count %x %x, pos %x\n",count,msofbh->cbLength,wvStream_tell(fd)));
 		count += wvGetFOPTE(&(*fopte)[no],fd);
 		no++;
 		}
@@ -48,7 +48,7 @@ U32 wvGetFOPTEArray(FOPTE **fopte,MSOFBH *msofbh,FILE *fd)
 		{
 		if ( (*fopte)[i].fComplex )
 			for(j=0;j<(*fopte)[i].op;j++)
-			(*fopte)[i].entry[j] = getc(fd);	
+			(*fopte)[i].entry[j] = read_8ubit(fd);	
 		}
 	(*fopte)[i].pid=0;
 	wvTrace(("returning %x\n",count));
@@ -61,10 +61,10 @@ void wvReleaseFOPTE(FOPTE *afopte)
 	wvFree(afopte->entry);
 	}
 
-U32 wvGetFOPTE(FOPTE *afopte,FILE *fd)
+U32 wvGetFOPTE(FOPTE *afopte,wvStream *fd)
     {
     U16 dtemp;
-	wvTrace(("pos is %x\n",ftell(fd)));
+	wvTrace(("pos is %x\n",wvStream_tell(fd)));
     dtemp = read_16ubit(fd);
 	wvTrace(("dtemp is %x\n",dtemp));
 #ifdef PURIFY

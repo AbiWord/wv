@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetBKD(BKD *item,FILE *fd)
+void wvGetBKD(BKD *item,wvStream *fd)
 	{
 	U16 temp16;
 	item->ipgd_itxbxs = (S16)read_16ubit(fd);
@@ -17,7 +17,7 @@ void wvGetBKD(BKD *item,FILE *fd)
 	item->reserved1 = (temp16 & 0xE000) >> 13;
 	} 
 
-int wvGetBKD_PLCF(BKD **bkd,U32 **pos,U32 *nobkd,U32 offset,U32 len,FILE *fd)
+int wvGetBKD_PLCF(BKD **bkd,U32 **pos,U32 *nobkd,U32 offset,U32 len,wvStream *fd)
     {
     U32 i;
     if (len == 0)
@@ -43,7 +43,7 @@ int wvGetBKD_PLCF(BKD **bkd,U32 **pos,U32 *nobkd,U32 offset,U32 len,FILE *fd)
             free(pos);
             return(1);
             }
-        fseek(fd,offset,SEEK_SET);
+        wvStream_goto(fd,offset);
         for(i=0;i<*nobkd+1;i++)
 			{
             (*pos)[i]=read_32ubit(fd);

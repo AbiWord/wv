@@ -80,7 +80,7 @@ void wvAddCHPXFromBucket6(CHP *achp,UPXF *upxf,STSH *stsh)
 #endif
 	while (i < upxf->cbUPX)
 		{
-		sprm8 = bgetc(upxf->upx.chpx.grpprl+i,&i);
+		sprm8 = bread_8ubit(upxf->upx.chpx.grpprl+i,&i);
 #ifdef SPRMTEST
         wvError(("chp word 6 sprm is %x (%d)\n",sprm8,sprm8));
 #endif
@@ -555,7 +555,7 @@ void wvUpdateCHPXBucket(UPXF *src)
 	len=0;
 	while(i<src->cbUPX)
 		{
-		sprm8 = dgetc(NULL,&pointer);
+		sprm8 = dread_8ubit(NULL,&pointer);
 		wvTrace(("Mpre the sprm is %x\n",sprm8));
 		sprm = (U16)wvGetrgsprmWord6(sprm8);
 		wvTrace(("Mpost the sprm is %x\n",sprm));
@@ -580,7 +580,7 @@ void wvUpdateCHPXBucket(UPXF *src)
 	pointer = src->upx.chpx.grpprl;
 	while(i<src->cbUPX)
 		{
-		sprm8 = dgetc(NULL,&pointer);
+		sprm8 = dread_8ubit(NULL,&pointer);
 		sprm = (U16)wvGetrgsprmWord6(sprm8);
 		i++;
 		*dpointer++ = (sprm&0x00FF);
@@ -650,7 +650,7 @@ int wvAssembleSimpleCHP(version ver,CHP *achp, U32 fc, CHPX_FKP *fkp, STSH *stsh
 void wvGetCHPX(version ver, CHPX *item, U8 *page, U16 *pos)
 	{
 	U8 i;
-	item->cbGrpprl = bgetc(&(page[*pos]),pos);
+	item->cbGrpprl = bread_8ubit(&(page[*pos]),pos);
 	if (item->cbGrpprl > 0)
 		{
 		item->grpprl = (U8 *)malloc(item->cbGrpprl);

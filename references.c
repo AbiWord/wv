@@ -3,8 +3,8 @@
 #include "wv.h"
 
 #if 0
-extern FILE *erroroutput;
-extern FILE *outputfile;
+extern wvStream *erroroutput;
+extern wvStream *outputfile;
 extern DOP dop;
 extern long int cp;
 extern int insuper;

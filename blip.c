@@ -5,8 +5,8 @@
 #include <errno.h>
 #include "wv.h"
 
-extern FILE *outputfile;
-extern FILE *erroroutput;
+extern wvStream *outputfile;
+extern wvStream *erroroutput;
 extern char *outputfilename;
 
 int external_knowledge_0x01 = 0;/*when we magically know that we will not
@@ -31,7 +31,7 @@ int wvQueryDelayStream(FBSE *afbse)
 	}
 
 #if 0
-char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,FILE *infd)
+char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,wvStream *infd)
 	{
 	return("/tmp/rubbish");
 	char *aimage;
@@ -39,7 +39,7 @@ char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,FILE *infd)
 	int count=0,extra=0;
 	U32 i;
 	static int no;
-	FILE *out;
+	wvStream *out;
 	for (i=0;i<16;i++)
 		abm->m_rgbUid[i] = getc(infd);
 
@@ -87,7 +87,7 @@ char *wvGetBitmap(BitmapBlip *abm,MSOFBH  *amsofbh,FBSE *afbse,FILE *infd)
 #endif
 
 #if 0
-char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *infd)	
+char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,wvStream *infd)	
 	{
 	return("/tmp/rubbish");
 #if 0
@@ -97,7 +97,7 @@ char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *infd)
 	static int no;
 	char *buffer;
 	char *tbuffer;
-	FILE *out;
+	wvStream *out;
 	U8 decompressf=0;
 	int count=0;
 	for (i=0;i<16;i++)
@@ -195,7 +195,7 @@ char *wvGetMetafile(MetaFileBlip *amf,MSOFBH *amsofbh,FILE *infd)
 	}
 #endif
 
-U32 twvGetFOPTE(FOPTE *afopte,FILE *infd)
+U32 twvGetFOPTE(FOPTE *afopte,wvStream *infd)
 	{
 	U32 ret=0;
 	U16 dtemp;
@@ -224,7 +224,7 @@ U32 twvGetFOPTE(FOPTE *afopte,FILE *infd)
 	}
 
 #if 0
-fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *tablefd,FILE *mainfd)
+fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,wvStream *tablefd,FILE *mainfd)
 	{
 	int remainder;
 	U32 i,j;
@@ -241,11 +241,11 @@ fsp_list *wvParseEscher(fbse_list **pic_list,U32 fcDggInfo,U32 lcbDggInfo,FILE *
 	fbse_list *afbse_list=NULL;
 	fbse_list *pfbse_list=NULL;
 	FDG afdg;
-	FILE *temp=NULL;
+	wvStream *temp=NULL;
 	/*
-	FILE *out = fopen("drawingtest","w+b");
+	wvStream *out = fopen("drawingtest","w+b");
 	*/
-	FILE *out = tmpfile();
+	wvStream *out = tmpfile();
 	long finish,k=0;
 	int pid;
 	char *name;
@@ -516,36 +516,36 @@ U32 wvGetSPIDfromCP(U32 cp,textportions *portions)
 	return(0xffffffffL);
 	}
 
-void wvGetBITMAP(BITMAP *bmp,FILE *infd)
+void wvGetBITMAP(BITMAP *bmp,wvStream *infd)
 	{
 	int i;
 	for (i=0;i<14;i++)
-		bmp->bm[i] = getc(infd);
+		bmp->bm[i] = read_8ubit(infd);
 	}
 
-void wvGetrc(rc *arc,FILE *infd)
+void wvGetrc(rc *arc,wvStream *infd)
 	{
 	int i;
 	for (i=0;i<14;i++)
-		arc->bm[i] = getc(infd);
+		arc->bm[i] = read_8ubit(infd);
 	}
 
 
-U32 twvGetFBSE(FBSE *afbse,FILE *infd)
+U32 twvGetFBSE(FBSE *afbse,wvStream *infd)
     {
     int i;
-    afbse->btWin32 = getc(infd);
-    afbse->btMacOS = getc(infd);
+    afbse->btWin32 = read_8ubit(infd);
+    afbse->btMacOS = read_8ubit(infd);
     for (i=0;i<16;i++)
-        afbse->rgbUid[i] = getc(infd);
+        afbse->rgbUid[i] = read_8ubit(infd);
     afbse->tag = read_16ubit(infd);
     afbse->size = read_32ubit(infd);
     afbse->cRef = read_32ubit(infd);
     afbse->foDelay = read_32ubit(infd);
-    afbse->usage = getc(infd);
-    afbse->cbName = getc(infd);
-    afbse->unused2 = getc(infd);
-    afbse->unused3 = getc(infd);
+    afbse->usage = read_8ubit(infd);
+    afbse->cbName = read_8ubit(infd);
+    afbse->unused2 = read_8ubit(infd);
+    afbse->unused3 = read_8ubit(infd);
     return(36);
     }
 

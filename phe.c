@@ -10,14 +10,14 @@ void wvGetPHE6(PHE *dest,U8 *page,U16 *pos)
 	wvInitPHE(dest,0);
 #endif
 
-	temp8 = bgetc(&(page[*pos]),pos);
+	temp8 = bread_8ubit(&(page[*pos]),pos);
 	dest->var1.fSpare = temp8 & 0x01;
 	dest->var1.fUnk = (temp8 & 0x02) >> 1;
 
 	dest->var1.fDiffLines = (temp8 & 0x04) >> 2;
 	dest->var1.reserved1 = (temp8 & 0xf8) >> 3;
 
-	dest->var1.clMac = bgetc(&(page[*pos]),pos);
+	dest->var1.clMac = bread_8ubit(&(page[*pos]),pos);
 
 	dest->var1.dxaCol = (S16) bread_16ubit(&(page[*pos]),pos);
 	dest->var1.dymHeight = (S32) bread_16ubit(&(page[*pos]),pos);
@@ -43,14 +43,14 @@ void wvGetPHE(PHE *dest,int which,U8 *page,U16 *pos)
 		}
 	else
 		{
-		temp8 = bgetc(&(page[*pos]),pos);
+		temp8 = bread_8ubit(&(page[*pos]),pos);
 		dest->var1.fSpare = temp8 & 0x01;
         dest->var1.fUnk = (temp8 & 0x02) >> 1;
 
 		dest->var1.fDiffLines = (temp8 & 0x04) >> 2;
         dest->var1.reserved1 = (temp8 & 0xf8) >> 3;
 
-        dest->var1.clMac = bgetc(&(page[*pos]),pos);
+        dest->var1.clMac = bread_8ubit(&(page[*pos]),pos);
 
         dest->var1.reserved2 = bread_16ubit(&(page[*pos]),pos);
 		

@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetDOGRID(DOGRID *dog,FILE *fd)
+void wvGetDOGRID(DOGRID *dog,wvStream *fd)
 	{
 	U16 temp16;
 	dog->xaGrid = read_16ubit(fd);

@@ -45,7 +45,7 @@ void wvGetRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *btePapx,U32
 
 	wvInitPAPX_FKP(&para_fkp);
 
-	i=ftell(ps->mainfd);
+	i=wvStream_tell(ps->mainfd);
 	wvTrace(("RowTab begin\n"));
 	do
 		{
@@ -78,7 +78,7 @@ void wvGetFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *p
 
 	wvInitPAPX_FKP(&para_fkp);
 
-	i = ftell(ps->mainfd);
+	i = wvStream_tell(ps->mainfd);
 	wvTrace(("TOP\n"));
 	do
 		{
@@ -653,7 +653,7 @@ void TheTest(wvParseStruct *ps,U32 piece,BTE *btePapx,U32 *posPapx,U32 para_inte
 	PAP apap;
 	int cpiece=0;
 
-	long pos = ftell(ps->mainfd);
+	long pos = wvStream_tell(ps->mainfd);
 	wvInitPAPX_FKP(&para_fkp);
 
 	para_fcFirst = wvConvertCPToFC(ps->currentcp,&ps->clx);
@@ -661,7 +661,7 @@ void TheTest(wvParseStruct *ps,U32 piece,BTE *btePapx,U32 *posPapx,U32 para_inte
 	for (piececount=piece;piececount<ps->clx.nopcd;piececount++)
 		{
 		chartype = wvGetPieceBoundsFC(&beginfc,&endfc,&ps->clx,piececount);
-		fseek(ps->mainfd,beginfc,SEEK_SET);
+		wvStream_goto(ps->mainfd,beginfc);
 		wvGetPieceBoundsCP(&begincp,&endcp,&ps->clx,piececount);
 		if (k==0)
 			{
@@ -692,7 +692,7 @@ void TheTest(wvParseStruct *ps,U32 piece,BTE *btePapx,U32 *posPapx,U32 para_inte
 			}
 		}
 
-	fseek(ps->mainfd,pos,SEEK_SET);
+	wvStream_goto(ps->mainfd,pos);
 	}
 
 void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx,U32 *posPapx,U32 piece)	
@@ -715,7 +715,7 @@ void wvGetComplexFullTableInit(wvParseStruct *ps,U32 para_intervals,BTE *btePapx
 
 	wvInitPAPX_FKP(&para_fkp);
 
-	i = ftell(ps->mainfd);
+	i = wvStream_tell(ps->mainfd);
 	wvTrace(("TOP\n"));
 	do
 		{
@@ -775,7 +775,7 @@ void wvGetComplexRowTap(wvParseStruct *ps,PAP *dpap,U32 para_intervals,BTE *bteP
 
 	wvInitPAPX_FKP(&para_fkp);
 
-	i=ftell(ps->mainfd);
+	i=wvStream_tell(ps->mainfd);
 
 	do
 		{

@@ -6,7 +6,7 @@
 To apply a UPX.papx to a UPE.pap, set UPE.pap.istd equal to UPX.papx.istd, and 
 then apply the UPX.papx.grpprl to UPE.pap.
 */
-void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh,FILE *data)
+void wvAddPAPXFromBucket(PAP *apap,UPXF *upxf,STSH *stsh,wvStream *data)
 	{
 	U8 *pointer;
 	U16 i=0;
@@ -66,7 +66,7 @@ void wvAddPAPXFromBucket6(PAP *apap,UPXF *upxf,STSH *stsh)
 	while (i < upxf->cbUPX-3)	/* the end of the list is at -2, but there has to be a full sprm of
 								 len 1 as well*/
 		{
-		sprm8 = bgetc(upxf->upx.papx.grpprl+i,&i);
+		sprm8 = bread_8ubit(upxf->upx.papx.grpprl+i,&i);
 #ifdef SPRMTEST
 		wvError(("pap word 6 sprm is %x (%d)\n",sprm8,sprm8));
 #endif
@@ -231,7 +231,7 @@ fkp.rgbx[i - 1] to find the PAPX for the paragraph.
 of the paragraph were at the last full save.
 */
 
-int wvAssembleSimplePAP(version ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh,FILE *data)
+int wvAssembleSimplePAP(version ver,PAP *apap,U32 fc,PAPX_FKP *fkp,STSH *stsh,wvStream *data)
 	{
 	PAPX *papx;
 	int index;
@@ -297,11 +297,11 @@ void wvInitPAPX(PAPX *item)
 void wvGetPAPX(version ver,PAPX *item,U8 *page,U16 *pos)
 	{
 	U16 cw;
-	cw = bgetc(&(page[*pos]),pos);
+	cw = bread_8ubit(&(page[*pos]),pos);
 	if ( (cw == 0) && (ver == WORD8) )	/* only do this for word 97 */
 		{
 		wvTrace(("cw was pad %d\n",cw));
-		cw = bgetc(&(page[*pos]),pos);
+		cw = bread_8ubit(&(page[*pos]),pos);
 		wvTrace(("cw was %d\n",cw));
 		}
 	item->cb=cw*2;

@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetBKL(BKL *item,FILE *fd)
+void wvGetBKL(BKL *item,wvStream *fd)
 	{
 	item->ibkf = (S16)read_16ubit(fd);
 	}
 
-int wvGetBKL_PLCF(BKL **bkl,U32 **pos,U32 *nobkl,U32 offset,U32 len,FILE *fd)
+int wvGetBKL_PLCF(BKL **bkl,U32 **pos,U32 *nobkl,U32 offset,U32 len,wvStream *fd)
     {
     U32 i;
     if (len == 0)
@@ -33,7 +33,7 @@ int wvGetBKL_PLCF(BKL **bkl,U32 **pos,U32 *nobkl,U32 offset,U32 len,FILE *fd)
             free(pos);
             return(1);
             }
-        fseek(fd,offset,SEEK_SET);
+        wvStream_goto(fd,offset);
         for(i=0;i<=*nobkl;i++)
             (*pos)[i]=read_32ubit(fd);
         for(i=0;i<*nobkl;i++)

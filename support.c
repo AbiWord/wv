@@ -38,8 +38,9 @@ indentation.
 	extern int list;
 */
 #endif
+		
 
-U32 read_32ubit(FILE *in)
+U32 read_32ubit(wvStream *in)
 	{
 	U32 ret;
 #if defined(WORDS_BIGENDIAN) || !defined(MATCHED_TYPE)
@@ -50,7 +51,7 @@ U32 read_32ubit(FILE *in)
 	ret = ret << 16;
 	ret += temp1;
 #else
-	fread(&ret,sizeof(U8),4,in);
+	fread(&ret,sizeof(U8),4, (FILE *)in);
 #endif
 	return(ret);
 	}
@@ -80,18 +81,18 @@ U32 bread_32ubit(U8 *in,U16 *pos)
 	return(ret);
 	}
 
-U16 read_16ubit(FILE *in)
+U16 read_16ubit(wvStream *in)
 	{
 	U16 ret;
 #if defined(WORDS_BIGENDIAN) || !defined(MATCHED_TYPE)
 	U8 temp1,temp2;
-	temp1 = getc(in);
-	temp2 = getc(in);
+	temp1 = read_8ubit(in);
+	temp2 = read_8ubit(in);
 	ret = temp2;
 	ret = ret << 8;
 	ret += temp1;
 #else
-	fread(&ret,sizeof(U8),2,in);
+	fread(&ret,sizeof(U8),2, (FILE *)in);
 #endif
 	return(ret);
 	}
@@ -122,7 +123,7 @@ U16 bread_16ubit(U8 *in,U16 *pos)
 	return(ret);
 	}
 
-U32 dread_32ubit(FILE *in,U8 **list)
+U32 dread_32ubit(wvStream *in,U8 **list)
 	{
 	U8 *temp;
 	U32 ret;
@@ -137,7 +138,7 @@ U32 dread_32ubit(FILE *in,U8 **list)
 		}
 	}
 
-U16 dread_16ubit(FILE *in,U8 **list)
+U16 dread_16ubit(wvStream *in,U8 **list)
 	{
 	U8 *temp;
 	U16 ret;
@@ -152,26 +153,67 @@ U16 dread_16ubit(FILE *in,U8 **list)
 		}
 	}
 
-U8 dgetc(FILE *in,U8 **list)
+U8 read_8ubit(wvStream* in)
+	{
+	return(getc((FILE *)in));
+	}
+
+U8 dread_8ubit(wvStream *in,U8 **list)
 	{
 	U8 *temp;
 	if (in != NULL)
-		return(getc(in));
+		return(read_8ubit(in));
 	else
 		{
 		temp = *list;
 		(*list)++;
-		return(sgetc(temp));
+		return(sread_8ubit(temp));
 		}
 	}
 
-U8 sgetc(const U8 *in)
+U8 sread_8ubit(const U8 *in)
 	{
 	return(*in);
 	}
 
-U8 bgetc(U8 *in,U16 *pos)
+U8 bread_8ubit(U8 *in,U16 *pos)
 	{
 	(*pos)++;
 	return(*in);
+	}
+	
+	
+size_t wvStream_read(void *ptr, size_t size, size_t nmemb, wvStream *stream)
+	{
+		return(fread(ptr, size, nmemb, (FILE *)stream));
+	}
+
+void wvStream_rewind(wvStream *stream) 
+	{
+	rewind((FILE *) stream);
+	}	
+
+int wvStream_goto(wvStream *stream, long position)
+	{
+	return(fseek((FILE *)stream, position, SEEK_SET));
+	}
+
+int wvStream_offset(wvStream *stream, long offset)
+	{
+	return(fseek((FILE *)stream, offset, SEEK_CUR));
+	}
+
+int wvStream_offset_from_end(wvStream *stream, long offset)
+	{
+	return(fseek((FILE *)stream, offset, SEEK_END));
+	}
+	
+long wvStream_tell(wvStream *stream) 
+	{
+	return(ftell((FILE *)stream));
+	}
+	
+int wvStream_close(wvStream *stream) 
+	{
+	return(fclose((FILE *)stream));
 	}

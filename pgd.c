@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "wv.h"
 
-void wvGetPGD(version ver,PGD *item,FILE *fd)
+void wvGetPGD(version ver,PGD *item,wvStream *fd)
 	{
 	U16 temp16;
 	

@@ -133,7 +133,7 @@ void expandpw (U16 password[16], U8 pwarray[64])
 int main (int argc, char *argv[])
 	{
 	wvParseStruct ps;
-    FILE *outtable,*input,*enc;
+    wvStream *outtable,*input,*enc;
 	/* max password is 16 unicode chars long */
     U16 password[16] = {'p','a','s','s','w','o','r','d','1',0};
     U8 pwarray[64];
@@ -284,7 +284,9 @@ int main (int argc, char *argv[])
 
 int wvDecrypt97(wvParseStruct *ps)
 	{
-    FILE *outtable,*outmain,*enc;
+    FILE *outtable;
+	FILE *outmain;
+	wvStream *enc;
     U8 pwarray[64];
     U8 docid[16], salt[64], hashedsalt[16], x;
     int i,j,end;
@@ -293,16 +295,16 @@ int wvDecrypt97(wvParseStruct *ps)
 	unsigned char test[0x10];
 
 	for (i=0; i<4; i++)
-        x = getc (ps->tablefd);
+        x = read_8ubit (ps->tablefd);
 
     for (i=0; i<16; i++)
-        docid[i] = getc (ps->tablefd);
+        docid[i] = read_8ubit (ps->tablefd);
 
     for (i=0; i<16; i++)
-        salt[i] = getc (ps->tablefd);
+        salt[i] = read_8ubit (ps->tablefd);
 
     for (i=0; i<16; i++)
-        hashedsalt[i] = getc (ps->tablefd);
+        hashedsalt[i] = read_8ubit (ps->tablefd);
 
     expandpw (ps->password, pwarray);
 
@@ -311,11 +313,11 @@ int wvDecrypt97(wvParseStruct *ps)
 
 	enc = ps->tablefd;
 
-    fseek(enc,0,SEEK_END);
-    end = ftell(enc);
+    wvStream_offset_from_end(enc,0);
+    end = wvStream_tell(enc);
 
     j = 0;
-    fseek(enc,j,SEEK_SET);
+    wvStream_goto(enc,j);
 
 	outtable = tmpfile();
 
@@ -325,7 +327,7 @@ int wvDecrypt97(wvParseStruct *ps)
     while (j<end)
         {
         for (i=0;i<0x10;i++)
-            test[i] = getc(enc);
+            test[i] = read_8ubit(enc);
 
         rc4(test,0x10,&key);
 
@@ -347,11 +349,11 @@ int wvDecrypt97(wvParseStruct *ps)
 
 	enc = ps->mainfd;
 
-    fseek(enc,0,SEEK_END);
-    end = ftell(enc);
+    wvStream_offset_from_end(enc,0);
+    end = wvStream_tell(enc);
 
     j = 0;
-    fseek(enc,j,SEEK_SET);
+    wvStream_goto(enc,j);
 
 	outmain = tmpfile();
 
@@ -361,7 +363,7 @@ int wvDecrypt97(wvParseStruct *ps)
     while (j<end)
         {
         for (i=0;i<0x10;i++)
-            test[i] = getc(enc);
+            test[i] = read_8ubit(enc);
 
         rc4(test,0x10,&key);
 
@@ -382,16 +384,16 @@ int wvDecrypt97(wvParseStruct *ps)
 		}
 
 	if (ps->tablefd0)
-		fclose(ps->tablefd0);
+		wvStream_close(ps->tablefd0);
 	if (ps->tablefd1)
-		fclose(ps->tablefd1);
-	fclose(ps->mainfd);
-	ps->tablefd = outtable;
-	ps->tablefd0 = outtable;
-	ps->tablefd1 = outtable;
-	ps->mainfd = outmain;
-	rewind(ps->tablefd);
-	rewind(ps->mainfd);
+		wvStream_close(ps->tablefd1);
+	wvStream_close(ps->mainfd);
+	ps->tablefd = (wvStream*)outtable;
+	ps->tablefd0 = (wvStream*)outtable;
+	ps->tablefd1 = (wvStream*)outtable;
+	ps->mainfd = (wvStream*)outmain;
+	wvStream_rewind(ps->tablefd);
+	wvStream_rewind(ps->mainfd);
 	ps->fib.fEncrypted=0;
 	wvGetFIB(&ps->fib,ps->mainfd);
 	ps->fib.fEncrypted=0;

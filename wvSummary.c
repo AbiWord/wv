@@ -17,7 +17,7 @@ int main(int argc,char **argv)
 	int ret;
 	U16 yr, mon, day, hr, min, sec;
 	U32 along;
-	FILE *s;
+	wvStream *s;
 
 	wvInitError();
 
@@ -179,6 +179,6 @@ int main(int argc,char **argv)
 
 	wvReleaseSummaryInfo(&si);
 
-	fclose(s);
+	wvStream_close(s);
 	return(ret);
 	}
