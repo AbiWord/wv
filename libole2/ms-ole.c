@@ -346,7 +346,7 @@ get_block_ptr (MsOle *f, BLP b, gboolean forwrite)
 		        else if (tmp->usage < min->usage)
 				min = tmp;
 		}
-		tmp->usage = (guint32)tmp->usage*0.707;
+		tmp->usage = (guint32)(tmp->usage*0.707);
 	}
 	if (blks < MAX_CACHED_BLOCKS)
 		min = 0;
@@ -557,7 +557,7 @@ dump_allocation (MsOle *f)
 	int lp;
 	char *blktype;
 
-	for (lp=0;lp<f->bb->len;lp++) {
+	for (lp=0;(guint)lp<f->bb->len;lp++) {
 		characterise_block (f, lp, &blktype);
 		printf ("Block %d -> block %d ( '%s' )\n", lp,
 			g_array_index (f->bb, BLP, lp),
@@ -1252,7 +1252,7 @@ write_pps (MsOle *f)
 	BLP last = END_OF_CHAIN;
 
 	/* Build the root chain */
-	for (lp=0;lp<(f->num_pps+(BB_BLOCK_SIZE/PPS_BLOCK_SIZE)-1)/(BB_BLOCK_SIZE/PPS_BLOCK_SIZE);lp++) {
+	for (lp=0;(guint32)lp<(f->num_pps+(BB_BLOCK_SIZE/PPS_BLOCK_SIZE)-1)/(BB_BLOCK_SIZE/PPS_BLOCK_SIZE);lp++) {
 		last  = blk;
 		blk   = next_free_bb (f);
 		g_assert (g_array_index (f->bb, BLP, blk) == UNUSED_BLOCK);
@@ -2026,7 +2026,7 @@ ms_ole_lseek (MsOleStream *s, MsOleSPos bytes, MsOleSeek type)
 	else
 		newpos = s->size - bytes;
 
-	if (newpos > s->size || newpos < 0) {
+	if (newpos > s->size || newpos < (MsOleSPos)0) {
 		g_warning ("Invalid seek");
 		return -1;
 	}
@@ -2049,7 +2049,7 @@ ms_ole_read_ptr_bb (MsOleStream *s, MsOlePos length)
 
 	g_return_val_if_fail (s, NULL);
 
-	if (!s->blocks || blockidx >= s->blocks->len) {
+	if (!s->blocks || (guint32)blockidx >= s->blocks->len) {
 		printf ("Reading from NULL file\n");
 		return NULL;
 	}

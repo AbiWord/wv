@@ -1621,7 +1621,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					str = mydata->retstring; 
 
 					wvExpand(mydata,text,strlen(text)); 
-					sprintf(buffer,"%.2fmm",wvTwipsToMM(atoi(mydata->retstring)));
+					sprintf(buffer,"%.2fmm",(double)wvTwipsToMM(atoi(mydata->retstring)));
 					wvFree(mydata->retstring); 
 
 					mydata->retstring = str; 
@@ -1631,7 +1631,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					break;
 					}
 				}
-			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dyaBefore));
+			sprintf(buffer,"%.2fmm",(double)wvTwipsToMM(((PAP*)(mydata->props))->dyaBefore));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
@@ -1645,7 +1645,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					str = mydata->retstring; 
 
 					wvExpand(mydata,text,strlen(text)); 
-					sprintf(buffer,"%.2fmm",wvTwipsToMM(atoi(mydata->retstring)));
+					sprintf(buffer,"%.2fmm",(double)wvTwipsToMM(atoi(mydata->retstring)));
 					wvFree(mydata->retstring); 
 
 					mydata->retstring = str; 
@@ -1655,7 +1655,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					break;
 					}
 				}
-			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dyaAfter));
+			sprintf(buffer,"%.2fmm",(double)wvTwipsToMM(((PAP*)(mydata->props))->dyaAfter));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
@@ -1669,7 +1669,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					str = mydata->retstring; 
 
 					wvExpand(mydata,text,strlen(text)); 
-					sprintf(buffer,"%.2fmm",wvTwipsToMM(atoi(mydata->retstring)));
+					sprintf(buffer,"%.2fmm",(double)wvTwipsToMM(atoi(mydata->retstring)));
 					wvFree(mydata->retstring); 
 
 					mydata->retstring = str; 
@@ -1679,7 +1679,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					break;
 					}
 				}
-			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dxaLeft));
+			sprintf(buffer,"%.2fmm",(double)wvTwipsToMM(((PAP*)(mydata->props))->dxaLeft));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
@@ -1693,7 +1693,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					str = mydata->retstring; 
 
 					wvExpand(mydata,text,strlen(text)); 
-					sprintf(buffer,"%.2fmm",wvTwipsToMM(atoi(mydata->retstring)));
+					sprintf(buffer,"%.2fmm",(double)wvTwipsToMM(atoi(mydata->retstring)));
 					wvFree(mydata->retstring); 
 
 					mydata->retstring = str; 
@@ -1703,7 +1703,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					break;
 					}
 				}
-			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dxaRight));
+			sprintf(buffer,"%.2fmm",(double)wvTwipsToMM(((PAP*)(mydata->props))->dxaRight));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
@@ -1717,7 +1717,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					str = mydata->retstring; 
 
 					wvExpand(mydata,text,strlen(text)); 
-					sprintf(buffer,"%.2fmm",wvTwipsToMM(atoi(mydata->retstring)));
+					sprintf(buffer,"%.2fmm",(double)wvTwipsToMM(atoi(mydata->retstring)));
 					wvFree(mydata->retstring); 
 
 					mydata->retstring = str; 
@@ -1727,33 +1727,33 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 					break;
 					}
 				}
-			sprintf(buffer,"%.2fmm",wvTwipsToMM(((PAP*)(mydata->props))->dxaLeft1));
+			sprintf(buffer,"%.2fmm",(double)wvTwipsToMM(((PAP*)(mydata->props))->dxaLeft1));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_mmPadTop:
 			if (isPAPConform(&mydata->lastpap,(PAP*)(mydata->props)))
-				sprintf(buffer,"%.2fmm",wvPointsToMM(((PAP*)(mydata->props))->brcBetween.dptSpace));
+				sprintf(buffer,"%.2fmm",(double)wvPointsToMM(((PAP*)(mydata->props))->brcBetween.dptSpace));
 			else
-				sprintf(buffer,"%.2fmm",wvPointsToMM(((PAP*)(mydata->props))->brcTop.dptSpace));
+				sprintf(buffer,"%.2fmm",(double)wvPointsToMM(((PAP*)(mydata->props))->brcTop.dptSpace));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_mmPadRight:
-			sprintf(buffer,"%.2fmm",wvPointsToMM(((PAP*)(mydata->props))->brcRight.dptSpace));
+			sprintf(buffer,"%.2fmm",(double)wvPointsToMM(((PAP*)(mydata->props))->brcRight.dptSpace));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_mmPadBottom:
 			if (isPAPConform(mydata->nextpap,(PAP*)(mydata->props)))
-				sprintf(buffer,"%.2fmm",wvPointsToMM(((PAP*)(mydata->props))->brcBetween.dptSpace));
+				sprintf(buffer,"%.2fmm",(double)wvPointsToMM(((PAP*)(mydata->props))->brcBetween.dptSpace));
 			else
-				sprintf(buffer,"%.2fmm",wvPointsToMM(((PAP*)(mydata->props))->brcBottom.dptSpace));
+				sprintf(buffer,"%.2fmm",(double)wvPointsToMM(((PAP*)(mydata->props))->brcBottom.dptSpace));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
 		case TT_mmPadLeft:
-			sprintf(buffer,"%.2fmm",wvPointsToMM(((PAP*)(mydata->props))->brcLeft.dptSpace));
+			sprintf(buffer,"%.2fmm",(double)wvPointsToMM(((PAP*)(mydata->props))->brcLeft.dptSpace));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			break;
@@ -1769,7 +1769,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 		case TT_pixPicWidth:
 			{
 			FSPA *fspa = (FSPA *)(mydata->props);
-			sprintf(buffer,"%d",(int)(wvTwipsToHPixels(fspa->xaRight - fspa->xaLeft)+0.5));
+			sprintf(buffer,"%d",(int)(wvTwipsToHPixels(fspa->xaRight - fspa->xaLeft)+(float)0.5));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			}
@@ -1777,7 +1777,7 @@ static void exstartElement(void *userData, const char *name, const char **atts)
 		case TT_pixPicHeight:
 			{
 			FSPA *fspa = (FSPA *)(mydata->props);
-			sprintf(buffer,"%d",(int)(wvTwipsToVPixels(fspa->yaBottom-fspa->yaTop)+0.5));
+			sprintf(buffer,"%d",(int)(wvTwipsToVPixels(fspa->yaBottom-fspa->yaTop)+(float)0.5));
 			wvAppendStr(&mydata->retstring,buffer);
 			mydata->currentlen = strlen(mydata->retstring);
 			}

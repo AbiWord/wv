@@ -406,7 +406,7 @@ encoded into the first 22 bytes.
 	wvGetFSPA_PLCF(&ps->fspa,&ps->fspapos,&ps->nooffspa,ps->fib.fcPlcspaMom,ps->fib.lcbPlcspaMom,ps->tablefd);
 	wvGetFDOA_PLCF(&ps->fdoa,&ps->fdoapos,&ps->nooffdoa,ps->fib.fcPlcdoaMom,ps->fib.lcbPlcdoaMom,ps->tablefd);
 
-	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->fib.fExtChar,ps->tablefd);
+	wvGetCLX(wvQuerySupported(&ps->fib,NULL),&ps->clx,(U32)ps->fib.fcClx,ps->fib.lcbClx,(U8)ps->fib.fExtChar,ps->tablefd);
 
 	para_fcFirst = char_fcFirst = section_fcFirst = wvConvertCPToFC(0,&ps->clx);
 
@@ -786,7 +786,7 @@ int wvGetComplexSEP(version ver,SEP *sep,U32 cpiece,STSH *stsh,CLX *clx)
 			else
 				{
 				sprm = bread_8ubit(clx->grpprl[index]+i,&i);
-				sprm = wvGetrgsprmWord6(sprm);
+				sprm = (U8)wvGetrgsprmWord6(sprm);
 				}
 			pointer = clx->grpprl[index]+i;
 			RetSprm = wvApplySprmFromBucket(ver,sprm,NULL,NULL,sep,stsh,pointer,&i,NULL);

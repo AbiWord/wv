@@ -470,7 +470,7 @@ reorder_pps_tree (pps_entry * node, U16 level)
   /* reorder subtrees, if there's any */
   if (node->dir != 0xffffffffUL)
   	{
-    reorder_pps_tree (&pps_list[node->dir], level+1);
+    reorder_pps_tree (&pps_list[node->dir], (U16)(level+1));
 	}
 
   /* reorder next-link subtree, saving the most next link visited */
@@ -503,14 +503,14 @@ verbosePPSTree (U32 start_entry, int level)
 	{
 	  for (i = 0; i < level * 3; i++)
 	    printf (" ");
-	  printf ("FILE %02lx %5ld %s\n", pps_list[entry].ppsnumber,
-		  pps_list[entry].size, pps_list[entry].name);
+	  printf ("FILE %02lx %5ld %s\n", (unsigned long)pps_list[entry].ppsnumber,
+		  (unsigned long)pps_list[entry].size, pps_list[entry].name);
 	}
       else
 	{
 	  for (i = 0; i < level * 3; i++)
 	    printf (" ");
-	  printf ("DIR  %02lx %s\n", pps_list[entry].ppsnumber,
+	  printf ("DIR  %02lx %s\n", (unsigned long)pps_list[entry].ppsnumber,
 		  pps_list[entry].name);
 	  verbosePPSTree (pps_list[entry].dir, level + 1);
 	}

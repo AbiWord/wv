@@ -7,6 +7,7 @@
 #include "config.h"
 #include "wv.h"
 
+#define VERSION "0.6.2"
 
 /*
 Released under GPL, written by Caolan.McNamara@ul.ie.
@@ -166,10 +167,29 @@ int HandleMetafile(char *name,MetaFileBlip *bitmap)
 	return(0);
 	}
 
-void usage( void )
+static void do_version(void)
+{
+  /* todo: initialize this in a configure script */
+  printf("wvWare %s\n", VERSION);
+}
+
+static void do_help( void )
 	{
-	printf("Usage: wvWare [--config config.xml] [--charset charset] [--password password] [--dir dir] filename.doc\n");
-	exit(-1);
+	  do_version();
+	  printf("Usage: wvWare [OPTION...] filename.doc\n");
+	  printf("\nCommon Options:\n");
+	  printf("  -x --config=config.xml\tSpecify an output filter to use\n");
+	  printf("  -c --charset=charset\t\tSpecify an iconv charset encoding\n");
+	  printf("  -p --password=password\tSpecify password for encrypted\n\t\t\t\tWord Documents\n");
+	  printf("  -d --dir=dir\t\t\tDIR\n");
+	  printf("  -v --version\t\t\tPrint wvWare's version number\n");
+	  printf("  -? --help\t\t\tPrint this help message\n");
+	  printf("\nwvWare is a suite of applications that converts Microsoft Word Documents\n");
+	  printf("(versions 2,5,6,7,8,9) into more \"useful\" formats such as HTML, LaTeX,\n");
+	  printf("ABW, WML, Text, etc... wvWare is also a library which can be used by\n");
+	  printf("other applications to import (and soon export) Word documents.\n\n");
+	  printf("Authors:\nDom Lachowicz (dominicl@seas.upenn.edu)\n");
+	  printf("Caolan McNamara (original author)\nVisit http://www.wvware.com\n");
 	}
 
 char *charset=NULL;
@@ -190,21 +210,32 @@ int main(int argc,char **argv)
         {"config",1,0,'x'},
         {"password",1,0,'p'},
         {"dir",1,0,'d'},
+	{"version",0,0,'v'},
+	{"help",0,0,'?'},
         {0,0,0,0}
         };
 
 	wvInitError();
 
-	if (argc < 2) 
-		usage();
+	if (argc < 2)
+	  {
+		do_help();
+		exit(-1);
+	  }
 
 	 while (1)
         { 
-        c = getopt_long (argc, argv, "c:x:p:d:", long_options, &index);
+        c = getopt_long (argc, argv, "?vc:x:p:d:", long_options, &index);
         if (c == -1)
             break;
 		switch(c)
 			{
+			case '?':
+			  do_help();
+			  return 0;
+			case 'v':
+			  do_version();
+			  return 0;
 			case 'c':
 				if (optarg)
 					charset = optarg;
@@ -230,8 +261,8 @@ int main(int argc,char **argv)
 					wvError(("No directory given to dir option"));
 				break;
 			default:
-                usage();
-                break;
+			  do_help();
+			  return -1;
 			}
 		}
 
@@ -510,6 +541,7 @@ void wvPrintGraphics(char *config, int graphicstype, int width, int height,
 	      {
 		remove_suffix (source, ".wmf");
 		remove_suffix (source, ".png");
+		remove_suffix (source, ".jpg");
 		/* 
 		Output to real file name. Conversion to .eps must be done manually for now 
 		*/

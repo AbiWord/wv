@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include "config.h"
 #include "wv.h"
+#include "getopt.h"
+
 /*
 Released under GPL, written by Caolan.McNamara@ul.ie.
 

@@ -309,7 +309,7 @@ g_ptr_array_set_size  (GPtrArray   *farray,
 
   g_return_if_fail (array);
 
-  if (length > array->len)
+  if ((guint32)length > array->len)
     g_ptr_array_maybe_expand (array, (length - array->len));
 
   array->len = length;
@@ -367,7 +367,7 @@ g_ptr_array_remove (GPtrArray* farray,
 		    gpointer data)
 {
   GRealPtrArray* array = (GRealPtrArray*) farray;
-  int i;
+  guint32 i;
 
   g_return_val_if_fail (array, FALSE);
 
@@ -388,7 +388,7 @@ g_ptr_array_remove_fast (GPtrArray* farray,
 			 gpointer data)
 {
   GRealPtrArray* array = (GRealPtrArray*) farray;
-  int i;
+  guint32 i;
 
   g_return_val_if_fail (array, FALSE);
 

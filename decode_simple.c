@@ -66,7 +66,7 @@ void wvDecodeSimple(wvParseStruct *ps,subdocument whichdoc)
 	chars in one part, and 16bit chars in another, so you have to watch out for
 	that
 	*/
-	wvGetCLX(ver,&ps->clx,ps->fib.fcClx,ps->fib.lcbClx,ps->fib.fExtChar,
+	wvGetCLX(ver,&ps->clx,ps->fib.fcClx,(U32)ps->fib.lcbClx, (U8)ps->fib.fExtChar,
 		ps->tablefd);
 	/* for word 6 and just in case */
 	if (ps->clx.nopcd == 0) wvBuildCLXForSimple6(&ps->clx,&ps->fib);

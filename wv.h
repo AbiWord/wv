@@ -10,7 +10,7 @@ extern "C" {
 #else
 #if !defined(__GLIBC__) || (__GLIBC__ < 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 2)
 
-#include "getopt.h"
+  /* #include "getopt.h"*/
 int strcasecmp(const char *s1, const char *s2);
 #endif
 #endif

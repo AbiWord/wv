@@ -52,12 +52,12 @@ const guint32	user_fmtid[4] = {
 static gboolean
 read_items (MsOleSummary *si, MsOlePropertySetID ps_id)
 {
-	gint sect;
+	guint32 sect;
 	
 	for (sect = 0; sect < si->sections->len; sect++) {
 		MsOleSummarySection st;
 		guint8 data[8];
-		gint   i;
+		guint32   i;
 		
 		st = g_array_index (si->sections, MsOleSummarySection, sect);
 
@@ -496,7 +496,7 @@ GArray *
 ms_ole_summary_get_properties (MsOleSummary *si)
 {
 	GArray *ans;
-	gint i;
+	guint32 i;
 
 	g_return_val_if_fail (si != NULL, NULL);
 	g_return_val_if_fail (si->items != NULL, NULL);
@@ -555,13 +555,13 @@ ms_ole_summary_close (MsOleSummary *si)
 static item_t *
 seek_to_record (MsOleSummary *si, MsOleSummaryPID id)
 {
-	gint i;
+	guint32 i;
 	g_return_val_if_fail (si->items, FALSE);
 
 	/* These should / could be sorted for speed */
 	for (i = 0; i < si->items->len; i++) {
 		item_t item = g_array_index (si->items, item_t, i);
-		if (item.id == SUMMARY_ID(id)) {
+		if (item.id == (guint32)SUMMARY_ID(id)) {
 			gboolean is_summary, is_doc_summary;
 
 			is_summary     = ((si->ps_id == MS_OLE_PS_SUMMARY_INFO) && 

@@ -8,7 +8,7 @@ SHELL=/bin/sh
 
 srcdir=@srcdir@
 
-CFLAGS = @CFLAGS@ @DEFS@ -I$(srcdir)/ -I$(srcdir)/.. -I$(srcdir)/../glib-wv/
+CFLAGS = -I$(srcdir)/ -I$(srcdir)/.. -I$(srcdir)/../glib-wv/ @CPPFLAGS@ @CFLAGS@ @DEFS@
 
 SHELL = /bin/sh
 

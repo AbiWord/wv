@@ -56,5 +56,5 @@ float wvTwipsToMM(S16 twips)
 /* [A twip ] is one-twentieth of a point size*/
 float wvPointsToMM(S16 points)
 	{
-	return(wvTwipsToMM(points*20));
+	return(wvTwipsToMM((S16)(points*20)));
 	}

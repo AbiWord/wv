@@ -189,7 +189,7 @@ g_mem_chunk_new (gchar  *name,
   gulong rarea_size;
 
   g_return_val_if_fail (atom_size > 0, NULL);
-  g_return_val_if_fail (area_size >= atom_size, NULL);
+  g_return_val_if_fail (area_size >= (gulong)atom_size, NULL);
 
   ENTER_MEM_CHUNK_ROUTINE();
 

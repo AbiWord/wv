@@ -12,7 +12,7 @@ followed by its corresponding LVL structure (if LFOLVL.fFormatting is set).
 int wvGetLFO_records(LFO **lfo,LFOLVL **lfolvl,LVL **lvl,U32 *nolfo,U32 *nooflvl,U32 offset,U32 len,wvStream *fd)
 	{
 	U32 i;
-	long end;
+	U32 end;
 	*nooflvl=0;
 	wvTrace(("lfo begins at %x len %d\n",offset,len));
 	wvStream_offset_from_end(fd, 0);

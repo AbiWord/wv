@@ -9,7 +9,7 @@ LIBS =  @MAGICK_LIBS@ @LIB_PNG@ @ZLIB_LIBS@ @LIBS@ @WMF_LIBS@ @TTF_LIBS@ @XPM_LI
 
 srcdir=@srcdir@
 
-CFLAGS = @CFLAGS@ @DEFS@ -Wall -I$(srcdir)/ -I$(srcdir)/.. -I$(srcdir)/../glib-wv/ -I$(srcdir)/../libole2/ -I$(srcdir)/../oledecod/
+CFLAGS = @CPPFLAGS@ @CFLAGS@ @DEFS@ -Wall -I$(srcdir)/ -I$(srcdir)/.. -I$(srcdir)/../glib-wv/ -I$(srcdir)/../libole2/ -I$(srcdir)/../oledecod/
 
 SHELL = /bin/sh
 

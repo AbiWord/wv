@@ -170,7 +170,7 @@ U16 wvHandleCodePage(U16 eachchar,U16 lid)
 	char buffer[1];
 	char buffer2[2];
 
-	buffer[0]=eachchar;
+	buffer[0]= (char)eachchar;
 	ibuf = buffer;
 	obuf = buffer2;
 
@@ -576,6 +576,9 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0xb9:
 			printf("$\\mathonesuperior$");
 			return(1);
+		case 0xd7:
+			printf("$\\times$");
+			return(1);
 		}
 		printf("%c", char16);
 		return(1);
@@ -952,6 +955,7 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x0393:
 			printf("$\\Gamma$");
 			return(1);
+		case 0xf044: /* Mac ? */
 		case 0x2206: /* Mac */
 		case 0x0394:
 			printf("$\\Delta$");
@@ -1038,6 +1042,8 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x03b5:
 			printf("$\\epsilon$");
 			return(1);
+		case 0xf04e: /* Mac? variant? */
+		case 0xf07a: /* Mac? */
 		case 0x03b6:
 			printf("$\\zeta$");
 			return(1);
@@ -1053,6 +1059,7 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x03ba:
 			printf("$\\kappa$");
 			return(1);
+		case 0xf06c: /* Mac? */
 		case 0x03bb:
 			printf("$\\lambda$");
 			return(1);
@@ -1085,6 +1092,7 @@ int wvConvertUnicodeToLaTeX(U16 char16)
 		case 0x03c5:
 			printf("$\\upsilon$");
 			return(1);
+		case 0xf06a: /* Mac? */
 		case 0x03c6:
 			printf("$\\phi$");
 			return(1);
