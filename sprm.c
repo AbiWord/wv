@@ -1163,9 +1163,11 @@ void wvApplysprmPChgTabsPapx(PAP *apap,U8 *pointer,U16 *pos)
 	i=0;
 	while ((j<apap->itbdMac) || (i < itbdAddMax))
 		{
+#if 0
 		wvTrace(("i %d j apap->itbdMac %d %d\n",i,j,apap->itbdMac));
 		wvTrace(("temp_rgdxaTab[j] %d\n",temp_rgdxaTab[j]));
 		wvTrace(("rgdxaAdd[i] %d\n",rgdxaAdd[i]));
+#endif
 		if ( (j<apap->itbdMac) && (i >= itbdAddMax || temp_rgdxaTab[j] < rgdxaAdd[i]) )
 			{
 			/* if we have one from the retained group that should be added */
