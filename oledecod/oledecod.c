@@ -101,7 +101,7 @@ OLEdecode (FILE *input, pps_entry ** stream_list, U32 * root,
   verbose ("fast testing type of file");
   test ((c = getc (input)) != EOF, 5, ends ());
   test (ungetc (c, input) != EOF, 5, ends ());
-  test (!isprint (c), 8, ends ());
+  test ( (c < 32 || c > 126) , 8, ends ());
   test (c == 0xd0, 9, ends ());
 
   /* read header block */
@@ -536,7 +536,7 @@ closeOLEtreefiles (pps_entry * tree, U32 root)
 void
 freeOLEtree (pps_entry * tree)
 {
-  closeOLEtreefiles (tree, 0);
+   if (tree) closeOLEtreefiles (tree, 0);
   freeNoNULL (tree);
 }
 
