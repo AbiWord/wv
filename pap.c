@@ -350,6 +350,9 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 	means that we now have to apply the list PAPX over what we have
 	and then reapply the block PAPX (we had to apply the block's PAPX
 	in order to find out if we are in a list !!!)*/
+
+	if (!ps->lfo)
+	  return ret;
 	
 	wvTrace(("list: ilvl %d, ilfo %d\n",apap->ilvl,apap->ilfo));	/* ilvl is the list level */
 

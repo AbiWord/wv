@@ -683,12 +683,8 @@ wvGetMSOFBH (MSOFBH * amsofbh, wvStream * fd)
 U32
 wvEatmsofbt (MSOFBH * amsofbh, wvStream * fd)
 {
-    /* Ries (rvt@dds.nl)
-       Changed read to bound to 32bit instead of 8bit 
-       MS prolly does 32 bit bounderaries ??? */
-    U32 check=(amsofbh->cbLength + 3) >> 2;
-    wvStream_offset(fd,check << 2);
-    return (check << 2);
+    wvStream_offset(fd, amsofbh->cbLength);
+    return amsofbh->cbLength;
 }
 
 void

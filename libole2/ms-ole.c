@@ -1157,7 +1157,7 @@ pps_decode_tree (MsOle *f, PPS_IDX p, PPS *parent)
 		f->pps = g_list_append (0, pps);
 	}
 
-	if (PPS_GET_NEXT(mem) != PPS_END_OF_CHAIN)
+	if (PPS_GET_NEXT(mem) && PPS_GET_NEXT(mem) != PPS_END_OF_CHAIN)
 		pps_decode_tree (f, PPS_GET_NEXT(mem), parent);
 	
         /* the underlying caching might have reused the memory      */

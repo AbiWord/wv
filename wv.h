@@ -3300,7 +3300,8 @@ returns the same as wvOLEDecode with the addition that
 	msofbtBlipFirst = 0xF018,
 	msofbtDeletedPspl = 0xF11D,
 	msofbtSplitMenuColors = 0xF11E,
-	msofbtOleObject = 0xF11F
+	msofbtOleObject = 0xF11F,
+	msofbtUserDefined = 0xF122
     } MSOFBT;
 
     typedef enum {
