@@ -5,7 +5,8 @@
 #endif
 #include "wvexporter-priv.h"
 
-void wvPutCHPX()
+void
+wvPutCHPX ()
 {
 
 }

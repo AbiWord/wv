@@ -21,8 +21,8 @@
       Public Domain
 */
 
-#define CRC32_XINIT 0xFFFFFFFFL         /* initial value */
-#define CRC32_XOROT 0xFFFFFFFFL         /* final xor value */
+#define CRC32_XINIT 0xFFFFFFFFL	/* initial value */
+#define CRC32_XOROT 0xFFFFFFFFL	/* final xor value */
 
 #define MINIMUM_CHECKSUM_LEN     8
 #define MAXIMUM_CHECKSUM_LEN    99
@@ -32,6 +32,7 @@
 #define NAACCR_60_CHECKSUM_LEN  10
 
 /* function prototypes */
-unsigned long CalcCRC32(unsigned char *, unsigned long, unsigned long, unsigned long);
-int AssignCRC32(unsigned char *, unsigned long, unsigned long, unsigned long);
-int CompareCRC32(unsigned char *, unsigned long, unsigned long, unsigned long);
+unsigned long CalcCRC32 (unsigned char *, unsigned long, unsigned long,
+			 unsigned long);
+int AssignCRC32 (unsigned char *, unsigned long, unsigned long, unsigned long);
+int CompareCRC32 (unsigned char *, unsigned long, unsigned long, unsigned long);

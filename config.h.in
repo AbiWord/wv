@@ -44,11 +44,8 @@
 /* Define if you want zlib to uncompress wmf files */
 #undef HAVE_ZLIB
 
-/* Define if you have libwmf and want it to convert wmf to gif files */
-#undef HAVE_WMF
-
-/* Define if you have freetype*/
-#undef HAVE_TTF
+/* Define if you have libwmf(2) and want it to convert wmf to png files */
+#undef HAVE_LIBWMF
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>

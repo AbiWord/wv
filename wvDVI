@@ -21,7 +21,7 @@ fi
 #
 LATEX_FILE="${2}.tex"
 
-wvLatex "${1}" "${LATEX_FILE}" >/dev/null 2>&1
+wvCleanLatex "${1}" "${LATEX_FILE}" >/dev/null 2>&1
 if [ ${?} -ne "0" ]; then
     echo "Error converting into LaTeX"
     exit 1

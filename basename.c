@@ -27,19 +27,20 @@
 /* Remove SUFFIX from the end of NAME if it is there, unless NAME
    consists entirely of SUFFIX. */
 
-void remove_suffix (char *name, const char *suffix)
+void
+remove_suffix (char *name, const char *suffix)
 {
-  char *np;
-  const char *sp;
+    char *np;
+    const char *sp;
 
-  np = name + strlen (name);
-  sp = suffix + strlen (suffix);
+    np = name + strlen (name);
+    sp = suffix + strlen (suffix);
 
-  while (np > name && sp > suffix)
-    if (*--np != *--sp)
-      return;
-  if (np > name)
-    *np = '\0';
+    while (np > name && sp > suffix)
+	if (*--np != *--sp)
+	    return;
+    if (np > name)
+	*np = '\0';
 }
 
 #ifndef FILESYSTEM_PREFIX_LEN
@@ -55,23 +56,24 @@ void remove_suffix (char *name, const char *suffix)
    In some environments the builtin `basename' modifies its argument.
    If NAME is all slashes, be sure to return `/'.  */
 
-char *base_name (char const *name)
+char *
+base_name (char const *name)
 {
-  char const *base = name += FILESYSTEM_PREFIX_LEN (name);
-  int all_slashes = 1;
-  char const *p;
+    char const *base = name += FILESYSTEM_PREFIX_LEN (name);
+    int all_slashes = 1;
+    char const *p;
 
-  for (p = name; *p; p++)
-    {
-      if (ISSLASH (*p))
-        base = p + 1;
-      else
-        all_slashes = 0;
-    }
+    for (p = name; *p; p++)
+      {
+	  if (ISSLASH (*p))
+	      base = p + 1;
+	  else
+	      all_slashes = 0;
+      }
 
-  /* If NAME is all slashes, arrange to return `/'.  */
-  if (*base == '\0' && ISSLASH (*name) && all_slashes)
-    --base;
+    /* If NAME is all slashes, arrange to return `/'.  */
+    if (*base == '\0' && ISSLASH (*name) && all_slashes)
+	--base;
 
-  return (char *) base;
+    return (char *) base;
 }

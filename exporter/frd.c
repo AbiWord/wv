@@ -5,7 +5,8 @@
 #endif
 #include "wvexporter-priv.h"
 
-void wvPutFRD(FRD *item,wvStream *fd)
-        {
-        write_16ubit(fd,(U16)item->frd);
-        }
+void
+wvPutFRD (FRD * item, wvStream * fd)
+{
+    write_16ubit (fd, (U16) item->frd);
+}

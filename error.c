@@ -6,69 +6,63 @@
 #endif
 #include "wv.h"
 
-FILE *wverror=NULL;
-FILE *wvwarn=NULL;
-FILE *wvtrace=NULL;
+#define wverror stderr
 
-void wvInitError(void)
-	{
-	wverror=stderr;
-	wvwarn=stderr;
-	wvtrace=stderr;
-	}
+#ifdef DEBUG
+#define wvwarn  stderr
+#define wvtrace stderr
+#else
+#define wvwarn  NULL
+#define wvtrace NULL
+#endif
 
-char * wvFmtMsg(char *fmt, ...)
-	{
-	static char mybuf[1024];
-	
-    va_list argp;
-    va_start(argp, fmt);
-    vsprintf(mybuf, fmt, argp);
-    va_end(argp);
-
-	return mybuf;
+void
+wvInitError (void)
+{
+  wvError (("EXTREME WARNING: using deprecated API\n"));
 }
 
-void wvRealError(char *file, int line, char * msg)
-    {
-	if (wverror == NULL)
-		return;
-    fprintf(wverror, "wvError: (%s:%d) %s ",file,line, msg);
-    fflush(wverror);
-    }
+char *
+wvFmtMsg (char *fmt, ...)
+{
+    static char mybuf[1024];
 
-void wvWarning(char *fmt, ...)
-    {
     va_list argp;
-	if (wvwarn == NULL)
-		return;
-    fprintf(wvwarn, "wvWarning: ");
-    va_start(argp, fmt);
-    vfprintf(wvwarn, fmt, argp);
-    va_end(argp);
-    fflush(wvwarn);
-    }
+    va_start (argp, fmt);
+    vsprintf (mybuf, fmt, argp);
+    va_end (argp);
 
-void wvRealTrace(char *file, int line, char * msg)
-    {
-      if (wvtrace == NULL)
+    return mybuf;
+}
+
+void
+wvRealError (char *file, int line, char *msg)
+{
+    if (wverror == NULL)
 	return;
-    fprintf(wvtrace , "wvTrace: (%s:%d) %s ",file,line, msg);
-    fflush(wvtrace);
-    }
+    fprintf (wverror, "wvError: (%s:%d) %s ", file, line, msg);
+    fflush (wverror);
+}
 
+void
+wvWarning (char *fmt, ...)
+{
+    va_list argp;
+    if (wvwarn == NULL)
+	return;
+    fprintf (wvwarn, "wvWarning: ");
+    va_start (argp, fmt);
+    vfprintf (wvwarn, fmt, argp);
+    va_end (argp);
+    fflush (wvwarn);
+}
 
-void wvSetErrorStream(FILE *in)
-    {
-	wverror = in;
-    }
+void
+wvRealTrace (char *file, int line, char *msg)
+{
+    if (wvtrace == NULL)
+	return;
+    fprintf (wvtrace, "wvTrace: (%s:%d) %s ", file, line, msg);
+    fflush (wvtrace);
+}
 
-void wvSetWarnStream(FILE *in)
-	{
-	wvwarn = in;
-	}
-
-void wvSetTraceStream(FILE *in)
-	{
-	wvtrace = in;
-	}

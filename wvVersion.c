@@ -25,67 +25,72 @@ returns 1 for not an ole doc
 0 on success
 */
 
-void usage( void )
-	{
-	fprintf(stderr, "Usage: wvVersion filename.doc\n");
-	exit(-1);
-	}
+void
+usage (void)
+{
+    fprintf (stderr, "Usage: wvVersion filename.doc\n");
+    exit (-1);
+}
 
-int main(int argc, char *argv[])
-	{
-	FILE *input;
-	int ret;
-	wvParseStruct ps;
+int
+main (int argc, char *argv[])
+{
+    FILE *input;
+    int ret;
+    wvParseStruct ps;
 
-	wvInitError();
+    wvInitError ();
 
-	if (argc < 2) 
-		usage();
+    if (argc < 2)
+	usage ();
 
-	input = fopen(argv[1],"rb");
-	if (!input)
-		{
-		fprintf(stderr,"Failed to open %s: %s\n",argv[1],strerror(errno));
-		return(-1);
-		}
-	fclose(input);
+    input = fopen (argv[1], "rb");
+    if (!input)
+      {
+	  fprintf (stderr, "Failed to open %s: %s\n", argv[1],
+		   strerror (errno));
+	  return (-1);
+      }
+    fclose (input);
 
-	ret = wvInitParser(&ps, argv[1]);
+    ret = wvInitParser (&ps, argv[1]);
 
-	if (ret == -1)
-		{
-		fprintf(stderr,"%s couldn't be opened as any known word document\n", argv[1]);
-		return -1;
-		}
+    if (ret == -1)
+      {
+	  fprintf (stderr,
+		   "%s couldn't be opened as any known word document\n",
+		   argv[1]);
+	  return -1;
+      }
 
-	ret = wvQuerySupported(&ps.fib, NULL);
+    ret = wvQuerySupported (&ps.fib, NULL);
 
-	printf("Version: ");
-	switch(ret&0x7fff)
-		{
-		case WORD8:
-			printf("word8");
-			break;
-		case WORD7:
-			printf("word7");
-			break;
-		case WORD6:
-			printf("word6");
-			break;
-		case WORD5:
-			printf("word5");
-			break;
-		case WORD2:
-			printf("word2 (maybe)");
-			break;
-		}
+    printf ("Version: ");
+    switch (ret & 0x7fff)
+      {
+      case WORD8:
+	  printf ("word8");
+	  break;
+      case WORD7:
+	  printf ("word7");
+	  break;
+      case WORD6:
+	  printf ("word6");
+	  break;
+      case WORD5:
+	  printf ("word5");
+	  break;
+      case WORD2:
+	  printf ("word2 (maybe)");
+	  break;
+      }
 
-	printf(", Encrypted: ");
-	if (ret & 0x8000)
-		printf("Yes\n");
-	else
-		printf("No\n");
+    printf (", Encrypted: ");
+    if (ret & 0x8000)
+	printf ("Yes\n");
+    else
+	printf ("No\n");
 
-	wvOLEFree();
-	return 0;
-	}
+    wvOLEFree ();
+    return 0;
+}

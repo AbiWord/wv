@@ -5,11 +5,12 @@
 #endif
 #include "wv.h"
 
-int wvHtml(wvParseStruct *ps)
-	{
-	if (ps->fib.fComplex)
-		wvDecodeComplex(ps);
-	else
-		wvDecodeSimple(ps,Dmain);
-	return(0);
-	}
+int
+wvHtml (wvParseStruct * ps)
+{
+    if (ps->fib.fComplex)
+	wvDecodeComplex (ps);
+    else
+	wvDecodeSimple (ps, Dmain);
+    return (0);
+}

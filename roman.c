@@ -51,299 +51,299 @@
 int
 main (int argc, char **argv)
 {
-   char roman[81];
-   int i = 0;
-   long decimal = 0;
-   if (argc < 2)
-   {
-      char *buf = wvMalloc (81);
-      if (!buf)
+    char roman[81];
+    int i = 0;
+    long decimal = 0;
+    if (argc < 2)
       {
-         wvError(("Not enough memory\n"));
-         exit (EXIT_FAILURE);
+	  char *buf = wvMalloc (81);
+	  if (!buf)
+	    {
+		wvError (("Not enough memory\n"));
+		exit (EXIT_FAILURE);
+	    }
+	  printf ("Decimal <=> Roman Numberal converter by Adam Rogoyski\n");
+	  printf ("Enter Decimals or Romans to convert, quit to stop\n");
+	  printf ("Range: 1-999999999, I-ZYZWYUWSUQSMQCMXCIX\n\n==> ");
+	  fflush (stdout);
+	  memset (buf, 0, 81);
+	  while (strncasecmp (fgets (buf, 81, stdin) ? buf : "", "quit", 4))
+	    {
+		if (!buf[0])
+		    exit (EXIT_SUCCESS);
+		i = 0;
+		while (isspace (buf[i]))
+		    i++;
+		if (isdigit (buf[i]))
+		    puts (decimalToRoman (atoi (buf), roman));
+		else
+		  {
+		      if (isupper (buf[i]))
+			{
+			    chomp (buf);
+			    decimal = romanToDecimal (buf);
+			    if (decimal)
+				printf ("%ld\n", decimal);
+			}
+		  }
+		printf ("==> ");
+		fflush (stdout);
+		memset (buf, 0, 80);
+	    }
+	  wvFree (buf);
       }
-      printf ("Decimal <=> Roman Numberal converter by Adam Rogoyski\n");
-      printf ("Enter Decimals or Romans to convert, quit to stop\n");
-      printf ("Range: 1-999999999, I-ZYZWYUWSUQSMQCMXCIX\n\n==> ");
-      fflush (stdout);
-      memset (buf, 0, 81);
-      while (strncasecmp(fgets(buf, 81, stdin) ? buf : "", "quit", 4))
+    else
       {
-         if (!buf[0])
-            exit (EXIT_SUCCESS);
-         i = 0;
-         while (isspace(buf[i]))
-            i++;
-         if (isdigit(buf[i]))
-            puts (decimalToRoman(atoi(buf), roman));
-         else
-         {
-            if (isupper(buf[i]))
-            {
-               chomp (buf);
-               decimal = romanToDecimal(buf);
-               if (decimal)
-                  printf ("%ld\n", decimal);
-            }
-         }
-         printf ("==> ");
-         fflush (stdout);
-         memset (buf, 0, 80);
+	  while (argc-- >= 2)
+	    {
+		memset (roman, 0, 81);
+		if (isdigit (**(argv + 1)))
+		  {
+		      decimal = atoi (*(argv + 1));
+		      puts (decimalToRoman (decimal, roman));
+		  }
+		else
+		  {
+		      decimal = romanToDecimal (*(argv + 1));
+		      if (decimal)
+			  printf ("%ld\n", decimal);
+		  }
+		argv++;
+	    }
       }
-      wvFree (buf);
-   }
-   else
-   {
-      while (argc-- >= 2)
-      {
-         memset (roman, 0, 81);
-         if (isdigit(**(argv + 1)))
-         {
-            decimal = atoi (*(argv + 1));
-            puts (decimalToRoman(decimal, roman));
-         }
-         else
-         {
-            decimal = romanToDecimal(*(argv + 1));
-            if (decimal)
-               printf ("%ld\n", decimal);
-         }
-         argv++;
-      }
-   }
-   return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
-#endif 
+#endif
 
 long
 formString (char **r, long v, char a, char b)
 {
-   *(*r)++ = a;
-   if (b)
-      *(*r)++ = b;
-   return v;
+    *(*r)++ = a;
+    if (b)
+	*(*r)++ = b;
+    return v;
 }
 
-char * decimalToRoman (long decimal, char *roman)
+char *
+decimalToRoman (long decimal, char *roman)
 {
-   char *r = roman;
-   memset (roman, 0, 81);
-   r = roman;
-   if (decimal > LARGEST || decimal < 1)
-   {
-      *r = '\0';
-	  wvError(("roman broke\n"));
-      return roman;
-   }
-   if (decimal >= Z)
-      decimal -= formString (&r, Z, 'Z', '\0');
-   if (decimal >= Z - Y)
-      decimal -= formString (&r, Z - Y, 'Y', 'Z');
-   while (decimal >= Y)
-      decimal -= formString (&r, Y, 'Y', '\0');
-   if (decimal >= Y - W)
-      decimal -= formString (&r, Y - W, 'W', 'Y');
-   if (decimal >= N)
-      decimal -= formString (&r, N, 'N', '\0');
-   if (decimal >= N - W)
-      decimal -= formString (&r, N - W, 'W', 'N');
-   while (decimal >= W)
-      decimal -= formString (&r, W, 'W', '\0');
-   if (decimal >= W - U)
-      decimal -= formString (&r, W - U, 'U', 'W');
-   if (decimal >= B)
-      decimal -= formString (&r, B, 'B', '\0');
-   if (decimal >= B - U)
-      decimal -= formString (&r, B - U, 'U', 'B');
-   while (decimal >= U)
-      decimal -= formString (&r, U, 'U', '\0');
-   if (decimal >= U - S)
-      decimal -= formString (&r, U - S, 'S', 'U');
-   if (decimal >= T)
-      decimal -= formString (&r, T, 'T', '\0');
-   if (decimal >= T - S)
-      decimal -= formString (&r, T - S, 'S', 'T');
-   while (decimal >= S)
-      decimal -= formString (&r, S, 'S', '\0');
-   if (decimal >= S - Q)
-      decimal -= formString (&r, S - Q, 'Q', 'S');
-   if (decimal >= R)
-      decimal -= formString (&r, R, 'R', '\0');
-   if (decimal >= R - Q)
-      decimal -= formString (&r, R - Q, 'Q', 'R');
-   while (decimal >= Q)
-      decimal -= formString (&r, Q, 'Q', '\0');
-   if (decimal >= Q - M)
-      decimal -= formString (&r, Q - M, 'M', 'Q');
-   if (decimal >= P)
-      decimal -= formString (&r, P, 'P', '\0');
-   if (decimal >= P - M)
-      decimal -= formString (&r, P - M, 'M', 'P');
-   while (decimal >= M)
-      decimal -= formString (&r, M, 'M', '\0');
-   if (decimal >= M - C)
-      decimal -= formString (&r, M - C, 'C', 'M');
-   if (decimal >= D)
-      decimal -= formString (&r, D, 'D', '\0');
-   if (decimal >= D - C)
-      decimal -= formString (&r, D - C, 'C', 'D');
-   while (decimal >= C)
-      decimal -= formString (&r, C, 'C', '\0');
-   if (decimal >= C - X)
-      decimal -= formString (&r, C - X, 'X', 'C');
-   if (decimal >= L)
-      decimal -= formString (&r, L, 'L', '\0');
-   if (decimal >= L - X)
-      decimal -= formString (&r, L - X, 'X', 'L');
-   while (decimal >= X)
-      decimal -= formString (&r, X, 'X', '\0');
-   switch ((int) decimal)
-   {
+    char *r = roman;
+    memset (roman, 0, 81);
+    r = roman;
+    if (decimal > LARGEST || decimal < 1)
+      {
+	  *r = '\0';
+	  wvError (("roman broke\n"));
+	  return roman;
+      }
+    if (decimal >= Z)
+	decimal -= formString (&r, Z, 'Z', '\0');
+    if (decimal >= Z - Y)
+	decimal -= formString (&r, Z - Y, 'Y', 'Z');
+    while (decimal >= Y)
+	decimal -= formString (&r, Y, 'Y', '\0');
+    if (decimal >= Y - W)
+	decimal -= formString (&r, Y - W, 'W', 'Y');
+    if (decimal >= N)
+	decimal -= formString (&r, N, 'N', '\0');
+    if (decimal >= N - W)
+	decimal -= formString (&r, N - W, 'W', 'N');
+    while (decimal >= W)
+	decimal -= formString (&r, W, 'W', '\0');
+    if (decimal >= W - U)
+	decimal -= formString (&r, W - U, 'U', 'W');
+    if (decimal >= B)
+	decimal -= formString (&r, B, 'B', '\0');
+    if (decimal >= B - U)
+	decimal -= formString (&r, B - U, 'U', 'B');
+    while (decimal >= U)
+	decimal -= formString (&r, U, 'U', '\0');
+    if (decimal >= U - S)
+	decimal -= formString (&r, U - S, 'S', 'U');
+    if (decimal >= T)
+	decimal -= formString (&r, T, 'T', '\0');
+    if (decimal >= T - S)
+	decimal -= formString (&r, T - S, 'S', 'T');
+    while (decimal >= S)
+	decimal -= formString (&r, S, 'S', '\0');
+    if (decimal >= S - Q)
+	decimal -= formString (&r, S - Q, 'Q', 'S');
+    if (decimal >= R)
+	decimal -= formString (&r, R, 'R', '\0');
+    if (decimal >= R - Q)
+	decimal -= formString (&r, R - Q, 'Q', 'R');
+    while (decimal >= Q)
+	decimal -= formString (&r, Q, 'Q', '\0');
+    if (decimal >= Q - M)
+	decimal -= formString (&r, Q - M, 'M', 'Q');
+    if (decimal >= P)
+	decimal -= formString (&r, P, 'P', '\0');
+    if (decimal >= P - M)
+	decimal -= formString (&r, P - M, 'M', 'P');
+    while (decimal >= M)
+	decimal -= formString (&r, M, 'M', '\0');
+    if (decimal >= M - C)
+	decimal -= formString (&r, M - C, 'C', 'M');
+    if (decimal >= D)
+	decimal -= formString (&r, D, 'D', '\0');
+    if (decimal >= D - C)
+	decimal -= formString (&r, D - C, 'C', 'D');
+    while (decimal >= C)
+	decimal -= formString (&r, C, 'C', '\0');
+    if (decimal >= C - X)
+	decimal -= formString (&r, C - X, 'X', 'C');
+    if (decimal >= L)
+	decimal -= formString (&r, L, 'L', '\0');
+    if (decimal >= L - X)
+	decimal -= formString (&r, L - X, 'X', 'L');
+    while (decimal >= X)
+	decimal -= formString (&r, X, 'X', '\0');
+    switch ((int) decimal)
+      {
       case 9:
-         *r++ = 'I';
-         *r++ = 'X';
-         break;
+	  *r++ = 'I';
+	  *r++ = 'X';
+	  break;
       case 8:
-         *r++ = 'V';
-         *r++ = 'I';
-         *r++ = 'I';
-         *r++ = 'I';
-         break;
+	  *r++ = 'V';
+	  *r++ = 'I';
+	  *r++ = 'I';
+	  *r++ = 'I';
+	  break;
       case 7:
-         *r++ = 'V';
-         *r++ = 'I';
-         *r++ = 'I';
-         break;
+	  *r++ = 'V';
+	  *r++ = 'I';
+	  *r++ = 'I';
+	  break;
       case 6:
-         *r++ = 'V';
-         *r++ = 'I';
-         break;
+	  *r++ = 'V';
+	  *r++ = 'I';
+	  break;
       case 4:
-         *r++ = 'I';
+	  *r++ = 'I';
       case 5:
-         *r++ = 'V';
-         break;
+	  *r++ = 'V';
+	  break;
       case 3:
-         *r++ = 'I';
+	  *r++ = 'I';
       case 2:
-         *r++ = 'I';
+	  *r++ = 'I';
       case 1:
-         *r++ = 'I';
-         break;
-   }
-   return roman;
+	  *r++ = 'I';
+	  break;
+      }
+    return roman;
 }
 
 
 long
 romanToDecimal (char *roman)
 {
-   long decimal = 0;
-   for (; *roman; roman++)
-   {
-      /* Check for four of a letter in a fow */
-      if ((*(roman + 1) && *(roman + 2) && *(roman + 3))
-         && (*roman == *(roman + 1))
-         && (*roman == *(roman + 2))
-         && (*roman == *(roman + 3)))
-         return 0;
-      /* Check for two five type numbers */
-      if (  ((*roman == 'V') && (*(roman + 1) == 'V'))
-         || ((*roman == 'L') && (*(roman + 1) == 'L'))
-         || ((*roman == 'D') && (*(roman + 1) == 'D'))
-         || ((*roman == 'P') && (*(roman + 1) == 'P'))
-         || ((*roman == 'R') && (*(roman + 1) == 'R'))
-         || ((*roman == 'T') && (*(roman + 1) == 'T'))
-         || ((*roman == 'B') && (*(roman + 1) == 'B'))
-         || ((*roman == 'N') && (*(roman + 1) == 'N'))
-         || ((*roman == 'Z') && (*(roman + 1) == 'Z')))
-         return 0;
-      /* Check for two lower characters before a larger one */
-      if ((value(*roman) == value(*(roman + 1))) && (*(roman + 2))
-         && (value(*(roman + 1)) < value(*(roman + 2))))
-         return 0;
-      /* Check for the same character on either side of a larger one */
-      if ((*(roman + 1) && *(roman + 2)) 
-         && (value(*roman) == value(*(roman + 2)))
-         && (value(*roman) < value(*(roman + 1))))
-         return 0;
-      /* Check for illegal nine type numbers */
-      if (!strncmp(roman, "LXL", 3) || !strncmp(roman, "DCD", 3)
-       || !strncmp(roman, "PMP", 3) || !strncmp(roman, "RQR", 3)
-       || !strncmp(roman, "TST", 3) || !strncmp(roman, "BUB", 3)
-       || !strncmp(roman, "NWN", 3) || !strncmp(roman, "VIV", 3))
-         return 0;
-      if (value(*roman) < value(*(roman + 1)))
+    long decimal = 0;
+    for (; *roman; roman++)
       {
-         /* check that subtracted value is at least 10% larger, 
-            i.e. 1990 is not MXM, but MCMXC */
-         if ((10 * value(*roman)) < value(*(roman + 1)))
-            return 0;
-         /* check for double subtraction, i.e. IVX */
-         if (value(*(roman + 1)) <= value(*(roman + 2)))
-            return 0;
-         /* check for subtracting by a number starting with a 5
-            ie.  VX, LD LM */
-         if (*roman == 'V' || *roman == 'L' || *roman == 'D'
-          || *roman == 'P' || *roman == 'R' || *roman == 'T'
-          || *roman == 'B' || *roman == 'N')
-            return 0;
-         decimal += value (*(roman + 1)) - value (*roman);
-         roman++;
+	  /* Check for four of a letter in a fow */
+	  if ((*(roman + 1) && *(roman + 2) && *(roman + 3))
+	      && (*roman == *(roman + 1))
+	      && (*roman == *(roman + 2)) && (*roman == *(roman + 3)))
+	      return 0;
+	  /* Check for two five type numbers */
+	  if (((*roman == 'V') && (*(roman + 1) == 'V'))
+	      || ((*roman == 'L') && (*(roman + 1) == 'L'))
+	      || ((*roman == 'D') && (*(roman + 1) == 'D'))
+	      || ((*roman == 'P') && (*(roman + 1) == 'P'))
+	      || ((*roman == 'R') && (*(roman + 1) == 'R'))
+	      || ((*roman == 'T') && (*(roman + 1) == 'T'))
+	      || ((*roman == 'B') && (*(roman + 1) == 'B'))
+	      || ((*roman == 'N') && (*(roman + 1) == 'N'))
+	      || ((*roman == 'Z') && (*(roman + 1) == 'Z')))
+	      return 0;
+	  /* Check for two lower characters before a larger one */
+	  if ((value (*roman) == value (*(roman + 1))) && (*(roman + 2))
+	      && (value (*(roman + 1)) < value (*(roman + 2))))
+	      return 0;
+	  /* Check for the same character on either side of a larger one */
+	  if ((*(roman + 1) && *(roman + 2))
+	      && (value (*roman) == value (*(roman + 2)))
+	      && (value (*roman) < value (*(roman + 1))))
+	      return 0;
+	  /* Check for illegal nine type numbers */
+	  if (!strncmp (roman, "LXL", 3) || !strncmp (roman, "DCD", 3)
+	      || !strncmp (roman, "PMP", 3) || !strncmp (roman, "RQR", 3)
+	      || !strncmp (roman, "TST", 3) || !strncmp (roman, "BUB", 3)
+	      || !strncmp (roman, "NWN", 3) || !strncmp (roman, "VIV", 3))
+	      return 0;
+	  if (value (*roman) < value (*(roman + 1)))
+	    {
+		/* check that subtracted value is at least 10% larger, 
+		   i.e. 1990 is not MXM, but MCMXC */
+		if ((10 * value (*roman)) < value (*(roman + 1)))
+		    return 0;
+		/* check for double subtraction, i.e. IVX */
+		if (value (*(roman + 1)) <= value (*(roman + 2)))
+		    return 0;
+		/* check for subtracting by a number starting with a 5
+		   ie.  VX, LD LM */
+		if (*roman == 'V' || *roman == 'L' || *roman == 'D'
+		    || *roman == 'P' || *roman == 'R' || *roman == 'T'
+		    || *roman == 'B' || *roman == 'N')
+		    return 0;
+		decimal += value (*(roman + 1)) - value (*roman);
+		roman++;
+	    }
+	  else
+	    {
+		decimal += value (*roman);
+	    }
       }
-      else
-      {
-         decimal += value (*roman);
-      }
-   }
-   return decimal;
+    return decimal;
 }
 
 
 long
 value (char c)
 {
-   switch (c)
-   {
+    switch (c)
+      {
       case 'I':
-         return I;
+	  return I;
       case 'V':
-         return V;
+	  return V;
       case 'X':
-         return X;
+	  return X;
       case 'L':
-         return L;
+	  return L;
       case 'C':
-         return C;
+	  return C;
       case 'D':
-         return D;
+	  return D;
       case 'M':
-         return M;
+	  return M;
       case 'P':
-         return P;
+	  return P;
       case 'Q':
-         return Q;
+	  return Q;
       case 'R':
-         return R;
+	  return R;
       case 'S':
-         return S;
+	  return S;
       case 'T':
-         return T;
+	  return T;
       case 'U':
-         return U;
+	  return U;
       case 'B':
-         return B;
+	  return B;
       case 'W':
-         return W;
+	  return W;
       case 'N':
-         return N;
+	  return N;
       case 'Y':
-         return Y;
+	  return Y;
       case 'Z':
-         return Z;
+	  return Z;
       default:
-         return 0;
-   }
+	  return 0;
+      }
 }
 
 
@@ -351,18 +351,17 @@ value (char c)
 char *
 chomp (char *str)
 {
-   static int i = 0;
-   i = 0;
-   while (*(str + i))
-   {
-      if ((*(str + i) == '\n') || (*(str + i) == '\r')
-         || (*(str + i) == '\0'))
+    int i = 0;
+    while (*(str + i))
       {
-         *(str + i) = 0;
-         break;
+	  if ((*(str + i) == '\n') || (*(str + i) == '\r')
+	      || (*(str + i) == '\0'))
+	    {
+		*(str + i) = 0;
+		break;
+	    }
+	  else
+	      i++;
       }
-      else
-         i++;
-   }
-   return (str - i);
+    return (str - i);
 }

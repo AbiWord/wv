@@ -31,261 +31,268 @@ bytes.
 */
 
 
-void wvGetSTTBF(STTBF *anS,U32 offset,U32 len,wvStream *fd)
-	{
-	int i,j;
-	U16 slen;
+void
+wvGetSTTBF (STTBF * anS, U32 offset, U32 len, wvStream * fd)
+{
+    int i, j;
+    U16 slen;
 
-	anS->s8strings=NULL;
-	anS->u16strings=NULL;
-	anS->extradata=NULL;
+    anS->s8strings = NULL;
+    anS->u16strings = NULL;
+    anS->extradata = NULL;
 
-	wvTrace(("sttbf offset is %x,len %d\n",offset,len));
-	if (len == 0)
-		{
-		anS->nostrings=0;
-		return;
-		}
-	wvStream_goto(fd,offset);
-	anS->extendedflag = read_16ubit(fd);
-	if (anS->extendedflag != 0xFFFF)
-		{
-		/*old U8 strings*/
-		anS->nostrings = anS->extendedflag;
-		}
-	else
-		{
-		/*U16 chars*/
-		anS->nostrings = read_16ubit(fd);
-		}
-	anS->extradatalen = read_16ubit(fd);
+    wvTrace (("sttbf offset is %x,len %d\n", offset, len));
+    if (len == 0)
+      {
+	  anS->nostrings = 0;
+	  return;
+      }
+    wvStream_goto (fd, offset);
+    anS->extendedflag = read_16ubit (fd);
+    if (anS->extendedflag != 0xFFFF)
+      {
+	  /*old U8 strings */
+	  anS->nostrings = anS->extendedflag;
+      }
+    else
+      {
+	  /*U16 chars */
+	  anS->nostrings = read_16ubit (fd);
+      }
+    anS->extradatalen = read_16ubit (fd);
 
-	if (anS->extendedflag == 0xFFFF)
-		anS->u16strings = (U16 **)wvMalloc(sizeof(U16 *)*anS->nostrings);
-	else
-		anS->s8strings = (S8 **)wvMalloc(sizeof(S8 *)*anS->nostrings);
+    if (anS->extendedflag == 0xFFFF)
+	anS->u16strings = (U16 **) wvMalloc (sizeof (U16 *) * anS->nostrings);
+    else
+	anS->s8strings = (S8 **) wvMalloc (sizeof (S8 *) * anS->nostrings);
 
-	if (anS->extradatalen)
-		{
-		anS->extradata = (U8 **)wvMalloc(sizeof(U8 *)*anS->nostrings);
-		for (i=0;i<anS->nostrings;i++)
-			anS->extradata[i] = (U8 *)wvMalloc(anS->extradatalen);
-		}
+    if (anS->extradatalen)
+      {
+	  anS->extradata = (U8 **) wvMalloc (sizeof (U8 *) * anS->nostrings);
+	  for (i = 0; i < anS->nostrings; i++)
+	      anS->extradata[i] = (U8 *) wvMalloc (anS->extradatalen);
+      }
 
-	if (anS->extendedflag == 0xFFFF)
-		{
-		for (i=0;i<anS->nostrings;i++)
-			{
-			slen = read_16ubit(fd);
-			if (slen == 0)
-				anS->u16strings[i] = NULL;
-			else
-				{
-				anS->u16strings[i] = (U16 *)wvMalloc(sizeof(U16)*(slen+1));
-				for (j=0;j<slen;j++)
-					anS->u16strings[i][j] = read_16ubit(fd);
-				anS->u16strings[i][j]=0;
-				}
-			if (anS->extradatalen)
-				for (j=0;j<anS->extradatalen;j++)
-					anS->extradata[i][j] = read_8ubit(fd);
-			}
-		}
-	else
-		{
-		for (i=0;i<anS->nostrings;i++)
-			{
-			slen = read_8ubit(fd);
-			if (slen == 0)
-				anS->s8strings[i] = NULL;
-			else
-				{
-				anS->s8strings[i] = (S8 *)wvMalloc(slen+1);
-				for (j=0;j<slen;j++)
-					anS->s8strings[i][j] = read_8ubit(fd);
-				anS->s8strings[i][j]=0;
-				}
-			if (anS->extradatalen)
-				for (j=0;j<anS->extradatalen;j++)
-					anS->extradata[i][j] = read_8ubit(fd);
-			}
-		}
-	}
+    if (anS->extendedflag == 0xFFFF)
+      {
+	  for (i = 0; i < anS->nostrings; i++)
+	    {
+		slen = read_16ubit (fd);
+		if (slen == 0)
+		    anS->u16strings[i] = NULL;
+		else
+		  {
+		      anS->u16strings[i] =
+			  (U16 *) wvMalloc (sizeof (U16) * (slen + 1));
+		      for (j = 0; j < slen; j++)
+			  anS->u16strings[i][j] = read_16ubit (fd);
+		      anS->u16strings[i][j] = 0;
+		  }
+		if (anS->extradatalen)
+		    for (j = 0; j < anS->extradatalen; j++)
+			anS->extradata[i][j] = read_8ubit (fd);
+	    }
+      }
+    else
+      {
+	  for (i = 0; i < anS->nostrings; i++)
+	    {
+		slen = read_8ubit (fd);
+		if (slen == 0)
+		    anS->s8strings[i] = NULL;
+		else
+		  {
+		      anS->s8strings[i] = (S8 *) wvMalloc (slen + 1);
+		      for (j = 0; j < slen; j++)
+			  anS->s8strings[i][j] = read_8ubit (fd);
+		      anS->s8strings[i][j] = 0;
+		  }
+		if (anS->extradatalen)
+		    for (j = 0; j < anS->extradatalen; j++)
+			anS->extradata[i][j] = read_8ubit (fd);
+	    }
+      }
+}
 
-void wvReleaseSTTBF(STTBF *item)
-    {
+void
+wvReleaseSTTBF (STTBF * item)
+{
     int i;
 
-    if (item->s8strings!= NULL)
-        {
-        for(i=0;i<item->nostrings;i++)
-            wvFree(item->s8strings[i]);
-        wvFree(item->s8strings);
-        }
-    if (item->u16strings!= NULL)
-        {
-        for(i=0;i<item->nostrings;i++)
-            wvFree(item->u16strings[i]);
-        wvFree(item->u16strings);
-        }
-    if (item->extradata!= NULL)
-        {
-        for(i=0;i<item->nostrings;i++)
-            wvFree(item->extradata[i]);
-        wvFree(item->extradata);
-        }
-    }
+    if (item->s8strings != NULL)
+      {
+	  for (i = 0; i < item->nostrings; i++)
+	      wvFree (item->s8strings[i]);
+	  wvFree (item->s8strings);
+      }
+    if (item->u16strings != NULL)
+      {
+	  for (i = 0; i < item->nostrings; i++)
+	      wvFree (item->u16strings[i]);
+	  wvFree (item->u16strings);
+      }
+    if (item->extradata != NULL)
+      {
+	  for (i = 0; i < item->nostrings; i++)
+	      wvFree (item->extradata[i]);
+	  wvFree (item->extradata);
+      }
+}
 
 
-void wvListSTTBF(STTBF *item)
-    {
-    int i,j;
-	U16 *letter;
+void
+wvListSTTBF (STTBF * item)
+{
+    int i, j;
+    U16 *letter;
 
-    if (item->s8strings!= NULL)
-        {
-        for(i=0;i<item->nostrings;i++)
-            fprintf(stderr,"string is %s\n",item->s8strings[i]);
-        }
-    else if (item->u16strings!= NULL)
-        {
-        for(i=0;i<item->nostrings;i++)
-			{
-            fprintf(stderr,"string is ");
-			letter = item->u16strings[i];
-			while((letter != NULL) && (*letter != 0))
-            	fprintf(stderr,"%c",*letter++);
-            fprintf(stderr,"\n");
-			}
-        }
+    if (item->s8strings != NULL)
+      {
+	  for (i = 0; i < item->nostrings; i++)
+	      fprintf (stderr, "string is %s\n", item->s8strings[i]);
+      }
+    else if (item->u16strings != NULL)
+      {
+	  for (i = 0; i < item->nostrings; i++)
+	    {
+		fprintf (stderr, "string is ");
+		letter = item->u16strings[i];
+		while ((letter != NULL) && (*letter != 0))
+		    fprintf (stderr, "%c", *letter++);
+		fprintf (stderr, "\n");
+	    }
+      }
 
-    if (item->extradata!= NULL)
-        {
-        for(i=0;i<item->nostrings;i++)
-            for(j=0;j<item->extradatalen;j++)
-				fprintf(stderr," %x ",item->extradata[i][j]);
-        fprintf(stderr,"\n");
-        }
-    }
+    if (item->extradata != NULL)
+      {
+	  for (i = 0; i < item->nostrings; i++)
+	      for (j = 0; j < item->extradatalen; j++)
+		  fprintf (stderr, " %x ", item->extradata[i][j]);
+	  fprintf (stderr, "\n");
+      }
+}
 
 
-void wvPrintTitle(wvParseStruct *ps,STTBF *item)
-    {
-    int i=0;
+void
+wvPrintTitle (wvParseStruct * ps, STTBF * item)
+{
+    int i = 0;
     CHP achp;
-    wvInitCHP(&achp);
+    wvInitCHP (&achp);
 
     if ((item) && (item->nostrings >= 3))
-        {
-        if (item->extendedflag == 0xFFFF)
-            {
-            if (item->u16strings[ibstAssocTitle] != NULL)
-                {
-                while(item->u16strings[ibstAssocTitle][i])
-					{
-					wvTrace(("title char is %c\n",(item->u16strings[ibstAssocTitle][i])));
-                    wvOutputTextChar(item->u16strings[ibstAssocTitle][i++], 0, ps,&achp);
-					}
-                return;
-                }
-            }
-        else
-            {
-            if (item->s8strings[ibstAssocTitle] != NULL)
-                {
-                while(item->s8strings[ibstAssocTitle][i])
-                    wvOutputTextChar(item->s8strings[ibstAssocTitle][i++], 1, ps,&achp);
-                return;
-                }
-            }
-        }
-    printf("Untitled");
-    }
-
-
-void wvGetSTTBF6(STTBF *anS,U32 offset,U32 len,wvStream *fd)
-	{
-	int i,j;
-	U16 slen;
-
-	anS->s8strings=NULL;
-	anS->u16strings=NULL;
-	anS->extradata=NULL;
-
-	wvTrace(("word 6 sttbf offset is %x,len %d\n",offset,len));
-	if (len == 0)
-		{
-		anS->nostrings=0;
-		return;
-		}
-	wvStream_goto(fd,offset);
-	anS->nostrings = ibstAssocMaxWord6;
-	anS->extendedflag = ibstAssocMaxWord6;	/*just for the sake of it*/
-	anS->extradatalen = 0;
-	anS->s8strings = (S8 **)wvMalloc(sizeof(S8 *)*anS->nostrings);
-#ifdef DEBUG
-	if (len != (U32)read_8ubit(fd))
-		wvTrace(("word 6 sttbf len does not match up correctly, strange\n"));
-#endif
-	for (i=0;i<anS->nostrings;i++)
-		{
-		slen = read_8ubit(fd);
-		if (slen == 0)
-			anS->s8strings[i] = NULL;
-		else
+      {
+	  if (item->extendedflag == 0xFFFF)
+	    {
+		if (item->u16strings[ibstAssocTitle] != NULL)
+		  {
+		      while (item->u16strings[ibstAssocTitle][i])
 			{
-			anS->s8strings[i] = (S8 *)wvMalloc(slen+1);
-			for (j=0;j<slen;j++)
-				anS->s8strings[i][j] = read_8ubit(fd);
-			anS->s8strings[i][j]=0;
+			    wvTrace (
+				     ("title char is %c\n",
+				      (item->u16strings[ibstAssocTitle][i])));
+			    wvOutputTextChar (item->u16strings[ibstAssocTitle]
+					      [i++], 0, ps, &achp);
 			}
-		}
-	}
+		      return;
+		  }
+	    }
+	  else
+	    {
+		if (item->s8strings[ibstAssocTitle] != NULL)
+		  {
+		      while (item->s8strings[ibstAssocTitle][i])
+			  wvOutputTextChar (item->s8strings[ibstAssocTitle]
+					    [i++], 1, ps, &achp);
+		      return;
+		  }
+	    }
+      }
+    printf ("Untitled");
+}
 
 
-U16 *UssrStrBegin(STTBF *sttbf,int no)
-	{
-	if (no >= sttbf->nostrings)
-		return(NULL);
+void
+wvGetSTTBF6 (STTBF * anS, U32 offset, U32 len, wvStream * fd)
+{
+    int i, j;
+    U16 slen;
 
-	return(sttbf->u16strings[no]+11);
-	}
+    anS->s8strings = NULL;
+    anS->u16strings = NULL;
+    anS->extradata = NULL;
 
-
-void wvGetGrpXst(STTBF *anS,U32 offset,U32 len,wvStream *fd)
-	{
-	U16 slen,i;
-	U32 pos=0;
-
-	anS->extendedflag=1;
-	anS->nostrings=0;
-	anS->extradatalen=0;
-	anS->s8strings=NULL;
-	anS->u16strings=NULL;
-	anS->extradata=NULL;
-	if (len == 0)
-		return;
-	wvStream_goto(fd,offset);
-
-	while(pos < len)
-		{
-		slen = read_16ubit(fd);
-		pos+=2;
-		anS->nostrings++;
-		anS->u16strings = (U16 **)realloc(anS->u16strings,sizeof(U16 *)*anS->nostrings);
-		anS->u16strings[anS->nostrings-1] = (U16 *)wvMalloc(sizeof(U16)*(slen+1));
-		for (i=0;i<slen;i++)
-			anS->u16strings[anS->nostrings-1][i] = read_16ubit(fd);
-		anS->u16strings[anS->nostrings-1][i] = 0;
-		pos+=(i*2);
-		}
-
-	}
-
-
-
+    wvTrace (("word 6 sttbf offset is %x,len %d\n", offset, len));
+    if (len == 0)
+      {
+	  anS->nostrings = 0;
+	  return;
+      }
+    wvStream_goto (fd, offset);
+    anS->nostrings = ibstAssocMaxWord6;
+    anS->extendedflag = ibstAssocMaxWord6;	/*just for the sake of it */
+    anS->extradatalen = 0;
+    anS->s8strings = (S8 **) wvMalloc (sizeof (S8 *) * anS->nostrings);
+#ifdef DEBUG
+    if (len != (U32) read_8ubit (fd))
+	wvTrace (("word 6 sttbf len does not match up correctly, strange\n"));
+#endif
+    for (i = 0; i < anS->nostrings; i++)
+      {
+	  slen = read_8ubit (fd);
+	  if (slen == 0)
+	      anS->s8strings[i] = NULL;
+	  else
+	    {
+		anS->s8strings[i] = (S8 *) wvMalloc (slen + 1);
+		for (j = 0; j < slen; j++)
+		    anS->s8strings[i][j] = read_8ubit (fd);
+		anS->s8strings[i][j] = 0;
+	    }
+      }
+}
 
 
+U16 *
+UssrStrBegin (STTBF * sttbf, int no)
+{
+    if (no >= sttbf->nostrings)
+	return (NULL);
+
+    return (sttbf->u16strings[no] + 11);
+}
 
 
+void
+wvGetGrpXst (STTBF * anS, U32 offset, U32 len, wvStream * fd)
+{
+    U16 slen, i;
+    U32 pos = 0;
 
+    anS->extendedflag = 1;
+    anS->nostrings = 0;
+    anS->extradatalen = 0;
+    anS->s8strings = NULL;
+    anS->u16strings = NULL;
+    anS->extradata = NULL;
+    if (len == 0)
+	return;
+    wvStream_goto (fd, offset);
+
+    while (pos < len)
+      {
+	  slen = read_16ubit (fd);
+	  pos += 2;
+	  anS->nostrings++;
+	  anS->u16strings =
+	      (U16 **) realloc (anS->u16strings,
+				sizeof (U16 *) * anS->nostrings);
+	  anS->u16strings[anS->nostrings - 1] =
+	      (U16 *) wvMalloc (sizeof (U16) * (slen + 1));
+	  for (i = 0; i < slen; i++)
+	      anS->u16strings[anS->nostrings - 1][i] = read_16ubit (fd);
+	  anS->u16strings[anS->nostrings - 1][i] = 0;
+	  pos += (i * 2);
+      }
+
+}

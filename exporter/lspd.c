@@ -5,8 +5,9 @@
 #endif
 #include "wvexporter-priv.h"
 
-void wvPutLSPD(LSPD *item, wvStream *fd)
+void
+wvPutLSPD (LSPD * item, wvStream * fd)
 {
-  write_16ubit(fd, item->dyaLine);
-  write_16ubit(fd, item->fMultLinespace);
+    write_16ubit (fd, item->dyaLine);
+    write_16ubit (fd, item->fMultLinespace);
 }

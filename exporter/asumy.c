@@ -5,7 +5,8 @@
 #endif
 #include "wvexporter-priv.h"
 
-void wvPutASUMY(ASUMY *item,wvStream *fd)
+void
+wvPutASUMY (ASUMY * item, wvStream * fd)
 {
-         write_32ubit(fd, (U32)item->lLevel);
+    write_32ubit (fd, (U32) item->lLevel);
 }

@@ -5,7 +5,8 @@
 #endif
 #include "wvexporter-priv.h"
 
-void wvPutBKL(BKL *item,wvStream *fd)
+void
+wvPutBKL (BKL * item, wvStream * fd)
 {
-	write_16ubit(fd, (U16)item->ibkf);
+    write_16ubit (fd, (U16) item->ibkf);
 }

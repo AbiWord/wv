@@ -215,67 +215,74 @@ below.
 */
 
 
-void wvGetFLD(FLD *item,wvStream *fd)
-	{
-	U8 temp8;
-	U8 ch;
+void
+wvGetFLD (FLD * item, wvStream * fd)
+{
+    U8 temp8;
+    U8 ch;
 
-	temp8 = read_8ubit(fd);
-	ch = temp8 & 0x1f;
-	if (ch == 19)
-		{
-		item->var1.ch = temp8 & 0x1f;
-		item->var1.reserved = (temp8 & 0xe0)>>5;
-		item->var1.flt = read_8ubit(fd);
-		}
-	else
-		{
-		item->var2.ch = temp8 & 0x1f;
-		item->var2.reserved = (temp8 & 0xe0)>>5;
-		temp8 = read_8ubit(fd);
-		item->var2.fDiffer = temp8 & 0x01;
-		item->var2.fZombieEmbed = (temp8 & 0x02)>>1;
-		item->var2.fResultDirty = (temp8 & 0x04)>>2;
-		item->var2.fResultEdited = (temp8 & 0x08)>>3;
-		item->var2.fLocked = (temp8 & 0x10)>>4;
-		item->var2.fPrivateResult = (temp8 & 0x20)>>5;
-		item->var2.fNested = (temp8 & 0x40)>>6;
-		item->var2.fHasSep = (temp8 & 0x80)>>7;
-		}
-	}
+    temp8 = read_8ubit (fd);
+    ch = temp8 & 0x1f;
+    if (ch == 19)
+      {
+	  item->var1.ch = temp8 & 0x1f;
+	  item->var1.reserved = (temp8 & 0xe0) >> 5;
+	  item->var1.flt = read_8ubit (fd);
+      }
+    else
+      {
+	  item->var2.ch = temp8 & 0x1f;
+	  item->var2.reserved = (temp8 & 0xe0) >> 5;
+	  temp8 = read_8ubit (fd);
+	  item->var2.fDiffer = temp8 & 0x01;
+	  item->var2.fZombieEmbed = (temp8 & 0x02) >> 1;
+	  item->var2.fResultDirty = (temp8 & 0x04) >> 2;
+	  item->var2.fResultEdited = (temp8 & 0x08) >> 3;
+	  item->var2.fLocked = (temp8 & 0x10) >> 4;
+	  item->var2.fPrivateResult = (temp8 & 0x20) >> 5;
+	  item->var2.fNested = (temp8 & 0x40) >> 6;
+	  item->var2.fHasSep = (temp8 & 0x80) >> 7;
+      }
+}
 
 
-int wvGetFLD_PLCF(FLD **fld,U32 **pos,U32 *nofld,U32 offset,U32 len,wvStream *fd)
-	{
-	U32 i;
-	if (len == 0)
-		{
-		*fld = NULL;
-		*pos = NULL;
-		*nofld = 0;
-		}
-	else
-        {
-        *nofld=(len-4)/6;
-        *pos = (U32 *) malloc( (*nofld+1) * sizeof(U32));
-        if (*pos == NULL)
-            {
-            wvError(("NO MEM 1, failed to alloc %d bytes\n",(*nofld+1) * sizeof(U32)));
-            return(1);
-            }
+int
+wvGetFLD_PLCF (FLD ** fld, U32 ** pos, U32 * nofld, U32 offset, U32 len,
+	       wvStream * fd)
+{
+    U32 i;
+    if (len == 0)
+      {
+	  *fld = NULL;
+	  *pos = NULL;
+	  *nofld = 0;
+      }
+    else
+      {
+	  *nofld = (len - 4) / 6;
+	  *pos = (U32 *) malloc ((*nofld + 1) * sizeof (U32));
+	  if (*pos == NULL)
+	    {
+		wvError (
+			 ("NO MEM 1, failed to alloc %d bytes\n",
+			  (*nofld + 1) * sizeof (U32)));
+		return (1);
+	    }
 
-        *fld= (FLD *) malloc(*nofld* sizeof(FLD));
-        if (*fld== NULL)
-            {
-            wvError(("NO MEM 1, failed to alloc %d bytes\n",*nofld* sizeof(FLD)));
-			wvFree(pos);
-            return(1);
-            }
-        wvStream_goto(fd,offset);
-        for(i=0;i<=*nofld;i++)
-            (*pos)[i]=read_32ubit(fd);
-        for(i=0;i<*nofld;i++)
-            wvGetFLD(&((*fld)[i]),fd);
-        }
-	return(0);
-	}
+	  *fld = (FLD *) malloc (*nofld * sizeof (FLD));
+	  if (*fld == NULL)
+	    {
+		wvError (
+			 ("NO MEM 1, failed to alloc %d bytes\n",
+			  *nofld * sizeof (FLD)));
+		wvFree (pos);
+		return (1);
+	    }
+	  wvStream_goto (fd, offset);
+	  for (i = 0; i <= *nofld; i++)
+	      (*pos)[i] = read_32ubit (fd);
+	  for (i = 0; i < *nofld; i++)
+	      wvGetFLD (&((*fld)[i]), fd);
+      }
+    return (0);
+}

@@ -14,12 +14,13 @@
 \usepackage[T1]{fontenc}
 \usepackage[latin1]{inputenc}
 \usepackage{longtable}
+\usepackage{times}
 <!--
 \usepackage{multirow}
 -->
 \usepackage[normalem]{ulem}
 \usepackage{geometry}
-\geometry{a4paper,lmargin=2cm,rmargin=2cm}
+\geometry{lmargin=2cm,rmargin=2cm}
 \newcommand\suppress[1]{}
 \newcommand\deleted[1]{\xout{#1}}
 \newcommand\revised[1]{\uline{#1}}

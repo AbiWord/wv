@@ -89,26 +89,6 @@ AC_C_CONST
 
 dnl LDFLAGS="$LDFLAGS -lm"
 
-dnl test for X, and Xpm and ttf to get the flags needed to compile 
-dnl something to use libwmf
-
-dnl finding X
-AC_PATH_X
-### Check for the pt library (for SCO, needed for X)
-AC_CHECK_LIB(pt,ptsname,[X_EXTRA_LIBS="$X_EXTRA_LIBS -lpt"])
-
-AC_PATH_XTRA
-
-if test [ "$no_x" = yes ]; then
-	X11=""
-else
-	X11="-lX11" 
-fi
-
-AC_SUBST(X11)
-AC_SUBST(X_LIBS)
-AC_SUBST(X_EXTRA_LIBS)
-
 dnl exporter support
 dnl =======================================================
 
@@ -226,135 +206,64 @@ LDFLAGS=$_ldflags
 AC_SUBST(PNG_CFLAGS)
 AC_SUBST(PNG_LIBS)
 
-dnl system xpm support, done after X, as its usually in the same place
-dnl ========================================================
-
-_cppflags=$CPPFLAGS
-_ldflags=$LDFLAGS
-
-AC_ARG_WITH(xpm,
-[  --with-xpm=DIR          use xpm in DIR],[
-    if test "$withval" != "no"; then
-        XPM_DIR=$withval
-        CPPFLAGS="$CPPFLAGS -I$withval/include"
-        LDFLAGS="$LDFLAGS -L$withval/lib"
-    fi
-])
-
-AC_CHECK_HEADER(X11/xpm.h, [
-	AC_DEFINE(HAVE_XPM)
-	HAVE_XPM=1
-        if test "x$XPM_DIR" != "x"; then
-            XPM_CFLAGS="-I$XPM_DIR/include"
-	fi
-	XPMINCLUDE="<X11/xpm.h>"
-	], no_sys_xpm=yes)
-
-if test "x$no_sys_xpm" = "xyes"; then
-	AC_CHECK_HEADER(xpm.h, [
-			AC_DEFINE(HAVE_XPM)
-			HAVE_XPM=1
-		        if test "x$XPM_DIR" != "x"; then
-		            XPM_CFLAGS="-I$XPM_DIR/include"
-			fi
-			XPMINCLUDE="<xpm.h>"
-			], no_sys_xpm=no)
-fi
-
 AC_CHECK_HEADER(malloc.h, [
 	AC_DEFINE(HAVE_MALLOC_H)
 	HAVE_MALLOC_H=1
 	], no_malloc_h=yes)
 
-dnl I dumbly assume that if they have the header, they have the lib
-if test "x$no_sys_xpm" != "xyes"; then
-	if test "x$XPM_DIR" != "x"; then
-            XPM_LIBS="-L$XPM_DIR/lib -lXpm"
-        else
-            XPM_LIBS="-lXpm"
-        fi
-	AC_DEFINE(USE_X)
+dnl system libwmf support
+dnl ========================================================
+
+dnl Check for libwmf-0.2.0 or higher (experimental)
+
+_cppflags=$CPPFLAGS
+_ldflags=$LDFLAGS
+
+have_libwmf=no
+
+AC_ARG_WITH(libwmf,[  --with-libwmf=DIR       use libwmf(2) in DIR (experimental)],[
+	if [ test "x$withval" != "xno" ]; then
+		if [ test "x$withval" != "xyes" ]; then
+			LIBWMF_DIR=$withval
+		fi
+		search_for_libwmf=yes
+	else
+		search_for_libwmf=no
+	fi
+],[	search_for_libwmf=no
+])
+
+if [ test $search_for_libwmf != no ]; then
+	if [ test -n "$LIBWMF_DIR" ]; then
+		AC_PATH_PROG(LIBWMF_CONFIG,libwmf-config, ,[$LIBWMF_DIR/bin:$PATH])
+	else
+		AC_PATH_PROG(LIBWMF_CONFIG,libwmf-config)
+	fi
+
+	if [ test -n "$LIBWMF_CONFIG" ]; then
+		libwmf_cflags=`$LIBWMF_CONFIG --cflags`
+		libwmf_libs=`$LIBWMF_CONFIG --libs`
+	else
+		AC_MSG_ERROR(* * * unable to find libwmf-config; unable to continue * * *)
+	fi
+
+	CPPFLAGS="$CPPFLAGS $libwmf_cflags"
+	LDFLAGS="$LDFLAGS $libwmf_libs"
+
+	AC_CHECK_HEADER(libwmf/api.h,[
+		AC_CHECK_LIB(wmf,wmf_api_create,have_libwmf=yes)
+	])
+
+	if [ test $have_libwmf != no]; then
+		AC_DEFINE(HAVE_LIBWMF)
+
+		WMF_CFLAGS="$libwmf_cflags"
+		WMF_LIBS="$libwmf_libs"
+	fi
 fi
 
 CPPFLAGS=$_cppflags
 LDFLAGS=$_ldflags
-
-AC_SUBST(XPM_CFLAGS)
-AC_SUBST(XPM_LIBS)
-AC_SUBST(XPMINCLUDE)
-
-dnl system ttf support
-dnl ========================================================
-_cppflags=${CPPFLAGS}
-_ldflags=${LDFLAGS}
-
-AC_ARG_WITH(ttf,
-[  --with-ttf=DIR          use ttf in DIR],[
-    if test "$withval" != "no"; then
-        TTF_DIR=$withval
-        CPPFLAGS="${CPPFLAGS} -I$withval/include"
-        LDFLAGS="${LDFLAGS} -L$withval/lib"
-    fi
-])
-
-dnl Currently wv requires freetype only if it is being linked against libwmf
-dnl so only need to check for library here
-
-AC_CHECK_LIB(ttf,TT_Init_FreeType,[
-    AC_DEFINE(HAVE_TTF)
-    HAVE_TTF=1
-    if test "x$TTF_DIR" != "x"; then
-        TTF_CFLAGS="-I$TTF_DIR/include"
-        TTF_LIBS="-L$TTF_DIR/lib -lttf"
-    else
-        TTF_LIBS="-lttf"
-    fi],[
-    AC_CHECK_LIB(ttf,TT_Done_FreeType,[
-        AC_DEFINE(HAVE_TTF)
-        HAVE_TTF=1
-        if test "x$TTF_DIR" != "x"; then
-            TTF_CFLAGS="-I$TTF_DIR/include"
-            TTF_LIBS="-L$TTF_DIR/lib -lttf -lnsl"
-        else
-            TTF_LIBS="-lttf -lnsl"
-        fi], ,-lnsl)
-    ])
-
-CPPFLAGS=${_cppflags}
-LDFLAGS=${_ldflags}
-
-AC_SUBST(TTF_LIBS)
-AC_SUBST(TTF_CFLAGS)
-
-dnl system libwmf support
-dnl ========================================================
-_cppflags=${CPPFLAGS}
-_ldflags=${LDFLAGS}
-
-AC_ARG_WITH(wmf,
-[  --with-wmf=DIR          use wmf in DIR],[
-    if test "$withval" != "no"; then
-        WMF_DIR=$withval
-        CPPFLAGS="${CPPFLAGS} -I$withval/include"
-        LDFLAGS="${LDFLAGS} -L$withval/lib"
-    fi
-])
-
-AC_CHECK_HEADER(gdwmfapi.h,
-    AC_CHECK_LIB(gdwmf, gd_draw_rectangle,[
-        AC_DEFINE(HAVE_WMF)
-        HAVE_WMF=1
-        if test "x$WMF_DIR" != "x"; then
-            WMF_CFLAGS="-I$WMF_DIR/include"
-            WMF_LIBS="-L$WMF_DIR/lib -lgdwmf -lwmf -lxgd -ldib"
-        else
-            WMF_LIBS="-lgdwmf -lwmf -lxgd -ldib"
-        fi], ,
-        [-lwmf -lxgd -ldib $X_LIBS $XPM_LIBS $X_PRE_LIBS -lX11 $X_EXTRA_LIBS
-         $TTF_LIBS $PNG_LIBS $ZLIB_LIBS $LIBXML2_LIBS -lm]))
-
-CPPFLAGS=${_cppflags}
-LDFLAGS=${_ldflags}
 
 AC_SUBST(WMF_LIBS)
 AC_SUBST(WMF_CFLAGS)
@@ -404,7 +313,7 @@ fi
 
 AC_DEFUN(AC_SYS_ICONV_WIN_CP_SUPPORT,
 [
-AC_MSG_CHECKING([for existance of $1 to $2 iconv support])
+AC_MSG_CHECKING([for existence of $1 to $2 iconv support])
 dnl AC_CACHE_VAL(have_codepages,
 dnl [
 _libs=${LIBS}
@@ -499,7 +408,7 @@ dnl ========================================================
 
 dnl ========================================================
 dnl test for imagemagick
-dnl test for the existance of the MagickConfig program,
+dnl test for the existence of the MagickConfig program,
 dnl if its not there then we dont have imagemagick, if it
 dnl is there then we still have to do a big dance to get
 dnl something to link against it as it does not provide all
@@ -546,7 +455,7 @@ fi
 if test -z "$MAGICK"; then
 	MAGICK="MAGICK"
 	MAGICK_CFLAGS="-I./magick"
-	MAGICK_LIBS="$X_LIBS -lX11 $X_EXTRA_LIBS"
+	MAGICK_LIBS=""
 	MAGICKOBJS="\$(RMAGICKOBJS)"
 fi
 
@@ -633,16 +542,8 @@ iconv/Makefile
 magick/Makefile
 )
 
-if test -z "$HAVE_WMF"; then
-	AC_MSG_WARN(Could not find gdwmf library or some of its components: libwv *will* build but will not have wmf to png support: see README)
-fi
-
-if test -z "$HAVE_TTF"; then
-	AC_MSG_WARN(Could not find ttf library or some of its components: libwv *will* build but will not have text in its wmf to png support: see README)
-fi
-
-if test -z "$HAVE_XPM"; then
-	AC_MSG_WARN(Could not find xpm library or some of its components: libwv *will* build but will not have full wmf to png support: see README)
+if [ test $have_libwmf != yes ]; then
+	AC_MSG_WARN(libwv will not have wmf to png support: see README)
 fi
 
 if test -z "$HAVE_ZLIB"; then

@@ -5,8 +5,9 @@
 #endif
 #include "wvexporter-priv.h"
 
-void wvPutFILETIME(FILETIME *ft,wvStream *fd)
-         {
-			 write_32ubit(fd, ft->dwLowDateTime);
-			 write_32ubit(fd, ft->dwHighDateTime);
-         }
+void
+wvPutFILETIME (FILETIME * ft, wvStream * fd)
+{
+    write_32ubit (fd, ft->dwLowDateTime);
+    write_32ubit (fd, ft->dwHighDateTime);
+}
