@@ -318,13 +318,17 @@ these tags in tables, which I find is necessary for at least netscape
 <ParaLeft1>0</ParaLeft1>
 </tableoverrides>
 
-<margin>
+<pmargin>
 <begin>margin: <mmParaBefore/> <mmParaRight/> <mmParaAfter/> <mmParaLeft/>;</begin>
-</margin>
+</pmargin>
+
+<pborder>
+<begin>border: thin <borderleftstyle/> <borderleftcolor/>;</begin>
+</pborder>
 
 <text>	
 <begin>
-&lt;div align=&quot;<just/>&quot; style=&quot;<paramargin/> border: thin <borderleftstyle/> <borderleftcolor/>;
+&lt;div align=&quot;<just/>&quot; style=&quot;<paramargin/> <paraborder/>
 <!--
 border-top: thin <bordertopstyle/> <bordertopcolor/>;
 border-left: thin <borderleftstyle/> <borderleftcolor/>;

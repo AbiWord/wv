@@ -152,8 +152,10 @@ TokenTable s_Tokens[] =
           {   "right",       	 TT_RIGHT     	 	},
           {   "center",        TT_CENTER     	 	},
           {   "asian",       	 TT_ASIAN     	 	},
-		 {	"margin",		TT_MARGIN			},
+		 {	"pmargin",		TT_PMARGIN			},
+		 {	"pborder",		TT_PBORDER			},
 		  {	"paramargin",	TT_PARAMARGIN		},
+		  {	"paraborder",	TT_PARABORDER		},
 		 {	"nfc",	 		TT_nfc					},
 		 {	"start",		TT_START},
 		 {	"numbering",	 TT_numbering		},
@@ -630,8 +632,28 @@ void exstartElement(void *userData, const char *name, const char **atts)
 			((PAP*)(mydata->props))->dxaRight
 				)
 				{
-				text = (char *)malloc(strlen(mydata->sd->elements[TT_MARGIN].str[0])+1);
-				strcpy(text,mydata->sd->elements[TT_MARGIN].str[0]);
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_PMARGIN].str[0])+1);
+				strcpy(text,mydata->sd->elements[TT_PMARGIN].str[0]);
+				str = mydata->retstring;
+				wvExpand(mydata,text,strlen(text));
+				wvAppendStr(&str,mydata->retstring);
+				wvFree(mydata->retstring);
+				mydata->retstring = str;
+				wvFree(text);
+				mydata->currentlen = strlen(mydata->retstring);
+				}
+			break;
+		case TT_PARABORDER:
+			if (
+			((PAP*)(mydata->props))->brcBetween.brcType ||
+			((PAP*)(mydata->props))->brcRight.brcType ||
+			((PAP*)(mydata->props))->brcBottom.brcType ||
+			((PAP*)(mydata->props))->brcLeft.brcType ||
+			((PAP*)(mydata->props))->brcTop.brcType 
+				)
+				{
+				text = (char *)malloc(strlen(mydata->sd->elements[TT_PBORDER].str[0])+1);
+				strcpy(text,mydata->sd->elements[TT_PBORDER].str[0]);
 				str = mydata->retstring;
 				wvExpand(mydata,text,strlen(text));
 				wvAppendStr(&str,mydata->retstring);
@@ -1895,7 +1917,8 @@ void startElement(void *userData, const char *name, const char **atts)
 			mydata->currentele = &(mydata->elements[s_Tokens[tokenIndex].m_type]);
 			break;
 		case TT_PICTURE:
-		case TT_MARGIN:
+		case TT_PMARGIN:
+		case TT_PBORDER:
 			mydata->elements[s_Tokens[tokenIndex].m_type].str = (char **)malloc(sizeof(char *)*1);
 			mydata->elements[s_Tokens[tokenIndex].m_type].nostr=1;
 			mydata->elements[s_Tokens[tokenIndex].m_type].str[0] = NULL;
@@ -2193,6 +2216,10 @@ void startElement(void *userData, const char *name, const char **atts)
 			break;
 		case TT_PARAMARGIN:
 			wvAppendStr(mydata->current,"<paramargin/>");
+			mydata->currentlen = strlen(*(mydata->current));
+			break;
+		case TT_PARABORDER:
+			wvAppendStr(mydata->current,"<paraborder/>");
 			mydata->currentlen = strlen(*(mydata->current));
 			break;
 		case TT_BORDERTopSTYLE:
@@ -2775,6 +2802,7 @@ void endElement(void *userData, const char *name)
 		case TT_FILENAME:
 		case TT_JUST:
 		case TT_PARAMARGIN:
+		case TT_PARABORDER:
 		case TT_BORDERTopSTYLE:
 		case TT_BORDERTopCOLOR:
 		case TT_BORDERLeftSTYLE:

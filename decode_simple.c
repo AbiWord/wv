@@ -211,7 +211,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 				{
 				wvReleasePAPX_FKP(&para_fkp);
 				wvGetSimpleParaBounds(wvQuerySupported(&ps->fib,NULL),&para_fkp,&para_fcFirst,&para_fcLim,wvConvertCPToFC(i,&ps->clx), btePapx, posPapx, para_intervals, ps->mainfd);
-				wvTrace(("Para from %x to %x\n",para_fcFirst,para_fcLim));
+				wvTrace(("Para from %x to %x, j is %x\n",para_fcFirst,para_fcLim,j));
 
 				if (0 == para_pendingclose)
                     {
@@ -273,7 +273,7 @@ void wvDecodeSimple(wvParseStruct *ps)
 				wvTrace(("j i is %x %d\n", j, i));
 				wvReleaseCHPX_FKP(&char_fkp);
 				wvGetSimpleCharBounds(wvQuerySupported(&ps->fib, NULL), &char_fkp, &char_fcFirst, &char_fcLim, i, &ps->clx, bteChpx, posChpx, char_intervals, ps->mainfd);
-				wvTrace(("char begins at %x ends %x\n", char_fcFirst, char_fcLim));
+				wvTrace(("char begins at %x ends %x, j is %x\n", char_fcFirst, char_fcLim,j));
 				if (0 == char_pendingclose)
 					{
 					/*
@@ -427,17 +427,18 @@ int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U3
 	{
 	BTE entry;
 	long currentpos;
+	static noerror;
 
 	/*
 	currentfc = wvConvertCPToFC(currentcp,clx);
 	*/
 
+	wvTrace(("currentfc is %x\n",currentfc));
 	if (currentfc==0xffffffffL)
 		{
 		wvError(("Para Bounds not found !\n"));
 		return(1);
 		}
-
 
 	if (0 != wvGetBTE_FromFC(&entry,currentfc, bte,pos,nobte))
 		{
@@ -449,6 +450,20 @@ int wvGetSimpleParaBounds(version ver,PAPX_FKP *fkp,U32 *fcFirst, U32 *fcLim, U3
 
 	wvTrace(("pn is %d\n",entry.pn));
 	wvGetPAPX_FKP(ver,fkp,entry.pn,fd);
+	wvTrace(("last entry is %x\n",fkp->rgfc[fkp->crun]));
+	while (fkp->rgfc[fkp->crun] <= currentfc)
+		{
+		if ((fkp->rgfc[fkp->crun] == currentfc) && (currentfc == pos[nobte])	)
+			break;
+		if (!noerror)
+			{
+			wvError(("Alert, insane repeat \"insane\" paragraph structure, making wild stab in the dark to attempt to continue\n"));
+			noerror++;
+			}
+		wvReleasePAPX_FKP(fkp);
+		entry.pn++;
+		wvGetPAPX_FKP(ver,fkp,entry.pn,fd);
+		}
 
 	fseek(fd,currentpos,SEEK_SET);
 
@@ -460,6 +475,7 @@ int wvGetSimpleCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, 
 	U32 currentfc;
 	BTE entry;
 	long currentpos;
+	static char noerror;
 
 	currentfc = wvConvertCPToFC(currentcp, clx);
 
@@ -481,6 +497,20 @@ int wvGetSimpleCharBounds(version ver, CHPX_FKP *fkp, U32 *fcFirst, U32 *fcLim, 
 
 	wvTrace(("pn is %d\n",entry.pn));
 	wvGetCHPX_FKP(ver, fkp, entry.pn, fd);
+
+	while (fkp->rgfc[fkp->crun] <= currentfc)
+		{
+		if ((fkp->rgfc[fkp->crun] == currentfc) && (currentfc == pos[nobte])	)
+			break;
+		if (!noerror)
+			{
+			wvError(("Alert, insane repeat \"insane\" character run structure, making wild stab in the dark to attempt to continue\n"));
+			noerror++;
+			}
+		wvReleaseCHPX_FKP(fkp);
+		entry.pn++;
+		wvGetCHPX_FKP(ver,fkp,entry.pn,fd);
+		}
 
 	fseek(fd, currentpos, SEEK_SET);
 

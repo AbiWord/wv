@@ -36,6 +36,7 @@ int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
 		}
 	else
         {
+		wvTrace(("offset is %x, len is %d\n",offset,len));
         *nobte=(len-4)/(cb6BTE+4);
 		wvTrace(("no of bte is %d at %x\n",*nobte,offset));
         *pos = (U32 *) malloc( (*nobte+1) * sizeof(U32));
@@ -54,7 +55,10 @@ int wvGetBTE_PLCF6(BTE **bte,U32 **pos,U32 *nobte,U32 offset,U32 len,FILE *fd)
             }
         fseek(fd,offset,SEEK_SET);
         for(i=0;i<=*nobte;i++)
+			{
             (*pos)[i]=read_32ubit(fd);
+			wvTrace(("pos is %x\n",(*pos)[i]));
+			}
         for(i=0;i<*nobte;i++)
 			{
             wvInitBTE(&((*bte)[i]));
