@@ -239,28 +239,22 @@ wvDecrypt97 (wvParseStruct * ps)
 
       }
 
-#if 0
-    /* causing us grief on windows */
     if (ps->tablefd0)
-	wvStream_close (ps->tablefd0);
-#endif
-
+        wvStream_close (ps->tablefd0);
     if (ps->tablefd1)
-	wvStream_close (ps->tablefd1);
+        wvStream_close (ps->tablefd1);
+    if (ps->summary)
+        wvStream_close (ps->summary);
+
     wvStream_close (ps->mainfd);
  
-   wvStream_FILE_create(&ps->tablefd, outtable);
-   wvStream_FILE_create(&ps->mainfd, outmain);
+    wvStream_FILE_create(&ps->tablefd0, outtable);
+    wvStream_FILE_create(&ps->mainfd, outmain);
 
-#if 1
-   wvStream_FILE_create(&ps->tablefd0, outtable);
-   wvStream_FILE_create(&ps->tablefd1, outtable);
-#else
-   ps->tablefd0 = ps->tablefd;
-   ps->tablefd1 = ps->tablefd;
-#endif
+    ps->tablefd = ps->tablefd0;
+    ps->tablefd1 = ps->tablefd0;
 
-    wvStream_rewind (ps->tablefd);
+    wvStream_rewind (ps->tablefd0);
     wvStream_rewind (ps->mainfd);
     ps->fib.fEncrypted = 0;
     wvGetFIB (&ps->fib, ps->mainfd);
