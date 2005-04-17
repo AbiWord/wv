@@ -1,10 +1,30 @@
+/* wvWare
+ * Copyright (C) Caolan McNamara, Dom Lachowicz, and others
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 #include "wv.h"
 #include <glib.h>
 
@@ -141,8 +161,8 @@ wvOutputHtmlChar (U16 eachchar, U8 chartype, char *outputtype, U16 lid)
        static char* cpname = NULL;                             \
        if (!cpname)    \
                {       \
-                       GIconv cd = g_iconv_open(name,name);     \
-                       if (cd==(GIconv)-1)    \
+                       GIConv cd = g_iconv_open(name,name);     \
+                       if (cd==(GIConv)-1)    \
                                {       \
                                        cpname = fallbackname;  \
                                }       \
@@ -568,7 +588,7 @@ wvLIDToCodePageConverter (U16 lid)
 static U32
 swap_iconv (U16 lid)
 {
-    GIconv handle = NULL;
+    GIConv handle = NULL;
     char f_code[33];		/* From CCSID                           */
     char t_code[33];		/* To CCSID                             */
     const char *codepage = NULL;
@@ -600,7 +620,7 @@ swap_iconv (U16 lid)
     strcpy (t_code, "UCS-2");
 
     handle = g_iconv_open (t_code, f_code);
-    if (handle == (GIconv)-1)
+    if (handle == (GIConv)-1)
             return 0;
 
     buffer[0] = 0x20 & 0xff;
@@ -622,7 +642,7 @@ wvHandleCodePage (U16 eachchar, U16 lid)
     char f_code[33];		/* From CCSID                           */
     char t_code[33];		/* To CCSID                             */
     const char *codepage;
-    GIconv g_iconv_handle;	/* Conversion Descriptor returned       */
+    GIConv g_iconv_handle;	/* Conversion Descriptor returned       */
     /* from g_iconv_open() function           */
     size_t ibuflen;		/* Length of input buffer               */
     size_t obuflen;		/* Length of output buffer              */
@@ -661,7 +681,7 @@ wvHandleCodePage (U16 eachchar, U16 lid)
     strcpy (t_code, "UCS-2");
 
     g_iconv_handle = g_iconv_open (t_code, f_code);
-    if (g_iconv_handle == (GIconv) - 1)
+    if (g_iconv_handle == (GIConv) - 1)
       {
 	  wvError (
 		   ("g_iconv_open fail: %d, cannot convert %s to unicode\n",
@@ -695,7 +715,7 @@ void
 wvOutputFromUnicode (U16 eachchar, char *outputtype)
 {
     static char cached_outputtype[33];	/* Last outputtype                  */
-    static GIconv g_iconv_handle = (GIconv)-1;	/* Cached iconv descriptor          */
+    static GIConv g_iconv_handle = (GIConv)-1;	/* Cached iconv descriptor          */
     static int need_swapping;
     U8 *ibuf, *obuf;
     size_t ibuflen, obuflen, len, count, i;
@@ -705,13 +725,13 @@ wvOutputFromUnicode (U16 eachchar, char *outputtype)
 	&& wvConvertUnicodeToEntity (eachchar))
 	return;
 
-    if ((g_iconv_handle == (GIconv)-1) || strcmp (cached_outputtype, outputtype) != 0)
+    if ((g_iconv_handle == (GIConv)-1) || strcmp (cached_outputtype, outputtype) != 0)
       {
-	  if ((g_iconv_handle != (GIconv)-1))
+	  if ((g_iconv_handle != (GIConv)-1))
 	      g_iconv_close (g_iconv_handle);
 
 	  g_iconv_handle = g_iconv_open (outputtype, "UCS-2");
-	  if (g_iconv_handle == (GIconv) - 1)
+	  if (g_iconv_handle == (GIConv) - 1)
 	    {
 		wvError (
 			 ("g_iconv_open fail: %d, cannot convert %s to %s\n",
@@ -2151,7 +2171,7 @@ char *
 wvConvertStylename(char *stylename, char *outputtype)
 {
     static char cached_outputtype[36];
-    static GIconv g_iconv_handle = (GIconv)-1;
+    static GIConv g_iconv_handle = (GIConv)-1;
     /**FIXME: 100 is just the size of stylename[] from wv.h**/
     static char buffer[100];
     char *ibuf, *obuf;
@@ -2160,7 +2180,7 @@ wvConvertStylename(char *stylename, char *outputtype)
     /* Destroy */
     if(!outputtype) 
     {
-	if ((g_iconv_handle != (GIconv)-1))
+	if ((g_iconv_handle != (GIConv)-1))
 	    g_iconv_close(g_iconv_handle);
 	return NULL;
     }
@@ -2168,13 +2188,13 @@ wvConvertStylename(char *stylename, char *outputtype)
     /* Initialize */
     if(!g_iconv_handle || strcmp(cached_outputtype, outputtype))
     {
-	if ((g_iconv_handle != (GIconv)-1))
+	if ((g_iconv_handle != (GIConv)-1))
 	    g_iconv_close(g_iconv_handle);
 
 	/**FIXME: don´t know if ISO-8859-1 is really the correct
 	 **charset for style names with eg umlauts.             **/
 	g_iconv_handle = g_iconv_open(outputtype, "ISO-8859-1");
-	if(g_iconv_handle == (GIconv)-1)
+	if(g_iconv_handle == (GIConv)-1)
 	{
 	    wvError(("g_iconv_open fail: %d, cannot convert %s to %s\n",
 		     errno, "ISO-8859-1", outputtype));

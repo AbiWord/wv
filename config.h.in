@@ -11,17 +11,11 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
-/* Define if you have expat */
-#undef HAVE_EXPAT
-
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
 
 /* Define to 1 if you have the `getpagesize' function. */
 #undef HAVE_GETPAGESIZE
-
-/* Define if you have glib */
-#undef HAVE_GLIB
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -82,9 +76,6 @@
 
 /* define if you have libpng */
 #undef HasPNG
-
-/* Define this if the second argument of iconv requires a const */
-#undef ICONV_REQUIRES_CONST
 
 /* Define if sizeof({char,short,int}) != {1,2,4} */
 #undef MATCHED_TYPE
@@ -156,12 +147,6 @@
 #ifndef HAVE_MEMCPY
 #define memcpy(d, s, n) bcopy ((s), (d), (n))
 #endif /* not HAVE_MEMCPY */
-
-#ifdef ICONV_REQUIRES_CONST
-#define ICONV_CONST const
-#else
-#define ICONV_CONST
-#endif
 
 /* redefs of things that are either in glibc or we have to include them ourselves */
 #if defined(WIN32) && !defined(__MWERKS__) && !defined(__WINE__)

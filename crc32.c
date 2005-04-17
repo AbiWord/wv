@@ -1,3 +1,22 @@
+/* wvWare
+ * Copyright (C) Caolan McNamara, Dom Lachowicz, and others
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ */
+
 /* crc32.c
 
    C implementation of CRC-32 checksums for NAACCR records.  Code is based
@@ -43,7 +62,7 @@
 /*                                                               */
 /*****************************************************************/
 
-static unsigned long crctable[256] = {
+static const unsigned long crctable[256] = {
     0x00000000L, 0x77073096L, 0xEE0E612CL, 0x990951BAL,
     0x076DC419L, 0x706AF48FL, 0xE963A535L, 0x9E6495A3L,
     0x0EDB8832L, 0x79DCB8A4L, 0xE0D5E91EL, 0x97D2D988L,
@@ -162,95 +181,4 @@ CalcCRC32 (unsigned char *p, unsigned long reclen, unsigned long checksumpos,
 
     /* return XOR out value */
     return crc ^ CRC32_XOROT;
-}
-
-/* Assign CRC-32 checksum for NAACCR record passed in buffer p of length
-   reclen with checksum occupying position checksumpos of length checksumlen.
-
-   PARAMETERS:
-     unsigned char *p           NAACCR Record Buffer
-     unsigned long reclen       NAACCR Record Length
-     unsigned long checksumpos  Position of CHECKSUM (as in Data Dictionary)
-     unsigned long checksumlen  Length of checksum Field
-
-   RETURNS:
-     0  Checksum successfully placed in checksum field
-    -1  Checksum length too short
-    -2  Checksum length too long
-    -3  Checksum position exceeds record length
-
-    Author:
-     Eric Durbin 1998-10-14
-
-   Status:
-     Public Domain
-*/
-int
-AssignCRC32 (unsigned char *p, unsigned long reclen,
-	     unsigned long checksumpos, unsigned long checksumlen)
-{
-    unsigned long CRCValue;	/* value of CRC checksum for record */
-    unsigned long Mask = 0x0000000FL;	/* Mask for converting hex string */
-    char *HexString = "0123456789ABCDEF";	/* hex string characters */
-    unsigned char *s;		/* string pointer */
-
-    /* validate checksum length */
-    if (checksumlen < MINIMUM_CHECKSUM_LEN)
-	return -1;
-    if (checksumlen > MAXIMUM_CHECKSUM_LEN)
-	return -2;
-    if (checksumpos > reclen)
-	return -3;
-
-    CRCValue = CalcCRC32 (p, reclen, checksumpos, checksumlen);
-
-    /* convert CRC Value to ASCII Hex String */
-    s = p + checksumpos - 1;
-    while (checksumlen--)
-      {
-	  *(s + checksumlen) = *(HexString + (CRCValue & Mask));
-	  CRCValue >>= 4;	/* right shift 4 bits */
-      }
-    return 0;
-}
-
-/* compare CRC-32 checksum in NAACCR record
-
-   PARAMETERS:
-     unsigned char *p           NAACCR Record Buffer
-     unsigned long reclen       NAACCR Record Length
-     unsigned long checksumpos  Position of CHECKSUM (as in Data Dictionary)
-     unsigned long checksumlen  Length of checksum Field
-
-   RETURNS:
-     0   Checksum matches
-    -1   Checksum mismatch
-
-   Author:
-     Eric Durbin 1998-10-14
-
-   Status:
-     Public Domain
-*/
-int
-CompareCRC32 (unsigned char *p, unsigned long reclen,
-	      unsigned long checksumpos, unsigned long checksumlen)
-{
-    unsigned long RecordCRCValue = 0L;	/* initialize record's CRC Value */
-    unsigned long CalcCRCValue;
-    unsigned char *s = p + checksumpos - 1;	/* incoming checksum string */
-
-    CalcCRCValue = CalcCRC32 (p, reclen, checksumpos, checksumlen);
-
-    /* extract records hexadecimal checksum value */
-    while (checksumlen--)
-      {
-	  RecordCRCValue <<= 4;	/* left shift 4 bits */
-	  RecordCRCValue += (*s > '9') ? *s++ - 'A' + 10 : *s++ - '0';
-      }
-
-    /* compare values */
-    if (RecordCRCValue != CalcCRCValue)
-	return -1;
-    return 0;
 }

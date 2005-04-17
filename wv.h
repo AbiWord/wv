@@ -8,9 +8,8 @@
 extern "C" {
 #endif
 
-    /* TODO: find a way to remove this */
-#include <libole2/ms-ole.h>
-#include <libole2/ms-ole-summary.h>
+  typedef struct MsOle MsOle;
+  typedef struct MsOleStream MsOleStream;
 
 /* The structure below is used to refer to a wvStream.  Usually,
  * kind = LIBOLE_STREAM,

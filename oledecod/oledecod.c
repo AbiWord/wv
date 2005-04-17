@@ -42,6 +42,10 @@
    See the oledecod.h to see a description of the inputs and output
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -49,9 +53,6 @@
 #include <ctype.h>
 /* #include <sys/types.h> */
 #include <assert.h>
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 #include "wv.h"
 
 #include "oledecod.h"

@@ -1,8 +1,28 @@
-#include <stdio.h>
-#include <stdlib.h>
+/* wvWare
+ * Copyright (C) Caolan McNamara, Dom Lachowicz, and others
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ */
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "wv.h"
 #include <glib.h>
@@ -125,8 +145,8 @@ static const char * wvGetUCS2LEName(void)
 
   for (p = szUCS2LENames; *p; ++p)
     {
-      GIconv g_iconv_handle;
-      if ((g_iconv_handle = g_iconv_open(*p,*p)) != (GIconv)-1)
+      GIConv g_iconv_handle;
+      if ((g_iconv_handle = g_iconv_open(*p,*p)) != (GIConv)-1)
 	{
 	  g_iconv_close(g_iconv_handle);
 	  return *p;
@@ -145,7 +165,7 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
     int ret = 0;
     U16 count = 0;
     U32 allocName = 0;		/* length allocated for xstzName */
-    GIconv conv = NULL;
+    GIConv conv = NULL;
 	U32 b = 0;
 
     wvInitSTD (item);		/* zero any new fields that might not exist in the file */

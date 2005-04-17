@@ -8,7 +8,7 @@ INCLUDES = -I. -I$(top_builddir) -I$(srcdir)
 
 CFLAGS = @CFLAGS@ @ANSI_CFLAGS@
 
-CPPFLAGS = @CPPFLAGS@ @WMF_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @IGSF@ @PNG_CFLAGS@ @ZLIB_CFLAGS@
+CPPFLAGS = @CPPFLAGS@ @WMF_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @GSF_CFLAGS@ @PNG_CFLAGS@ @ZLIB_CFLAGS@
 
 WVLIBS = @WMF_LIBS@ @XML_LIBS@ @GLIB_LIBS@ @GSF_LIBS@ @PNG_LIBS@ @ZLIB_LIBS@ @LIBS@ -lm
 
@@ -34,7 +34,6 @@ libwv_la_LIBADD =  $(WVLIBS)
 libwv_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) -release $(LT_RELEASE) -export-dynamic
 libwv_la_SOURCES = \
 	winmmap.c \
-	support.c \
 	list.c \
 	stylesheet.c \
 	sprm.c \
@@ -121,9 +120,10 @@ libwv_la_SOURCES = \
 	fbse.c \
 	escher.c \
 	basename.c \
-	laolareplace.c \
 	isbidi.c \
-	plcf.c
+	plcf.c	\
+	laolareplace.c \
+	support.c
 
 OTHERHEADERS = \
 	bintree.h \
