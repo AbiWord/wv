@@ -1,45 +1,16 @@
-if BUILD_GLIB
-DIRGLIB = glib-wv
-INCGLIB = -I$(srcdir)/glib-wv
-LIBGLIB = glib-wv/libglib.la
-else
-DIRGLIB = 
-INCGLIB = 
-LIBGLIB = 
-endif
+DIST_SUBDIRS = xml help wingdingfont patterns
 
-if BUILD_EXPAT
-DIREXPAT = expat
-INCEXPAT = -I$(srcdir)/expat/xmlparse
-LIBEXPAT = expat/libexpat.la
-else
-DIREXPAT = 
-INCEXPAT = 
-LIBEXPAT = 
-endif
-
-if BUILD_EXPORTER
-DIREXPORTER = exporter
-LIBEXPORTER = exporter/libexporter.la
-else
-DIREXPORTER = 
-LIBEXPORTER = 
-endif
-
-DIST_SUBDIRS = xml help wingdingfont patterns glib-wv libole2 magick expat exporter .
-
-SUBDIRS = xml help wingdingfont patterns $(DIRGLIB) libole2 magick $(DIREXPAT) $(DIREXPORTER) .
+SUBDIRS = xml help wingdingfont patterns .
 
 DEFS = @DEFS@ -DVERSION=\"@VERSION@\" -DXMLCONFIG=\"$(pkgdatadir)/wvConfig.xml\" -DHTMLCONFIG=\"$(pkgdatadir)/wvHtml.xml\" -DWVDATADIR=\"$(datadir)/wv\"
 
-INCLUDES = -I. -I$(top_builddir) -I$(srcdir) \
-	-I$(srcdir)/magick -I$(srcdir)/libole2 $(INCGLIB) $(INCEXPAT)
+INCLUDES = -I. -I$(top_builddir) -I$(srcdir) 
 
 CFLAGS = @CFLAGS@ @ANSI_CFLAGS@
 
-CPPFLAGS = @CPPFLAGS@ @WMF_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @ICONV_CFLAGS@ @PNG_CFLAGS@ @ZLIB_CFLAGS@
+CPPFLAGS = @CPPFLAGS@ @WMF_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @IGSF@ @PNG_CFLAGS@ @ZLIB_CFLAGS@
 
-WVLIBS = @WMF_LIBS@ @XML_LIBS@ @GLIB_LIBS@ @ICONV_LIBS@ @PNG_LIBS@ @ZLIB_LIBS@ @LIBS@ -lm
+WVLIBS = @WMF_LIBS@ @XML_LIBS@ @GLIB_LIBS@ @GSF_LIBS@ @PNG_LIBS@ @ZLIB_LIBS@ @LIBS@ -lm
 
 wvhdrdir = $(includedir)/wv
 
@@ -47,19 +18,19 @@ wvhdr_HEADERS = wv.h
 
 bin_SCRIPTS = wvCleanLatex wvHtml wvDocBook wvAbw wvMime wvPS wvDVI wvLatex wvPDF wvText wvWml
 
-bin_PROGRAMS = wvSummary wvWare wvRTF wvConvert wvVersion
+bin_PROGRAMS = wvWare wvRTF wvConvert wvVersion #wvSummary
 
 lib_LTLIBRARIES = libwv.la
 
 GETOPT = @LIBOBJS@
 
-wvSummary_LDADD = libwv.la $(GETOPT)
+#wvSummary_LDADD = libwv.la $(GETOPT)
 wvWare_LDADD = libwv.la $(GETOPT)
 wvRTF_LDADD = libwv.la $(GETOPT)
 wvConvert_LDADD = libwv.la $(GETOPT)
 wvVersion_LDADD = libwv.la $(GETOPT)
 
-libwv_la_LIBADD = magick/libmagick.la libole2/libole2.la $(LIBGLIB) $(LIBEXPAT) $(LIBEXPORTER) $(WVLIBS)
+libwv_la_LIBADD =  $(WVLIBS)
 libwv_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) -release $(LT_RELEASE) -export-dynamic
 libwv_la_SOURCES = \
 	winmmap.c \
@@ -149,7 +120,6 @@ libwv_la_SOURCES = \
 	fopt.c \
 	fbse.c \
 	escher.c \
-	bmptopng.c \
 	basename.c \
 	laolareplace.c \
 	isbidi.c \

@@ -109,11 +109,6 @@ wvHtmlGraphic (wvParseStruct * ps, Blip * blip)
 		wvAppendStr (&name, ".bmp");
 		if (0 != HandleBitmap (ps, name, &blip->blip.bitmap))
 		    return (NULL);
-		remove_suffix (name, ".bmp");
-		if (ps->dir) chdir (ps->dir);
-		bmptopng (name);
-		if (ps->dir) chdir (wv_cwd);
-		wvAppendStr (&name, ".png");
 		return (name);
 	    }
       default:

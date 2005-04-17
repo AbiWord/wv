@@ -211,9 +211,9 @@ wvOpenPreOLE (char *path, wvStream ** mainfd, wvStream ** tablefd0,
     return (ret);
 }
 
-Tokenptr tokenTreeRoot = NULL;
+static Tokenptr tokenTreeRoot = NULL;
 
-static TokenTable s_Tokens[] = {
+static const TokenTable s_Tokens[] = {
     {"*", TT_OTHER},		/* must be FIRST */
     {"begin", TT_BEGIN},
     {"end", TT_END},
@@ -521,11 +521,11 @@ static TokenTable s_Tokens[] = {
 };
 
 #define TOKEN_BUFSIZE 1000
-Tokenptr tokenbuf;
-int tokenbufn = 0, tokenfreen = 0;
-void *tokenfreearr[10000];
+static Tokenptr tokenbuf;
+static int tokenbufn = 0, tokenfreen = 0;
+static void *tokenfreearr[10000];
 
-void
+static void
 tokenTreeInsert (int token)
 {
     int pos;
@@ -581,17 +581,9 @@ tokenTreeInsert (int token)
       }
 }
 
-void tokenTreeRecursiveInsert (int min, int max);
-
-void
-tokenTreeInit (void)
-{
-    tokenTreeRecursiveInsert (1, TokenTableSize - 1);
-}
-
 /* this routine will insert the tokens in a balanced way
 as long as the token table is sorted. */
-void
+static void
 tokenTreeRecursiveInsert (int min, int max)
 {
     int token;
@@ -603,7 +595,13 @@ tokenTreeRecursiveInsert (int min, int max)
     tokenTreeRecursiveInsert (min, token - 1);
 }
 
-void
+static void
+tokenTreeInit (void)
+{
+    tokenTreeRecursiveInsert (1, TokenTableSize - 1);
+}
+
+static void
 tokenTreeFreeAll (void)
 {
     int i;

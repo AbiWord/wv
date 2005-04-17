@@ -5,7 +5,7 @@
 #endif
 #include <string.h>
 #include "wv.h"
-#include "iconv.h"
+#include <glib.h>
 
 /*modify this to handle cbSTSHI < the current size*/
 void
@@ -125,10 +125,10 @@ static const char * wvGetUCS2LEName(void)
 
   for (p = szUCS2LENames; *p; ++p)
     {
-      iconv_t iconv_handle;
-      if ((iconv_handle = iconv_open(*p,*p)) != (iconv_t)-1)
+      GIconv g_iconv_handle;
+      if ((g_iconv_handle = g_iconv_open(*p,*p)) != (GIconv)-1)
 	{
-	  iconv_close(iconv_handle);
+	  g_iconv_close(g_iconv_handle);
 	  return *p;
 	}
     }
@@ -145,7 +145,7 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
     int ret = 0;
     U16 count = 0;
     U32 allocName = 0;		/* length allocated for xstzName */
-    iconv_t conv = NULL;
+    GIconv conv = NULL;
 	U32 b = 0;
 
     wvInitSTD (item);		/* zero any new fields that might not exist in the file */
@@ -219,7 +219,7 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 	*(item->xstzName) = 0;
 	b = 0;
 
-    conv = iconv_open("utf-8", wvGetUCS2LEName ());
+    conv = g_iconv_open("utf-8", wvGetUCS2LEName ());
 
     for (i = 0; i < len + 1; i++)
       {
@@ -259,7 +259,7 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 
 	  wvTrace (("sample letter is %c\n", item->xstzName[i]));
       }
-    iconv_close(conv);
+    g_iconv_close(conv);
     wvTrace (("string ended\n"));
 
 

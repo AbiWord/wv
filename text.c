@@ -5,19 +5,10 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-#include "iconv.h"
 #include "wv.h"
-
-extern TokenTable s_Tokens[];
+#include <glib.h>
 
 int (*wvConvertUnicodeToEntity) (U16 char16) = NULL;
-
-/* i hate iconv - compilers treat its prototype differently */
-#if !defined(WIN32) || !defined(_WIN32)
-#define wv_iconv(a,b,c,d,e) iconv(a, (ICONV_CONST char**)b,c,(char**)d,e)
-#else
-#define wv_iconv(a,b,c,d,e) iconv(a,b,c,(char**)d,e)
-#endif
 
 U16
 wvnLocaleToLIDConverter (U8 nLocale)
@@ -150,15 +141,15 @@ wvOutputHtmlChar (U16 eachchar, U8 chartype, char *outputtype, U16 lid)
        static char* cpname = NULL;                             \
        if (!cpname)    \
                {       \
-                       iconv_t cd = iconv_open(name,name);     \
-                       if (cd==(iconv_t)-1)    \
+                       GIconv cd = g_iconv_open(name,name);     \
+                       if (cd==(GIconv)-1)    \
                                {       \
                                        cpname = fallbackname;  \
                                }       \
                        else    \
                                {       \
                                        cpname = name;  \
-                                       iconv_close(cd);        \
+                                       g_iconv_close(cd);        \
                                }       \
                };      \
        return cpname;  \
@@ -577,7 +568,7 @@ wvLIDToCodePageConverter (U16 lid)
 static U32
 swap_iconv (U16 lid)
 {
-    iconv_t handle = NULL;
+    GIconv handle = NULL;
     char f_code[33];		/* From CCSID                           */
     char t_code[33];		/* To CCSID                             */
     const char *codepage = NULL;
@@ -608,8 +599,8 @@ swap_iconv (U16 lid)
     strcpy (f_code, codepage);
     strcpy (t_code, "UCS-2");
 
-    handle = iconv_open (t_code, f_code);
-    if (handle == (iconv_t)-1)
+    handle = g_iconv_open (t_code, f_code);
+    if (handle == (GIconv)-1)
             return 0;
 
     buffer[0] = 0x20 & 0xff;
@@ -619,7 +610,7 @@ swap_iconv (U16 lid)
 
     wv_iconv (handle, &ibuf, &ibuflen, &obuf, &obuflen);
 
-    iconv_close (handle);
+    g_iconv_close (handle);
 
     ret = *(U16 *) buffer2 != 0x20;
     return ret;
@@ -631,8 +622,8 @@ wvHandleCodePage (U16 eachchar, U16 lid)
     char f_code[33];		/* From CCSID                           */
     char t_code[33];		/* To CCSID                             */
     const char *codepage;
-    iconv_t iconv_handle;	/* Conversion Descriptor returned       */
-    /* from iconv_open() function           */
+    GIconv g_iconv_handle;	/* Conversion Descriptor returned       */
+    /* from g_iconv_open() function           */
     size_t ibuflen;		/* Length of input buffer               */
     size_t obuflen;		/* Length of output buffer              */
 
@@ -669,11 +660,11 @@ wvHandleCodePage (U16 eachchar, U16 lid)
     strcpy (f_code, codepage);
     strcpy (t_code, "UCS-2");
 
-    iconv_handle = iconv_open (t_code, f_code);
-    if (iconv_handle == (iconv_t) - 1)
+    g_iconv_handle = g_iconv_open (t_code, f_code);
+    if (g_iconv_handle == (GIconv) - 1)
       {
 	  wvError (
-		   ("iconv_open fail: %d, cannot convert %s to unicode\n",
+		   ("g_iconv_open fail: %d, cannot convert %s to unicode\n",
 		    errno, codepage));
 	  return ('?');
       }
@@ -681,7 +672,7 @@ wvHandleCodePage (U16 eachchar, U16 lid)
     ibuflen = obuflen = 2;
     p = obuf;
 
-    wv_iconv (iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+    wv_iconv (g_iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
 
     /* We might have double byte char here. */
 
@@ -695,7 +686,7 @@ wvHandleCodePage (U16 eachchar, U16 lid)
 	  rtn = *(U16 *) buffer2;
       }
 
-    iconv_close (iconv_handle);
+    g_iconv_close (g_iconv_handle);
 
     return (rtn);
 }
@@ -704,7 +695,7 @@ void
 wvOutputFromUnicode (U16 eachchar, char *outputtype)
 {
     static char cached_outputtype[33];	/* Last outputtype                  */
-    static iconv_t iconv_handle = (iconv_t)-1;	/* Cached iconv descriptor          */
+    static GIconv g_iconv_handle = (GIconv)-1;	/* Cached iconv descriptor          */
     static int need_swapping;
     U8 *ibuf, *obuf;
     size_t ibuflen, obuflen, len, count, i;
@@ -714,16 +705,16 @@ wvOutputFromUnicode (U16 eachchar, char *outputtype)
 	&& wvConvertUnicodeToEntity (eachchar))
 	return;
 
-    if ((iconv_handle == (iconv_t)-1) || strcmp (cached_outputtype, outputtype) != 0)
+    if ((g_iconv_handle == (GIconv)-1) || strcmp (cached_outputtype, outputtype) != 0)
       {
-	  if ((iconv_handle != (iconv_t)-1))
-	      iconv_close (iconv_handle);
+	  if ((g_iconv_handle != (GIconv)-1))
+	      g_iconv_close (g_iconv_handle);
 
-	  iconv_handle = iconv_open (outputtype, "UCS-2");
-	  if (iconv_handle == (iconv_t) - 1)
+	  g_iconv_handle = g_iconv_open (outputtype, "UCS-2");
+	  if (g_iconv_handle == (GIconv) - 1)
 	    {
 		wvError (
-			 ("iconv_open fail: %d, cannot convert %s to %s\n",
+			 ("g_iconv_open fail: %d, cannot convert %s to %s\n",
 			  errno, "UCS-2", outputtype));
 		printf ("?");
 		return;
@@ -742,7 +733,7 @@ wvOutputFromUnicode (U16 eachchar, char *outputtype)
 	  ibuflen = 2;
 	  obuflen = 5;
 
-	  count = wv_iconv (iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+	  count = wv_iconv (g_iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
 	  if (count >= 0)
 	      need_swapping = buffer2[0] != 0x20;
       }
@@ -764,7 +755,7 @@ wvOutputFromUnicode (U16 eachchar, char *outputtype)
     ibuflen = 2;
     len = obuflen = 5;
 
-    count = wv_iconv (iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+    count = wv_iconv (g_iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
     if (count == (size_t) - 1)
       {
 	  wvError (("iconv failed errno: %d, char: 0x%X, %s -> %s\n",
@@ -2160,7 +2151,7 @@ char *
 wvConvertStylename(char *stylename, char *outputtype)
 {
     static char cached_outputtype[36];
-    static iconv_t iconv_handle = (iconv_t)-1;
+    static GIconv g_iconv_handle = (GIconv)-1;
     /**FIXME: 100 is just the size of stylename[] from wv.h**/
     static char buffer[100];
     char *ibuf, *obuf;
@@ -2169,23 +2160,23 @@ wvConvertStylename(char *stylename, char *outputtype)
     /* Destroy */
     if(!outputtype) 
     {
-	if ((iconv_handle != (iconv_t)-1))
-	    iconv_close(iconv_handle);
+	if ((g_iconv_handle != (GIconv)-1))
+	    g_iconv_close(g_iconv_handle);
 	return NULL;
     }
 
     /* Initialize */
-    if(!iconv_handle || strcmp(cached_outputtype, outputtype))
+    if(!g_iconv_handle || strcmp(cached_outputtype, outputtype))
     {
-	if ((iconv_handle != (iconv_t)-1))
-	    iconv_close(iconv_handle);
+	if ((g_iconv_handle != (GIconv)-1))
+	    g_iconv_close(g_iconv_handle);
 
 	/**FIXME: don´t know if ISO-8859-1 is really the correct
 	 **charset for style names with eg umlauts.             **/
-	iconv_handle = iconv_open(outputtype, "ISO-8859-1");
-	if(iconv_handle == (iconv_t)-1)
+	g_iconv_handle = g_iconv_open(outputtype, "ISO-8859-1");
+	if(g_iconv_handle == (GIconv)-1)
 	{
-	    wvError(("iconv_open fail: %d, cannot convert %s to %s\n",
+	    wvError(("g_iconv_open fail: %d, cannot convert %s to %s\n",
 		     errno, "ISO-8859-1", outputtype));
 	    return stylename;
 	}
@@ -2198,7 +2189,7 @@ wvConvertStylename(char *stylename, char *outputtype)
     ibuflen = strlen(stylename);
     obuf    = buffer;
     obuflen = sizeof(buffer) - 1;
-    len     = wv_iconv (iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+    len     = wv_iconv (g_iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
     *obuf   = 0;
     if(len == -1) 
     {
