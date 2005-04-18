@@ -28,25 +28,83 @@
 #include "wv.h"
 #include "utf.h"
 
+#ifdef HAVE_LIBXML2
+#include <libxml/parser.h>
+#endif
+
+#include <gsf/gsf-input-stdio.h>
 #include <gsf/gsf-utils.h>
 
 int
 wvInit (void)
 {
   gsf_init ();
+
+#ifdef HAVE_LIBXML2
+  xmlInitParser ();
+#endif
+
   return 1;
 }
 
-int
-wvInitParser (wvParseStruct * ps, char *path)
+void
+wvShutdown (void)
+{
+  gsf_shutdown ();
+
+#ifdef HAVE_LIBXML2
+  xmlCleanupParser ();
+#endif
+}
+
+static int
+wvOpenPreOLE (GsfInput *path, wvStream ** mainfd, wvStream ** tablefd0,
+	      wvStream ** tablefd1, wvStream ** data, wvStream ** summary)
+{
+    int ret = -1;
+    U16 magic;
+
+    if (path == NULL)
+      {
+	  wvError (("Cannot open file $s\n", path));
+	  return (-1);
+      }
+
+    wvStream_gsf_create (mainfd, path);
+
+    /* what's the lifecycle on these look like? */
+    *tablefd0 = *mainfd;
+    *tablefd1 = *mainfd;
+    *data     = *mainfd;
+    *summary  = *mainfd;
+
+    magic = read_16ubit (*mainfd);
+    if (0xa5db == magic)
+      {
+	  wvError (
+		   ("Theres a good chance that this is a word 2 doc of nFib %d\n",
+		    read_16ubit (*mainfd)));
+	  wvStream_rewind (*mainfd);
+	  /* return(-1); */
+	  return (0);
+      }
+    else if (0x37fe == magic)
+      {
+	  wvError (
+		   ("Theres a good chance that this is a word 5 doc of nFib %d\n",
+		    read_16ubit (*mainfd)));
+	  wvStream_rewind (*mainfd);
+	  return (0);
+      }
+
+    return (ret);
+}
+
+static void tokenTreeInit (void);
+
+int wvInitParser_gsf (wvParseStruct * ps, GsfInput *path)
 {
     int ret = 0, reason = 0;
-
-#ifdef __GNUC__
-    /* i heard that GNU C has something like __sinit() 
-     * to reset all static variables
-     */
-#endif
 
     memset ( ps, 0, sizeof ( wvParseStruct ) ) ;
 
@@ -70,8 +128,8 @@ wvInitParser (wvParseStruct * ps, char *path)
     /* set up the token table tree for faster lookups */
     tokenTreeInit ();
 
-    ret = wvOLEDecode (ps, path, &ps->mainfd, &ps->tablefd0, &ps->tablefd1,
-		       &ps->data, &ps->summary);
+    ret = wvOLEDecode_gsf (ps, path, &ps->mainfd, &ps->tablefd0, &ps->tablefd1,
+			   &ps->data, &ps->summary);
 
     switch (ret)
       {
@@ -87,10 +145,8 @@ wvInitParser (wvParseStruct * ps, char *path)
       case 5:
 	  wvError (("Bad Ole\n"));
 	  return (3);
-	  break;
       default:
 	  return (-1);
-	  break;
       }
 
     if (ps->mainfd == NULL)
@@ -147,6 +203,21 @@ wvInitParser (wvParseStruct * ps, char *path)
     return ret;
 }
 
+int
+wvInitParser (wvParseStruct * ps, char *path)
+{
+  GsfInput * input;
+  int rval;
+
+  input = gsf_input_stdio_new (path, NULL);
+  rval = wvInitParser_gsf (ps, input);
+
+  if (rval == 0)
+    ps->filename = path;
+
+  return rval;
+}
+
 void
 wvSetPassword (const char *pass, wvParseStruct * ps)
 {
@@ -169,49 +240,6 @@ wvSetPassword (const char *pass, wvParseStruct * ps)
 	      break;
       }
     ps->password[i] = 0;
-}
-
-int
-wvOpenPreOLE (char *path, wvStream ** mainfd, wvStream ** tablefd0,
-	      wvStream ** tablefd1, wvStream ** data, wvStream ** summary)
-{
-    int ret = -1;
-    U16 magic;
-    FILE *input;
-
-    input = fopen (path, "rb");
-    if (input == NULL)
-      {
-	  wvError (("Cannot open file $s\n", path));
-	  return (-1);
-      }
-
-    wvStream_FILE_create (mainfd, input);
-
-    *tablefd0 = *mainfd;
-    *tablefd1 = *mainfd;
-    *data     = *mainfd;
-    *summary  = *mainfd;
-
-    magic = read_16ubit (*mainfd);
-    if (0xa5db == magic)
-      {
-	  wvError (
-		   ("Theres a good chance that this is a word 2 doc of nFib %d\n",
-		    read_16ubit (*mainfd)));
-	  wvStream_rewind (*mainfd);
-	  /* return(-1); */
-	  return (0);
-      }
-    else if (0x37fe == magic)
-      {
-	  wvError (
-		   ("Theres a good chance that this is a word 5 doc of nFib %d\n",
-		    read_16ubit (*mainfd)));
-	  wvStream_rewind (*mainfd);
-	  return (0);
-      }
-    return (ret);
 }
 
 static Tokenptr tokenTreeRoot = NULL;

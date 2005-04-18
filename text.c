@@ -597,7 +597,7 @@ swap_iconv (U16 lid)
     U8 buffer[2];
     U8 buffer2[2];
 
-    U8 *ibuf, *obuf;
+    gchar *ibuf, *obuf;
 
     /* do a bit of caching */
     static U16 lastlid = -1;
@@ -647,8 +647,8 @@ wvHandleCodePage (U16 eachchar, U16 lid)
     size_t ibuflen;		/* Length of input buffer               */
     size_t obuflen;		/* Length of output buffer              */
 
-    U8 *ibuf;
-    U8 *obuf;			/* Buffer for converted characters      */
+    gchar *ibuf;
+    gchar *obuf;			/* Buffer for converted characters      */
     U8 *p;
     U8 buffer[2];
     U8 buffer2[2];
@@ -717,7 +717,7 @@ wvOutputFromUnicode (U16 eachchar, char *outputtype)
     static char cached_outputtype[33];	/* Last outputtype                  */
     static GIConv g_iconv_handle = (GIConv)-1;	/* Cached iconv descriptor          */
     static int need_swapping;
-    U8 *ibuf, *obuf;
+    gchar *ibuf, *obuf;
     size_t ibuflen, obuflen, len, count, i;
     U8 buffer[2], buffer2[5];
 

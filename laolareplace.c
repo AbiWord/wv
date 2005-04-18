@@ -26,23 +26,27 @@
 #include <string.h>
 #include "wv.h"
 
-#include <gsf/gsf-input.h>
+#include <gsf/gsf-infile-msole.h>
 #include <gsf/gsf-infile.h>
+#include <gsf/gsf-input-stdio.h>
 
-int
-wvOLEDecode (wvParseStruct * ps, char *path, wvStream ** mainfd, wvStream ** tablefd0,
-	     wvStream ** tablefd1, wvStream ** data, wvStream ** summary)
+int wvOLEDecode_gsf (wvParseStruct * ps, GsfInput *path, wvStream ** mainfd, wvStream ** tablefd0,
+		     wvStream ** tablefd1, wvStream ** data, wvStream ** summary)
 {
     GsfInfile *ole_file = NULL;
     int result = 5;
 
-    ole_file = gsf_infile_msole_new (gsf_input_stdio_new (path, NULL), NULL);
+    if (!path) {
+      return result;
+    }
+
+    ole_file = gsf_infile_msole_new (path, NULL);
 
     if (ole_file != NULL)
       {
 	  GsfInput *temp_stream;
 
-	  ps->ole_file = ole_file;
+	  ps->ole_file = GSF_INPUT(ole_file);
 
 	  wvTrace (("Opened VFS\n"));
 	  if ((temp_stream = gsf_infile_child_by_name (ole_file, "WordDocument")) == NULL)
@@ -53,7 +57,7 @@ wvOLEDecode (wvParseStruct * ps, char *path, wvStream ** mainfd, wvStream ** tab
 	  else
 	    {
 		wvTrace (("Opened \"WordDocument\" stream\n"));
-		wvStream_ole2_create (mainfd, temp_stream);
+		wvStream_gsf_create (mainfd, temp_stream);
 	    }
 
 	  if ((temp_stream = gsf_infile_child_by_name (ole_file, "1Table")) == NULL)
@@ -64,7 +68,7 @@ wvOLEDecode (wvParseStruct * ps, char *path, wvStream ** mainfd, wvStream ** tab
 	  else
 	    {
 		wvTrace (("Opened \"1Table\" stream\n"));
-		wvStream_ole2_create (tablefd1, temp_stream);
+		wvStream_gsf_create (tablefd1, temp_stream);
 	    }
 
 	  if ((temp_stream = gsf_infile_child_by_name (ole_file, "0Table")) == NULL)
@@ -75,7 +79,7 @@ wvOLEDecode (wvParseStruct * ps, char *path, wvStream ** mainfd, wvStream ** tab
 	  else
 	    {
 		wvTrace (("Opened \"0Table\" stream\n"));
-		wvStream_ole2_create (tablefd0, temp_stream);
+		wvStream_gsf_create (tablefd0, temp_stream);
 
 	    }
 	  
@@ -87,7 +91,7 @@ wvOLEDecode (wvParseStruct * ps, char *path, wvStream ** mainfd, wvStream ** tab
 	  else
 	    {
 		wvTrace (("Opened \"Data\" stream\n"));
-		wvStream_ole2_create (data, temp_stream);
+		wvStream_gsf_create (data, temp_stream);
 	    }
 
 	  if ((temp_stream = gsf_infile_child_by_name (ole_file, "\005SummaryInformation")) == NULL)
@@ -98,10 +102,22 @@ wvOLEDecode (wvParseStruct * ps, char *path, wvStream ** mainfd, wvStream ** tab
 	  else
 	    {
 		wvTrace (("Opened \"\\005SummaryInformation\" stream\n"));
-		wvStream_ole2_create (summary, temp_stream);
+		wvStream_gsf_create (summary, temp_stream);
 	    }
 
 	  result = 0;
       }
+
     return (result);
+}
+
+int
+wvOLEDecode (wvParseStruct * ps, char *path, wvStream ** mainfd, wvStream ** tablefd0,
+	     wvStream ** tablefd1, wvStream ** data, wvStream ** summary)
+{
+  GsfInput * input = gsf_input_stdio_new (path, NULL);
+
+  int rval = wvOLEDecode_gsf (ps, input, mainfd, tablefd0, tablefd1, data, summary);
+  
+  return rval;
 }

@@ -496,6 +496,8 @@ main (int argc, char **argv)
     else if (ret != 0)
 	ret = -1;
     wvOLEFree (&ps);
+    wvShutdown ();
+
     return (ret);
 }
 
@@ -744,7 +746,7 @@ wvConvert_WMF_to_EPS (int width, int height, char **source)
     remove_suffix (sink, ".wmf");
     wvAppendStr (&sink, ".eps");
 
-    out = fopen (sink, "w");
+    out = fopen (sink, "wb");
 
     if (out == 0)
       {
@@ -961,7 +963,7 @@ wvConvert_PNG_to_EPS (int width, int height, char **source)
     remove_suffix (sink, ".png");
     wvAppendStr (&sink, ".eps");
 
-    out = fopen (sink, "w");
+    out = fopen (sink, "wb");
 
     if (out == 0)
       {
@@ -1042,7 +1044,7 @@ wvConvert_JPG_to_EPS (int width, int height, char **source)
     remove_suffix (sink, ".jpg");
     wvAppendStr (&sink, ".eps");
 
-    out = fopen (sink, "w");
+    out = fopen (sink, "wb");
 
     if (out == 0)
       {

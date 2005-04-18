@@ -381,8 +381,10 @@ exstartElement (void *userData, const char *name, const char **atts)
 	    }
 	  break;
       case TT_FILENAME:
+	if (mydata->filename) {
 	  wvAppendStr (&mydata->retstring, mydata->filename);
 	  mydata->currentlen = strlen (mydata->retstring);
+	}
 	  break;
       case TT_VERSION:
 	  wvTrace (("the version is %s\n", wv_version));
@@ -3473,6 +3475,21 @@ excharData (void *userData, const XML_Char * s, int len)
 }
 
 #ifdef HAVE_LIBXML2
+
+static void
+free_libxml2_parser (xmlParserCtxtPtr ctxt)
+{
+  xmlDocPtr xmlDoc;
+
+  ctxt->sax = NULL;
+
+  xmlDoc = ctxt->myDoc;
+  xmlFreeParserCtxt (ctxt);
+
+  if (xmlDoc)
+    xmlFreeDoc(xmlDoc);
+}
+
 static xmlEntityPtr
 _getEntity (void * user_data, const xmlChar * name)
 {
@@ -3518,8 +3535,7 @@ wvParseConfig (state_data * myhandle)
 
         if (!ctxt->wellFormed) ret = 1;
 
-        ctxt->sax = NULL;
-        xmlFreeParserCtxt (ctxt);
+	free_libxml2_parser (ctxt);
 
 	return ret;
 }
@@ -3608,8 +3624,7 @@ wvExpand (expand_data * myhandle, char *buf, int len)
 
         if (!ctxt->wellFormed) ret = 1;
 
-        ctxt->sax = NULL;
-        xmlFreeParserCtxt (ctxt);
+	free_libxml2_parser (ctxt);
 
 	return ret;
 }

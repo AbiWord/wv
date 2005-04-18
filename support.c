@@ -152,11 +152,11 @@ wvStream_FILE_create (wvStream ** in, FILE * inner)
 }
 
 void
-wvStream_ole2_create (wvStream ** in, void * inner)
+wvStream_gsf_create (wvStream ** in, GsfInput * inner)
 {
     wvInternalStream str;
-    str.ole_stream = inner;
-    wvStream_create (in, OLE_STREAM, str);
+    str.gsf_stream = inner;
+    wvStream_create (in, GSF_STREAM, str);
 }
 
 void
@@ -238,10 +238,10 @@ read_16ubit (wvStream * in)
 U8
 read_8ubit (wvStream * in)
 {
-    if (in->kind == OLE_STREAM)
+    if (in->kind == GSF_STREAM)
       {
 	  U8 ret;
-	  gsf_input_read (GSF_INPUT (in->stream.ole_stream), 1, &ret);
+	  gsf_input_read (GSF_INPUT (in->stream.gsf_stream), 1, &ret);
 	  return (ret);
       }
     else if (in->kind == FILE_STREAM)
@@ -259,9 +259,9 @@ read_8ubit (wvStream * in)
 U32
 wvStream_read (void *ptr, size_t size, size_t nmemb, wvStream * in)
 {
-    if (in->kind == OLE_STREAM)
+    if (in->kind == GSF_STREAM)
       {
-	gsf_input_read (GSF_INPUT (in->stream.ole_stream), size*nmemb, ptr);
+	gsf_input_read (GSF_INPUT (in->stream.gsf_stream), size*nmemb, ptr);
 	return size*nmemb;
       }
     else if (in->kind == FILE_STREAM)
@@ -277,9 +277,9 @@ wvStream_read (void *ptr, size_t size, size_t nmemb, wvStream * in)
 void
 wvStream_rewind (wvStream * in)
 {
-    if (in->kind == OLE_STREAM)
+    if (in->kind == GSF_STREAM)
       {
-	gsf_input_seek (GSF_INPUT (in->stream.ole_stream), 0, G_SEEK_SET);
+	gsf_input_seek (GSF_INPUT (in->stream.gsf_stream), 0, G_SEEK_SET);
       }
     else if (in->kind == FILE_STREAM)
       {
@@ -294,10 +294,10 @@ wvStream_rewind (wvStream * in)
 U32
 wvStream_goto (wvStream * in, long position)
 {
-    if (in->kind == OLE_STREAM)
+    if (in->kind == GSF_STREAM)
       {
-	gsf_input_seek (GSF_INPUT (in->stream.ole_stream), position, G_SEEK_SET);
-	return (U32)gsf_input_tell(GSF_INPUT (in->stream.ole_stream));
+	gsf_input_seek (GSF_INPUT (in->stream.gsf_stream), position, G_SEEK_SET);
+	return (U32)gsf_input_tell(GSF_INPUT (in->stream.gsf_stream));
       }
     else if (in->kind == FILE_STREAM)
       {
@@ -313,10 +313,10 @@ wvStream_goto (wvStream * in, long position)
 U32
 wvStream_offset (wvStream * in, long offset)
 {
-    if (in->kind == OLE_STREAM)
+    if (in->kind == GSF_STREAM)
       {
-	gsf_input_seek (GSF_INPUT (in->stream.ole_stream), offset, G_SEEK_CUR);
-	return (U32)gsf_input_tell(GSF_INPUT (in->stream.ole_stream));
+	gsf_input_seek (GSF_INPUT (in->stream.gsf_stream), offset, G_SEEK_CUR);
+	return (U32)gsf_input_tell(GSF_INPUT (in->stream.gsf_stream));
       }
     else if (in->kind == FILE_STREAM)
       {
@@ -332,10 +332,10 @@ wvStream_offset (wvStream * in, long offset)
 U32
 wvStream_offset_from_end (wvStream * in, long offset)
 {
-    if (in->kind == OLE_STREAM)
+    if (in->kind == GSF_STREAM)
       {
-	gsf_input_seek (GSF_INPUT (in->stream.ole_stream), offset, G_SEEK_END);
-	return (U32)gsf_input_tell(GSF_INPUT (in->stream.ole_stream));
+	gsf_input_seek (GSF_INPUT (in->stream.gsf_stream), offset, G_SEEK_END);
+	return (U32)gsf_input_tell(GSF_INPUT (in->stream.gsf_stream));
       }
     else if(in->kind == FILE_STREAM)
       {
@@ -352,9 +352,9 @@ wvStream_offset_from_end (wvStream * in, long offset)
 U32
 wvStream_tell (wvStream * in)
 {
-    if (in->kind == OLE_STREAM)
+    if (in->kind == GSF_STREAM)
       {
-	return (U32)gsf_input_tell(GSF_INPUT (in->stream.ole_stream));
+	return (U32)gsf_input_tell(GSF_INPUT (in->stream.gsf_stream));
       }
     else if(in->kind == FILE_STREAM)
       {
@@ -405,10 +405,10 @@ wvStream_close_stream (wvStream * in)
     if ( !in )
       return 0;
 
-    if (in->kind == OLE_STREAM)
+    if (in->kind == GSF_STREAM)
       {
-	g_object_unref (G_OBJECT(in->stream.ole_stream));
-	in->stream.ole_stream = NULL;
+	g_object_unref (G_OBJECT(in->stream.gsf_stream));
+	in->stream.gsf_stream = NULL;
 	  wvFree (in);
 	  return 0;
       }
@@ -560,11 +560,11 @@ write_32ubit (wvStream * in, U32 out)
     guint32 cpy = (guint32) TO_LE_32 (out);
     int nwr = 0;
 
-    if (in->kind == OLE_STREAM)
+    if (in->kind == GSF_STREAM)
       {
 #if 0
 	  nwr =
-	      (int) in->stream.ole_stream->write (in->stream.ole_stream,
+	      (int) in->stream.gsf_stream->write (in->stream.gsf_stream,
 						     (guint8 *) & cpy, 32);
 #endif
       }
@@ -589,11 +589,11 @@ write_16ubit (wvStream * in, U16 out)
     guint16 cpy = (guint16) TO_LE_16 (out);
     int nwr = 0;
 
-    if (in->kind == OLE_STREAM)
+    if (in->kind == GSF_STREAM)
       {
 #if 0
 	  nwr =
-	      (int) in->stream.ole_stream->write (in->stream.ole_stream,
+	      (int) in->stream.gsf_stream->write (in->stream.gsf_stream,
 						     (guint8 *) & cpy, 16);
 #endif
       }
@@ -619,11 +619,11 @@ write_8ubit (wvStream * in, U8 out)
     int nwr = 0;
     wvTrace (("About to write 16-bit value"));
 
-    if (in->kind == OLE_STREAM)
+    if (in->kind == GSF_STREAM)
       {
 #if 0
 	  nwr =
-	      (int) in->stream.ole_stream->write (in->stream.ole_stream,
+	      (int) in->stream.gsf_stream->write (in->stream.gsf_stream,
 						     (guint8 *) & cpy, 8);
 #endif
       }
@@ -644,11 +644,11 @@ int
 wvStream_write (void *ptr, size_t size, size_t nmemb, wvStream * in)
 {
     int nwr = 0;
-    if (in->kind == OLE_STREAM)
+    if (in->kind == GSF_STREAM)
       {
 #if 0
 	  nwr =
-	      (int) in->stream.ole_stream->write (in->stream.ole_stream,
+	      (int) in->stream.gsf_stream->write (in->stream.gsf_stream,
 						     ptr, size * nmemb);
 #endif
       }

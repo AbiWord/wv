@@ -369,12 +369,16 @@ wvHandleCommandField (wvParseStruct *ps, char *command)
 		break;
 
 	    case FC_DATEINAME:
+	      if (ps->filename) {
 		printf("%s", ps->filename);
+	      }
 		ret = 1;
 		break;
 
 	    case FC_SPEICHERDAT:
+	      if (ps->filename) {
 		mytime = s_file_mtime(ps->filename);
+	      }
 		ret = 1;
 		break;
 		
