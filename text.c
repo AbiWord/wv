@@ -628,7 +628,7 @@ swap_iconv (U16 lid)
 
     ibuflen = obuflen = 2;
 
-    wv_iconv (handle, &ibuf, &ibuflen, &obuf, &obuflen);
+    g_iconv (handle, &ibuf, &ibuflen, &obuf, &obuflen);
 
     g_iconv_close (handle);
 
@@ -692,7 +692,7 @@ wvHandleCodePage (U16 eachchar, U16 lid)
     ibuflen = obuflen = 2;
     p = obuf;
 
-    wv_iconv (g_iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+    g_iconv (g_iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
 
     /* We might have double byte char here. */
 
@@ -753,7 +753,7 @@ wvOutputFromUnicode (U16 eachchar, char *outputtype)
 	  ibuflen = 2;
 	  obuflen = 5;
 
-	  count = wv_iconv (g_iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+	  count = g_iconv (g_iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
 	  if (count >= 0)
 	      need_swapping = buffer2[0] != 0x20;
       }
@@ -775,7 +775,7 @@ wvOutputFromUnicode (U16 eachchar, char *outputtype)
     ibuflen = 2;
     len = obuflen = 5;
 
-    count = wv_iconv (g_iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+    count = g_iconv (g_iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
     if (count == (size_t) - 1)
       {
 	  wvError (("iconv failed errno: %d, char: 0x%X, %s -> %s\n",
@@ -2209,7 +2209,7 @@ wvConvertStylename(char *stylename, char *outputtype)
     ibuflen = strlen(stylename);
     obuf    = buffer;
     obuflen = sizeof(buffer) - 1;
-    len     = wv_iconv (g_iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
+    len     = g_iconv (g_iconv_handle, &ibuf, &ibuflen, &obuf, &obuflen);
     *obuf   = 0;
     if(len == -1) 
     {

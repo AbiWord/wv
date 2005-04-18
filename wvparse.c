@@ -28,10 +28,12 @@
 #include "wv.h"
 #include "utf.h"
 
+#include <gsf/gsf-utils.h>
+
 int
 wvInit (void)
 {
-  ms_ole_init (NULL);
+  gsf_init ();
   return 1;
 }
 
@@ -602,7 +604,7 @@ tokenTreeInit (void)
     tokenTreeRecursiveInsert (1, TokenTableSize - 1);
 }
 
-static void
+void
 tokenTreeFreeAll (void)
 {
     int i;

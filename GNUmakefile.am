@@ -122,8 +122,8 @@ libwv_la_SOURCES = \
 	basename.c \
 	isbidi.c \
 	plcf.c	\
-	laolareplace.c \
-	support.c
+	support.c \
+	laolareplace.c
 
 OTHERHEADERS = \
 	bintree.h \
