@@ -118,7 +118,6 @@ decompress (FILE * inputfile, FILE * outputfile, U32 inlen, U32 outlen)
     if (output == (unsigned char *) -1)
       {
 	  wvError (("map out failed\n"));
-	  wvError (("%s\n", strerror (errno)));
 	  munmap (input, inlen);
 	  close (out);
 	  exit (-1);

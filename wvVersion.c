@@ -65,8 +65,7 @@ main (int argc, char *argv[])
     input = fopen (argv[1], "rb");
     if (!input)
       {
-	  fprintf (stderr, "Failed to open %s: %s\n", argv[1],
-		   strerror (errno));
+	fprintf (stderr, "Failed to open %s\n", argv[1]);
 	  return (-1);
       }
     fclose (input);

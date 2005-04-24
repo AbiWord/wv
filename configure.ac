@@ -338,12 +338,6 @@ AC_CHECK_FUNC(getopt_long,,[
 	AC_LIBOBJ(getopt)
 ])
 
-dnl check for strerror
-dnl 
-AC_CHECK_FUNC(strerror,,[
-	AC_LIBOBJ(strerror)
-])
-
 dnl check for strcasecmp
 dnl 
 AC_CHECK_FUNC(strcasecmp,,[

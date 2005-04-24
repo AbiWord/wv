@@ -184,7 +184,7 @@ HandleBitmap (wvParseStruct * ps, char *name, BitmapBlip * bitmap)
     if (ps->dir) chdir (wv_cwd);
     if (fd == NULL)
       {
-	fprintf (stderr,"\nCannot open %s for writing:%s\n",name,strerror (errno));
+	fprintf (stderr,"\nCannot open %s for writing\n",name);
 	exit (1);
       }
     size = wvStream_size (pwv);
@@ -211,7 +211,7 @@ HandleMetafile (wvParseStruct * ps, char *name, MetaFileBlip * bitmap)
     if (ps->dir) chdir (wv_cwd);
     if (fd == NULL)
       {
-	fprintf (stderr,"\nCannot open %s for writing:%s\n",name,strerror (errno));
+	fprintf (stderr,"\nCannot open %s for writing\n",name);
 	exit (1);
       }
     size = wvStream_size (pwv);
@@ -401,8 +401,7 @@ main (int argc, char **argv)
     input = fopen (argv[optind], "rb");
     if (!input)
       {
-	  fprintf (stderr, "Failed to open %s: %s\n", argv[optind],
-		   strerror (errno));
+	fprintf (stderr, "Failed to open %s\n", argv[optind]);
 	  return (-1);
       }
     fclose (input);

@@ -677,7 +677,7 @@ main (int argc, char *argv[])
     input = fopen (fname, "rb");
     if (!input)
       {
-	  fprintf (stderr, "Failed to open %s: %s\n", fname, strerror (errno));
+	fprintf (stderr, "Failed to open %s\n", fname);
 	  return -1;
       }
     fclose (input);
