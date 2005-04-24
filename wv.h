@@ -11,8 +11,8 @@ extern "C" {
 #endif
 
 /* The structure below is used to refer to a wvStream.  Usually,
- * kind = LIBOLE_STREAM,
- * but if we can't open a file using LibOLE, we fall back to the old file-based
+ * kind = GSF_STREAM,
+ * but if we can't open a file using LibGSF, we fall back to the old file-based
  * routines, in which case kind == FILE_STREAM.
  */
     typedef enum {
@@ -2800,6 +2800,7 @@ returns the same as wvOLEDecode with the addition that
 4 means that it isnt a word document
 */
     int wvInitParser (wvParseStruct * ps, char *path);
+  int wvInitParser_gsf (wvParseStruct * ps, GsfInput *path);
     int wvInit (void);
   void wvShutdown (void);
 
