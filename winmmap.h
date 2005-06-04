@@ -1,5 +1,6 @@
 #ifndef _MMAP_WIN_H
 #define _MMAP_WIN_H
+#include <gsf/gsf.h>
 #include <sys/types.h>
 #include <stddef.h>
 #include <io.h>
@@ -20,7 +21,7 @@
 #define MAP_FAILED      ((void *) -1)
 #endif
 
-void *mmap(char *,size_t,int,int,int,off_t);
+void *mmap(char *,size_t,int,int,int,gsf_off_t);
 int   munmap(void *,size_t);
 #endif
 #endif

@@ -41,12 +41,12 @@
 %  The format of the mmap method is:
 %
 %    MagickExport void *mmap(char *address,size_t length,int protection,
-%      int access,int file,off_t offset)
+%      int access,int file,gsf_off_t offset)
 %
 %
 */
 void *mmap(char *address,size_t length,int protection,int access,
-  int file,off_t offset)
+  int file,gsf_off_t offset)
 {
   void
     *map;
