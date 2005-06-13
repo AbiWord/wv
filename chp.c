@@ -113,14 +113,13 @@ wvInitCHPFromIstd (CHP * achp, U16 istdBase, STSH * stsh)
 {
     wvTrace (("initing from %d\n", istdBase));
     if (istdBase == istdNil) {
-      if (istdBase == istdNil) {
  	wvInitCHP (achp);
 
 	/* Set the Nil style's fonts from the defaults. */
 	achp->ftcAscii = stsh->Stshi.rgftcStandardChpStsh[0];
 	achp->ftcFE = stsh->Stshi.rgftcStandardChpStsh[1];
 	achp->ftcOther = stsh->Stshi.rgftcStandardChpStsh[2];
-    }
+      }
     else
       {
 	  if (istdBase >= stsh->Stshi.cstd)
