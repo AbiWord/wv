@@ -3,6 +3,9 @@ config.cache
 config.h
 config.log
 config.status
+config.sub
+config.guess
+aclocal.m4
 version.c
 wvAbw
 wvCleanLatex
@@ -13,3 +16,11 @@ wvPDF
 wvPS
 wvText
 wvWml
+GNUmakefile.in
+autom4te.cache
+configure
+depcomp
+ltmain.sh
+missing
+stamp-h.in
+*.swp
