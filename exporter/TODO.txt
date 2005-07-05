@@ -1,0 +1,60 @@
+File				Status/Issues/Concerns
+---------------------------------------------------------------------------
+anld.c				Done
+anlv.c				Done
+asumy.c				Done
+asumyi.c			Done
+atrd.c				Done
+bkd.c				Done
+bkf.c				Done
+bkl.c				Done
+blip.c				**TODO**
+brc.c				Done
+bte.c				Done
+bx.c				Doesn't need to be done
+chp.c				Doesn't need to be done
+clx.c				**TODO**
+dcs.c				Done
+dogrid.c			Done
+dop.c				Done
+doptypography.c			Done
+dttm.c				Done
+escher.c			**TODO**
+fbse.c				**TODO: needs more work**
+fdoa.c				Done
+ffn.c				Done
+fib.c				Done (don't care about wvPutFIB6)
+filetime.c			Done
+fkp.c				**TODO**
+fld.c				Done
+font.c				Done
+fopt.c				**TODO: CHECK ME**
+frd.c				Done
+fspa.c				Done
+ftxbxs.c			Done
+generic.c			Done
+lfo.c				Done
+lspd.c				Done
+lst.c				**TODO: Done??**
+lvl.c                           Done
+numrm.c				Done
+olst.c				Done
+pcd.c				Done
+pgd.c				Done
+phe.c				Done
+picf.c				**TODO: need for embedded graphics**
+prm.c				Done
+rr.c				Done
+rs.c				Done
+sed.c				Done
+sep.c				Done
+shd.c				Done
+sprm.c				**TODO: do we need to code this?**
+sttbf.c				**TODO**
+stylesheet.c			**TODO: almost done- fix wvPutSTSH()**
+table.c				**TODO: BIG!!**
+tbd.c				Done
+tc.c				Done
+tlp.c				Done
+wkb.c				Done
+xst.c				Doesn't need to be done
