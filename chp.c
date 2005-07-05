@@ -459,7 +459,7 @@ wvCopyCHPX (CHPX * dest, CHPX * src)
 	dest->grpprl = (U8 *) wvMalloc (dest->cbGrpprl);
     else
 	dest->grpprl = NULL;
-    if (dest->grpprl == NULL)
+    if (dest->grpprl == NULL || src->grpprl == NULL)
 	return;
     for (i = 0; i < dest->cbGrpprl; i++)
 	dest->grpprl[i] = src->grpprl[i];
