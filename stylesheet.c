@@ -254,7 +254,7 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 		char buf[16];
 		char buf2[4];
 		char  * tmp;
-		const char * tmp2;
+		char * tmp2;
 		size_t insz, sz;
 		temp16 = read_16ubit (fd);
 		buf2[0] =  temp16 & 0x00ff;

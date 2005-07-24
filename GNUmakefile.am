@@ -18,17 +18,17 @@ wvhdr_HEADERS = wv.h
 
 bin_SCRIPTS = wvCleanLatex wvHtml wvDocBook wvAbw wvMime wvPS wvDVI wvLatex wvPDF wvText wvWml
 
-bin_PROGRAMS = wvWare wvRTF wvConvert wvVersion #wvSummary
+bin_PROGRAMS = wvWare wvRTF wvConvert wvVersion wvSummary
 
 lib_LTLIBRARIES = libwv.la
 
 GETOPT = @LIBOBJS@
 
-#wvSummary_LDADD = libwv.la $(GETOPT)
-wvWare_LDADD = libwv.la $(GETOPT)
-wvRTF_LDADD = libwv.la $(GETOPT)
-wvConvert_LDADD = libwv.la $(GETOPT)
-wvVersion_LDADD = libwv.la $(GETOPT)
+wvSummary_LDADD = libwv.la $(WVLIBS) $(GETOPT)
+wvWare_LDADD = libwv.la $(WVLIBS) $(GETOPT)
+wvRTF_LDADD = libwv.la $(WVLIBS) $(GETOPT)
+wvConvert_LDADD = libwv.la $(WVLIBS) $(GETOPT)
+wvVersion_LDADD = libwv.la $(WVLIBS) $(GETOPT)
 
 libwv_la_LIBADD =  $(WVLIBS)
 libwv_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) -release $(LT_RELEASE) -export-dynamic

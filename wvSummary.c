@@ -25,146 +25,123 @@
 #include <stdio.h>
 #include "wv.h"
 
-#include "glib.h"
-#include "ms-ole.h"
-#include "ms-ole-summary.h"
+#include <gsf/gsf-input-stdio.h>
+#include <gsf/gsf-input-memory.h>
+#include <gsf/gsf-utils.h>
+#include <gsf/gsf-infile.h>
+#include <gsf/gsf-infile-msole.h>
+#include <gsf/gsf-msole-utils.h>
+#include <gsf/gsf-docprop-vector.h>
 
-/*
- * This is a simple example that take an ole file and prints some
- * information from the summaryinformation stream
- */
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+static void
+cb_print_property (char const *name, GsfDocProp const *prop, FILE * out)
+{
+  GValue const *val = gsf_doc_prop_get_val  (prop);
+  char *tmp;
+  
+  if (gsf_doc_prop_get_link (prop) != NULL)
+    fprintf (out, "\t%s LINKED TO  -> '%s'\n",
+	     name, gsf_doc_prop_get_link (prop));
+  else
+    fprintf (out, "\t%s = ", name);
+  
+  if (VAL_IS_GSF_DOCPROP_VECTOR ((GValue *)val)) {
+    GValueArray *va = gsf_value_get_docprop_varray (val);
+    unsigned i;
+    
+    for (i = 0 ; i < va->n_values; i++) {
+      tmp = g_strdup_value_contents (g_value_array_get_nth (va, i));
+      if(i != 0)
+	g_print(", ");
+      fprintf (out, "(%u, %s)", i, tmp);
+      g_free (tmp);
+    }
+  } else {
+    tmp = g_strdup_value_contents (val);
+    fprintf (out, "%s", tmp);
+    g_free (tmp);
+  }
+
+  fprintf (out, "\n");
+}
+
+static void print_summary_stream (GsfInfile * msole,
+				  const char * file_name,
+				  const char * stream_name,
+				  FILE * out)
+{
+  GsfInput * stream = gsf_infile_child_by_name (msole, stream_name);
+  if (stream != NULL) {
+    GsfDocMetaData *meta_data = gsf_doc_meta_data_new ();
+    GError    *err = NULL;    
+
+    err = gsf_msole_metadata_read (stream, meta_data);
+    if (err != NULL) {
+      g_warning ("Error getting metadata for %s->%s: %s", 
+		 file_name, stream_name, err->message);
+      g_error_free (err);
+      err = NULL;
+    } else
+      gsf_doc_meta_data_foreach (meta_data,
+				 (GHFunc) cb_print_property, out);
+    
+    g_object_unref (meta_data);
+    g_object_unref (G_OBJECT (stream));
+  }
+}
 
 int
 main (int argc, char *argv[])
 {
-    char *str = NULL;
-    gboolean ret = FALSE;
-    short s = 0;
-    long l = 0;
+  int i;
 
-    MsOle *ole = NULL;
-    MsOleSummary *summary = NULL;
-
-    if (argc < 2)
+  if (argc < 2)
       {
-	  fprintf (stderr, "Usage: wvSummary oledocument\n");
-	  return (1);
+	fprintf (stderr, "Usage: wvSummary doc1 [... docN]\n");
+	return 1;
       }
+  
+  wvInit();
+  
+  for (i = 1 ; i < argc ; i++)
+    {      
+      GsfInput  *input;
+      GsfInfile *msole;
+      GError    *err = NULL;
 
-    ms_ole_open (&ole, argv[1]);
-    if (!ole)
-      {
-	  fprintf (stderr, "sorry problem with getting ole streams from %s\n",
-		   argv[1]);
-	  return 1;
-      }
+      input = gsf_input_stdio_new (argv[i], &err);
 
-    summary = ms_ole_summary_open (ole);
-    if (!summary)
-      {
-	  fprintf (stderr, "Could not open summary stream\n");
-	  return 1;
-      }
+      if(!input)
+	{
+	  fprintf (stderr, "Problem with getting metadata from %s:%s\n",
+		   argv[i], err ? err->message : "");
+	  g_error_free (err);
+	  continue;
+	}
 
-    str = ms_ole_summary_get_string (summary, MS_OLE_SUMMARY_TITLE, &ret);
+      input = gsf_input_uncompress (input);
+      msole = gsf_infile_msole_new (input, &err);
+      if(!msole)
+	{
+	  fprintf (stderr, "Problem with getting metadata from %s:%s\n",
+		   argv[i], err ? err->message : "");
+	  g_error_free (err);
+	  continue;
+	}
 
-    if (ret && str)
-	printf ("The title is %s\n", str);
-    else
-	printf ("no title found\n");
+      fprintf (stdout, "Metadata for %s:\n", argv[i]);      
+      print_summary_stream (msole, argv[i], "\05SummaryInformation", stdout);
+      print_summary_stream (msole, argv[i], "\05DocumentSummaryInformation", stdout);
+      
+      g_object_unref (G_OBJECT (msole));
+      g_object_unref (G_OBJECT (input));
+    }
 
-    str = ms_ole_summary_get_string (summary, MS_OLE_SUMMARY_SUBJECT, &ret);
+  wvShutdown();
 
-    if (ret && str)
-	printf ("The subject is %s\n", str);
-    else
-	printf ("no subject found\n");
-
-    str = ms_ole_summary_get_string (summary, MS_OLE_SUMMARY_AUTHOR, &ret);
-
-    if (ret && str)
-	printf ("The author is %s\n", str);
-    else
-	printf ("no author found\n");
-
-    str = ms_ole_summary_get_string (summary, MS_OLE_SUMMARY_KEYWORDS, &ret);
-
-    if (ret && str)
-	printf ("The keywords are %s\n", str);
-    else
-	printf ("no keywords found\n");
-
-    str = ms_ole_summary_get_string (summary, MS_OLE_SUMMARY_COMMENTS, &ret);
-
-    if (ret && str)
-	printf ("The comments are %s\n", str);
-    else
-	printf ("no comments found\n");
-
-    str = ms_ole_summary_get_string (summary, MS_OLE_SUMMARY_TEMPLATE, &ret);
-
-    if (ret && str)
-	printf ("The template was %s\n", str);
-    else
-	printf ("no template found\n");
-
-    str = ms_ole_summary_get_string (summary, MS_OLE_SUMMARY_LASTAUTHOR, &ret);
-
-    if (ret && str)
-	printf ("The last author was %s\n", str);
-    else
-	printf ("no last author found\n");
-
-    str = ms_ole_summary_get_string (summary, MS_OLE_SUMMARY_REVNUMBER, &ret);
-
-    if (ret && str)
-	printf ("The rev # was %s\n", str);
-    else
-	printf ("no rev no found\n");
-
-    str = ms_ole_summary_get_string (summary, MS_OLE_SUMMARY_APPNAME, &ret);
-
-    if (ret && str)
-	printf ("The app name was %s\n", str);
-    else
-	printf ("no app name found\n");
-
-    l = ms_ole_summary_get_long (summary, MS_OLE_SUMMARY_PAGECOUNT, &ret);
-
-    if (ret)
-	printf ("PageCount is %d\n", l);
-    else
-	printf ("no pagecount\n");
-
-    l = ms_ole_summary_get_long (summary, MS_OLE_SUMMARY_WORDCOUNT, &ret);
-
-    if (ret)
-	printf ("WordCount is %d\n", l);
-    else
-	printf ("no wordcount\n");
-
-    l = ms_ole_summary_get_long (summary, MS_OLE_SUMMARY_CHARCOUNT, &ret);
-
-    if (ret)
-	printf ("CharCount is %d\n", l);
-    else
-	printf ("no charcount\n");
-
-    l = ms_ole_summary_get_long (summary, MS_OLE_SUMMARY_SECURITY, &ret);
-
-    if (ret)
-	printf ("Security is %d\n", l);
-    else
-	printf ("no security\n");
-
-    s = ms_ole_summary_get_short (summary, MS_OLE_SUMMARY_CODEPAGE, &ret);
-    if (ret)
-	printf ("Codepage is 0x%x (%d)\n", s, s);
-    else
-	printf ("no codepage\n");
-
-    ms_ole_summary_close (summary);
-    ms_ole_destroy (&ole);
-
-    return 0;
+  return 0;
 }
