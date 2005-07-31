@@ -1,5 +1,5 @@
 /* wvWare
- * Copyright (C) Caolan McNamara, Dom Lachowicz, and others
+ * Copyright (C) Dom Lachowicz and others
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -85,13 +85,13 @@ static const struct {
   { GSF_META_NAME_MANAGER, N_("Manager") },
   { GSF_META_NAME_COMPANY, N_("Company") },
   { GSF_META_NAME_LINKS_DIRTY, N_("Links Dirty") },
-  { GSF_META_NAME_MSOLE_UNKNOWN_17, N_("Unknown") },
-  { GSF_META_NAME_MSOLE_UNKNOWN_18, N_("Unknown") },
-  { GSF_META_NAME_MSOLE_UNKNOWN_19, N_("Unknown") },
-  { GSF_META_NAME_MSOLE_UNKNOWN_20, N_("Unknown") },
-  { GSF_META_NAME_MSOLE_UNKNOWN_21, N_("Unknown") },
-  { GSF_META_NAME_MSOLE_UNKNOWN_22, N_("Unknown") },
-  { GSF_META_NAME_MSOLE_UNKNOWN_23, N_("Unknown") },
+  { GSF_META_NAME_MSOLE_UNKNOWN_17, N_("Unknown1") },
+  { GSF_META_NAME_MSOLE_UNKNOWN_18, N_("Unknown2") },
+  { GSF_META_NAME_MSOLE_UNKNOWN_19, N_("Unknown3") },
+  { GSF_META_NAME_MSOLE_UNKNOWN_20, N_("Unknown4") },
+  { GSF_META_NAME_MSOLE_UNKNOWN_21, N_("Unknown5") },
+  { GSF_META_NAME_MSOLE_UNKNOWN_22, N_("Unknown6") },
+  { GSF_META_NAME_MSOLE_UNKNOWN_23, N_("Unknown7") },
   { GSF_META_NAME_DICTIONARY, N_("Dictionary") },
   { GSF_META_NAME_LOCALE_SYSTEM_DEFAULT, N_("Default Locale") },
   { GSF_META_NAME_CASE_SENSITIVE, N_("Case Sensitive") }
@@ -118,13 +118,15 @@ cb_print_property (char const *name, GsfDocProp const *prop, GHashTable * human_
     GValueArray *va = gsf_value_get_docprop_varray (val);
     unsigned i;
     
+    fprintf(stdout, "[");
     for (i = 0 ; i < va->n_values; i++) {
       tmp = g_strdup_value_contents (g_value_array_get_nth (va, i));
       if(i != 0)
-	g_print(", ");
+	fprintf(stdout, ", ");
       fprintf (stdout, "(%u, %s)", i, tmp);
       g_free (tmp);
     }
+    fprintf(stdout, "]");
   } else {
     tmp = g_strdup_value_contents (val);
     fprintf (stdout, "%s", tmp);
