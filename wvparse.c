@@ -174,8 +174,8 @@ int wvInitParser_gsf (wvParseStruct * ps, GsfInput *path)
     if (ps->data == NULL)
       {
 	/* checking for the validity of the Clx data
-	   from the table stream */
-	if (wvStream_goto(ps->tablefd, ps->fib.fcClx)==-1)
+	   from the table stream for not encrypted files */
+	if (!ps->fib.fEncrypted && wvStream_goto(ps->tablefd, ps->fib.fcClx)==-1)
 	  {
 	    wvOLEFree(ps);
 	    wvError(("Data Stream Corrupt or Not Readable\n"));
