@@ -1,8 +1,10 @@
 Read INSTALL for install information, basically pretty standard
-requirements for a modern unix program plus libwmf to convert
+requirements for a modern *NIX program plus libwmf to convert
 wmf files to something useful.
 
-There are now a small herd of programs based upon libwv.
+There are now a small herd of programs based upon libwv. AbiWord
+(http://www.abisource.com/) is the most interesting and complete
+one that we're aware of.
 
 1) wvWare: this is what you are looking for, it converts
 Word 2,6,7,8,9 files to html and latex. The Word 2 conversion
@@ -18,6 +20,7 @@ job extracting the text, which is what you probably want anyway.
 	wvPDF
 	wvMime
 	wvText
+	...
    Do: `man wvXXX` where "XXX" is Html, Latex, etc.. for more information
 
 3) wvSummary, displays the summary information stream of *all*
@@ -26,38 +29,30 @@ I've sent wvSummary as a patch to the file program, so that utility
 should in the future have this ability to know what windows application
 created the ole2 document. `man wvSummary`
 
-4) wvSimpleCLX, helps distinguish between fast and full saved
-files
-
-5) wvVersion, outputs the version of the word format which the document
+4) wvVersion, outputs the version of the word format which the document
 is stored as. `man wvVersion`
 
 Also...
 
-6) There are helper applications in the helper-scripts dir
+5) There are helper applications in the helper-scripts dir
 that allow both lynx and netscape to view word 8 docs easily
 
-7) The gateway dir contains the cgi script that allows the
-online demo page that some people wanted for themselves.
-
-
-The webpage with the online demo facility is at
-http://wvware.sourceforge.net/
+6) The webpage is at http://wvware.sourceforge.net/
 
 Finally...
 
-8) libwv can be used as a library by third party programs, abiword
+7) libwv can be used as a library by third party programs, abiword
 uses it as its word importer, and kword may use it in the future.
 wvWare is a sample application for the use of wv, as is abiword
 itself. The library (will be some day) documented in the 
 Documentation dir
 
-9) the config file format is (beginning to be) documented in the
+8) The config file format is (beginning to be) documented in the
 Documentation dir, so it may be possible to achieve the conversion
 that you desire without writing your own program. It also allows
 you to customize the html and latex output to your own tastes.
 
-C.
+Some possible "fun" projects:
 
 (Projects for someone to try out with libwv include, could be
 commercial applications)

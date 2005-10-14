@@ -7,17 +7,12 @@ libwv
 4. compilation problems
 5. supported platforms
 6. libwv for Windows
-7. libwv for Mac OS X 10.2 (Jaguar)
+7. libwv for Mac OS X
 8. Running wvHtml from Netscape
 9. libwv crashes
 
 1. build system
    ------------
-
-   There are currently two methods for generating configure. The traditional
-   method is to use autoconf-2.13 with "configure.in". This does not use
-   automake or libtool, and builds only a static library, but has been
-   tested extensively.
 
    There is now a new build system based on libtool, automake & autoconf,
    which can be used to build shared libraries. This is known to work with
@@ -45,37 +40,18 @@ libwv
 
    A few sample word files to try out wv are included in the examples dir.
 
-   The primary dependencies are libpng and zlib, iconv
+   The primary dependencies are libgsf and glib.
 
-      libpng  http://www.libpng.org/pub/png/libpng.html
-      zlib    http://www.gzip.org/zlib
-      iconv   ftp://ftp.gnu.org/pub/gnu/libiconv
-
-   IMPORTANT
-   Most modern OSes have an iconv implementation. It is highly recommended,
-   however, that you get the latest GNU libiconv from the above site.
+      libgsf  ftp://ftp.gnome.org/pub/GNOME/sources/libgsf/
+      glib    http://www.gtk.org/ | http://www.gnome.org/
 
 3. converting images
    -----------------
 
-   Although the configure script gives the appearance of ImageMagick support,
-   this is misleading. libwv hasn't supported IM in a long time. The magick
-   subdirectory holds a tiny subset of IM which is used for converting BMPs
-   into PNGs.
+   You'll want to get libwmf to view embedded WMF images. Again, please use 
+   the latest libwmf. By default, libwmf support is disabled - please 
+   specify when configuring wv: "--with-libwmf"
 
-   The scripts (wvHtml, wvLatex, etc.) use IM's "convert" utility, if found,
-   to convert other formats, in particular WMF into PNG (for HTML) or EPS (for
-   LaTeX).
-
-   IMPORTANT
-   If using wv in conjuction with ImageMagick like this, please use the latest
-   ImageMagick and ensure that it is compiled against libwmf.
-
-   If ImageMagick is not installed, then libwv can be configured to use libwmf
-   directly. Again, please use the latest libwmf. By default, libwmf support
-   is disabled - please specify when configuring wv: "--with-libwmf"
-
-   ImageMagick http://www.imagemagick.org/
    libwmf      http://sourceforge.net/projects/wvware
 
 4. compilation problems
@@ -99,7 +75,7 @@ libwv
        Specifying "--with-zlib=/usr" ought to fix this.
 
    (d) Compilation failed on parser.lex
-       In this case the problem is probably something ive done wrong in the lex 
+       In this case the problem is probably something I've done wrong in the lex 
        code, im not a great lex head. The only solution for this one that i
        know of is to install flex 2.5.4 or higher, available from ftp.gnu.org.
 
@@ -138,7 +114,12 @@ libwv
    needed to be installed for full functionality, but i imagine that compiling
    them under cygwin32 would go smoothly as well, let me know on that one.
 
-7. libwv for Mac OS X 10.2 (Jaguar)
+   It should also be possible to build using Mingw32/MSYS on Windows as well.
+   The build instructions are similar to the above.
+
+   For binary packages, please visit http://gnuwin32.sourceforge.net/packages/wv.htm
+
+7. libwv for Mac OS X
    --------------------------------
 
    Instructions here are for building wv-0.7.5 and installing in the directory
@@ -229,8 +210,7 @@ libwv
 contact details
 ---------------
 
-   Usual forums etc. at SourceForge: http://wvware.sourceforge.net/
-   Best place to contact us is on the developer list wvware-devel
+   abiword-dev@abisource.com or http://bugzilla.abisource.com/
    Even if we can't help, we can always sympathize...
 
 ================ standard configure help file follows... ================
