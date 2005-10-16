@@ -99,6 +99,7 @@ static U32 wvStream_close_stream(wvStream * in);
 void
 wvOLEFree (wvParseStruct * ps)
 {
+  if(wvQuerySupported (&ps->fib, NULL) != WORD2 && !ps->fib.fEncrypted) {
     wvStream_list *tempList = streams;
 
     while (tempList != NULL)
@@ -113,6 +114,7 @@ wvOLEFree (wvParseStruct * ps)
 	  wvFree (streams);
 	  streams = tempList;
       }
+  }
 
     if (ps->ole_file != NULL)
       {
@@ -240,7 +242,7 @@ read_8ubit (wvStream * in)
 {
     if (in->kind == GSF_STREAM)
       {
-	  U8 ret;
+	  U8 ret = 0;
 	  gsf_input_read (GSF_INPUT (in->stream.gsf_stream), 1, &ret);
 	  return (ret);
       }
@@ -250,7 +252,7 @@ read_8ubit (wvStream * in)
       }
     else
       {
-	  U8 ret;
+	  U8 ret = 0;
 	  memorystream_read(in->stream.memory_stream, &ret, 1);
 	  return ret;
       }
