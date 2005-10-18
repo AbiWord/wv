@@ -121,6 +121,12 @@ wvOLEFree (wvParseStruct * ps)
 	  g_object_unref (G_OBJECT(ps->ole_file));
 	  ps->ole_file = NULL;
       }
+
+    if (ps->input != NULL)
+      {
+	g_object_unref (G_OBJECT(ps->input));
+	ps->input = NULL;
+      }
 }
 
 wvStream *

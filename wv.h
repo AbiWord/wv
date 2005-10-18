@@ -2685,6 +2685,7 @@ that indicates their length.
 
 	/*protected */
         GsfInput *ole_file;
+        GsfInput *input;
 	wvStream *mainfd;
 	wvStream *tablefd;
 	wvStream *data;
