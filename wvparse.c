@@ -206,13 +206,15 @@ int wvInitParser_gsf (wvParseStruct * ps, GsfInput *path)
 int
 wvInitParser (wvParseStruct * ps, char *path)
 {
+  GsfInput *input;
   int rval;
 
-  ps->input = gsf_input_stdio_new (path, NULL);
-  rval = wvInitParser_gsf (ps, ps->input);
+  input = gsf_input_stdio_new (path, NULL);
+  rval = wvInitParser_gsf (ps, input);
 
   if (rval == 0)
     ps->filename = path;
+  ps->input = input;
 
   return rval;
 }
