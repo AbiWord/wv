@@ -97,7 +97,7 @@ wvGetCommentBounds (U32 * comment_cpFirst, U32 * comment_cpLim, U32 currentcp,
 		 */
 		if (atrd[i].lTagBkmk != -1)
 		  {
-		      for (j = 0; j < bookmarks->nostrings; j++)
+		    for (j = 0; (j < bookmarks->nostrings) && bookmarks->extradata; j++)
 			{
 			    id =
 				(S32) sread_32ubit (bookmarks->extradata[j] +
