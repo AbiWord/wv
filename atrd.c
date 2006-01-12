@@ -95,9 +95,9 @@ wvGetCommentBounds (U32 * comment_cpFirst, U32 * comment_cpLim, U32 currentcp,
 		   when not -1, this tag identifies the annotation bookmark that locates the
 		   range of CPs in the main document which this annotation references.
 		 */
-		if (atrd[i].lTagBkmk != -1)
+		if ((atrd[i].lTagBkmk != -1) && (bookmarks->nostrings > 0) && (bookmarks->extradata))
 		  {
-		    for (j = 0; (j < bookmarks->nostrings) && bookmarks->extradata; j++)
+		    for (j = 0; j < bookmarks->nostrings; j++)
 			{
 			    id =
 				(S32) sread_32ubit (bookmarks->extradata[j] +
