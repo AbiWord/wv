@@ -131,11 +131,6 @@ int munmap(void *map,size_t length)
 }
 #else
 
-int wv_munmap_fakefn (int map)
-{
-  /* some compilers dislike empty source files
-   */
-  return map - 1;
-}
+typedef int elegant;
 
 #endif
