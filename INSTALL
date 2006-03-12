@@ -96,7 +96,7 @@ libwv
    -----------------
 
    It should be possible to compile libwv with the cygwin32 package, available
-   from www.cygnus.com.  get that package and install it, then unpack libwv
+   from www.cygwin.com.  get that package and install it, then unpack libwv
    and run ./configure. Then just add -DWINDOWS to the compiler flags are you
    are off. i.e. change
 
