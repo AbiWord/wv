@@ -194,6 +194,7 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 	  p+= lWordStructsSize;
 	  memcpy(p, pHeader, lHeaderSize);
 	  p+=lHeaderSize;
+
 	  free(pWordStructs);
 	  free(pHeader);
 	}

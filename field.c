@@ -435,7 +435,7 @@ fieldCharProc (wvParseStruct * ps, U16 eachchar, U8 chartype, U16 lid)
     if (i >= 40000)
       {
 	  wvError (("WHAT!\n"));
-	  exit (-10);
+	  return 0;
       }
 
     which[i] = eachchar;

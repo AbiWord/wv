@@ -68,7 +68,7 @@ InsertNode (BintreeInfo * tree, void *Data)
     if ((X = (Node *) wvMalloc (sizeof (Node))) == 0)
       {
 	  fprintf (stderr, "insufficient memory (InsertNode)\n");
-	  exit (1);
+	  return NULL;
       }
     tree->no_in_tree++;
     X->Data = Data;
