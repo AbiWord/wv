@@ -7,6 +7,10 @@
 #endif
 #include "wv.h"
 
+#if defined WIN32
+#define HAVE_MMAP 1 /* have mmap replacement in winmmap.[ch] */
+#endif
+
 #if defined(HAVE_ZLIB) && defined(HAVE_MMAP)
 #include <zlib.h>
 #if defined WIN32 /*lvm007@aha.ru fix for mmap realization in Win*/
