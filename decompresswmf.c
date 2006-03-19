@@ -86,14 +86,14 @@ decompress (FILE * inputfile, FILE * outputfile, U32 inlen, U32 outlen)
       {
 	  wvError (("unable to create outputfile\n"));
 	  munmap (input, inlen);
-	  exit (-1);
+	  return (-1);
       }
     if (-1 == write (out, "0", 1))
       {
 	  wvError (("unable to write to outputfile\n"));
 	  munmap (input, inlen);
 	  close (out);
-	  exit (-1);
+	  return (-1);
       }
     lseek (out, 0, SEEK_SET);
 
@@ -105,7 +105,7 @@ decompress (FILE * inputfile, FILE * outputfile, U32 inlen, U32 outlen)
 	  wvError (("%s\n", strerror (errno)));
 	  munmap (input, inlen);
 	  close (out);
-	  exit (-1);
+	  return (-1);
       }
 
     /* set the size of the file */
