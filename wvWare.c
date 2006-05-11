@@ -1591,7 +1591,7 @@ myCharProc (wvParseStruct * ps, U16 eachchar, U8 chartype, U16 lid)
 int
 wvOpenConfig (state_data *myhandle,char *config)
 {
-    char buf[BUFSIZ];
+    static char buf[BUFSIZ] = "";
     FILE *tmp;
     int i = 0;
     if (config == NULL)
