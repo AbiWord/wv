@@ -1,5 +1,8 @@
 #!/bin/sh
 
+srcdir=`dirname $0`
+test -z "$srcdir" && srcdir=.
+
 accheck=`autoconf --version | grep 2.13`
 if test "x$accheck" != "x"; then
     echo "error: you appear to be using autoconf 2.13"
@@ -67,3 +70,13 @@ autoconf || {
     echo "error: autoconf failed"
     exit 1
 }
+
+conf_flags="--enable-maintainer-mode"
+
+if test x$NOCONFIGURE = x; then
+  echo Running $srcdir/configure $conf_flags "$@" ...
+  $srcdir/configure $conf_flags "$@" \
+  && echo Now type \`make\' to compile. || exit 1
+else
+  echo Skipping configure process.
+fi
