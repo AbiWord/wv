@@ -190,6 +190,14 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 
  	  size = lHeaderSize + lWordStructsSize + apicf->lcb - apicf->cbHeader;
 	  p = buf = malloc(size);
+
+	  if(!p)
+	  {
+		free(pWordStructs);
+		free(pHeader);
+		return 0;
+	  }
+
 	  memcpy(p, pWordStructs, lWordStructsSize);
 	  p+= lWordStructsSize;
 	  memcpy(p, pHeader, lHeaderSize);
