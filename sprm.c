@@ -1094,10 +1094,8 @@ wvApplysprmPIstdPermute (PAP * apap, U8 * pointer, U16 * pos)
 	    }
       }
     else
-      {
-      rgistd = NULL;
       return;
-      }
+
     /*
        First check if pap.istd is greater than the istdFirst recorded in the sprm
        and less than or equal to the istdLast recorded in the sprm If not, the sprm

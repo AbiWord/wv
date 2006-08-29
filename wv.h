@@ -2685,7 +2685,6 @@ that indicates their length.
 
 	/*protected */
         GsfInput *ole_file;
-        GsfInput *input;
 	wvStream *mainfd;
 	wvStream *tablefd;
 	wvStream *data;
@@ -2742,6 +2741,9 @@ that indicates their length.
 	int fieldmiddle;
 	char *filename;
 	char *dir;
+
+      /* see abiword bug 10247 */
+        GsfInput *input;
     } wvParseStruct;
 
     void wvSetPassword (const char *password, wvParseStruct * ps);
