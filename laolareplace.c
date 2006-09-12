@@ -1,71 +1,123 @@
-/*
-The interface to wvOLEDecode now has
-  int OLEdecode(char *filename, FILE **mainfd, FILE **tablefd0, FILE 
-**tablefd1,FILE **data,FILE **summary)	
-*/
+/* wvWare
+ * Copyright (C) Caolan McNamara, Dom Lachowicz, and others
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "config.h"
 #include "wv.h"
-#include "oledecod.h"
 
-extern FILE*erroroutput;
+#include <gsf/gsf-infile-msole.h>
+#include <gsf/gsf-infile.h>
+#include <gsf/gsf-input-stdio.h>
 
-pps_entry *stream_tree;
+int wvOLEDecode_gsf (wvParseStruct * ps, GsfInput *path, wvStream ** mainfd, wvStream ** tablefd0,
+		     wvStream ** tablefd1, wvStream ** data, wvStream ** summary)
+{
+    GsfInfile *ole_file = NULL;
+    int result = 5;
 
-void wvOLEFree(void)
-	{
-	/* need to free all the allocated memory */
-	freeOLEtree (stream_tree);
-	}
+    if (!path) {
+      return result;
+    }
 
+    ole_file = gsf_infile_msole_new (path, NULL);
 
-int wvOLEDecode(char *filename, FILE **mainfd, FILE **tablefd0, FILE **tablefd1,FILE **data)
-	{
-	int result;
-	U32 root_stream;
-	U32 stream;
+    if (ole_file != NULL)
+      {
+	  GsfInput *temp_stream;
 
-	result = OLEdecode (filename, &stream_tree, &root_stream, 1);
-	if (result == 0)
-		{
-		for (stream = stream_tree[root_stream].dir; stream != 0xffffffff; stream = stream_tree[stream].next)
-			{
-			if (stream_tree[stream].type != 1 && stream_tree[stream].level == 1)
-				{
-				if (!(strcmp(stream_tree[stream].name,"WordDocument")))
-					{
-					*mainfd = fopen(stream_tree[stream].filename,"rb");
-					}
-				else if (!(strcmp(stream_tree[stream].name,"1Table")))
-					{
-					*tablefd1 = fopen(stream_tree[stream].filename,"rb");
-					}
-				else if (!(strcmp(stream_tree[stream].name,"0Table")))
-					{
-					*tablefd0 = fopen(stream_tree[stream].filename,"rb");
-					}
-				else if (!(strcmp(stream_tree[stream].name,"Data")))
-					{
-					*data = fopen(stream_tree[stream].filename,"rb");
-					}
-				else if (!(strcmp(stream_tree[stream].name,"\005SummaryInformation")))
-					{
-					*summary = fopen(stream_tree[stream].filename,"rb");
-					}
-				else
-					fprintf(stderr,"streamname is %s\n",stream_tree[stream].filename);
-				}
-			}
-		}
-	switch(result)
-		{
-		case 5:
-			fprintf(erroroutput,"OLE file appears to be corrupt, unable to extract streams\n");
-			break;
-		}
+	  ps->ole_file = GSF_INPUT(ole_file);
 
-	return(result);
-	}
+	  wvTrace (("Opened VFS\n"));
+	  if ((temp_stream = gsf_infile_child_by_name (ole_file, "WordDocument")) == NULL)
+	    {
+		*mainfd = NULL;
+		wvTrace (("Opening \"WordDocument\" stream\n"));
+	    }
+	  else
+	    {
+		wvTrace (("Opened \"WordDocument\" stream\n"));
+		wvStream_gsf_create (mainfd, temp_stream);
+	    }
+
+	  if ((temp_stream = gsf_infile_child_by_name (ole_file, "1Table")) == NULL)
+	    {
+		*tablefd1 = NULL;
+		wvTrace (("Opening \"1Table\" stream\n"));
+	    }
+	  else
+	    {
+		wvTrace (("Opened \"1Table\" stream\n"));
+		wvStream_gsf_create (tablefd1, temp_stream);
+	    }
+
+	  if ((temp_stream = gsf_infile_child_by_name (ole_file, "0Table")) == NULL)
+	    {
+		*tablefd0 = NULL;
+		wvTrace (("Opening \"0Table\" stream\n"));
+	    }
+	  else
+	    {
+		wvTrace (("Opened \"0Table\" stream\n"));
+		wvStream_gsf_create (tablefd0, temp_stream);
+
+	    }
+	  
+	  if ((temp_stream = gsf_infile_child_by_name (ole_file, "Data")) == NULL)
+	    {
+		*data = NULL;
+		wvTrace (("Opening \"Data\" stream\n"));
+	    }
+	  else
+	    {
+		wvTrace (("Opened \"Data\" stream\n"));
+		wvStream_gsf_create (data, temp_stream);
+	    }
+
+	  if ((temp_stream = gsf_infile_child_by_name (ole_file, "\005SummaryInformation")) == NULL)
+	    {
+		*summary = NULL;
+		wvTrace (("Opening \"\\005SummaryInformation\" stream\n"));
+	    }
+	  else
+	    {
+		wvTrace (("Opened \"\\005SummaryInformation\" stream\n"));
+		wvStream_gsf_create (summary, temp_stream);
+	    }
+
+	  result = 0;
+      }
+
+    return (result);
+}
+
+int
+wvOLEDecode (wvParseStruct * ps, char *path, wvStream ** mainfd, wvStream ** tablefd0,
+	     wvStream ** tablefd1, wvStream ** data, wvStream ** summary)
+{
+  GsfInput * input = gsf_input_stdio_new (path, NULL);
+
+  int rval = wvOLEDecode_gsf (ps, input, mainfd, tablefd0, tablefd1, data, summary);
+  
+  return rval;
+}

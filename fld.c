@@ -1,3 +1,26 @@
+/* wvWare
+ * Copyright (C) Caolan McNamara, Dom Lachowicz, and others
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "wv.h"
@@ -212,67 +235,74 @@ below.
 */
 
 
-void wvGetFLD(FLD *item,FILE *fd)
-	{
-	U8 temp8;
-	U8 ch;
+void
+wvGetFLD (FLD * item, wvStream * fd)
+{
+    U8 temp8;
+    U8 ch;
 
-	temp8 = getc(fd);
-	ch = temp8 & 0x1f;
-	if (ch == 19)
-		{
-		item->var1.ch = temp8 & 0x1f;
-		item->var1.reserved = (temp8 & 0xe0)>>5;
-		item->var1.flt = getc(fd);
-		}
-	else
-		{
-		item->var2.ch = temp8 & 0x1f;
-		item->var2.reserved = (temp8 & 0xe0)>>5;
-		temp8 = getc(fd);
-		item->var2.fDiffer = temp8 & 0x01;
-		item->var2.fZombieEmbed = (temp8 & 0x02)>>1;
-		item->var2.fResultDirty = (temp8 & 0x04)>>2;
-		item->var2.fResultEdited = (temp8 & 0x08)>>3;
-		item->var2.fLocked = (temp8 & 0x10)>>4;
-		item->var2.fPrivateResult = (temp8 & 0x20)>>5;
-		item->var2.fNested = (temp8 & 0x40)>>6;
-		item->var2.fHasSep = (temp8 & 0x80)>>7;
-		}
-	}
+    temp8 = read_8ubit (fd);
+    ch = temp8 & 0x1f;
+    if (ch == 19)
+      {
+	  item->var1.ch = temp8 & 0x1f;
+	  item->var1.reserved = (temp8 & 0xe0) >> 5;
+	  item->var1.flt = read_8ubit (fd);
+      }
+    else
+      {
+	  item->var2.ch = temp8 & 0x1f;
+	  item->var2.reserved = (temp8 & 0xe0) >> 5;
+	  temp8 = read_8ubit (fd);
+	  item->var2.fDiffer = temp8 & 0x01;
+	  item->var2.fZombieEmbed = (temp8 & 0x02) >> 1;
+	  item->var2.fResultDirty = (temp8 & 0x04) >> 2;
+	  item->var2.fResultEdited = (temp8 & 0x08) >> 3;
+	  item->var2.fLocked = (temp8 & 0x10) >> 4;
+	  item->var2.fPrivateResult = (temp8 & 0x20) >> 5;
+	  item->var2.fNested = (temp8 & 0x40) >> 6;
+	  item->var2.fHasSep = (temp8 & 0x80) >> 7;
+      }
+}
 
 
-int wvGetFLD_PLCF(FLD **fld,U32 **pos,U32 *nofld,U32 offset,U32 len,FILE *fd)
-	{
-	int i;
-	if (len == 0)
-		{
-		*fld = NULL;
-		*pos = NULL;
-		*nofld = 0;
-		}
-	else
-        {
-        *nofld=(len-4)/6;
-        *pos = (U32 *) malloc( (*nofld+1) * sizeof(U32));
-        if (*pos == NULL)
-            {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",(*nofld+1) * sizeof(U32));
-            return(1);
-            }
+int
+wvGetFLD_PLCF (FLD ** fld, U32 ** pos, U32 * nofld, U32 offset, U32 len,
+	       wvStream * fd)
+{
+    U32 i;
+    if (len == 0)
+      {
+	  *fld = NULL;
+	  *pos = NULL;
+	  *nofld = 0;
+      }
+    else
+      {
+	  *nofld = (len - 4) / 6;
+	  *pos = (U32 *) malloc ((*nofld + 1) * sizeof (U32));
+	  if (*pos == NULL)
+	    {
+		wvError (
+			 ("NO MEM 1, failed to alloc %d bytes\n",
+			  (*nofld + 1) * sizeof (U32)));
+		return (1);
+	    }
 
-        *fld= (FLD *) malloc(*nofld* sizeof(FLD));
-        if (*fld== NULL)
-            {
-            wvError("NO MEM 1, failed to alloc %d bytes\n",*nofld* sizeof(FLD));
-			free(pos);
-            return(1);
-            }
-        fseek(fd,offset,SEEK_SET);
-        for(i=0;i<*nofld+1;i++)
-            (*pos)[i]=read_32ubit(fd);
-        for(i=0;i<*nofld;i++)
-            wvGetFLD(&((*fld)[i]),fd);
-        }
-	return(0);
-	}
+	  *fld = (FLD *) malloc (*nofld * sizeof (FLD));
+	  if (*fld == NULL)
+	    {
+		wvError (
+			 ("NO MEM 1, failed to alloc %d bytes\n",
+			  *nofld * sizeof (FLD)));
+		wvFree (pos);
+		return (1);
+	    }
+	  wvStream_goto (fd, offset);
+	  for (i = 0; i <= *nofld; i++)
+	      (*pos)[i] = read_32ubit (fd);
+	  for (i = 0; i < *nofld; i++)
+	      wvGetFLD (&((*fld)[i]), fd);
+      }
+    return (0);
+}
