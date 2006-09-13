@@ -3,6 +3,8 @@
 srcdir=`dirname $0`
 test -z "$srcdir" && srcdir=.
 
+pushd $srcdir
+
 accheck=`autoconf --version | grep 2.13`
 if test "x$accheck" != "x"; then
     echo "error: you appear to be using autoconf 2.13"
@@ -70,6 +72,8 @@ autoconf || {
     echo "error: autoconf failed"
     exit 1
 }
+
+popd
 
 conf_flags="--enable-maintainer-mode"
 
