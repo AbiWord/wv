@@ -32,6 +32,16 @@ one has (LFO.clfolvl), and writes out, in order, each LFOLVL structure
 followed by its corresponding LVL structure (if LFOLVL.fFormatting is set).
 */
 
+static int
+multiplication_will_overflow(U32 a, U32 b)
+{
+  if((a > 0) && (b > 0) && (G_MAXUINT / a) >= b) {
+    return 0;
+  }
+
+  return 1;
+}
+
 int
 wvGetLFO_records (LFO ** lfo, LFOLVL ** lfolvl, LVL ** lvl, U32 * nolfo,
 		  U32 * nooflvl, U32 offset, U32 len, wvStream * fd)
@@ -49,7 +59,9 @@ wvGetLFO_records (LFO ** lfo, LFOLVL ** lfolvl, LVL ** lvl, U32 * nolfo,
     wvTrace (("pos %x %d\n", wvStream_tell (fd), *nooflvl));
     wvTrace (("nolfo is %d nooflvl is %d\n", *nolfo, *nooflvl));
 
-    if (*nooflvl == 0)
+    if ((*nooflvl == 0) ||
+	multiplication_will_overflow(sizeof (LFOLVL), *nooflvl) ||
+	multiplication_will_overflow(sizeof (LVL), *nooflvl))
       {
 	  *lfolvl = NULL;
 	  *lvl = NULL;
@@ -101,16 +113,22 @@ wvGetLFO_PLF (LFO ** lfo, U32 * nolfo, U32 offset, U32 len, wvStream * fd)
 	  *nolfo = read_32ubit (fd);
 	  wvTrace (("%d\n", *nolfo));
 
-	  *lfo = (LFO *) wvMalloc (*nolfo * sizeof (LFO));
-	  if (*lfo == NULL)
-	    {
-		wvError (
-			 ("NO MEM 1, failed to alloc %d bytes\n",
+	  /* check for integer overflow */
+	  if (multiplication_will_overflow(*nolfo, sizeof(LFO))) {
+	    wvError (("Malicious document!\n"));			
+	    *nolfo = 0;
+	    return (1);
+	  } else {
+	    *lfo = (LFO *) wvMalloc (*nolfo * sizeof(LFO));
+	    if (*lfo == NULL)
+	      {
+		wvError (("NO MEM 1, failed to alloc %d bytes\n",
 			  *nolfo * sizeof (LFO)));
 		return (1);
-	    }
-	  for (i = 0; i < *nolfo; i++)
+	      }
+	    for (i = 0; i < *nolfo; i++)
 	      wvGetLFO (&((*lfo)[i]), fd);
+	  }
       }
     return (0);
 }
