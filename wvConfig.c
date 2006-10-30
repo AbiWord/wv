@@ -3647,7 +3647,8 @@ wvSetEntityConverter (expand_data * data)
 void
 wvBeginDocument (expand_data * data)
 {
-    if ((data->sd != NULL) && (data->sd->elements[TT_DOCUMENT].str[0] != NULL))
+    if ((data->sd) && (data->sd->elements[TT_DOCUMENT].str)
+	&& (data->sd->elements[TT_DOCUMENT].str[0] != NULL))
       {
 	  wvTrace (("doc begin is %s", data->sd->elements[TT_DOCUMENT].str[0]));
 	  wvExpand (data, data->sd->elements[TT_DOCUMENT].str[0],
@@ -3673,7 +3674,8 @@ wvEndDocument (expand_data * data)
     data->props = (void *) &apap;
     wvEndPara (data);
 
-    if ((data->sd != NULL) && (data->sd->elements[TT_DOCUMENT].str[1] != NULL))
+    if ((data->sd) && (data->sd->elements[TT_DOCUMENT].str)
+	&& (data->sd->elements[TT_DOCUMENT].str[1] != NULL))
       {
 	  wvExpand (data, data->sd->elements[TT_DOCUMENT].str[1],
 		    strlen (data->sd->elements[TT_DOCUMENT].str[1]));
