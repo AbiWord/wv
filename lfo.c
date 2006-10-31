@@ -12,6 +12,10 @@ one has (LFO.clfolvl), and writes out, in order, each LFOLVL structure
 followed by its corresponding LVL structure (if LFOLVL.fFormatting is set).
 */
 
+#ifndef G_MAXUINT
+#define G_MAXUINT 4294967295U
+#endif
+
 static int
 multiplication_will_overflow(U32 a, U32 b)
 {
