@@ -100,7 +100,7 @@ wvGetLVL (LVL * lvl, wvStream * fd)
 	  lvl->numbertext[0] = len;
 	  for(i = 0; i < len; i++)
 	    lvl->numbertext[i + 1] = read_16ubit (fd);
-	  lvl->numbertext[len - 1] = 0;
+	  lvl->numbertext[len + 1] = 0;
       }
     else
 	lvl->numbertext = NULL;
