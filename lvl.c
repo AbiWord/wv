@@ -78,7 +78,7 @@ wvGetLVL (LVL * lvl, wvStream * fd)
 	  lvl->numbertext = (U16 *) wvMalloc (sizeof (U16) * (len + 2));
 	  lvl->numbertext[0] = len;
 	  wvStream_read (&(lvl->numbertext[1]), sizeof (U16), len, fd);
-	  lvl->numbertext[len - 1] = 0;
+	  lvl->numbertext[len + 1] = 0;
       }
     else
 	lvl->numbertext = NULL;
