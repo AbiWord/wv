@@ -3,7 +3,9 @@
 srcdir=`dirname $0`
 test -z "$srcdir" && srcdir=.
 
-pushd $srcdir
+olddir=`pwd`
+cd $srcdir
+
 
 accheck=`autoconf --version | grep 2.13`
 if test "x$accheck" != "x"; then
@@ -73,7 +75,7 @@ autoconf || {
     exit 1
 }
 
-popd
+cd $olddir
 
 conf_flags="--enable-maintainer-mode"
 
