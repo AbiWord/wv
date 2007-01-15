@@ -26,13 +26,15 @@
 #include <string.h>
 #include "wv.h"
 
+#include <gsf/gsf-output-memory.h>
+
 /* ROTATE_LEFT rotates x left n bits , with a bitlen of b*/
 #define ROTATE_LEFT(x, n,b) (((x) << (n)) | ((x) >> (b-(n))))
 
 int
 wvDecrypt95 (wvParseStruct * ps)
 {
-    FILE *mainfd;
+    GsfOutput *mainfd;
     unsigned char pw[16], z, g;
     unsigned char key[16];
     U8 pwkey[2];
@@ -137,12 +139,12 @@ wvDecrypt95 (wvParseStruct * ps)
     j = 0;
     wvStream_goto (ps->mainfd, j);
 
-    mainfd = tmpfile ();
+    mainfd = gsf_output_memory_new ();
 
     while (j < 0x30)
       {
 	  c = read_8ubit (ps->mainfd);
-	  fputc (c, mainfd);
+	  gsf_output_write (mainfd, 1, (guint8 *)&c);
 	  j++;
       }
 
@@ -156,7 +158,7 @@ wvDecrypt95 (wvParseStruct * ps)
 		    c = key[i] ^ test[i];
 		else
 		    c = 0;
-		fputc (c, mainfd);
+		gsf_output_write (mainfd, 1, (guint8 *)&c);
 	    }
 	  j += 16;
       }
@@ -168,7 +170,13 @@ wvDecrypt95 (wvParseStruct * ps)
 	wvStream_close (ps->tablefd1);
     wvStream_close (ps->mainfd);
 
-    wvStream_FILE_create (&ps->mainfd, mainfd);
+    gsf_output_close (mainfd);
+
+    wvStream_memory_create(&ps->mainfd, 
+			   g_memdup (gsf_output_memory_get_bytes (GSF_OUTPUT_MEMORY (mainfd)), gsf_output_size (mainfd)),
+			   gsf_output_size (mainfd));
+
+    g_object_unref (G_OBJECT (mainfd));
 
     ps->tablefd = ps->mainfd;
     ps->tablefd0 = ps->mainfd;

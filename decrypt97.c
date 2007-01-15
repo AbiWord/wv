@@ -37,6 +37,8 @@
 #include "rc4.h"
 #include "md5.h"
 
+#include <gsf/gsf-output-memory.h>
+
 void wvMD5StoreDigest (wvMD5_CTX * mdContext);
 
 static void
@@ -159,8 +161,8 @@ expandpw (U16 password[16], U8 pwarray[64])
 int
 wvDecrypt97 (wvParseStruct * ps)
 {
-    FILE *outtable;
-    FILE *outmain;
+    GsfOutput *outtable;
+    GsfOutput *outmain;
     wvStream *enc;
     U8 pwarray[64];
     U8 docid[16], salt[64], hashedsalt[16], x;
@@ -195,7 +197,7 @@ wvDecrypt97 (wvParseStruct * ps)
     j = 0;
     wvStream_goto (enc, j);
 
-    outtable = tmpfile ();
+    outtable = gsf_output_memory_new ();
 
     blk = 0;
     makekey (blk, &key, &valContext);
@@ -208,7 +210,7 @@ wvDecrypt97 (wvParseStruct * ps)
 	  rc4 (test, 0x10, &key);
 
 	  for (i = 0; i < 0x10; i++)
-	      fputc (test[i], outtable);
+	    gsf_output_write (outtable, 1, &(test[i]));
 	  j += 0x10;
 	  if ((j % 0x200) == 0)
 	    {
@@ -222,6 +224,8 @@ wvDecrypt97 (wvParseStruct * ps)
 	    }
 
       }
+
+    gsf_output_close (outtable);
 
     enc = ps->mainfd;
 
@@ -231,7 +235,7 @@ wvDecrypt97 (wvParseStruct * ps)
     j = 0;
     wvStream_goto (enc, j);
 
-    outmain = tmpfile ();
+    outmain = gsf_output_memory_new ();
 
     blk = 0;
     makekey (blk, &key, &valContext);
@@ -244,7 +248,7 @@ wvDecrypt97 (wvParseStruct * ps)
 	  rc4 (test, 0x10, &key);
 
 	  for (i = 0; i < 0x10; i++)
-	      fputc (test[i], outmain);
+	    gsf_output_write (outmain, 1, &(test[i]));
 	  j += 0x10;
 	  if ((j % 0x200) == 0)
 	    {
@@ -258,6 +262,8 @@ wvDecrypt97 (wvParseStruct * ps)
 	    }
 
       }
+
+    gsf_output_close (outmain);
 
     if (ps->tablefd0)
         wvStream_close (ps->tablefd0);
@@ -268,8 +274,15 @@ wvDecrypt97 (wvParseStruct * ps)
 
     wvStream_close (ps->mainfd);
  
-    wvStream_FILE_create(&ps->tablefd0, outtable);
-    wvStream_FILE_create(&ps->mainfd, outmain);
+    wvStream_memory_create(&ps->tablefd0, 
+			   g_memdup (gsf_output_memory_get_bytes (GSF_OUTPUT_MEMORY (outtable)), gsf_output_size (outtable)),
+			   gsf_output_size (outtable));
+    wvStream_memory_create(&ps->mainfd, 
+			   g_memdup (gsf_output_memory_get_bytes (GSF_OUTPUT_MEMORY (outmain)), gsf_output_size (outmain)),
+			   gsf_output_size (outmain));
+
+    g_object_unref (G_OBJECT (outtable));
+    g_object_unref (G_OBJECT (outmain));
 
     ps->tablefd = ps->tablefd0;
     ps->tablefd1 = ps->tablefd0;

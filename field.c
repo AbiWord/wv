@@ -360,12 +360,13 @@ wvHandleCommandField (wvParseStruct *ps, char *command)
 		token = strtok (NULL, "\"\"");
 		if(mytime == (time_t)-1)
 		    time (&mytime);
-		if (wvHandleDateTimePicture (datestr, 4096, token, &mytime))
-		    printf ("%s", datestr);
+		if (wvHandleDateTimePicture (datestr, 4096, token, &mytime)) {
+		  /* printf ("%s", datestr); */ /* prefer to print out the text that follows the spec char */
+		}
 		else
 		    wvError (
 			     ("date and time field function returned nothing\n"));
-		ret = 1; /*dont print text wich following after spec char*/
+		ret = 0; /* print the text which follows after the spec char*/
 		break;
 
 	    case FC_DATEINAME:
