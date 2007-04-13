@@ -2802,9 +2802,13 @@ that indicates their length.
 returns the same as wvOLEDecode with the addition that
 4 means that it isnt a word document
 */
-    int wvInitParser (wvParseStruct * ps, char *path);
+  int wvInitParser (wvParseStruct * ps, char *path);
   int wvInitParser_gsf (wvParseStruct * ps, GsfInput *path);
-    int wvInit (void);
+
+  wvParseStruct * wvCreateParser (void);
+  void wvDeleteParser (wvParseStruct * ps);
+
+  int wvInit (void);
   void wvShutdown (void);
 
     void wvDecodeSimple (wvParseStruct * ps, subdocument whichdoc);

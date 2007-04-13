@@ -102,6 +102,17 @@ wvOpenPreOLE (GsfInput *path, wvStream ** mainfd, wvStream ** tablefd0,
 
 static void tokenTreeInit (void);
 
+wvParseStruct * wvCreateParser (void)
+{
+  return (wvParseStruct *)calloc (1, sizeof (wvParseStruct));
+}
+
+void wvDeleteParser (wvParseStruct * ps)
+{
+  if (ps)
+    free (ps);
+}
+
 int wvInitParser_gsf (wvParseStruct * ps, GsfInput *path)
 {
     int ret = 0, reason = 0;
