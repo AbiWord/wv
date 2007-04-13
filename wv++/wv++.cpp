@@ -18,7 +18,7 @@ namespace wv
 
   void Library::Term ()
   {
-    wvTerm ();
+    wvShutdown ();
   }
 
 }
@@ -100,7 +100,7 @@ namespace wv
     wvText (&ps);
     mPs = 0;
     
-    wvDestroyParser (&ps);
+    wvOLEFree (&ps);
   }
  
   bool Parser::CharProc (U16 eachChar, U8 charType, U16 lid)
