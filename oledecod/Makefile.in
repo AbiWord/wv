@@ -19,7 +19,7 @@ else
 WVPICFLAGS = 
 endif
 
-CFLAGS = -I.. -I$(srcdir) -I$(srcdir)/.. @CPPFLAGS@ @CFLAGS@ @DEFS@ -I$(srcdir)/../libole2 @GLIB_CFLAGS@ $(WVPICFLAGS)
+CFLAGS = -I.. -I$(srcdir) -I$(srcdir)/.. @CPPFLAGS@ @CFLAGS@ @DEFS@ -I$(srcdir)/../libole2 @OPT_CFLAGS@ $(WVPICFLAGS)
 ifneq ($(HAVE_GLIB), 1)
 CFLAGS += -I$(srcdir)/../glib-wv
 endif

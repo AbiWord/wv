@@ -77,7 +77,7 @@ if test "$echo_exec_prefix" = "yes"; then
 fi
 
 wv_cflags=""
-wv_libs="-lwv @WMF_LIBS@ @XML_LIBS@ @GLIB_LIBS@ @ICONV_LIBS@ @PNG_LIBS@ @ZLIB_LIBS@ @LIBS@ -lm"
+wv_libs="-lwv @DEPS_LIBS@ @OPT_LIBS@ -lm"
 
 if test "$echo_cflags" = "yes"; then
 	includes="$wv_cflags"

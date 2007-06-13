@@ -6,7 +6,7 @@ endif
 
 INCLUDES = -I. -I$(top_builddir) -I$(srcdir) -I$(top_srcdir)/libole2 -I$(top_srcdir)/oledecod $(INCGLIB)
 
-CPPFLAGS = @CPPFLAGS@ @GLIB_CFLAGS@ @ICONV_CFLAGS@ @ZLIB_CFLAGS@
+CPPFLAGS = @CPPFLAGS@ @DEPS_CFLAGS@ @OPT_CFLAGS@
 
 wvhdrdir = $(includedir)/wv
 
