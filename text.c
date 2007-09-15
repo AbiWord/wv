@@ -146,9 +146,9 @@ wvOutputTextChar (U16 eachchar, U8 chartype, wvParseStruct * ps, CHP * achp)
 	  	lid = wvnLocaleToLIDConverter (currentfont.chs);
 	  }
       }
-    if (!lid)
-	lid = achp->lidDefault;
 
+    if ((v > WORD6) && !lid)
+	lid = achp->lidDefault;
 
     /* No lidDefault for ver < WORD6 */
     if (lid == 0x400 || lid == 0)
