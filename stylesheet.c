@@ -146,7 +146,7 @@ static const char * wvGetUCS2LEName(void)
   for (p = szUCS2LENames; *p; ++p)
     {
       GIConv g_iconv_handle;
-      if ((g_iconv_handle = g_iconv_open(*p,*p)) != (GIConv)-1)
+      if ((g_iconv_handle = g_iconv_open("UTF-8",*p)) != (GIConv)-1)
 	{
 	  g_iconv_close(g_iconv_handle);
 	  return *p;
