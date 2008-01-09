@@ -1,5 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([wv],[1.2.4],[wvware-devel@sourceforge.net])
+AC_CANONICAL_TARGET
 AC_CONFIG_SRCDIR([wvWare.c])
 
 dnl This next section is courtesy gtk+
@@ -97,6 +98,22 @@ dnl AC_TYPE_SIGNAL
 dnl AC_FUNC_WAIT3
 
 AC_CHECK_HEADERS(fcntl.h io.h malloc.h sys/file.h sys/ioctl.h unistd.h)
+
+case ${target_os} in
+  *mingw*)
+    link_win32_dll="yes"
+    ;;
+  *)
+    link_win32_dll="no"
+    ;;
+esac
+if test "$cross_compiling" == "yes"; then
+  dllwrap="dllwrap"
+else
+  dllwrap=${target}-"dllwrap"
+fi
+AC_PATH_PROG(DLLWRAP, $dllwrap)
+AM_CONDITIONAL([LINK_WIN32_DLL], [test "$link_win32_dll" == "yes"])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
