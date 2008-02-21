@@ -1046,6 +1046,9 @@ wvApplySprmFromBucket (wvVersion ver, U16 sprm, PAP * apap, CHP * achp,
       case sprmCCharScale:	/* ???? */
       case sprmNoop:		/* no operand */
 	  break;
+      case 25703:
+         apap->fTtp++;
+         break; 
       default:
 	  wvEatSprm (sprm, pointer, pos);
 	  break;
