@@ -107,13 +107,13 @@ case ${target_os} in
     link_win32_dll="no"
     ;;
 esac
-if test "$cross_compiling" == "yes"; then
+if test "$cross_compiling" = "yes"; then
   dllwrap="dllwrap"
 else
   dllwrap=${target}-"dllwrap"
 fi
 AC_PATH_PROG(DLLWRAP, $dllwrap)
-AM_CONDITIONAL([LINK_WIN32_DLL], [test "$link_win32_dll" == "yes"])
+AM_CONDITIONAL([LINK_WIN32_DLL], [test "$link_win32_dll" = "yes"])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
