@@ -271,7 +271,7 @@ do_help (void)
     printf ("  -b --basename=name\t\tUse name as base name of image files\n");
     printf ("  -a --auto-eps=fmt\t\tQuery support for conversion of fmt to eps\n");
     printf ("  -s --suppress=fmt\t\tDon't convert fmt to eps\n");
-    printf ("  -X --xml\t\t\tXML ouput\n");
+    printf ("  -X --xml\t\t\tXML output\n");
     printf ("  -1 --nographics\t\tno 0x01 graphics output\n");
     printf ("  -v --version\t\t\tPrint wvWare's version number\n");
     printf ("  -? --help\t\t\tPrint this help message\n");
