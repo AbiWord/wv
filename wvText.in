@@ -29,10 +29,10 @@ fi
 
 if [ $USE_DUMP -eq "1" ]; then
 	echo "Could not find required program 'elinks' or 'links'"
-	echo "Using lynx. Ouput will be pretty ugly."
+	echo "Using lynx. Output will be pretty ugly."
 elif [ $USE_DUMP -eq "0" ]; then
 	echo "Could not find required program 'elinks', 'links', or even 'lynx'"
-	echo "Using wvWare -x wvText.xml. Ouput will be pretty bad."
+	echo "Using wvWare -x wvText.xml. Output will be pretty bad."
 fi
 
 if [ $USE_DUMP -gt "0" ]; then
