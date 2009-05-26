@@ -685,7 +685,7 @@ wvGetPAPX (wvVersion ver, PAPX * item, U8 * page, U16 * pos)
     wvTrace (("no of bytes is %d\n", item->cb));
     if (item->cb > 2)
       {
-	  item->grpprl = (U8 *) malloc (item->cb - 2);
+	  item->grpprl = (U8 *) wvMalloc (item->cb - 2);
 	  memcpy (item->grpprl, &(page[*pos]), (item->cb) - 2);
       }
     else

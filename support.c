@@ -136,7 +136,7 @@ wvStream_TMP_create (size_t size)
 
   char * buf;
   
-  buf = malloc(size);
+  buf = wvMalloc(size);
   
   if (buf)
     wvStream_memory_create (&stm, buf, size);
@@ -424,8 +424,8 @@ wvStream_close_stream (wvStream * in)
     else
     if (in->kind == MEMORY_STREAM)
       {
-	  free (in->stream.memory_stream->mem);
-	  free (in->stream.memory_stream);
+	  wvFree (in->stream.memory_stream->mem);
+	  wvFree (in->stream.memory_stream);
 	  wvFree (in);
 	  return 0;
       }

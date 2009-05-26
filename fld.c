@@ -280,7 +280,7 @@ wvGetFLD_PLCF (FLD ** fld, U32 ** pos, U32 * nofld, U32 offset, U32 len,
     else
       {
 	  *nofld = (len - 4) / 6;
-	  *pos = (U32 *) malloc ((*nofld + 1) * sizeof (U32));
+	  *pos = (U32 *) wvMalloc ((*nofld + 1) * sizeof (U32));
 	  if (*pos == NULL)
 	    {
 		wvError (
@@ -289,7 +289,7 @@ wvGetFLD_PLCF (FLD ** fld, U32 ** pos, U32 * nofld, U32 offset, U32 len,
 		return (1);
 	    }
 
-	  *fld = (FLD *) malloc (*nofld * sizeof (FLD));
+	  *fld = (FLD *) wvMalloc (*nofld * sizeof (FLD));
 	  if (*fld == NULL)
 	    {
 		wvError (

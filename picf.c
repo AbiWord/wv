@@ -157,7 +157,7 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 
 		/*Get Blip Header Size*/
 		lHeaderSize = PutWord8BitmapHeader(apicf, 0, len + i-14, header_len);
-		pHeader = malloc(lHeaderSize);
+		pHeader = wvMalloc(lHeaderSize);
 		/*Write Blip Header*/
 		PutWord8BitmapHeader(apicf, pHeader, len, header_len);
 		
@@ -170,7 +170,7 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 
 		/*Get Blip Header Size*/
 		lHeaderSize = PutWord8MetafileHeader(apicf, 0);
-		pHeader = malloc(lHeaderSize);
+		pHeader = wvMalloc(lHeaderSize);
 		/*Write Blip Header*/
 		PutWord8MetafileHeader(apicf, pHeader);
 
@@ -185,16 +185,16 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 	  }
 	  
 	  lWordStructsSize = PutWord8Structs(&bse_pic_amsofbh, 0,0);
-	  pWordStructs = malloc(lWordStructsSize);	  
+	  pWordStructs = wvMalloc(lWordStructsSize);	  
 	  PutWord8Structs(&bse_pic_amsofbh, pWordStructs, lWordStructsSize);
 
  	  size = lHeaderSize + lWordStructsSize + apicf->lcb - apicf->cbHeader;
-	  p = buf = malloc(size);
+	  p = buf = wvMalloc(size);
 
 	  if(!p)
 	  {
-		free(pWordStructs);
-		free(pHeader);
+		wvFree(pWordStructs);
+		wvFree(pHeader);
 		return 0;
 	  }
 
@@ -203,12 +203,12 @@ wvGetPICF (wvVersion ver, PICF * apicf, wvStream * fd)
 	  memcpy(p, pHeader, lHeaderSize);
 	  p+=lHeaderSize;
 
-	  free(pWordStructs);
-	  free(pHeader);
+	  wvFree(pWordStructs);
+	  wvFree(pHeader);
 	}
 	else{
  		size = apicf->lcb - apicf->cbHeader;
-		p = buf = malloc(size);
+		p = buf = wvMalloc(size);
 	}
 	
 	for (; i < apicf->lcb - apicf->cbHeader; i++)

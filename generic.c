@@ -61,6 +61,12 @@ wvGetEmpty_PLCF (U32 ** cps, U32 * nocps, U32 offset, U32 len, wvStream * fd)
     return (0);
 }
 
+void
+_wvFree (void* ptr)
+{
+  g_free(ptr);
+}
+
 /**
  * Very simple malloc wrapper
  */
@@ -76,7 +82,7 @@ wvMalloc (U32 size)
     /* loop trying to obtain memory */
     do
       {
-	  p = (void *) malloc (size);
+	  p = (void *) g_try_malloc (size);
 	  if (p)
 	      break;
 	  ntries++;

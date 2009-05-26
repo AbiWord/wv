@@ -291,7 +291,7 @@ wvGetMetafile (MetaFileBlip * amf, MSOFBH * amsofbh, wvStream * fd)
     amf->m_pvBits = NULL;
     count += 34;
 
-    buf = malloc(amsofbh->cbLength);
+    buf = wvMalloc(amsofbh->cbLength);
     p = buf;
 
     for (i = count; i < amsofbh->cbLength; i++)

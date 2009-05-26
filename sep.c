@@ -156,7 +156,7 @@ wvGetSEPX (wvVersion ver, SEPX * item, wvStream * fd)
     item->cb = read_16ubit (fd);
 
     if (item->cb)
-	item->grpprl = (U8 *) malloc (item->cb);
+	item->grpprl = (U8 *) wvMalloc (item->cb);
     else
 	item->grpprl = NULL;
 
