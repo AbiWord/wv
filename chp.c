@@ -555,6 +555,8 @@ wvMergeCHPXFromBucket (CHPX * dest, UPXF * src)
       {
 	  /*wvTrace(("gotcha 2 the sprm is %x\n",*((U16 *)pointer))); */
 	  test = InsertNode (&tree, (void *) pointer);
+    if(!pointer)
+      break;
 	  sprm = dread_16ubit (NULL, &pointer);
 	  i += 2;
 	  wvTrace (("the sprm is %x\n", sprm));
