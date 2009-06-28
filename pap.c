@@ -202,7 +202,7 @@ wvInitPAP (PAP * item)
     item->fTopLinePunct = 0;
     item->fAutoSpaceDE = 0;
     item->fAtuoSpaceDN = 0;
-    item->wAlignFont = 0;
+    item->wAlignFont = 4;
     item->fVertical = 0;
     item->fBackward = 0;
     item->fRotateFont = 0;
