@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([wv],[1.2.4],[wvware-devel@sourceforge.net])
+AC_INIT([wv],[1.2.5],[wvware-devel@sourceforge.net])
 AC_CANONICAL_TARGET
 AC_CONFIG_SRCDIR([wvWare.c])
 
@@ -16,8 +16,8 @@ dnl
 WV_MAJOR_VERSION=1
 WV_MINOR_VERSION=2
 WV_MICRO_VERSION=5
-WV_INTERFACE_AGE=1
-WV_BINARY_AGE=1
+WV_INTERFACE_AGE=2
+WV_BINARY_AGE=2
 WV_VERSION=$WV_MAJOR_VERSION.$WV_MINOR_VERSION.$WV_MICRO_VERSION
 
 AC_SUBST(WV_MAJOR_VERSION)
