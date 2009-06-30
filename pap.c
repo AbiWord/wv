@@ -499,7 +499,11 @@ wvAssembleSimplePAP (wvVersion ver, PAP * apap, U32 fc, PAPX_FKP * fkp, wvParseS
 		}
 
 		myLST = &ps->lst[i];
-		myLVL = &myLST->lvl[apap->ilvl];
+		wvTrace(("is a simple list? %d - requested level %d\n", myLST->lstf.fSimpleList, apap->ilvl));
+		if(myLST->lstf.fSimpleList)
+			myLVL = myLST->lvl;
+		else
+			myLVL = &myLST->lvl[apap->ilvl];
 
 		/* now we should have the correct LVL */
 		if(!myLVL)
