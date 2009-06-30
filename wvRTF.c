@@ -253,6 +253,7 @@ fill_rtfUserData (rtfUserData * ud, CHP * chp, wvParseStruct * ps)
     ud->bIsStrike = (chp->fStrike);
     ud->bIsSup = (chp->iss == 1);
     ud->bIsSub = (chp->iss == 2);
+    free(fname);
 }
 
 static void
