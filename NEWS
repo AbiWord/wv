@@ -1,18 +1,21 @@
 1.2.6 - 
 
+Important:
+
+  - Restore the soversion major to the value of 1.2.4 because ABI didn't change.
+
 Fixes:
 
-  - bug 11547 - unportable test construct. from Thomas Klausner
+  - Bug 11547: unportable test construct. (Thomas Klausner)
   - Fix typos in wvWare's help message.
   - Fix a few mis-matched wvMalloc/malloc/wvFree/free combinations. Use glib to 
     allocate and free all of our memory.
   - Bug 9355: a NULL pointer was causing a crash.
-  - Restore the soversion major to the value of 1.2.4 because ABI didn't change.
   - Bug 9705: Default font alignment in paragraph was incorrect.
-  - Bug 10125: Crash in the PAP handling.
-  - Fix a memory leak in wvRTF.
+  - Bug 10125: Crash in the PAP handling. (Hubert Figuiere)
+  - Fix a memory leak in wvRTF. (Hubert Figuiere)
   - Bug 12034: Fix a huge performance issue while loading images. 
-    From Robert Wilhelm.
-
+    (Robert Wilhelm)
+  - Fix invalid writes in wvConfig.c (Hubert Figuiere)
 
 1.2.5
