@@ -3406,48 +3406,56 @@ exendElement (void *userData, const char *name)
 static void
 charData (void *userData, const XML_Char * s, int len)
 {
-    int i;
+  int i;
 
-    state_data *mydata = (state_data *) userData;
-    if ((len > 0) && (mydata->current != NULL))
-	*(mydata->current) =
+  state_data *mydata = (state_data *) userData;
+  if ((len > 0) && (mydata->current != NULL))
+    *(mydata->current) =
 	    (char *) realloc (*(mydata->current), len + mydata->currentlen + 1);
-    else
-	return;
+  else
+    return;
 
-    for (i = 0; i < len; i++)
-      {
-	  if (mydata->current != NULL)
-	    {
-		switch (s[i])
-		  {
-		  case '&':
-		      wvAppendStr (mydata->current, "&amp;");
-		      mydata->currentlen += strlen ("&amp;") - 1;
-		      break;
-		  case '<':
-		      wvAppendStr (mydata->current, "&lt;");
-		      mydata->currentlen += strlen ("&lt;") - 1;
-		      break;
-		  case '>':
-		      wvAppendStr (mydata->current, "&gt;");
-		      mydata->currentlen += strlen ("&gt;") - 1;
-		      break;
-		  case '"':
-		      wvAppendStr (mydata->current, "&quot;");
-		      mydata->currentlen += strlen ("&quot;") - 1;
-		      break;
-		  default:
-		      (*(mydata->current))[i + mydata->currentlen] = s[i];
-		      break;
-		  }
-	    }
-      }
-    if (mydata->current != NULL)
-      {
-	  (*(mydata->current))[i + mydata->currentlen] = '\0';
+  (*(mydata->current))[mydata->currentlen] = 0;
+
+  for (i = 0; i < len; i++)
+  {
+    switch (s[i])
+    {
+    case '&':
+      mydata->currentlen += strlen ("&amp;") - 1;
+      *(mydata->current) =
+        (char *) realloc (*(mydata->current), len + mydata->currentlen + 1);
+      wvStrcat (*mydata->current, "&amp;");
+      break;
+    case '<':
+      mydata->currentlen += strlen ("&lt;") - 1;
+      *(mydata->current) =
+        (char *) realloc (*(mydata->current), len + mydata->currentlen + 1);
+      wvStrcat (*mydata->current, "&lt;");
+      break;
+    case '>':
+      mydata->currentlen += strlen ("&gt;") - 1;
+      *(mydata->current) =
+        (char *) realloc (*(mydata->current), len + mydata->currentlen + 1);
+      wvStrcat (*mydata->current, "&gt;");
+      break;
+    case '"':
+      mydata->currentlen += strlen ("&quot;") - 1;
+      *(mydata->current) =
+        (char *) realloc (*(mydata->current), len + mydata->currentlen + 1);
+      wvStrcat (*mydata->current, "&quot;");
+      break;
+    default:
+      (*(mydata->current))[i + mydata->currentlen] = s[i];
+      (*(mydata->current))[i + mydata->currentlen + 1] = 0;      
+      break;
+    }
+  }
+  if (mydata->current != NULL)
+  {
+	  (*(mydata->current))[len + mydata->currentlen] = '\0';
 	  mydata->currentlen += len;
-      }
+  }
 }
 
 static void
