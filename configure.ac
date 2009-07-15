@@ -1,8 +1,3 @@
-dnl Process this file with autoconf to produce a configure script.
-AC_INIT([wv],[1.2.5],[wvware-devel@sourceforge.net])
-AC_CANONICAL_TARGET
-AC_CONFIG_SRCDIR([wvWare.c])
-
 dnl This next section is courtesy gtk+
 dnl
 # Making releases:
@@ -19,6 +14,14 @@ WV_MICRO_VERSION=6
 WV_INTERFACE_AGE=3
 WV_BINARY_AGE=3
 WV_VERSION=$WV_MAJOR_VERSION.$WV_MINOR_VERSION.$WV_MICRO_VERSION
+
+
+
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT([wv],[1.2.6],[wvware-devel@sourceforge.net])
+AC_CANONICAL_TARGET
+AC_CONFIG_SRCDIR([wvWare.c])
+
 
 AC_SUBST(WV_MAJOR_VERSION)
 AC_SUBST(WV_MINOR_VERSION)
