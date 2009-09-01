@@ -20,7 +20,7 @@ WV_VERSION=$WV_MAJOR_VERSION.$WV_MINOR_VERSION.$WV_MICRO_VERSION
 
 
 
-AC_CANONICAL_TARGET
+AC_CANONICAL_HOST
 AC_CONFIG_SRCDIR([wvWare.c])
 
 
@@ -103,7 +103,7 @@ dnl AC_FUNC_WAIT3
 
 AC_CHECK_HEADERS(fcntl.h io.h malloc.h sys/file.h sys/ioctl.h unistd.h)
 
-case ${target_os} in
+case ${host_os} in
   *mingw*)
     link_win32_dll="yes"
     ;;
@@ -114,7 +114,7 @@ esac
 if test "$cross_compiling" = "yes"; then
   dllwrap="dllwrap"
 else
-  dllwrap=${target}-"dllwrap"
+  dllwrap=${host}-"dllwrap"
 fi
 AC_PATH_PROG(DLLWRAP, $dllwrap)
 AM_CONDITIONAL([LINK_WIN32_DLL], [test "$link_win32_dll" = "yes"])
