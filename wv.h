@@ -1545,6 +1545,19 @@ brc.dxpSpace should be set to 0.
 	S16 itbdMac;
 	S16 rgdxaTab[itbdMax];
 	TBD rgtbd[itbdMax];
+
+  /* TODO: Enable Word 2002 extensions; Note this will break wv ABI
+	S8 fNoAllowOverlap;
+	S32 ipgb;
+	S32 rsid;
+	S16 istdList;
+	S8 fContextualSpacing;
+	S8 fHasOldProps;
+	S8 rpf;
+	S32 hplcnf;
+	S8 yfti[13];
+  */
+  
 /* >>------------------PATCH */
 	char stylename[100];
 /* -----------------------<< */
@@ -2008,6 +2021,9 @@ that indicates their length.
 					   in numbering it 6645 C. */
 	sprmPFUsePgsuSettings = 0x2447,
 	sprmPFAdjustRight = 0x2448,
+	sprmPItap = 0x6649,
+	sprmPRsid = 0x6467,
+	sprmCRsidText = 0x6816,
 
 	sprmCFRMarkDel = 0x0800,
 	sprmCFRMark = 0x0801,
