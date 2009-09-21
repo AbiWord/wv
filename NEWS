@@ -1,4 +1,11 @@
-1.2.6 - 
+1.2.7 
+
+  - Bug 12353: Regression: newlines not imported anymore (Robert Wilhelm)
+  - Cross building improvements (Fridrich Strba)
+  - Fix build issue: 'libtool: link: `-::-' is not valid version information' (Jon Kare Hellan)
+  - Bug 12353: configure.ac in 1.2.6 release says 1.2.5
+
+1.2.6
 
 Important:
 
