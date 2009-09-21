@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([wv],[1.2.6],[wvware-devel@sourceforge.net])
+AC_INIT([wv],[1.2.7],[wvware-devel@sourceforge.net])
 
 dnl This next section is courtesy gtk+
 dnl
@@ -13,7 +13,7 @@ dnl
 #
 WV_MAJOR_VERSION=1
 WV_MINOR_VERSION=2
-WV_MICRO_VERSION=6
+WV_MICRO_VERSION=7
 WV_INTERFACE_AGE=3
 WV_BINARY_AGE=3
 WV_VERSION=$WV_MAJOR_VERSION.$WV_MINOR_VERSION.$WV_MICRO_VERSION
