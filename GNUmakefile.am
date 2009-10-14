@@ -31,7 +31,7 @@ wvConvert_LDADD = libwv.la $(WVLIBS) $(GETOPT)
 wvVersion_LDADD = libwv.la $(WVLIBS) $(GETOPT)
 
 libwv_la_LIBADD =  $(WVLIBS)
-libwv_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) -release $(LT_RELEASE) -export-dynamic
+libwv_la_LDFLAGS = -version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE) -release $(LT_RELEASE) -export-dynamic -no-undefined
 libwv_la_SOURCES = \
 	winmmap.c \
 	list.c \
@@ -144,28 +144,4 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = wv-1.0.pc
 
 EXTRA_DIST = wv-1.0.pc.in autogen.sh $(OTHERHEADERS) $(OTHERSCRIPTS)
-
-if LINK_WIN32_DLL
-
-CLEANFILES = \
-	libwv.dll \
-	libwv.dll.a \
-	libwv.def
-
-all-local: libwv.dll
-
-wvdllbindir = $(bindir)
-wvdllbin_DATA = libwv.dll
-
-wvdlllibdir = $(libdir)
-wvdlllib_DATA = libwv.dll.a
-
-DLLWRAP_FLAGS = --as=$(AS) --export-all --driver-name $(CC) -s
-libwv_dll_OBJECTS = $(shell echo $(libwv_la_OBJECTS) | sed 's,\.l,\.,g')
-libwv.dll: $(libwv_dll_OBJECTS)
-	$(DLLWRAP) $(DLLWRAP_FLAGS) \
-	--output-def libwv.def --implib libwv.dll.a \
-	-o $@ $(libwv_dll_OBJECTS) \
-	$(DEPS_LIBS)
-endif
 
