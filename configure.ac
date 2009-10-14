@@ -117,7 +117,6 @@ else
   dllwrap=${host}-"dllwrap"
 fi
 AC_PATH_PROG(DLLWRAP, $dllwrap)
-AM_CONDITIONAL([LINK_WIN32_DLL], [test "$link_win32_dll" = "yes"])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 
