@@ -500,7 +500,7 @@ wvApplySprmFromBucket (wvVersion ver, U16 sprm, PAP * apap, CHP * achp,
 	  break;
       case sprmPItap:
 		 apap->fInTable =bread_32ubit (pointer, pos); /*  Need to introduce apap->fInTableW97? */ 
-	     apap->fTtp++;  /* this is probably wrong, but currently needed for bug #11433 */
+		/* apap->fTtp++;   this line fixed bug #11433 but caused #12476 */
 	  break;
 	  /*End of PAP */
 
