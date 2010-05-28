@@ -85,7 +85,7 @@ wvGetRowTap (wvParseStruct * ps, PAP * dpap, U32 para_intervals,
 	  wvAssembleSimplePAP (ver, &apap, para_fcLim, &para_fkp, ps);
 	  i = para_fcLim;
       }
-    while (apap.fTtp == 0);
+    while ((apap.fTtp == 0) && apap.fInTable); /* placing '&& apap.fInTable' here fixes #11433. I can't find any regressions */
 
     wvTrace (("fTtp is %d\n", apap.fTtp));
 
