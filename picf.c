@@ -395,7 +395,7 @@ U32 PutWord8Structs(MSOFBH *bse_pic_amsofbh, U8* buf, size_t size)
 	opt_amsofbh.ver=0;
 	opt_amsofbh.inst=0;
 	opt_amsofbh.fbt = msofbtOPT;
-	opt_amsofbh.cbLength = sizeof(FOPTE);
+	opt_amsofbh.cbLength = 12; /* 2*6 see wvPutFOPTEArray */
 	
 	/*OPT*/
 	fopte = (FOPTE *) wvMalloc (sizeof (FOPTE) * 2);
@@ -415,7 +415,7 @@ U32 PutWord8Structs(MSOFBH *bse_pic_amsofbh, U8* buf, size_t size)
 	
 	/*Write Data*/
 	/*Container amsofbh*/
-	count+=wvPutMSOFBH(&amsofbh, fd); 
+	count+=wvPutMSOFBH(&amsofbh, fd);
 	
 	/*OPT amsofbh*/
 	count+=wvPutMSOFBH(&opt_amsofbh, fd);
