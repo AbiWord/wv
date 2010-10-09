@@ -1,3 +1,7 @@
+1.2.9
+
+ - Restore binary compatibility again, 1.2.8 broke it (Fridrich Strba)
+
 1.2.8
 
  - Fix bug 10025: Segfault trying to parse certain word documents (Jean Brefort)
