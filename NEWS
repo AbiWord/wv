@@ -1,3 +1,11 @@
+1.2.8
+
+ - Fix bug 10025: Segfault trying to parse certain word documents (Jean Brefort)
+ - Fix bug 12746: Tables not imported from MS Word documents (Martin Sevior)
+ - Fix Bug 11433 wvWare hangs on this seemingly blank word doc (Martin Sevior)
+ - Buildfix: Remove unused LINK_WIN32_DLL check (Fridrich Strba)
+ - Buildfix: link with -no-undefined (Fridrich Strba)
+
 1.2.7 
 
   - Bug 12353: Regression: newlines not imported anymore (Robert Wilhelm)
