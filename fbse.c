@@ -155,6 +155,7 @@ wvGetBitmap (BitmapBlip * abm, MSOFBH * amsofbh, wvStream * fd)
     U32 i, count;
     char extra = 0;
     wvStream * stm = NULL;
+	char *tmp = NULL;
     wvTrace (("starting bitmap at %x\n", wvStream_tell (fd)));
     for (i = 0; i < 16; i++)
 	abm->m_rgbUid[i] = read_8ubit (fd);
@@ -202,7 +203,7 @@ wvGetBitmap (BitmapBlip * abm, MSOFBH * amsofbh, wvStream * fd)
       return 0;
     }
 
-    char *tmp = wvMalloc( amsofbh->cbLength - count);
+    tmp = wvMalloc( amsofbh->cbLength - count);
     if (!tmp) {
       abm->m_pvBits = NULL;
       return 0;
