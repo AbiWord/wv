@@ -266,7 +266,7 @@ wvGetSTD (STD * item, U16 baselen, U16 fixedlen, wvStream * fd)
 		if ((size_t) -1 != g_iconv (conv, &tmp2, &insz, &tmp, &sz)) {
 		  while ((b + sizeof(buf) - sz + 1) >= allocName) {
 		    allocName *=  2;
-		    item->xstzName = (char *) realloc(item->xstzName, allocName);
+		    item->xstzName = (char *) g_realloc(item->xstzName, allocName);
 		  }
 		  if (sz) {
 		    *tmp = 0;
