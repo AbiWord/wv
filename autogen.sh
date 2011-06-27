@@ -34,7 +34,16 @@ aclocal $ACLOCAL_FLAGS || {
     exit 1
 }
 
-libtoolize --force --copy || {
+libtoolize=""
+for found_lib in libtoolize, glibtoolize ; do
+    $found_lib --version > /dev/null 2>&1
+    if [ $? = 0 ]; then
+        libtoolize=$found_lib
+        break
+    fi
+done
+
+$libtoolize --force --copy || {
     echo "error: libtoolize failed"
     exit 1
 }
