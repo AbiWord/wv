@@ -35,7 +35,7 @@ aclocal $ACLOCAL_FLAGS || {
 }
 
 libtoolize=""
-for found_lib in libtoolize, glibtoolize ; do
+for found_lib in libtoolize glibtoolize ; do
     $found_lib --version > /dev/null 2>&1
     if [ $? = 0 ]; then
         libtoolize=$found_lib
