@@ -17,6 +17,7 @@ wvPS
 wvText
 wvWml
 GNUmakefile.in
+GNUmakefile
 autom4te.cache
 configure
 depcomp
@@ -24,3 +25,7 @@ ltmain.sh
 missing
 stamp-h.in
 *.swp
+*.o
+*.lo
+.deps
+.libs
