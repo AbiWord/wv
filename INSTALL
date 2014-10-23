@@ -21,8 +21,6 @@ libwv
 
    KNOWN ISSUES with the *new* build system
 
-   * In wvware CVS the autogen.sh is non-executable - I'm not sure how to
-     fix this. However, a quick "chmod 755 autogen.sh" will fix that.
    * There is a bug in automake-1.5 and automake-1.5b that prevents
      dependency generation with GNUmakefile.am. This bug has been fixed in
      automake-1.5d which is (or was for a while) available from alpha.gnu.org
