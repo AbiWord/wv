@@ -1,5 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([wv],[1.2.9],[wvware-devel@sourceforge.net])
+AC_CONFIG_MACRO_DIR([m4])
 m4_ifndef([AM_SILENT_RULES], [m4_define([AM_SILENT_RULES],[])])
 AM_SILENT_RULES([yes])
 
@@ -380,6 +381,14 @@ AC_CHECK_FUNCS(memcpy)
 dnl check for mmap
 dnl 
 AC_FUNC_MMAP
+
+AC_ARG_ENABLE(asan,[  --enable-asan    Turn on address sanitizer],[
+    AX_CFLAGS_GCC_OPTION([-fsanitize=address -fno-omit-frame-pointer])
+]
+,
+[
+
+])
 
 AH_BOTTOM([
 #ifdef HAVE_UNISTD_H
